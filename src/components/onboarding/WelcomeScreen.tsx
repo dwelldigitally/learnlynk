@@ -4,17 +4,29 @@ import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Chatbot from "../Chatbot";
+import { useAuth } from "@clerk/clerk-react";
 
 const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const { isSignedIn } = useAuth();
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
   const handleGetStarted = () => {
+    // Navigate to step 2
     navigate("/?step=2");
+    // Force page reload to ensure state is updated
+    window.location.href = "/?step=2";
+  };
+
+  // Function to handle direct navigation to any step
+  const navigateToStep = (step: number) => {
+    navigate(`/?step=${step}`);
+    // Force page reload to ensure state is updated
+    window.location.href = `/?step=${step}`;
   };
 
   const faqs = [
@@ -100,11 +112,39 @@ const WelcomeScreen: React.FC = () => {
             <a href="#faq" className="text-gray-600 hover:text-saas-blue font-medium">FAQ</a>
           </nav>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" className="hidden md:flex">Log in</Button>
-            <Button className="bg-saas-blue hover:bg-blue-600">Sign up</Button>
+            <Button variant="outline" className="hidden md:flex" onClick={() => navigate('/sign-in')}>Log in</Button>
+            <Button className="bg-saas-blue hover:bg-blue-600" onClick={() => navigate('/sign-up')}>Sign up</Button>
           </div>
         </div>
       </header>
+
+      {/* Manual Navigation Buttons */}
+      <div className="fixed right-6 top-24 z-50 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <div className="font-semibold mb-2 text-sm">Navigate Directly:</div>
+        <div className="space-y-2">
+          <Button 
+            onClick={() => navigateToStep(2)} 
+            className="w-full bg-saas-blue text-white hover:bg-blue-600"
+            size="sm"
+          >
+            Go to Step 2
+          </Button>
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Button 
+              key={i+3}
+              onClick={() => navigateToStep(i+3)} 
+              variant="outline"
+              className="w-full text-xs"
+              size="sm"
+            >
+              Step {i+3}
+            </Button>
+          ))}
+        </div>
+        <div className="mt-3 text-xs text-gray-500">
+          {isSignedIn ? "You are signed in" : "Please sign in first"}
+        </div>
+      </div>
 
       {/* Hero Section */}
       <section className="pt-16 pb-20 bg-gradient-to-b from-gray-50 to-white">

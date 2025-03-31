@@ -25,6 +25,16 @@ const OnboardingContainer: React.FC = () => {
   const { toast } = useToast();
   const { isSignedIn } = useAuth();
 
+  // Update state when URL changes
+  useEffect(() => {
+    const newStepParam = new URLSearchParams(location.search).get('step');
+    if (newStepParam) {
+      setCurrentStep(parseInt(newStepParam));
+    } else {
+      setCurrentStep(1);
+    }
+  }, [location.search]);
+
   // Update URL when step changes
   useEffect(() => {
     if (currentStep === 1) {

@@ -39,10 +39,14 @@ const OnboardingContainer: React.FC = () => {
     }
   };
 
+  // For the welcome screen (step 1), we render it directly without the OnboardingLayout
+  if (currentStep === 1) {
+    return <WelcomeScreen />;
+  }
+
+  // For all other steps, render with the OnboardingLayout
   const renderStep = () => {
     switch (currentStep) {
-      case 1:
-        return <WelcomeScreen />;
       case 2:
         return <ConnectCRMScreen />;
       case 3:
@@ -60,7 +64,7 @@ const OnboardingContainer: React.FC = () => {
       case 9:
         return <DashboardPreviewScreen />;
       default:
-        return <WelcomeScreen />;
+        return <ConnectCRMScreen />;
     }
   };
 
@@ -73,8 +77,8 @@ const OnboardingContainer: React.FC = () => {
 
   return (
     <OnboardingLayout
-      currentStep={currentStep}
-      totalSteps={totalSteps}
+      currentStep={currentStep - 1}  // Adjust the step number since we're bypassing step 1
+      totalSteps={totalSteps - 1}    // Adjust the total steps count
       onNext={handleNext}
       onPrevious={handlePrevious}
       nextText={getNextButtonText()}

@@ -21,6 +21,7 @@ const OnboardingContainer: React.FC = () => {
   const stepParam = searchParams.get('step');
   
   const [currentStep, setCurrentStep] = useState(stepParam ? parseInt(stepParam) : 1);
+  const [bypassHubspot, setBypassHubspot] = useState(false);
   const totalSteps = 9;
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
@@ -30,7 +31,7 @@ const OnboardingContainer: React.FC = () => {
     const storedKey = hubspotService.getStoredApiKey();
     if (storedKey && currentStep > 2) {
       hubspotService.testConnection().then(valid => {
-        if (!valid && currentStep > 2) {
+        if (!valid && currentStep > 2 && !bypassHubspot) {
           toast.error("HubSpot connection lost", {
             description: "Please reconnect to continue."
           });
@@ -61,7 +62,7 @@ const OnboardingContainer: React.FC = () => {
 
   const handleNext = async () => {
     // If moving past the HubSpot connection step, validate connection
-    if (currentStep === 2) {
+    if (currentStep === 2 && !bypassHubspot) {
       const isConnected = await hubspotService.testConnection();
       if (!isConnected) {
         toast.error("Please connect to HubSpot before proceeding", {
@@ -89,6 +90,13 @@ const OnboardingContainer: React.FC = () => {
       window.scrollTo(0, 0);
     }
   };
+  
+  const handleBypassHubspot = () => {
+    setBypassHubspot(true);
+    // Use a demo API key to fake a connection
+    hubspotService.setApiKey("demo-key-for-testing");
+    handleNext();
+  };
 
   // For the welcome screen (step 1), we render it directly without the OnboardingLayout
   if (currentStep === 1) {
@@ -99,7 +107,7 @@ const OnboardingContainer: React.FC = () => {
   const renderStep = () => {
     switch (currentStep) {
       case 2:
-        return <ConnectCRMScreen />;
+        return <ConnectCRMScreen onBypass={handleBypassHubspot} />;
       case 3:
         return <PropertyImportScreen />;
       case 4:
@@ -115,7 +123,7 @@ const OnboardingContainer: React.FC = () => {
       case 9:
         return <DashboardPreviewScreen />;
       default:
-        return <ConnectCRMScreen />;
+        return <ConnectCRMScreen onBypass={handleBypassHubspot} />;
     }
   };
 

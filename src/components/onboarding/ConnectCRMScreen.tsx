@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 import hubspotService from "@/services/hubspotService";
 
-const ConnectCRMScreen = () => {
+const ConnectCRMScreen = ({ onBypass }: { onBypass?: () => void }) => {
   const [apiKey, setApiKey] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
@@ -130,7 +130,20 @@ const ConnectCRMScreen = () => {
           </div>
         )}
         
-        <div className="text-center">
+        {/* Demo bypass button */}
+        {onBypass && (
+          <div className="mt-4 text-center">
+            <Button 
+              variant="outline" 
+              className="border-dashed border-gray-300 text-gray-500 hover:text-saas-blue"
+              onClick={onBypass}
+            >
+              Skip for demo purposes <ArrowRight className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        )}
+        
+        <div className="text-center mt-4">
           <div className="text-gray-500 text-sm mb-4">
             Don't have your API key?
           </div>

@@ -34,7 +34,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">
             <img 
-              src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+              src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" 
               alt="Learnlynk Logo" 
               className="h-8"
               onClick={() => navigate('/')}

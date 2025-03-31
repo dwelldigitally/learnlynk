@@ -12,6 +12,8 @@ import PricingScreen from "./onboarding/PricingScreen";
 import DashboardPreviewScreen from "./onboarding/DashboardPreviewScreen";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import hubspotService from "@/services/hubspotService";
 
 const OnboardingContainer: React.FC = () => {
   const location = useLocation();
@@ -21,7 +23,22 @@ const OnboardingContainer: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(stepParam ? parseInt(stepParam) : 1);
   const totalSteps = 9;
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
+
+  // Check HubSpot connection on mount
+  useEffect(() => {
+    const storedKey = hubspotService.getStoredApiKey();
+    if (storedKey && currentStep > 2) {
+      hubspotService.testConnection().then(valid => {
+        if (!valid && currentStep > 2) {
+          toast.error("HubSpot connection lost", {
+            description: "Please reconnect to continue."
+          });
+          navigate("/?step=2", { replace: true });
+        }
+      });
+    }
+  }, []);
 
   // Update state when URL changes
   useEffect(() => {
@@ -42,12 +59,23 @@ const OnboardingContainer: React.FC = () => {
     }
   }, [currentStep, navigate]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // If moving past the HubSpot connection step, validate connection
+    if (currentStep === 2) {
+      const isConnected = await hubspotService.testConnection();
+      if (!isConnected) {
+        toast.error("Please connect to HubSpot before proceeding", {
+          description: "A valid HubSpot connection is required for the next steps."
+        });
+        return;
+      }
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
       window.scrollTo(0, 0);
     } else {
-      toast({
+      uiToast({
         title: "Onboarding Complete",
         description: "You've completed the onboarding process!",
       });
@@ -94,6 +122,13 @@ const OnboardingContainer: React.FC = () => {
   const getNextButtonText = () => {
     if (currentStep === totalSteps) {
       return "Complete Setup";
+    }
+    // Customize the button text based on the current step
+    if (currentStep === 2) {
+      return "Continue to Data Import";
+    }
+    if (currentStep === 3) {
+      return "Continue to Team Setup";
     }
     return "Next";
   };

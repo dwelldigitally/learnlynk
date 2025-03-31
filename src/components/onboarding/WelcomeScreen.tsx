@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,8 +32,8 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
       answer: "Learnlynk analyzes historical data to match leads with the most suitable sales representatives based on their strengths, experience, and past performance patterns. This intelligent matching increases conversion rates and overall team efficiency."
     },
     {
-      question: "How does Learnlynk integrate with my CRM?",
-      answer: "Learnlynk seamlessly connects with popular CRMs like Salesforce, HubSpot, and Zoho through our secure API. The setup process takes minutes, and our system will start optimizing your lead distribution immediately."
+      question: "How does Learnlynk integrate with HubSpot?",
+      answer: "Learnlynk seamlessly connects with HubSpot through our secure API. The setup process takes minutes, and our system will start optimizing your lead distribution immediately after importing your HubSpot data."
     },
     {
       question: "Does Learnlynk support custom lead routing rules?",
@@ -40,7 +41,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
     },
     {
       question: "How long does it take to implement Learnlynk?",
-      answer: "Most teams are up and running with Learnlynk in less than 24 hours. Our onboarding process guides you through CRM integration, team setup, and initial configuration in a step-by-step process."
+      answer: "Most teams are up and running with Learnlynk in less than 24 hours. Our onboarding process guides you through HubSpot integration, team setup, and initial configuration in a step-by-step process."
     },
     {
       question: "What kind of support does Learnlynk offer?",
@@ -54,14 +55,14 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
 
   const integrations = [
     {
-      name: "Salesforce",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg",
-      description: "Connect your entire sales workflow with our native Salesforce integration"
+      name: "HubSpot",
+      logo: "https://www.hubspot.com/hubfs/assets/hubspot.com/style-guide/brand-guidelines/guidelines_the-logo.svg",
+      description: "Native HubSpot integration for seamless lead management and distribution"
     },
     {
-      name: "HubSpot",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/HubSpot_Logo.svg/1200px-HubSpot_Logo.svg.png",
-      description: "Seamlessly integrate with HubSpot CRM for optimized lead management"
+      name: "Salesforce",
+      logo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg",
+      description: "Connect your entire sales workflow with our Salesforce integration"
     },
     {
       name: "Zoho",
@@ -92,7 +93,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center">
             <img 
-              src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+              src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" 
               alt="Learnlynk Logo" 
               className="h-8"
             />
@@ -115,7 +116,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
             className="w-full bg-saas-blue text-white hover:bg-blue-600"
             size="sm"
           >
-            Go to Step 2
+            HubSpot Integration
           </Button>
           {Array.from({ length: 8 }).map((_, i) => (
             <Button 
@@ -137,10 +138,10 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="md:w-1/2 max-w-xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-gray-900">
-                Revolutionizing <span className="text-saas-blue">Sales Lead</span> Distribution
+                Revolutionizing <span className="text-saas-blue">Sales Lead</span> Distribution with HubSpot
               </h1>
               <p className="mt-6 text-xl text-gray-600">
-                Our AI-powered system matches leads with the perfect sales rep, increasing conversion rates by 35% and boosting team performance.
+                Our AI-powered system integrates with HubSpot to match leads with the perfect sales rep, increasing conversion rates by 35% and boosting team performance.
               </p>
               
               {/* Prominent CTA Button */}
@@ -149,7 +150,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                   onClick={onGetStarted}
                   className="bg-saas-blue hover:bg-blue-600 text-lg px-8 py-6 animate-pulse"
                 >
-                  Start Onboarding <ArrowRight className="ml-2 h-5 w-5" />
+                  Start HubSpot Integration <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button variant="outline" className="text-lg px-8 py-6">
                   Watch Demo
@@ -197,7 +198,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           onClick={onGetStarted}
           className="bg-saas-blue hover:bg-blue-600 text-white px-6 py-6 rounded-full shadow-lg flex items-center space-x-2 text-lg"
         >
-          <span>Get Started</span>
+          <span>Connect HubSpot</span>
           <ArrowRight className="h-5 w-5" />
         </Button>
       </div>
@@ -230,9 +231,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
             {/* Feature 1 */}
             <div className="bg-gray-100 rounded-xl overflow-hidden">
               <div className="p-8">
-                <h3 className="text-2xl font-bold mb-4">CRM Connectivity</h3>
+                <h3 className="text-2xl font-bold mb-4">HubSpot Integration</h3>
                 <p className="text-gray-600 mb-6">
-                  Seamlessly connects with major CRMs to import your leads and sales data for AI-powered distribution.
+                  Seamlessly connects with HubSpot to import your leads and sales data for AI-powered distribution.
                 </p>
                 <Button variant="outline" className="bg-white">
                   Learn more
@@ -240,7 +241,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
               </div>
               <img 
                 src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600" 
-                alt="CRM Integration" 
+                alt="HubSpot Integration" 
                 className="w-full h-64 object-cover"
               />
             </div>
@@ -371,13 +372,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
             Get started with Learnlynk today
           </h2>
           <p className="text-xl text-white/80 max-w-2xl mx-auto mb-8">
-            Boost conversions, optimize performance, and increase revenue.
+            Connect your HubSpot account, boost conversions, and increase revenue.
           </p>
           <Button 
             onClick={onGetStarted}
             className="bg-white text-saas-blue hover:bg-gray-100 text-lg px-8 py-6"
           >
-            Start Now <ArrowRight className="ml-2 h-5 w-5" />
+            Connect HubSpot <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           <p className="mt-4 text-white/80">
             No sign-up required. Try all features instantly.
@@ -391,7 +392,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div className="col-span-2">
               <img 
-                src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+                src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" 
                 alt="Learnlynk Logo" 
                 className="h-8 mb-4"
               />

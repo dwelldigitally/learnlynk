@@ -2,17 +2,20 @@
 import React, { useState } from "react";
 import OnboardingLayout from "./OnboardingLayout";
 import WelcomeScreen from "./onboarding/WelcomeScreen";
-import FeatureComparisonScreen from "./onboarding/FeatureComparisonScreen";
-import IntegrationScreen from "./onboarding/IntegrationScreen";
-import TeamSetupScreen from "./onboarding/TeamSetupScreen";
+import ConnectCRMScreen from "./onboarding/ConnectCRMScreen";
+import PropertyImportScreen from "./onboarding/PropertyImportScreen";
+import TeamConfigScreen from "./onboarding/TeamConfigScreen";
+import ConversionFactorsScreen from "./onboarding/ConversionFactorsScreen";
+import ProcessingScreen from "./onboarding/ProcessingScreen";
 import ResultsScreen from "./onboarding/ResultsScreen";
-import CompletionScreen from "./onboarding/CompletionScreen";
+import PricingScreen from "./onboarding/PricingScreen";
+import DashboardPreviewScreen from "./onboarding/DashboardPreviewScreen";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const OnboardingContainer: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 6;
+  const totalSteps = 9;
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -41,15 +44,21 @@ const OnboardingContainer: React.FC = () => {
       case 1:
         return <WelcomeScreen />;
       case 2:
-        return <FeatureComparisonScreen />;
+        return <ConnectCRMScreen />;
       case 3:
-        return <IntegrationScreen />;
+        return <PropertyImportScreen />;
       case 4:
-        return <TeamSetupScreen />;
+        return <TeamConfigScreen />;
       case 5:
-        return <ResultsScreen />;
+        return <ConversionFactorsScreen />;
       case 6:
-        return <CompletionScreen />;
+        return <ProcessingScreen />;
+      case 7:
+        return <ResultsScreen />;
+      case 8:
+        return <PricingScreen />;
+      case 9:
+        return <DashboardPreviewScreen />;
       default:
         return <WelcomeScreen />;
     }

@@ -2,6 +2,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { UserButton } from "@clerk/clerk-react";
 
 interface OnboardingLayoutProps {
   children: React.ReactNode;
@@ -24,18 +26,26 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   nextText = "Next",
   previousText = "Back",
 }) => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-saas-gray-light flex items-center justify-center p-4">
       <div className="onboarding-card animate-fade-in">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">
-            <div className="h-8 w-8 bg-saas-blue rounded-lg flex items-center justify-center">
-              <span className="text-white font-medium">AI</span>
-            </div>
-            <span className="font-bold text-lg">adaptify</span>
+            <img 
+              src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+              alt="Learnlynk Logo" 
+              className="h-8"
+              onClick={() => navigate('/')}
+              style={{ cursor: 'pointer' }}
+            />
           </div>
-          <div className="text-saas-gray-medium text-sm">
-            Step {currentStep} of {totalSteps}
+          <div className="flex items-center gap-4">
+            <div className="text-saas-gray-medium text-sm">
+              Step {currentStep} of {totalSteps}
+            </div>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
         

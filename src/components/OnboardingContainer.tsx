@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import OnboardingLayout from "./OnboardingLayout";
 import WelcomeScreen from "./onboarding/WelcomeScreen";
 import ConnectCRMScreen from "./onboarding/ConnectCRMScreen";
@@ -10,14 +10,27 @@ import ProcessingScreen from "./onboarding/ProcessingScreen";
 import ResultsScreen from "./onboarding/ResultsScreen";
 import PricingScreen from "./onboarding/PricingScreen";
 import DashboardPreviewScreen from "./onboarding/DashboardPreviewScreen";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 const OnboardingContainer: React.FC = () => {
-  const [currentStep, setCurrentStep] = useState(1);
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const stepParam = searchParams.get('step');
+  
+  const [currentStep, setCurrentStep] = useState(stepParam ? parseInt(stepParam) : 1);
   const totalSteps = 9;
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Update URL when step changes
+  useEffect(() => {
+    if (currentStep === 1) {
+      navigate('/', { replace: true });
+    } else {
+      navigate(`/?step=${currentStep}`, { replace: true });
+    }
+  }, [currentStep, navigate]);
 
   const handleNext = () => {
     if (currentStep < totalSteps) {

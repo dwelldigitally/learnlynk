@@ -38,11 +38,10 @@ const ConnectCRMScreen = () => {
     setError("");
 
     try {
-      // Simulate API connection
-      const isValid = await hubspotService.validateApiKey(apiKey);
+      // Test connection with the provided API key
+      const isValid = await hubspotService.setApiKey(apiKey);
       
       if (isValid) {
-        hubspotService.storeApiKey(apiKey);
         setIsConnected(true);
         uiToast({
           title: "Successfully connected to HubSpot",
@@ -60,7 +59,9 @@ const ConnectCRMScreen = () => {
   };
 
   const handleDisconnect = () => {
-    hubspotService.clearApiKey();
+    // Since there's no clearApiKey method, we'll set the API key to null
+    // and update our state to reflect the disconnection
+    hubspotService.setApiKey("");
     setIsConnected(false);
     setApiKey("");
     toast.success("Disconnected from HubSpot");

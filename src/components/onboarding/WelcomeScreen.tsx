@@ -3,94 +3,75 @@ import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import Chatbot from "../Chatbot";
-
 interface WelcomeScreenProps {
   onGetStarted: () => void;
 }
-
-const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
+const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
+  onGetStarted
+}) => {
   const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  const faqs = [
-    {
-      question: "What does Learnlynk include?",
-      answer: "Learnlynk includes AI-powered lead distribution, team performance analytics, integration with major CRMs, custom reporting, and ROI tracking. Our platform helps sales teams increase conversion rates by 35% on average."
-    },
-    {
-      question: "How does Learnlynk help improve sales performance?",
-      answer: "Learnlynk analyzes historical data to match leads with the most suitable sales representatives based on their strengths, experience, and past performance patterns. This intelligent matching increases conversion rates and overall team efficiency."
-    },
-    {
-      question: "How does Learnlynk integrate with HubSpot?",
-      answer: "Learnlynk seamlessly connects with HubSpot through our secure API. The setup process takes minutes, and our system will start optimizing your lead distribution immediately after importing your HubSpot data."
-    },
-    {
-      question: "Does Learnlynk support custom lead routing rules?",
-      answer: "Yes, Learnlynk allows you to set custom rules and exceptions to the AI-based distribution. You can create special rules for specific lead sources, territories, or high-value prospects."
-    },
-    {
-      question: "How long does it take to implement Learnlynk?",
-      answer: "Most teams are up and running with Learnlynk in less than 24 hours. Our onboarding process guides you through HubSpot integration, team setup, and initial configuration in a step-by-step process."
-    },
-    {
-      question: "What kind of support does Learnlynk offer?",
-      answer: "Learnlynk provides 24/7 customer support via chat, email, and phone. All plans include access to our knowledge base, video tutorials, and regular webinars on maximizing your platform usage."
-    },
-    {
-      question: "Does Learnlynk offer a free trial?",
-      answer: "Yes, Learnlynk offers a 14-day free trial with full access to all features. No credit card is required to start your trial. You can upgrade to a paid plan at any time during or after your trial period."
-    }
-  ];
-
-  const integrations = [
-    {
-      name: "HubSpot",
-      logo: "https://www.hubspot.com/hubfs/assets/hubspot.com/style-guide/brand-guidelines/guidelines_the-logo.svg",
-      description: "Native HubSpot integration for seamless lead management and distribution"
-    },
-    {
-      name: "Salesforce",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg",
-      description: "Connect your entire sales workflow with our Salesforce integration"
-    },
-    {
-      name: "Zoho",
-      logo: "https://www.zohowebstatic.com/sites/default/files/ogimage/zoho-logo.png",
-      description: "Use our Zoho integration to distribute leads intelligently across your team"
-    },
-    {
-      name: "Pipedrive",
-      logo: "https://seeklogo.com/images/P/pipedrive-logo-8153D68A59-seeklogo.com.png",
-      description: "Enhance your Pipedrive workflow with AI-powered lead assignments"
-    },
-    {
-      name: "Microsoft Dynamics",
-      logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Microsoft_Dynamics_365_logo.svg/1200px-Microsoft_Dynamics_365_logo.svg.png",
-      description: "Boost your team's efficiency with our Microsoft Dynamics 365 integration"
-    },
-    {
-      name: "Custom CRM",
-      logo: "https://cdn-icons-png.flaticon.com/512/5956/5956592.png",
-      description: "Connect virtually any CRM using our robust API and webhooks"
-    },
-  ];
-
-  return (
-    <div className="min-h-screen bg-white flex flex-col">
+  // Function to handle direct navigation to any step
+  const navigateToStep = (step: number) => {
+    navigate(`/?step=${step}`);
+  };
+  const faqs = [{
+    question: "What does Learnlynk include?",
+    answer: "Learnlynk includes AI-powered lead distribution, team performance analytics, integration with major CRMs, custom reporting, and ROI tracking. Our platform helps sales teams increase conversion rates by 35% on average."
+  }, {
+    question: "How does Learnlynk help improve sales performance?",
+    answer: "Learnlynk analyzes historical data to match leads with the most suitable sales representatives based on their strengths, experience, and past performance patterns. This intelligent matching increases conversion rates and overall team efficiency."
+  }, {
+    question: "How does Learnlynk integrate with HubSpot?",
+    answer: "Learnlynk seamlessly connects with HubSpot through our secure API. The setup process takes minutes, and our system will start optimizing your lead distribution immediately after importing your HubSpot data."
+  }, {
+    question: "Does Learnlynk support custom lead routing rules?",
+    answer: "Yes, Learnlynk allows you to set custom rules and exceptions to the AI-based distribution. You can create special rules for specific lead sources, territories, or high-value prospects."
+  }, {
+    question: "How long does it take to implement Learnlynk?",
+    answer: "Most teams are up and running with Learnlynk in less than 24 hours. Our onboarding process guides you through HubSpot integration, team setup, and initial configuration in a step-by-step process."
+  }, {
+    question: "What kind of support does Learnlynk offer?",
+    answer: "Learnlynk provides 24/7 customer support via chat, email, and phone. All plans include access to our knowledge base, video tutorials, and regular webinars on maximizing your platform usage."
+  }, {
+    question: "Does Learnlynk offer a free trial?",
+    answer: "Yes, Learnlynk offers a 14-day free trial with full access to all features. No credit card is required to start your trial. You can upgrade to a paid plan at any time during or after your trial period."
+  }];
+  const integrations = [{
+    name: "HubSpot",
+    logo: "https://www.hubspot.com/hubfs/assets/hubspot.com/style-guide/brand-guidelines/guidelines_the-logo.svg",
+    description: "Native HubSpot integration for seamless lead management and distribution"
+  }, {
+    name: "Salesforce",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg",
+    description: "Connect your entire sales workflow with our Salesforce integration"
+  }, {
+    name: "Zoho",
+    logo: "https://www.zohowebstatic.com/sites/default/files/ogimage/zoho-logo.png",
+    description: "Use our Zoho integration to distribute leads intelligently across your team"
+  }, {
+    name: "Pipedrive",
+    logo: "https://seeklogo.com/images/P/pipedrive-logo-8153D68A59-seeklogo.com.png",
+    description: "Enhance your Pipedrive workflow with AI-powered lead assignments"
+  }, {
+    name: "Microsoft Dynamics",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Microsoft_Dynamics_365_logo.svg/1200px-Microsoft_Dynamics_365_logo.svg.png",
+    description: "Boost your team's efficiency with our Microsoft Dynamics 365 integration"
+  }, {
+    name: "Custom CRM",
+    logo: "https://cdn-icons-png.flaticon.com/512/5956/5956592.png",
+    description: "Connect virtually any CRM using our robust API and webhooks"
+  }];
+  return <div className="min-h-screen bg-white flex flex-col">
       {/* Header / Navigation */}
       <header className="border-b border-gray-100 py-4">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div className="flex items-center">
-            <img 
-              src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" 
-              alt="Learnlynk Logo" 
-              className="h-8"
-            />
+            <img src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" alt="Learnlynk Logo" className="h-8" />
           </div>
           <nav className="hidden md:flex items-center space-x-8">
             <a href="#features" className="text-gray-600 hover:text-saas-blue font-medium">Features</a>
@@ -100,6 +81,21 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           </nav>
         </div>
       </header>
+
+      {/* Direct Navigation Panel */}
+      <div className="fixed right-6 top-24 z-50 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
+        <div className="font-semibold mb-2 text-sm">Navigate Directly:</div>
+        <div className="space-y-2">
+          <Button onClick={() => navigateToStep(2)} className="w-full bg-saas-blue text-white hover:bg-blue-600" size="sm">
+            HubSpot Integration
+          </Button>
+          {Array.from({
+          length: 8
+        }).map((_, i) => <Button key={i + 3} onClick={() => navigateToStep(i + 3)} variant="outline" className="w-full text-xs" size="sm">
+              Step {i + 3}
+            </Button>)}
+        </div>
+      </div>
 
       {/* Hero Section with Prominent CTA */}
       <section className="pt-16 pb-20 bg-gradient-to-b from-gray-50 to-white">
@@ -115,10 +111,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
               
               {/* Prominent CTA Button */}
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={onGetStarted}
-                  className="bg-saas-blue hover:bg-blue-600 text-lg px-8 py-6 animate-pulse"
-                >
+                <Button onClick={onGetStarted} className="bg-saas-blue hover:bg-blue-600 text-lg px-8 py-6 animate-pulse">
                   Start HubSpot Integration <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button variant="outline" className="text-lg px-8 py-6">
@@ -135,11 +128,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                 <div className="absolute -bottom-10 -right-10 w-36 h-36 bg-green-100 rounded-full z-0"></div>
                 
                 <div className="relative z-10 bg-white p-1 rounded-xl shadow-xl">
-                  <img 
-                    src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800" 
-                    alt="Sales team success" 
-                    className="rounded-lg w-full"
-                  />
+                  <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800" alt="Sales team success" className="rounded-lg w-full" />
                 </div>
                 
                 <div className="absolute top-1/4 -right-12 bg-white p-3 rounded-lg shadow-lg flex items-center gap-2 z-20">
@@ -163,10 +152,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
 
       {/* Floating Action Button */}
       <div className="fixed bottom-10 right-10 z-50">
-        <Button
-          onClick={onGetStarted}
-          className="bg-saas-blue hover:bg-blue-600 text-white px-6 py-6 rounded-full shadow-lg flex items-center space-x-2 text-lg"
-        >
+        <Button onClick={onGetStarted} className="bg-saas-blue hover:bg-blue-600 text-white px-6 py-6 rounded-full shadow-lg flex items-center space-x-2 text-lg">
           <span>Connect HubSpot</span>
           <ArrowRight className="h-5 w-5" />
         </Button>
@@ -177,11 +163,9 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
         <div className="container mx-auto px-4">
           <p className="text-center text-gray-500 mb-8">Trusted by industry leaders</p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16">
-            {["Microsoft", "Adobe", "Shopify", "Deloitte", "IBM"].map((company) => (
-              <div key={company} className="grayscale opacity-70 hover:opacity-100 transition-opacity">
+            {["Microsoft", "Adobe", "Shopify", "Deloitte", "IBM"].map(company => <div key={company} className="grayscale opacity-70 hover:opacity-100 transition-opacity">
                 <p className="text-xl font-bold">{company}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -191,7 +175,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">What Can Learnlynk Do?</h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="max-w-3xl mx-auto text-gray-800 text-base">
               Our intelligent platform uses AI to optimize your sales process, increase conversions, and give you valuable insights into your team's performance.
             </p>
           </div>
@@ -208,11 +192,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                   Learn more
                 </Button>
               </div>
-              <img 
-                src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600" 
-                alt="HubSpot Integration" 
-                className="w-full h-64 object-cover"
-              />
+              <img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=600" alt="HubSpot Integration" className="w-full h-64 object-cover" />
             </div>
 
             {/* Feature 2 */}
@@ -226,11 +206,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                   Learn more
                 </Button>
               </div>
-              <img 
-                src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600" 
-                alt="AI Lead Routing" 
-                className="w-full h-64 object-cover"
-              />
+              <img src="https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=600" alt="AI Lead Routing" className="w-full h-64 object-cover" />
             </div>
 
             {/* Feature 3 */}
@@ -244,11 +220,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                   Learn more
                 </Button>
               </div>
-              <img 
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600" 
-                alt="Performance Analytics" 
-                className="w-full h-64 object-cover"
-              />
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600" alt="Performance Analytics" className="w-full h-64 object-cover" />
             </div>
 
             {/* Feature 4 */}
@@ -262,11 +234,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                   Learn more
                 </Button>
               </div>
-              <img 
-                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600" 
-                alt="Analytics Dashboard" 
-                className="w-full h-64 object-cover"
-              />
+              <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600" alt="Analytics Dashboard" className="w-full h-64 object-cover" />
             </div>
           </div>
         </div>
@@ -278,26 +246,15 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           <h2 className="text-3xl md:text-4xl font-bold mb-12 text-center">Frequently Asked Questions</h2>
           
           <div className="space-y-4">
-            {faqs.map((faq, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <button
-                  onClick={() => toggleFaq(index)}
-                  className="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none"
-                >
+            {faqs.map((faq, index) => <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <button onClick={() => toggleFaq(index)} className="w-full px-6 py-4 text-left flex justify-between items-center focus:outline-none">
                   <span className="font-medium text-lg">{faq.question}</span>
-                  {openFaq === index ? (
-                    <ChevronUp className="h-5 w-5 text-gray-500" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5 text-gray-500" />
-                  )}
+                  {openFaq === index ? <ChevronUp className="h-5 w-5 text-gray-500" /> : <ChevronDown className="h-5 w-5 text-gray-500" />}
                 </button>
-                {openFaq === index && (
-                  <div className="px-6 pb-4">
+                {openFaq === index && <div className="px-6 pb-4">
                     <p className="text-gray-600">{faq.answer}</p>
-                  </div>
-                )}
-              </div>
-            ))}
+                  </div>}
+              </div>)}
           </div>
         </div>
       </section>
@@ -311,19 +268,13 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           </p>
           
           <div className="grid md:grid-cols-3 gap-6">
-            {integrations.map((integration, index) => (
-              <div key={index} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-md transition-shadow">
+            {integrations.map((integration, index) => <div key={index} className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-md transition-shadow">
                 <div className="h-12 w-12 mb-4 overflow-hidden">
-                  <img 
-                    src={integration.logo} 
-                    alt={integration.name} 
-                    className="h-full object-contain"
-                  />
+                  <img src={integration.logo} alt={integration.name} className="h-full object-contain" />
                 </div>
                 <h3 className="text-xl font-semibold mb-2">{integration.name}</h3>
                 <p className="text-gray-600">{integration.description}</p>
-              </div>
-            ))}
+              </div>)}
           </div>
           
           <div className="text-center mt-10">
@@ -343,10 +294,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
           <p className="text-xl text-white/80 max-w-2xl mx-auto mb-8">
             Connect your HubSpot account, boost conversions, and increase revenue.
           </p>
-          <Button 
-            onClick={onGetStarted}
-            className="bg-white text-saas-blue hover:bg-gray-100 text-lg px-8 py-6"
-          >
+          <Button onClick={onGetStarted} className="bg-white text-saas-blue hover:bg-gray-100 text-lg px-8 py-6">
             Connect HubSpot <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
           <p className="mt-4 text-white/80">
@@ -360,11 +308,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-8">
             <div className="col-span-2">
-              <img 
-                src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" 
-                alt="Learnlynk Logo" 
-                className="h-8 mb-4"
-              />
+              <img src="/lovable-uploads/b3f2384b-be58-4f06-8c20-a1cbc24a6ab2.png" alt="Learnlynk Logo" className="h-8 mb-4" />
               <p className="text-gray-600 mb-4 max-w-xs">
                 Transforming sales teams with AI-powered lead distribution and analytics.
               </p>
@@ -381,7 +325,7 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
                 </a>
                 <a href="#" className="text-gray-400 hover:text-saas-blue">
                   <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.504.344-1.857.182-.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.045-1.064.207-1.504.344-1.857.182-.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd"></path>
+                    <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.045-1.064.207-1.504.344-1.857.182-.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clipRule="evenodd"></path>
                   </svg>
                 </a>
                 <a href="#" className="text-gray-400 hover:text-saas-blue">
@@ -438,8 +382,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({ onGetStarted }) => {
 
       {/* Chatbot */}
       <Chatbot mode="homepage" />
-    </div>
-  );
+    </div>;
 };
-
 export default WelcomeScreen;

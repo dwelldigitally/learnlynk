@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { ArrowRight, Check, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -81,21 +82,6 @@ const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </nav>
         </div>
       </header>
-
-      {/* Direct Navigation Panel */}
-      <div className="fixed right-6 top-24 z-50 bg-white p-4 rounded-lg shadow-lg border border-gray-200">
-        <div className="font-semibold mb-2 text-sm">Navigate Directly:</div>
-        <div className="space-y-2">
-          <Button onClick={() => navigateToStep(2)} className="w-full bg-saas-blue text-white hover:bg-blue-600" size="sm">
-            HubSpot Integration
-          </Button>
-          {Array.from({
-          length: 8
-        }).map((_, i) => <Button key={i + 3} onClick={() => navigateToStep(i + 3)} variant="outline" className="w-full text-xs" size="sm">
-              Step {i + 3}
-            </Button>)}
-        </div>
-      </div>
 
       {/* Hero Section with Prominent CTA */}
       <section className="pt-16 pb-20 bg-gradient-to-b from-gray-50 to-white">

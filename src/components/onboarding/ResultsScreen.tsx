@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 const ResultsScreen: React.FC = () => {
   const revenueData = [
     { name: 'Current', value: 1650000 },
-    { name: 'With Adaptify', value: 1897500 },
+    { name: 'With Learnlynk', value: 1897500 },
   ];
   
   const recentLeads = [
@@ -55,7 +55,7 @@ const ResultsScreen: React.FC = () => {
                 <YAxis type="category" dataKey="name" />
                 <Tooltip 
                   formatter={(value) => [`$${(value).toLocaleString()}`, 'Revenue']}
-                  labelFormatter={(value) => value === 'Current' ? 'Current Revenue' : 'Projected with Adaptify'}
+                  labelFormatter={(value) => value === 'Current' ? 'Current Revenue' : 'Projected with Learnlynk'}
                 />
                 <Bar dataKey="value" fill="#4f46e5" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -103,7 +103,7 @@ const ResultsScreen: React.FC = () => {
             <span className="font-medium">$16,500,000</span>
           </div>
           <div className="flex justify-between items-center text-sm border-b border-gray-200 pb-2">
-            <span>Adaptify Annual Cost</span>
+            <span>Learnlynk Annual Cost</span>
             <span className="font-medium">$36,000</span>
           </div>
           <div className="flex justify-between items-center text-sm border-b border-gray-200 pb-2">

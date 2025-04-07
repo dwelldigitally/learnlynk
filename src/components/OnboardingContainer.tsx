@@ -7,7 +7,6 @@ import TeamConfigScreen from "./onboarding/TeamConfigScreen";
 import ConversionFactorsScreen from "./onboarding/ConversionFactorsScreen";
 import ProcessingScreen from "./onboarding/ProcessingScreen";
 import ResultsScreen from "./onboarding/ResultsScreen";
-import PricingScreen from "./onboarding/PricingScreen";
 import IntegrationChoiceScreen from "./onboarding/IntegrationChoiceScreen";
 import OrganizationSetupScreen from "./onboarding/OrganizationSetupScreen";
 import HubSpotInstallScreen from "./onboarding/HubSpotInstallScreen";
@@ -58,7 +57,13 @@ const OnboardingContainer: React.FC = () => {
     }
 
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
+      // If we're in step 2 and HubSpot installation is complete, move directly to step 3
+      if (currentStep === 2 && showHubSpotInstall) {
+        setShowHubSpotInstall(false);
+        setCurrentStep(3);  // Skip to data import step directly
+      } else {
+        setCurrentStep(currentStep + 1);
+      }
       window.scrollTo(0, 0);
     } else {
       uiToast({
@@ -106,7 +111,7 @@ const OnboardingContainer: React.FC = () => {
 
   const handleHubSpotInstallComplete = () => {
     setShowHubSpotInstall(false);
-    setCurrentStep(currentStep + 1);
+    setCurrentStep(3); // Go directly to step 3 (data import)
   };
 
   // For the welcome screen (step 1), we render it directly without the OnboardingLayout

@@ -49,7 +49,7 @@ const HubSpotInstallScreen: React.FC<HubSpotInstallProps> = ({ onComplete }) => 
                 href={hubspotAuthUrl}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-hubspot-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md transition-colors"
+                className="inline-flex items-center gap-2 bg-hubspot-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md transition-colors shadow-md"
               >
                 Install in HubSpot <ExternalLink size={16} />
               </a>
@@ -70,9 +70,9 @@ const HubSpotInstallScreen: React.FC<HubSpotInstallProps> = ({ onComplete }) => 
         </div>
       </div>
       
-      <div className="bg-gray-50 border border-gray-200 rounded-md p-4 mb-6">
-        <p className="text-sm font-medium mb-1">Already installed?</p>
-        <p className="text-sm text-saas-gray-medium">
+      <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+        <p className="text-sm font-medium mb-1 text-green-800">Already installed?</p>
+        <p className="text-sm text-green-700">
           Once you've completed the installation in HubSpot, click the button below to proceed.
         </p>
       </div>
@@ -80,9 +80,10 @@ const HubSpotInstallScreen: React.FC<HubSpotInstallProps> = ({ onComplete }) => 
       <div className="flex justify-end">
         <Button
           onClick={onComplete}
-          className="bg-saas-blue hover:bg-blue-600 flex items-center text-white px-6 py-2"
+          className="bg-saas-blue hover:bg-blue-600 flex items-center text-white px-6 py-2 shadow-md text-lg"
+          size="lg"
         >
-          I've installed the app <ArrowRight className="ml-2 h-4 w-4" />
+          I've installed the app <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
     </div>

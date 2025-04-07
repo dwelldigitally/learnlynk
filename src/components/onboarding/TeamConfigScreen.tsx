@@ -18,6 +18,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface TeamMember {
   id: string;
@@ -27,6 +28,15 @@ interface TeamMember {
   tier: string;
   maxLeads: number;
   leadFrequency: string;
+  workingDays: {
+    monday: boolean;
+    tuesday: boolean;
+    wednesday: boolean;
+    thursday: boolean;
+    friday: boolean;
+    saturday: boolean;
+    sunday: boolean;
+  };
 }
 
 const TeamConfigScreen: React.FC = () => {
@@ -38,7 +48,16 @@ const TeamConfigScreen: React.FC = () => {
       schedule: "Full-time", 
       tier: "Tier A",
       maxLeads: 20,
-      leadFrequency: "Weekly"
+      leadFrequency: "Weekly",
+      workingDays: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: true,
+        friday: true,
+        saturday: false,
+        sunday: false
+      }
     },
     { 
       id: "2", 
@@ -47,7 +66,16 @@ const TeamConfigScreen: React.FC = () => {
       schedule: "Part-time", 
       tier: "Tier B",
       maxLeads: 12,
-      leadFrequency: "Weekly"
+      leadFrequency: "Weekly",
+      workingDays: {
+        monday: true,
+        tuesday: true,
+        wednesday: false,
+        thursday: true,
+        friday: false,
+        saturday: false,
+        sunday: false
+      }
     },
     { 
       id: "3", 
@@ -56,7 +84,16 @@ const TeamConfigScreen: React.FC = () => {
       schedule: "Full-time", 
       tier: "Tier A",
       maxLeads: 25,
-      leadFrequency: "Weekly"
+      leadFrequency: "Weekly",
+      workingDays: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: true,
+        friday: true,
+        saturday: false,
+        sunday: false
+      }
     }
   ]);
   
@@ -71,7 +108,16 @@ const TeamConfigScreen: React.FC = () => {
     schedule: "Full-time",
     tier: "Tier B",
     maxLeads: 15,
-    leadFrequency: "Weekly"
+    leadFrequency: "Weekly",
+    workingDays: {
+      monday: true,
+      tuesday: true,
+      wednesday: true,
+      thursday: true,
+      friday: true,
+      saturday: false,
+      sunday: false
+    }
   });
   
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -85,7 +131,16 @@ const TeamConfigScreen: React.FC = () => {
       schedule: "Full-time",
       tier: "Tier B",
       maxLeads: 15,
-      leadFrequency: "Weekly"
+      leadFrequency: "Weekly",
+      workingDays: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: true,
+        friday: true,
+        saturday: false,
+        sunday: false
+      }
     });
     setIsDialogOpen(false);
   };
@@ -97,12 +152,36 @@ const TeamConfigScreen: React.FC = () => {
     });
   };
   
-  const handleMemberChange = (id: string, field: keyof TeamMember, value: string | number) => {
+  const handleMemberChange = (id: string, field: keyof TeamMember, value: string | number | any) => {
     setTeamMembers(
       teamMembers.map(member => 
         member.id === id ? { ...member, [field]: value } : member
       )
     );
+  };
+
+  const handleWorkingDayChange = (id: string, day: string, checked: boolean) => {
+    setTeamMembers(
+      teamMembers.map(member => 
+        member.id === id ? { 
+          ...member, 
+          workingDays: {
+            ...member.workingDays,
+            [day]: checked
+          } 
+        } : member
+      )
+    );
+  };
+
+  const handleNewMemberWorkingDayChange = (day: string, checked: boolean) => {
+    setNewMember({
+      ...newMember,
+      workingDays: {
+        ...newMember.workingDays,
+        [day]: checked
+      }
+    });
   };
 
   return (
@@ -201,6 +280,32 @@ const TeamConfigScreen: React.FC = () => {
                     />
                   </div>
                 </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium mb-2 block">Working Days</Label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      { day: "monday", label: "Mon" },
+                      { day: "tuesday", label: "Tue" },
+                      { day: "wednesday", label: "Wed" },
+                      { day: "thursday", label: "Thu" },
+                      { day: "friday", label: "Fri" },
+                      { day: "saturday", label: "Sat" },
+                      { day: "sunday", label: "Sun" },
+                    ].map(({ day, label }) => (
+                      <div key={day} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`new-${day}`} 
+                          checked={newMember.workingDays[day as keyof typeof newMember.workingDays]} 
+                          onCheckedChange={(checked) => 
+                            handleNewMemberWorkingDayChange(day, checked === true)
+                          }
+                        />
+                        <Label htmlFor={`new-${day}`} className="text-sm">{label}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 
                 <Button onClick={handleAddMember} className="w-full">
                   Add Team Member
@@ -289,6 +394,32 @@ const TeamConfigScreen: React.FC = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <Label className="text-xs block mb-2">Working Days</Label>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { day: "monday", label: "Mon" },
+                    { day: "tuesday", label: "Tue" },
+                    { day: "wednesday", label: "Wed" },
+                    { day: "thursday", label: "Thu" },
+                    { day: "friday", label: "Fri" },
+                    { day: "saturday", label: "Sat" },
+                    { day: "sunday", label: "Sun" },
+                  ].map(({ day, label }) => (
+                    <div key={day} className="flex items-center space-x-1">
+                      <Checkbox 
+                        id={`${member.id}-${day}`}
+                        checked={member.workingDays[day as keyof typeof member.workingDays]} 
+                        onCheckedChange={(checked) => 
+                          handleWorkingDayChange(member.id, day, checked === true)
+                        }
+                      />
+                      <Label htmlFor={`${member.id}-${day}`} className="text-xs">{label}</Label>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

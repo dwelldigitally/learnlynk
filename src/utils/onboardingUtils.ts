@@ -1,6 +1,6 @@
 
-// Update the import to use the correct Clerk User type
-import { User as ClerkUser } from "@clerk/clerk-react/dist/types";
+// Import the User type directly from @clerk/clerk-react
+import type { User as ClerkUser } from "@clerk/clerk-react";
 
 // Onboarding step management utilities
 

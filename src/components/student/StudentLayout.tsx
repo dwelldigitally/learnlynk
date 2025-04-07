@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Chatbot } from "@/components/Chatbot";
+import Chatbot from "@/components/Chatbot";
 import { Mail, Bell } from "lucide-react";
 
 interface StudentLayoutProps {

@@ -49,7 +49,7 @@ const HubSpotInstallScreen: React.FC<HubSpotInstallProps> = ({ onComplete }) => 
                 href={hubspotAuthUrl}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-hubspot-orange text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors"
+                className="inline-flex items-center gap-2 bg-hubspot-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md transition-colors"
               >
                 Install in HubSpot <ExternalLink size={16} />
               </a>
@@ -80,7 +80,7 @@ const HubSpotInstallScreen: React.FC<HubSpotInstallProps> = ({ onComplete }) => 
       <div className="flex justify-end">
         <Button
           onClick={onComplete}
-          className="bg-saas-blue hover:bg-blue-600 flex items-center"
+          className="bg-saas-blue hover:bg-blue-600 flex items-center text-white px-6 py-2"
         >
           I've installed the app <ArrowRight className="ml-2 h-4 w-4" />
         </Button>

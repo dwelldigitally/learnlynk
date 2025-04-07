@@ -2,14 +2,12 @@
 import React, { useState } from "react";
 import OnboardingLayout from "./OnboardingLayout";
 import WelcomeScreen from "./onboarding/WelcomeScreen";
-import ConnectCRMScreen from "./onboarding/ConnectCRMScreen";
 import PropertyImportScreen from "./onboarding/PropertyImportScreen";
 import TeamConfigScreen from "./onboarding/TeamConfigScreen";
 import ConversionFactorsScreen from "./onboarding/ConversionFactorsScreen";
 import ProcessingScreen from "./onboarding/ProcessingScreen";
 import ResultsScreen from "./onboarding/ResultsScreen";
 import PricingScreen from "./onboarding/PricingScreen";
-import DashboardPreviewScreen from "./onboarding/DashboardPreviewScreen";
 import IntegrationChoiceScreen from "./onboarding/IntegrationChoiceScreen";
 import OrganizationSetupScreen from "./onboarding/OrganizationSetupScreen";
 import HubSpotInstallScreen from "./onboarding/HubSpotInstallScreen";
@@ -30,9 +28,10 @@ const OnboardingContainer: React.FC = () => {
   const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean | null>(null);
   const [showOrgSetup, setShowOrgSetup] = useState(false);
   const [showOrgPreview, setShowOrgPreview] = useState(false);
+  const [showHubSpotInstall, setShowHubSpotInstall] = useState(false);
   const [orgData, setOrgData] = useState<any>(null);
   
-  const totalSteps = 9;
+  const totalSteps = 7; // Reducing total steps as we're simplifying the flow
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
 
@@ -66,7 +65,7 @@ const OnboardingContainer: React.FC = () => {
         title: "Onboarding Complete",
         description: "You've completed the onboarding process!",
       });
-      navigate("/dashboard");
+      navigate("/manager"); // Navigate to manager dashboard directly instead of regular dashboard
     }
   };
 
@@ -102,6 +101,11 @@ const OnboardingContainer: React.FC = () => {
 
   const handleOrgPreviewComplete = () => {
     setShowOrgPreview(false);
+    setShowHubSpotInstall(true);
+  };
+
+  const handleHubSpotInstallComplete = () => {
+    setShowHubSpotInstall(false);
     setCurrentStep(currentStep + 1);
   };
 
@@ -123,11 +127,11 @@ const OnboardingContainer: React.FC = () => {
       } else if (isFirstTimeUser && showOrgPreview) {
         return <OrganizationPreviewScreen 
           organizationData={orgData} 
-          onConfirm={handleOrgPreviewComplete} 
+          onConfirm={handleOrgPreviewComplete}
           onEdit={() => setShowOrgSetup(true)}
         />;
-      } else if (isFirstTimeUser) {
-        return <HubSpotInstallScreen onComplete={handleNext} />;
+      } else if (isFirstTimeUser && showHubSpotInstall) {
+        return <HubSpotInstallScreen onComplete={handleHubSpotInstallComplete} />;
       } else {
         return <HubSpotLinkScreen onComplete={handleNext} />;
       }
@@ -144,12 +148,8 @@ const OnboardingContainer: React.FC = () => {
         return <ProcessingScreen />;
       case 7:
         return <ResultsScreen />;
-      case 8:
-        return <PricingScreen />;
-      case 9:
-        return <DashboardPreviewScreen />;
       default:
-        return <ConnectCRMScreen onBypass={handleBypassHubspot} />;
+        return null;
     }
   };
 
@@ -166,7 +166,7 @@ const OnboardingContainer: React.FC = () => {
         return "Preview Organization";
       } else if (isFirstTimeUser && showOrgPreview) {
         return "Continue to HubSpot Install";
-      } else if (isFirstTimeUser) {
+      } else if (isFirstTimeUser && showHubSpotInstall) {
         return "Continue to Data Import";
       } else {
         return "Continue to Data Import";

@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
@@ -57,7 +56,7 @@ const App = () => {
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/step/:stepNumber" element={<OnboardingRoute />} />
-            <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
+            <Route path="/dashboard" element={<Navigate to="/manager" replace />} /> 
             <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

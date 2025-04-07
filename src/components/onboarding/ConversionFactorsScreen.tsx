@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Form } from "@/components/ui/form";
 import WinDefinitionSection, { WinDefinitionValues } from "./WinDefinitionSection";
 import hubspotService from "@/services/hubspotService";
 
@@ -59,7 +59,9 @@ const ConversionFactorsScreen: React.FC = () => {
       
       <Card className="mb-6">
         <CardContent className="pt-6">
-          <WinDefinitionSection onDefinitionChange={handleWinDefinitionChange} />
+          <Form>
+            <WinDefinitionSection onDefinitionChange={handleWinDefinitionChange} />
+          </Form>
         </CardContent>
       </Card>
       

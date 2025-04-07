@@ -1,5 +1,6 @@
 
-import { User } from "@clerk/clerk-react";
+// Update the import to use the correct Clerk User type
+import { User as ClerkUser } from "@clerk/clerk-react/dist/types";
 
 // Onboarding step management utilities
 
@@ -9,7 +10,7 @@ import { User } from "@clerk/clerk-react";
  * Returns 0 if the user has completed onboarding
  * Returns 1-9 for the specific onboarding step they're on
  */
-export const getOnboardingStatus = (user: User): number => {
+export const getOnboardingStatus = (user: ClerkUser): number => {
   // Get the onboarding status from user metadata
   const onboardingStep = user?.publicMetadata?.onboardingStep;
   
@@ -23,7 +24,7 @@ export const getOnboardingStatus = (user: User): number => {
 /**
  * Sets the current onboarding step for a user
  */
-export const setOnboardingStatus = async (user: User, step: number): Promise<void> => {
+export const setOnboardingStatus = async (user: ClerkUser, step: number): Promise<void> => {
   try {
     await user.update({
       publicMetadata: {
@@ -39,7 +40,7 @@ export const setOnboardingStatus = async (user: User, step: number): Promise<voi
 /**
  * Marks onboarding as complete
  */
-export const completeOnboarding = async (user: User): Promise<void> => {
+export const completeOnboarding = async (user: ClerkUser): Promise<void> => {
   try {
     await user.update({
       publicMetadata: {
@@ -56,6 +57,6 @@ export const completeOnboarding = async (user: User): Promise<void> => {
 /**
  * Checks if the user has completed onboarding
  */
-export const isOnboardingComplete = (user: User): boolean => {
+export const isOnboardingComplete = (user: ClerkUser): boolean => {
   return user?.publicMetadata?.onboardingCompleted === true;
 };

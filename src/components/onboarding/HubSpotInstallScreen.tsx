@@ -49,7 +49,7 @@ const HubSpotInstallScreen: React.FC<HubSpotInstallProps> = ({ onComplete }) => 
                 href={hubspotAuthUrl}
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-hubspot-orange hover:bg-orange-600 text-white px-6 py-3 rounded-md transition-colors shadow-md"
+                className="inline-flex items-center gap-2 bg-[#FF7A59] hover:bg-orange-600 text-white px-6 py-3 rounded-md transition-colors shadow-md font-medium"
               >
                 Install in HubSpot <ExternalLink size={16} />
               </a>

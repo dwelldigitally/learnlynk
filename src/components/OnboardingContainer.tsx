@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import OnboardingLayout from "./OnboardingLayout";
 import WelcomeScreen from "./onboarding/WelcomeScreen";
 import ConnectCRMScreen from "./onboarding/ConnectCRMScreen";
@@ -18,16 +18,13 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
 import hubspotService from "@/services/hubspotService";
-import { useUser } from "@clerk/clerk-react";
-import { getOnboardingStatus, setOnboardingStatus, completeOnboarding } from "@/utils/onboardingUtils";
 
 const OnboardingContainer: React.FC = () => {
   const location = useLocation();
   const params = useParams();
   const stepParam = params.stepNumber || new URLSearchParams(location.search).get('step');
   
-  const { user, isLoaded } = useUser();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(parseInt(stepParam || "1") || 1);
   const [bypassHubspot, setBypassHubspot] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean | null>(null);
   const [showOrgSetup, setShowOrgSetup] = useState(false);
@@ -36,55 +33,15 @@ const OnboardingContainer: React.FC = () => {
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
 
-  // Initialize step based on user's onboarding status or URL parameters
-  useEffect(() => {
-    if (!isLoaded || !user) return;
-
-    const userStep = getOnboardingStatus(user);
-    
-    // If step is specified in URL, use that (and update user's status)
-    if (stepParam) {
-      const stepNumber = parseInt(stepParam);
-      if (!isNaN(stepNumber) && stepNumber >= 1 && stepNumber <= totalSteps) {
-        setCurrentStep(stepNumber);
-        setOnboardingStatus(user, stepNumber);
-      }
-    } 
-    // Otherwise use the stored step from user metadata
-    else if (userStep > 0) {
-      setCurrentStep(userStep);
-    }
-  }, [isLoaded, user, stepParam]);
-
-  // Check HubSpot connection on mount
-  useEffect(() => {
-    const storedKey = hubspotService.getStoredApiKey();
-    if (storedKey && currentStep > 2) {
-      hubspotService.testConnection().then(valid => {
-        if (!valid && currentStep > 2 && !bypassHubspot) {
-          toast.error("HubSpot connection lost", {
-            description: "Please reconnect to continue."
-          });
-          navigate("/?step=2", { replace: true });
-        }
-      });
-    }
-  }, []);
-
   // Update URL when step changes
-  useEffect(() => {
-    if (!user) return;
-    
-    // Update the user's onboarding status
-    setOnboardingStatus(user, currentStep);
-    
+  React.useEffect(() => {
     // Update URL
     if (currentStep === 1) {
       navigate('/', { replace: true });
     } else {
-      navigate(`/?step=${currentStep}`, { replace: true });
+      navigate(`/step/${currentStep}`, { replace: true });
     }
-  }, [currentStep, navigate, user]);
+  }, [currentStep, navigate]);
 
   const handleNext = async () => {
     // If moving past the HubSpot connection step, validate connection
@@ -102,11 +59,6 @@ const OnboardingContainer: React.FC = () => {
       setCurrentStep(currentStep + 1);
       window.scrollTo(0, 0);
     } else {
-      // Mark onboarding as complete when reaching the end
-      if (user) {
-        await completeOnboarding(user);
-      }
-      
       uiToast({
         title: "Onboarding Complete",
         description: "You've completed the onboarding process!",

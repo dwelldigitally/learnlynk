@@ -1,20 +1,9 @@
 
-import React, { useEffect } from "react";
-import { SignUp as ClerkSignUp, useUser } from "@clerk/clerk-react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { getRedirectPathAfterLogin } from "@/utils/onboardingUtils";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
-  const { isSignedIn, user, isLoaded } = useUser();
-  
-  // Handle redirection after sign up based on onboarding status
-  useEffect(() => {
-    if (isLoaded && isSignedIn && user) {
-      const redirectPath = getRedirectPathAfterLogin(user);
-      navigate(redirectPath, { replace: true });
-    }
-  }, [isSignedIn, user, isLoaded, navigate]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4">
@@ -32,12 +21,41 @@ const SignUp: React.FC = () => {
         </div>
         
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <ClerkSignUp 
-            routing="path" 
-            path="/sign-up" 
-            signInUrl="/sign-in"
-            afterSignUpUrl="/"
-          />
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Name</label>
+              <input 
+                type="text" 
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="John Doe"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <input 
+                type="email" 
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="you@example.com"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Password</label>
+              <input 
+                type="password" 
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="••••••••"
+              />
+            </div>
+            
+            <button 
+              onClick={() => navigate('/')} 
+              className="w-full bg-saas-blue text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-colors"
+            >
+              Sign up
+            </button>
+          </div>
         </div>
         
         <div className="mt-6 text-center">

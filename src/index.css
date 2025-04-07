@@ -91,7 +91,7 @@
 /* Custom styles for the onboarding process */
 .onboarding-card {
   @apply bg-white rounded-xl shadow-lg p-8;
-  width: 100%;
+  width: 70%;
   height: 100%;
   max-height: 100vh;
   display: flex;

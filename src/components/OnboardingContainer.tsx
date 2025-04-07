@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import OnboardingLayout from "./OnboardingLayout";
 import WelcomeScreen from "./onboarding/WelcomeScreen";
@@ -9,6 +10,10 @@ import ProcessingScreen from "./onboarding/ProcessingScreen";
 import ResultsScreen from "./onboarding/ResultsScreen";
 import PricingScreen from "./onboarding/PricingScreen";
 import DashboardPreviewScreen from "./onboarding/DashboardPreviewScreen";
+import IntegrationChoiceScreen from "./onboarding/IntegrationChoiceScreen";
+import OrganizationSetupScreen from "./onboarding/OrganizationSetupScreen";
+import HubSpotInstallScreen from "./onboarding/HubSpotInstallScreen";
+import HubSpotLinkScreen from "./onboarding/HubSpotLinkScreen";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
@@ -24,6 +29,9 @@ const OnboardingContainer: React.FC = () => {
   const { user, isLoaded } = useUser();
   const [currentStep, setCurrentStep] = useState(1);
   const [bypassHubspot, setBypassHubspot] = useState(false);
+  const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean | null>(null);
+  const [showOrgSetup, setShowOrgSetup] = useState(false);
+  
   const totalSteps = 9;
   const navigate = useNavigate();
   const { toast: uiToast } = useToast();
@@ -80,11 +88,11 @@ const OnboardingContainer: React.FC = () => {
 
   const handleNext = async () => {
     // If moving past the HubSpot connection step, validate connection
-    if (currentStep === 2 && !bypassHubspot) {
+    if (currentStep === 2 && !bypassHubspot && isFirstTimeUser === null) {
       const isConnected = await hubspotService.testConnection();
       if (!isConnected) {
-        toast.error("Please connect to HubSpot before proceeding", {
-          description: "A valid HubSpot connection is required for the next steps."
+        toast.error("Please choose a connection option before proceeding", {
+          description: "Select if you're connecting for the first time or already have the app installed."
         });
         return;
       }
@@ -120,6 +128,21 @@ const OnboardingContainer: React.FC = () => {
     hubspotService.setApiKey("demo-key-for-testing");
     handleNext();
   };
+  
+  const handleFirstTimeChoice = () => {
+    setIsFirstTimeUser(true);
+    setShowOrgSetup(true);
+  };
+  
+  const handleExistingUserChoice = () => {
+    setIsFirstTimeUser(false);
+    setCurrentStep(currentStep + 1);
+  };
+  
+  const handleOrgSetupComplete = () => {
+    setShowOrgSetup(false);
+    setCurrentStep(currentStep + 1);
+  };
 
   // For the welcome screen (step 1), we render it directly without the OnboardingLayout
   if (currentStep === 1) {
@@ -128,9 +151,22 @@ const OnboardingContainer: React.FC = () => {
 
   // For all other steps, render with the OnboardingLayout
   const renderStep = () => {
+    if (currentStep === 2) {
+      if (isFirstTimeUser === null) {
+        return <IntegrationChoiceScreen 
+          onFirstTime={handleFirstTimeChoice} 
+          onExistingUser={handleExistingUserChoice} 
+        />;
+      } else if (isFirstTimeUser && showOrgSetup) {
+        return <OrganizationSetupScreen onComplete={handleOrgSetupComplete} />;
+      } else if (isFirstTimeUser) {
+        return <HubSpotInstallScreen onComplete={handleNext} />;
+      } else {
+        return <HubSpotLinkScreen onComplete={handleNext} />;
+      }
+    }
+    
     switch (currentStep) {
-      case 2:
-        return <ConnectCRMScreen onBypass={handleBypassHubspot} />;
       case 3:
         return <PropertyImportScreen />;
       case 4:
@@ -154,10 +190,20 @@ const OnboardingContainer: React.FC = () => {
     if (currentStep === totalSteps) {
       return "Complete Setup";
     }
-    // Customize the button text based on the current step
+    
+    // Customize the button text based on the current step and user type
     if (currentStep === 2) {
-      return "Continue to Data Import";
+      if (isFirstTimeUser === null) {
+        return "Continue";
+      } else if (isFirstTimeUser && showOrgSetup) {
+        return "Continue to HubSpot Install";
+      } else if (isFirstTimeUser) {
+        return "Continue to Data Import";
+      } else {
+        return "Continue to Data Import";
+      }
     }
+    
     if (currentStep === 3) {
       return "Continue to Team Setup";
     }

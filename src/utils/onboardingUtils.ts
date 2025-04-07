@@ -1,6 +1,6 @@
 
-// Import User type from @clerk/clerk-react correctly
-import type { User } from "@clerk/clerk-react";
+// Import the correct User type from @clerk/clerk-react
+import type { UserResource as User } from "@clerk/clerk-react";
 
 // Onboarding step management utilities
 

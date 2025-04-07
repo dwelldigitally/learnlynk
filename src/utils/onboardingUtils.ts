@@ -1,7 +1,5 @@
-// Import the correct User type from @clerk/clerk-react
-import type { User } from "@clerk/clerk-react";
-
-// Onboarding step management utilities
+// Using a generic type instead of Clerk's specific User type
+// to avoid dependency issues
 
 /**
  * Gets the current onboarding step for a user
@@ -9,7 +7,7 @@ import type { User } from "@clerk/clerk-react";
  * Returns 0 if the user has completed onboarding
  * Returns 1-9 for the specific onboarding step they're on
  */
-export const getOnboardingStatus = (user: User): number => {
+export const getOnboardingStatus = (user: any): number => {
   // Get the onboarding status from user metadata
   const onboardingStep = user?.publicMetadata?.onboardingStep;
   
@@ -23,7 +21,7 @@ export const getOnboardingStatus = (user: User): number => {
 /**
  * Sets the current onboarding step for a user
  */
-export const setOnboardingStatus = async (user: User, step: number): Promise<void> => {
+export const setOnboardingStatus = async (user: any, step: number): Promise<void> => {
   try {
     await user.update({
       publicMetadata: {
@@ -39,7 +37,7 @@ export const setOnboardingStatus = async (user: User, step: number): Promise<voi
 /**
  * Marks onboarding as complete
  */
-export const completeOnboarding = async (user: User): Promise<void> => {
+export const completeOnboarding = async (user: any): Promise<void> => {
   try {
     await user.update({
       publicMetadata: {
@@ -56,7 +54,7 @@ export const completeOnboarding = async (user: User): Promise<void> => {
 /**
  * Checks if the user has completed onboarding
  */
-export const isOnboardingComplete = (user: User): boolean => {
+export const isOnboardingComplete = (user: any): boolean => {
   return user?.publicMetadata?.onboardingCompleted === true;
 };
 
@@ -64,7 +62,7 @@ export const isOnboardingComplete = (user: User): boolean => {
  * Check onboarding status and return the appropriate redirect path
  * @returns The path to redirect to based on onboarding status
  */
-export const getRedirectPathAfterLogin = (user: User): string => {
+export const getRedirectPathAfterLogin = (user: any): string => {
   // Check if onboarding is complete
   if (isOnboardingComplete(user)) {
     return "/dashboard";

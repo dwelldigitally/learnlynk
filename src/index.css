@@ -1,10 +1,11 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
  
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 50% 98%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,7 +14,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
  
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 210 100% 50%;
     --primary-foreground: 210 40% 98%;
  
     --secondary: 210 40% 96.1%;
@@ -36,6 +37,8 @@
     
     /* SaaS specific colors */
     --saas-blue: 210 100% 50%;
+    --saas-light-blue: 210 100% 95%;
+    --saas-dark-blue: 210 100% 25%;
     --saas-green: 142 71% 45%;
     --saas-red: 0 84% 60%;
     --saas-yellow: 38 92% 50%;

@@ -55,6 +55,8 @@ export default {
 				},
 				saas: {
 					blue: '#0080FF',
+					'light-blue': '#F0F6FF',
+					'dark-blue': '#0052A3',
 					green: '#00CD81',
 					red: '#FF4D4D',
 					yellow: '#FFD700',

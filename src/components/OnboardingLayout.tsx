@@ -29,7 +29,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
   const navigate = useNavigate();
   
   return (
-    <div className="min-h-screen bg-saas-gray-light flex items-center justify-center p-4">
+    <div className="h-screen w-screen bg-saas-gray-light flex items-center justify-center p-0">
       <div className="onboarding-card animate-fade-in">
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center space-x-2">

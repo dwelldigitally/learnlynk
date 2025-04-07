@@ -1,4 +1,3 @@
-
 // Import the correct User type from @clerk/clerk-react
 import type { User } from "@clerk/clerk-react";
 

@@ -8,8 +8,51 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
+import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
+import { useUser } from "@clerk/clerk-react";
+import { useEffect } from "react";
+import { getOnboardingStatus, setOnboardingStatus } from "./utils/onboardingUtils";
 
 const queryClient = new QueryClient();
+
+// Protected route component that checks if user is authenticated
+const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
+  const { isSignedIn, isLoaded } = useUser();
+  
+  if (!isLoaded) return <div>Loading...</div>;
+  
+  if (!isSignedIn) {
+    return <Navigate to="/sign-in" replace />;
+  }
+  
+  return <>{element}</>;
+};
+
+// Onboarding route component that checks onboarding status
+const OnboardingRoute = () => {
+  const { user, isSignedIn, isLoaded } = useUser();
+  
+  useEffect(() => {
+    // Only check onboarding status if user is signed in
+    if (isLoaded && isSignedIn && user) {
+      const onboardingStatus = getOnboardingStatus(user);
+      
+      // If user hasn't started onboarding yet, initialize it
+      if (onboardingStatus === -1) {
+        setOnboardingStatus(user, 1);
+      }
+    }
+  }, [isLoaded, isSignedIn, user]);
+  
+  if (!isLoaded) return <div>Loading...</div>;
+  
+  if (!isSignedIn) {
+    return <Navigate to="/sign-in" replace />;
+  }
+  
+  return <Index />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -18,11 +61,22 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          {/* Direct step navigation routes */}
-          <Route path="/step/:stepNumber" element={<Navigate to="/" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/manager" element={<ManagerDashboard />} />
+          <Route path="/" element={<OnboardingRoute />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          {/* Direct step navigation routes with onboarding status check */}
+          <Route 
+            path="/step/:stepNumber" 
+            element={<OnboardingRoute />} 
+          />
+          <Route 
+            path="/dashboard" 
+            element={<ProtectedRoute element={<Dashboard />} />} 
+          />
+          <Route 
+            path="/manager" 
+            element={<ProtectedRoute element={<ManagerDashboard />} />} 
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

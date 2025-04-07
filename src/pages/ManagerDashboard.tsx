@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { 
   BarChart, Workflow, Clock, Users, BarChart3, 
   ArrowUp, Check, AlertCircle, RefreshCw, Settings,
-  InfoIcon, BarChart2, UserPlus
+  InfoIcon, BarChart2, UserPlus, Calendar
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +19,7 @@ import AIAuditTrail from "@/components/manager/AIAuditTrail";
 import AIWeightSettings from "@/components/manager/AIWeightSettings";
 import PerformanceComparison from "@/components/manager/PerformanceComparison";
 import UserInviteForm from "@/components/dashboard/UserInviteForm";
+import PipelinePlanner from "@/components/manager/PipelinePlanner";
 
 const ManagerDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -84,6 +84,9 @@ const ManagerDashboard: React.FC = () => {
             </TabsTrigger>
             <TabsTrigger value="team" className="flex items-center gap-2">
               <Users className="w-4 h-4" /> Team Management
+            </TabsTrigger>
+            <TabsTrigger value="pipeline" className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" /> Pipeline Planner
             </TabsTrigger>
             <TabsTrigger value="unengaged" className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4" /> Unengaged Leads
@@ -341,6 +344,10 @@ const ManagerDashboard: React.FC = () => {
                 </Card>
               </div>
             </div>
+          </TabsContent>
+          
+          <TabsContent value="pipeline">
+            <PipelinePlanner />
           </TabsContent>
           
           <TabsContent value="unengaged">

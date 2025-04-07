@@ -10,7 +10,7 @@ import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -30,12 +30,12 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
   
   // Simulate loading completion after a short delay
-  useState(() => {
+  useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
     return () => clearTimeout(timer);
-  });
+  }, []);
 
   // Show a simple loading indicator
   if (isLoading) {

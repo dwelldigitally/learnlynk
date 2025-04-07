@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { 
   BarChart, Workflow, Clock, Users, BarChart3, 
   ArrowUp, Check, AlertCircle, RefreshCw, Settings,
-  InfoIcon, BarChart2
+  InfoIcon, BarChart2, UserPlus
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -19,12 +19,14 @@ import UnengagedLeadsList from "@/components/manager/UnengagedLeadsList";
 import AIAuditTrail from "@/components/manager/AIAuditTrail";
 import AIWeightSettings from "@/components/manager/AIWeightSettings";
 import PerformanceComparison from "@/components/manager/PerformanceComparison";
+import UserInviteForm from "@/components/dashboard/UserInviteForm";
 
 const ManagerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [aiMode, setAiMode] = useState("balanced");
   const [responseTimeThreshold, setResponseTimeThreshold] = useState(4);
+  const [showTeamInvite, setShowTeamInvite] = useState(false);
 
   const handleModeChange = (mode: string) => {
     setAiMode(mode);
@@ -79,6 +81,9 @@ const ManagerDashboard: React.FC = () => {
           <TabsList className="mb-6">
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" /> AI Settings
+            </TabsTrigger>
+            <TabsTrigger value="team" className="flex items-center gap-2">
+              <Users className="w-4 h-4" /> Team Management
             </TabsTrigger>
             <TabsTrigger value="unengaged" className="flex items-center gap-2">
               <RefreshCw className="w-4 h-4" /> Unengaged Leads
@@ -212,6 +217,124 @@ const ManagerDashboard: React.FC = () => {
                           <span>Lead source</span>
                         </div>
                         <span className="text-sm font-medium">18%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="team">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle>Team Members</CardTitle>
+                      <CardDescription>Manage your team and their access</CardDescription>
+                    </div>
+                    <Button 
+                      onClick={() => setShowTeamInvite(!showTeamInvite)} 
+                      className="flex items-center gap-2"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                      {showTeamInvite ? "Cancel" : "Invite Member"}
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    {showTeamInvite && (
+                      <div className="mb-6">
+                        <UserInviteForm />
+                      </div>
+                    )}
+                    
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Email</TableHead>
+                          <TableHead>Role</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow>
+                          <TableCell className="font-medium">John Smith</TableCell>
+                          <TableCell>john.smith@example.com</TableCell>
+                          <TableCell>Admin</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm">Edit</Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Sarah Johnson</TableCell>
+                          <TableCell>sarah.j@example.com</TableCell>
+                          <TableCell>Manager</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm">Edit</Button>
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell className="font-medium">Robert Chen</TableCell>
+                          <TableCell>robert.c@example.com</TableCell>
+                          <TableCell>Member</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Button variant="ghost" size="sm">Resend</Button>
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Team Performance</CardTitle>
+                    <CardDescription>Overall team metrics</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Average response time</span>
+                          <span className="font-medium">3.2 hours</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="bg-green-500 h-full rounded-full" style={{ width: '75%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Conversion rate</span>
+                          <span className="font-medium">32%</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="bg-blue-500 h-full rounded-full" style={{ width: '32%' }}></div>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span>Team capacity</span>
+                          <span className="font-medium">68%</span>
+                        </div>
+                        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="bg-amber-500 h-full rounded-full" style={{ width: '68%' }}></div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

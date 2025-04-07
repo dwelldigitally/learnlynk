@@ -1,10 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 interface OrganizationFormValues {
@@ -14,11 +16,10 @@ interface OrganizationFormValues {
   phone: string;
   industry: string;
   customerType: string;
-  winMetric: string;
 }
 
 interface OrganizationSetupProps {
-  onComplete: () => void;
+  onComplete: (data: OrganizationFormValues) => void;
 }
 
 const industries = [
@@ -39,7 +40,6 @@ const OrganizationSetupScreen: React.FC<OrganizationSetupProps> = ({ onComplete 
       phone: "",
       industry: "",
       customerType: "",
-      winMetric: ""
     }
   });
 
@@ -50,7 +50,7 @@ const OrganizationSetupScreen: React.FC<OrganizationSetupProps> = ({ onComplete 
       // In a real implementation, we would call an API to save the data
       
       toast.success("Organization created successfully!");
-      onComplete(); // Move to the next step
+      onComplete(values); // Pass the form data to parent component
     } catch (error) {
       console.error("Error creating organization:", error);
       toast.error("Failed to create organization");
@@ -74,6 +74,7 @@ const OrganizationSetupScreen: React.FC<OrganizationSetupProps> = ({ onComplete 
             <FormField
               control={form.control}
               name="name"
+              rules={{ required: "Company name is required" }}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Company Name</FormLabel>
@@ -172,23 +173,6 @@ const OrganizationSetupScreen: React.FC<OrganizationSetupProps> = ({ onComplete 
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="winMetric"
-              render={({ field }) => (
-                <FormItem className="col-span-2">
-                  <FormLabel>What do you count as a win in HubSpot?</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Closed deal, Demo scheduled, etc." {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    This will help us track your success metrics
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

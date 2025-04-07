@@ -14,6 +14,7 @@ import IntegrationChoiceScreen from "./onboarding/IntegrationChoiceScreen";
 import OrganizationSetupScreen from "./onboarding/OrganizationSetupScreen";
 import HubSpotInstallScreen from "./onboarding/HubSpotInstallScreen";
 import HubSpotLinkScreen from "./onboarding/HubSpotLinkScreen";
+import OrganizationPreviewScreen from "./onboarding/OrganizationPreviewScreen";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { toast } from "sonner";
@@ -28,6 +29,8 @@ const OnboardingContainer: React.FC = () => {
   const [bypassHubspot, setBypassHubspot] = useState(false);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState<boolean | null>(null);
   const [showOrgSetup, setShowOrgSetup] = useState(false);
+  const [showOrgPreview, setShowOrgPreview] = useState(false);
+  const [orgData, setOrgData] = useState<any>(null);
   
   const totalSteps = 9;
   const navigate = useNavigate();
@@ -91,8 +94,14 @@ const OnboardingContainer: React.FC = () => {
     setCurrentStep(currentStep + 1);
   };
   
-  const handleOrgSetupComplete = () => {
+  const handleOrgSetupComplete = (data: any) => {
+    setOrgData(data);
     setShowOrgSetup(false);
+    setShowOrgPreview(true);
+  };
+
+  const handleOrgPreviewComplete = () => {
+    setShowOrgPreview(false);
     setCurrentStep(currentStep + 1);
   };
 
@@ -111,6 +120,12 @@ const OnboardingContainer: React.FC = () => {
         />;
       } else if (isFirstTimeUser && showOrgSetup) {
         return <OrganizationSetupScreen onComplete={handleOrgSetupComplete} />;
+      } else if (isFirstTimeUser && showOrgPreview) {
+        return <OrganizationPreviewScreen 
+          organizationData={orgData} 
+          onConfirm={handleOrgPreviewComplete} 
+          onEdit={() => setShowOrgSetup(true)}
+        />;
       } else if (isFirstTimeUser) {
         return <HubSpotInstallScreen onComplete={handleNext} />;
       } else {
@@ -148,6 +163,8 @@ const OnboardingContainer: React.FC = () => {
       if (isFirstTimeUser === null) {
         return "Continue";
       } else if (isFirstTimeUser && showOrgSetup) {
+        return "Preview Organization";
+      } else if (isFirstTimeUser && showOrgPreview) {
         return "Continue to HubSpot Install";
       } else if (isFirstTimeUser) {
         return "Continue to Data Import";

@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import WinDefinitionSection, { WinDefinitionValues } from "./WinDefinitionSection";
-import hubspotService, { HubSpotProperty } from "@/services/hubspotService";
+import hubspotService from "@/services/hubspotService";
 
 const ConversionFactorsScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);

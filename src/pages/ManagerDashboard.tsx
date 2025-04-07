@@ -44,8 +44,8 @@ const ManagerDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <header className="bg-white shadow-md border-b border-indigo-100 sticky top-0 z-10">
+    <div className="min-h-screen bg-[#F1F0FB]">
+      <header className="bg-white shadow-sm border-b border-[#E5DEFF]/40 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
             <img 
@@ -56,23 +56,23 @@ const ManagerDashboard: React.FC = () => {
               style={{ cursor: 'pointer' }}
             />
             <div>
-              <h1 className="text-xl font-semibold text-indigo-900">Manager Dashboard</h1>
-              <p className="text-xs text-indigo-500">Optimize your team's performance</p>
+              <h1 className="text-xl font-semibold text-gray-800">Manager Dashboard</h1>
+              <p className="text-xs text-gray-500">Optimize your team's performance</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <button className="relative p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
+            <button className="relative p-2 text-gray-600 hover:text-[#9F86F3] hover:bg-[#F5F3FF] rounded-full transition-colors">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#FEC6A1] rounded-full"></span>
             </button>
-            <button className="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors">
+            <button className="p-2 text-gray-600 hover:text-[#9F86F3] hover:bg-[#F5F3FF] rounded-full transition-colors">
               <Settings className="w-5 h-5" />
             </button>
             <div className="relative">
               <img 
                 src="https://randomuser.me/api/portraits/men/32.jpg" 
                 alt="User profile" 
-                className="w-10 h-10 rounded-full border-2 border-indigo-300 hover:border-indigo-500 transition-all"
+                className="w-10 h-10 rounded-full border-2 border-[#E5DEFF] hover:border-[#9F86F3] transition-all"
               />
             </div>
           </div>
@@ -82,18 +82,18 @@ const ManagerDashboard: React.FC = () => {
       <div className="container mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-indigo-900">Manager Dashboard</h1>
-            <p className="text-sm text-indigo-600">Tuesday, April 7, 2025</p>
+            <h1 className="text-2xl font-bold text-gray-800">Manager Dashboard</h1>
+            <p className="text-sm text-gray-500">Tuesday, April 7, 2025</p>
           </div>
           <div className="flex space-x-3">
             <Link to="/student">
-              <Button variant="outline" className="flex items-center gap-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50">
+              <Button variant="outline" className="flex items-center gap-2 border-[#E5DEFF] hover:border-[#9F86F3] hover:bg-[#F5F3FF] text-gray-700">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Student Portal
               </Button>
             </Link>
             <Button onClick={() => navigate('/dashboard')} 
-              className="bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1">
+              className="bg-[#9F86F3] hover:bg-[#8B73E0] text-white flex items-center gap-1">
               <ChevronRight className="h-4 w-4" />
               Dashboard
             </Button>
@@ -101,65 +101,65 @@ const ManagerDashboard: React.FC = () => {
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
-          <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+          <Card className="bg-[#D3E4FD] border-[#D3E4FD]/50 shadow-sm">
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-blue-100">Total Team</p>
-                  <h3 className="text-3xl font-bold">24</h3>
-                  <p className="text-sm text-blue-100 mt-1">Active members</p>
+                  <p className="text-xs text-gray-500">Total Team</p>
+                  <h3 className="text-3xl font-bold text-gray-800">24</h3>
+                  <p className="text-sm text-gray-500 mt-1">Active members</p>
                 </div>
-                <div className="bg-white/20 p-3 rounded-full">
-                  <Users className="h-8 w-8" />
+                <div className="bg-white/60 p-3 rounded-full">
+                  <Users className="h-8 w-8 text-[#6B98D3]" />
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+          <Card className="bg-[#F2FCE2] border-[#F2FCE2]/50 shadow-sm">
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-green-100">Conversion Rate</p>
-                  <h3 className="text-3xl font-bold">32%</h3>
-                  <p className="text-sm text-green-100 mt-1">
+                  <p className="text-xs text-gray-500">Conversion Rate</p>
+                  <h3 className="text-3xl font-bold text-gray-800">32%</h3>
+                  <p className="text-sm text-gray-500 mt-1">
                     <span className="flex items-center">
-                      <ArrowUp className="h-3 w-3 mr-1" /> 4.2% vs last month
+                      <ArrowUp className="h-3 w-3 mr-1 text-[#8BC34A]" /> 4.2% vs last month
                     </span>
                   </p>
                 </div>
-                <div className="bg-white/20 p-3 rounded-full">
-                  <Activity className="h-8 w-8" />
+                <div className="bg-white/60 p-3 rounded-full">
+                  <Activity className="h-8 w-8 text-[#8BC34A]" />
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white">
+          <Card className="bg-[#FEF7CD] border-[#FEF7CD]/50 shadow-sm">
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-amber-100">Avg. Response Time</p>
-                  <h3 className="text-3xl font-bold">3.2h</h3>
-                  <p className="text-sm text-amber-100 mt-1">Within threshold</p>
+                  <p className="text-xs text-gray-500">Avg. Response Time</p>
+                  <h3 className="text-3xl font-bold text-gray-800">3.2h</h3>
+                  <p className="text-sm text-gray-500 mt-1">Within threshold</p>
                 </div>
-                <div className="bg-white/20 p-3 rounded-full">
-                  <Clock className="h-8 w-8" />
+                <div className="bg-white/60 p-3 rounded-full">
+                  <Clock className="h-8 w-8 text-[#DBB634]" />
                 </div>
               </div>
             </CardContent>
           </Card>
           
-          <Card className="bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white">
+          <Card className="bg-[#FFDEE2] border-[#FFDEE2]/50 shadow-sm">
             <CardContent className="p-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-purple-100">Team Capacity</p>
-                  <h3 className="text-3xl font-bold">68%</h3>
-                  <p className="text-sm text-purple-100 mt-1">20 open positions</p>
+                  <p className="text-xs text-gray-500">Team Capacity</p>
+                  <h3 className="text-3xl font-bold text-gray-800">68%</h3>
+                  <p className="text-sm text-gray-500 mt-1">20 open positions</p>
                 </div>
-                <div className="bg-white/20 p-3 rounded-full">
-                  <PieChart className="h-8 w-8" />
+                <div className="bg-white/60 p-3 rounded-full">
+                  <PieChart className="h-8 w-8 text-[#E57E94]" />
                 </div>
               </div>
             </CardContent>
@@ -167,24 +167,24 @@ const ManagerDashboard: React.FC = () => {
         </div>
         
         <Tabs defaultValue="settings" className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-          <div className="px-6 pt-6 border-b border-gray-200">
-            <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2">
-              <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-900">
+          <div className="px-6 pt-6 border-b border-gray-100">
+            <TabsList className="grid grid-cols-3 lg:grid-cols-6 gap-2 bg-[#F5F3FF]">
+              <TabsTrigger value="settings" className="flex items-center gap-2 data-[state=active]:bg-[#E5DEFF] data-[state=active]:text-[#6D4AFF]">
                 <Settings className="w-4 h-4" /> AI Settings
               </TabsTrigger>
-              <TabsTrigger value="team" className="flex items-center gap-2 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-900">
+              <TabsTrigger value="team" className="flex items-center gap-2 data-[state=active]:bg-[#E5DEFF] data-[state=active]:text-[#6D4AFF]">
                 <Users className="w-4 h-4" /> Team Management
               </TabsTrigger>
-              <TabsTrigger value="pipeline" className="flex items-center gap-2 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-900">
+              <TabsTrigger value="pipeline" className="flex items-center gap-2 data-[state=active]:bg-[#E5DEFF] data-[state=active]:text-[#6D4AFF]">
                 <Calendar className="w-4 h-4" /> Pipeline Planner
               </TabsTrigger>
-              <TabsTrigger value="unengaged" className="flex items-center gap-2 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-900">
+              <TabsTrigger value="unengaged" className="flex items-center gap-2 data-[state=active]:bg-[#E5DEFF] data-[state=active]:text-[#6D4AFF]">
                 <RefreshCw className="w-4 h-4" /> Unengaged Leads
               </TabsTrigger>
-              <TabsTrigger value="audit" className="flex items-center gap-2 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-900">
+              <TabsTrigger value="audit" className="flex items-center gap-2 data-[state=active]:bg-[#E5DEFF] data-[state=active]:text-[#6D4AFF]">
                 <InfoIcon className="w-4 h-4" /> Assignment Audit
               </TabsTrigger>
-              <TabsTrigger value="performance" className="flex items-center gap-2 data-[state=active]:bg-indigo-100 data-[state=active]:text-indigo-900">
+              <TabsTrigger value="performance" className="flex items-center gap-2 data-[state=active]:bg-[#E5DEFF] data-[state=active]:text-[#6D4AFF]">
                 <BarChart2 className="w-4 h-4" /> Performance Analysis
               </TabsTrigger>
             </TabsList>
@@ -194,10 +194,10 @@ const ManagerDashboard: React.FC = () => {
             <TabsContent value="settings">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <Card className="shadow-sm hover:shadow-md transition-shadow border-indigo-100">
-                    <CardHeader className="border-b border-indigo-50 bg-indigo-50/50">
-                      <CardTitle className="text-xl text-indigo-900">AI Distribution Mode</CardTitle>
-                      <CardDescription className="text-indigo-700">
+                  <Card className="shadow-sm hover:shadow-md transition-shadow border-gray-100">
+                    <CardHeader className="border-b border-gray-50 bg-[#F5F3FF]/50">
+                      <CardTitle className="text-xl text-gray-800">AI Distribution Mode</CardTitle>
+                      <CardDescription className="text-gray-500">
                         Select how leads should be distributed to your team
                       </CardDescription>
                     </CardHeader>
@@ -207,12 +207,12 @@ const ManagerDashboard: React.FC = () => {
                           variant={aiMode === "performance" ? "default" : "outline"} 
                           className={`w-full flex flex-col items-center py-6 ${
                             aiMode === "performance"
-                              ? "bg-blue-600 hover:bg-blue-700 text-white"
-                              : "hover:bg-blue-50 border-blue-200 text-blue-800"
+                              ? "bg-[#D3E4FD] hover:bg-[#C2D6F3] text-[#2E6BBF]"
+                              : "hover:bg-[#F0F5FE] border-[#D3E4FD] text-gray-700"
                           }`}
                           onClick={() => handleModeChange("performance")}
                         >
-                          <BarChart3 className={`w-6 h-6 mb-2 ${aiMode === "performance" ? "" : "text-blue-600"}`} />
+                          <BarChart3 className={`w-6 h-6 mb-2 ${aiMode === "performance" ? "text-[#2E6BBF]" : "text-[#6B98D3]"}`} />
                           <span className="font-semibold">Performance Mode</span>
                           <span className="text-xs mt-1">Prioritize win rates</span>
                         </Button>
@@ -221,12 +221,12 @@ const ManagerDashboard: React.FC = () => {
                           variant={aiMode === "balanced" ? "default" : "outline"} 
                           className={`w-full flex flex-col items-center py-6 ${
                             aiMode === "balanced"
-                              ? "bg-green-600 hover:bg-green-700 text-white"
-                              : "hover:bg-green-50 border-green-200 text-green-800"
+                              ? "bg-[#F2FCE2] hover:bg-[#E5F4CB] text-[#608B2C]"
+                              : "hover:bg-[#F9FCF5] border-[#F2FCE2] text-gray-700"
                           }`}
                           onClick={() => handleModeChange("balanced")}
                         >
-                          <Users className={`w-6 h-6 mb-2 ${aiMode === "balanced" ? "" : "text-green-600"}`} />
+                          <Users className={`w-6 h-6 mb-2 ${aiMode === "balanced" ? "text-[#608B2C]" : "text-[#8BC34A]"}`} />
                           <span className="font-semibold">Balanced Mode</span>
                           <span className="text-xs mt-1">Mix fairness + performance</span>
                         </Button>
@@ -235,12 +235,12 @@ const ManagerDashboard: React.FC = () => {
                           variant={aiMode === "custom" ? "default" : "outline"} 
                           className={`w-full flex flex-col items-center py-6 ${
                             aiMode === "custom"
-                              ? "bg-purple-600 hover:bg-purple-700 text-white"
-                              : "hover:bg-purple-50 border-purple-200 text-purple-800"
+                              ? "bg-[#E5DEFF] hover:bg-[#D1C4FF] text-[#6D4AFF]"
+                              : "hover:bg-[#F5F3FF] border-[#E5DEFF] text-gray-700"
                           }`}
                           onClick={() => handleModeChange("custom")}
                         >
-                          <Settings className={`w-6 h-6 mb-2 ${aiMode === "custom" ? "" : "text-purple-600"}`} />
+                          <Settings className={`w-6 h-6 mb-2 ${aiMode === "custom" ? "text-[#6D4AFF]" : "text-[#9F86F3]"}`} />
                           <span className="font-semibold">Custom Mode</span>
                           <span className="text-xs mt-1">Set custom weights</span>
                         </Button>
@@ -248,12 +248,12 @@ const ManagerDashboard: React.FC = () => {
                       
                       {aiMode === "custom" && <AIWeightSettings />}
                       
-                      <div className="mt-6 bg-gray-50 p-6 rounded-lg border border-gray-100">
+                      <div className="mt-6 bg-[#F1F0FB] p-6 rounded-lg border border-gray-100">
                         <h3 className="text-md font-medium mb-4 text-gray-800">Response Time Threshold</h3>
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
                             <Label htmlFor="response-time" className="text-gray-700">Expected response time</Label>
-                            <Badge className="bg-indigo-100 text-indigo-800 hover:bg-indigo-200">{responseTimeThreshold} hours</Badge>
+                            <Badge className="bg-[#E5DEFF] text-[#6D4AFF] hover:bg-[#D1C4FF]">{responseTimeThreshold} hours</Badge>
                           </div>
                           <Slider 
                             id="response-time"
@@ -269,7 +269,7 @@ const ManagerDashboard: React.FC = () => {
                             <span>Medium (12h)</span>
                             <span>Slow (24h)</span>
                           </div>
-                          <p className="text-sm text-muted-foreground mt-2 flex items-center text-amber-600">
+                          <p className="text-sm text-muted-foreground mt-2 flex items-center text-[#DBB634]">
                             <AlertCircle className="w-4 h-4 mr-1" />
                             Leads will be flagged for re-engagement after {responseTimeThreshold} hours without response
                           </p>
@@ -280,60 +280,60 @@ const ManagerDashboard: React.FC = () => {
                 </div>
                 
                 <div className="space-y-6">
-                  <Card className="shadow-sm hover:shadow-md transition-shadow border-indigo-100">
-                    <CardHeader className="border-b border-indigo-50 bg-indigo-50/50">
+                  <Card className="shadow-sm hover:shadow-md transition-shadow border-gray-100">
+                    <CardHeader className="border-b border-gray-50 bg-[#F5F3FF]/50">
                       <div className="flex justify-between items-center">
-                        <CardTitle className="text-xl text-indigo-900">Current AI Performance</CardTitle>
-                        <HelpCircle className="h-5 w-5 text-indigo-400" />
+                        <CardTitle className="text-xl text-gray-800">Current AI Performance</CardTitle>
+                        <HelpCircle className="h-5 w-5 text-gray-400" />
                       </div>
                     </CardHeader>
                     <CardContent className="pt-6">
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                          <span className="text-sm font-medium text-green-800">Conversion rate</span>
-                          <span className="font-medium flex items-center text-green-600">
+                        <div className="flex justify-between items-center p-3 bg-[#F2FCE2] rounded-lg">
+                          <span className="text-sm font-medium text-gray-700">Conversion rate</span>
+                          <span className="font-medium flex items-center text-[#608B2C]">
                             +17.3% <ArrowUp className="h-4 w-4 ml-1" />
                           </span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                          <span className="text-sm font-medium text-blue-800">Time saved</span>
-                          <span className="font-medium text-blue-600">8.2 hrs/week</span>
+                        <div className="flex justify-between items-center p-3 bg-[#D3E4FD] rounded-lg">
+                          <span className="text-sm font-medium text-gray-700">Time saved</span>
+                          <span className="font-medium text-[#2E6BBF]">8.2 hrs/week</span>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                          <span className="text-sm font-medium text-purple-800">Assignment accuracy</span>
-                          <span className="font-medium text-purple-600">93%</span>
+                        <div className="flex justify-between items-center p-3 bg-[#E5DEFF] rounded-lg">
+                          <span className="text-sm font-medium text-gray-700">Assignment accuracy</span>
+                          <span className="font-medium text-[#6D4AFF]">93%</span>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
                   
-                  <Card className="shadow-sm hover:shadow-md transition-shadow border-indigo-100">
-                    <CardHeader className="border-b border-indigo-50 bg-indigo-50/50">
-                      <CardTitle className="text-xl text-indigo-900">Top Success Factors</CardTitle>
-                      <CardDescription className="text-indigo-700">Variables driving success</CardDescription>
+                  <Card className="shadow-sm hover:shadow-md transition-shadow border-gray-100">
+                    <CardHeader className="border-b border-gray-50 bg-[#F5F3FF]/50">
+                      <CardTitle className="text-xl text-gray-800">Top Success Factors</CardTitle>
+                      <CardDescription className="text-gray-500">Variables driving success</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                       <div className="space-y-3">
-                        <div className="bg-blue-50 p-4 rounded-lg flex items-center justify-between">
+                        <div className="bg-[#D3E4FD] p-4 rounded-lg flex items-center justify-between">
                           <div className="flex items-center">
-                            <Badge className="bg-blue-600 mr-3 h-6 w-6 flex items-center justify-center p-0">1</Badge>
-                            <span className="font-medium text-blue-800">Response time</span>
+                            <Badge className="bg-[#2E6BBF] mr-3 h-6 w-6 flex items-center justify-center p-0">1</Badge>
+                            <span className="font-medium text-gray-700">Response time</span>
                           </div>
-                          <span className="text-sm font-bold text-blue-700">38%</span>
+                          <span className="text-sm font-bold text-[#2E6BBF]">38%</span>
                         </div>
-                        <div className="bg-green-50 p-4 rounded-lg flex items-center justify-between">
+                        <div className="bg-[#F2FCE2] p-4 rounded-lg flex items-center justify-between">
                           <div className="flex items-center">
-                            <Badge className="bg-green-600 mr-3 h-6 w-6 flex items-center justify-center p-0">2</Badge>
-                            <span className="font-medium text-green-800">Prior success</span>
+                            <Badge className="bg-[#608B2C] mr-3 h-6 w-6 flex items-center justify-center p-0">2</Badge>
+                            <span className="font-medium text-gray-700">Prior success</span>
                           </div>
-                          <span className="text-sm font-bold text-green-700">27%</span>
+                          <span className="text-sm font-bold text-[#608B2C]">27%</span>
                         </div>
-                        <div className="bg-amber-50 p-4 rounded-lg flex items-center justify-between">
+                        <div className="bg-[#FEF7CD] p-4 rounded-lg flex items-center justify-between">
                           <div className="flex items-center">
-                            <Badge className="bg-amber-500 mr-3 h-6 w-6 flex items-center justify-center p-0">3</Badge>
-                            <span className="font-medium text-amber-800">Lead source</span>
+                            <Badge className="bg-[#DBB634] mr-3 h-6 w-6 flex items-center justify-center p-0">3</Badge>
+                            <span className="font-medium text-gray-700">Lead source</span>
                           </div>
-                          <span className="text-sm font-bold text-amber-700">18%</span>
+                          <span className="text-sm font-bold text-[#DBB634]">18%</span>
                         </div>
                       </div>
                     </CardContent>
@@ -345,15 +345,15 @@ const ManagerDashboard: React.FC = () => {
             <TabsContent value="team">
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <Card className="shadow-sm border-indigo-100">
-                    <CardHeader className="flex flex-row items-center justify-between border-b border-indigo-50 bg-indigo-50/50">
+                  <Card className="shadow-sm border-gray-100">
+                    <CardHeader className="flex flex-row items-center justify-between border-b border-gray-50 bg-[#F5F3FF]/50">
                       <div>
-                        <CardTitle className="text-xl text-indigo-900">Team Members</CardTitle>
-                        <CardDescription className="text-indigo-700">Manage your team and their access</CardDescription>
+                        <CardTitle className="text-xl text-gray-800">Team Members</CardTitle>
+                        <CardDescription className="text-gray-500">Manage your team and their access</CardDescription>
                       </div>
                       <Button 
                         onClick={() => setShowTeamInvite(!showTeamInvite)} 
-                        className={`flex items-center gap-2 ${showTeamInvite ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+                        className={`flex items-center gap-2 ${showTeamInvite ? 'bg-gray-200 text-gray-800 hover:bg-gray-300' : 'bg-[#9F86F3] hover:bg-[#8B73E0] text-white'}`}
                       >
                         <UserPlus className="h-4 w-4" />
                         {showTeamInvite ? "Cancel" : "Invite Member"}
@@ -361,54 +361,54 @@ const ManagerDashboard: React.FC = () => {
                     </CardHeader>
                     <CardContent className="pt-6">
                       {showTeamInvite && (
-                        <div className="mb-6 bg-indigo-50 p-4 rounded-lg border border-indigo-100">
+                        <div className="mb-6 bg-[#F5F3FF] p-4 rounded-lg border border-[#E5DEFF]">
                           <UserInviteForm />
                         </div>
                       )}
                       
-                      <div className="rounded-lg overflow-hidden border border-indigo-100">
+                      <div className="rounded-lg overflow-hidden border border-gray-100">
                         <Table>
-                          <TableHeader className="bg-indigo-50">
+                          <TableHeader className="bg-[#F5F3FF]">
                             <TableRow>
-                              <TableHead className="text-indigo-900">Name</TableHead>
-                              <TableHead className="text-indigo-900">Email</TableHead>
-                              <TableHead className="text-indigo-900">Role</TableHead>
-                              <TableHead className="text-indigo-900">Status</TableHead>
+                              <TableHead className="text-gray-700">Name</TableHead>
+                              <TableHead className="text-gray-700">Email</TableHead>
+                              <TableHead className="text-gray-700">Role</TableHead>
+                              <TableHead className="text-gray-700">Status</TableHead>
                               <TableHead></TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
-                            <TableRow className="hover:bg-indigo-50/50">
+                            <TableRow className="hover:bg-[#F5F3FF]/50">
                               <TableCell className="font-medium">John Smith</TableCell>
                               <TableCell>john.smith@example.com</TableCell>
                               <TableCell>Admin</TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                                <Badge variant="outline" className="bg-[#F2FCE2] text-[#608B2C] border-[#E5F4CB]">Active</Badge>
                               </TableCell>
                               <TableCell>
-                                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50">Edit</Button>
+                                <Button variant="ghost" size="sm" className="text-[#6D4AFF] hover:text-[#5739DF] hover:bg-[#F5F3FF]">Edit</Button>
                               </TableCell>
                             </TableRow>
-                            <TableRow className="hover:bg-indigo-50/50">
+                            <TableRow className="hover:bg-[#F5F3FF]/50">
                               <TableCell className="font-medium">Sarah Johnson</TableCell>
                               <TableCell>sarah.j@example.com</TableCell>
                               <TableCell>Manager</TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Active</Badge>
+                                <Badge variant="outline" className="bg-[#F2FCE2] text-[#608B2C] border-[#E5F4CB]">Active</Badge>
                               </TableCell>
                               <TableCell>
-                                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50">Edit</Button>
+                                <Button variant="ghost" size="sm" className="text-[#6D4AFF] hover:text-[#5739DF] hover:bg-[#F5F3FF]">Edit</Button>
                               </TableCell>
                             </TableRow>
-                            <TableRow className="hover:bg-indigo-50/50">
+                            <TableRow className="hover:bg-[#F5F3FF]/50">
                               <TableCell className="font-medium">Robert Chen</TableCell>
                               <TableCell>robert.c@example.com</TableCell>
                               <TableCell>Member</TableCell>
                               <TableCell>
-                                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Pending</Badge>
+                                <Badge variant="outline" className="bg-[#FEF7CD] text-[#DBB634] border-[#F3EBB2]">Pending</Badge>
                               </TableCell>
                               <TableCell>
-                                <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50">Resend</Button>
+                                <Button variant="ghost" size="sm" className="text-[#6D4AFF] hover:text-[#5739DF] hover:bg-[#F5F3FF]">Resend</Button>
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -419,44 +419,44 @@ const ManagerDashboard: React.FC = () => {
                 </div>
                 
                 <div>
-                  <Card className="shadow-sm border-indigo-100">
-                    <CardHeader className="border-b border-indigo-50 bg-indigo-50/50">
-                      <CardTitle className="text-xl text-indigo-900">Team Performance</CardTitle>
-                      <CardDescription className="text-indigo-700">Overall team metrics</CardDescription>
+                  <Card className="shadow-sm border-gray-100">
+                    <CardHeader className="border-b border-gray-50 bg-[#F5F3FF]/50">
+                      <CardTitle className="text-xl text-gray-800">Team Performance</CardTitle>
+                      <CardDescription className="text-gray-500">Overall team metrics</CardDescription>
                     </CardHeader>
                     <CardContent className="pt-6">
                       <div className="space-y-6">
                         <div>
                           <div className="flex justify-between text-sm mb-2">
-                            <span className="font-medium text-indigo-800">Average response time</span>
-                            <span className="font-medium text-indigo-900">3.2 hours</span>
+                            <span className="font-medium text-gray-700">Average response time</span>
+                            <span className="font-medium text-gray-800">3.2 hours</span>
                           </div>
-                          <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
-                            <div className="bg-green-500 h-full rounded-full" style={{ width: '75%' }}></div>
+                          <div className="h-2 bg-[#F1F0FB] rounded-full overflow-hidden">
+                            <div className="bg-[#8BC34A] h-full rounded-full" style={{ width: '75%' }}></div>
                           </div>
-                          <div className="mt-1 text-xs text-green-600 text-right">Excellent</div>
+                          <div className="mt-1 text-xs text-[#608B2C] text-right">Excellent</div>
                         </div>
                         
                         <div>
                           <div className="flex justify-between text-sm mb-2">
-                            <span className="font-medium text-indigo-800">Conversion rate</span>
-                            <span className="font-medium text-indigo-900">32%</span>
+                            <span className="font-medium text-gray-700">Conversion rate</span>
+                            <span className="font-medium text-gray-800">32%</span>
                           </div>
-                          <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
-                            <div className="bg-blue-500 h-full rounded-full" style={{ width: '32%' }}></div>
+                          <div className="h-2 bg-[#F1F0FB] rounded-full overflow-hidden">
+                            <div className="bg-[#6B98D3] h-full rounded-full" style={{ width: '32%' }}></div>
                           </div>
-                          <div className="mt-1 text-xs text-blue-600 text-right">Good</div>
+                          <div className="mt-1 text-xs text-[#2E6BBF] text-right">Good</div>
                         </div>
                         
                         <div>
                           <div className="flex justify-between text-sm mb-2">
-                            <span className="font-medium text-indigo-800">Team capacity</span>
-                            <span className="font-medium text-indigo-900">68%</span>
+                            <span className="font-medium text-gray-700">Team capacity</span>
+                            <span className="font-medium text-gray-800">68%</span>
                           </div>
-                          <div className="h-2 bg-indigo-100 rounded-full overflow-hidden">
-                            <div className="bg-amber-500 h-full rounded-full" style={{ width: '68%' }}></div>
+                          <div className="h-2 bg-[#F1F0FB] rounded-full overflow-hidden">
+                            <div className="bg-[#DBB634] h-full rounded-full" style={{ width: '68%' }}></div>
                           </div>
-                          <div className="mt-1 text-xs text-amber-600 text-right">Moderate</div>
+                          <div className="mt-1 text-xs text-[#DBB634] text-right">Moderate</div>
                         </div>
                       </div>
                     </CardContent>

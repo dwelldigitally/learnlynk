@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -6,12 +7,16 @@ import { Separator } from "@/components/ui/separator";
 import { Form } from "@/components/ui/form";
 import WinDefinitionSection, { WinDefinitionValues } from "./WinDefinitionSection";
 import hubspotService from "@/services/hubspotService";
+import { useForm } from "react-hook-form";
 
 const ConversionFactorsScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [recommendedFactors, setRecommendedFactors] = useState<string[]>([]);
   const [selectedFactors, setSelectedFactors] = useState<Record<string, boolean>>({});
   const [winDefinition, setWinDefinition] = useState<WinDefinitionValues | null>(null);
+  
+  // Create form instance
+  const form = useForm();
   
   useEffect(() => {
     const fetchFactors = async () => {
@@ -59,7 +64,7 @@ const ConversionFactorsScreen: React.FC = () => {
       
       <Card className="mb-6">
         <CardContent className="pt-6">
-          <Form>
+          <Form {...form}>
             <WinDefinitionSection onDefinitionChange={handleWinDefinitionChange} />
           </Form>
         </CardContent>

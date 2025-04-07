@@ -9,6 +9,7 @@ import ManagerDashboard from "./pages/ManagerDashboard";
 import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
+import StudentPortal from "./pages/StudentPortal";
 import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,17 @@ const App = () => {
             <Route path="/step/:stepNumber" element={<OnboardingRoute />} />
             <Route path="/dashboard" element={<Navigate to="/manager" replace />} /> 
             <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} />} />
+            
+            {/* Student Portal Routes */}
+            <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/dashboard" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/applications" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/track" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/fee" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/campus-life" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/program" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/campus" element={<ProtectedRoute element={<StudentPortal />} />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

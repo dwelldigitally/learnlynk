@@ -20,6 +20,7 @@ import AIWeightSettings from "@/components/manager/AIWeightSettings";
 import PerformanceComparison from "@/components/manager/PerformanceComparison";
 import UserInviteForm from "@/components/dashboard/UserInviteForm";
 import PipelinePlanner from "@/components/manager/PipelinePlanner";
+import { Link } from "react-router-dom";
 
 const ManagerDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -71,7 +72,13 @@ const ManagerDashboard: React.FC = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Lead Management Console</h2>
+          <h1 className="text-2xl font-bold">Manager Dashboard</h1>
+          <Link to="/student">
+            <Button variant="outline" className="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Student Portal
+            </Button>
+          </Link>
           <Button onClick={() => navigate('/dashboard')} variant="outline">
             Back to Dashboard
           </Button>

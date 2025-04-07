@@ -1,10 +1,20 @@
 
-import React from "react";
-import { SignUp as ClerkSignUp } from "@clerk/clerk-react";
+import React, { useEffect } from "react";
+import { SignUp as ClerkSignUp, useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { getRedirectPathAfterLogin } from "@/utils/onboardingUtils";
 
 const SignUp: React.FC = () => {
   const navigate = useNavigate();
+  const { isSignedIn, user, isLoaded } = useUser();
+  
+  // Handle redirection after sign up based on onboarding status
+  useEffect(() => {
+    if (isLoaded && isSignedIn && user) {
+      const redirectPath = getRedirectPathAfterLogin(user);
+      navigate(redirectPath, { replace: true });
+    }
+  }, [isSignedIn, user, isLoaded, navigate]);
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white p-4">

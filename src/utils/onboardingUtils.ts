@@ -1,6 +1,5 @@
-
-// Import the User type directly from @clerk/clerk-react
-import type { User as ClerkUser } from "@clerk/clerk-react";
+// Import the User type correctly
+import type { User } from "@clerk/clerk-react";
 
 // Onboarding step management utilities
 
@@ -10,7 +9,7 @@ import type { User as ClerkUser } from "@clerk/clerk-react";
  * Returns 0 if the user has completed onboarding
  * Returns 1-9 for the specific onboarding step they're on
  */
-export const getOnboardingStatus = (user: ClerkUser): number => {
+export const getOnboardingStatus = (user: User): number => {
   // Get the onboarding status from user metadata
   const onboardingStep = user?.publicMetadata?.onboardingStep;
   
@@ -24,7 +23,7 @@ export const getOnboardingStatus = (user: ClerkUser): number => {
 /**
  * Sets the current onboarding step for a user
  */
-export const setOnboardingStatus = async (user: ClerkUser, step: number): Promise<void> => {
+export const setOnboardingStatus = async (user: User, step: number): Promise<void> => {
   try {
     await user.update({
       publicMetadata: {
@@ -40,7 +39,7 @@ export const setOnboardingStatus = async (user: ClerkUser, step: number): Promis
 /**
  * Marks onboarding as complete
  */
-export const completeOnboarding = async (user: ClerkUser): Promise<void> => {
+export const completeOnboarding = async (user: User): Promise<void> => {
   try {
     await user.update({
       publicMetadata: {
@@ -57,6 +56,28 @@ export const completeOnboarding = async (user: ClerkUser): Promise<void> => {
 /**
  * Checks if the user has completed onboarding
  */
-export const isOnboardingComplete = (user: ClerkUser): boolean => {
+export const isOnboardingComplete = (user: User): boolean => {
   return user?.publicMetadata?.onboardingCompleted === true;
+};
+
+/**
+ * Check onboarding status and return the appropriate redirect path
+ * @returns The path to redirect to based on onboarding status
+ */
+export const getRedirectPathAfterLogin = (user: User): string => {
+  // Check if onboarding is complete
+  if (isOnboardingComplete(user)) {
+    return "/dashboard";
+  }
+  
+  // Get the current onboarding step
+  const currentStep = getOnboardingStatus(user);
+  
+  // If user hasn't started onboarding yet, redirect to the beginning
+  if (currentStep === -1) {
+    return "/";
+  }
+  
+  // Otherwise redirect to the specific step they're on
+  return currentStep === 1 ? "/" : `/step/${currentStep}`;
 };

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -12,13 +11,26 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
-import { getOnboardingStatus, setOnboardingStatus } from "./utils/onboardingUtils";
+import { getOnboardingStatus, setOnboardingStatus, getRedirectPathAfterLogin } from "./utils/onboardingUtils";
 
 const queryClient = new QueryClient();
 
-// Protected route component that checks if user is authenticated
+// Protected route component that checks if user is authenticated and handles onboarding redirect
 const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn, isLoaded, user } = useUser();
+  
+  useEffect(() => {
+    // Check onboarding status when user is loaded
+    if (isLoaded && isSignedIn && user) {
+      const redirectPath = getRedirectPathAfterLogin(user);
+      
+      // If we're not already on the correct path, redirect
+      if (window.location.pathname !== redirectPath && 
+          !(window.location.pathname.startsWith("/dashboard") && redirectPath === "/dashboard")) {
+        window.location.href = redirectPath;
+      }
+    }
+  }, [isLoaded, isSignedIn, user]);
   
   if (!isLoaded) return <div>Loading...</div>;
   

@@ -277,7 +277,7 @@ const ManagerDashboard: React.FC = () => {
                     <TableHead className="text-gray-700 font-medium">Status</TableHead>
                     <TableHead className="text-gray-700 font-medium">Schedule</TableHead>
                     <TableHead className="text-gray-700 font-medium">Performance Tier</TableHead>
-                    <TableHead className="text-gray-700 font-medium">Leads</TableHead>
+                    <TableHead className="text-gray-700 font-medium">Leads Assigned</TableHead>
                     <TableHead className="text-gray-700 font-medium">Conversion</TableHead>
                   </TableRow>
                 </TableHeader>

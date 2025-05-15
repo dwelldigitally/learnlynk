@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -7,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Progress } from "@/components/ui/progress";
 import { 
   Users, BarChart3, 
   ArrowUp, Clock, Calendar,
@@ -113,6 +113,18 @@ const ManagerDashboard: React.FC = () => {
         description: `Maximum assignments changed to ${numValue} per week`,
       });
     }
+  };
+  
+  // Calculate capacity percentage
+  const getCapacityPercentage = (leadCount: number, maxAssignments: number) => {
+    return Math.min(Math.round((leadCount / maxAssignments) * 100), 100);
+  };
+  
+  // Get color for the progress bar based on capacity
+  const getCapacityColorClass = (percentage: number) => {
+    if (percentage >= 90) return "bg-red-500";
+    if (percentage >= 75) return "bg-yellow-500";
+    return "bg-blue-500"; 
   };
   
   // Filter advisors based on search query
@@ -277,7 +289,7 @@ const ManagerDashboard: React.FC = () => {
                     <TableHead className="text-gray-700 font-medium">Status</TableHead>
                     <TableHead className="text-gray-700 font-medium">Schedule</TableHead>
                     <TableHead className="text-gray-700 font-medium">Performance Tier</TableHead>
-                    <TableHead className="text-gray-700 font-medium">Leads Assigned</TableHead>
+                    <TableHead className="text-gray-700 font-medium">Capacity</TableHead>
                     <TableHead className="text-gray-700 font-medium">Conversion</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -350,9 +362,25 @@ const ManagerDashboard: React.FC = () => {
                         </Select>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
-                          {advisor.leadCount}
-                        </Badge>
+                        <div className="w-full">
+                          {(() => {
+                            const capacityPercentage = getCapacityPercentage(advisor.leadCount, advisor.maxAssignments);
+                            const colorClass = getCapacityColorClass(capacityPercentage);
+                            return (
+                              <>
+                                <div className="flex justify-between mb-1">
+                                  <span className="text-xs text-gray-600">{advisor.leadCount} of {advisor.maxAssignments}</span>
+                                  <span className="text-xs font-medium">{capacityPercentage}%</span>
+                                </div>
+                                <Progress 
+                                  value={capacityPercentage} 
+                                  className="h-2 bg-gray-100"
+                                  indicatorClassName={colorClass} 
+                                />
+                              </>
+                            );
+                          })()}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <div className="font-medium text-gray-900">{advisor.conversionRate}</div>

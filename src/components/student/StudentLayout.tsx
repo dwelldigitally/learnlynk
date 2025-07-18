@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import Chatbot from "@/components/Chatbot";
-import { Mail, Bell } from "lucide-react";
+import { Mail, Bell, Plus } from "lucide-react";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const navItems = [
     { name: "Overview", path: "/student" },
     { name: "Dashboard", path: "/student/dashboard" },
-    { name: "Your Applications", path: "/student/applications" },
+    { name: "Documents", path: "/student/applications", hasUpdate: true },
     { name: "Pay Your Fee", path: "/student/fee" },
     { name: "Life @ WCC", path: "/student/campus-life" },
   ];
@@ -50,13 +50,16 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
             <Link
               key={index}
               to={item.path}
-              className={`block px-4 py-2 rounded-md text-sm ${
+              className={`flex items-center justify-between px-4 py-2 rounded-md text-sm ${
                 currentPath === item.path
                   ? "bg-blue-50 text-blue-700 font-medium"
                   : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              {item.name}
+              <span>{item.name}</span>
+              {item.hasUpdate && (
+                <Plus className="w-4 h-4 text-blue-600 bg-blue-100 rounded-full p-0.5" />
+              )}
             </Link>
           ))}
         </nav>

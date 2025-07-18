@@ -17,11 +17,8 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
     { name: "Overview", path: "/student" },
     { name: "Dashboard", path: "/student/dashboard" },
     { name: "Your Applications", path: "/student/applications" },
-    { name: "Track Your Application", path: "/student/track" },
     { name: "Pay Your Fee", path: "/student/fee" },
     { name: "Life @ WCC", path: "/student/campus-life" },
-    { name: "About Program", path: "/student/program" },
-    { name: "About Campus", path: "/student/campus" },
   ];
 
   return (

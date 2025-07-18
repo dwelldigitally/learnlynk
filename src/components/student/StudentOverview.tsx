@@ -8,6 +8,7 @@ import { Student, AdmissionStep, NewsEvent, AdvisorProfile } from "@/types/stude
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
 import AppointmentCalendar from "@/components/student/AppointmentCalendar";
 import NewsEventCard from "@/components/student/NewsEventCard";
+import AdmissionForm from "@/components/student/AdmissionForm";
 import healthcareWelcome from "@/assets/healthcare-welcome.jpg";
 import ucatMaster from "@/assets/ucat-master.jpg";
 import ucatScore from "@/assets/ucat-score.jpg";
@@ -21,6 +22,7 @@ import alumniNicole from "@/assets/alumni-nicole.jpg";
 const StudentOverview: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("personal");
   const [intake, setIntake] = useState("15th March 2025");
+  const [showAdmissionForm, setShowAdmissionForm] = useState(false);
   
   // Mock student data
   const student: Student = {
@@ -86,6 +88,11 @@ const StudentOverview: React.FC = () => {
     }
   ];
 
+  // Show admission form if requested
+  if (showAdmissionForm) {
+    return <AdmissionForm onBack={() => setShowAdmissionForm(false)} />;
+  }
+
   return (
     <div>
       {/* Program Header with Intake Selection */}
@@ -125,7 +132,10 @@ const StudentOverview: React.FC = () => {
                   There are 5 steps to apply for the program. You can stop anytime and 
                   continue later.
                 </p>
-                <Button className="bg-purple-900 hover:bg-purple-800 text-white flex items-center gap-2">
+                <Button 
+                  className="bg-purple-900 hover:bg-purple-800 text-white flex items-center gap-2"
+                  onClick={() => setShowAdmissionForm(true)}
+                >
                   Start Application
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                 </Button>

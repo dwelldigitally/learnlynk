@@ -143,17 +143,176 @@ const StudentDashboard: React.FC = () => {
 
           {/* Form Fields */}
           <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Personal Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="First Name" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="First Name" value={student.firstName} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Last Name" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Last Name" value={student.lastName} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                <input type="email" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Email Address" value={student.email} />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                <input type="tel" className="w-full p-2 border border-gray-300 rounded-md" placeholder="(123) 456-7890" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth *</label>
+                <input type="date" className="w-full p-2 border border-gray-300 rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer-not-to-say">Prefer not to say</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Street Address" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="City" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Province *</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="">Select Province</option>
+                  <option value="BC">British Columbia</option>
+                  <option value="AB">Alberta</option>
+                  <option value="SK">Saskatchewan</option>
+                  <option value="MB">Manitoba</option>
+                  <option value="ON">Ontario</option>
+                  <option value="QC">Quebec</option>
+                  <option value="NB">New Brunswick</option>
+                  <option value="NS">Nova Scotia</option>
+                  <option value="PE">Prince Edward Island</option>
+                  <option value="NL">Newfoundland and Labrador</option>
+                  <option value="YT">Yukon</option>
+                  <option value="NT">Northwest Territories</option>
+                  <option value="NU">Nunavut</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code *</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="A1A 1A1" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Country *</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="Canada">Canada</option>
+                  <option value="USA">United States</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
             </div>
-            <div className="flex justify-end mt-4">
+
+            <h4 className="text-md font-semibold mt-6 mb-4">Emergency Contact</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name *</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Full Name" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Relationship *</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="">Select Relationship</option>
+                  <option value="parent">Parent</option>
+                  <option value="spouse">Spouse</option>
+                  <option value="sibling">Sibling</option>
+                  <option value="friend">Friend</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Phone *</label>
+                <input type="tel" className="w-full p-2 border border-gray-300 rounded-md" placeholder="(123) 456-7890" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Email</label>
+                <input type="email" className="w-full p-2 border border-gray-300 rounded-md" placeholder="emergency@email.com" />
+              </div>
+            </div>
+
+            <h4 className="text-md font-semibold mt-6 mb-4">Educational Background</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Highest Level of Education *</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="">Select Education Level</option>
+                  <option value="high-school">High School Diploma</option>
+                  <option value="some-college">Some College</option>
+                  <option value="associates">Associate Degree</option>
+                  <option value="bachelors">Bachelor's Degree</option>
+                  <option value="masters">Master's Degree</option>
+                  <option value="doctorate">Doctorate</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Year Completed</label>
+                <input type="number" className="w-full p-2 border border-gray-300 rounded-md" placeholder="2023" min="1970" max="2024" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">School/Institution Name</label>
+                <input type="text" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Institution Name" />
+              </div>
+            </div>
+
+            <h4 className="text-md font-semibold mt-6 mb-4">Healthcare Experience</h4>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Do you have any previous healthcare experience?</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input type="radio" name="healthcare-experience" value="yes" className="mr-2" />
+                    Yes
+                  </label>
+                  <label className="flex items-center">
+                    <input type="radio" name="healthcare-experience" value="no" className="mr-2" />
+                    No
+                  </label>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">If yes, please describe your experience</label>
+                <textarea className="w-full p-2 border border-gray-300 rounded-md" rows={3} placeholder="Describe your healthcare experience, certifications, or relevant training..."></textarea>
+              </div>
+            </div>
+
+            <h4 className="text-md font-semibold mt-6 mb-4">Program Preferences</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Start Date</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="">Select Start Date</option>
+                  <option value="march-2025">March 2025</option>
+                  <option value="september-2025">September 2025</option>
+                  <option value="march-2026">March 2026</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Study Format Preference</label>
+                <select className="w-full p-2 border border-gray-300 rounded-md">
+                  <option value="">Select Format</option>
+                  <option value="full-time">Full-time</option>
+                  <option value="part-time">Part-time</option>
+                  <option value="evening">Evening Classes</option>
+                  <option value="weekend">Weekend Classes</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-6">
               <Button variant="outline" size="icon" className="rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
               </Button>

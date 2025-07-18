@@ -27,7 +27,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
       <aside className="w-64 bg-white border-r border-gray-200 shadow-sm">
         <div className="p-4 flex justify-center border-b border-gray-200">
           <img 
-            src="/lovable-uploads/5768a2b7-fa2b-464c-b874-636a40212b2f.png" 
+            src="/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png" 
             alt="Western Community College" 
             className="h-14"
           />

@@ -9,6 +9,15 @@ import { Student, AdmissionStep, NewsEvent, AdvisorProfile } from "@/types/stude
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
 import AppointmentCalendar from "@/components/student/AppointmentCalendar";
 import NewsEventCard from "@/components/student/NewsEventCard";
+import healthcareWelcome from "@/assets/healthcare-welcome.jpg";
+import ucatMaster from "@/assets/ucat-master.jpg";
+import ucatScore from "@/assets/ucat-score.jpg";
+import ucatUltimate from "@/assets/ucat-ultimate.jpg";
+import advisorNicole from "@/assets/advisor-nicole.jpg";
+import authorAhmed from "@/assets/author-ahmed.jpg";
+import authorSarah from "@/assets/author-sarah.jpg";
+import authorRobert from "@/assets/author-robert.jpg";
+import alumniNicole from "@/assets/alumni-nicole.jpg";
 
 const StudentDashboard: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("personal");
@@ -32,7 +41,7 @@ const StudentDashboard: React.FC = () => {
     title: "Senior Admissions Advisor",
     email: "nicole@wcc.ca",
     phone: "(604)-594-3500",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg"
+    avatar: advisorNicole
   };
   
   // Mock news and events data
@@ -41,11 +50,11 @@ const StudentDashboard: React.FC = () => {
       id: "1",
       title: "MASTER THE UCAT",
       description: "2000+ Practice Questions, 100+ Comprehensive Lessons",
-      image: "https://source.unsplash.com/random/300x200?medical",
+      image: ucatMaster,
       author: {
         name: "Ahmed Shafi",
         role: "Reasoning Expert",
-        avatar: "https://randomuser.me/api/portraits/men/32.jpg"
+        avatar: authorAhmed
       },
       duration: "10 Hours",
       lessons: 11
@@ -54,11 +63,11 @@ const StudentDashboard: React.FC = () => {
       id: "2",
       title: "Score Higher on the UCAT",
       description: "Sixth Edition",
-      image: "https://source.unsplash.com/random/300x200?exam",
+      image: ucatScore,
       author: {
         name: "Dr. Sarah Mitchell",
         role: "Situational Judgment",
-        avatar: "https://randomuser.me/api/portraits/women/32.jpg"
+        avatar: authorSarah
       },
       duration: "20 Hours",
       lessons: 19
@@ -67,11 +76,11 @@ const StudentDashboard: React.FC = () => {
       id: "3",
       title: "The Ultimate UCAT",
       description: "Comprehensive preparation guide",
-      image: "https://source.unsplash.com/random/300x200?study",
+      image: ucatUltimate,
       author: {
         name: "Mr. Robert Turner",
         role: "Logical Reasoning",
-        avatar: "https://randomuser.me/api/portraits/men/22.jpg"
+        avatar: authorRobert
       },
       duration: "17 Hours",
       lessons: 15
@@ -124,7 +133,7 @@ const StudentDashboard: React.FC = () => {
               </div>
               <div className="md:w-1/2">
                 <img 
-                  src="https://source.unsplash.com/random/400x300?healthcare,nurse" 
+                  src={healthcareWelcome} 
                   alt="Healthcare Professional" 
                   className="rounded-lg w-full h-48 object-cover"
                 />
@@ -173,7 +182,7 @@ const StudentDashboard: React.FC = () => {
             <Card className="p-6">
               <div className="flex items-center">
                 <div className="w-20 h-20 overflow-hidden rounded-full mr-6">
-                  <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Alumni" className="w-full h-full object-cover" />
+                  <img src={alumniNicole} alt="Alumni" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <h4 className="font-medium">Nicole Ye</h4>

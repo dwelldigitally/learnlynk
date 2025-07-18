@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { Calendar, Clock, Mail } from "lucide-react";
+import { Calendar, Clock, Mail, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Student, AdmissionStep, NewsEvent, AdvisorProfile } from "@/types/student";
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
 import AppointmentCalendar from "@/components/student/AppointmentCalendar";
@@ -23,6 +24,15 @@ const StudentOverview: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("personal");
   const [intake, setIntake] = useState("15th March 2025");
   const [showAdmissionForm, setShowAdmissionForm] = useState(false);
+  const [isIntakePopoverOpen, setIsIntakePopoverOpen] = useState(false);
+  
+  // Mock intake options with availability
+  const intakeOptions = [
+    { date: "15th March 2025", seats: 12, totalSeats: 30 },
+    { date: "20th May 2025", seats: 25, totalSeats: 30 },
+    { date: "15th September 2025", seats: 8, totalSeats: 30 },
+    { date: "10th November 2025", seats: 30, totalSeats: 30 }
+  ];
   
   // Mock student data
   const student: Student = {
@@ -100,10 +110,59 @@ const StudentOverview: React.FC = () => {
         <h2 className="text-xl font-bold">{student.program}</h2>
         <div className="flex items-center">
           <span className="mr-2">Select Your Intake</span>
-          <Button variant="outline" className="bg-transparent border-white text-white flex items-center gap-2">
-            {intake}
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
-          </Button>
+          <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="bg-transparent border-white text-white flex items-center gap-2 hover:bg-white/10">
+                {intake}
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="end">
+              <div className="p-4">
+                <h3 className="font-medium text-lg mb-3">Select Intake Date</h3>
+                <div className="space-y-3">
+                  {intakeOptions.map((option) => (
+                    <div 
+                      key={option.date}
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
+                        intake === option.date ? 'border-purple-600 bg-purple-50' : 'border-gray-200'
+                      }`}
+                      onClick={() => {
+                        setIntake(option.date);
+                        setIsIntakePopoverOpen(false);
+                      }}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-gray-900">{option.date}</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {option.seats} seats available
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-sm font-medium ${
+                            option.seats > 15 ? 'text-green-600' : 
+                            option.seats > 5 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {option.seats}/{option.totalSeats}
+                          </div>
+                          <div className="w-16 bg-gray-200 rounded-full h-2 mt-1">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                option.seats > 15 ? 'bg-green-500' : 
+                                option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 

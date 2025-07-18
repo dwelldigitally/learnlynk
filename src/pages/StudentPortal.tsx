@@ -3,6 +3,7 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 import StudentLayout from "@/components/student/StudentLayout";
 import StudentDashboard from "@/components/student/StudentDashboard";
+import StudentOverview from "@/components/student/StudentOverview";
 import LifeAtWCC from "./LifeAtWCC";
 
 const StudentPortal: React.FC = () => {
@@ -10,11 +11,14 @@ const StudentPortal: React.FC = () => {
   
   const renderContent = () => {
     switch (location.pathname) {
+      case "/student":
+        return <StudentOverview />;
+      case "/student/dashboard":
+        return <StudentDashboard />;
       case "/student/campus-life":
         return <LifeAtWCC />;
-      case "/student/dashboard":
       default:
-        return <StudentDashboard />;
+        return <StudentOverview />;
     }
   };
 

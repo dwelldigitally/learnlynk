@@ -15,8 +15,8 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   // Navigation items for the sidebar
   const navItems = [
     { name: "Overview", path: "/student" },
-    { name: "Dashboard", path: "/student/dashboard" },
-    { name: "Documents", path: "/student/applications", hasUpdate: true },
+    { name: "Documents", path: "/student/dashboard", hasUpdate: true },
+    { name: "Your Applications", path: "/student/applications" },
     { name: "Pay Your Fee", path: "/student/fee" },
     { name: "Life @ WCC", path: "/student/campus-life" },
   ];

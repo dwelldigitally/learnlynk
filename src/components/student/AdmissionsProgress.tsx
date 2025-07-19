@@ -24,24 +24,48 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
         {stages.map((stage, index) => (
           <div key={stage.id} className="flex flex-col items-center">
             <div 
-              className={`flex items-center justify-center w-10 h-10 rounded-full z-10 ${
-                index <= currentStageIndex 
-                  ? "bg-purple-600 text-white" 
+              className={`flex items-center justify-center w-12 h-12 rounded-full z-10 transition-all duration-300 ${
+                index < currentStageIndex 
+                  ? "bg-green-600 text-white shadow-lg" 
+                  : index === currentStageIndex
+                  ? "bg-orange-500 text-white shadow-lg animate-pulse ring-4 ring-orange-200"
                   : "bg-gray-200 text-gray-600"
               }`}
             >
-              {stage.id}
+              {index < currentStageIndex ? (
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+              ) : (
+                stage.id
+              )}
             </div>
-            <div className="text-xs font-medium mt-2 text-center max-w-[70px]">{stage.label}</div>
+            <div className={`text-xs font-medium mt-2 text-center max-w-[80px] ${
+              index === currentStageIndex ? 'text-orange-600 font-bold' : 
+              index < currentStageIndex ? 'text-green-600 font-semibold' : 'text-gray-500'
+            }`}>
+              {stage.label}
+            </div>
           </div>
         ))}
       </div>
-      {/* Progress line */}
-      <div className="absolute top-5 left-0 transform -translate-y-1/2 h-1 bg-gray-200 w-full z-0"></div>
+      {/* Progress line background */}
+      <div className="absolute top-6 left-0 transform -translate-y-1/2 h-2 bg-gray-200 w-full z-0 rounded-full"></div>
+      {/* Completed progress */}
       <div 
-        className="absolute top-5 left-0 transform -translate-y-1/2 h-1 bg-purple-600 z-0"
+        className="absolute top-6 left-0 transform -translate-y-1/2 h-2 bg-green-500 z-0 rounded-full transition-all duration-500"
         style={{ width: `${(currentStageIndex / (stages.length - 1)) * 100}%` }}
       ></div>
+      {/* Current progress indicator */}
+      {currentStageIndex < stages.length - 1 && (
+        <div 
+          className="absolute top-6 left-0 transform -translate-y-1/2 h-2 bg-orange-400 z-0 rounded-full animate-pulse"
+          style={{ 
+            width: `${((currentStageIndex + 0.5) / (stages.length - 1)) * 100}%`,
+            maxWidth: `${((currentStageIndex + 1) / (stages.length - 1)) * 100}%`
+          }}
+        ></div>
+      )}
     </div>
   );
 };

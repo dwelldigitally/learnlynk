@@ -200,9 +200,63 @@ const StudentOverview: React.FC = () => {
           </Card>
 
           {/* Admissions Progress */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Admissions Stage</h3>
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold text-green-900">Admissions Progress</h3>
+              <div className="text-right">
+                <div className="text-sm font-medium text-green-700">Application Deadline</div>
+                <div className="text-lg font-bold text-green-900">
+                  {intake === "15th March 2025" ? "1st March 2025" :
+                   intake === "20th May 2025" ? "5th May 2025" :
+                   intake === "15th September 2025" ? "1st September 2025" :
+                   "25th October 2025"}
+                </div>
+              </div>
+            </div>
             <AdmissionsProgress currentStage={student.stage} />
+            
+            {/* Next Steps */}
+            <div className="mt-6 p-4 bg-white rounded-lg border-l-4 border-green-500">
+              <h4 className="font-semibold text-gray-900 mb-2">Next Steps Required:</h4>
+              <div className="space-y-2">
+                {student.stage === "LEAD_FORM" && (
+                  <div className="flex items-center text-sm text-gray-700">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
+                    Complete and submit required documents (Transcripts, ID copy)
+                  </div>
+                )}
+                {student.stage === "SEND_DOCUMENTS" && (
+                  <>
+                    <div className="flex items-center text-sm text-gray-700">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                      Upload official transcripts and identification documents
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
+                      Wait for document review and approval
+                    </div>
+                  </>
+                )}
+                {student.stage === "DOCUMENT_APPROVAL" && (
+                  <div className="flex items-center text-sm text-gray-700">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                    Complete fee payment to secure your seat
+                  </div>
+                )}
+                {student.stage === "FEE_PAYMENT" && (
+                  <div className="flex items-center text-sm text-green-700">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                    Final acceptance confirmation will be sent shortly
+                  </div>
+                )}
+                {student.stage === "ACCEPTED" && (
+                  <div className="flex items-center text-sm text-green-700">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                    Congratulations! You're all set for your program start date.
+                  </div>
+                )}
+              </div>
+            </div>
           </Card>
 
           {/* Latest News & Events */}

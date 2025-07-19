@@ -29,7 +29,7 @@ const StudentOverview: React.FC = () => {
   const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
   
   // Program list with their specific intake dates
-  const programs = {
+  const allPrograms = {
     "Health Care Assistant": [
       { date: "15th March 2025", seats: 12, totalSeats: 30 },
       { date: "20th May 2025", seats: 25, totalSeats: 30 },
@@ -65,14 +65,14 @@ const StudentOverview: React.FC = () => {
   };
   
   // Get current program's intake options
-  const currentIntakeOptions = programs[selectedProgram as keyof typeof programs] || programs["Health Care Assistant"];
+  const availableIntakes = allPrograms[selectedProgram as keyof typeof allPrograms] || allPrograms["Health Care Assistant"];
   
   // Update intake when program changes
   const handleProgramChange = (program: string) => {
     setSelectedProgram(program);
-    const programIntakes = programs[program as keyof typeof programs];
-    if (programIntakes && programIntakes.length > 0) {
-      setIntake(programIntakes[0].date);
+    const programSchedule = allPrograms[program as keyof typeof allPrograms];
+    if (programSchedule && programSchedule.length > 0) {
+      setIntake(programSchedule[0].date);
     }
     setIsProgramPopoverOpen(false);
   };
@@ -261,7 +261,7 @@ const StudentOverview: React.FC = () => {
             <div className="p-4">
               <h3 className="font-medium text-lg mb-3 text-gray-900">Select Program</h3>
               <div className="space-y-2">
-                {Object.keys(programs).map((program) => (
+                {Object.keys(allPrograms).map((program) => (
                   <div 
                     key={program}
                     className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
@@ -271,7 +271,7 @@ const StudentOverview: React.FC = () => {
                   >
                     <p className="font-medium text-gray-900">{program}</p>
                     <p className="text-sm text-gray-600 mt-1">
-                      {programs[program as keyof typeof programs].length} intake dates available
+                      {allPrograms[program as keyof typeof allPrograms].length} intake dates available
                     </p>
                   </div>
                 ))}
@@ -292,7 +292,7 @@ const StudentOverview: React.FC = () => {
               <div className="p-4">
                 <h3 className="font-medium text-lg mb-3">Select Intake Date</h3>
                 <div className="space-y-3">
-                  {currentIntakeOptions.map((option) => (
+                  {availableIntakes.map((option) => (
                     <div 
                       key={option.date}
                       className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${

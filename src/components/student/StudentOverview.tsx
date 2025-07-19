@@ -22,17 +22,60 @@ import alumniNicole from "@/assets/alumni-nicole.jpg";
 
 const StudentOverview: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState("personal");
+  const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
   const [intake, setIntake] = useState("15th March 2025");
   const [showAdmissionForm, setShowAdmissionForm] = useState(false);
   const [isIntakePopoverOpen, setIsIntakePopoverOpen] = useState(false);
+  const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
   
-  // Mock intake options with availability
-  const intakeOptions = [
-    { date: "15th March 2025", seats: 12, totalSeats: 30 },
-    { date: "20th May 2025", seats: 25, totalSeats: 30 },
-    { date: "15th September 2025", seats: 8, totalSeats: 30 },
-    { date: "10th November 2025", seats: 30, totalSeats: 30 }
-  ];
+  // Program list with their specific intake dates
+  const programs = {
+    "Health Care Assistant": [
+      { date: "15th March 2025", seats: 12, totalSeats: 30 },
+      { date: "20th May 2025", seats: 25, totalSeats: 30 },
+      { date: "15th September 2025", seats: 8, totalSeats: 30 },
+      { date: "10th November 2025", seats: 30, totalSeats: 30 }
+    ],
+    "Education Assistant": [
+      { date: "5th February 2025", seats: 18, totalSeats: 25 },
+      { date: "10th June 2025", seats: 20, totalSeats: 25 },
+      { date: "1st October 2025", seats: 15, totalSeats: 25 }
+    ],
+    "Aviation": [
+      { date: "20th January 2025", seats: 8, totalSeats: 20 },
+      { date: "15th April 2025", seats: 12, totalSeats: 20 },
+      { date: "10th August 2025", seats: 16, totalSeats: 20 },
+      { date: "5th December 2025", seats: 20, totalSeats: 20 }
+    ],
+    "Hospitality": [
+      { date: "1st March 2025", seats: 22, totalSeats: 35 },
+      { date: "1st July 2025", seats: 28, totalSeats: 35 },
+      { date: "1st November 2025", seats: 35, totalSeats: 35 }
+    ],
+    "ECE": [
+      { date: "10th February 2025", seats: 14, totalSeats: 30 },
+      { date: "25th May 2025", seats: 24, totalSeats: 30 },
+      { date: "20th September 2025", seats: 18, totalSeats: 30 }
+    ],
+    "MLA": [
+      { date: "1st January 2025", seats: 10, totalSeats: 15 },
+      { date: "1st May 2025", seats: 12, totalSeats: 15 },
+      { date: "1st September 2025", seats: 15, totalSeats: 15 }
+    ]
+  };
+  
+  // Get current program's intake options
+  const currentIntakeOptions = programs[selectedProgram as keyof typeof programs] || programs["Health Care Assistant"];
+  
+  // Update intake when program changes
+  const handleProgramChange = (program: string) => {
+    setSelectedProgram(program);
+    const programIntakes = programs[program as keyof typeof programs];
+    if (programIntakes && programIntakes.length > 0) {
+      setIntake(programIntakes[0].date);
+    }
+    setIsProgramPopoverOpen(false);
+  };
   
   // Mock student data
   const student: Student = {
@@ -41,7 +84,7 @@ const StudentOverview: React.FC = () => {
     lastName: "Malhotra",
     email: "Tushar.Malhotra@student.wcc.ca",
     studentId: "WCC1047859",
-    program: "Health Care Assistant",
+    program: selectedProgram,
     stage: "SEND_DOCUMENTS",
     acceptanceLikelihood: 80
   };
@@ -205,9 +248,37 @@ const StudentOverview: React.FC = () => {
 
   return (
     <div>
-      {/* Program Header with Intake Selection */}
+      {/* Program Header with Program and Intake Selection */}
       <div className="bg-purple-900 text-white px-8 py-4 rounded-lg mb-6 flex justify-between items-center">
-        <h2 className="text-xl font-bold">{student.program}</h2>
+        <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" className="text-white hover:bg-white/10 p-0 text-xl font-bold flex items-center gap-2">
+              {selectedProgram}
+              <ChevronDown className="w-5 h-5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-0 bg-white z-50" align="start">
+            <div className="p-4">
+              <h3 className="font-medium text-lg mb-3 text-gray-900">Select Program</h3>
+              <div className="space-y-2">
+                {Object.keys(programs).map((program) => (
+                  <div 
+                    key={program}
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
+                      selectedProgram === program ? 'border-purple-600 bg-purple-50' : 'border-gray-200'
+                    }`}
+                    onClick={() => handleProgramChange(program)}
+                  >
+                    <p className="font-medium text-gray-900">{program}</p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {programs[program as keyof typeof programs].length} intake dates available
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
         <div className="flex items-center">
           <span className="mr-2">Select Your Intake</span>
           <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
@@ -221,7 +292,7 @@ const StudentOverview: React.FC = () => {
               <div className="p-4">
                 <h3 className="font-medium text-lg mb-3">Select Intake Date</h3>
                 <div className="space-y-3">
-                  {intakeOptions.map((option) => (
+                  {currentIntakeOptions.map((option) => (
                     <div 
                       key={option.date}
                       className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${

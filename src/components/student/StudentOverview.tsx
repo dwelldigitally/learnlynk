@@ -166,16 +166,6 @@ const StudentOverview: React.FC = () => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <Tabs defaultValue="personal" className="mb-6">
-        <TabsList className="border-b border-gray-200 w-full justify-start">
-          <TabsTrigger value="personal" className="text-sm px-6 py-3">Personal Details</TabsTrigger>
-          <TabsTrigger value="education" className="text-sm px-6 py-3">Education</TabsTrigger>
-          <TabsTrigger value="work" className="text-sm px-6 py-3">Work Experience</TabsTrigger>
-          <TabsTrigger value="documents" className="text-sm px-6 py-3">Documents</TabsTrigger>
-          <TabsTrigger value="fee" className="text-sm px-6 py-3">Registration Fee</TabsTrigger>
-        </TabsList>
-      </Tabs>
 
       {/* Main Dashboard Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

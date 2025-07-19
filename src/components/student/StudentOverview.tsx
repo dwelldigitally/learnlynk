@@ -1,27 +1,19 @@
+
 import React, { useState } from "react";
 import { Calendar, Clock, Mail, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Student, AdmissionStep, NewsEvent, AdvisorProfile } from "@/types/student";
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
-import AppointmentCalendar from "@/components/student/AppointmentCalendar";
 import NewsEventCard from "@/components/student/NewsEventCard";
 import AdmissionForm from "@/components/student/AdmissionForm";
-import healthcareWelcome from "@/assets/healthcare-welcome.jpg";
-import ucatMaster from "@/assets/ucat-master.jpg";
-import ucatScore from "@/assets/ucat-score.jpg";
-import ucatUltimate from "@/assets/ucat-ultimate.jpg";
+import { studentApplications } from "@/data/studentApplications";
+import { programWelcomeContent } from "@/data/programContent";
+import { programAlumni } from "@/data/programAlumni";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
-import authorAhmed from "@/assets/author-ahmed.jpg";
-import authorSarah from "@/assets/author-sarah.jpg";
-import authorRobert from "@/assets/author-robert.jpg";
-import alumniNicole from "@/assets/alumni-nicole.jpg";
 
 const StudentOverview: React.FC = () => {
-  const [selectedTab, setSelectedTab] = useState("personal");
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
   const [intake, setIntake] = useState("15th March 2025");
   const [showAdmissionForm, setShowAdmissionForm] = useState(false);
@@ -77,169 +69,19 @@ const StudentOverview: React.FC = () => {
     setIsProgramPopoverOpen(false);
   };
   
-  // Mock student data
-  const student: Student = {
-    id: "1",
-    firstName: "Tushar",
-    lastName: "Malhotra",
-    email: "Tushar.Malhotra@student.wcc.ca",
-    studentId: "WCC1047859",
-    program: selectedProgram,
-    stage: "SEND_DOCUMENTS",
-    acceptanceLikelihood: 80
-  };
-
+  // Get current application data
+  const currentApplication = studentApplications[selectedProgram];
+  const currentWelcomeContent = programWelcomeContent[selectedProgram];
+  const currentAlumni = programAlumni[selectedProgram];
+  
   // Mock advisor data
-  const advisor: AdvisorProfile = {
+  const advisor = {
     name: "Nicole Ye",
     title: "Senior Admissions Advisor",
     email: "nicole@wcc.ca",
     phone: "(604)-594-3500",
     avatar: advisorNicole
   };
-  
-  // Program-specific blog content
-  const getProgramContent = (program: string) => {
-    switch (program) {
-      case "Health Care Assistant":
-        return {
-          title: "Latest HCA News & Events",
-          events: [
-            {
-              id: "1",
-              title: "Patient Care Excellence Workshop",
-              description: "Essential techniques for compassionate patient care and communication",
-              image: healthcareWelcome,
-              author: {
-                name: "Dr. Sarah Mitchell",
-                role: "Healthcare Instructor",
-                avatar: authorSarah
-              },
-              duration: "3 Hours",
-              lessons: 8
-            },
-            {
-              id: "2",
-              title: "Medical Terminology Mastery",
-              description: "Comprehensive guide to healthcare terminology and documentation",
-              image: ucatScore,
-              author: {
-                name: "Ahmed Shafi",
-                role: "Clinical Expert",
-                avatar: authorAhmed
-              },
-              duration: "5 Hours",
-              lessons: 12
-            },
-            {
-              id: "3",
-              title: "Infection Control & Safety",
-              description: "Critical protocols for maintaining safe healthcare environments",
-              image: ucatUltimate,
-              author: {
-                name: "Mr. Robert Turner",
-                role: "Safety Coordinator",
-                avatar: authorRobert
-              },
-              duration: "4 Hours",
-              lessons: 10
-            }
-          ]
-        };
-      case "Business Administration":
-        return {
-          title: "Latest Business News & Events",
-          events: [
-            {
-              id: "1",
-              title: "Modern Leadership Strategies",
-              description: "Develop essential leadership skills for today's business environment",
-              image: ucatMaster,
-              author: {
-                name: "Dr. Sarah Mitchell",
-                role: "Business Professor",
-                avatar: authorSarah
-              },
-              duration: "6 Hours",
-              lessons: 15
-            },
-            {
-              id: "2",
-              title: "Financial Management Fundamentals",
-              description: "Master the basics of business finance and budgeting",
-              image: ucatScore,
-              author: {
-                name: "Ahmed Shafi",
-                role: "Finance Expert",
-                avatar: authorAhmed
-              },
-              duration: "8 Hours",
-              lessons: 20
-            },
-            {
-              id: "3",
-              title: "Digital Marketing Trends",
-              description: "Stay ahead with the latest digital marketing strategies",
-              image: ucatUltimate,
-              author: {
-                name: "Mr. Robert Turner",
-                role: "Marketing Director",
-                avatar: authorRobert
-              },
-              duration: "5 Hours",
-              lessons: 12
-            }
-          ]
-        };
-      default:
-        return {
-          title: "Latest Program News & Events",
-          events: [
-            {
-              id: "1",
-              title: "MASTER THE UCAT",
-              description: "2000+ Practice Questions, 100+ Comprehensive Lessons",
-              image: ucatMaster,
-              author: {
-                name: "Ahmed Shafi",
-                role: "Reasoning Expert",
-                avatar: authorAhmed
-              },
-              duration: "10 Hours",
-              lessons: 11
-            },
-            {
-              id: "2",
-              title: "Score Higher on the UCAT",
-              description: "Sixth Edition",
-              image: ucatScore,
-              author: {
-                name: "Dr. Sarah Mitchell",
-                role: "Situational Judgment",
-                avatar: authorSarah
-              },
-              duration: "20 Hours",
-              lessons: 19
-            },
-            {
-              id: "3",
-              title: "The Ultimate UCAT",
-              description: "Comprehensive preparation guide",
-              image: ucatUltimate,
-              author: {
-                name: "Mr. Robert Turner",
-                role: "Logical Reasoning",
-                avatar: authorRobert
-              },
-              duration: "17 Hours",
-              lessons: 15
-            }
-          ]
-        };
-    }
-  };
-
-  const programContent = getProgramContent(student.program);
 
   // Show admission form if requested
   if (showAdmissionForm) {
@@ -337,7 +179,6 @@ const StudentOverview: React.FC = () => {
         </div>
       </div>
 
-
       {/* Main Dashboard Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content */}
@@ -346,11 +187,9 @@ const StudentOverview: React.FC = () => {
           <Card className="p-6">
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-4">Welcome {student.firstName}</h2>
+                <h2 className="text-2xl font-bold mb-4">Welcome Tushar</h2>
                 <p className="mb-4">
-                  We are so excited that you are applying for the {student.program} Program. 
-                  There are 5 steps to apply for the program. You can stop anytime and 
-                  continue later.
+                  {currentWelcomeContent.welcomeText}
                 </p>
                 <Button 
                   className="bg-purple-900 hover:bg-purple-800 text-white flex items-center gap-2"
@@ -362,8 +201,8 @@ const StudentOverview: React.FC = () => {
               </div>
               <div className="md:w-1/2">
                 <img 
-                  src={healthcareWelcome} 
-                  alt="Healthcare Professional" 
+                  src={currentWelcomeContent.welcomeImage} 
+                  alt={`${selectedProgram} Professional`} 
                   className="rounded-lg w-full h-48 object-cover"
                 />
               </div>
@@ -377,64 +216,29 @@ const StudentOverview: React.FC = () => {
               <div className="text-right">
                 <div className="text-sm font-medium text-green-700">Application Deadline</div>
                 <div className="text-lg font-bold text-green-900">
-                  {intake === "15th March 2025" ? "1st March 2025" :
-                   intake === "20th May 2025" ? "5th May 2025" :
-                   intake === "15th September 2025" ? "1st September 2025" :
-                   "25th October 2025"}
+                  {currentApplication.applicationDeadline}
                 </div>
               </div>
             </div>
-            <AdmissionsProgress currentStage={student.stage} />
+            <AdmissionsProgress currentStage={currentApplication.stage} />
             
             {/* Next Steps */}
             <div className="mt-6 p-4 bg-white rounded-lg border-l-4 border-green-500">
               <h4 className="font-semibold text-gray-900 mb-2">Next Steps Required:</h4>
               <div className="space-y-2">
-                {student.stage === "LEAD_FORM" && (
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                    Complete and submit required documents (Transcripts, ID copy)
-                  </div>
-                )}
-                {student.stage === "SEND_DOCUMENTS" && (
-                  <>
-                    <div className="flex items-center text-sm text-gray-700">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
-                      Upload official transcripts and identification documents
-                    </div>
-                    <div className="flex items-center text-sm text-gray-600">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full mr-2"></div>
-                      Wait for document review and approval
-                    </div>
-                  </>
-                )}
-                {student.stage === "DOCUMENT_APPROVAL" && (
-                  <div className="flex items-center text-sm text-gray-700">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
-                    Complete fee payment to secure your seat
-                  </div>
-                )}
-                {student.stage === "FEE_PAYMENT" && (
-                  <div className="flex items-center text-sm text-green-700">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                    Final acceptance confirmation will be sent shortly
-                  </div>
-                )}
-                {student.stage === "ACCEPTED" && (
-                  <div className="flex items-center text-sm text-green-700">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    Congratulations! You're all set for your program start date.
-                  </div>
-                )}
+                <div className="flex items-center text-sm text-gray-700">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
+                  {currentApplication.nextStep}
+                </div>
               </div>
             </div>
           </Card>
 
           {/* Latest News & Events */}
           <div>
-            <h3 className="text-xl font-bold mb-4">{programContent.title}</h3>
+            <h3 className="text-xl font-bold mb-4">{currentWelcomeContent.newsTitle}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {programContent.events.map((event) => (
+              {currentWelcomeContent.events.map((event) => (
                 <NewsEventCard key={event.id} event={event} />
               ))}
             </div>
@@ -446,13 +250,13 @@ const StudentOverview: React.FC = () => {
             <Card className="p-6">
               <div className="flex items-center">
                 <div className="w-20 h-20 overflow-hidden rounded-full mr-6">
-                  <img src={alumniNicole} alt="Alumni" className="w-full h-full object-cover" />
+                  <img src={currentAlumni.avatar} alt="Alumni" className="w-full h-full object-cover" />
                 </div>
                 <div>
-                  <h4 className="font-medium">Nicole Ye</h4>
-                  <p className="text-sm text-gray-600">Class of 2022</p>
+                  <h4 className="font-medium">{currentAlumni.name}</h4>
+                  <p className="text-sm text-gray-600">Class of {currentAlumni.graduationYear}</p>
                   <p className="text-sm text-gray-600 mt-1">
-                    "I graduated from the Health Care Assistant program and now work at Vancouver General Hospital."
+                    "{currentAlumni.testimonial}"
                   </p>
                   <Button variant="outline" className="mt-2 text-xs">Schedule a Call</Button>
                 </div>
@@ -467,12 +271,12 @@ const StudentOverview: React.FC = () => {
           <Card className="p-4">
             <h3 className="text-sm font-medium text-gray-500">Likelihood Of Acceptance</h3>
             <div className="relative mt-2">
-              <Progress value={student.acceptanceLikelihood} className="h-2" />
+              <Progress value={currentApplication.acceptanceLikelihood} className="h-2" />
               <div className="flex justify-between text-xs mt-1">
                 <span>0%</span>
                 <span>100%</span>
               </div>
-              <p className="text-xs text-gray-500 mt-1">{student.acceptanceLikelihood}% Chance of acceptance based on current stage</p>
+              <p className="text-xs text-gray-500 mt-1">{currentApplication.acceptanceLikelihood}% Chance of acceptance based on current stage</p>
             </div>
             <Button variant="outline" size="sm" className="mt-3">View Details</Button>
           </Card>
@@ -491,20 +295,20 @@ const StudentOverview: React.FC = () => {
             <div className="space-y-4">
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Student ID</span>
-                  <span className="text-sm font-bold text-purple-900 bg-purple-100 px-3 py-1 rounded-full">{student.studentId}</span>
+                  <span className="text-sm font-medium text-gray-700">Application ID</span>
+                  <span className="text-sm font-bold text-purple-900 bg-purple-100 px-3 py-1 rounded-full">{currentApplication.id}</span>
                 </div>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">Email</span>
-                  <span className="text-sm font-semibold text-gray-900">{student.email}</span>
+                  <span className="text-sm font-semibold text-gray-900">Tushar.Malhotra@student.wcc.ca</span>
                 </div>
               </div>
               <div className="bg-white rounded-lg p-4 shadow-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-gray-700">Program</span>
-                  <span className="text-sm font-semibold text-purple-900">{student.program}</span>
+                  <span className="text-sm font-semibold text-purple-900">{selectedProgram}</span>
                 </div>
               </div>
             </div>

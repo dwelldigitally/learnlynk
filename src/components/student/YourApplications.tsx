@@ -1,81 +1,46 @@
+
 import React from "react";
 import { Calendar, Clock, CheckCircle, AlertCircle, Eye, FileText } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-
-interface Application {
-  id: string;
-  programName: string;
-  submissionDate: Date;
-  status: 'submitted' | 'under-review' | 'documents-pending' | 'approved' | 'rejected' | 'waitlisted';
-  stage: string;
-  progress: number;
-  nextStep?: string;
-  estimatedDecision?: Date;
-  documents: {
-    name: string;
-    status: 'pending' | 'approved' | 'rejected';
-    uploadDate: Date;
-  }[];
-}
+import { studentApplications } from "@/data/studentApplications";
+import { ProgramApplication } from "@/types/application";
 
 const YourApplications: React.FC = () => {
-  // Mock applications data
-  const applications: Application[] = [
-    {
-      id: "APP-2025-001",
-      programName: "Health Care Assistant",
-      submissionDate: new Date("2025-01-15"),
-      status: "under-review",
-      stage: "Document Review",
-      progress: 75,
-      nextStep: "Interview Scheduling",
-      estimatedDecision: new Date("2025-02-15"),
-      documents: [
-        { name: "Official Transcripts", status: "approved", uploadDate: new Date("2025-01-15") },
-        { name: "Photo ID", status: "approved", uploadDate: new Date("2025-01-15") },
-        { name: "Immunization Records", status: "pending", uploadDate: new Date("2025-01-16") },
-        { name: "Criminal Record Check", status: "approved", uploadDate: new Date("2025-01-14") },
-        { name: "First Aid Certificate", status: "rejected", uploadDate: new Date("2025-01-16") },
-      ]
-    },
-    {
-      id: "APP-2024-045",
-      programName: "Medical Office Assistant",
-      submissionDate: new Date("2024-11-20"),
-      status: "approved",
-      stage: "Completed",
-      progress: 100,
-      estimatedDecision: new Date("2024-12-15"),
-      documents: [
-        { name: "Official Transcripts", status: "approved", uploadDate: new Date("2024-11-20") },
-        { name: "Photo ID", status: "approved", uploadDate: new Date("2024-11-20") },
-        { name: "Work Experience Letter", status: "approved", uploadDate: new Date("2024-11-21") },
-      ]
-    }
-  ];
+  // Convert studentApplications object to array for display
+  const applications: ProgramApplication[] = Object.values(studentApplications).filter(app => 
+    app.submissionDate || app.stage !== "LEAD_FORM" // Only show submitted applications or those in progress
+  );
 
-  const getStatusColor = (status: Application['status']) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-800 border-red-200';
-      case 'under-review': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'documents-pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'waitlisted': return 'bg-purple-100 text-purple-800 border-purple-200';
+  const getStatusColor = (stage: string) => {
+    switch (stage) {
+      case 'ACCEPTED': return 'bg-green-100 text-green-800 border-green-200';
+      case 'FEE_PAYMENT': return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'DOCUMENT_APPROVAL': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'SEND_DOCUMENTS': return 'bg-orange-100 text-orange-800 border-orange-200';
       default: return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
-  const getStatusIcon = (status: Application['status']) => {
-    switch (status) {
-      case 'approved': return <CheckCircle className="w-4 h-4" />;
-      case 'rejected': return <AlertCircle className="w-4 h-4" />;
-      case 'under-review': return <Clock className="w-4 h-4" />;
-      case 'documents-pending': return <FileText className="w-4 h-4" />;
-      case 'waitlisted': return <Clock className="w-4 h-4" />;
+  const getStatusIcon = (stage: string) => {
+    switch (stage) {
+      case 'ACCEPTED': return <CheckCircle className="w-4 h-4" />;
+      case 'FEE_PAYMENT': return <CheckCircle className="w-4 h-4" />;
+      case 'DOCUMENT_APPROVAL': return <Clock className="w-4 h-4" />;
+      case 'SEND_DOCUMENTS': return <AlertCircle className="w-4 h-4" />;
       default: return <FileText className="w-4 h-4" />;
+    }
+  };
+
+  const getStatusText = (stage: string) => {
+    switch (stage) {
+      case 'ACCEPTED': return 'Accepted';
+      case 'FEE_PAYMENT': return 'Fee Payment Required';
+      case 'DOCUMENT_APPROVAL': return 'Document Review';
+      case 'SEND_DOCUMENTS': return 'Documents Required';
+      default: return 'In Progress';
     }
   };
 
@@ -83,7 +48,8 @@ const YourApplications: React.FC = () => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-800';
       case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-yellow-100 text-yellow-800';
+      case 'under-review': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -104,15 +70,17 @@ const YourApplications: React.FC = () => {
               <div>
                 <h3 className="text-xl font-semibold">{application.programName}</h3>
                 <p className="text-muted-foreground">Application ID: {application.id}</p>
-                <p className="text-sm text-muted-foreground">
-                  Submitted on {application.submissionDate.toLocaleDateString()}
-                </p>
+                {application.submissionDate && (
+                  <p className="text-sm text-muted-foreground">
+                    Submitted on {application.submissionDate.toLocaleDateString()}
+                  </p>
+                )}
               </div>
               
               <div className="text-right">
-                <Badge className={`${getStatusColor(application.status)} border`}>
-                  {getStatusIcon(application.status)}
-                  <span className="ml-2 capitalize">{application.status.replace('-', ' ')}</span>
+                <Badge className={`${getStatusColor(application.stage)} border`}>
+                  {getStatusIcon(application.stage)}
+                  <span className="ml-2">{getStatusText(application.stage)}</span>
                 </Badge>
                 {application.estimatedDecision && (
                   <p className="text-sm text-muted-foreground mt-2">
@@ -130,7 +98,7 @@ const YourApplications: React.FC = () => {
               </div>
               <Progress value={application.progress} className="h-2" />
               <div className="flex justify-between mt-2">
-                <span className="text-sm text-muted-foreground">Current Stage: {application.stage}</span>
+                <span className="text-sm text-muted-foreground">Current Stage: {getStatusText(application.stage)}</span>
                 {application.nextStep && (
                   <span className="text-sm text-blue-600">Next: {application.nextStep}</span>
                 )}
@@ -141,19 +109,25 @@ const YourApplications: React.FC = () => {
             <div className="mb-4">
               <h4 className="font-medium mb-3">Document Status</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {application.documents.map((doc, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                    <div>
-                      <div className="font-medium text-sm">{doc.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {doc.uploadDate.toLocaleDateString()}
+                {application.documents.length > 0 ? (
+                  application.documents.map((doc, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <div className="font-medium text-sm">{doc.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {doc.uploadDate.toLocaleDateString()}
+                        </div>
                       </div>
+                      <Badge className={`${getDocumentStatusColor(doc.status)} text-xs`}>
+                        {doc.status}
+                      </Badge>
                     </div>
-                    <Badge className={`${getDocumentStatusColor(doc.status)} text-xs`}>
-                      {doc.status}
-                    </Badge>
+                  ))
+                ) : (
+                  <div className="col-span-full text-center py-4 text-muted-foreground">
+                    No documents uploaded yet
                   </div>
-                ))}
+                )}
               </div>
             </div>
 
@@ -164,14 +138,14 @@ const YourApplications: React.FC = () => {
                 View Details
               </Button>
               
-              {application.status === 'documents-pending' && (
+              {application.stage === 'SEND_DOCUMENTS' && (
                 <Button size="sm">
                   <FileText className="w-4 h-4 mr-2" />
-                  Upload Missing Documents
+                  Upload Documents
                 </Button>
               )}
               
-              {application.status === 'approved' && (
+              {application.stage === 'ACCEPTED' && (
                 <Button size="sm" className="bg-green-600 hover:bg-green-700">
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Accept Offer
@@ -185,26 +159,38 @@ const YourApplications: React.FC = () => {
             </div>
 
             {/* Special Messages */}
-            {application.status === 'approved' && (
+            {application.stage === 'ACCEPTED' && (
               <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="font-medium text-green-800">Congratulations! Your application has been approved.</span>
                 </div>
                 <p className="text-sm text-green-700 mt-1">
-                  Please accept your offer and complete the enrollment process by February 1, 2025.
+                  Please accept your offer and complete the enrollment process by {application.applicationDeadline}.
                 </p>
               </div>
             )}
 
-            {application.status === 'documents-pending' && (
+            {application.stage === 'SEND_DOCUMENTS' && (
               <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-yellow-600" />
                   <span className="font-medium text-yellow-800">Action Required</span>
                 </div>
                 <p className="text-sm text-yellow-700 mt-1">
-                  Some documents need attention. Please review and resubmit the rejected documents.
+                  Please upload all required documents to proceed with your application.
+                </p>
+              </div>
+            )}
+
+            {application.documents.some(doc => doc.status === 'rejected') && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  <span className="font-medium text-red-800">Documents Need Attention</span>
+                </div>
+                <p className="text-sm text-red-700 mt-1">
+                  Some documents have been rejected. Please check the comments and resubmit.
                 </p>
               </div>
             )}

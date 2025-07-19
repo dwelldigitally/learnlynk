@@ -253,20 +253,34 @@ const StudentOverview: React.FC = () => {
           </Card>
 
           {/* Student Information */}
-          <Card className="p-4">
-            <h3 className="text-sm font-medium text-gray-500">Student Information</h3>
-            <div className="mt-3 space-y-2">
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500">Student ID</span>
-                <span className="text-xs font-medium">{student.studentId}</span>
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+            <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
               </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500">Email</span>
-                <span className="text-xs font-medium">{student.email}</span>
+              Student Profile
+            </h3>
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Student ID</span>
+                  <span className="text-sm font-bold text-purple-900 bg-purple-100 px-3 py-1 rounded-full">{student.studentId}</span>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-xs text-gray-500">Program</span>
-                <span className="text-xs font-medium">{student.program}</span>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Email</span>
+                  <span className="text-sm font-semibold text-gray-900">{student.email}</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Program</span>
+                  <span className="text-sm font-semibold text-purple-900">{student.program}</span>
+                </div>
               </div>
             </div>
           </Card>

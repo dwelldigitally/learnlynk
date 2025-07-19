@@ -55,48 +55,148 @@ const StudentOverview: React.FC = () => {
     avatar: advisorNicole
   };
   
-  // Mock news and events data
-  const newsEvents: NewsEvent[] = [
-    {
-      id: "1",
-      title: "MASTER THE UCAT",
-      description: "2000+ Practice Questions, 100+ Comprehensive Lessons",
-      image: ucatMaster,
-      author: {
-        name: "Ahmed Shafi",
-        role: "Reasoning Expert",
-        avatar: authorAhmed
-      },
-      duration: "10 Hours",
-      lessons: 11
-    },
-    {
-      id: "2",
-      title: "Score Higher on the UCAT",
-      description: "Sixth Edition",
-      image: ucatScore,
-      author: {
-        name: "Dr. Sarah Mitchell",
-        role: "Situational Judgment",
-        avatar: authorSarah
-      },
-      duration: "20 Hours",
-      lessons: 19
-    },
-    {
-      id: "3",
-      title: "The Ultimate UCAT",
-      description: "Comprehensive preparation guide",
-      image: ucatUltimate,
-      author: {
-        name: "Mr. Robert Turner",
-        role: "Logical Reasoning",
-        avatar: authorRobert
-      },
-      duration: "17 Hours",
-      lessons: 15
+  // Program-specific blog content
+  const getProgramContent = (program: string) => {
+    switch (program) {
+      case "Health Care Assistant":
+        return {
+          title: "Latest HCA News & Events",
+          events: [
+            {
+              id: "1",
+              title: "Patient Care Excellence Workshop",
+              description: "Essential techniques for compassionate patient care and communication",
+              image: healthcareWelcome,
+              author: {
+                name: "Dr. Sarah Mitchell",
+                role: "Healthcare Instructor",
+                avatar: authorSarah
+              },
+              duration: "3 Hours",
+              lessons: 8
+            },
+            {
+              id: "2",
+              title: "Medical Terminology Mastery",
+              description: "Comprehensive guide to healthcare terminology and documentation",
+              image: ucatScore,
+              author: {
+                name: "Ahmed Shafi",
+                role: "Clinical Expert",
+                avatar: authorAhmed
+              },
+              duration: "5 Hours",
+              lessons: 12
+            },
+            {
+              id: "3",
+              title: "Infection Control & Safety",
+              description: "Critical protocols for maintaining safe healthcare environments",
+              image: ucatUltimate,
+              author: {
+                name: "Mr. Robert Turner",
+                role: "Safety Coordinator",
+                avatar: authorRobert
+              },
+              duration: "4 Hours",
+              lessons: 10
+            }
+          ]
+        };
+      case "Business Administration":
+        return {
+          title: "Latest Business News & Events",
+          events: [
+            {
+              id: "1",
+              title: "Modern Leadership Strategies",
+              description: "Develop essential leadership skills for today's business environment",
+              image: ucatMaster,
+              author: {
+                name: "Dr. Sarah Mitchell",
+                role: "Business Professor",
+                avatar: authorSarah
+              },
+              duration: "6 Hours",
+              lessons: 15
+            },
+            {
+              id: "2",
+              title: "Financial Management Fundamentals",
+              description: "Master the basics of business finance and budgeting",
+              image: ucatScore,
+              author: {
+                name: "Ahmed Shafi",
+                role: "Finance Expert",
+                avatar: authorAhmed
+              },
+              duration: "8 Hours",
+              lessons: 20
+            },
+            {
+              id: "3",
+              title: "Digital Marketing Trends",
+              description: "Stay ahead with the latest digital marketing strategies",
+              image: ucatUltimate,
+              author: {
+                name: "Mr. Robert Turner",
+                role: "Marketing Director",
+                avatar: authorRobert
+              },
+              duration: "5 Hours",
+              lessons: 12
+            }
+          ]
+        };
+      default:
+        return {
+          title: "Latest Program News & Events",
+          events: [
+            {
+              id: "1",
+              title: "MASTER THE UCAT",
+              description: "2000+ Practice Questions, 100+ Comprehensive Lessons",
+              image: ucatMaster,
+              author: {
+                name: "Ahmed Shafi",
+                role: "Reasoning Expert",
+                avatar: authorAhmed
+              },
+              duration: "10 Hours",
+              lessons: 11
+            },
+            {
+              id: "2",
+              title: "Score Higher on the UCAT",
+              description: "Sixth Edition",
+              image: ucatScore,
+              author: {
+                name: "Dr. Sarah Mitchell",
+                role: "Situational Judgment",
+                avatar: authorSarah
+              },
+              duration: "20 Hours",
+              lessons: 19
+            },
+            {
+              id: "3",
+              title: "The Ultimate UCAT",
+              description: "Comprehensive preparation guide",
+              image: ucatUltimate,
+              author: {
+                name: "Mr. Robert Turner",
+                role: "Logical Reasoning",
+                avatar: authorRobert
+              },
+              duration: "17 Hours",
+              lessons: 15
+            }
+          ]
+        };
     }
-  ];
+  };
+
+  const programContent = getProgramContent(student.program);
 
   // Show admission form if requested
   if (showAdmissionForm) {
@@ -261,9 +361,9 @@ const StudentOverview: React.FC = () => {
 
           {/* Latest News & Events */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Latest HCA News & Events</h3>
+            <h3 className="text-xl font-bold mb-4">{programContent.title}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {newsEvents.map((event) => (
+              {programContent.events.map((event) => (
                 <NewsEventCard key={event.id} event={event} />
               ))}
             </div>

@@ -142,3 +142,19 @@
     transform: translateY(0);
   }
 }
+
+/* Custom subtle pulse animation */
+.animate-subtle-pulse {
+  animation: subtlePulse 5s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+  0%, 95% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.02);
+  }
+}

@@ -28,7 +28,7 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
                 index < currentStageIndex 
                   ? "bg-green-600 text-white shadow-lg" 
                   : index === currentStageIndex
-                  ? "bg-orange-500 text-white shadow-lg animate-pulse ring-4 ring-orange-200"
+                  ? "bg-orange-500 text-white shadow-lg animate-subtle-pulse ring-4 ring-orange-200"
                   : "bg-gray-200 text-gray-600"
               }`}
             >

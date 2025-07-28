@@ -1,10 +1,11 @@
 
 import React, { useState } from "react";
-import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle } from "lucide-react";
+import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle, AlertTriangle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
 import NewsEventCard from "@/components/student/NewsEventCard";
 import AdmissionForm from "@/components/student/AdmissionForm";
@@ -20,6 +21,8 @@ const StudentOverview: React.FC = () => {
   const [isFormExpanded, setIsFormExpanded] = useState(false);
   const [isIntakePopoverOpen, setIsIntakePopoverOpen] = useState(false);
   const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [pendingProgram, setPendingProgram] = useState<string | null>(null);
   
   // Program list with their specific intake dates
   const allPrograms = {
@@ -60,14 +63,37 @@ const StudentOverview: React.FC = () => {
   // Get current program's intake options
   const availableIntakes = allPrograms[selectedProgram as keyof typeof allPrograms] || allPrograms["Health Care Assistant"];
   
-  // Update intake when program changes
+  // Handle program change with confirmation
   const handleProgramChange = (program: string) => {
-    setSelectedProgram(program);
-    const programSchedule = allPrograms[program as keyof typeof allPrograms];
-    if (programSchedule && programSchedule.length > 0) {
-      setIntake(programSchedule[0].date);
+    if (program === selectedProgram) {
+      setIsProgramPopoverOpen(false);
+      return;
     }
+    
+    setPendingProgram(program);
+    setShowConfirmDialog(true);
     setIsProgramPopoverOpen(false);
+  };
+
+  // Confirm program change
+  const confirmProgramChange = () => {
+    if (pendingProgram) {
+      setSelectedProgram(pendingProgram);
+      const programSchedule = allPrograms[pendingProgram as keyof typeof allPrograms];
+      if (programSchedule && programSchedule.length > 0) {
+        setIntake(programSchedule[0].date);
+      }
+      // Reset form if it's expanded
+      setIsFormExpanded(false);
+    }
+    setShowConfirmDialog(false);
+    setPendingProgram(null);
+  };
+
+  // Cancel program change
+  const cancelProgramChange = () => {
+    setShowConfirmDialog(false);
+    setPendingProgram(null);
   };
   
   // Get current application data
@@ -243,13 +269,15 @@ const StudentOverview: React.FC = () => {
     <div>
       {/* Program Header with Program and Intake Selection */}
       <div className={`${currentColors.headerBg} text-white px-8 py-4 rounded-lg mb-6 flex justify-between items-center transition-colors duration-300`}>
-        <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" className="text-white hover:bg-white/10 p-0 text-xl font-bold flex items-center gap-2">
-              {selectedProgram}
-              <ChevronDown className="w-5 h-5" />
-            </Button>
-          </PopoverTrigger>
+        <div>
+          <div className="text-sm text-white/70 mb-1">Select Program</div>
+          <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" className="text-white hover:bg-white/10 p-0 text-xl font-bold flex items-center gap-2">
+                {selectedProgram}
+                <ChevronDown className="w-5 h-5" />
+              </Button>
+            </PopoverTrigger>
           <PopoverContent className="w-80 p-0 bg-white z-50" align="start">
             <div className="p-4">
               <h3 className="font-medium text-lg mb-3 text-gray-900">Select Program</h3>
@@ -272,6 +300,7 @@ const StudentOverview: React.FC = () => {
             </div>
           </PopoverContent>
         </Popover>
+        </div>
         <div className="flex items-center">
           <span className="mr-2">Select Your Intake</span>
           <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
@@ -633,6 +662,30 @@ const StudentOverview: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Program Change Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-amber-500" />
+              Change Program?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to start an application for <strong>{pendingProgram}</strong>? 
+              {isFormExpanded && " This will close your current application form and reset your progress."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={cancelProgramChange}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={confirmProgramChange}>
+              Yes, Change Program
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

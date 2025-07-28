@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Users, MapPin } from "lucide-react";
 import { Event } from "@/types/student";
+import { useToast } from "@/hooks/use-toast";
 
 interface EventCardProps {
   event: Event;
@@ -12,6 +13,7 @@ interface EventCardProps {
 const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const [isRegistered, setIsRegistered] = useState(false);
   const [currentRegistered, setCurrentRegistered] = useState(event.registeredCount);
+  const { toast } = useToast();
 
   const getEventTypeLabel = (type: string) => {
     switch (type) {
@@ -39,9 +41,18 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
     if (!isRegistered && currentRegistered < event.maxCapacity) {
       setIsRegistered(true);
       setCurrentRegistered(prev => prev + 1);
+      toast({
+        title: "Successfully Registered! 🎉",
+        description: `You're now registered for ${event.title}. We'll send you a reminder before the event.`,
+      });
     } else if (isRegistered) {
       setIsRegistered(false);
       setCurrentRegistered(prev => prev - 1);
+      toast({
+        title: "Registration Cancelled",
+        description: `You've been unregistered from ${event.title}.`,
+        variant: "destructive",
+      });
     }
   };
 

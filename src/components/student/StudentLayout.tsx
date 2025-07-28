@@ -90,9 +90,9 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               <div>Student Id: WCC1047859</div>
               <div className="text-gray-500">Tushar.Malhotra@student.wcc.ca</div>
             </div>
-            <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+            <Link to="/student/messages" className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
               <Mail size={20} />
-            </button>
+            </Link>
             <button className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
               <Bell size={20} />
             </button>

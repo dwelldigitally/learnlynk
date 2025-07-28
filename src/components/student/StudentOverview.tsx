@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Calendar, Clock, Mail, ChevronDown } from "lucide-react";
+import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -74,6 +74,78 @@ const StudentOverview: React.FC = () => {
   const currentApplication = studentApplications[selectedProgram];
   const currentWelcomeContent = programWelcomeContent[selectedProgram];
   const currentAlumni = programAlumni[selectedProgram];
+  
+  // Dynamic marketing messages based on program
+  const programMarketingMessages = {
+    "Health Care Assistant": {
+      headline: "Start Your Healthcare Journey",
+      subheadline: "Transform lives while building a rewarding career in healthcare",
+      bulletPoints: [
+        "97% job placement rate within 6 months",
+        "Work in hospitals, clinics, and care facilities",
+        "Make a difference in people's lives every day"
+      ],
+      ctaText: "Begin Your Healthcare Career",
+      backgroundImage: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    },
+    "Education Assistant": {
+      headline: "Shape Tomorrow's Leaders",
+      subheadline: "Inspire and support the next generation of learners",
+      bulletPoints: [
+        "Work alongside certified teachers",
+        "Make education accessible for all students",
+        "Build a fulfilling career in education"
+      ],
+      ctaText: "Start Your Education Journey",
+      backgroundImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    },
+    "Aviation": {
+      headline: "Take Flight in Aviation",
+      subheadline: "Soar to new heights with a career in the aviation industry",
+      bulletPoints: [
+        "High-demand industry with growth opportunities",
+        "Work with cutting-edge aviation technology",
+        "Global career opportunities"
+      ],
+      ctaText: "Launch Your Aviation Career",
+      backgroundImage: "https://images.unsplash.com/photo-1540962351504-03099e0a754b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    },
+    "Hospitality": {
+      headline: "Create Exceptional Experiences",
+      subheadline: "Build a career in the dynamic world of hospitality",
+      bulletPoints: [
+        "Work in luxury hotels and resorts",
+        "Develop customer service excellence",
+        "Global industry with diverse opportunities"
+      ],
+      ctaText: "Start Your Hospitality Journey",
+      backgroundImage: "https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    },
+    "ECE": {
+      headline: "Nurture Young Minds",
+      subheadline: "Build the foundation for children's bright futures",
+      bulletPoints: [
+        "Work with children during crucial development years",
+        "Create engaging learning environments",
+        "High demand for qualified ECE professionals"
+      ],
+      ctaText: "Begin Your ECE Journey",
+      backgroundImage: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    },
+    "MLA": {
+      headline: "Advance Healthcare Technology",
+      subheadline: "Lead innovation in medical laboratory sciences",
+      bulletPoints: [
+        "Work with state-of-the-art lab equipment",
+        "Critical role in patient diagnosis and care",
+        "High-paying career with job security"
+      ],
+      ctaText: "Start Your MLA Career",
+      backgroundImage: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    }
+  };
+
+  const currentMarketing = programMarketingMessages[selectedProgram as keyof typeof programMarketingMessages] || programMarketingMessages["Health Care Assistant"];
   
   // Mock advisor data
   const advisor = {
@@ -184,31 +256,84 @@ const StudentOverview: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Welcome Section */}
-          <Card className="p-6">
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold mb-4">Welcome Tushar</h2>
-                <p className="mb-4">
-                  {currentWelcomeContent.welcomeText}
-                </p>
-                <Button 
-                  className="bg-purple-900 hover:bg-purple-800 text-white flex items-center gap-2"
-                  onClick={() => setIsFormExpanded(!isFormExpanded)}
-                >
-                  {isFormExpanded ? 'Hide Application Form' : 'Start Application'}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`lucide transition-transform ${isFormExpanded ? 'rotate-180' : ''}`}>
-                    <path d="M5 12h14"/>
-                    <path d="m12 5 7 7-7 7"/>
-                  </svg>
-                </Button>
-              </div>
-              <div className="md:w-1/2">
-                <img 
-                  src={currentWelcomeContent.welcomeImage} 
-                  alt={`${selectedProgram} Professional`} 
-                  className="rounded-lg w-full h-48 object-cover"
-                />
+          {/* Dynamic Marketing Hero Section */}
+          <Card className="relative overflow-hidden bg-gradient-to-br from-purple-900 to-blue-900 text-white">
+            {/* Background Image with Overlay */}
+            <div className="absolute inset-0">
+              <img 
+                src={currentMarketing.backgroundImage}
+                alt={`${selectedProgram} Career`}
+                className="w-full h-full object-cover opacity-30"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-blue-900/60"></div>
+            </div>
+            
+            {/* Content */}
+            <div className="relative p-8 lg:p-12">
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                {/* Left Content */}
+                <div className="flex-1 text-center lg:text-left">
+                  <div className="mb-4">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-medium">
+                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                      Premium Program
+                    </span>
+                  </div>
+                  
+                  <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                    {currentMarketing.headline}
+                  </h1>
+                  
+                  <p className="text-xl lg:text-2xl mb-6 text-white/90 leading-relaxed">
+                    {currentMarketing.subheadline}
+                  </p>
+                  
+                  {/* Benefits List */}
+                  <div className="space-y-3 mb-8">
+                    {currentMarketing.bulletPoints.map((point, index) => (
+                      <div key={index} className="flex items-center gap-3 text-lg">
+                        <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0" />
+                        <span>{point}</span>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <Button 
+                      size="lg"
+                      className="bg-white text-purple-900 hover:bg-gray-100 font-semibold text-lg px-8 py-4 flex items-center gap-3"
+                      onClick={() => setIsFormExpanded(!isFormExpanded)}
+                    >
+                      {isFormExpanded ? 'Hide Application Form' : currentMarketing.ctaText}
+                      <ArrowRight className={`w-5 h-5 transition-transform ${isFormExpanded ? 'rotate-180' : ''}`} />
+                    </Button>
+                    
+                    <Button 
+                      size="lg"
+                      variant="outline" 
+                      className="border-white/30 text-white hover:bg-white/10 font-semibold text-lg px-8 py-4"
+                    >
+                      Learn More
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* Right Image */}
+                <div className="lg:w-1/3">
+                  <div className="relative">
+                    <img 
+                      src={currentWelcomeContent.welcomeImage} 
+                      alt={`${selectedProgram} Professional`} 
+                      className="rounded-2xl w-full h-80 object-cover shadow-2xl border-4 border-white/20"
+                    />
+                    <div className="absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-purple-900">{currentApplication.acceptanceLikelihood}%</div>
+                        <div className="text-sm text-gray-600">Success Rate</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </Card>

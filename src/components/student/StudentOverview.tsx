@@ -359,7 +359,7 @@ const StudentOverview: React.FC = () => {
                     <Button 
                       size="lg"
                       variant="outline" 
-                      className="border-white/30 text-white hover:bg-white/10 font-semibold text-lg px-8 py-4"
+                      className="border-white/30 text-black hover:bg-white/10 hover:text-white font-semibold text-lg px-8 py-4"
                     >
                       Learn More
                     </Button>

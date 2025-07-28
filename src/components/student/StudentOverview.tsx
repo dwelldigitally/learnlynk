@@ -268,17 +268,55 @@ const StudentOverview: React.FC = () => {
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
           {/* Acceptance Likelihood */}
-          <Card className="p-4">
-            <h3 className="text-sm font-medium text-gray-500">Likelihood Of Acceptance</h3>
-            <div className="relative mt-2">
-              <Progress value={currentApplication.acceptanceLikelihood} className="h-2" />
-              <div className="flex justify-between text-xs mt-1">
-                <span>0%</span>
-                <span>100%</span>
+          <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+            <div className="text-center">
+              <div className="text-5xl font-bold text-green-900 mb-2">
+                {currentApplication.acceptanceLikelihood}%
               </div>
-              <p className="text-xs text-gray-500 mt-1">{currentApplication.acceptanceLikelihood}% Chance of acceptance based on current stage</p>
+              <h3 className="text-lg font-semibold text-green-800 mb-4">Likelihood Of Acceptance</h3>
+              
+              {/* Dynamic Progress Bar */}
+              <div className="relative mb-4">
+                <Progress 
+                  value={currentApplication.acceptanceLikelihood} 
+                  className="h-3"
+                  indicatorClassName="bg-gradient-to-r from-green-500 to-emerald-500"
+                />
+                <div className="flex justify-between text-xs mt-1 text-green-700">
+                  <span>0%</span>
+                  <span>100%</span>
+                </div>
+              </div>
+
+              {/* Stage-based Action Prompts */}
+              <div className="bg-white rounded-lg p-4 border-l-4 border-green-500">
+                {currentApplication.stage === "LEAD_FORM" && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-green-700">📈 Submit your application within the next 10 days</span> to increase your chances by an additional 15%
+                  </p>
+                )}
+                {currentApplication.stage === "SEND_DOCUMENTS" && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-green-700">📋 Upload all required documents quickly</span> to boost your acceptance rate by 10%
+                  </p>
+                )}
+                {currentApplication.stage === "DOCUMENT_APPROVAL" && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-green-700">⏳ Documents under review</span> - acceptance rate increases as documents get approved
+                  </p>
+                )}
+                {currentApplication.stage === "FEE_PAYMENT" && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold text-green-700">💳 Complete fee payment within 7 days</span> to secure your spot and reach 95% acceptance
+                  </p>
+                )}
+                {currentApplication.stage === "ACCEPTED" && (
+                  <p className="text-sm text-green-700">
+                    <span className="font-bold">🎉 Congratulations!</span> You have been accepted into the program
+                  </p>
+                )}
+              </div>
             </div>
-            <Button variant="outline" size="sm" className="mt-3">View Details</Button>
           </Card>
 
           {/* Student Information */}

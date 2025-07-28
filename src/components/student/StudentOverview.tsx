@@ -376,8 +376,8 @@ const StudentOverview: React.FC = () => {
                     />
                     <div className="absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-900">{currentApplication.acceptanceLikelihood}%</div>
-                        <div className="text-sm text-gray-600">Success Rate</div>
+                        <div className="text-2xl font-bold text-emerald-600">97%</div>
+                        <div className="text-sm text-gray-600">Graduate Employment</div>
                       </div>
                     </div>
                   </div>

@@ -532,65 +532,11 @@ const AdmissionForm: React.FC<AdmissionFormProps> = ({ onBack }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Messages Button */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold">Application Form</h2>
-          <p className="text-muted-foreground">Health Care Assistant Program</p>
-        </div>
-        
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setShowMessages(!showMessages)}
-            className="relative"
-          >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Messages
-            {unreadCount > 0 && (
-              <Badge className="absolute -top-2 -right-2 min-w-[20px] h-5 text-xs bg-red-500">
-                {unreadCount}
-              </Badge>
-            )}
-          </Button>
-          
-          <Button variant="outline" onClick={onBack}>
-            Back to Overview
-          </Button>
-        </div>
+      {/* Header */}
+      <div>
+        <h2 className="text-2xl font-bold">Application Form</h2>
+        <p className="text-muted-foreground">Health Care Assistant Program</p>
       </div>
-
-      {/* Messages Panel */}
-      {showMessages && (
-        <Card className="p-4 border-blue-200 bg-blue-50">
-          <h3 className="font-semibold mb-3 flex items-center gap-2">
-            <Bell className="w-4 h-4" />
-            Messages & Notifications
-          </h3>
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`p-3 rounded-lg border ${
-                  message.read ? 'bg-white border-gray-200' : 'bg-white border-blue-300 shadow-sm'
-                }`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-sm">{message.from}</span>
-                    {!message.read && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {message.timestamp.toLocaleDateString()}
-                  </span>
-                </div>
-                <h4 className="font-medium text-sm mb-1">{message.subject}</h4>
-                <p className="text-sm text-muted-foreground">{message.content}</p>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
 
       {/* Progress Indicator */}
       <div className="flex items-center justify-between mb-6">

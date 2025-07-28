@@ -59,11 +59,13 @@ const NewsAndEvents: React.FC = () => {
         <TabsContent value="all" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allItems.map((item) => (
-              item.itemType === 'news' ? (
-                <NewsCard key={`news-${item.id}`} news={item} />
-              ) : (
-                <EventCard key={`event-${item.id}`} event={item} />
-              )
+              <div key={item.itemType === 'news' ? `news-${item.id}` : `event-${item.id}`} className="aspect-square">
+                {item.itemType === 'news' ? (
+                  <NewsCard news={item} />
+                ) : (
+                  <EventCard event={item} />
+                )}
+              </div>
             ))}
           </div>
         </TabsContent>
@@ -71,7 +73,9 @@ const NewsAndEvents: React.FC = () => {
         <TabsContent value="news" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredNews.map((news) => (
-              <NewsCard key={news.id} news={news} />
+              <div key={news.id} className="aspect-square">
+                <NewsCard news={news} />
+              </div>
             ))}
           </div>
         </TabsContent>
@@ -79,7 +83,9 @@ const NewsAndEvents: React.FC = () => {
         <TabsContent value="events" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
+              <div key={event.id} className="aspect-square">
+                <EventCard event={event} />
+              </div>
             ))}
           </div>
         </TabsContent>

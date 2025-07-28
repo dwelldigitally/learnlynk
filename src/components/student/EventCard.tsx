@@ -60,15 +60,15 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
   const availableSpots = event.maxCapacity - currentRegistered;
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="h-48 overflow-hidden">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
+      <div className="h-32 overflow-hidden flex-shrink-0">
         <img 
           src={event.image} 
           alt={event.title} 
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="p-4 space-y-3">
+      <div className="p-3 space-y-2 flex-1 flex flex-col">
         <div className="flex items-center justify-between">
           <Badge className={getEventTypeColor(event.eventType)}>
             {getEventTypeLabel(event.eventType)}
@@ -79,10 +79,10 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
           </div>
         </div>
         
-        <h3 className="font-bold text-lg line-clamp-2">{event.title}</h3>
-        <p className="text-muted-foreground text-sm line-clamp-3">{event.description}</p>
+        <h3 className="font-bold text-sm line-clamp-2">{event.title}</h3>
+        <p className="text-muted-foreground text-xs line-clamp-2 flex-1">{event.description}</p>
         
-        <div className="space-y-2">
+        <div className="space-y-1 mt-auto">
           <div className="flex items-center text-xs text-muted-foreground">
             <Clock className="w-3 h-3 mr-1" />
             <span>{event.time}</span>
@@ -91,16 +91,16 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center text-muted-foreground">
               <Users className="w-3 h-3 mr-1" />
-              <span>{currentRegistered}/{event.maxCapacity} registered</span>
+              <span>{currentRegistered}/{event.maxCapacity}</span>
             </div>
             {!isFull && (
               <span className="text-green-600 font-medium">
-                {availableSpots} spots left
+                {availableSpots} left
               </span>
             )}
             {isFull && (
               <span className="text-red-600 font-medium">
-                Event Full
+                Full
               </span>
             )}
           </div>
@@ -108,11 +108,11 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => {
         
         <Button 
           onClick={handleRegister}
-          className="w-full"
+          className="w-full text-xs h-7 mt-2"
           variant={isRegistered ? "outline" : "default"}
           disabled={!isRegistered && isFull}
         >
-          {isRegistered ? "Unregister" : isFull ? "Event Full" : "Register Now"}
+          {isRegistered ? "Unregister" : isFull ? "Event Full" : "Register"}
         </Button>
       </div>
     </Card>

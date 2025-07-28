@@ -7,10 +7,12 @@ import { Progress } from "@/components/ui/progress";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
-import NewsEventCard from "@/components/student/NewsEventCard";
+import NewsCard from "@/components/student/NewsCard";
+import EventCard from "@/components/student/EventCard";
+import { Link } from "react-router-dom";
 import AdmissionForm from "@/components/student/AdmissionForm";
 import { studentApplications } from "@/data/studentApplications";
-import { programWelcomeContent } from "@/data/programContent";
+import { programWelcomeContent, programNewsAndEvents } from "@/data/programContent";
 import { programAlumni } from "@/data/programAlumni";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
 
@@ -495,11 +497,31 @@ const StudentOverview: React.FC = () => {
 
           {/* Latest News & Events */}
           <div>
-            <h3 className="text-xl font-bold mb-4">{currentWelcomeContent.newsTitle}</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">{currentWelcomeContent.newsTitle}</h3>
+              <Link 
+                to="/student/news-events"
+                className="text-primary hover:text-primary/80 text-sm font-medium"
+              >
+                View All →
+              </Link>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {currentWelcomeContent.events.map((event) => (
-                <NewsEventCard key={event.id} event={event} />
-              ))}
+              {(() => {
+                const newsAndEvents = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
+                const combinedItems = [
+                  ...newsAndEvents.news.slice(0, 2).map(item => ({ ...item, itemType: 'news' as const })),
+                  ...newsAndEvents.events.slice(0, 1).map(item => ({ ...item, itemType: 'event' as const }))
+                ];
+                
+                return combinedItems.map((item) => (
+                  item.itemType === 'news' ? (
+                    <NewsCard key={`news-${item.id}`} news={item} />
+                  ) : (
+                    <EventCard key={`event-${item.id}`} event={item} />
+                  )
+                ));
+              })()}
             </div>
           </div>
 

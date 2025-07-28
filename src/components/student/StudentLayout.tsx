@@ -21,6 +21,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
     { name: "Documents", path: "/student/dashboard", hasUpdate: true },
     { name: "Your Applications", path: "/student/applications" },
     { name: "Pay Your Fee", path: "/student/fee" },
+    { name: "News & Events", path: "/student/news-events" },
     { name: "Life @ WCC", path: "/student/campus-life" },
   ];
 

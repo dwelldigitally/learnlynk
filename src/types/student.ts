@@ -32,18 +32,26 @@ export interface AdvisorProfile {
   avatar: string;
 }
 
-export interface NewsEvent {
+export interface NewsItem {
   id: string;
   title: string;
   description: string;
   image: string;
-  author: {
-    name: string;
-    role: string;
-    avatar: string;
-  };
-  duration: string;
-  lessons: number;
+  type: "blog" | "alumni_story" | "instructor_profile";
+  date: string;
+  readTime: string;
+}
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  date: string;
+  time: string;
+  registeredCount: number;
+  maxCapacity: number;
+  eventType: "info_session" | "workshop" | "campus_tour" | "networking" | "guest_lecture";
 }
 
 export interface AppointmentSlot {

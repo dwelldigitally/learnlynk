@@ -6,6 +6,7 @@ import ucatUltimate from "@/assets/ucat-ultimate.jpg";
 import authorAhmed from "@/assets/author-ahmed.jpg";
 import authorSarah from "@/assets/author-sarah.jpg";
 import authorRobert from "@/assets/author-robert.jpg";
+export { programNewsAndEvents } from "./programNewsAndEvents";
 
 interface ProgramWelcomeContent {
   welcomeText: string;
@@ -25,6 +26,7 @@ interface ProgramWelcomeContent {
     lessons: number;
   }>;
 }
+
 
 export const programWelcomeContent: Record<string, ProgramWelcomeContent> = {
   "Health Care Assistant": {

@@ -1,0 +1,91 @@
+import React, { useState, useMemo } from "react";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import NewsCard from "@/components/student/NewsCard";
+import EventCard from "@/components/student/EventCard";
+import { programNewsAndEvents } from "@/data/programContent";
+
+const NewsAndEvents: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedProgram] = useState("Health Care Assistant"); // This would come from context/state
+
+  const programContent = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
+  
+  const filteredNews = useMemo(() => {
+    return programContent.news.filter(item =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [programContent.news, searchTerm]);
+
+  const filteredEvents = useMemo(() => {
+    return programContent.events.filter(item =>
+      item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [programContent.events, searchTerm]);
+
+  const allItems = useMemo(() => {
+    const combined = [
+      ...filteredNews.map(item => ({ ...item, itemType: 'news' as const })),
+      ...filteredEvents.map(item => ({ ...item, itemType: 'event' as const }))
+    ];
+    return combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [filteredNews, filteredEvents]);
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-3xl font-bold">News & Events</h1>
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search news and events..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      </div>
+
+      <Tabs defaultValue="all" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsTrigger value="all">All ({allItems.length})</TabsTrigger>
+          <TabsTrigger value="news">News ({filteredNews.length})</TabsTrigger>
+          <TabsTrigger value="events">Events ({filteredEvents.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allItems.map((item) => (
+              item.itemType === 'news' ? (
+                <NewsCard key={`news-${item.id}`} news={item} />
+              ) : (
+                <EventCard key={`event-${item.id}`} event={item} />
+              )
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="news" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredNews.map((news) => (
+              <NewsCard key={news.id} news={news} />
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="events" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredEvents.map((event) => (
+              <EventCard key={event.id} event={event} />
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default NewsAndEvents;

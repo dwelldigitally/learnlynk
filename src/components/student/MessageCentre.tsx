@@ -14,30 +14,89 @@ interface Message {
   from: string;
   fromRole: string;
   avatar: string;
-  subject: string;
   content: string;
   timestamp: Date;
-  isRead: boolean;
+  isFromAdvisor: boolean;
+}
+
+interface MessageThread {
+  id: string;
+  subject: string;
+  participants: {
+    advisor: {
+      name: string;
+      role: string;
+      avatar: string;
+    };
+    student: {
+      name: string;
+      avatar: string;
+    };
+  };
+  messages: Message[];
+  lastMessage: Message;
+  unreadCount: number;
   priority: "high" | "medium" | "low";
   relatedApplication?: string;
 }
 
 const MessageCentre: React.FC = () => {
-  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [selectedThread, setSelectedThread] = useState<MessageThread | null>(null);
   const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
 
-  // Mock messages from advisor
-  const messages: Message[] = [
+  // Mock message threads
+  const messageThreads: MessageThread[] = [
     {
-      id: "msg-1",
-      from: "Nicole Ye",
-      fromRole: "Senior Admissions Advisor",
-      avatar: advisorNicole,
+      id: "thread-1",
       subject: "Document Review Update - Health Care Assistant",
-      content: `Dear Tushar,
+      participants: {
+        advisor: {
+          name: "Nicole Ye",
+          role: "Senior Admissions Advisor",
+          avatar: advisorNicole,
+        },
+        student: {
+          name: "Tushar Malhotra",
+          avatar: "/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png",
+        },
+      },
+      messages: [
+        {
+          id: "msg-1",
+          from: "Nicole Ye",
+          fromRole: "Senior Admissions Advisor",
+          avatar: advisorNicole,
+          content: `Dear Tushar,
+
+Welcome to Western Community College! I'm Nicole Ye, your dedicated admissions advisor for the Health Care Assistant program.
+
+I'm here to guide you through every step of the admissions process. Please don't hesitate to reach out if you have any questions about:
+
+• Document requirements
+• Application deadlines
+• Program information
+• Career prospects
+
+I've noticed you've started your application - great first step! I'll be monitoring your progress and will reach out with updates as your application moves through our review process.
+
+Looking forward to helping you achieve your career goals in healthcare!
+
+Best regards,
+Nicole Ye
+nicole@wcc.ca
+(604)-594-3500`,
+          timestamp: new Date("2025-01-15T14:20:00"),
+          isFromAdvisor: true,
+        },
+        {
+          id: "msg-2",
+          from: "Nicole Ye",
+          fromRole: "Senior Admissions Advisor",
+          avatar: advisorNicole,
+          content: `Dear Tushar,
 
 I have reviewed your submitted documents for the Health Care Assistant program. Here's the status update:
 
@@ -57,48 +116,44 @@ Best regards,
 Nicole Ye
 Senior Admissions Advisor
 Western Community College`,
-      timestamp: new Date("2025-01-17T10:30:00"),
-      isRead: false,
+          timestamp: new Date("2025-01-17T10:30:00"),
+          isFromAdvisor: true,
+        },
+      ],
+      lastMessage: {
+        id: "msg-2",
+        from: "Nicole Ye",
+        fromRole: "Senior Admissions Advisor",
+        avatar: advisorNicole,
+        content: "Your First Aid certificate has expired. Please upload a current First Aid certificate to proceed with your application...",
+        timestamp: new Date("2025-01-17T10:30:00"),
+        isFromAdvisor: true,
+      },
+      unreadCount: 1,
       priority: "high",
       relatedApplication: "HCA-1047859"
     },
     {
-      id: "msg-2",
-      from: "Nicole Ye",
-      fromRole: "Senior Admissions Advisor",
-      avatar: advisorNicole,
-      subject: "Welcome to Western Community College",
-      content: `Dear Tushar,
-
-Welcome to Western Community College! I'm Nicole Ye, your dedicated admissions advisor for the Health Care Assistant program.
-
-I'm here to guide you through every step of the admissions process. Please don't hesitate to reach out if you have any questions about:
-
-• Document requirements
-• Application deadlines
-• Program information
-• Career prospects
-
-I've noticed you've started your application - great first step! I'll be monitoring your progress and will reach out with updates as your application moves through our review process.
-
-Looking forward to helping you achieve your career goals in healthcare!
-
-Best regards,
-Nicole Ye
-nicole@wcc.ca
-(604)-594-3500`,
-      timestamp: new Date("2025-01-15T14:20:00"),
-      isRead: true,
-      priority: "medium",
-      relatedApplication: "HCA-1047859"
-    },
-    {
-      id: "msg-3",
-      from: "Admissions Office",
-      fromRole: "Automated System",
-      avatar: "/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png",
+      id: "thread-2",
       subject: "Application Received - Health Care Assistant",
-      content: `Dear Tushar Malhotra,
+      participants: {
+        advisor: {
+          name: "Admissions Office",
+          role: "Automated System",
+          avatar: "/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png",
+        },
+        student: {
+          name: "Tushar Malhotra",
+          avatar: "/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png",
+        },
+      },
+      messages: [
+        {
+          id: "msg-3",
+          from: "Admissions Office",
+          fromRole: "Automated System",
+          avatar: "/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png",
+          content: `Dear Tushar Malhotra,
 
 Thank you for submitting your application for the Health Care Assistant program!
 
@@ -122,14 +177,26 @@ If you have any questions, please contact your admissions advisor Nicole Ye at n
 
 Best regards,
 Western Community College Admissions Office`,
-      timestamp: new Date("2025-01-15T09:45:00"),
-      isRead: true,
+          timestamp: new Date("2025-01-15T09:45:00"),
+          isFromAdvisor: true,
+        }
+      ],
+      lastMessage: {
+        id: "msg-3",
+        from: "Admissions Office",
+        fromRole: "Automated System",
+        avatar: "/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png",
+        content: "Thank you for submitting your application for the Health Care Assistant program!...",
+        timestamp: new Date("2025-01-15T09:45:00"),
+        isFromAdvisor: true,
+      },
+      unreadCount: 0,
       priority: "low",
       relatedApplication: "HCA-1047859"
     }
   ];
 
-  const unreadCount = messages.filter(msg => !msg.isRead).length;
+  const totalUnreadCount = messageThreads.reduce((sum, thread) => sum + thread.unreadCount, 0);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -162,8 +229,28 @@ Western Community College Admissions Office`,
   };
 
   const handleSendReply = () => {
-    // Here you would normally send the reply and files to your backend
-    console.log('Sending reply:', { replyText, selectedFiles, selectedDocumentType });
+    if (!selectedThread || (!replyText.trim() && selectedFiles.length === 0)) return;
+
+    // Create new message from student
+    const newMessage: Message = {
+      id: `msg-${Date.now()}`,
+      from: "Tushar Malhotra",
+      fromRole: "Student",
+      avatar: "/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png",
+      content: replyText,
+      timestamp: new Date(),
+      isFromAdvisor: false,
+    };
+
+    // Update the selected thread with the new message
+    const updatedThread = {
+      ...selectedThread,
+      messages: [...selectedThread.messages, newMessage],
+      lastMessage: newMessage,
+    };
+
+    setSelectedThread(updatedThread);
+
     // Reset form
     setReplyText("");
     setSelectedFiles([]);
@@ -181,14 +268,14 @@ Western Community College Admissions Office`,
     { id: "english-proof", name: "English Proficiency Test" },
   ];
 
-  if (selectedMessage) {
+  if (selectedThread) {
     return (
       <div className="max-w-4xl mx-auto">
-        {/* Message View Header */}
+        {/* Thread View Header */}
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="ghost"
-            onClick={() => setSelectedMessage(null)}
+            onClick={() => setSelectedThread(null)}
             className="flex items-center gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -196,60 +283,68 @@ Western Community College Admissions Office`,
           </Button>
         </div>
 
-        {/* Message Content */}
-        <Card className="p-6">
-          <div className="flex items-start gap-4 mb-6">
-            <img 
-              src={selectedMessage.avatar} 
-              alt={selectedMessage.from}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-            <div className="flex-1">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 className="text-xl font-semibold">{selectedMessage.subject}</h2>
-                  <p className="text-gray-600">
-                    From: <span className="font-medium">{selectedMessage.from}</span> - {selectedMessage.fromRole}
-                  </p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {selectedMessage.timestamp.toLocaleString()}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={getPriorityColor(selectedMessage.priority)}>
-                    {selectedMessage.priority.toUpperCase()}
-                  </Badge>
-                  {selectedMessage.relatedApplication && (
-                    <Badge variant="outline">
-                      {selectedMessage.relatedApplication}
-                    </Badge>
-                  )}
-                </div>
-              </div>
+        {/* Thread Header */}
+        <Card className="p-4 mb-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl font-semibold">{selectedThread.subject}</h2>
+              <p className="text-gray-600">
+                Conversation with <span className="font-medium">{selectedThread.participants.advisor.name}</span> - {selectedThread.participants.advisor.role}
+              </p>
             </div>
-          </div>
-
-          <div className="prose max-w-none">
-            <div className="whitespace-pre-line text-gray-800 leading-relaxed">
-              {selectedMessage.content}
+            <div className="flex items-center gap-2">
+              <Badge className={getPriorityColor(selectedThread.priority)}>
+                {selectedThread.priority.toUpperCase()}
+              </Badge>
+              {selectedThread.relatedApplication && (
+                <Badge variant="outline">
+                  {selectedThread.relatedApplication}
+                </Badge>
+              )}
             </div>
-          </div>
-
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <Button 
-              onClick={() => setShowReplyBox(!showReplyBox)}
-              className="bg-purple-900 hover:bg-purple-800 text-white"
-            >
-              Reply to {selectedMessage.from}
-            </Button>
           </div>
         </Card>
 
-        {/* Reply Box */}
-        {showReplyBox && (
-          <Card className="mt-4 p-6">
-            <h3 className="text-lg font-semibold mb-4">Reply to {selectedMessage.from}</h3>
-            
+        {/* Messages in Thread */}
+        <div className="space-y-4 mb-6">
+          {selectedThread.messages.map((message) => (
+            <Card key={message.id} className={`p-4 ${message.isFromAdvisor ? '' : 'bg-blue-50'}`}>
+              <div className="flex items-start gap-4">
+                <img 
+                  src={message.avatar} 
+                  alt={message.from}
+                  className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="font-medium">{message.from}</span>
+                    <span className="text-sm text-gray-500">- {message.fromRole}</span>
+                    <span className="text-xs text-gray-500 ml-auto">
+                      {message.timestamp.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="whitespace-pre-line text-gray-800 leading-relaxed">
+                    {message.content}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Reply Section */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold">Reply to {selectedThread.participants.advisor.name}</h3>
+            <Button 
+              variant="outline"
+              onClick={() => setShowReplyBox(!showReplyBox)}
+            >
+              {showReplyBox ? 'Cancel' : 'Reply'}
+            </Button>
+          </div>
+
+          {showReplyBox && (
             <div className="space-y-4">
               <Textarea
                 placeholder="Type your message here..."
@@ -331,14 +426,8 @@ Western Community College Admissions Office`,
                 )}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex justify-between">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowReplyBox(false)}
-                >
-                  Cancel
-                </Button>
+              {/* Send Button */}
+              <div className="flex justify-end">
                 <Button
                   onClick={handleSendReply}
                   disabled={!replyText.trim() && selectedFiles.length === 0}
@@ -349,8 +438,8 @@ Western Community College Admissions Office`,
                 </Button>
               </div>
             </div>
-          </Card>
-        )}
+          )}
+        </Card>
       </div>
     );
   }
@@ -368,27 +457,27 @@ Western Community College Admissions Office`,
             All communications about your applications
           </p>
         </div>
-        {unreadCount > 0 && (
+        {totalUnreadCount > 0 && (
           <Badge className="bg-red-100 text-red-800 border-red-200">
-            {unreadCount} Unread
+            {totalUnreadCount} Unread
           </Badge>
         )}
       </div>
 
-      {/* Messages List */}
+      {/* Message Threads List */}
       <div className="space-y-3">
-        {messages.map((message) => (
+        {messageThreads.map((thread) => (
           <Card 
-            key={message.id}
+            key={thread.id}
             className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-              !message.isRead ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
+              thread.unreadCount > 0 ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
             }`}
-            onClick={() => setSelectedMessage(message)}
+            onClick={() => setSelectedThread(thread)}
           >
             <div className="flex items-start gap-4">
               <img 
-                src={message.avatar} 
-                alt={message.from}
+                src={thread.participants.advisor.avatar} 
+                alt={thread.participants.advisor.name}
                 className="w-10 h-10 rounded-full object-cover flex-shrink-0"
               />
               
@@ -397,40 +486,46 @@ Western Community College Admissions Office`,
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <h3 className={`font-medium truncate ${
-                        !message.isRead ? 'font-semibold' : ''
+                        thread.unreadCount > 0 ? 'font-semibold' : ''
                       }`}>
-                        {message.subject}
+                        {thread.subject}
                       </h3>
-                      {!message.isRead && (
+                      {thread.unreadCount > 0 && (
                         <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
                       )}
                     </div>
                     
                     <p className="text-sm text-gray-600 mb-2">
-                      From: <span className="font-medium">{message.from}</span> - {message.fromRole}
+                      From: <span className="font-medium">{thread.participants.advisor.name}</span> - {thread.participants.advisor.role}
                     </p>
                     
                     <p className="text-sm text-gray-500 line-clamp-2">
-                      {message.content.substring(0, 120)}...
+                      {thread.lastMessage.content.substring(0, 120)}...
                     </p>
                   </div>
                   
                   <div className="flex flex-col items-end gap-2 flex-shrink-0">
                     <span className="text-xs text-gray-500">
-                      {formatDate(message.timestamp)}
+                      {formatDate(thread.lastMessage.timestamp)}
                     </span>
                     
                     <div className="flex items-center gap-2">
-                      <Badge className={getPriorityColor(message.priority)} variant="outline">
-                        {message.priority === 'high' && <AlertCircle className="w-3 h-3 mr-1" />}
-                        {message.priority === 'medium' && <Clock className="w-3 h-3 mr-1" />}
-                        {message.priority === 'low' && <Check className="w-3 h-3 mr-1" />}
-                        {message.priority}
+                      <Badge className={getPriorityColor(thread.priority)} variant="outline">
+                        {thread.priority === 'high' && <AlertCircle className="w-3 h-3 mr-1" />}
+                        {thread.priority === 'medium' && <Clock className="w-3 h-3 mr-1" />}
+                        {thread.priority === 'low' && <Check className="w-3 h-3 mr-1" />}
+                        {thread.priority}
                       </Badge>
                       
-                      {message.relatedApplication && (
+                      {thread.relatedApplication && (
                         <Badge variant="outline" className="text-xs">
-                          {message.relatedApplication}
+                          {thread.relatedApplication}
+                        </Badge>
+                      )}
+
+                      {thread.unreadCount > 0 && (
+                        <Badge className="bg-blue-600 text-white text-xs">
+                          {thread.unreadCount}
                         </Badge>
                       )}
                     </div>
@@ -442,7 +537,7 @@ Western Community College Admissions Office`,
         ))}
       </div>
 
-      {messages.length === 0 && (
+      {messageThreads.length === 0 && (
         <Card className="p-8 text-center">
           <Mail className="w-12 h-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-600 mb-2">No Messages Yet</h3>

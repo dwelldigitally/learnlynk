@@ -1,9 +1,12 @@
 import React, { useState } from "react";
-import { ArrowLeft, Mail, Clock, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft, Mail, Clock, Check, AlertCircle, Paperclip, Send, Upload, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
 
 interface Message {
@@ -21,6 +24,10 @@ interface Message {
 
 const MessageCentre: React.FC = () => {
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
 
   // Mock messages from advisor
   const messages: Message[] = [
@@ -145,6 +152,35 @@ Western Community College Admissions Office`,
     }
   };
 
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files || []);
+    setSelectedFiles(prev => [...prev, ...files]);
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSendReply = () => {
+    // Here you would normally send the reply and files to your backend
+    console.log('Sending reply:', { replyText, selectedFiles, selectedDocumentType });
+    // Reset form
+    setReplyText("");
+    setSelectedFiles([]);
+    setSelectedDocumentType("");
+    setShowReplyBox(false);
+  };
+
+  // Mock document requirements for the HCA program
+  const documentRequirements = [
+    { id: "transcript", name: "Official Transcripts" },
+    { id: "photo-id", name: "Photo ID" },
+    { id: "criminal-check", name: "Criminal Record Check" },
+    { id: "immunization", name: "Immunization Records" },
+    { id: "first-aid", name: "First Aid Certificate" },
+    { id: "english-proof", name: "English Proficiency Test" },
+  ];
+
   if (selectedMessage) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -200,11 +236,121 @@ Western Community College Admissions Office`,
           </div>
 
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <Button className="bg-purple-900 hover:bg-purple-800 text-white">
+            <Button 
+              onClick={() => setShowReplyBox(!showReplyBox)}
+              className="bg-purple-900 hover:bg-purple-800 text-white"
+            >
               Reply to {selectedMessage.from}
             </Button>
           </div>
         </Card>
+
+        {/* Reply Box */}
+        {showReplyBox && (
+          <Card className="mt-4 p-6">
+            <h3 className="text-lg font-semibold mb-4">Reply to {selectedMessage.from}</h3>
+            
+            <div className="space-y-4">
+              <Textarea
+                placeholder="Type your message here..."
+                value={replyText}
+                onChange={(e) => setReplyText(e.target.value)}
+                className="min-h-[120px]"
+              />
+
+              {/* File Upload Section */}
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Input
+                      type="file"
+                      onChange={handleFileSelect}
+                      multiple
+                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => document.getElementById('file-upload')?.click()}
+                      className="w-full"
+                    >
+                      <Paperclip className="w-4 h-4 mr-2" />
+                      Attach Files
+                    </Button>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Upload Document for Application" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {documentRequirements.map((req) => (
+                          <SelectItem key={req.id} value={req.id}>
+                            <div className="flex items-center gap-2">
+                              <Upload className="w-4 h-4" />
+                              {req.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Selected Files Display */}
+                {selectedFiles.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-gray-700">Selected Files:</p>
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                        <div className="flex items-center gap-2">
+                          <Paperclip className="w-4 h-4 text-gray-500" />
+                          <span className="text-sm">{file.name}</span>
+                          <span className="text-xs text-gray-500">
+                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                          {selectedDocumentType && (
+                            <Badge variant="outline" className="text-xs">
+                              {documentRequirements.find(req => req.id === selectedDocumentType)?.name}
+                            </Badge>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeFile(index)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-between">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowReplyBox(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSendReply}
+                  disabled={!replyText.trim() && selectedFiles.length === 0}
+                  className="bg-purple-900 hover:bg-purple-800 text-white"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Send Reply
+                </Button>
+              </div>
+            </div>
+          </Card>
+        )}
       </div>
     );
   }

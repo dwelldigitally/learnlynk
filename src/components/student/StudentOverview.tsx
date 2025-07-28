@@ -75,6 +75,54 @@ const StudentOverview: React.FC = () => {
   const currentWelcomeContent = programWelcomeContent[selectedProgram];
   const currentAlumni = programAlumni[selectedProgram];
   
+  // Dynamic color schemes for each program
+  const programColorSchemes = {
+    "Health Care Assistant": {
+      primary: "from-emerald-800 to-teal-900",
+      secondary: "from-emerald-900/80 to-teal-900/60",
+      headerBg: "bg-emerald-800",
+      buttonBg: "bg-emerald-700 hover:bg-emerald-600",
+      accentColor: "emerald"
+    },
+    "Education Assistant": {
+      primary: "from-blue-800 to-indigo-900",
+      secondary: "from-blue-900/80 to-indigo-900/60",
+      headerBg: "bg-blue-800",
+      buttonBg: "bg-blue-700 hover:bg-blue-600",
+      accentColor: "blue"
+    },
+    "Aviation": {
+      primary: "from-sky-800 to-cyan-900",
+      secondary: "from-sky-900/80 to-cyan-900/60",
+      headerBg: "bg-sky-800",
+      buttonBg: "bg-sky-700 hover:bg-sky-600",
+      accentColor: "sky"
+    },
+    "Hospitality": {
+      primary: "from-amber-800 to-orange-900",
+      secondary: "from-amber-900/80 to-orange-900/60",
+      headerBg: "bg-amber-800",
+      buttonBg: "bg-amber-700 hover:bg-amber-600",
+      accentColor: "amber"
+    },
+    "ECE": {
+      primary: "from-pink-800 to-rose-900",
+      secondary: "from-pink-900/80 to-rose-900/60",
+      headerBg: "bg-pink-800",
+      buttonBg: "bg-pink-700 hover:bg-pink-600",
+      accentColor: "pink"
+    },
+    "MLA": {
+      primary: "from-purple-800 to-violet-900",
+      secondary: "from-purple-900/80 to-violet-900/60",
+      headerBg: "bg-purple-800",
+      buttonBg: "bg-purple-700 hover:bg-purple-600",
+      accentColor: "purple"
+    }
+  };
+
+  const currentColors = programColorSchemes[selectedProgram as keyof typeof programColorSchemes] || programColorSchemes["Health Care Assistant"];
+  
   // Dynamic marketing messages based on program
   const programMarketingMessages = {
     "Health Care Assistant": {
@@ -164,7 +212,7 @@ const StudentOverview: React.FC = () => {
   return (
     <div>
       {/* Program Header with Program and Intake Selection */}
-      <div className="bg-purple-900 text-white px-8 py-4 rounded-lg mb-6 flex justify-between items-center">
+      <div className={`${currentColors.headerBg} text-white px-8 py-4 rounded-lg mb-6 flex justify-between items-center transition-colors duration-300`}>
         <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
           <PopoverTrigger asChild>
             <Button variant="ghost" className="text-white hover:bg-white/10 p-0 text-xl font-bold flex items-center gap-2">
@@ -257,7 +305,7 @@ const StudentOverview: React.FC = () => {
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Dynamic Marketing Hero Section */}
-          <Card className="relative overflow-hidden bg-gradient-to-br from-purple-900 to-blue-900 text-white">
+          <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-colors duration-500`}>
             {/* Background Image with Overlay */}
             <div className="absolute inset-0">
               <img 
@@ -265,7 +313,7 @@ const StudentOverview: React.FC = () => {
                 alt={`${selectedProgram} Career`}
                 className="w-full h-full object-cover opacity-30"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-900/80 to-blue-900/60"></div>
+              <div className={`absolute inset-0 bg-gradient-to-r ${currentColors.secondary} transition-colors duration-500`}></div>
             </div>
             
             {/* Content */}
@@ -301,7 +349,7 @@ const StudentOverview: React.FC = () => {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Button 
                       size="lg"
-                      className="bg-white text-purple-900 hover:bg-gray-100 font-semibold text-lg px-8 py-4 flex items-center gap-3"
+                      className={`bg-white text-gray-900 hover:bg-gray-100 font-semibold text-lg px-8 py-4 flex items-center gap-3`}
                       onClick={() => setIsFormExpanded(!isFormExpanded)}
                     >
                       {isFormExpanded ? 'Hide Application Form' : currentMarketing.ctaText}

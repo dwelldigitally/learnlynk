@@ -17,6 +17,7 @@ const StudentOverview: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
   const [intake, setIntake] = useState("15th March 2025");
   const [showAdmissionForm, setShowAdmissionForm] = useState(false);
+  const [isFormExpanded, setIsFormExpanded] = useState(false);
   const [isIntakePopoverOpen, setIsIntakePopoverOpen] = useState(false);
   const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
   
@@ -193,10 +194,13 @@ const StudentOverview: React.FC = () => {
                 </p>
                 <Button 
                   className="bg-purple-900 hover:bg-purple-800 text-white flex items-center gap-2"
-                  onClick={() => setShowAdmissionForm(true)}
+                  onClick={() => setIsFormExpanded(!isFormExpanded)}
                 >
-                  Start Application
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                  {isFormExpanded ? 'Hide Application Form' : 'Start Application'}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`lucide transition-transform ${isFormExpanded ? 'rotate-180' : ''}`}>
+                    <path d="M5 12h14"/>
+                    <path d="m12 5 7 7-7 7"/>
+                  </svg>
                 </Button>
               </div>
               <div className="md:w-1/2">
@@ -208,6 +212,27 @@ const StudentOverview: React.FC = () => {
               </div>
             </div>
           </Card>
+
+          {/* Expandable Application Form */}
+          {isFormExpanded && (
+            <div className="animate-accordion-down">
+              <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-xl font-bold text-purple-900">Application Form - {selectedProgram}</h3>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setIsFormExpanded(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    ✕
+                  </Button>
+                </div>
+                <AdmissionForm 
+                  onBack={() => setIsFormExpanded(false)}
+                />
+              </Card>
+            </div>
+          )}
 
           {/* Admissions Progress */}
           <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">

@@ -42,7 +42,6 @@ interface MessageThread {
 
 const MessageCentre: React.FC = () => {
   const [selectedThread, setSelectedThread] = useState<MessageThread | null>(null);
-  const [showReplyBox, setShowReplyBox] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
@@ -255,18 +254,27 @@ Western Community College Admissions Office`,
     setReplyText("");
     setSelectedFiles([]);
     setSelectedDocumentType("");
-    setShowReplyBox(false);
   };
 
-  // Mock document requirements for the HCA program
+  // Mock document requirements for the HCA program with status
   const documentRequirements = [
-    { id: "transcript", name: "Official Transcripts" },
-    { id: "photo-id", name: "Photo ID" },
-    { id: "criminal-check", name: "Criminal Record Check" },
-    { id: "immunization", name: "Immunization Records" },
-    { id: "first-aid", name: "First Aid Certificate" },
-    { id: "english-proof", name: "English Proficiency Test" },
+    { id: "transcript", name: "Official Transcripts", status: "approved" },
+    { id: "photo-id", name: "Photo ID", status: "approved" },
+    { id: "criminal-check", name: "Criminal Record Check", status: "approved" },
+    { id: "immunization", name: "Immunization Records", status: "under-review" },
+    { id: "first-aid", name: "First Aid Certificate", status: "needs-attention" },
+    { id: "english-proof", name: "English Proficiency Test", status: "not-submitted" },
   ];
+
+  const getDocumentStatusIcon = (status: string) => {
+    switch (status) {
+      case "approved": return "✅";
+      case "under-review": return "⏳";
+      case "needs-attention": return "❌";
+      case "not-submitted": return "📄";
+      default: return "📄";
+    }
+  };
 
   if (selectedThread) {
     return (
@@ -334,111 +342,105 @@ Western Community College Admissions Office`,
 
         {/* Reply Section */}
         <Card className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Reply to {selectedThread.participants.advisor.name}</h3>
-            <Button 
-              variant="outline"
-              onClick={() => setShowReplyBox(!showReplyBox)}
-            >
-              {showReplyBox ? 'Cancel' : 'Reply'}
-            </Button>
-          </div>
+          <h3 className="text-lg font-semibold mb-4">Reply to {selectedThread.participants.advisor.name}</h3>
+          
+          <div className="space-y-4">
+            <Textarea
+              placeholder="Type your message here..."
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              className="min-h-[120px]"
+            />
 
-          {showReplyBox && (
-            <div className="space-y-4">
-              <Textarea
-                placeholder="Type your message here..."
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                className="min-h-[120px]"
-              />
-
-              {/* File Upload Section */}
-              <div className="space-y-3">
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Input
-                      type="file"
-                      onChange={handleFileSelect}
-                      multiple
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-                      className="hidden"
-                      id="file-upload"
-                    />
-                    <Button
-                      variant="outline"
-                      onClick={() => document.getElementById('file-upload')?.click()}
-                      className="w-full"
-                    >
-                      <Paperclip className="w-4 h-4 mr-2" />
-                      Attach Files
-                    </Button>
-                  </div>
-                  
-                  <div className="flex-1">
-                    <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Upload Document for Application" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {documentRequirements.map((req) => (
-                          <SelectItem key={req.id} value={req.id}>
-                            <div className="flex items-center gap-2">
-                              <Upload className="w-4 h-4" />
-                              {req.name}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+            {/* File Upload Section */}
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    type="file"
+                    onChange={handleFileSelect}
+                    multiple
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                    className="hidden"
+                    id="file-upload"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    className="w-full"
+                  >
+                    <Paperclip className="w-4 h-4 mr-2" />
+                    Attach Files
+                  </Button>
                 </div>
-
-                {/* Selected Files Display */}
-                {selectedFiles.length > 0 && (
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700">Selected Files:</p>
-                    {selectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                        <div className="flex items-center gap-2">
-                          <Paperclip className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm">{file.name}</span>
-                          <span className="text-xs text-gray-500">
-                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                          </span>
-                          {selectedDocumentType && (
-                            <Badge variant="outline" className="text-xs">
-                              {documentRequirements.find(req => req.id === selectedDocumentType)?.name}
+                
+                <div className="flex-1">
+                  <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Upload Document for Application" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {documentRequirements.map((req) => (
+                        <SelectItem key={req.id} value={req.id}>
+                          <div className="flex items-center gap-2">
+                            <span>{getDocumentStatusIcon(req.status)}</span>
+                            <Upload className="w-4 h-4" />
+                            <span>{req.name}</span>
+                            <Badge variant="outline" className="ml-auto text-xs">
+                              {req.status.replace('-', ' ')}
                             </Badge>
-                          )}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeFile(index)}
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Send Button */}
-              <div className="flex justify-end">
-                <Button
-                  onClick={handleSendReply}
-                  disabled={!replyText.trim() && selectedFiles.length === 0}
-                  className="bg-purple-900 hover:bg-purple-800 text-white"
-                >
-                  <Send className="w-4 h-4 mr-2" />
-                  Send Reply
-                </Button>
-              </div>
+              {/* Selected Files Display */}
+              {selectedFiles.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-gray-700">Selected Files:</p>
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
+                      <div className="flex items-center gap-2">
+                        <Paperclip className="w-4 h-4 text-gray-500" />
+                        <span className="text-sm">{file.name}</span>
+                        <span className="text-xs text-gray-500">
+                          ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        </span>
+                        {selectedDocumentType && (
+                          <Badge variant="outline" className="text-xs">
+                            {documentRequirements.find(req => req.id === selectedDocumentType)?.name}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          )}
+
+            {/* Send Button */}
+            <div className="flex justify-end">
+              <Button
+                onClick={handleSendReply}
+                disabled={!replyText.trim() && selectedFiles.length === 0}
+                className="bg-purple-900 hover:bg-purple-800 text-white"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Send Reply
+              </Button>
+            </div>
+          </div>
         </Card>
       </div>
     );

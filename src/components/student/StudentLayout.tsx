@@ -5,6 +5,7 @@ import Chatbot from "@/components/Chatbot";
 import { Mail, Bell, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import NotificationCentre from "@/components/student/NotificationCentre";
+import FloatingMarketingMessages from "@/components/student/FloatingMarketingMessages";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -84,10 +85,20 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
       <main className="flex-1">
         {/* Header */}
         <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold flex items-center">
-            Hey Tushar <span className="ml-2">👋</span>
-          </h1>
-          <div className="flex items-center space-x-4">
+          {/* Left Section */}
+          <div className="flex-1">
+            <h1 className="text-2xl font-semibold flex items-center">
+              Hey Tushar <span className="ml-2">👋</span>
+            </h1>
+          </div>
+          
+          {/* Center Section - Marketing Messages */}
+          <div className="flex-1 flex justify-center">
+            <FloatingMarketingMessages />
+          </div>
+          
+          {/* Right Section */}
+          <div className="flex-1 flex items-center justify-end space-x-4">
             <div className="text-right text-sm">
               <div>Student Id: WCC1047859</div>
               <div className="text-gray-500">Tushar.Malhotra@student.wcc.ca</div>

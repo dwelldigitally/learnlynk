@@ -7,7 +7,6 @@ import StudentOverview from "@/components/student/StudentOverview";
 import YourApplications from "@/components/student/YourApplications";
 import PayYourFee from "@/components/student/PayYourFee";
 import MessageCentre from "@/components/student/MessageCentre";
-import NotificationCentre from "@/components/student/NotificationCentre";
 import LifeAtWCC from "./LifeAtWCC";
 
 const StudentPortal: React.FC = () => {
@@ -25,8 +24,6 @@ const StudentPortal: React.FC = () => {
         return <PayYourFee />;
       case "/student/messages":
         return <MessageCentre />;
-      case "/student/notifications":
-        return <NotificationCentre />;
       case "/student/campus-life":
         return <LifeAtWCC />;
       default:

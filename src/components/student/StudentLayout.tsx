@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import Chatbot from "@/components/Chatbot";
 import { Mail, Bell, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import NotificationCentre from "@/components/student/NotificationCentre";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -12,9 +13,6 @@ interface StudentLayoutProps {
 const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
-
-  // Mock unread notification count
-  const unreadNotificationCount = 2;
 
   // Navigation items for the sidebar
   const navItems = [
@@ -97,14 +95,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
             <Link to="/student/messages" className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
               <Mail size={20} />
             </Link>
-            <Link to="/student/notifications" className="p-2 text-gray-500 hover:bg-gray-100 rounded-full relative">
-              <Bell size={20} />
-              {unreadNotificationCount > 0 && (
-                <Badge className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-1.5 py-0.5 min-w-[20px] h-5 flex items-center justify-center rounded-full">
-                  {unreadNotificationCount}
-                </Badge>
-              )}
-            </Link>
+            <NotificationCentre />
           </div>
         </header>
 

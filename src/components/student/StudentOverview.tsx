@@ -75,6 +75,36 @@ const StudentOverview: React.FC = () => {
   const currentWelcomeContent = programWelcomeContent[selectedProgram];
   const currentAlumni = programAlumni[selectedProgram];
   
+  // Dynamic program tags (max 2 per program)
+  const programTags = {
+    "Health Care Assistant": [
+      { text: "Most Popular", icon: "🔥" },
+      { text: "Study in Surrey Campus", icon: "📍" }
+    ],
+    "Education Assistant": [
+      { text: "PGWP Supported", icon: "✅" },
+      { text: "Finish Under 10 Months", icon: "⚡" }
+    ],
+    "Aviation": [
+      { text: "Study in Abbotsford Campus", icon: "📍" },
+      { text: "PGWP Supported", icon: "✅" }
+    ],
+    "Hospitality": [
+      { text: "Most Popular", icon: "🔥" },
+      { text: "Finish Under 8 Months", icon: "⚡" }
+    ],
+    "ECE": [
+      { text: "Study in Surrey Campus", icon: "📍" },
+      { text: "PGWP Supported", icon: "✅" }
+    ],
+    "MLA": [
+      { text: "Finish Under 12 Months", icon: "⚡" },
+      { text: "Study in Abbotsford Campus", icon: "📍" }
+    ]
+  };
+
+  const currentTags = programTags[selectedProgram as keyof typeof programTags] || programTags["Health Care Assistant"];
+  
   // Dynamic color schemes for each program
   const programColorSchemes = {
     "Health Care Assistant": {
@@ -321,11 +351,13 @@ const StudentOverview: React.FC = () => {
               <div className="flex flex-col lg:flex-row items-center gap-8">
                 {/* Left Content */}
                 <div className="flex-1 text-center lg:text-left">
-                  <div className="mb-4">
-                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-medium">
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                      Premium Program
-                    </span>
+                  <div className="mb-4 flex flex-wrap gap-2">
+                    {currentTags.map((tag, index) => (
+                      <span key={index} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-medium">
+                        <span>{tag.icon}</span>
+                        {tag.text}
+                      </span>
+                    ))}
                   </div>
                   
                   <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">

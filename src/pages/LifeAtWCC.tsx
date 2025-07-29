@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Calendar, MapPin, Users, Heart, Clock, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Users, Heart, Clock, ChevronRight, Phone } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -103,22 +103,46 @@ const LifeAtWCC: React.FC = () => {
 
   const campusLocations = [
     {
-      name: "Main Campus",
-      address: "123 Education Drive, Vancouver, BC",
-      facilities: ["Administrative Offices", "Library", "Student Center", "Cafeteria"],
-      coordinates: { lat: 49.2827, lng: -123.1207 }
+      name: "Central Surrey Campus",
+      address: "Unit 900 13761 96 Ave, Surrey, BC V3V 1Z2 Canada",
+      phone: "+1 (604) 594-3500",
+      facilities: ["Administrative Offices", "Classrooms", "Student Services", "Library"],
+      coordinates: { lat: 49.1913, lng: -122.7946 }
     },
     {
-      name: "Health Sciences Building",
-      address: "456 Healthcare Ave, Vancouver, BC", 
-      facilities: ["Simulation Labs", "Clinical Skills Lab", "Nursing Stations"],
-      coordinates: { lat: 49.2847, lng: -123.1147 }
+      name: "Scott Road, Surrey Campus",
+      address: "Unit 201 8318 120 St Surrey, BC V3W 3N4",
+      phone: "+1 (604) 594-3500",
+      facilities: ["Specialized Programs", "Labs", "Study Areas"],
+      coordinates: { lat: 49.1666, lng: -122.8756 }
     },
     {
-      name: "Student Residence",
-      address: "789 Campus Road, Vancouver, BC",
-      facilities: ["Student Housing", "Recreation Center", "Dining Hall"],
-      coordinates: { lat: 49.2807, lng: -123.1187 }
+      name: "Abbotsford Campus",
+      address: "Unit 201, 3670 Townline Rd Abbotsford, BC V2T 5W8",
+      phone: "+1 (604) 776-1301",
+      facilities: ["Health Sciences", "Simulation Labs", "Clinical Training"],
+      coordinates: { lat: 49.0504, lng: -122.3045 }
+    },
+    {
+      name: "Aviation Campus - Abbotsford",
+      address: "Hangar F, 120-1185 Townline Road Abbotsford BC, V2T 6E1",
+      phone: "+1 (604) 594-3500",
+      facilities: ["Aircraft Training", "Flight Simulators", "Aviation Labs", "Hangar Facilities"],
+      coordinates: { lat: 49.0252, lng: -122.3606 }
+    },
+    {
+      name: "Agassiz Campus",
+      address: "2812 Chewal Road Agassiz, BC V0M 1A0",
+      phone: "+1 (604) 594-3500",
+      facilities: ["Agricultural Programs", "Field Labs", "Equipment Training"],
+      coordinates: { lat: 49.2308, lng: -121.7644 }
+    },
+    {
+      name: "King George Campus",
+      address: "10449 King George Blvd, Surrey, BC V3T 8Z8 Canada",
+      phone: "+1 (604) 594-3500",
+      facilities: ["Business Programs", "Technology Labs", "Conference Rooms"],
+      coordinates: { lat: 49.1867, lng: -122.8452 }
     }
   ];
 
@@ -333,6 +357,10 @@ const LifeAtWCC: React.FC = () => {
                 <div>
                   <h3 className="font-semibold">{location.name}</h3>
                   <p className="text-sm text-muted-foreground">{location.address}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <Phone className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">{location.phone}</span>
+                  </div>
                 </div>
               </div>
               

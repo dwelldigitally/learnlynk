@@ -1,13 +1,16 @@
 import React, { useState } from "react";
-import { CreditCard, FileText, Shield, CheckCircle, DollarSign, Calendar, User } from "lucide-react";
+import { CreditCard, FileText, Shield, CheckCircle, DollarSign, Calendar, User, ChevronDown } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { studentApplications } from "@/data/studentApplications";
 
 const PayYourFee: React.FC = () => {
   const { toast } = useToast();
+  const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
   const [verifications, setVerifications] = useState({
     contractSigned: false,
     policiesRead: false,
@@ -24,6 +27,15 @@ const PayYourFee: React.FC = () => {
   const allVerificationsComplete = Object.values(verifications).every(Boolean);
 
   const handlePayment = () => {
+    if (invoiceData.status !== "due") {
+      toast({
+        title: "Payment Not Available",
+        description: "This application is not ready for payment yet. Please complete the previous steps first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!allVerificationsComplete) {
       toast({
         title: "Verification Required",
@@ -43,28 +55,91 @@ const PayYourFee: React.FC = () => {
     setTimeout(() => {
       toast({
         title: "Payment Successful!",
-        description: "Your application fee has been processed. You will receive a confirmation email shortly."
+        description: `Your application fee for ${selectedProgram} has been processed. You will receive a confirmation email shortly.`
       });
     }, 2000);
   };
 
+  const availablePrograms = Object.keys(studentApplications);
+  const currentApplication = studentApplications[selectedProgram];
+
+  const getApplicationFee = (programName: string) => {
+    // Different programs have different application fees
+    const fees: Record<string, number> = {
+      "Health Care Assistant": 250.00,
+      "Aviation": 350.00,
+      "Education Assistant": 200.00,
+      "Hospitality": 225.00,
+      "ECE": 275.00,
+      "MLA": 300.00
+    };
+    return fees[programName] || 250.00;
+  };
+
   const invoiceData = {
-    invoiceNumber: "INV-2025-001247",
+    invoiceNumber: `INV-2025-${currentApplication.id}`,
+    applicationId: currentApplication.id,
     studentId: "WCC1047859",
     studentName: "Tushar Malhotra",
-    program: "Health Care Assistant",
+    program: selectedProgram,
     issueDate: new Date("2025-01-18"),
     dueDate: new Date("2025-02-15"),
-    amount: 250.00,
-    currency: "CAD"
+    amount: getApplicationFee(selectedProgram),
+    currency: "CAD",
+    status: currentApplication.stage === "FEE_PAYMENT" ? "due" : "pending"
   };
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Header with Program Selection */}
       <div>
-        <h1 className="text-2xl font-bold">Pay Your Fee</h1>
-        <p className="text-muted-foreground">Complete your application fee payment to secure your spot</p>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-2xl font-bold">Application Fee Payment</h1>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" className="flex items-center gap-2">
+                {selectedProgram}
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80 p-0" align="end">
+              <div className="p-4">
+                <h3 className="font-medium text-lg mb-3">Select Program</h3>
+                <div className="space-y-2">
+                  {availablePrograms.map((program) => {
+                    const app = studentApplications[program];
+                    return (
+                      <div
+                        key={program}
+                        onClick={() => setSelectedProgram(program)}
+                        className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">{program}</p>
+                            <p className="text-sm text-muted-foreground">Application ID: {app.id}</p>
+                            <Badge 
+                              variant={app.stage === "FEE_PAYMENT" ? "default" : "secondary"}
+                              className="mt-1"
+                            >
+                              {app.stage === "FEE_PAYMENT" ? "Payment Due" : "Not Ready"}
+                            </Badge>
+                          </div>
+                          <span className="text-sm font-medium">
+                            ${getApplicationFee(program)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <p className="text-muted-foreground">
+          Complete your application fee payment for {selectedProgram} to secure your spot
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -81,8 +156,11 @@ const PayYourFee: React.FC = () => {
                   <p>Due Date: {invoiceData.dueDate.toLocaleDateString()}</p>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">
-                Payment Due
+              <Badge 
+                variant={invoiceData.status === "due" ? "destructive" : "secondary"}
+                className={invoiceData.status === "due" ? "bg-yellow-50 text-yellow-700 border-yellow-200" : ""}
+              >
+                {invoiceData.status === "due" ? "Payment Due" : "Not Ready for Payment"}
               </Badge>
             </div>
 
@@ -115,21 +193,58 @@ const PayYourFee: React.FC = () => {
               </div>
               <div className="p-4 space-y-3">
                 <div className="flex justify-between items-center">
-                  <span>Application Processing Fee</span>
+                  <span>Application Processing Fee - {selectedProgram}</span>
                   <span className="font-medium">${invoiceData.amount.toFixed(2)} {invoiceData.currency}</span>
                 </div>
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
-                  <span>• Document review and processing</span>
-                  <span>$150.00</span>
-                </div>
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
-                  <span>• Administrative processing</span>
-                  <span>$75.00</span>
-                </div>
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
-                  <span>• Background check coordination</span>
-                  <span>$25.00</span>
-                </div>
+                
+                {/* Dynamic fee breakdown based on program */}
+                {selectedProgram === "Aviation" ? (
+                  <>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Flight training assessment</span>
+                      <span>$200.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Aviation medical clearance</span>
+                      <span>$100.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Administrative processing</span>
+                      <span>$50.00</span>
+                    </div>
+                  </>
+                ) : selectedProgram === "ECE" ? (
+                  <>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Child welfare check</span>
+                      <span>$125.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Document review and processing</span>
+                      <span>$100.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Administrative processing</span>
+                      <span>$50.00</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Document review and processing</span>
+                      <span>$150.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Administrative processing</span>
+                      <span>$75.00</span>
+                    </div>
+                    <div className="flex justify-between items-center text-sm text-muted-foreground">
+                      <span>• Background check coordination</span>
+                      <span>$25.00</span>
+                    </div>
+                  </>
+                )}
+                
                 <hr className="my-3" />
                 <div className="flex justify-between items-center text-lg font-semibold">
                   <span>Total Amount</span>
@@ -265,15 +380,18 @@ const PayYourFee: React.FC = () => {
               className="w-full" 
               size="lg"
               onClick={handlePayment}
-              disabled={!allVerificationsComplete}
+              disabled={!allVerificationsComplete || invoiceData.status !== "due"}
             >
               <CreditCard className="w-4 h-4 mr-2" />
               Pay Now
             </Button>
 
-            {!allVerificationsComplete && (
+            {(!allVerificationsComplete || invoiceData.status !== "due") && (
               <p className="text-sm text-muted-foreground text-center mt-3">
-                Complete all verifications to enable payment
+                {invoiceData.status !== "due" 
+                  ? "Application not ready for payment yet" 
+                  : "Complete all verifications to enable payment"
+                }
               </p>
             )}
           </Card>

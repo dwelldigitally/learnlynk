@@ -64,13 +64,14 @@ const App = () => {
             <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />
             <Route path="/student/dashboard" element={<ProtectedRoute element={<StudentPortal />} />} />
             <Route path="/student/applications" element={<ProtectedRoute element={<StudentPortal />} />} />
-            <Route path="/student/track" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/academic-planning" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/financial-aid" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/career-services" element={<ProtectedRoute element={<StudentPortal />} />} />
+            <Route path="/student/community" element={<ProtectedRoute element={<StudentPortal />} />} />
             <Route path="/student/fee" element={<ProtectedRoute element={<StudentPortal />} />} />
             <Route path="/student/messages" element={<ProtectedRoute element={<StudentPortal />} />} />
             <Route path="/student/news-events" element={<ProtectedRoute element={<StudentPortal />} />} />
             <Route path="/student/campus-life" element={<ProtectedRoute element={<StudentPortal />} />} />
-            <Route path="/student/program" element={<ProtectedRoute element={<StudentPortal />} />} />
-            <Route path="/student/campus" element={<ProtectedRoute element={<StudentPortal />} />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

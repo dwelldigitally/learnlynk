@@ -193,6 +193,13 @@ const StudentDashboard: React.FC = () => {
         <div className="mt-4">
           <Progress value={(completedRequirements / currentApplication.requirements.length) * 100} className="bg-blue-800" />
         </div>
+        
+        {/* Motivational Message */}
+        <div className="mt-4 text-center">
+          <p className="text-blue-100 text-sm">
+            🌟 Keep going! You're almost there - complete your documents profile to move forward in your application journey.
+          </p>
+        </div>
       </div>
 
       {/* Statistics Cards */}

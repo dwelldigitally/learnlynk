@@ -548,6 +548,54 @@ const StudentOverview: React.FC = () => {
 
         {/* Right Column - Sidebar */}
         <div className="space-y-6">
+          {/* Student Information */}
+          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
+            <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
+              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              Student Profile
+            </h3>
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Application ID</span>
+                  <span className="text-sm font-bold text-purple-900 bg-purple-100 px-3 py-1 rounded-full">{currentApplication.id}</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Email</span>
+                  <span className="text-sm font-semibold text-gray-900">Tushar.Malhotra@student.wcc.ca</span>
+                </div>
+              </div>
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-700">Program</span>
+                  <span className="text-sm font-semibold text-purple-900">{selectedProgram}</span>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Appointment Calendar */}
+          <Card className="p-4">
+            <h3 className="text-sm font-medium text-gray-500 mb-3">Schedule Appointment</h3>
+            <div className="w-full h-96 border rounded-lg overflow-hidden">
+              <iframe 
+                src="https://calendly.com/learnlynkapp/30min?embed=true&hide_event_type_details=1&hide_gdpr_banner=1"
+                width="100%" 
+                height="100%" 
+                frameBorder="0"
+                title="Schedule appointment"
+                className="border-0"
+              />
+            </div>
+          </Card>
+
           {/* Acceptance Likelihood */}
           <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
             <div className="text-center">
@@ -597,54 +645,6 @@ const StudentOverview: React.FC = () => {
                   </p>
                 )}
               </div>
-            </div>
-          </Card>
-
-          {/* Student Information */}
-          <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
-            <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
-              <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                </svg>
-              </div>
-              Student Profile
-            </h3>
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Application ID</span>
-                  <span className="text-sm font-bold text-purple-900 bg-purple-100 px-3 py-1 rounded-full">{currentApplication.id}</span>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Email</span>
-                  <span className="text-sm font-semibold text-gray-900">Tushar.Malhotra@student.wcc.ca</span>
-                </div>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Program</span>
-                  <span className="text-sm font-semibold text-purple-900">{selectedProgram}</span>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Appointment Calendar */}
-          <Card className="p-4">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Schedule Appointment</h3>
-            <div className="w-full h-96 border rounded-lg overflow-hidden">
-              <iframe 
-                src="https://calendly.com/learnlynkapp/30min?embed=true&hide_event_type_details=1&hide_gdpr_banner=1"
-                width="100%" 
-                height="100%" 
-                frameBorder="0"
-                title="Schedule appointment"
-                className="border-0"
-              />
             </div>
           </Card>
 

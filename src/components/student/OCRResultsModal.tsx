@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -135,6 +134,15 @@ export const OCRResultsModal: React.FC<OCRResultsModalProps> = ({
     return <AlertTriangle className="w-3 h-3" />;
   };
 
+  const getStatusColor = (status: ApplicationDocument['status']) => {
+    switch (status) {
+      case 'approved': return 'bg-green-100 text-green-800 border-green-300';
+      case 'rejected': return 'bg-red-100 text-red-800 border-red-300';
+      case 'under-review': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -151,28 +159,35 @@ export const OCRResultsModal: React.FC<OCRResultsModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs defaultValue="preview" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="preview">Document Preview</TabsTrigger>
-            <TabsTrigger value="ocr">OCR Results</TabsTrigger>
-            <TabsTrigger value="comments">Comments</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="preview" className="space-y-4">
-            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-96 flex items-center justify-center">
-              <div className="text-center text-gray-500">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[70vh]">
+          {/* Document Preview */}
+          <div className="lg:col-span-1 space-y-4">
+            <div className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg h-full flex items-center justify-center">
+              <div className="text-center text-gray-500 p-6">
                 <FileText className="w-16 h-16 mx-auto mb-4" />
-                <p className="text-lg font-medium">Document Preview</p>
-                <p className="text-sm">{document.name}</p>
-                <p className="text-xs mt-2">Size: {(document.size / 1024).toFixed(2)} KB</p>
-                <p className="text-xs">Uploaded: {document.uploadDate.toLocaleDateString()}</p>
+                <p className="text-lg font-medium mb-2">{document.name}</p>
+                <div className="text-sm space-y-1">
+                  <p>Size: {(document.size / 1024).toFixed(2)} KB</p>
+                  <p>Uploaded: {document.uploadDate.toLocaleDateString()}</p>
+                  <Badge className={`mt-2 ${getStatusColor(document.status)}`}>
+                    {document.status.replace('-', ' ')}
+                  </Badge>
+                </div>
               </div>
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="ocr" className="space-y-4">
+          {/* OCR Results and Comments */}
+          <div className="lg:col-span-2 space-y-6 overflow-y-auto">
+            {/* OCR Results Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Extracted Information</h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Scan className="w-5 h-5" />
+                  Extracted Information
+                </h3>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {ocrFields.map((field) => (
                   <div key={field.id} className="space-y-2">
@@ -213,22 +228,21 @@ export const OCRResultsModal: React.FC<OCRResultsModalProps> = ({
                 </p>
               </div>
             </div>
-          </TabsContent>
 
-          <TabsContent value="comments" className="space-y-4">
-            <div className="space-y-4">
+            {/* Comments Section */}
+            <div className="space-y-4 border-t pt-6">
               <h3 className="text-lg font-semibold flex items-center gap-2">
                 <MessageSquare className="w-5 h-5" />
-                Document Comments
+                Document Communication
               </h3>
               
               {/* Existing Comments */}
-              <div className="space-y-3 max-h-64 overflow-y-auto">
+              <div className="space-y-3 max-h-48 overflow-y-auto">
                 {document.comments.map((comment) => (
                   <Card key={comment.id} className="p-3">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <Badge variant={comment.isAdvisor ? "default" : "secondary"}>
+                        <Badge variant={comment.isAdvisor ? "default" : "secondary"} className="text-xs">
                           {comment.isAdvisor ? "Advisor" : "Student"}
                         </Badge>
                         <span className="text-sm font-medium">{comment.author}</span>
@@ -241,31 +255,37 @@ export const OCRResultsModal: React.FC<OCRResultsModalProps> = ({
                   </Card>
                 ))}
                 {document.comments.length === 0 && (
-                  <div className="text-center text-gray-500 py-8">
-                    <MessageSquare className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                    <p>No comments yet</p>
+                  <div className="text-center text-gray-500 py-6">
+                    <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No comments yet</p>
                   </div>
                 )}
               </div>
 
               {/* Add New Comment */}
               <div className="space-y-2">
-                <Label htmlFor="new-comment">Add a comment</Label>
-                <Textarea
-                  id="new-comment"
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Type your comment here..."
-                  className="min-h-20"
-                />
-                <Button onClick={handleAddComment} disabled={!newComment.trim()} className="flex items-center gap-2">
-                  <Send className="w-4 h-4" />
-                  Add Comment
-                </Button>
+                <Label htmlFor="new-comment" className="text-sm font-medium">Add a comment</Label>
+                <div className="flex gap-2">
+                  <Textarea
+                    id="new-comment"
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Type your comment here..."
+                    className="flex-1 min-h-16"
+                  />
+                  <Button 
+                    onClick={handleAddComment} 
+                    disabled={!newComment.trim()} 
+                    className="self-end flex items-center gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    Send
+                  </Button>
+                </div>
               </div>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

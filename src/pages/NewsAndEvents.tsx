@@ -5,10 +5,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NewsCard from "@/components/student/NewsCard";
 import EventCard from "@/components/student/EventCard";
 import { programNewsAndEvents } from "@/data/programContent";
+import { Event } from "@/types/student";
 
 const NewsAndEvents: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProgram] = useState("Health Care Assistant"); // This would come from context/state
+  const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
 
   const programContent = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
   
@@ -26,6 +28,10 @@ const NewsAndEvents: React.FC = () => {
     );
   }, [programContent.events, searchTerm]);
 
+  const myEvents = useMemo(() => {
+    return programContent.events.filter(event => registeredEvents.includes(event.id));
+  }, [programContent.events, registeredEvents]);
+
   const allItems = useMemo(() => {
     const combined = [
       ...filteredNews.map(item => ({ ...item, itemType: 'news' as const })),
@@ -33,6 +39,14 @@ const NewsAndEvents: React.FC = () => {
     ];
     return combined.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [filteredNews, filteredEvents]);
+
+  const handleEventRegistration = (eventId: string, isRegistered: boolean) => {
+    if (isRegistered) {
+      setRegisteredEvents(prev => [...prev, eventId]);
+    } else {
+      setRegisteredEvents(prev => prev.filter(id => id !== eventId));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -50,10 +64,11 @@ const NewsAndEvents: React.FC = () => {
       </div>
 
       <Tabs defaultValue="all" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 max-w-md">
+        <TabsList className="grid w-full grid-cols-4 max-w-lg">
           <TabsTrigger value="all">All ({allItems.length})</TabsTrigger>
           <TabsTrigger value="news">News ({filteredNews.length})</TabsTrigger>
           <TabsTrigger value="events">Events ({filteredEvents.length})</TabsTrigger>
+          <TabsTrigger value="my-events">My Events ({myEvents.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-6">
@@ -63,7 +78,7 @@ const NewsAndEvents: React.FC = () => {
                 {item.itemType === 'news' ? (
                   <NewsCard news={item} />
                 ) : (
-                  <EventCard event={item} />
+                  <EventCard event={item} onRegisterToggle={handleEventRegistration} />
                 )}
               </div>
             ))}
@@ -84,10 +99,26 @@ const NewsAndEvents: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event) => (
               <div key={event.id} className="aspect-square">
-                <EventCard event={event} />
+                <EventCard event={event} onRegisterToggle={handleEventRegistration} />
               </div>
             ))}
           </div>
+        </TabsContent>
+
+        <TabsContent value="my-events" className="space-y-6">
+          {myEvents.length === 0 ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No registered events yet. Browse events to register!</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {myEvents.map((event) => (
+                <div key={event.id} className="aspect-square">
+                  <EventCard event={event} onRegisterToggle={handleEventRegistration} />
+                </div>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

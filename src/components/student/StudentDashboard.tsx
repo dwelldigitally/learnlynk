@@ -319,30 +319,13 @@ const StudentDashboard: React.FC = () => {
                             variant="outline"
                             onClick={() => performOCR(document)}
                             disabled={ocrLoading === document.id}
-                            title="Extract text with OCR"
+                            title="Preview document and extract text"
                           >
                             {ocrLoading === document.id ? (
                               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
                             ) : (
-                              <Scan className="w-4 h-4" />
+                              <Eye className="w-4 h-4" />
                             )}
-                          </Button>
-                          
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setSelectedDocument(document)}
-                            title="View comments and communication"
-                          >
-                            <MessageSquare className="w-4 h-4" />
-                          </Button>
-                          
-                          <Button size="sm" variant="outline" title="Preview document">
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          
-                          <Button size="sm" variant="outline" title="Download document">
-                            <Download className="w-4 h-4" />
                           </Button>
                           
                           <Button 

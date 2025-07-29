@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useToast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
 import { ApplicationDocument, DocumentComment } from "@/types/application";
+import { OCRResultsModal } from "./OCRResultsModal";
 
 const StudentDashboard: React.FC = () => {
   const { toast } = useToast();
@@ -22,6 +23,7 @@ const StudentDashboard: React.FC = () => {
   const [newComment, setNewComment] = useState("");
   const [selectedDocument, setSelectedDocument] = useState<ApplicationDocument | null>(null);
   const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
+  const [ocrModalDocument, setOcrModalDocument] = useState<ApplicationDocument | null>(null);
 
   // Get current application data
   const currentApplication = studentApplications[selectedProgram];
@@ -78,14 +80,21 @@ const StudentDashboard: React.FC = () => {
     
     // Simulate OCR processing
     setTimeout(() => {
-      const mockOcrText = `Extracted text from ${document.name}:\n\nThis is a sample OCR extraction. In a real implementation, this would contain the actual text content extracted from the document using OCR technology.\n\nDocument details:\n- Date: ${document.uploadDate.toLocaleDateString()}\n- Type: ${document.type}\n- Size: ${(document.size / 1024).toFixed(2)} KB`;
-      
       setOcrLoading(null);
+      setOcrModalDocument(document);
       toast({
-        title: "OCR completed",
-        description: "Text has been extracted from the document"
+        title: "OCR processing completed",
+        description: "Review and verify the extracted information"
       });
     }, 3000);
+  };
+
+  const handleOCRSave = (extractedData: Record<string, string>) => {
+    toast({
+      title: "OCR data saved",
+      description: "The extracted information has been saved to the document"
+    });
+    setOcrModalDocument(null);
   };
 
   const addComment = (documentId: string) => {
@@ -436,6 +445,16 @@ const StudentDashboard: React.FC = () => {
           }
         }}
       />
+
+      {/* OCR Results Modal */}
+      {ocrModalDocument && (
+        <OCRResultsModal
+          isOpen={!!ocrModalDocument}
+          onClose={() => setOcrModalDocument(null)}
+          document={ocrModalDocument}
+          onSave={handleOCRSave}
+        />
+      )}
     </div>
   );
 };

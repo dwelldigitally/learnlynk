@@ -15,6 +15,7 @@ import { studentApplications } from "@/data/studentApplications";
 import { programWelcomeContent, programNewsAndEvents } from "@/data/programContent";
 import { programAlumni } from "@/data/programAlumni";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
+import AdvisorContactActions from "@/components/student/AdvisorContactActions";
 
 const StudentOverview: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
@@ -612,6 +613,10 @@ const StudentOverview: React.FC = () => {
                 <Button variant="outline" size="sm" className="w-full bg-blue-50 border-blue-200 hover:bg-blue-100">
                   <span className="text-sm font-medium">{advisor.phone}</span>
                 </Button>
+                
+                <div className="pt-2 border-t border-gray-200">
+                  <AdvisorContactActions advisorName={advisor.name} />
+                </div>
               </div>
             </div>
           </Card>

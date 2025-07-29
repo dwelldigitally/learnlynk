@@ -113,7 +113,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
         </Card>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">{event.title}</DialogTitle>
           <DialogDescription>
@@ -121,57 +121,63 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
           </DialogDescription>
         </DialogHeader>
         
-        <div className="space-y-6">
-          <div className="aspect-video overflow-hidden rounded-lg">
-            <img 
-              src={event.image} 
-              alt={event.title} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm">{new Date(event.date).toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}</span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column - Image and Description */}
+          <div className="space-y-4">
+            <div className="aspect-video overflow-hidden rounded-lg">
+              <img 
+                src={event.image} 
+                alt={event.title} 
+                className="w-full h-full object-cover"
+              />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm">{event.time}</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Users className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm">{currentRegistered}/{event.maxCapacity} registered</span>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Badge className={`${getEventTypeColor(event.eventType)} text-xs px-2 py-1`}>
-                {getEventTypeLabel(event.eventType)}
-              </Badge>
+            <div>
+              <h3 className="font-semibold mb-2">About this event</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
             </div>
           </div>
           
-          <div>
-            <h3 className="font-semibold mb-2">About this event</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{event.description}</p>
-          </div>
-          
-          <div className="pt-4 border-t">
-            <Button 
-              onClick={handleRegister}
-              className="w-full"
-              variant={isRegistered ? "outline" : "default"}
-              disabled={!isRegistered && isFull}
-            >
-              {isRegistered ? "Registered ✓" : isFull ? "Event Full" : "Register for Event"}
-            </Button>
+          {/* Right Column - Event Details and Registration */}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
+              <div className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">{new Date(event.date).toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">{event.time}</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Users className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">{currentRegistered}/{event.maxCapacity} registered</span>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Badge className={`${getEventTypeColor(event.eventType)} text-xs px-2 py-1`}>
+                  {getEventTypeLabel(event.eventType)}
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="pt-4 border-t">
+              <Button 
+                onClick={handleRegister}
+                className="w-full"
+                variant={isRegistered ? "outline" : "default"}
+                disabled={!isRegistered && isFull}
+              >
+                {isRegistered ? "Registered ✓" : isFull ? "Event Full" : "Register for Event"}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

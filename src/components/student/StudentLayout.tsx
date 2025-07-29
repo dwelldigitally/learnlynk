@@ -6,6 +6,7 @@ import { Mail, Bell, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import NotificationCentre from "@/components/student/NotificationCentre";
 import FloatingMarketingMessages from "@/components/student/FloatingMarketingMessages";
+import CampusTourBooking from "@/components/student/CampusTourBooking";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -68,7 +69,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           ))}
         </nav>
 
-        <div className="mt-auto p-4 border-t border-gray-200">
+        <div className="mt-auto p-4 border-t border-gray-200 space-y-3">
           <a 
             href="#" 
             className="flex items-center justify-center gap-2 px-4 py-2 border border-blue-600 rounded-md text-blue-600 hover:bg-blue-50 text-sm"
@@ -79,6 +80,8 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
             </svg>
             Connect Your LinkedIn
           </a>
+          
+          <CampusTourBooking />
         </div>
       </aside>
 

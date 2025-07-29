@@ -292,7 +292,7 @@ const StudentDashboard: React.FC = () => {
                     ) : (
                       <>
                         <Upload className="w-4 h-4" />
-                        Upload
+                        {requirementDocuments.length === 0 ? "Upload" : "Reupload"}
                       </>
                     )}
                   </Button>

@@ -21,9 +21,12 @@ const CampusTourBooking: React.FC = () => {
   const [selectedTime, setSelectedTime] = useState<string>("");
 
   const campuses = [
-    { id: "downtown", name: "Downtown Campus", address: "123 Main St, Toronto" },
-    { id: "north", name: "North Campus", address: "456 North Ave, Toronto" },
-    { id: "west", name: "West Campus", address: "789 West Blvd, Toronto" },
+    { id: "central-surrey", name: "Central Surrey Campus", address: "Unit 900 13761 96 Ave, Surrey, BC V3V 1Z2 Canada", phone: "+1 (604) 594-3500" },
+    { id: "scott-road", name: "Scott Road, Surrey Campus", address: "Unit 201 8318 120 St Surrey, BC V3W 3N4", phone: "+1 (604) 594-3500" },
+    { id: "abbotsford", name: "Abbotsford Campus", address: "Unit 201, 3670 Townline Rd Abbotsford, BC V2T 5W8", phone: "+1 (604) 778-1301" },
+    { id: "aviation-abbotsford", name: "Aviation Campus - Abbotsford", address: "Hangar F, 120-1185 Townline Road Abbotsford BC, V2T 6E1", phone: "+1 (604) 594-3500" },
+    { id: "agassiz", name: "Agassiz Campus", address: "2812 Chemat Road Agassiz, BC V0M 1A0", phone: "+1 (604) 594-3500" },
+    { id: "king-george", name: "King George Campus", address: "10490 King George Blvd, Surrey, BC V3T 1Z8 Canada", phone: "+1 (604) 594-3500" },
   ];
 
   const tourTypes = [

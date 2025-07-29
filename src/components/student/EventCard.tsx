@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Calendar, Clock, Users, MapPin } from "lucide-react";
 import { Event } from "@/types/student";
 import { useToast } from "@/hooks/use-toast";
@@ -10,10 +10,11 @@ import { useToast } from "@/hooks/use-toast";
 interface EventCardProps {
   event: Event;
   onRegisterToggle?: (eventId: string, isRegistered: boolean) => void;
+  isRegistered?: boolean;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
-  const [isRegistered, setIsRegistered] = useState(false);
+const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegistered: initialIsRegistered = false }) => {
+  const [isRegistered, setIsRegistered] = useState(initialIsRegistered);
   const [currentRegistered, setCurrentRegistered] = useState(event.registeredCount);
   const { toast } = useToast();
 
@@ -67,8 +68,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer flex flex-col">
-          <div className="h-32 sm:h-36 md:h-40 overflow-hidden relative flex-shrink-0">
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-[280px] sm:h-[300px]">
+          <div className="h-[140px] sm:h-[160px] overflow-hidden relative flex-shrink-0">
             <img 
               src={event.image} 
               alt={event.title} 
@@ -83,7 +84,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
               {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </div>
           </div>
-          <div className="p-2 sm:p-3 flex-1 flex flex-col min-h-0">
+          <div className="p-3 flex-1 flex flex-col justify-between">
             <div className="flex-1 space-y-1">
               <h3 className="font-bold text-sm line-clamp-2 leading-tight">{event.title}</h3>
               <p className="text-muted-foreground text-xs line-clamp-1 leading-tight">{event.description}</p>
@@ -115,6 +116,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">{event.title}</DialogTitle>
+          <DialogDescription>
+            Event details and registration information
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">

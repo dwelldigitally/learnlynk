@@ -82,7 +82,7 @@ const NewsAndEvents: React.FC = () => {
                 {item.itemType === 'news' ? (
                   <NewsCard news={item} />
                 ) : (
-                  <EventCard event={item} onRegisterToggle={handleEventRegistration} />
+                  <EventCard event={item} onRegisterToggle={handleEventRegistration} isRegistered={registeredEvents.includes(item.id)} />
                 )}
               </div>
             ))}
@@ -103,7 +103,7 @@ const NewsAndEvents: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEvents.map((event) => (
               <div key={event.id} className="aspect-square">
-                <EventCard event={event} onRegisterToggle={handleEventRegistration} />
+                <EventCard event={event} onRegisterToggle={handleEventRegistration} isRegistered={registeredEvents.includes(event.id)} />
               </div>
             ))}
           </div>
@@ -118,7 +118,7 @@ const NewsAndEvents: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {myEvents.map((event) => (
                 <div key={event.id} className="aspect-square">
-                  <EventCard event={event} onRegisterToggle={handleEventRegistration} />
+                  <EventCard event={event} onRegisterToggle={handleEventRegistration} isRegistered={registeredEvents.includes(event.id)} />
                 </div>
               ))}
             </div>

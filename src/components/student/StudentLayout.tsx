@@ -36,7 +36,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-200 shadow-sm sticky top-0 h-screen overflow-y-auto transition-all duration-300`}>
+      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar border-r border-sidebar-border shadow-sm sticky top-0 h-screen overflow-y-auto transition-all duration-300`}>
         {/* Collapse/Expand Button */}
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           {!isCollapsed && (
@@ -75,7 +75,12 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         )}
 
         {isCollapsed && (
-          <div className="p-4 border-b border-gray-200 flex justify-center">
+          <div className="p-4 border-b border-gray-200 flex flex-col items-center space-y-3">
+            <img 
+              src="/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png" 
+              alt="WCC" 
+              className="h-8 w-8 object-contain"
+            />
             <div 
               className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium cursor-pointer"
               onClick={() => setIsProfileOpen(true)}
@@ -92,7 +97,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               <Link
                 key={index}
                 to={item.path}
-                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-2 rounded-md text-sm transition-colors ${
+                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-4 rounded-md text-sm transition-colors mb-2 ${
                   currentPath === item.path
                     ? "bg-blue-50 text-blue-700 font-medium"
                     : "text-gray-600 hover:bg-gray-50"
@@ -100,7 +105,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
                 title={isCollapsed ? item.name : undefined}
               >
                 <div className="flex items-center">
-                  <Icon size={16} className={isCollapsed ? '' : 'mr-3'} />
+                  <Icon size={16} className={isCollapsed ? '' : 'mr-5'} />
                   {!isCollapsed && <span>{item.name}</span>}
                 </div>
                 {!isCollapsed && item.hasUpdate && (

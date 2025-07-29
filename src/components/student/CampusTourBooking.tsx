@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { MapPin, Clock, Users, Calendar as CalendarIcon } from "lucide-react";
+import { MapPin, Clock, Users, Calendar as CalendarIcon, CheckCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CampusTourBooking: React.FC = () => {
@@ -19,6 +19,8 @@ const CampusTourBooking: React.FC = () => {
   const [selectedTourType, setSelectedTourType] = useState<string>("");
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isConfirmed, setIsConfirmed] = useState(false);
 
   const campuses = [
     { id: "central-surrey", name: "Central Surrey Campus", address: "Unit 900 13761 96 Ave, Surrey, BC V3V 1Z2 Canada", phone: "+1 (604) 594-3500" },
@@ -44,14 +46,21 @@ const CampusTourBooking: React.FC = () => {
     { date: "2024-02-17", time: "12:00 PM", label: "Weekend Special" },
   ];
 
-  const handleBooking = () => {
-    // Handle booking logic here
+  const handleBooking = async () => {
+    setIsLoading(true);
+    
+    // Simulate booking process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     console.log({
       campus: selectedCampus,
       tourType: selectedTourType,
       date: selectedDate,
       time: selectedTime,
     });
+    
+    setIsLoading(false);
+    setIsConfirmed(true);
   };
 
   const isFormValid = selectedCampus && selectedTourType && selectedDate && selectedTime;
@@ -68,7 +77,47 @@ const CampusTourBooking: React.FC = () => {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto relative">
+        {/* Loading Overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center space-y-4 animate-fade-in">
+              <Loader2 className="w-12 h-12 text-blue-600 animate-spin mx-auto" />
+              <div>
+                <h3 className="text-lg font-medium text-gray-900">Booking Your Tour</h3>
+                <p className="text-sm text-gray-500">Please wait while we process your request...</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Confirmation Overlay */}
+        {isConfirmed && (
+          <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div className="text-center space-y-4 animate-fade-in">
+              <CheckCircle className="w-16 h-16 text-green-600 mx-auto animate-scale-in" />
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Tour Booked Successfully!</h3>
+                <p className="text-sm text-gray-500 mt-2">
+                  You'll receive a confirmation email shortly with all the details.
+                </p>
+                <Button 
+                  className="mt-4" 
+                  onClick={() => {
+                    setIsConfirmed(false);
+                    setSelectedCampus("");
+                    setSelectedTourType("");
+                    setSelectedDate(undefined);
+                    setSelectedTime("");
+                  }}
+                >
+                  Book Another Tour
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Book Your Campus Tour</DialogTitle>
           <DialogDescription>

@@ -21,6 +21,24 @@ const CampusTourBooking: React.FC = () => {
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const resetForm = () => {
+    setSelectedCampus("");
+    setSelectedTourType("");
+    setSelectedDate(undefined);
+    setSelectedTime("");
+    setIsLoading(false);
+    setIsConfirmed(false);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      // Reset form when dialog closes
+      setTimeout(() => resetForm(), 150);
+    }
+  };
 
   const campuses = [
     { id: "central-surrey", name: "Central Surrey Campus", address: "Unit 900 13761 96 Ave, Surrey, BC V3V 1Z2 Canada", phone: "+1 (604) 594-3500" },
@@ -66,7 +84,7 @@ const CampusTourBooking: React.FC = () => {
   const isFormValid = selectedCampus && selectedTourType && selectedDate && selectedTime;
 
   return (
-    <Dialog>
+    <Dialog open={dialogOpen} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 

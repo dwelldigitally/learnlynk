@@ -34,9 +34,9 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar border-r border-sidebar-border shadow-sm sticky top-0 h-screen overflow-y-auto transition-all duration-300`}>
+      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar border-r border-sidebar-border shadow-sm h-full overflow-y-auto transition-all duration-300`}>
         {/* Collapse/Expand Button */}
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           {!isCollapsed && (

@@ -623,7 +623,7 @@ const StudentOverview: React.FC = () => {
 
           {/* Appointment Calendar */}
           <Card className="p-4">
-            <h3 className="text-sm font-medium text-gray-500 mb-3">Schedule Appointment</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-3">Book an appointment with your {advisor.name}</h3>
             <div className="w-full h-96 border rounded-lg overflow-hidden">
               <iframe 
                 src="https://calendly.com/learnlynkapp/30min?embed=true&hide_event_type_details=1&hide_gdpr_banner=1"

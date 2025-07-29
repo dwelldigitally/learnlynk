@@ -29,7 +29,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 shadow-sm">
+      <aside className="w-64 bg-white border-r border-gray-200 shadow-sm sticky top-0 h-screen overflow-y-auto">
         <div className="p-4 flex justify-center border-b border-gray-200">
           <img 
             src="/lovable-uploads/120260b6-bc38-4844-841b-c6a5b6067560.png" 

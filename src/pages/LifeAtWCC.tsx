@@ -420,9 +420,6 @@ const LifeAtWCC: React.FC = () => {
           <Button size="lg" variant="secondary">
             Schedule a Campus Visit
           </Button>
-          <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-            Apply Now
-          </Button>
         </div>
       </Card>
     </div>

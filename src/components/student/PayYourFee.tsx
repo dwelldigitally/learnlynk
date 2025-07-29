@@ -91,54 +91,11 @@ const PayYourFee: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header with Program Selection */}
+      {/* Header */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h1 className="text-2xl font-bold">Application Fee Payment</h1>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2">
-                {selectedProgram}
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80 p-0" align="end">
-              <div className="p-4">
-                <h3 className="font-medium text-lg mb-3">Select Program</h3>
-                <div className="space-y-2">
-                  {availablePrograms.map((program) => {
-                    const app = studentApplications[program];
-                    return (
-                      <div
-                        key={program}
-                        onClick={() => setSelectedProgram(program)}
-                        className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-medium">{program}</p>
-                            <p className="text-sm text-muted-foreground">Application ID: {app.id}</p>
-                            <Badge 
-                              variant={app.stage === "FEE_PAYMENT" ? "default" : "secondary"}
-                              className="mt-1"
-                            >
-                              {app.stage === "FEE_PAYMENT" ? "Payment Due" : "Not Ready"}
-                            </Badge>
-                          </div>
-                          <span className="text-sm font-medium">
-                            ${getApplicationFee(program)}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+        <h1 className="text-2xl font-bold">Application Fee Payment</h1>
         <p className="text-muted-foreground">
-          Complete your application fee payment for {selectedProgram} to secure your spot
+          Complete your application fee payment to secure your spot
         </p>
       </div>
 
@@ -353,6 +310,52 @@ const PayYourFee: React.FC = () => {
 
         {/* Payment Summary Sidebar */}
         <div className="space-y-6">
+          {/* Program Selection */}
+          <Card className="p-4">
+            <h3 className="font-medium mb-3 text-sm">Select Program</h3>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between text-sm" size="sm">
+                  {selectedProgram}
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-72 p-0" align="end">
+                <div className="p-3">
+                  <h4 className="font-medium mb-3 text-sm">Your Applications</h4>
+                  <div className="space-y-2">
+                    {availablePrograms.map((program) => {
+                      const app = studentApplications[program];
+                      return (
+                        <div
+                          key={program}
+                          onClick={() => setSelectedProgram(program)}
+                          className="p-2 border rounded cursor-pointer hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-medium text-sm">{program}</p>
+                              <p className="text-xs text-muted-foreground">ID: {app.id}</p>
+                              <Badge 
+                                variant={app.stage === "FEE_PAYMENT" ? "default" : "secondary"}
+                                className="mt-1 text-xs"
+                              >
+                                {app.stage === "FEE_PAYMENT" ? "Payment Due" : "Not Ready"}
+                              </Badge>
+                            </div>
+                            <span className="text-xs font-medium">
+                              ${getApplicationFee(program)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </Card>
+
           {/* Payment Summary */}
           <Card className="p-6">
             <h3 className="font-semibold mb-4 flex items-center gap-2">

@@ -16,6 +16,7 @@ import { programWelcomeContent, programNewsAndEvents } from "@/data/programConte
 import { programAlumni } from "@/data/programAlumni";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
 import AdvisorContactActions from "@/components/student/AdvisorContactActions";
+import CampusExplorer from "@/components/student/CampusExplorer";
 
 const StudentOverview: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
@@ -495,6 +496,9 @@ const StudentOverview: React.FC = () => {
               </div>
             </div>
           </Card>
+
+          {/* Campus Explorer */}
+          <CampusExplorer />
 
           {/* Latest News & Events */}
           <div>

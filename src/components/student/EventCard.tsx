@@ -67,8 +67,8 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer">
-          <div className="h-40 overflow-hidden relative">
+        <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer flex flex-col">
+          <div className="h-32 sm:h-36 md:h-40 overflow-hidden relative flex-shrink-0">
             <img 
               src={event.image} 
               alt={event.title} 
@@ -83,7 +83,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
               {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </div>
           </div>
-          <div className="p-3 h-32 flex flex-col">
+          <div className="p-2 sm:p-3 flex-1 flex flex-col min-h-0">
             <div className="flex-1 space-y-1">
               <h3 className="font-bold text-sm line-clamp-2 leading-tight">{event.title}</h3>
               <p className="text-muted-foreground text-xs line-clamp-1 leading-tight">{event.description}</p>
@@ -102,7 +102,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle }) => {
             
             <Button 
               onClick={handleRegister}
-              className="w-full text-xs h-6 mt-2"
+              className="w-full text-xs h-7 mt-auto"
               variant={isRegistered ? "outline" : "default"}
               disabled={!isRegistered && isFull}
             >

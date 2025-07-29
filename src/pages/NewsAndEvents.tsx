@@ -10,7 +10,10 @@ import { Event } from "@/types/student";
 const NewsAndEvents: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedProgram] = useState("Health Care Assistant"); // This would come from context/state
-  const [registeredEvents, setRegisteredEvents] = useState<string[]>([]);
+  const [registeredEvents, setRegisteredEvents] = useState<string[]>(() => {
+    const saved = localStorage.getItem('registeredEvents');
+    return saved ? JSON.parse(saved) : [];
+  });
 
   const programContent = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
   
@@ -41,11 +44,12 @@ const NewsAndEvents: React.FC = () => {
   }, [filteredNews, filteredEvents]);
 
   const handleEventRegistration = (eventId: string, isRegistered: boolean) => {
-    if (isRegistered) {
-      setRegisteredEvents(prev => [...prev, eventId]);
-    } else {
-      setRegisteredEvents(prev => prev.filter(id => id !== eventId));
-    }
+    const newRegisteredEvents = isRegistered 
+      ? [...registeredEvents, eventId]
+      : registeredEvents.filter(id => id !== eventId);
+    
+    setRegisteredEvents(newRegisteredEvents);
+    localStorage.setItem('registeredEvents', JSON.stringify(newRegisteredEvents));
   };
 
   return (

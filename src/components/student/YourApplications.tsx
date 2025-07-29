@@ -1,14 +1,27 @@
 
-import React from "react";
-import { Calendar, Clock, CheckCircle, AlertCircle, Eye, FileText } from "lucide-react";
+import React, { useState } from "react";
+import { Calendar, Clock, CheckCircle, AlertCircle, Eye, FileText, CalendarIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { toast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
 import { ProgramApplication } from "@/types/application";
 
 const YourApplications: React.FC = () => {
+  const navigate = useNavigate();
+  const [selectedApplication, setSelectedApplication] = useState<ProgramApplication | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date>();
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
   // Convert studentApplications object to array for display
   const applications: ProgramApplication[] = Object.values(studentApplications).filter(app => 
     app.submissionDate || app.stage !== "LEAD_FORM" // Only show submitted applications or those in progress
@@ -133,13 +146,23 @@ const YourApplications: React.FC = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-3 pt-4 border-t">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  setSelectedApplication(application);
+                  setIsDetailsModalOpen(true);
+                }}
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 View Details
               </Button>
               
               {application.stage === 'SEND_DOCUMENTS' && (
-                <Button size="sm">
+                <Button 
+                  size="sm"
+                  onClick={() => navigate("/student/dashboard")}
+                >
                   <FileText className="w-4 h-4 mr-2" />
                   Upload Documents
                 </Button>
@@ -152,10 +175,33 @@ const YourApplications: React.FC = () => {
                 </Button>
               )}
               
-              <Button variant="outline" size="sm">
-                <Calendar className="w-4 h-4 mr-2" />
-                Schedule Appointment
-              </Button>
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule Appointment
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      setSelectedDate(date);
+                      if (date) {
+                        toast({
+                          title: "Appointment Scheduled",
+                          description: `Your appointment has been scheduled for ${format(date, "PPP")}. You will receive a confirmation email shortly.`
+                        });
+                        setIsCalendarOpen(false);
+                      }
+                    }}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Special Messages */}
@@ -209,6 +255,177 @@ const YourApplications: React.FC = () => {
           <Button>Start New Application</Button>
         </Card>
       )}
+
+      {/* Application Details Modal */}
+      <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Application Details - {selectedApplication?.programName}</DialogTitle>
+          </DialogHeader>
+          
+          {selectedApplication && (
+            <div className="space-y-6">
+              {/* Application Overview */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-semibold mb-2">Application Information</h3>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">ID:</span> {selectedApplication.id}</p>
+                    <p><span className="font-medium">Program:</span> {selectedApplication.programName}</p>
+                    <p><span className="font-medium">Stage:</span> {getStatusText(selectedApplication.stage)}</p>
+                    <p><span className="font-medium">Progress:</span> {selectedApplication.progress}%</p>
+                    {selectedApplication.submissionDate && (
+                      <p><span className="font-medium">Submitted:</span> {selectedApplication.submissionDate.toLocaleDateString()}</p>
+                    )}
+                    {selectedApplication.estimatedDecision && (
+                      <p><span className="font-medium">Decision by:</span> {selectedApplication.estimatedDecision.toLocaleDateString()}</p>
+                    )}
+                    <p><span className="font-medium">Acceptance Likelihood:</span> {selectedApplication.acceptanceLikelihood}%</p>
+                  </div>
+                </div>
+                
+                <div>
+                  <h3 className="font-semibold mb-2">Next Steps</h3>
+                  <div className="space-y-1 text-sm">
+                    {selectedApplication.nextStep && (
+                      <p><span className="font-medium">Next Action:</span> {selectedApplication.nextStep}</p>
+                    )}
+                    {selectedApplication.applicationDeadline && (
+                      <p><span className="font-medium">Deadline:</span> {selectedApplication.applicationDeadline}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Timeline */}
+              <div>
+                <h3 className="font-semibold mb-3">Application Timeline</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <div>
+                      <p className="font-medium text-green-800">Application Submitted</p>
+                      <p className="text-sm text-green-600">
+                        {selectedApplication.submissionDate?.toLocaleDateString() || "Not submitted yet"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                    selectedApplication.stage === 'SEND_DOCUMENTS' || selectedApplication.stage === 'DOCUMENT_APPROVAL'
+                      ? 'bg-blue-50 border border-blue-200'
+                      : 'bg-gray-50 border border-gray-200'
+                  }`}>
+                    <Clock className={`w-5 h-5 ${
+                      selectedApplication.stage === 'SEND_DOCUMENTS' || selectedApplication.stage === 'DOCUMENT_APPROVAL'
+                        ? 'text-blue-600'
+                        : 'text-gray-400'
+                    }`} />
+                    <div>
+                      <p className={`font-medium ${
+                        selectedApplication.stage === 'SEND_DOCUMENTS' || selectedApplication.stage === 'DOCUMENT_APPROVAL'
+                          ? 'text-blue-800'
+                          : 'text-gray-600'
+                      }`}>Document Review</p>
+                      <p className={`text-sm ${
+                        selectedApplication.stage === 'SEND_DOCUMENTS' || selectedApplication.stage === 'DOCUMENT_APPROVAL'
+                          ? 'text-blue-600'
+                          : 'text-gray-500'
+                      }`}>
+                        {selectedApplication.stage === 'SEND_DOCUMENTS' 
+                          ? 'Upload required documents'
+                          : selectedApplication.stage === 'DOCUMENT_APPROVAL'
+                          ? 'Documents under review'
+                          : 'Pending previous steps'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                    selectedApplication.stage === 'ACCEPTED'
+                      ? 'bg-green-50 border border-green-200'
+                      : 'bg-gray-50 border border-gray-200'
+                  }`}>
+                    <CheckCircle className={`w-5 h-5 ${
+                      selectedApplication.stage === 'ACCEPTED'
+                        ? 'text-green-600'
+                        : 'text-gray-400'
+                    }`} />
+                    <div>
+                      <p className={`font-medium ${
+                        selectedApplication.stage === 'ACCEPTED'
+                          ? 'text-green-800'
+                          : 'text-gray-600'
+                      }`}>Application Decision</p>
+                      <p className={`text-sm ${
+                        selectedApplication.stage === 'ACCEPTED'
+                          ? 'text-green-600'
+                          : 'text-gray-500'
+                      }`}>
+                        {selectedApplication.stage === 'ACCEPTED'
+                          ? 'Congratulations! Application approved'
+                          : 'Pending review completion'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Documents Section */}
+              <div>
+                <h3 className="font-semibold mb-3">Documents ({selectedApplication.documents.length})</h3>
+                <div className="space-y-2">
+                  {selectedApplication.documents.length > 0 ? (
+                    selectedApplication.documents.map((doc, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <p className="font-medium">{doc.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Uploaded: {doc.uploadDate.toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge className={`${getDocumentStatusColor(doc.status)}`}>
+                          {doc.status}
+                        </Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-center py-4">No documents uploaded yet</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Requirements Section */}
+              <div>
+                <h3 className="font-semibold mb-3">Requirements ({selectedApplication.requirements.length})</h3>
+                <div className="space-y-2">
+                  {selectedApplication.requirements.map((req, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium">{req.name}</p>
+                        <p className="text-sm text-muted-foreground">{req.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {req.mandatory && <Badge variant="destructive">Required</Badge>}
+                        {selectedApplication.documents.some(doc => doc.requirementId === req.id) ? (
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <Clock className="w-4 h-4 text-yellow-600" />
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

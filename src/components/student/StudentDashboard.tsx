@@ -147,8 +147,8 @@ const StudentDashboard: React.FC = () => {
               <h1 className="text-2xl font-bold">Document Management</h1>
               <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" className="text-blue-100 hover:bg-white/10 p-0 flex items-center gap-2">
-                    {selectedProgram} Program
+                  <Button variant="outline" className="bg-white text-blue-700 border-blue-200 hover:bg-blue-50 px-4 py-2 flex items-center gap-2 font-semibold shadow-sm">
+                    📋 {selectedProgram} Program
                     <ChevronDown className="w-4 h-4" />
                   </Button>
                 </PopoverTrigger>

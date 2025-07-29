@@ -222,90 +222,6 @@ const PayYourFee: React.FC = () => {
             </div>
           </Card>
 
-          {/* Verification Requirements */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Shield className="w-5 h-5" />
-              Pre-Payment Verification
-            </h3>
-            <p className="text-muted-foreground mb-6">
-              Please confirm that you have completed the following steps before proceeding with payment:
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/25 transition-colors">
-                <Checkbox
-                  id="contract"
-                  checked={verifications.contractSigned}
-                  onCheckedChange={(checked) => handleVerificationChange('contractSigned', checked as boolean)}
-                  className="mt-1"
-                />
-                <div className="flex-1">
-                  <label htmlFor="contract" className="font-medium cursor-pointer">
-                    Student Contract Signed
-                  </label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    I have read, understood, and electronically signed the student enrollment contract.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-blue-600 text-sm">
-                    View Contract Document
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/25 transition-colors">
-                <Checkbox
-                  id="policies"
-                  checked={verifications.policiesRead}
-                  onCheckedChange={(checked) => handleVerificationChange('policiesRead', checked as boolean)}
-                  className="mt-1"
-                />
-                <div className="flex-1">
-                  <label htmlFor="policies" className="font-medium cursor-pointer">
-                    Policies and Procedures Reviewed
-                  </label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    I have read and agree to abide by all college policies, procedures, and academic standards.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-blue-600 text-sm">
-                    View Policies Document
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 p-4 border rounded-lg hover:bg-muted/25 transition-colors">
-                <Checkbox
-                  id="requirements"
-                  checked={verifications.admissionRequirementsVerified}
-                  onCheckedChange={(checked) => handleVerificationChange('admissionRequirementsVerified', checked as boolean)}
-                  className="mt-1"
-                />
-                <div className="flex-1">
-                  <label htmlFor="requirements" className="font-medium cursor-pointer">
-                    Admission Requirements Verified
-                  </label>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    I confirm that all required documents have been submitted and all admission requirements have been met.
-                  </p>
-                  <Button variant="link" className="p-0 h-auto text-blue-600 text-sm">
-                    Review Requirements Checklist
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {allVerificationsComplete && (
-              <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
-                  <span className="font-medium text-green-800">All verifications complete!</span>
-                </div>
-                <p className="text-sm text-green-700 mt-1">
-                  You can now proceed with your payment.
-                </p>
-              </div>
-            )}
-          </Card>
         </div>
 
         {/* Payment Summary Sidebar */}
@@ -354,6 +270,79 @@ const PayYourFee: React.FC = () => {
                 </div>
               </PopoverContent>
             </Popover>
+          </Card>
+
+          {/* Verification Requirements */}
+          <Card className="p-4">
+            <h3 className="font-medium mb-3 text-sm flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Pre-Payment Verification
+            </h3>
+            <p className="text-xs text-muted-foreground mb-4">
+              Please confirm completion of these steps:
+            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-start gap-2 p-2 border rounded hover:bg-muted/25 transition-colors">
+                <Checkbox
+                  id="contract"
+                  checked={verifications.contractSigned}
+                  onCheckedChange={(checked) => handleVerificationChange('contractSigned', checked as boolean)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <label htmlFor="contract" className="text-sm font-medium cursor-pointer">
+                    Student Contract Signed
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Enrollment contract electronically signed
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 p-2 border rounded hover:bg-muted/25 transition-colors">
+                <Checkbox
+                  id="policies"
+                  checked={verifications.policiesRead}
+                  onCheckedChange={(checked) => handleVerificationChange('policiesRead', checked as boolean)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <label htmlFor="policies" className="text-sm font-medium cursor-pointer">
+                    Policies Reviewed
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    College policies and procedures reviewed
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2 p-2 border rounded hover:bg-muted/25 transition-colors">
+                <Checkbox
+                  id="requirements"
+                  checked={verifications.admissionRequirementsVerified}
+                  onCheckedChange={(checked) => handleVerificationChange('admissionRequirementsVerified', checked as boolean)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <label htmlFor="requirements" className="text-sm font-medium cursor-pointer">
+                    Requirements Verified
+                  </label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    All admission requirements met
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {allVerificationsComplete && (
+              <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-800">All verified!</span>
+                </div>
+              </div>
+            )}
           </Card>
 
           {/* Payment Summary */}

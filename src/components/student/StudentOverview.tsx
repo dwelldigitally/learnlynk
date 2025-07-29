@@ -581,6 +581,41 @@ const StudentOverview: React.FC = () => {
             </div>
           </Card>
 
+          {/* Advisor Contact */}
+          <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+            <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              Your Advisor
+            </h3>
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="flex items-center mb-4">
+                <div className="w-20 h-20 overflow-hidden rounded-full mr-4 border-4 border-blue-100">
+                  <img src={advisor.avatar} alt="Advisor" className="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h4 className="text-lg font-bold text-gray-900">{advisor.name}</h4>
+                  <p className="text-sm text-blue-600 font-medium">{advisor.title}</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <Button variant="outline" size="sm" className="w-full flex items-center gap-2 justify-start bg-blue-50 border-blue-200 hover:bg-blue-100">
+                  <Mail className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium">{advisor.email}</span>
+                </Button>
+                <Button variant="outline" size="sm" className="w-full bg-blue-50 border-blue-200 hover:bg-blue-100">
+                  <span className="text-sm font-medium">{advisor.phone}</span>
+                </Button>
+              </div>
+            </div>
+          </Card>
+
           {/* Appointment Calendar */}
           <Card className="p-4">
             <h3 className="text-sm font-medium text-gray-500 mb-3">Schedule Appointment</h3>
@@ -648,40 +683,6 @@ const StudentOverview: React.FC = () => {
             </div>
           </Card>
 
-          {/* Advisor Contact */}
-          <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-            <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-              </div>
-              Your Advisor
-            </h3>
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <div className="flex items-center mb-4">
-                <div className="w-20 h-20 overflow-hidden rounded-full mr-4 border-4 border-blue-100">
-                  <img src={advisor.avatar} alt="Advisor" className="w-full h-full object-cover" />
-                </div>
-                <div>
-                  <h4 className="text-lg font-bold text-gray-900">{advisor.name}</h4>
-                  <p className="text-sm text-blue-600 font-medium">{advisor.title}</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <Button variant="outline" size="sm" className="w-full flex items-center gap-2 justify-start bg-blue-50 border-blue-200 hover:bg-blue-100">
-                  <Mail className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-medium">{advisor.email}</span>
-                </Button>
-                <Button variant="outline" size="sm" className="w-full bg-blue-50 border-blue-200 hover:bg-blue-100">
-                  <span className="text-sm font-medium">{advisor.phone}</span>
-                </Button>
-              </div>
-            </div>
-          </Card>
         </div>
       </div>
 

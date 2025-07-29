@@ -97,7 +97,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               <Link
                 key={index}
                 to={item.path}
-                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-4 rounded-md text-sm transition-colors mb-2 ${
+                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-2 rounded-md text-sm transition-colors mb-1 ${
                   currentPath === item.path
                     ? "bg-blue-50 text-blue-700 font-medium"
                     : "text-gray-600 hover:bg-gray-50"

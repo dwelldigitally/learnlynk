@@ -10,7 +10,7 @@ import MessageCentre from "@/components/student/MessageCentre";
 import AcademicPlanning from "@/components/student/AcademicPlanning";
 import FinancialAid from "@/components/student/FinancialAid";
 import CareerServices from "@/components/student/CareerServices";
-import StudentCommunity from "@/components/student/StudentCommunity";
+
 import NewsAndEvents from "./NewsAndEvents";
 import LifeAtWCC from "./LifeAtWCC";
 
@@ -31,8 +31,6 @@ const StudentPortal: React.FC = () => {
         return <FinancialAid />;
       case "/student/career-services":
         return <CareerServices />;
-      case "/student/community":
-        return <StudentCommunity />;
       case "/student/fee":
         return <PayYourFee />;
       case "/student/messages":

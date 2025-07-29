@@ -13,66 +13,51 @@ const AcademicPlanning: React.FC = () => {
   const currentProgram = {
     name: "Health Care Assistant",
     duration: "6 months",
-    totalCredits: 180,
-    completedCredits: 45,
-    startDate: "September 5, 2024",
-    expectedGraduation: "March 15, 2025"
+    startDate: "September 5, 2024"
   };
 
   const courses = [
     {
       code: "HCA101",
       name: "Introduction to Health Care",
-      credits: 15,
-      status: "completed",
-      grade: "A-",
+      deliveryMode: "Online",
       prerequisites: [],
-      description: "Foundational concepts in healthcare delivery and patient care"
+      description: "Foundational concepts in healthcare delivery and patient care. This course covers basic healthcare principles, patient rights, and introduction to the healthcare system."
     },
     {
-      code: "HCA102",
+      code: "HCA102", 
       name: "Human Anatomy & Physiology",
-      credits: 20,
-      status: "completed",
-      grade: "B+",
+      deliveryMode: "In-Person",
       prerequisites: [],
-      description: "Study of human body systems and their functions"
+      description: "Comprehensive study of human body systems and their functions. Includes laboratory sessions for hands-on learning of anatomical structures."
     },
     {
       code: "HCA201",
       name: "Personal Care Skills",
-      credits: 25,
-      status: "current",
-      grade: null,
+      deliveryMode: "In-Person",
       prerequisites: ["HCA101"],
-      description: "Hands-on training in personal care assistance"
+      description: "Hands-on training in personal care assistance including bathing, dressing, mobility assistance, and maintaining patient dignity and privacy."
     },
     {
       code: "HCA202",
-      name: "Communication in Healthcare",
-      credits: 15,
-      status: "upcoming",
-      grade: null,
+      name: "Communication in Healthcare", 
+      deliveryMode: "Hybrid",
       prerequisites: ["HCA101"],
-      description: "Effective communication with patients and healthcare teams"
+      description: "Effective communication with patients, families, and healthcare teams. Covers therapeutic communication, documentation, and cultural sensitivity."
     },
     {
       code: "HCA301",
       name: "Mental Health Support",
-      credits: 20,
-      status: "upcoming",
-      grade: null,
+      deliveryMode: "In-Person",
       prerequisites: ["HCA201", "HCA202"],
-      description: "Supporting patients with mental health challenges"
+      description: "Supporting patients with mental health challenges, recognizing signs of distress, and implementing appropriate interventions under supervision."
     },
     {
       code: "HCA302",
       name: "Clinical Practicum",
-      credits: 80,
-      status: "upcoming",
-      grade: null,
+      deliveryMode: "In-Person",
       prerequisites: ["HCA201", "HCA202", "HCA301"],
-      description: "Supervised hands-on experience in healthcare settings"
+      description: "Supervised hands-on experience in real healthcare settings. Students work with experienced professionals to apply learned skills in practice."
     }
   ];
 
@@ -138,7 +123,7 @@ const AcademicPlanning: React.FC = () => {
     }
   };
 
-  const progressPercentage = (currentProgram.completedCredits / currentProgram.totalCredits) * 100;
+  
 
   return (
     <div className="space-y-6">
@@ -159,23 +144,20 @@ const AcademicPlanning: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Credits Completed</span>
-                <span>{currentProgram.completedCredits} / {currentProgram.totalCredits}</span>
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <h3 className="font-semibold text-blue-900 mb-2">📚 Program Information</h3>
+            <div className="grid gap-2 text-sm">
+              <div className="flex justify-between">
+                <span>Program Duration:</span>
+                <span className="font-medium">{currentProgram.duration}</span>
               </div>
-              <Progress value={progressPercentage} className="h-2" />
-              <p className="text-xs text-gray-500 mt-1">{progressPercentage.toFixed(1)}% complete</p>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <h4 className="font-medium text-sm">Expected Graduation</h4>
-                <p className="text-lg font-semibold text-green-600">{currentProgram.expectedGraduation}</p>
+              <div className="flex justify-between">
+                <span>Start Date:</span>
+                <span className="font-medium">{currentProgram.startDate}</span>
               </div>
-              <div>
-                <h4 className="font-medium text-sm">Remaining Credits</h4>
-                <p className="text-lg font-semibold">{currentProgram.totalCredits - currentProgram.completedCredits}</p>
+              <div className="flex justify-between">
+                <span>Total Courses:</span>
+                <span className="font-medium">{courses.length} courses</span>
               </div>
             </div>
           </div>
@@ -183,64 +165,54 @@ const AcademicPlanning: React.FC = () => {
       </Card>
 
       <Tabs defaultValue="curriculum" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="curriculum">Curriculum</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="curriculum">Course Offerings</TabsTrigger>
           <TabsTrigger value="calendar">Academic Calendar</TabsTrigger>
           <TabsTrigger value="prerequisites">Prerequisites</TabsTrigger>
-          <TabsTrigger value="planner">Course Planner</TabsTrigger>
         </TabsList>
 
         <TabsContent value="curriculum" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Course Curriculum
-              </CardTitle>
-              <CardDescription>
-                Your complete program curriculum and progress
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {courses.map((course, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-3">
-                      {getStatusIcon(course.status)}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BookOpen className="h-5 w-5" />
+                  Available Courses
+                </CardTitle>
+                <CardDescription>
+                  Courses offered in your program with delivery modes and descriptions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {courses.map((course, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-start justify-between">
                       <div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-semibold">{course.code}</h3>
-                          <Badge className={getStatusColor(course.status)}>
-                            {course.status}
+                          <Badge variant={course.deliveryMode === "Online" ? "default" : course.deliveryMode === "In-Person" ? "secondary" : "outline"}>
+                            {course.deliveryMode}
                           </Badge>
                         </div>
                         <p className="font-medium">{course.name}</p>
-                        <p className="text-sm text-gray-600">{course.description}</p>
+                        <p className="text-sm text-gray-600 mt-2">{course.description}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-semibold">{course.credits} credits</div>
-                      {course.grade && (
-                        <div className="text-sm text-green-600 font-medium">{course.grade}</div>
-                      )}
-                    </div>
+                    {course.prerequisites.length > 0 && (
+                      <div>
+                        <h4 className="text-xs font-medium text-gray-700 mb-1">Prerequisites:</h4>
+                        <div className="flex flex-wrap gap-1">
+                          {course.prerequisites.map((prereq, prereqIndex) => (
+                            <Badge key={prereqIndex} variant="outline" className="text-xs">
+                              {prereq}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  {course.prerequisites.length > 0 && (
-                    <div>
-                      <h4 className="text-xs font-medium text-gray-700 mb-1">Prerequisites:</h4>
-                      <div className="flex flex-wrap gap-1">
-                        {course.prerequisites.map((prereq, prereqIndex) => (
-                          <Badge key={prereqIndex} variant="outline" className="text-xs">
-                            {prereq}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                ))}
+              </CardContent>
+            </Card>
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-4">
@@ -324,57 +296,6 @@ const AcademicPlanning: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="planner" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Course Planning Wizard</CardTitle>
-              <CardDescription>
-                Plan your course sequence and track your path to graduation
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h3 className="font-semibold text-blue-900 mb-2">📋 Your Academic Plan</h3>
-                <div className="grid gap-3 text-sm">
-                  <div className="flex justify-between">
-                    <span>Current Semester:</span>
-                    <span className="font-medium">Semester 2 of 3</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Credits This Semester:</span>
-                    <span className="font-medium">40 credits</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>On Track for Graduation:</span>
-                    <span className="font-medium text-green-600">Yes ✓</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h4 className="font-semibold">Next Semester Recommendations</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <span className="font-medium">HCA301 - Mental Health Support</span>
-                      <div className="text-sm text-gray-600">20 credits • Prerequisites met</div>
-                    </div>
-                    <Button size="sm">Add to Plan</Button>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <span className="font-medium">HCA302 - Clinical Practicum</span>
-                      <div className="text-sm text-gray-600">80 credits • Prerequisites pending</div>
-                    </div>
-                    <Button size="sm" variant="outline" disabled>Unavailable</Button>
-                  </div>
-                </div>
-              </div>
-
-              <Button className="w-full">Generate Full Academic Plan</Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

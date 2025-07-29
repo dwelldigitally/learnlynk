@@ -5,14 +5,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calculator, DollarSign, GraduationCap, Clock, Award } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import ScholarshipApplication from "./ScholarshipApplication";
+import { Calculator, DollarSign, GraduationCap, Clock, Award, MapPin } from "lucide-react";
 
 const FinancialAid: React.FC = () => {
-  const [tuitionCost, setTuitionCost] = useState<number>(15000);
-  const [monthlyIncome, setMonthlyIncome] = useState<number>(3000);
+  const { toast } = useToast();
+  const [selectedScholarship, setSelectedScholarship] = useState<any>(null);
+  const [selectedPaymentPlan, setSelectedPaymentPlan] = useState<string>("");
+  
+  // BC Student Loan Calculator state
+  const [legalStatus, setLegalStatus] = useState<string>("");
+  const [programLength, setProgramLength] = useState<string>("");
+  const [familyIncome, setFamilyIncome] = useState<number>(0);
+  const [dependents, setDependents] = useState<number>(0);
+  const [livingArrangement, setLivingArrangement] = useState<string>("");
 
   const scholarships = [
     {
+      id: 1,
       name: "Academic Excellence Scholarship",
       amount: "$2,500",
       deadline: "March 15, 2024",
@@ -20,6 +32,7 @@ const FinancialAid: React.FC = () => {
       eligible: true
     },
     {
+      id: 2,
       name: "Indigenous Student Bursary",
       amount: "$1,500",
       deadline: "April 1, 2024",
@@ -27,6 +40,7 @@ const FinancialAid: React.FC = () => {
       eligible: false
     },
     {
+      id: 3,
       name: "Single Parent Support Fund",
       amount: "$1,200",
       deadline: "May 15, 2024",
@@ -34,6 +48,7 @@ const FinancialAid: React.FC = () => {
       eligible: true
     },
     {
+      id: 4,
       name: "Career Transition Grant",
       amount: "$3,000",
       deadline: "June 1, 2024",
@@ -44,41 +59,83 @@ const FinancialAid: React.FC = () => {
 
   const paymentPlans = [
     {
+      id: "full",
       name: "Full Payment",
       discount: "5% discount",
-      amount: `$${(tuitionCost * 0.95).toLocaleString()}`,
-      description: "Pay full tuition upfront"
+      amount: "$14,250",
+      description: "Pay full tuition upfront",
+      dueDate: "September 1, 2024"
     },
     {
+      id: "3month",
       name: "3-Month Plan",
       discount: "2% discount",
-      amount: `$${((tuitionCost * 0.98) / 3).toLocaleString()} x 3`,
-      description: "Split into 3 monthly payments"
+      amount: "$4,900 x 3",
+      description: "Split into 3 monthly payments",
+      dueDate: "September 1, October 1, November 1, 2024"
     },
     {
+      id: "6month",
       name: "6-Month Plan",
       discount: "No discount",
-      amount: `$${(tuitionCost / 6).toLocaleString()} x 6`,
-      description: "Split into 6 monthly payments"
+      amount: "$2,500 x 6",
+      description: "Split into 6 monthly payments",
+      dueDate: "September 1 - February 1, 2025"
     },
     {
+      id: "12month",
       name: "12-Month Plan",
       discount: "2% interest",
-      amount: `$${((tuitionCost * 1.02) / 12).toLocaleString()} x 12`,
-      description: "Extended payment plan"
+      amount: "$1,275 x 12",
+      description: "Extended payment plan",
+      dueDate: "September 1, 2024 - August 1, 2025"
     }
   ];
 
-  const calculateAffordability = () => {
-    const monthlyPayment = tuitionCost / 12;
-    const percentage = (monthlyPayment / monthlyIncome) * 100;
-    
-    if (percentage <= 20) return { status: "Great", color: "bg-green-500", text: "Highly affordable" };
-    if (percentage <= 35) return { status: "Good", color: "bg-yellow-500", text: "Manageable" };
-    return { status: "Challenging", color: "bg-red-500", text: "Consider financial aid" };
+  const calculateBCStudentLoan = () => {
+    if (!legalStatus || !programLength || !familyIncome || !livingArrangement) {
+      return { eligible: false, estimatedAmount: 0 };
+    }
+
+    if (legalStatus !== "citizen" && legalStatus !== "permanent") {
+      return { eligible: false, estimatedAmount: 0, reason: "Must be Canadian citizen or permanent resident" };
+    }
+
+    // Basic calculation based on program length and family income
+    let maxLoan = programLength === "6months" ? 8000 : programLength === "12months" ? 15000 : 0;
+    let needBasedReduction = Math.max(0, (familyIncome - 25000) * 0.1);
+    let estimatedAmount = Math.max(0, maxLoan - needBasedReduction);
+
+    if (livingArrangement === "athome") {
+      estimatedAmount *= 0.8; // Reduced amount for living at home
+    }
+
+    return { 
+      eligible: true, 
+      estimatedAmount: Math.round(estimatedAmount),
+      maxLoan 
+    };
   };
 
-  const affordability = calculateAffordability();
+  const loanEligibility = calculateBCStudentLoan();
+
+  const handlePaymentPlanSelect = (planId: string) => {
+    setSelectedPaymentPlan(planId);
+    const plan = paymentPlans.find(p => p.id === planId);
+    toast({
+      title: "Payment Plan Selected",
+      description: `Your preference for the ${plan?.name} has been communicated to our admissions team.`
+    });
+  };
+
+  if (selectedScholarship) {
+    return (
+      <ScholarshipApplication 
+        scholarship={selectedScholarship} 
+        onBack={() => setSelectedScholarship(null)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -128,7 +185,12 @@ const FinancialAid: React.FC = () => {
                     </div>
                   </div>
                   {scholarship.eligible && (
-                    <Button className="w-full">Apply Now</Button>
+                    <Button 
+                      className="w-full"
+                      onClick={() => setSelectedScholarship(scholarship)}
+                    >
+                      Apply Now
+                    </Button>
                   )}
                 </div>
               ))}
@@ -149,14 +211,26 @@ const FinancialAid: React.FC = () => {
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
               {paymentPlans.map((plan, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3">
+                <div key={index} className={`border rounded-lg p-4 space-y-3 ${selectedPaymentPlan === plan.id ? 'border-blue-500 bg-blue-50' : ''}`}>
                   <div className="flex items-center justify-between">
                     <h3 className="font-semibold">{plan.name}</h3>
                     <Badge variant="outline">{plan.discount}</Badge>
                   </div>
                   <p className="text-2xl font-bold">{plan.amount}</p>
                   <p className="text-sm text-gray-600">{plan.description}</p>
-                  <Button variant="outline" className="w-full">Select Plan</Button>
+                  <div className="text-xs text-gray-500 space-y-1">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      Due: {plan.dueDate}
+                    </div>
+                  </div>
+                  <Button 
+                    variant={selectedPaymentPlan === plan.id ? "default" : "outline"} 
+                    className="w-full"
+                    onClick={() => handlePaymentPlanSelect(plan.id)}
+                  >
+                    {selectedPaymentPlan === plan.id ? "Selected" : "Select Plan"}
+                  </Button>
                 </div>
               ))}
             </CardContent>
@@ -167,65 +241,121 @@ const FinancialAid: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calculator className="h-5 w-5" />
-                Affordability Calculator
+                <MapPin className="h-5 w-5" />
+                BC Student Loan Calculator
               </CardTitle>
               <CardDescription>
-                Calculate if your chosen program fits your budget
+                Check your eligibility for BC student loans and estimate funding
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="tuition">Total Program Cost</Label>
+                  <Label htmlFor="legalStatus">Legal Status in Canada *</Label>
+                  <Select value={legalStatus} onValueChange={setLegalStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="citizen">Canadian Citizen</SelectItem>
+                      <SelectItem value="permanent">Permanent Resident</SelectItem>
+                      <SelectItem value="protected">Protected Person</SelectItem>
+                      <SelectItem value="temporary">Temporary Resident</SelectItem>
+                      <SelectItem value="international">International Student</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="programLength">Program Length *</Label>
+                  <Select value={programLength} onValueChange={setProgramLength}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select length" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="6months">6 months</SelectItem>
+                      <SelectItem value="12months">12 months</SelectItem>
+                      <SelectItem value="24months">24 months</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="familyIncome">Family Income (Annual)</Label>
                   <Input
-                    id="tuition"
+                    id="familyIncome"
                     type="number"
-                    value={tuitionCost}
-                    onChange={(e) => setTuitionCost(Number(e.target.value))}
-                    placeholder="15000"
+                    value={familyIncome || ""}
+                    onChange={(e) => setFamilyIncome(Number(e.target.value))}
+                    placeholder="50000"
                   />
                 </div>
+                
                 <div className="space-y-2">
-                  <Label htmlFor="income">Monthly Income</Label>
+                  <Label htmlFor="dependents">Number of Dependents</Label>
                   <Input
-                    id="income"
+                    id="dependents"
                     type="number"
-                    value={monthlyIncome}
-                    onChange={(e) => setMonthlyIncome(Number(e.target.value))}
-                    placeholder="3000"
+                    value={dependents || ""}
+                    onChange={(e) => setDependents(Number(e.target.value))}
+                    placeholder="0"
+                    min="0"
                   />
                 </div>
               </div>
 
-              <div className="bg-gray-50 p-4 rounded-lg space-y-4">
-                <h3 className="font-semibold">Affordability Assessment</h3>
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${affordability.color}`}></div>
-                  <span className="font-medium">{affordability.status}</span>
-                  <span className="text-gray-600">- {affordability.text}</span>
-                </div>
-                <div className="grid gap-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Monthly payment (12-month plan):</span>
-                    <span className="font-medium">${(tuitionCost / 12).toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Percentage of income:</span>
-                    <span className="font-medium">{((tuitionCost / 12 / monthlyIncome) * 100).toFixed(1)}%</span>
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="livingArrangement">Living Arrangement *</Label>
+                <Select value={livingArrangement} onValueChange={setLivingArrangement}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select arrangement" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="athome">Living with parents/family</SelectItem>
+                    <SelectItem value="away">Living away from home</SelectItem>
+                    <SelectItem value="independent">Independent with dependents</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
+              {loanEligibility.eligible === false && loanEligibility.reason && (
+                <div className="bg-red-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-red-900 mb-2">❌ Not Eligible</h3>
+                  <p className="text-red-800 text-sm">{loanEligibility.reason}</p>
+                </div>
+              )}
+
+              {loanEligibility.eligible && (
+                <div className="bg-green-50 p-4 rounded-lg space-y-4">
+                  <h3 className="font-semibold text-green-900">✅ Estimated Loan Eligibility</h3>
+                  <div className="grid gap-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Maximum loan available:</span>
+                      <span className="font-medium">${loanEligibility.maxLoan?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Estimated loan amount:</span>
+                      <span className="font-medium text-green-600">${loanEligibility.estimatedAmount?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">💡 Financial Tips</h4>
+                <h4 className="font-medium text-blue-900 mb-2">💡 BC Student Loan Information</h4>
                 <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Apply for multiple scholarships to maximize funding</li>
-                  <li>• Consider part-time work during studies</li>
-                  <li>• Explore government student loans and grants</li>
-                  <li>• Budget for additional costs like books and supplies</li>
+                  <li>• Interest-free while in studies</li>
+                  <li>• Repayment starts 6 months after graduation</li>
+                  <li>• Apply through StudentAidBC website</li>
+                  <li>• Additional grants may be available</li>
                 </ul>
               </div>
+
+              <Button className="w-full" disabled={!loanEligibility.eligible}>
+                Apply for BC Student Loan
+              </Button>
             </CardContent>
           </Card>
         </TabsContent>

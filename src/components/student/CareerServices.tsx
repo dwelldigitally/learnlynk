@@ -155,7 +155,7 @@ const CareerServices: React.FC = () => {
 
       <Tabs defaultValue="mentorship" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="mentorship">Mentorship</TabsTrigger>
+          <TabsTrigger value="mentorship">Alumni Chat</TabsTrigger>
           <TabsTrigger value="jobs">Job Board</TabsTrigger>
           <TabsTrigger value="networking">Networking</TabsTrigger>
           <TabsTrigger value="resources">Resources</TabsTrigger>
@@ -166,10 +166,10 @@ const CareerServices: React.FC = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Alumni Mentors
+                Chat with Alumni
               </CardTitle>
               <CardDescription>
-                Connect with successful graduates in your field
+                Connect and chat with successful graduates in your field
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -205,7 +205,7 @@ const CareerServices: React.FC = () => {
                       <p className="text-xs text-gray-500 mt-1">{mentor.experience} experience</p>
                     </div>
                   </div>
-                  <Button className="w-full">Request Mentorship</Button>
+                  <Button className="w-full">Start Chat</Button>
                 </div>
               ))}
             </CardContent>

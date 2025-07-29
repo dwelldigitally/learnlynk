@@ -24,7 +24,6 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
     { name: "Academic Planning", path: "/student/academic-planning" },
     { name: "Financial Aid", path: "/student/financial-aid" },
     { name: "Career Services", path: "/student/career-services" },
-    { name: "Student Community", path: "/student/community" },
     { name: "Pay Your Fee", path: "/student/fee" },
     { name: "News & Events", path: "/student/news-events" },
     { name: "Life @ WCC", path: "/student/campus-life" },

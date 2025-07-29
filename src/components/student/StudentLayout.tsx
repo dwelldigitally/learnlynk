@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import NotificationCentre from "@/components/student/NotificationCentre";
 import FloatingMarketingMessages from "@/components/student/FloatingMarketingMessages";
 import CampusTourBooking from "@/components/student/CampusTourBooking";
+import ProfileSettings from "@/components/student/ProfileSettings";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -15,6 +16,7 @@ interface StudentLayoutProps {
 const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   // Navigation items for the sidebar
   const navItems = [
@@ -42,14 +44,18 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         </div>
 
         <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 mr-2">
-              ?
+          <div 
+            className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
+            onClick={() => setIsProfileOpen(true)}
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium mr-3">
+              T
             </div>
-            <div>
+            <div className="flex-1">
               <h3 className="font-medium text-sm">Tushar Malhotra</h3>
               <p className="text-xs text-gray-500">malhotratushar37@gmail.com</p>
             </div>
+            <div className="text-xs text-gray-400">Edit</div>
           </div>
         </div>
 
@@ -122,6 +128,12 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           {children}
         </div>
       </main>
+
+      {/* Profile Settings Modal */}
+      <ProfileSettings 
+        open={isProfileOpen} 
+        onOpenChange={setIsProfileOpen} 
+      />
 
       {/* Chatbot */}
       <Chatbot mode="dashboard" />

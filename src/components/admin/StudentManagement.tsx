@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -258,7 +259,12 @@ const StudentManagement: React.FC = () => {
                             <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{student.name}</p>
+                            <Link 
+                              to={`/admin/students/${student.id}`}
+                              className="font-medium text-primary hover:underline"
+                            >
+                              {student.name}
+                            </Link>
                             <p className="text-sm text-muted-foreground">{student.email}</p>
                           </div>
                         </div>
@@ -297,9 +303,11 @@ const StudentManagement: React.FC = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
+                        <Link to={`/admin/students/${student.id}`}>
+                          <Button variant="ghost" size="sm">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}

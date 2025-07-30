@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import AdminLayout from "@/components/admin/AdminLayout";
 import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
+import StudentDetail from "@/components/admin/StudentDetail";
 import ProgramManagement from "@/components/admin/ProgramManagement";
 import DocumentManagement from "@/components/admin/DocumentManagement";
 import EventManagement from "@/components/admin/EventManagement";
@@ -16,6 +17,11 @@ const AdminDashboard: React.FC = () => {
   const location = useLocation();
   
   const renderContent = () => {
+    // Check for student detail route pattern
+    if (location.pathname.startsWith("/admin/students/") && location.pathname !== "/admin/students") {
+      return <StudentDetail />;
+    }
+    
     switch (location.pathname) {
       case "/admin":
         return <AdminOverview />;

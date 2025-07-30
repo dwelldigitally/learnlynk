@@ -18,6 +18,7 @@ import advisorNicole from "@/assets/advisor-nicole.jpg";
 import AdvisorContactActions from "@/components/student/AdvisorContactActions";
 import CampusExplorer from "@/components/student/CampusExplorer";
 import { toast } from "@/hooks/use-toast";
+import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
 const StudentOverview: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
@@ -28,6 +29,10 @@ const StudentOverview: React.FC = () => {
   const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingProgram, setPendingProgram] = useState<string | null>(null);
+
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems, ref: staggerRef } = useStaggeredReveal(6, 150);
   
   // Program list with their specific intake dates
   const allPrograms = {
@@ -68,6 +73,13 @@ const StudentOverview: React.FC = () => {
   // Get current program's intake options
   const availableIntakes = allPrograms[selectedProgram as keyof typeof allPrograms] || allPrograms["Health Care Assistant"];
   
+  // Get current application data
+  const currentApplication = studentApplications[selectedProgram];
+
+  // Counter animations for key stats
+  const { count: employmentRate, ref: employmentRef } = useCountUp(97, 2000, 0, '', '%');
+  const { count: acceptanceLikelihood, ref: acceptanceRef } = useCountUp(currentApplication.acceptanceLikelihood, 1500, 0, '', '%');
+  
   // Handle program change with confirmation
   const handleProgramChange = (program: string) => {
     if (program === selectedProgram) {
@@ -101,8 +113,6 @@ const StudentOverview: React.FC = () => {
     setPendingProgram(null);
   };
   
-  // Get current application data
-  const currentApplication = studentApplications[selectedProgram];
   const currentWelcomeContent = programWelcomeContent[selectedProgram];
   const currentAlumni = programAlumni[selectedProgram];
   
@@ -271,9 +281,9 @@ const StudentOverview: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Contract Signing Alert */}
-      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 animate-bounce-in">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-orange-600" />
@@ -301,7 +311,7 @@ const StudentOverview: React.FC = () => {
       </div>
 
       {/* Program Header with Program and Intake Selection */}
-      <div className={`${currentColors.headerBg} text-white px-8 py-4 rounded-lg mb-6 flex justify-between items-center transition-colors duration-300`}>
+      <div className={`${currentColors.headerBg} text-white px-8 py-4 rounded-lg mb-6 flex justify-between items-center transition-colors duration-300 animate-slide-down`}>
         <div>
           <div className="text-sm text-white/70 mb-1">Select Program</div>
           <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
@@ -393,11 +403,11 @@ const StudentOverview: React.FC = () => {
       </div>
 
       {/* Main Dashboard Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-6 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
           {/* Dynamic Marketing Hero Section */}
-          <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-colors duration-500`}>
+          <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-all duration-500 hover:shadow-2xl hover:scale-[1.02]`}>
             {/* Background Image with Overlay */}
             <div className="absolute inset-0">
               <img 
@@ -468,9 +478,9 @@ const StudentOverview: React.FC = () => {
                       alt={`${selectedProgram} Professional`} 
                       className="rounded-2xl w-full h-80 object-cover shadow-2xl border-4 border-white/20"
                     />
-                    <div className="absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl">
+                    <div className="absolute -bottom-4 -right-4 bg-white rounded-xl p-4 shadow-xl animate-bounce-in">
                       <div className="text-center">
-                        <div className="text-2xl font-bold text-emerald-600">97%</div>
+                        <div ref={employmentRef} className="text-2xl font-bold text-emerald-600 animate-counter">{employmentRate}</div>
                         <div className="text-sm text-gray-600">Graduate Employment</div>
                       </div>
                     </div>
@@ -502,7 +512,7 @@ const StudentOverview: React.FC = () => {
           )}
 
           {/* Admissions Progress */}
-          <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+          <Card className={`p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg transition-all duration-300 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-green-900">Admissions Progress</h3>
               <div className="text-right">
@@ -548,12 +558,14 @@ const StudentOverview: React.FC = () => {
                   ...newsAndEvents.events.slice(0, 1).map(item => ({ ...item, itemType: 'event' as const }))
                 ];
                 
-                return combinedItems.map((item) => (
-                  item.itemType === 'news' ? (
-                    <NewsCard key={`news-${item.id}`} news={item} />
-                  ) : (
-                    <EventCard key={`event-${item.id}`} event={item} />
-                  )
+                return combinedItems.map((item, index) => (
+                  <div key={`${item.itemType}-${item.id}`} className={`${visibleItems[4] ? `animate-stagger-${Math.min(index + 4, 5)}` : 'opacity-0'}`}>
+                    {item.itemType === 'news' ? (
+                      <NewsCard news={item} />
+                    ) : (
+                      <EventCard event={item} />
+                    )}
+                  </div>
                 ));
               })()}
             </div>
@@ -564,7 +576,7 @@ const StudentOverview: React.FC = () => {
             <h3 className="text-xl font-bold mb-4">Talk To Alumni</h3>
             <div className="grid gap-4">
               {Object.values(programAlumni).slice(0, 3).map((alumni, index) => (
-                <Card key={index} className="p-4">
+                <Card key={index} className={`p-4 hover:shadow-md transition-all duration-300 hover:scale-[1.02] ${visibleItems[3] ? `animate-stagger-${Math.min(index + 4, 5)}` : 'opacity-0'}`}>
                   <div className="flex items-center space-x-4">
                     <div className="w-16 h-16 overflow-hidden rounded-full flex-shrink-0">
                       <img src={alumni.avatar} alt="Alumni" className="w-full h-full object-cover" />
@@ -604,7 +616,7 @@ const StudentOverview: React.FC = () => {
         </div>
 
         {/* Right Column - Sidebar */}
-        <div className="space-y-6">
+        <div className={`space-y-6 ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
           {/* Student Information */}
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
             <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
@@ -694,10 +706,10 @@ const StudentOverview: React.FC = () => {
 
           {/* Acceptance Likelihood */}
           <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-            <div className="text-center">
-              <div className="text-5xl font-bold text-green-900 mb-2">
-                {currentApplication.acceptanceLikelihood}%
-              </div>
+              <div className="text-center">
+                <div ref={acceptanceRef} className="text-5xl font-bold text-green-900 mb-2 animate-counter">
+                  {acceptanceLikelihood}
+                </div>
               <h3 className="text-lg font-semibold text-green-800 mb-4">Likelihood Of Acceptance</h3>
               
               {/* Dynamic Progress Bar */}
@@ -749,7 +761,7 @@ const StudentOverview: React.FC = () => {
 
       {/* Program Change Confirmation Dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="animate-modal-enter">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle className="w-5 h-5 text-amber-500" />

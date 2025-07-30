@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
+import { useCountUp, usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 
 const PayYourFee: React.FC = () => {
   const { toast } = useToast();
@@ -16,6 +17,10 @@ const PayYourFee: React.FC = () => {
     policiesRead: false,
     admissionRequirementsVerified: false
   });
+
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems, ref: staggerRef } = useStaggeredReveal(3, 200);
 
   const handleVerificationChange = (field: keyof typeof verifications, checked: boolean) => {
     setVerifications(prev => ({
@@ -89,21 +94,30 @@ const PayYourFee: React.FC = () => {
     status: currentApplication.stage === "FEE_PAYMENT" ? "due" : "pending"
   };
 
+  // Counter animation for fee amount
+  const { count: animatedAmount, ref: amountRef } = useCountUp(
+    invoiceData.amount, 
+    1500, 
+    0, 
+    '$', 
+    ` ${invoiceData.currency}`
+  );
+
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
-      <div>
+      <div className="animate-slide-down">
         <h1 className="text-2xl font-bold">Application Fee Payment</h1>
         <p className="text-muted-foreground">
           Complete your application fee payment to secure your spot
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Invoice Section */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`lg:col-span-2 space-y-6 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
           {/* Invoice Card */}
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-xl font-semibold mb-2">Application Fee Invoice</h2>
@@ -205,7 +219,7 @@ const PayYourFee: React.FC = () => {
                 <hr className="my-3" />
                 <div className="flex justify-between items-center text-lg font-semibold">
                   <span>Total Amount</span>
-                  <span className="text-blue-600">${invoiceData.amount.toFixed(2)} {invoiceData.currency}</span>
+                  <span ref={amountRef} className="text-blue-600 animate-counter">{animatedAmount}</span>
                 </div>
               </div>
             </div>
@@ -225,9 +239,9 @@ const PayYourFee: React.FC = () => {
         </div>
 
         {/* Payment Summary Sidebar */}
-        <div className="space-y-6">
+        <div className={`space-y-6 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
           {/* Program Selection */}
-          <Card className="p-4">
+          <Card className="p-4 hover:shadow-md transition-all duration-300">
             <h3 className="font-medium mb-3 text-sm">Select Program</h3>
             <Popover>
               <PopoverTrigger asChild>
@@ -273,7 +287,7 @@ const PayYourFee: React.FC = () => {
           </Card>
 
           {/* Verification Requirements */}
-          <Card className="p-4">
+          <Card className="p-4 hover:shadow-md transition-all duration-300">
             <h3 className="font-medium mb-3 text-sm flex items-center gap-2">
               <Shield className="w-4 h-4" />
               Pre-Payment Verification
@@ -336,9 +350,9 @@ const PayYourFee: React.FC = () => {
             </div>
 
             {allVerificationsComplete && (
-              <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded">
+              <div className="mt-4 p-2 bg-green-50 border border-green-200 rounded animate-bounce-in">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <CheckCircle className="w-4 h-4 text-green-600 animate-scale-in" />
                   <span className="text-sm font-medium text-green-800">All verified!</span>
                 </div>
               </div>
@@ -346,7 +360,7 @@ const PayYourFee: React.FC = () => {
           </Card>
 
           {/* Payment Summary */}
-          <Card className="p-6">
+          <Card className={`p-6 hover:shadow-md transition-all duration-300 ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
             <h3 className="font-semibold mb-4 flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
               Payment Summary
@@ -369,7 +383,7 @@ const PayYourFee: React.FC = () => {
             </div>
 
             <Button 
-              className="w-full" 
+              className="w-full transform transition-all duration-200 hover:scale-105 active:scale-95" 
               size="lg"
               onClick={handlePayment}
               disabled={!allVerificationsComplete || invoiceData.status !== "due"}

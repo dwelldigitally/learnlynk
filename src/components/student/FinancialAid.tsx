@@ -9,11 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import ScholarshipApplication from "./ScholarshipApplication";
 import { Calculator, DollarSign, GraduationCap, Clock, Award, MapPin } from "lucide-react";
+import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
 const FinancialAid: React.FC = () => {
   const { toast } = useToast();
   const [selectedScholarship, setSelectedScholarship] = useState<any>(null);
   const [selectedPaymentPlan, setSelectedPaymentPlan] = useState<string>("");
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems, ref: staggerRef } = useStaggeredReveal(6, 150);
+  const { count: scholarshipAmount, ref: scholarshipRef } = useCountUp(8500, 2000, 0, '$', '');
   
   // BC Student Loan Calculator state
   const [legalStatus, setLegalStatus] = useState<string>("");

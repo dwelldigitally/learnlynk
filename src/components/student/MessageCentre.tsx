@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
+import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
 interface Message {
   id: string;
@@ -45,6 +46,12 @@ const MessageCentre: React.FC = () => {
   const [replyText, setReplyText] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems: threadItems, ref: threadRef } = useStaggeredReveal(5, 150);
+  const { visibleItems: messageItems, ref: messageRef } = useStaggeredReveal(10, 100);
+  const { count: unreadCount, ref: unreadRef } = useCountUp(0, 1000);
 
   // Mock message threads
   const messageThreads: MessageThread[] = [
@@ -447,9 +454,9 @@ Western Community College Admissions Office`,
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className={`max-w-4xl mx-auto ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 animate-slide-down">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Mail className="w-6 h-6 text-purple-600" />
@@ -467,13 +474,13 @@ Western Community College Admissions Office`,
       </div>
 
       {/* Message Threads List */}
-      <div className="space-y-3">
-        {messageThreads.map((thread) => (
+      <div className="space-y-3" ref={threadRef}>
+        {messageThreads.map((thread, index) => (
           <Card 
             key={thread.id}
-            className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+            className={`p-4 cursor-pointer transition-all hover:shadow-md hover-scale ${
               thread.unreadCount > 0 ? 'bg-blue-50 border-blue-200' : 'hover:bg-gray-50'
-            }`}
+            } ${threadItems[index] ? 'animate-fade-in' : 'opacity-0'}`}
             onClick={() => setSelectedThread(thread)}
           >
             <div className="flex items-start gap-4">

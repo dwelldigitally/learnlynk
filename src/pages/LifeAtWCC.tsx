@@ -3,9 +3,21 @@ import { Calendar, MapPin, Users, Heart, Clock, ChevronRight, Phone } from "luci
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
 const LifeAtWCC: React.FC = () => {
   const [selectedEventType, setSelectedEventType] = useState<string>("all");
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems: eventItems, ref: eventRef } = useStaggeredReveal(8, 150);
+  const { visibleItems: featureItems, ref: featureRef } = useStaggeredReveal(3, 200);
+  const { visibleItems: supportItems, ref: supportRef } = useStaggeredReveal(4, 150);
+  const { visibleItems: locationItems, ref: locationRef } = useStaggeredReveal(6, 100);
+  const { count: studentsCount, ref: studentsRef } = useCountUp(2500, 2000, 0, '', '+');
+  const { count: employmentCount, ref: employmentRef } = useCountUp(95, 1500, 0, '', '%');
+  const { count: eventsCount, ref: eventsStatsRef } = useCountUp(50, 1800, 0, '', '+');
+  const { count: programsCount, ref: programsRef } = useCountUp(15, 1200);
 
   // Mock events data
   const events = [
@@ -159,9 +171,9 @@ const LifeAtWCC: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className={`space-y-8 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
       {/* Hero Section */}
-      <div className="relative h-96 rounded-xl overflow-hidden">
+      <div className="relative h-96 rounded-xl overflow-hidden animate-scale-in">
         <img 
           src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" 
           alt="WCC Campus"
@@ -183,20 +195,20 @@ const LifeAtWCC: React.FC = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 text-center">
-          <div className="text-3xl font-bold text-blue-600">2,500+</div>
+        <Card className="p-6 text-center animate-stagger-1 hover-scale transition-all duration-300" ref={studentsRef}>
+          <div className="text-3xl font-bold text-blue-600">{studentsCount}</div>
           <div className="text-sm text-muted-foreground">Active Students</div>
         </Card>
-        <Card className="p-6 text-center">
-          <div className="text-3xl font-bold text-green-600">95%</div>
+        <Card className="p-6 text-center animate-stagger-2 hover-scale transition-all duration-300" ref={employmentRef}>
+          <div className="text-3xl font-bold text-green-600">{employmentCount}</div>
           <div className="text-sm text-muted-foreground">Employment Rate</div>
         </Card>
-        <Card className="p-6 text-center">
-          <div className="text-3xl font-bold text-purple-600">50+</div>
+        <Card className="p-6 text-center animate-stagger-3 hover-scale transition-all duration-300" ref={eventsStatsRef}>
+          <div className="text-3xl font-bold text-purple-600">{eventsCount}</div>
           <div className="text-sm text-muted-foreground">Campus Events/Year</div>
         </Card>
-        <Card className="p-6 text-center">
-          <div className="text-3xl font-bold text-orange-600">15</div>
+        <Card className="p-6 text-center animate-stagger-4 hover-scale transition-all duration-300" ref={programsRef}>
+          <div className="text-3xl font-bold text-orange-600">{programsCount}</div>
           <div className="text-sm text-muted-foreground">Programs Offered</div>
         </Card>
       </div>
@@ -219,9 +231,9 @@ const LifeAtWCC: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {filteredEvents.filter(event => event.featured).map((event) => (
-            <Card key={event.id} className="overflow-hidden group hover:shadow-lg transition-shadow">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" ref={eventRef}>
+          {filteredEvents.filter(event => event.featured).map((event, index) => (
+            <Card key={event.id} className={`overflow-hidden group hover:shadow-lg hover-scale transition-all duration-300 ${eventItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
               <div className="relative h-48">
                 <img 
                   src={event.image} 
@@ -286,9 +298,9 @@ const LifeAtWCC: React.FC = () => {
       {/* Student Life Features */}
       <section>
         <h2 className="text-2xl font-bold mb-6">Student Life at WCC</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" ref={featureRef}>
           {studentLifeFeatures.map((feature, index) => (
-            <Card key={index} className="overflow-hidden group hover:shadow-lg transition-shadow">
+            <Card key={index} className={`overflow-hidden group hover:shadow-lg hover-scale transition-all duration-300 ${featureItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
               <div className="relative h-48">
                 <img 
                   src={feature.image} 
@@ -323,9 +335,9 @@ const LifeAtWCC: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" ref={supportRef}>
           {familySupport.map((item, index) => (
-            <Card key={index} className="p-6 text-center hover:shadow-md transition-shadow">
+            <Card key={index} className={`p-6 text-center hover:shadow-md hover-scale transition-all duration-300 ${supportItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
               <div className="flex justify-center mb-4">
                 <div className="p-3 bg-blue-100 rounded-full">
                   <item.icon className="w-6 h-6 text-blue-600" />
@@ -347,9 +359,9 @@ const LifeAtWCC: React.FC = () => {
       {/* Campus Maps */}
       <section>
         <h2 className="text-2xl font-bold mb-6">Campus Locations</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" ref={locationRef}>
           {campusLocations.map((location, index) => (
-            <Card key={index} className="p-6">
+            <Card key={index} className={`p-6 hover-scale transition-all duration-300 ${locationItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
               <div className="flex items-start gap-4 mb-4">
                 <div className="p-2 bg-blue-100 rounded-lg">
                   <MapPin className="w-5 h-5 text-blue-600" />

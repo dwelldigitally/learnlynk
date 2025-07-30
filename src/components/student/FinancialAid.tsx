@@ -144,8 +144,8 @@ const FinancialAid: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
+      <div className="animate-slide-down">
         <h1 className="text-3xl font-bold">Financial Aid & Scholarships</h1>
         <p className="text-gray-600 mt-2">Explore funding options to make your education more affordable</p>
       </div>
@@ -168,13 +168,15 @@ const FinancialAid: React.FC = () => {
                 Scholarships you're eligible for based on your profile
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" ref={staggerRef}>
               {scholarships.map((scholarship, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3">
+                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${visibleItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold">{scholarship.name}</h3>
-                      <p className="text-2xl font-bold text-green-600">{scholarship.amount}</p>
+                      <p className="text-2xl font-bold text-green-600" ref={index === 0 ? scholarshipRef : undefined}>
+                        {index === 0 && scholarship.amount === '$8,500' ? scholarshipAmount : scholarship.amount}
+                      </p>
                     </div>
                     <Badge variant={scholarship.eligible ? "default" : "secondary"}>
                       {scholarship.eligible ? "Eligible" : "Not Eligible"}

@@ -6,6 +6,7 @@ import NewsCard from "@/components/student/NewsCard";
 import EventCard from "@/components/student/EventCard";
 import { programNewsAndEvents } from "@/data/programContent";
 import { Event } from "@/types/student";
+import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
 const NewsAndEvents: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,6 +15,14 @@ const NewsAndEvents: React.FC = () => {
     const saved = localStorage.getItem('registeredEvents');
     return saved ? JSON.parse(saved) : [];
   });
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems: cardItems, ref: cardRef } = useStaggeredReveal(12, 100);
+  const { count: allCount, ref: allRef } = useCountUp(0, 1000);
+  const { count: newsCount, ref: newsRef } = useCountUp(0, 1000);
+  const { count: eventsCount, ref: eventsRef } = useCountUp(0, 1000);
+  const { count: myEventsCount, ref: myEventsRef } = useCountUp(0, 1000);
 
   const programContent = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
   
@@ -53,8 +62,8 @@ const NewsAndEvents: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-slide-down">
         <h1 className="text-3xl font-bold">News & Events</h1>
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -75,10 +84,10 @@ const NewsAndEvents: React.FC = () => {
           <TabsTrigger value="my-events">My Events ({myEvents.length})</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="space-y-6">
+        <TabsContent value="all" className="space-y-6" ref={cardRef}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allItems.map((item) => (
-              <div key={item.itemType === 'news' ? `news-${item.id}` : `event-${item.id}`} className="aspect-square">
+            {allItems.map((item, index) => (
+              <div key={item.itemType === 'news' ? `news-${item.id}` : `event-${item.id}`} className={`aspect-square hover-scale transition-all duration-300 ${cardItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
                 {item.itemType === 'news' ? (
                   <NewsCard news={item} />
                 ) : (

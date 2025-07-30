@@ -6,9 +6,19 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Briefcase, TrendingUp, Users, Calendar, Star, MapPin, Building } from "lucide-react";
+import { usePageEntranceAnimation, useStaggeredReveal, useCountUp, useProgressAnimation } from "@/hooks/useAnimations";
 
 const CareerServices: React.FC = () => {
   const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems: mentorItems, ref: mentorRef } = useStaggeredReveal(3, 150);
+  const { visibleItems: jobItems, ref: jobRef } = useStaggeredReveal(3, 150);
+  const { visibleItems: eventItems, ref: eventRef } = useStaggeredReveal(3, 150);
+  const { count: employmentRate, ref: employmentRef } = useCountUp(94, 2000);
+  const { count: avgSalary, ref: salaryRef } = useCountUp(45000, 2000, 0, '$', '');
+  const { progress: employmentProgress, ref: progressRef } = useProgressAnimation(94, 1500);
 
   const jobPlacementStats = {
     employmentRate: 94,
@@ -111,8 +121,8 @@ const CareerServices: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
+      <div className="animate-slide-down">
         <h1 className="text-3xl font-bold">Career Services</h1>
         <p className="text-gray-600 mt-2">Launch your career with expert guidance and industry connections</p>
       </div>
@@ -128,13 +138,13 @@ const CareerServices: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-4">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{jobPlacementStats.employmentRate}%</div>
+            <div className="text-center animate-stagger-1" ref={employmentRef}>
+              <div className="text-3xl font-bold text-green-600">{employmentRate}%</div>
               <div className="text-sm text-gray-600">Employment Rate</div>
-              <Progress value={jobPlacementStats.employmentRate} className="mt-2" />
+              <Progress value={employmentProgress} className="mt-2" ref={progressRef} />
             </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{jobPlacementStats.averageSalary}</div>
+            <div className="text-center animate-stagger-2" ref={salaryRef}>
+              <div className="text-3xl font-bold text-blue-600">{avgSalary}</div>
               <div className="text-sm text-gray-600">Average Starting Salary</div>
             </div>
             <div className="text-center">
@@ -172,9 +182,9 @@ const CareerServices: React.FC = () => {
                 Connect and chat with successful graduates in your field
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" ref={mentorRef}>
               {mentors.map((mentor, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3">
+                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${mentorItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
                   <div className="flex items-start gap-4">
                     <Avatar className="h-12 w-12">
                       <AvatarImage src={mentor.avatar} alt={mentor.name} />
@@ -223,9 +233,9 @@ const CareerServices: React.FC = () => {
                 Exclusive job postings for WCC students and graduates
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" ref={jobRef}>
               {jobOpportunities.map((job, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3">
+                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${jobItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-2">
@@ -279,9 +289,9 @@ const CareerServices: React.FC = () => {
                 Build connections and explore opportunities
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-4" ref={eventRef}>
               {networkingEvents.map((event, index) => (
-                <div key={index} className="border rounded-lg p-4 space-y-3">
+                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${eventItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
                   <div className="flex items-start justify-between">
                     <div>
                       <h3 className="font-semibold">{event.title}</h3>

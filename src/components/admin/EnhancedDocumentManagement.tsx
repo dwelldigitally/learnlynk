@@ -123,10 +123,8 @@ const EnhancedDocumentManagement: React.FC = () => {
   const [selectedDocument, setSelectedDocument] = useState<DocumentData | null>(null);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [bulkComment, setBulkComment] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
-
-  // Mock data with comprehensive fields
-  const documents: DocumentData[] = [
+  const [activeTab, setActiveTab] = useState('pending');
+  const [documents, setDocuments] = useState<DocumentData[]>([
     {
       id: "1",
       name: "High School Transcript",
@@ -199,7 +197,7 @@ const EnhancedDocumentManagement: React.FC = () => {
       tags: ["verified", "complete"],
       comments: []
     }
-  ];
+  ]);
 
   // Mock standards data
   const documentStandards: DocumentStandard[] = [
@@ -226,7 +224,7 @@ const EnhancedDocumentManagement: React.FC = () => {
 
   // Filtering logic
   const filteredDocuments = useMemo(() => {
-    return documents.filter(doc => {
+    const baseFiltered = documents.filter(doc => {
       const matchesSearch = !filters.search || 
         doc.name.toLowerCase().includes(filters.search.toLowerCase()) ||
         doc.studentName.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -243,7 +241,14 @@ const EnhancedDocumentManagement: React.FC = () => {
       return matchesSearch && matchesProgram && matchesCampus && matchesIntake && 
              matchesStatus && matchesStudentType && matchesPriority && matchesReviewer;
     });
-  }, [documents, filters]);
+
+    // Further filter by active tab if not 'all'
+    if (activeTab === 'all') {
+      return baseFiltered;
+    } else {
+      return baseFiltered.filter(doc => doc.status === activeTab);
+    }
+  }, [documents, filters, activeTab]);
 
   // Statistics calculation
   const stats = useMemo(() => {
@@ -296,8 +301,14 @@ const EnhancedDocumentManagement: React.FC = () => {
   };
 
   const handleDocumentAction = (documentId: string, action: 'approve' | 'reject') => {
+    setDocuments(prevDocs => 
+      prevDocs.map(doc => 
+        doc.id === documentId 
+          ? { ...doc, status: action === 'approve' ? 'approved' : 'rejected', reviewer: 'Current User' }
+          : doc
+      )
+    );
     console.log(`${action} document:`, documentId);
-    // Implementation for individual document actions
   };
 
   const handleDownloadDocument = (documentId: string) => {
@@ -306,13 +317,16 @@ const EnhancedDocumentManagement: React.FC = () => {
   };
 
   const handleStudentClick = (studentId: string) => {
-    console.log('Navigate to student:', studentId);
-    // Implementation for student navigation
+    console.log('Navigate to student detail:', studentId);
+    // Implementation would navigate to student detail page
+    // For now, could open a modal or navigate to /admin/students/STU-2024-001
   };
 
   const handleDocumentClick = (documentId: string) => {
-    console.log('Open document:', documentId);
-    // Implementation for document view
+    const document = documents.find(doc => doc.id === documentId);
+    if (document) {
+      setSelectedDocument(document);
+    }
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -764,141 +778,215 @@ const EnhancedDocumentManagement: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Documents Table */}
+      {/* Documents Table with Tabs */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>Documents ({filteredDocuments.length})</span>
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={selectedDocuments.length === filteredDocuments.length && filteredDocuments.length > 0}
-                onCheckedChange={handleSelectAll}
-              />
-              <span className="text-sm text-muted-foreground">Select All</span>
-            </div>
+            <span className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Document Management
+            </span>
+            {selectedDocuments.length > 0 && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Bulk Actions ({selectedDocuments.length})
+                  </Button>
+                </SheetTrigger>
+                <SheetContent>
+                  <SheetHeader>
+                    <SheetTitle>Bulk Actions</SheetTitle>
+                  </SheetHeader>
+                  <div className="space-y-4 mt-4">
+                    <div>
+                      <p className="text-sm font-medium mb-2">Selected Documents: {selectedDocuments.length}</p>
+                      <Textarea 
+                        placeholder="Add a note for this bulk action..."
+                        value={bulkComment}
+                        onChange={(e) => setBulkComment(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Button 
+                        className="w-full" 
+                        onClick={() => handleBulkAction('approve')}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Bulk Approve
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        className="w-full"
+                        onClick={() => handleBulkAction('reject')}
+                      >
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Bulk Reject
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={() => handleBulkAction('assign')}
+                      >
+                        <User className="h-4 w-4 mr-2" />
+                        Bulk Assign
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead>Document</TableHead>
-                <TableHead>Student</TableHead>
-                <TableHead>Program</TableHead>
-                <TableHead>Intake</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Priority</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Reviewer</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDocuments.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedDocuments.includes(doc.id)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedDocuments([...selectedDocuments, doc.id]);
-                        } else {
-                          setSelectedDocuments(selectedDocuments.filter(id => id !== doc.id));
-                        }
-                      }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-3">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <button 
-                          className="font-medium text-primary hover:underline cursor-pointer text-left"
-                          onClick={() => handleDocumentClick(doc.id)}
-                        >
-                          {doc.name}
-                        </button>
-                        <p className="text-sm text-muted-foreground">{doc.fileType} • {doc.fileSize}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src="/placeholder.svg" />
-                        <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <button 
-                          className="font-medium text-primary hover:underline cursor-pointer"
-                          onClick={() => handleStudentClick(doc.studentId)}
-                        >
-                          {doc.studentName}
-                        </button>
-                        <p className="text-xs text-muted-foreground">{doc.studentId}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{doc.program}</p>
-                      <p className="text-xs text-muted-foreground">{doc.campus}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>{doc.intake}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{doc.studentType}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={getPriorityColor(doc.priority)}>
-                      {doc.priority}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      {getStatusIcon(doc.status)}
-                      <Badge variant={getStatusColor(doc.status)}>
-                        {doc.status.replace('-', ' ')}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-sm">{doc.reviewer || 'Unassigned'}</span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-1">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="ghost" size="sm" onClick={() => setSelectedDocument(doc)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        {selectedDocument && <DocumentPreview document={selectedDocument} />}
-                      </Dialog>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDocumentAction(doc.id, 'approve')}
-                      >
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => handleDocumentAction(doc.id, 'reject')}
-                      >
-                        <XCircle className="h-4 w-4 text-red-600" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <MessageSquare className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="pending" className="flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                Pending ({documents.filter(d => d.status === 'pending').length})
+              </TabsTrigger>
+              <TabsTrigger value="under-review" className="flex items-center gap-1">
+                <Eye className="h-4 w-4" />
+                Under Review ({documents.filter(d => d.status === 'under-review').length})
+              </TabsTrigger>
+              <TabsTrigger value="approved" className="flex items-center gap-1">
+                <CheckCircle className="h-4 w-4" />
+                Approved ({documents.filter(d => d.status === 'approved').length})
+              </TabsTrigger>
+              <TabsTrigger value="rejected" className="flex items-center gap-1">
+                <XCircle className="h-4 w-4" />
+                Rejected ({documents.filter(d => d.status === 'rejected').length})
+              </TabsTrigger>
+              <TabsTrigger value="all" className="flex items-center gap-1">
+                <FileText className="h-4 w-4" />
+                All ({documents.length})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value={activeTab} className="mt-4">
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
+                        <Checkbox 
+                          checked={selectedDocuments.length === filteredDocuments.length && filteredDocuments.length > 0}
+                          onCheckedChange={handleSelectAll}
+                        />
+                      </TableHead>
+                      <TableHead>Document</TableHead>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Program</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Priority</TableHead>
+                      <TableHead>Upload Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredDocuments.map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell>
+                          <Checkbox 
+                            checked={selectedDocuments.includes(doc.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedDocuments([...selectedDocuments, doc.id]);
+                              } else {
+                                setSelectedDocuments(selectedDocuments.filter(id => id !== doc.id));
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <FileText className="h-5 w-5 text-muted-foreground" />
+                            <div>
+                              <button 
+                                className="font-medium text-primary hover:underline cursor-pointer text-left"
+                                onClick={() => handleDocumentClick(doc.id)}
+                              >
+                                {doc.name}
+                              </button>
+                              <p className="text-sm text-muted-foreground">{doc.fileType} • {doc.fileSize}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src="/placeholder.svg" />
+                              <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <button 
+                                className="font-medium text-primary hover:underline cursor-pointer"
+                                onClick={() => handleStudentClick(doc.studentId)}
+                              >
+                                {doc.studentName}
+                              </button>
+                              <p className="text-xs text-muted-foreground">{doc.studentId}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{doc.program}</p>
+                            <p className="text-sm text-muted-foreground">{doc.campus}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getStatusColor(doc.status)} className="flex items-center gap-1 w-fit">
+                            {getStatusIcon(doc.status)}
+                            {doc.status.replace('-', ' ')}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={getPriorityColor(doc.priority)}>
+                            {doc.priority}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="text-sm">{new Date(doc.uploadDate).toLocaleDateString()}</p>
+                            <p className="text-xs text-muted-foreground">{doc.intake}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-1">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="ghost" size="sm" onClick={() => setSelectedDocument(doc)}>
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                              </DialogTrigger>
+                              {selectedDocument && (
+                                <DocumentPreview document={selectedDocument} />
+                              )}
+                            </Dialog>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleDocumentAction(doc.id, 'approve')}
+                            >
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => handleDocumentAction(doc.id, 'reject')}
+                            >
+                              <XCircle className="h-4 w-4 text-red-600" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

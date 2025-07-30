@@ -1,19 +1,8 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import ProgramWizard from "./ProgramWizard";
 import { 
   Select,
   SelectContent,
@@ -36,7 +25,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 
 const ProgramManagement: React.FC = () => {
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
   const programs = [
     {
@@ -98,82 +87,6 @@ const ProgramManagement: React.FC = () => {
     }
   ];
 
-  const CreateProgramDialog = () => (
-    <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Create New Program</DialogTitle>
-          <DialogDescription>
-            Set up a new program with all the required details and configurations.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Program Name</Label>
-            <Input placeholder="e.g., Business Administration" />
-          </div>
-          <div className="space-y-2">
-            <Label>Program Type</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="certificate">Certificate</SelectItem>
-                <SelectItem value="diploma">Diploma</SelectItem>
-                <SelectItem value="degree">Degree</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Duration</Label>
-            <Input placeholder="e.g., 12 months" />
-          </div>
-          <div className="space-y-2">
-            <Label>Campus</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select campus" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="surrey">Surrey Campus</SelectItem>
-                <SelectItem value="vancouver">Vancouver Campus</SelectItem>
-                <SelectItem value="richmond">Richmond Campus</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label>Tuition Fee (CAD)</Label>
-            <Input type="number" placeholder="15000" />
-          </div>
-          <div className="space-y-2">
-            <Label>Program Color</Label>
-            <Input type="color" className="h-10" />
-          </div>
-        </div>
-        
-        <div className="space-y-2">
-          <Label>Description</Label>
-          <Textarea placeholder="Program description and overview..." rows={3} />
-        </div>
-        
-        <div className="space-y-2">
-          <Label>Marketing Copy</Label>
-          <Textarea placeholder="Marketing description for website and promotional materials..." rows={3} />
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-            Cancel
-          </Button>
-          <Button onClick={() => setShowCreateDialog(false)}>
-            Create Program
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 
   return (
     <div className="space-y-6">
@@ -183,7 +96,7 @@ const ProgramManagement: React.FC = () => {
           <h1 className="text-3xl font-bold text-foreground">Program Management</h1>
           <p className="text-muted-foreground">Manage programs, intakes, and enrollment</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
+        <Button onClick={() => setShowWizard(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Create Program
         </Button>
@@ -361,7 +274,14 @@ const ProgramManagement: React.FC = () => {
         </TabsContent>
       </Tabs>
 
-      <CreateProgramDialog />
+      <ProgramWizard 
+        open={showWizard} 
+        onOpenChange={setShowWizard}
+        onSave={(program) => {
+          console.log('Program created:', program);
+          // Add to programs list
+        }}
+      />
     </div>
   );
 };

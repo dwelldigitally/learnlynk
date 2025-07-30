@@ -295,6 +295,26 @@ const EnhancedDocumentManagement: React.FC = () => {
     setShowBulkActions(false);
   };
 
+  const handleDocumentAction = (documentId: string, action: 'approve' | 'reject') => {
+    console.log(`${action} document:`, documentId);
+    // Implementation for individual document actions
+  };
+
+  const handleDownloadDocument = (documentId: string) => {
+    console.log('Download document:', documentId);
+    // Implementation for document download
+  };
+
+  const handleStudentClick = (studentId: string) => {
+    console.log('Navigate to student:', studentId);
+    // Implementation for student navigation
+  };
+
+  const handleDocumentClick = (documentId: string) => {
+    console.log('Open document:', documentId);
+    // Implementation for document view
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedDocuments(filteredDocuments.map(doc => doc.id));
@@ -468,15 +488,29 @@ const EnhancedDocumentManagement: React.FC = () => {
                 <CardTitle className="text-sm">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button className="w-full" size="sm">
+                <Button 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => handleDocumentAction(document.id, 'approve')}
+                >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Approve Document
                 </Button>
-                <Button variant="destructive" className="w-full" size="sm">
+                <Button 
+                  variant="destructive" 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => handleDocumentAction(document.id, 'reject')}
+                >
                   <XCircle className="h-4 w-4 mr-2" />
                   Reject Document
                 </Button>
-                <Button variant="outline" className="w-full" size="sm">
+                <Button 
+                  variant="outline" 
+                  className="w-full" 
+                  size="sm"
+                  onClick={() => handleDownloadDocument(document.id)}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Download
                 </Button>
@@ -779,7 +813,12 @@ const EnhancedDocumentManagement: React.FC = () => {
                     <div className="flex items-center space-x-3">
                       <FileText className="h-5 w-5 text-muted-foreground" />
                       <div>
-                        <p className="font-medium">{doc.name}</p>
+                        <button 
+                          className="font-medium text-primary hover:underline cursor-pointer text-left"
+                          onClick={() => handleDocumentClick(doc.id)}
+                        >
+                          {doc.name}
+                        </button>
                         <p className="text-sm text-muted-foreground">{doc.fileType} • {doc.fileSize}</p>
                       </div>
                     </div>
@@ -791,7 +830,12 @@ const EnhancedDocumentManagement: React.FC = () => {
                         <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <span className="font-medium">{doc.studentName}</span>
+                        <button 
+                          className="font-medium text-primary hover:underline cursor-pointer"
+                          onClick={() => handleStudentClick(doc.studentId)}
+                        >
+                          {doc.studentName}
+                        </button>
                         <p className="text-xs text-muted-foreground">{doc.studentId}</p>
                       </div>
                     </div>
@@ -832,10 +876,18 @@ const EnhancedDocumentManagement: React.FC = () => {
                         </DialogTrigger>
                         {selectedDocument && <DocumentPreview document={selectedDocument} />}
                       </Dialog>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDocumentAction(doc.id, 'approve')}
+                      >
                         <CheckCircle className="h-4 w-4 text-green-600" />
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleDocumentAction(doc.id, 'reject')}
+                      >
                         <XCircle className="h-4 w-4 text-red-600" />
                       </Button>
                       <Button variant="ghost" size="sm">

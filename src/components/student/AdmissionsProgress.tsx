@@ -22,8 +22,8 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
   const { progress, ref } = useProgressAnimation(progressPercentage, 2000);
 
   return (
-    <div ref={ref} className="relative animate-fade-up">
-      <div className="flex justify-between items-center">
+    <div ref={ref} className="animate-fade-up">
+      <div className="flex justify-between items-center mb-4">
         {stages.map((stage, index) => (
           <div 
             key={stage.id} 
@@ -55,24 +55,26 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
           </div>
         ))}
       </div>
+      
       {/* Progress line background */}
-      <div className="absolute top-14 left-0 transform -translate-y-1/2 h-2 bg-gray-200 w-full z-0 rounded-full"></div>
-      {/* Animated progress fill */}
-      <div 
-        className="absolute top-14 left-0 transform -translate-y-1/2 h-2 bg-gradient-to-r from-green-400 to-green-600 z-0 rounded-full transition-all duration-1000 ease-out shadow-sm"
-        style={{ width: `${progress}%` }}
-      ></div>
-      {/* Current progress indicator with glow effect */}
-      {currentStageIndex < stages.length - 1 && (
+      <div className="relative h-2 bg-gray-200 w-full rounded-full">
+        {/* Animated progress fill */}
         <div 
-          className="absolute top-14 left-0 transform -translate-y-1/2 h-2 bg-gradient-to-r from-orange-400 to-orange-500 z-0 rounded-full animate-pulse shadow-lg"
-          style={{ 
-            width: `${Math.min(progress + 10, 100)}%`,
-            maxWidth: `${((currentStageIndex + 1) / (stages.length - 1)) * 100}%`,
-            filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.5))'
-          }}
+          className="absolute top-0 left-0 h-2 bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all duration-1000 ease-out shadow-sm"
+          style={{ width: `${progress}%` }}
         ></div>
-      )}
+        {/* Current progress indicator with glow effect */}
+        {currentStageIndex < stages.length - 1 && (
+          <div 
+            className="absolute top-0 left-0 h-2 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full animate-pulse shadow-lg"
+            style={{ 
+              width: `${Math.min(progress + 10, 100)}%`,
+              maxWidth: `${((currentStageIndex + 1) / (stages.length - 1)) * 100}%`,
+              filter: 'drop-shadow(0 0 8px rgba(251, 146, 60, 0.5))'
+            }}
+          ></div>
+        )}
+      </div>
     </div>
   );
 };

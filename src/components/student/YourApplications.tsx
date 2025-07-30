@@ -14,10 +14,15 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
 import { ProgramApplication } from "@/types/application";
+import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 
 const YourApplications: React.FC = () => {
   const navigate = useNavigate();
   const [selectedApplication, setSelectedApplication] = useState<ProgramApplication | null>(null);
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems, ref: staggerRef } = useStaggeredReveal(6, 150);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -67,17 +72,17 @@ const YourApplications: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
-      <div>
+      <div className="animate-slide-down">
         <h1 className="text-2xl font-bold">Your Applications</h1>
         <p className="text-muted-foreground">Track the status and progress of all your submitted applications</p>
       </div>
 
       {/* Applications List */}
-      <div className="space-y-6">
-        {applications.map((application) => (
-          <Card key={application.id} className="p-6">
+      <div ref={staggerRef} className="space-y-6">
+        {applications.map((application, index) => (
+          <Card key={application.id} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
             {/* Application Header */}
             <div className="flex justify-between items-start mb-4">
               <div>

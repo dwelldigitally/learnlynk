@@ -6,9 +6,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { BookOpen, Clock, CheckCircle, AlertCircle, Calendar as CalendarIcon, GraduationCap } from "lucide-react";
+import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 
 const AcademicPlanning: React.FC = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());
+  
+  // Animation hooks
+  const isLoaded = usePageEntranceAnimation();
+  const { visibleItems, ref: staggerRef } = useStaggeredReveal(4, 200);
 
   const currentProgram = {
     name: "Health Care Assistant",
@@ -126,14 +131,14 @@ const AcademicPlanning: React.FC = () => {
   
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+      <div className="animate-slide-down">
         <h1 className="text-3xl font-bold">Academic Planning</h1>
         <p className="text-gray-600 mt-2">Track your academic progress and plan your educational journey</p>
       </div>
 
       {/* Program Overview */}
-      <Card>
+      <Card ref={staggerRef} className={`hover:shadow-lg transition-all duration-300 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5" />

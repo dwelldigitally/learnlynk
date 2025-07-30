@@ -56,16 +56,16 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
         ))}
       </div>
       {/* Progress line background */}
-      <div className="absolute top-6 left-0 transform -translate-y-1/2 h-2 bg-gray-200 w-full z-0 rounded-full"></div>
+      <div className="absolute top-14 left-0 transform -translate-y-1/2 h-2 bg-gray-200 w-full z-0 rounded-full"></div>
       {/* Animated progress fill */}
       <div 
-        className="absolute top-6 left-0 transform -translate-y-1/2 h-2 bg-gradient-to-r from-green-400 to-green-600 z-0 rounded-full transition-all duration-1000 ease-out shadow-sm"
+        className="absolute top-14 left-0 transform -translate-y-1/2 h-2 bg-gradient-to-r from-green-400 to-green-600 z-0 rounded-full transition-all duration-1000 ease-out shadow-sm"
         style={{ width: `${progress}%` }}
       ></div>
       {/* Current progress indicator with glow effect */}
       {currentStageIndex < stages.length - 1 && (
         <div 
-          className="absolute top-6 left-0 transform -translate-y-1/2 h-2 bg-gradient-to-r from-orange-400 to-orange-500 z-0 rounded-full animate-pulse shadow-lg"
+          className="absolute top-14 left-0 transform -translate-y-1/2 h-2 bg-gradient-to-r from-orange-400 to-orange-500 z-0 rounded-full animate-pulse shadow-lg"
           style={{ 
             width: `${Math.min(progress + 10, 100)}%`,
             maxWidth: `${((currentStageIndex + 1) / (stages.length - 1)) * 100}%`,

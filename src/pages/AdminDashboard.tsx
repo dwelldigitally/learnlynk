@@ -15,6 +15,7 @@ import AnalyticsReporting from "@/components/admin/AnalyticsReporting";
 import SystemConfiguration from "@/components/admin/SystemConfiguration";
 import ProfilePage from "@/components/admin/ProfilePage";
 import CompanyPage from "@/components/admin/CompanyPage";
+import { LeadManagement } from "@/components/admin/LeadManagement";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -28,6 +29,8 @@ const AdminDashboard: React.FC = () => {
     switch (location.pathname) {
       case "/admin":
         return <AdminOverview />;
+      case "/admin/leads":
+        return <LeadManagement />;
       case "/admin/students":
         return <StudentManagement />;
       case "/admin/programs":

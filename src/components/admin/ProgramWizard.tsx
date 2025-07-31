@@ -77,9 +77,8 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
       entryRequirements: [],
       documentRequirements: [],
       feeStructure: {
-        tuitionFee: 0,
-        currency: 'CAD',
-        additionalFees: [],
+        domesticFees: [],
+        internationalFees: [],
         paymentPlans: [],
         scholarships: []
       },
@@ -133,7 +132,7 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
       case 2: // Documents
         return true; // Optional step
       case 3: // Fee Structure
-        return !!(data.feeStructure && data.feeStructure.tuitionFee > 0);
+        return !!(data.feeStructure && (data.feeStructure.domesticFees.length > 0 || data.feeStructure.internationalFees.length > 0));
       case 4: // Custom Questions
         return true; // Optional step
       case 5: // Intake Dates

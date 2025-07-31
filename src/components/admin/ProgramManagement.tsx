@@ -99,9 +99,50 @@ const ProgramManagement: React.FC = () => {
         }
       ],
       feeStructure: {
-        tuitionFee: 15500,
-        currency: "CAD" as const,
-        additionalFees: [],
+        domesticFees: [
+          {
+            id: "fee-1",
+            type: "Tuition Fee",
+            amount: 15500,
+            currency: "CAD",
+            required: true,
+            description: "Main program tuition fee for domestic students"
+          },
+          {
+            id: "fee-2", 
+            type: "Technology Fee",
+            amount: 350,
+            currency: "CAD",
+            required: true,
+            description: "Technology and equipment usage fee"
+          }
+        ],
+        internationalFees: [
+          {
+            id: "fee-3",
+            type: "Tuition Fee", 
+            amount: 22500,
+            currency: "CAD",
+            required: true,
+            description: "Main program tuition fee for international students"
+          },
+          {
+            id: "fee-4",
+            type: "Technology Fee",
+            amount: 350,
+            currency: "CAD", 
+            required: true,
+            description: "Technology and equipment usage fee"
+          },
+          {
+            id: "fee-5",
+            type: "International Student Services Fee",
+            amount: 750,
+            currency: "CAD",
+            required: true,
+            description: "Additional services and support for international students"
+          }
+        ],
         paymentPlans: [],
         scholarships: [],
       },
@@ -132,7 +173,7 @@ const ProgramManagement: React.FC = () => {
       // Legacy fields for display
       enrolled: 245,
       capacity: 280,
-      tuitionFee: 15500,
+      tuitionFee: 15500, // Using domestic tuition for display
       nextIntake: "2024-04-15",
     },
     {
@@ -195,9 +236,50 @@ const ProgramManagement: React.FC = () => {
         }
       ],
       feeStructure: {
-        tuitionFee: 18500,
-        currency: "CAD" as const,
-        additionalFees: [],
+        domesticFees: [
+          {
+            id: "fee-6",
+            type: "Tuition Fee",
+            amount: 18500,
+            currency: "CAD",
+            required: true,
+            description: "Main program tuition fee for domestic students"
+          },
+          {
+            id: "fee-7",
+            type: "Books & Materials",
+            amount: 650,
+            currency: "CAD",
+            required: true,
+            description: "Required textbooks and learning materials"
+          }
+        ],
+        internationalFees: [
+          {
+            id: "fee-8",
+            type: "Tuition Fee",
+            amount: 26500,
+            currency: "CAD",
+            required: true,
+            description: "Main program tuition fee for international students"
+          },
+          {
+            id: "fee-9",
+            type: "Books & Materials",
+            amount: 650,
+            currency: "CAD",
+            required: true,
+            description: "Required textbooks and learning materials"
+          },
+          {
+            id: "fee-10",
+            type: "International Student Services Fee",
+            amount: 950,
+            currency: "CAD",
+            required: true,
+            description: "Additional services and support for international students"
+          }
+        ],
         paymentPlans: [],
         scholarships: [],
       },
@@ -219,7 +301,7 @@ const ProgramManagement: React.FC = () => {
       // Legacy fields for display
       enrolled: 156,
       capacity: 180,
-      tuitionFee: 18500,
+      tuitionFee: 18500, // Using domestic tuition for display
       nextIntake: "2024-05-01",
     }
   ];

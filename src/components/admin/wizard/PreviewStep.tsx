@@ -29,7 +29,11 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div><strong>Duration:</strong> {data.duration}</div>
             <div><strong>Campus:</strong> {data.campus?.join(', ')}</div>
-            <div><strong>Tuition:</strong> ${data.feeStructure?.tuitionFee?.toLocaleString()}</div>
+            <div><strong>Domestic Tuition:</strong> {
+              data.feeStructure?.domesticFees?.find(fee => fee.type === 'Tuition Fee')?.amount 
+                ? `$${data.feeStructure.domesticFees.find(fee => fee.type === 'Tuition Fee')?.amount?.toLocaleString()}`
+                : 'Not set'
+            }</div>
             <div><strong>Intakes:</strong> {data.intakes?.length || 0}</div>
           </div>
         </CardContent>

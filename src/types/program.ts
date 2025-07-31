@@ -69,12 +69,20 @@ export interface DocumentRequirement {
 }
 
 export interface FeeStructure {
-  tuitionFee: number;
-  currency: "CAD" | "USD";
-  additionalFees: AdditionalFee[];
+  domesticFees: FeeItem[];
+  internationalFees: FeeItem[];
   paymentPlans: PaymentPlan[];
   scholarships: Scholarship[];
   refundPolicy?: string;
+}
+
+export interface FeeItem {
+  id: string;
+  type: string;
+  amount: number;
+  currency: "CAD" | "USD" | "EUR" | "GBP";
+  required: boolean;
+  description?: string;
 }
 
 export interface AdditionalFee {

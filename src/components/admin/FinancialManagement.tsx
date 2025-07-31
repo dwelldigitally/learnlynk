@@ -267,7 +267,7 @@ const FinancialManagement: React.FC = () => {
     }
   };
 
-  const filteredPayments = selectedProgram 
+  const filteredPayments = selectedProgram && selectedProgram !== "all"
     ? applicationPayments.filter(payment => payment.program === selectedProgram)
     : applicationPayments;
 
@@ -393,7 +393,7 @@ const FinancialManagement: React.FC = () => {
                       <SelectValue placeholder="Filter by program" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Programs</SelectItem>
+                      <SelectItem value="all">All Programs</SelectItem>
                       {programs.map((program) => (
                         <SelectItem key={program} value={program}>{program}</SelectItem>
                       ))}

@@ -14,7 +14,142 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      custom_stages: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          order_index: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          order_index: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          order_index?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      workflow_actions: {
+        Row: {
+          action_config: Json
+          action_type: string
+          created_at: string | null
+          id: string
+          order_index: number
+          workflow_id: string | null
+        }
+        Insert: {
+          action_config: Json
+          action_type: string
+          created_at?: string | null
+          id?: string
+          order_index: number
+          workflow_id?: string | null
+        }
+        Update: {
+          action_config?: Json
+          action_type?: string
+          created_at?: string | null
+          id?: string
+          order_index?: number
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_actions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_executions: {
+        Row: {
+          completed_at: string | null
+          execution_data: Json | null
+          id: string
+          started_at: string | null
+          status: string
+          student_id: string | null
+          workflow_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          execution_data?: Json | null
+          id?: string
+          started_at?: string | null
+          status: string
+          student_id?: string | null
+          workflow_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          execution_data?: Json | null
+          id?: string
+          started_at?: string | null
+          status?: string
+          student_id?: string | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_executions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflows: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          trigger_config: Json
+          trigger_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

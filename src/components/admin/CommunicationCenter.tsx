@@ -20,6 +20,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { MessageDetailModal } from './modals/MessageDetailModal';
+import { AutomationBuilderModal } from './modals/AutomationBuilderModal';
+import { TemplateManagementModal } from './modals/TemplateManagementModal';
+import { CommunicationSettingsModal } from './modals/CommunicationSettingsModal';
 import { 
   MessageSquare, 
   Send, 
@@ -29,12 +34,30 @@ import {
   Plus,
   Settings,
   Clock,
-  CheckCircle
+  CheckCircle,
+  Eye,
+  Edit,
+  MoreHorizontal,
+  Users,
+  BarChart3,
+  Zap,
+  FileText,
+  TrendingUp
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const CommunicationCenter: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
+  const [selectedMessage, setSelectedMessage] = useState<any>(null);
+  const [selectedAutomation, setSelectedAutomation] = useState<any>(null);
+  const [messageDetailOpen, setMessageDetailOpen] = useState(false);
+  const [automationBuilderOpen, setAutomationBuilderOpen] = useState(false);
+  const [templateManagementOpen, setTemplateManagementOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [priorityFilter, setPriorityFilter] = useState('all');
+  const { toast } = useToast();
 
   const messages = [
     {
@@ -102,6 +125,49 @@ const CommunicationCenter: React.FC = () => {
     }
   ];
 
+  const filteredMessages = messages.filter(message => {
+    const matchesSearch = message.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         message.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         message.message.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || message.status === statusFilter;
+    const matchesPriority = priorityFilter === 'all' || message.priority === priorityFilter;
+    
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
+
+  const handleMessageClick = (message: any) => {
+    setSelectedMessage(message);
+    setMessageDetailOpen(true);
+  };
+
+  const handleCreateAutomation = () => {
+    setSelectedAutomation(null);
+    setAutomationBuilderOpen(true);
+  };
+
+  const handleEditAutomation = (automation: any) => {
+    setSelectedAutomation(automation);
+    setAutomationBuilderOpen(true);
+  };
+
+  const handleBulkAction = (action: string) => {
+    if (selectedMessages.length === 0) {
+      toast({
+        title: "No messages selected",
+        description: "Please select messages to perform bulk actions.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Bulk Action Applied",
+      description: `${action} applied to ${selectedMessages.length} messages.`
+    });
+    
+    setSelectedMessages([]);
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "unread": return "destructive";
@@ -130,7 +196,7 @@ const CommunicationCenter: React.FC = () => {
           <p className="text-muted-foreground">Manage all student communications and automations</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setSettingsOpen(true)}>
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
@@ -175,47 +241,73 @@ const CommunicationCenter: React.FC = () => {
           {/* Filters */}
           <Card>
             <CardContent className="p-4">
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="flex-1 min-w-[200px]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search messages..." className="pl-10" />
+              <div className="flex flex-wrap gap-4 items-center justify-between">
+                <div className="flex flex-wrap gap-4 items-center">
+                  <div className="flex-1 min-w-[200px]">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input 
+                        placeholder="Search messages..." 
+                        className="pl-10" 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </div>
                   </div>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="unread">Unread</SelectItem>
+                      <SelectItem value="replied">Replied</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="resolved">Resolved</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Priority</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select>
+                    <SelectTrigger className="w-[150px]">
+                      <SelectValue placeholder="Assigned to" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Staff</SelectItem>
+                      <SelectItem value="nicole">Nicole Adams</SelectItem>
+                      <SelectItem value="robert">Robert Smith</SelectItem>
+                      <SelectItem value="sarah">Sarah Kim</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Select>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="unread">Unread</SelectItem>
-                    <SelectItem value="replied">Replied</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="resolved">Resolved</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Assigned to" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Staff</SelectItem>
-                    <SelectItem value="nicole">Nicole Adams</SelectItem>
-                    <SelectItem value="robert">Robert Smith</SelectItem>
-                    <SelectItem value="sarah">Sarah Kim</SelectItem>
-                  </SelectContent>
-                </Select>
+                
+                {selectedMessages.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleBulkAction('Mark as Read')}
+                    >
+                      Mark as Read
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleBulkAction('Assign')}
+                    >
+                      Assign
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -223,7 +315,7 @@ const CommunicationCenter: React.FC = () => {
           {/* Messages Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Student Messages ({messages.length})</CardTitle>
+              <CardTitle>Student Messages ({filteredMessages.length})</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -242,9 +334,13 @@ const CommunicationCenter: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {messages.map((message) => (
-                    <TableRow key={message.id} className={message.status === 'unread' ? 'bg-blue-50' : ''}>
-                      <TableCell>
+                  {filteredMessages.map((message) => (
+                    <TableRow 
+                      key={message.id} 
+                      className={`cursor-pointer hover:bg-accent/50 ${message.status === 'unread' ? 'bg-blue-50' : ''}`}
+                      onClick={() => handleMessageClick(message)}
+                    >
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <input
                           type="checkbox"
                           checked={selectedMessages.includes(message.id)}
@@ -297,9 +393,9 @@ const CommunicationCenter: React.FC = () => {
                       <TableCell className="text-sm text-muted-foreground">
                         {new Date(message.timestamp).toLocaleString()}
                       </TableCell>
-                      <TableCell>
+                      <TableCell onClick={(e) => e.stopPropagation()}>
                         <Button variant="ghost" size="sm">
-                          <MessageSquare className="h-4 w-4" />
+                          <Eye className="h-4 w-4" />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -315,7 +411,7 @@ const CommunicationCenter: React.FC = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Communication Automations</CardTitle>
-                <Button>
+                <Button onClick={handleCreateAutomation}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Automation
                 </Button>
@@ -324,7 +420,7 @@ const CommunicationCenter: React.FC = () => {
             <CardContent>
               <div className="space-y-4">
                 {automations.map((automation) => (
-                  <div key={automation.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div key={automation.id} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-accent/50">
                     <div>
                       <h3 className="font-medium">{automation.name}</h3>
                       <p className="text-sm text-muted-foreground">Trigger: {automation.trigger}</p>
@@ -336,8 +432,15 @@ const CommunicationCenter: React.FC = () => {
                       <Badge variant={automation.status === 'active' ? 'default' : 'secondary'}>
                         {automation.status}
                       </Badge>
-                      <Button variant="ghost" size="sm">
-                        <Settings className="h-4 w-4" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditAutomation(automation);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
@@ -350,10 +453,70 @@ const CommunicationCenter: React.FC = () => {
         <TabsContent value="templates">
           <Card>
             <CardHeader>
-              <CardTitle>Message Templates</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Message Templates</CardTitle>
+                <Button onClick={() => setTemplateManagementOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Manage Templates
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Create and manage reusable message templates for common communications.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card className="cursor-pointer hover:bg-accent/50" onClick={() => setTemplateManagementOpen(true)}>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Welcome Email
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Welcome message for new students with program details and next steps.
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary">Email</Badge>
+                      <Badge variant="outline">Used 156 times</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="cursor-pointer hover:bg-accent/50" onClick={() => setTemplateManagementOpen(true)}>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4" />
+                      Interview Reminder
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      SMS reminder for upcoming interviews with date, time, and location.
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary">SMS</Badge>
+                      <Badge variant="outline">Used 89 times</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="cursor-pointer hover:bg-accent/50" onClick={() => setTemplateManagementOpen(true)}>
+                  <CardHeader>
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Application Follow-up
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Follow-up email for incomplete applications with deadline reminders.
+                    </p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge variant="secondary">Email</Badge>
+                      <Badge variant="outline">Used 234 times</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
@@ -364,11 +527,128 @@ const CommunicationCenter: React.FC = () => {
               <CardTitle>Communication Analytics</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">Track response times, message volume, and communication effectiveness.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Response Time Trend</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">↓ 15%</div>
+                    <p className="text-xs text-muted-foreground">Improved this month</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Message Volume</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">2,456</div>
+                    <p className="text-xs text-muted-foreground">This month</p>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Automation Success</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-green-600">97.8%</div>
+                    <p className="text-xs text-muted-foreground">Delivery rate</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Channel Performance</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          <span>Email</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">1,234 sent</div>
+                          <div className="text-sm text-muted-foreground">98.5% delivered</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" />
+                          <span>SMS</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">456 sent</div>
+                          <div className="text-sm text-muted-foreground">99.1% delivered</div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <MessageSquare className="w-4 h-4" />
+                          <span>Portal</span>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">789 sent</div>
+                          <div className="text-sm text-muted-foreground">100% delivered</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Top Performing Templates</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Welcome Email</span>
+                        <span className="text-sm font-medium">92% open rate</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Interview Reminder</span>
+                        <span className="text-sm font-medium">88% open rate</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Application Follow-up</span>
+                        <span className="text-sm font-medium">85% open rate</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Modals */}
+      <MessageDetailModal
+        isOpen={messageDetailOpen}
+        onClose={() => setMessageDetailOpen(false)}
+        message={selectedMessage}
+      />
+
+      <AutomationBuilderModal
+        isOpen={automationBuilderOpen}
+        onClose={() => setAutomationBuilderOpen(false)}
+        automation={selectedAutomation}
+      />
+
+      <TemplateManagementModal
+        isOpen={templateManagementOpen}
+        onClose={() => setTemplateManagementOpen(false)}
+      />
+
+      <CommunicationSettingsModal
+        isOpen={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   );
 };

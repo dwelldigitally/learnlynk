@@ -22,9 +22,17 @@ import {
   Bell
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useToast } from "@/hooks/use-toast";
+import { ProgramFeeModal } from "./modals/ProgramFeeModal";
+import { PaymentDetailModal } from "./modals/PaymentDetailModal";
+import { ScholarshipModal } from "./modals/ScholarshipModal";
 
 const FinancialManagement: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState("");
+  const [programFeeModal, setProgramFeeModal] = useState({ isOpen: false, mode: 'add', program: null });
+  const [paymentDetailModal, setPaymentDetailModal] = useState({ isOpen: false, payment: null });
+  const [scholarshipModal, setScholarshipModal] = useState({ isOpen: false, mode: 'add', scholarship: null });
+  const { toast } = useToast();
   
   const financialStats = [
     { title: "Ready to Send", amount: "47", change: "+8", icon: Clock, color: "text-orange-600" },
@@ -271,6 +279,81 @@ const FinancialManagement: React.FC = () => {
     ? applicationPayments.filter(payment => payment.program === selectedProgram)
     : applicationPayments;
 
+  // Modal handlers
+  const handleAddProgram = () => {
+    setProgramFeeModal({ isOpen: true, mode: 'add', program: null });
+  };
+
+  const handleEditProgram = (program: any) => {
+    setProgramFeeModal({ isOpen: true, mode: 'edit', program });
+  };
+
+  const handleConfigureProgram = (program: any) => {
+    setProgramFeeModal({ isOpen: true, mode: 'configure', program });
+  };
+
+  const handleSaveProgramFee = (data: any) => {
+    toast({
+      title: "Success",
+      description: `Program fee ${programFeeModal.mode === 'add' ? 'added' : 'updated'} successfully`,
+    });
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "Export Started",
+      description: "Your financial data export is being prepared",
+    });
+  };
+
+  const handleSendInvoice = (paymentId: string) => {
+    toast({
+      title: "Invoice Sent",
+      description: "Payment invoice has been sent to the student",
+    });
+  };
+
+  const handleSendReminder = (paymentId: string) => {
+    toast({
+      title: "Reminder Sent",
+      description: "Payment reminder has been sent to the student",
+    });
+  };
+
+  const handleViewPaymentDetail = (payment: any) => {
+    setPaymentDetailModal({ isOpen: true, payment });
+  };
+
+  const handleEditPayment = (payment: any) => {
+    setPaymentDetailModal({ isOpen: false, payment: null });
+    toast({
+      title: "Edit Payment",
+      description: "Payment editing functionality coming soon",
+    });
+  };
+
+  const handleCreateScholarship = () => {
+    setScholarshipModal({ isOpen: true, mode: 'add', scholarship: null });
+  };
+
+  const handleEditScholarship = (scholarship: any) => {
+    setScholarshipModal({ isOpen: true, mode: 'edit', scholarship });
+  };
+
+  const handleSaveScholarship = (data: any) => {
+    toast({
+      title: "Success",
+      description: `Scholarship ${scholarshipModal.mode === 'add' ? 'created' : 'updated'} successfully`,
+    });
+  };
+
+  const handleViewApplications = (scholarshipId: string) => {
+    toast({
+      title: "Applications",
+      description: "Scholarship applications view coming soon",
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -280,10 +363,10 @@ const FinancialManagement: React.FC = () => {
           <p className="text-muted-foreground">Manage program fees, application payments, and scholarships</p>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
+            <Button variant="outline" onClick={handleExportData}>
+              <Download className="h-4 w-4 mr-2" />
+              Export Data
+            </Button>
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Add Program Fees
@@ -323,10 +406,10 @@ const FinancialManagement: React.FC = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Program Fee Structure</CardTitle>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Program
-                </Button>
+            <Button onClick={handleAddProgram}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Program
+            </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -338,16 +421,16 @@ const FinancialManagement: React.FC = () => {
                         <h3 className="font-semibold text-lg">{program.program}</h3>
                         <p className="text-sm text-muted-foreground">Last updated: {program.lastUpdated}</p>
                       </div>
-                      <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
-                          <Edit2 className="h-4 w-4 mr-1" />
-                          Edit
-                        </Button>
-                        <Button variant="outline" size="sm">
-                          <Settings className="h-4 w-4 mr-1" />
-                          Configure
-                        </Button>
-                      </div>
+                       <div className="flex space-x-2">
+                         <Button variant="outline" size="sm" onClick={() => handleEditProgram(program)}>
+                           <Edit2 className="h-4 w-4 mr-1" />
+                           Edit
+                         </Button>
+                         <Button variant="outline" size="sm" onClick={() => handleConfigureProgram(program)}>
+                           <Settings className="h-4 w-4 mr-1" />
+                           Configure
+                         </Button>
+                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -437,28 +520,28 @@ const FinancialManagement: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="flex space-x-2">
-                      {payment.status === "ready_to_send" && (
-                        <Button size="sm">
-                          <Send className="h-4 w-4 mr-1" />
-                          Send Invoice
-                        </Button>
-                      )}
-                      {payment.status === "pending" && (
-                        <Button size="sm" variant="outline">
-                          <Bell className="h-4 w-4 mr-1" />
-                          Send Reminder
-                        </Button>
-                      )}
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Details
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Edit2 className="h-4 w-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
+                     <div className="flex space-x-2">
+                       {payment.status === "ready_to_send" && (
+                         <Button size="sm" onClick={() => handleSendInvoice(payment.id)}>
+                           <Send className="h-4 w-4 mr-1" />
+                           Send Invoice
+                         </Button>
+                       )}
+                       {payment.status === "pending" && (
+                         <Button size="sm" variant="outline" onClick={() => handleSendReminder(payment.id)}>
+                           <Bell className="h-4 w-4 mr-1" />
+                           Send Reminder
+                         </Button>
+                       )}
+                       <Button variant="outline" size="sm" onClick={() => handleViewPaymentDetail(payment)}>
+                         <Eye className="h-4 w-4 mr-1" />
+                         View Details
+                       </Button>
+                       <Button variant="outline" size="sm" onClick={() => handleEditPayment(payment)}>
+                         <Edit2 className="h-4 w-4 mr-1" />
+                         Edit
+                       </Button>
+                     </div>
                   </div>
                 ))}
               </div>
@@ -472,10 +555,10 @@ const FinancialManagement: React.FC = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Scholarship Management</CardTitle>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Scholarship
-                </Button>
+            <Button onClick={handleCreateScholarship}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Scholarship
+            </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -550,20 +633,20 @@ const FinancialManagement: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Applications ({scholarship.applications})
-                      </Button>
-                      <Button variant="outline" size="sm">
-                        <Edit2 className="h-4 w-4 mr-1" />
-                        Edit Details
-                      </Button>
-                      <Button size="sm">
-                        <Plus className="h-4 w-4 mr-1" />
-                        Award Scholarship
-                      </Button>
-                    </div>
+                     <div className="flex space-x-2">
+                       <Button variant="outline" size="sm" onClick={() => handleViewApplications(scholarship.id)}>
+                         <Eye className="h-4 w-4 mr-1" />
+                         View Applications ({scholarship.applications})
+                       </Button>
+                       <Button variant="outline" size="sm" onClick={() => handleEditScholarship(scholarship)}>
+                         <Edit2 className="h-4 w-4 mr-1" />
+                         Edit Details
+                       </Button>
+                       <Button size="sm">
+                         <Plus className="h-4 w-4 mr-1" />
+                         Award Scholarship
+                       </Button>
+                     </div>
                   </div>
                 ))}
               </div>
@@ -572,6 +655,42 @@ const FinancialManagement: React.FC = () => {
         </TabsContent>
 
       </Tabs>
+
+      {/* Modals */}
+      <ProgramFeeModal
+        isOpen={programFeeModal.isOpen}
+        onClose={() => setProgramFeeModal({ isOpen: false, mode: 'add', program: null })}
+        onSave={handleSaveProgramFee}
+        program={programFeeModal.program}
+        title={
+          programFeeModal.mode === 'add' 
+            ? "Add Program Fee" 
+            : programFeeModal.mode === 'edit'
+            ? "Edit Program Fee"
+            : "Configure Program"
+        }
+      />
+
+      <PaymentDetailModal
+        isOpen={paymentDetailModal.isOpen}
+        onClose={() => setPaymentDetailModal({ isOpen: false, payment: null })}
+        payment={paymentDetailModal.payment}
+        onSendInvoice={handleSendInvoice}
+        onSendReminder={handleSendReminder}
+        onEditPayment={handleEditPayment}
+      />
+
+      <ScholarshipModal
+        isOpen={scholarshipModal.isOpen}
+        onClose={() => setScholarshipModal({ isOpen: false, mode: 'add', scholarship: null })}
+        onSave={handleSaveScholarship}
+        scholarship={scholarshipModal.scholarship}
+        title={
+          scholarshipModal.mode === 'add' 
+            ? "Create Scholarship" 
+            : "Edit Scholarship"
+        }
+      />
     </div>
   );
 };

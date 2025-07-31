@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import StudentPortal from "./pages/StudentPortal";
+import { ScholarshipApplications } from "./pages/ScholarshipApplications";
 import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="/dashboard" element={<Navigate to="/manager" replace />} /> 
             <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} />} />
             <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
+            <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
             
             {/* Student Portal Routes */}
             <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />

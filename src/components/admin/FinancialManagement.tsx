@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -24,15 +25,14 @@ import { EnhancedProgramFeeModal } from "./modals/EnhancedProgramFeeModal";
 import { ProgramConfigurationModal } from "./modals/ProgramConfigurationModal";
 import { PaymentDetailModal } from "./modals/PaymentDetailModal";
 import { ScholarshipModal } from "./modals/ScholarshipModal";
-import { ScholarshipApplicationsModal } from "./modals/ScholarshipApplicationsModal";
 import { BulkPaymentActionModal } from "./modals/BulkPaymentActionModal";
 
 const FinancialManagement = () => {
+  const navigate = useNavigate();
   const [programFeeModalOpen, setProgramFeeModalOpen] = useState(false);
   const [programConfigModalOpen, setProgramConfigModalOpen] = useState(false);
   const [paymentDetailModalOpen, setPaymentDetailModalOpen] = useState(false);
   const [scholarshipModalOpen, setScholarshipModalOpen] = useState(false);
-  const [scholarshipAppsModalOpen, setScholarshipAppsModalOpen] = useState(false);
   const [bulkPaymentModalOpen, setBulkPaymentModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [selectedScholarship, setSelectedScholarship] = useState<any>(null);
@@ -261,8 +261,7 @@ const FinancialManagement = () => {
   };
 
   const handleViewApplications = (scholarship: any) => {
-    setSelectedScholarship(scholarship);
-    setScholarshipAppsModalOpen(true);
+    navigate(`/admin/scholarships/${scholarship.id}/applications`);
   };
 
   const handleEditScholarship = (scholarship: any) => {
@@ -271,8 +270,7 @@ const FinancialManagement = () => {
   };
 
   const handleAwardScholarship = (scholarship: any) => {
-    setSelectedScholarship(scholarship);
-    setScholarshipAppsModalOpen(true);
+    navigate(`/admin/scholarships/${scholarship.id}/applications`);
   };
 
   const handleProgramFeeSave = (data: any) => {
@@ -659,14 +657,6 @@ const FinancialManagement = () => {
         title={selectedScholarship ? "Edit Scholarship" : "Create Scholarship"}
       />
 
-      {/* Scholarship Applications Modal */}
-      {selectedScholarship && (
-        <ScholarshipApplicationsModal
-          isOpen={scholarshipAppsModalOpen}
-          onClose={() => setScholarshipAppsModalOpen(false)}
-          scholarship={selectedScholarship}
-        />
-      )}
 
       {/* Bulk Payment Action Modal */}
       <BulkPaymentActionModal

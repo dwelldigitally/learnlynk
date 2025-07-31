@@ -1,8 +1,12 @@
 import React, { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ProgramWizard from "./ProgramWizard";
+import { ProgramViewModal } from "./modals/ProgramViewModal";
+import { ProgramEditModal } from "./modals/ProgramEditModal";
+import { ProgramSettingsModal } from "./modals/ProgramSettingsModal";
 import { 
   Select,
   SelectContent,
@@ -25,7 +29,12 @@ import {
 import { Progress } from "@/components/ui/progress";
 
 const ProgramManagement: React.FC = () => {
+  const { toast } = useToast();
   const [showWizard, setShowWizard] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<any>(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const programs = [
     {
@@ -86,6 +95,30 @@ const ProgramManagement: React.FC = () => {
       ]
     }
   ];
+
+  const handleViewProgram = (program: any) => {
+    setSelectedProgram(program);
+    setViewModalOpen(true);
+  };
+
+  const handleEditProgram = (program: any) => {
+    setSelectedProgram(program);
+    setEditModalOpen(true);
+  };
+
+  const handleSettingsProgram = (program: any) => {
+    setSelectedProgram(program);
+    setSettingsModalOpen(true);
+  };
+
+  const handleSaveProgram = (updatedProgram: any) => {
+    console.log("Saving program:", updatedProgram);
+    toast({
+      title: "Program Updated",
+      description: `${updatedProgram.name} has been successfully updated.`,
+    });
+    // Here you would update the programs list in state or make an API call
+  };
 
 
   return (
@@ -148,15 +181,15 @@ const ProgramManagement: React.FC = () => {
               </div>
 
               <div className="flex space-x-2">
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProgram(program)}>
                   <Eye className="h-4 w-4 mr-1" />
                   View
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditProgram(program)}>
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => handleSettingsProgram(program)}>
                   <Settings className="h-4 w-4" />
                 </Button>
               </div>
@@ -279,8 +312,33 @@ const ProgramManagement: React.FC = () => {
         onOpenChange={setShowWizard}
         onSave={(program) => {
           console.log('Program created:', program);
-          // Add to programs list
+          toast({
+            title: "Program Created",
+            description: `${program.name} has been successfully created.`,
+          });
         }}
+      />
+
+      {/* View Program Modal */}
+      <ProgramViewModal
+        isOpen={viewModalOpen}
+        onClose={() => setViewModalOpen(false)}
+        program={selectedProgram}
+      />
+
+      {/* Edit Program Modal */}
+      <ProgramEditModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        program={selectedProgram}
+        onSave={handleSaveProgram}
+      />
+
+      {/* Settings Program Modal */}
+      <ProgramSettingsModal
+        isOpen={settingsModalOpen}
+        onClose={() => setSettingsModalOpen(false)}
+        program={selectedProgram}
       />
     </div>
   );

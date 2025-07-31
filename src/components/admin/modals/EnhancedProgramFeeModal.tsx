@@ -61,11 +61,28 @@ export const EnhancedProgramFeeModal = ({
   const form = useForm<ProgramFeeForm>({
     resolver: zodResolver(programFeeSchema),
     defaultValues: {
-      programName: program?.name || "",
-      domesticFees: program?.domesticFees || [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
-      internationalFees: program?.internationalFees || [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
+      programName: "",
+      domesticFees: [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
+      internationalFees: [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
     },
   });
+
+  // Reset form when program data changes
+  React.useEffect(() => {
+    if (isOpen && program) {
+      form.reset({
+        programName: program.name || "",
+        domesticFees: program.domesticFees || [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
+        internationalFees: program.internationalFees || [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
+      });
+    } else if (isOpen && !program) {
+      form.reset({
+        programName: "",
+        domesticFees: [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
+        internationalFees: [{ type: "Tuition Fee", amount: "", currency: "CAD", required: true }],
+      });
+    }
+  }, [isOpen, program, form]);
 
   const { fields: domesticFields, append: appendDomestic, remove: removeDomestic } = useFieldArray({
     control: form.control,

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -126,26 +126,27 @@ export const ComprehensiveProgramEditModal = ({
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold">
-              Edit Program: {program.name}
-            </DialogTitle>
-            <div className="flex items-center gap-2">
-              {hasChanges && (
-                <span className="text-sm text-amber-600 font-medium">
-                  Unsaved changes
-                </span>
-              )}
-              <Button 
-                onClick={handleSave} 
-                disabled={!hasChanges}
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <Save className="h-4 w-4" />
-                Save Changes
-              </Button>
-            </div>
+          <DialogTitle className="text-xl font-semibold">
+            Edit Program: {program.name}
+          </DialogTitle>
+          <DialogDescription>
+            Edit all aspects of the program including requirements, fees, and intake details.
+          </DialogDescription>
+          <div className="flex items-center gap-2 mt-2">
+            {hasChanges && (
+              <span className="text-sm text-amber-600 font-medium">
+                Unsaved changes
+              </span>
+            )}
+            <Button 
+              onClick={handleSave} 
+              disabled={!hasChanges}
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Save Changes
+            </Button>
           </div>
         </DialogHeader>
 

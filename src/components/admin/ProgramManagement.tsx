@@ -43,58 +43,102 @@ const ProgramManagement: React.FC = () => {
       id: "1",
       name: "Health Care Assistant",
       description: "Comprehensive healthcare training program preparing students for careers in healthcare support.",
+      shortDescription: "Healthcare training program",
+      marketingCopy: "",
+      images: [],
       duration: "10 months",
-      type: "Certificate",
-      campus: "Surrey Campus",
+      type: "certificate" as const,
+      campus: ["Surrey Campus"],
+      deliveryMethod: "in-person" as const,
       color: "#3B82F6",
-      status: "active",
+      status: "active" as const,
+      category: "Healthcare",
+      tags: ["healthcare", "support", "training"],
+      urlSlug: "health-care-assistant",
+      entryRequirements: [],
+      documentRequirements: [],
+      feeStructure: {
+        tuitionFee: 15500,
+        currency: "CAD" as const,
+        additionalFees: [],
+        paymentPlans: [],
+        scholarships: [],
+      },
+      customQuestions: [],
+      intakes: [
+        { 
+          id: "intake-1",
+          date: "2024-04-15", 
+          capacity: 70, 
+          enrolled: 65, 
+          status: "open" as const,
+          applicationDeadline: "2024-04-01",
+          notifications: []
+        },
+        { 
+          id: "intake-2",
+          date: "2024-07-15", 
+          capacity: 70, 
+          enrolled: 45, 
+          status: "open" as const,
+          applicationDeadline: "2024-07-01",
+          notifications: []
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: "admin",
+      // Legacy fields for display
       enrolled: 245,
       capacity: 280,
       tuitionFee: 15500,
       nextIntake: "2024-04-15",
-      intakes: [
-        { date: "2024-04-15", capacity: 70, enrolled: 65, status: "open" },
-        { date: "2024-07-15", capacity: 70, enrolled: 45, status: "open" },
-        { date: "2024-10-15", capacity: 70, enrolled: 12, status: "open" },
-        { date: "2025-01-15", capacity: 70, enrolled: 0, status: "planning" }
-      ]
     },
     {
       id: "2",
       name: "Early Childhood Education",
       description: "Develop skills needed to work with children in various educational settings.",
+      shortDescription: "Early childhood education",
+      marketingCopy: "",
+      images: [],
       duration: "12 months",
-      type: "Diploma",
-      campus: "Vancouver Campus",
+      type: "diploma" as const,
+      campus: ["Vancouver Campus"],
+      deliveryMethod: "in-person" as const,
       color: "#10B981",
-      status: "active",
+      status: "active" as const,
+      category: "Education",
+      tags: ["education", "children", "teaching"],
+      urlSlug: "early-childhood-education",
+      entryRequirements: [],
+      documentRequirements: [],
+      feeStructure: {
+        tuitionFee: 18500,
+        currency: "CAD" as const,
+        additionalFees: [],
+        paymentPlans: [],
+        scholarships: [],
+      },
+      customQuestions: [],
+      intakes: [
+        { 
+          id: "intake-3",
+          date: "2024-05-01", 
+          capacity: 45, 
+          enrolled: 42, 
+          status: "open" as const,
+          applicationDeadline: "2024-04-15",
+          notifications: []
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: "admin",
+      // Legacy fields for display
       enrolled: 156,
       capacity: 180,
       tuitionFee: 18500,
       nextIntake: "2024-05-01",
-      intakes: [
-        { date: "2024-05-01", capacity: 45, enrolled: 42, status: "open" },
-        { date: "2024-09-01", capacity: 45, enrolled: 23, status: "open" },
-        { date: "2025-01-01", capacity: 45, enrolled: 8, status: "open" }
-      ]
-    },
-    {
-      id: "3",
-      name: "Aviation Maintenance",
-      description: "Technical training for aircraft maintenance and aerospace industry careers.",
-      duration: "18 months",
-      type: "Diploma",
-      campus: "Richmond Campus",
-      color: "#8B5CF6",
-      status: "active",
-      enrolled: 89,
-      capacity: 120,
-      tuitionFee: 24500,
-      nextIntake: "2024-06-01",
-      intakes: [
-        { date: "2024-06-01", capacity: 30, enrolled: 28, status: "open" },
-        { date: "2024-10-01", capacity: 30, enrolled: 15, status: "open" }
-      ]
     }
   ];
 

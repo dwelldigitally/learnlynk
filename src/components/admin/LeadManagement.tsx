@@ -12,7 +12,12 @@ import { Lead, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import ModernDataTable from './ModernDataTable';
 import { LeadFormModal } from './LeadFormModal';
 import { LeadDetailModal } from './LeadDetailModal';
-import { Plus, Search, Filter, Download, UserPlus } from 'lucide-react';
+import { LeadCaptureForm } from './LeadCaptureForm';
+import { BulkLeadOperations } from './BulkLeadOperations';
+import { LeadRoutingRules } from './LeadRoutingRules';
+import { LeadScoringEngine } from './LeadScoringEngine';
+import { LeadAnalyticsDashboard } from './LeadAnalyticsDashboard';
+import { Plus, Search, Filter, Download, UserPlus, Settings, Target, BarChart, Upload } from 'lucide-react';
 
 export function LeadManagement() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -21,6 +26,8 @@ export function LeadManagement() {
   const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
   const [sourceFilter, setSourceFilter] = useState<LeadSource | 'all'>('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [selectedLeads, setSelectedLeads] = useState<Lead[]>([]);
+  const [activeTab, setActiveTab] = useState('overview');
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
   const [stats, setStats] = useState({
@@ -161,130 +168,173 @@ export function LeadManagement() {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">New Leads</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.new_leads}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Contacted</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.contacted}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Qualified</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">{stats.qualified}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Converted</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.converted}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Conversion Rate</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.conversion_rate.toFixed(1)}%</div>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Lead Management</h1>
+          <p className="text-muted-foreground">Comprehensive lead generation, routing, and conversion system</p>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Lead Management</CardTitle>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => setShowLeadForm(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Lead
-              </Button>
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {/* Filters */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="relative flex-1 max-w-sm">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search leads..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="new">New</SelectItem>
-                <SelectItem value="contacted">Contacted</SelectItem>
-                <SelectItem value="qualified">Qualified</SelectItem>
-                <SelectItem value="nurturing">Nurturing</SelectItem>
-                <SelectItem value="converted">Converted</SelectItem>
-                <SelectItem value="lost">Lost</SelectItem>
-                <SelectItem value="unqualified">Unqualified</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value as LeadSource | 'all')}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="All Sources" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Sources</SelectItem>
-                <SelectItem value="web">Web</SelectItem>
-                <SelectItem value="social_media">Social Media</SelectItem>
-                <SelectItem value="event">Event</SelectItem>
-                <SelectItem value="agent">Agent</SelectItem>
-                <SelectItem value="email">Email</SelectItem>
-                <SelectItem value="referral">Referral</SelectItem>
-                <SelectItem value="phone">Phone</SelectItem>
-                <SelectItem value="walk_in">Walk In</SelectItem>
-              </SelectContent>
-            </Select>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="capture">Lead Forms</TabsTrigger>
+          <TabsTrigger value="routing">Routing Rules</TabsTrigger>
+          <TabsTrigger value="scoring">Scoring Engine</TabsTrigger>
+          <TabsTrigger value="bulk">Bulk Operations</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.total}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">New Leads</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">{stats.new_leads}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Contacted</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-600">{stats.contacted}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Qualified</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-purple-600">{stats.qualified}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Converted</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{stats.converted}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Conversion Rate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.conversion_rate.toFixed(1)}%</div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Data Table */}
-          <ModernDataTable
-            title="Leads"
-            columns={columns}
-            data={tableData}
-            searchable={false}
-            exportable={true}
+          {/* Main Content */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Lead Management</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button onClick={() => setShowLeadForm(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Lead
+                  </Button>
+                  <Button variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Filters */}
+              <div className="flex items-center gap-4 mb-6">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    placeholder="Search leads..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="new">New</SelectItem>
+                    <SelectItem value="contacted">Contacted</SelectItem>
+                    <SelectItem value="qualified">Qualified</SelectItem>
+                    <SelectItem value="nurturing">Nurturing</SelectItem>
+                    <SelectItem value="converted">Converted</SelectItem>
+                    <SelectItem value="lost">Lost</SelectItem>
+                    <SelectItem value="unqualified">Unqualified</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value as LeadSource | 'all')}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="All Sources" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    <SelectItem value="web">Web</SelectItem>
+                    <SelectItem value="social_media">Social Media</SelectItem>
+                    <SelectItem value="event">Event</SelectItem>
+                    <SelectItem value="agent">Agent</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="referral">Referral</SelectItem>
+                    <SelectItem value="phone">Phone</SelectItem>
+                    <SelectItem value="walk_in">Walk In</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Data Table */}
+              <ModernDataTable
+                title="Leads"
+                columns={columns}
+                data={tableData}
+                searchable={false}
+                exportable={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="capture">
+          <LeadCaptureForm onLeadCreated={loadLeads} />
+        </TabsContent>
+
+        <TabsContent value="routing">
+          <LeadRoutingRules onRuleCreated={loadLeads} />
+        </TabsContent>
+
+        <TabsContent value="scoring">
+          <LeadScoringEngine />
+        </TabsContent>
+
+        <TabsContent value="bulk">
+          <BulkLeadOperations 
+            selectedLeads={selectedLeads} 
+            onOperationComplete={loadLeads} 
           />
-        </CardContent>
-      </Card>
+        </TabsContent>
+
+        <TabsContent value="analytics">
+          <LeadAnalyticsDashboard />
+        </TabsContent>
+      </Tabs>
 
       {/* Modals */}
       <LeadFormModal

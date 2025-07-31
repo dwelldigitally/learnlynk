@@ -13,6 +13,8 @@ import FinancialManagement from "@/components/admin/FinancialManagement";
 import TeamManagement from "@/components/admin/TeamManagement";
 import AnalyticsReporting from "@/components/admin/AnalyticsReporting";
 import SystemConfiguration from "@/components/admin/SystemConfiguration";
+import ProfilePage from "@/components/admin/ProfilePage";
+import CompanyPage from "@/components/admin/CompanyPage";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -46,6 +48,10 @@ const AdminDashboard: React.FC = () => {
         return <AnalyticsReporting />;
       case "/admin/settings":
         return <SystemConfiguration />;
+      case "/admin/profile":
+        return <ProfilePage />;
+      case "/admin/company":
+        return <CompanyPage />;
       default:
         return <AdminOverview />;
     }

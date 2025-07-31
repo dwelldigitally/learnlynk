@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      company_profile: {
+        Row: {
+          address: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          employee_count: number | null
+          founded_year: number | null
+          id: string
+          logo_url: string | null
+          mission: string | null
+          name: string
+          phone: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          state: string | null
+          timezone: string | null
+          updated_at: string
+          values: string | null
+          vision: string | null
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          employee_count?: number | null
+          founded_year?: number | null
+          id?: string
+          logo_url?: string | null
+          mission?: string | null
+          name: string
+          phone?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          state?: string | null
+          timezone?: string | null
+          updated_at?: string
+          values?: string | null
+          vision?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          employee_count?: number | null
+          founded_year?: number | null
+          id?: string
+          logo_url?: string | null
+          mission?: string | null
+          name?: string
+          phone?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          state?: string | null
+          timezone?: string | null
+          updated_at?: string
+          values?: string | null
+          vision?: string | null
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
       custom_stages: {
         Row: {
           created_at: string | null
@@ -41,6 +116,69 @@ export type Database = {
           name?: string
           order_index?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          department: string | null
+          email: string | null
+          first_name: string | null
+          id: string
+          language: string | null
+          last_name: string | null
+          notification_email: boolean | null
+          notification_in_app: boolean | null
+          notification_sms: boolean | null
+          phone: string | null
+          theme_preference: string | null
+          timezone: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          notification_email?: boolean | null
+          notification_in_app?: boolean | null
+          notification_sms?: boolean | null
+          phone?: string | null
+          theme_preference?: string | null
+          timezone?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          department?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          language?: string | null
+          last_name?: string | null
+          notification_email?: boolean | null
+          notification_in_app?: boolean | null
+          notification_sms?: boolean | null
+          phone?: string | null
+          theme_preference?: string | null
+          timezone?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

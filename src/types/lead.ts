@@ -87,8 +87,8 @@ export interface LeadRoutingRule {
   is_active: boolean;
   conditions: Record<string, any>;
   assignment_config: Record<string, any>;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AdvisorPerformance {

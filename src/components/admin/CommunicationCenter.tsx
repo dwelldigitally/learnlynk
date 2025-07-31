@@ -655,6 +655,7 @@ const CommunicationCenter: React.FC = () => {
         isOpen={showComposeModal}
         onClose={() => setShowComposeModal(false)}
         message={null}
+        mode="compose"
       />
     </div>
   );

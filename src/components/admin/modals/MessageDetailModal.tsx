@@ -217,6 +217,14 @@ export const MessageDetailModal: React.FC<MessageDetailModalProps> = ({
   };
 
   const handleTemplateSelect = (templateId: string) => {
+    if (templateId === "none") {
+      // Clear template selection
+      setComposeSubject("");
+      setComposeMessage("");
+      setSelectedTemplate("");
+      return;
+    }
+    
     const template = messageTemplates.find(t => t.id === templateId);
     if (template) {
       setComposeSubject(template.subject);
@@ -451,7 +459,7 @@ export const MessageDetailModal: React.FC<MessageDetailModalProps> = ({
                         <SelectValue placeholder="Select a template" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No template</SelectItem>
+                        <SelectItem value="none">No template</SelectItem>
                         {messageTemplates.map((template) => (
                           <SelectItem key={template.id} value={template.id}>
                             {template.name} ({template.category})

@@ -29,15 +29,24 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  User
+  User,
+  X,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 
 const StudentManagement: React.FC = () => {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [filterStage, setFilterStage] = useState("all");
   const [filterProgram, setFilterProgram] = useState("all");
+  const [filterIntake, setFilterIntake] = useState("all");
+  const [filterCampus, setFilterCampus] = useState("all");
+  const [filterStudentType, setFilterStudentType] = useState("all");
+  const [filterRiskLevel, setFilterRiskLevel] = useState("all");
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
   const students = [
     {
@@ -51,7 +60,11 @@ const StudentManagement: React.FC = () => {
       advisor: "Nicole Adams",
       submissionDate: "2024-01-15",
       riskLevel: "low",
-      lastActivity: "2 hours ago"
+      lastActivity: "2 hours ago",
+      intake: "Spring 2024",
+      campus: "Downtown Campus",
+      studentType: "International",
+      country: "India"
     },
     {
       id: "2",
@@ -64,7 +77,11 @@ const StudentManagement: React.FC = () => {
       advisor: "Nicole Adams",
       submissionDate: "2024-01-10",
       riskLevel: "low",
-      lastActivity: "1 day ago"
+      lastActivity: "1 day ago",
+      intake: "Fall 2024",
+      campus: "North Campus",
+      studentType: "International",
+      country: "China"
     },
     {
       id: "3",
@@ -77,7 +94,11 @@ const StudentManagement: React.FC = () => {
       advisor: "Robert Smith",
       submissionDate: "2024-01-20",
       riskLevel: "high",
-      lastActivity: "7 days ago"
+      lastActivity: "7 days ago",
+      intake: "Summer 2024",
+      campus: "Technical Campus",
+      studentType: "Domestic",
+      country: "Canada"
     },
     {
       id: "4",
@@ -90,7 +111,45 @@ const StudentManagement: React.FC = () => {
       advisor: "Sarah Kim",
       submissionDate: "2024-01-05",
       riskLevel: "low",
-      lastActivity: "Active"
+      lastActivity: "Active",
+      intake: "Spring 2024",
+      campus: "Downtown Campus",
+      studentType: "Domestic",
+      country: "Canada"
+    },
+    {
+      id: "5",
+      name: "Maria Rodriguez",
+      email: "maria.rodriguez@email.com",
+      program: "Health Care Assistant",
+      stage: "LEAD_FORM",
+      progress: 25,
+      leadScore: 45,
+      advisor: "Nicole Adams",
+      submissionDate: "2024-01-25",
+      riskLevel: "medium",
+      lastActivity: "3 days ago",
+      intake: "Fall 2024",
+      campus: "Downtown Campus",
+      studentType: "International",
+      country: "Mexico"
+    },
+    {
+      id: "6",
+      name: "David Thompson",
+      email: "david.thompson@email.com",
+      program: "Aviation Maintenance",
+      stage: "DOCUMENT_APPROVAL",
+      progress: 80,
+      leadScore: 88,
+      advisor: "Robert Smith",
+      submissionDate: "2024-01-12",
+      riskLevel: "low",
+      lastActivity: "1 hour ago",
+      intake: "Summer 2024",
+      campus: "Technical Campus",
+      studentType: "Domestic",
+      country: "Canada"
     }
   ];
 
@@ -114,9 +173,49 @@ const StudentManagement: React.FC = () => {
     }
   };
 
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setFilterStage("all");
+    setFilterProgram("all");
+    setFilterIntake("all");
+    setFilterCampus("all");
+    setFilterStudentType("all");
+    setFilterRiskLevel("all");
+  };
+
+  const activeFiltersCount = [
+    filterStage !== "all",
+    filterProgram !== "all",
+    filterIntake !== "all",
+    filterCampus !== "all",
+    filterStudentType !== "all",
+    filterRiskLevel !== "all",
+    searchTerm !== ""
+  ].filter(Boolean).length;
+
   const filteredStudents = students.filter(student => {
+    // Search filter
+    if (searchTerm && !student.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !student.email.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+    
+    // Stage filter
     if (filterStage !== "all" && student.stage !== filterStage) return false;
+    
+    // Program filter
     if (filterProgram !== "all" && student.program !== filterProgram) return false;
+    
+    // Intake filter
+    if (filterIntake !== "all" && student.intake !== filterIntake) return false;
+    
+    // Campus filter
+    if (filterCampus !== "all" && student.campus !== filterCampus) return false;
+    
+    // Student type filter
+    if (filterStudentType !== "all" && student.studentType !== filterStudentType) return false;
+    
+    // Risk level filter
+    if (filterRiskLevel !== "all" && student.riskLevel !== filterRiskLevel) return false;
+    
     return true;
   });
 
@@ -174,14 +273,21 @@ const StudentManagement: React.FC = () => {
         <TabsContent value="all-students" className="space-y-4">
           {/* Filters */}
           <Card>
-            <CardContent className="p-4">
+            <CardContent className="p-4 space-y-4">
+              {/* Primary Filters Row */}
               <div className="flex flex-wrap gap-4 items-center">
                 <div className="flex-1 min-w-[200px]">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search students..." className="pl-10" />
+                    <Input 
+                      placeholder="Search students..." 
+                      className="pl-10" 
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                   </div>
                 </div>
+                
                 <Select value={filterStage} onValueChange={setFilterStage}>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Filter by stage" />
@@ -195,6 +301,7 @@ const StudentManagement: React.FC = () => {
                     <SelectItem value="ACCEPTED">Accepted</SelectItem>
                   </SelectContent>
                 </Select>
+                
                 <Select value={filterProgram} onValueChange={setFilterProgram}>
                   <SelectTrigger className="w-[200px]">
                     <SelectValue placeholder="Filter by program" />
@@ -207,11 +314,91 @@ const StudentManagement: React.FC = () => {
                     <SelectItem value="Education Assistant">Education Assistant</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline">
+                
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="relative"
+                >
                   <Filter className="h-4 w-4 mr-2" />
-                  More Filters
+                  Advanced Filters
+                  {showAdvancedFilters ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
+                  {activeFiltersCount > 0 && (
+                    <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
+                      {activeFiltersCount}
+                    </Badge>
+                  )}
                 </Button>
               </div>
+
+              {/* Advanced Filters Section */}
+              {showAdvancedFilters && (
+                <div className="border-t pt-4 space-y-4">
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <Select value={filterIntake} onValueChange={setFilterIntake}>
+                      <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Intake" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Intakes</SelectItem>
+                        <SelectItem value="Spring 2024">Spring 2024</SelectItem>
+                        <SelectItem value="Summer 2024">Summer 2024</SelectItem>
+                        <SelectItem value="Fall 2024">Fall 2024</SelectItem>
+                        <SelectItem value="Winter 2025">Winter 2025</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={filterCampus} onValueChange={setFilterCampus}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Campus" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Campuses</SelectItem>
+                        <SelectItem value="Downtown Campus">Downtown Campus</SelectItem>
+                        <SelectItem value="North Campus">North Campus</SelectItem>
+                        <SelectItem value="Technical Campus">Technical Campus</SelectItem>
+                        <SelectItem value="Online Campus">Online Campus</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={filterStudentType} onValueChange={setFilterStudentType}>
+                      <SelectTrigger className="w-[160px]">
+                        <SelectValue placeholder="Student Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Students</SelectItem>
+                        <SelectItem value="Domestic">Domestic</SelectItem>
+                        <SelectItem value="International">International</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={filterRiskLevel} onValueChange={setFilterRiskLevel}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue placeholder="Risk Level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Risk Levels</SelectItem>
+                        <SelectItem value="low">Low Risk</SelectItem>
+                        <SelectItem value="medium">Medium Risk</SelectItem>
+                        <SelectItem value="high">High Risk</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Clear Filters */}
+                  {activeFiltersCount > 0 && (
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <p className="text-sm text-muted-foreground">
+                        {activeFiltersCount} filter{activeFiltersCount > 1 ? 's' : ''} applied
+                      </p>
+                      <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+                        <X className="h-4 w-4 mr-2" />
+                        Clear All Filters
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -227,11 +414,12 @@ const StudentManagement: React.FC = () => {
                     <TableHead className="w-12"></TableHead>
                     <TableHead>Student</TableHead>
                     <TableHead>Program</TableHead>
+                    <TableHead>Intake</TableHead>
+                    <TableHead>Campus</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Stage</TableHead>
                     <TableHead>Progress</TableHead>
                     <TableHead>Lead Score</TableHead>
-                    <TableHead>Advisor</TableHead>
-                    <TableHead>Last Activity</TableHead>
                     <TableHead>Risk</TableHead>
                     <TableHead className="w-24">Actions</TableHead>
                   </TableRow>
@@ -271,6 +459,19 @@ const StudentManagement: React.FC = () => {
                       </TableCell>
                       <TableCell>{student.program}</TableCell>
                       <TableCell>
+                        <Badge variant="outline" className="text-xs">
+                          {student.intake}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {student.campus}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={student.studentType === 'International' ? 'secondary' : 'default'} className="text-xs">
+                          {student.studentType}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
                         <Badge variant={getStageColor(student.stage)}>
                           {student.stage.replace('_', ' ')}
                         </Badge>
@@ -289,10 +490,6 @@ const StudentManagement: React.FC = () => {
                             student.leadScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
                           }`}></div>
                         </div>
-                      </TableCell>
-                      <TableCell>{student.advisor}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {student.lastActivity}
                       </TableCell>
                       <TableCell>
                         <div className={`flex items-center space-x-1 ${getRiskColor(student.riskLevel)}`}>

@@ -184,7 +184,7 @@
 }
 
 .progress-dot.active {
-  @apply bg-saas-blue;
+  @apply bg-primary;
 }
 
 .animate-fade-in {

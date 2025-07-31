@@ -14,7 +14,8 @@ import {
   Home,
   Menu,
   Bell,
-  Search
+  Search,
+  Workflow
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +30,7 @@ const navigation = [
   { name: "Dashboard", href: "/admin", icon: Home },
   { name: "Students", href: "/admin/students", icon: Users },
   { name: "Programs", href: "/admin/programs", icon: GraduationCap },
+  { name: "Workflows", href: "/admin/workflows", icon: Workflow },
   { name: "Documents", href: "/admin/documents", icon: FileText },
   { name: "Events", href: "/admin/events", icon: Calendar },
   { name: "Communications", href: "/admin/communications", icon: MessageSquare },

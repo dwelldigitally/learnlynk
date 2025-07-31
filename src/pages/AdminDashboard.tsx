@@ -5,6 +5,7 @@ import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
 import StudentDetail from "@/components/admin/StudentDetail";
 import ProgramManagement from "@/components/admin/ProgramManagement";
+import WorkflowManagement from "@/components/admin/WorkflowManagement";
 import EnhancedDocumentManagement from "@/components/admin/EnhancedDocumentManagement";
 import EventManagement from "@/components/admin/EventManagement";
 import CommunicationCenter from "@/components/admin/CommunicationCenter";
@@ -29,6 +30,8 @@ const AdminDashboard: React.FC = () => {
         return <StudentManagement />;
       case "/admin/programs":
         return <ProgramManagement />;
+      case "/admin/workflows":
+        return <WorkflowManagement />;
       case "/admin/documents":
         return <EnhancedDocumentManagement />;
       case "/admin/events":

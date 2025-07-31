@@ -37,8 +37,6 @@ const navigation = [
   { name: 'Team', href: '/admin/team', icon: UserCheck, count: null },
   { name: 'Workflows', href: '/admin/workflows', icon: GitBranch, count: null },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, count: null },
-  { name: 'Company', href: '/admin/company', icon: Building2, count: null },
-  { name: 'Profile', href: '/admin/profile', icon: User, count: null },
   { name: 'Settings', href: '/admin/settings', icon: Settings, count: null },
 ];
 

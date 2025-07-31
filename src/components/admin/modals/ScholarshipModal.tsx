@@ -47,8 +47,8 @@ export const ScholarshipModal = ({ isOpen, onClose, onSave, scholarship, title }
     defaultValues: {
       name: scholarship?.name || "",
       description: scholarship?.description || "",
-      amount: scholarship?.amount?.replace('$', '') || "",
-      totalBudget: scholarship?.totalBudget?.replace('$', '') || "",
+      amount: typeof scholarship?.amount === 'string' ? scholarship.amount.replace('$', '') : scholarship?.amount?.toString() || "",
+      totalBudget: typeof scholarship?.totalBudget === 'string' ? scholarship.totalBudget.replace('$', '') : scholarship?.totalBudget?.toString() || "",
       deadline: scholarship?.deadline || "",
       eligibilityCriteria: scholarship?.eligibilityCriteria || "",
       programs: scholarship?.programs || [],

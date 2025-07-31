@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Outlet, useLocation, NavLink } from 'react-router-dom';
+import { Outlet, useLocation, NavLink, useNavigate } from 'react-router-dom';
 import { 
   Users, 
   GraduationCap, 
@@ -48,6 +48,11 @@ const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleProfileClick = () => {
+    navigate('/admin/profile');
+  };
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -132,7 +137,10 @@ const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
 
           {/* User Profile */}
           <div className="border-t border-border p-4">
-            <div className="flex items-center gap-3">
+            <div 
+              className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+              onClick={handleProfileClick}
+            >
               <Avatar className="h-8 w-8">
                 <AvatarImage src="/placeholder-avatar.jpg" />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
@@ -189,7 +197,10 @@ const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
                 </Badge>
               </Button>
               
-              <Avatar className="h-8 w-8 cursor-pointer">
+              <Avatar 
+                className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all"
+                onClick={handleProfileClick}
+              >
                 <AvatarImage src="/placeholder-avatar.jpg" />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
                   AD

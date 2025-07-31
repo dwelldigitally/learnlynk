@@ -48,6 +48,8 @@ const AdminDashboard: React.FC = () => {
         return <AnalyticsReporting />;
       case "/admin/settings":
         return <SystemConfiguration />;
+      case "/admin/profile":
+        return <ProfilePage />;
       default:
         return <AdminOverview />;
     }

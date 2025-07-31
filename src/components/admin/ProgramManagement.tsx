@@ -7,6 +7,7 @@ import ProgramWizard from "./ProgramWizard";
 import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
 import { ProgramSettingsModal } from "./modals/ProgramSettingsModal";
+import { ComprehensiveProgramEditModal } from "./modals/ComprehensiveProgramEditModal";
 import { 
   Select,
   SelectContent,
@@ -34,6 +35,7 @@ const ProgramManagement: React.FC = () => {
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [comprehensiveEditModalOpen, setComprehensiveEditModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   const programs = [
@@ -111,6 +113,11 @@ const ProgramManagement: React.FC = () => {
     setSettingsModalOpen(true);
   };
 
+  const handleComprehensiveEditProgram = (program: any) => {
+    setSelectedProgram(program);
+    setComprehensiveEditModalOpen(true);
+  };
+
   const handleSaveProgram = (updatedProgram: any) => {
     console.log("Saving program:", updatedProgram);
     toast({
@@ -185,7 +192,7 @@ const ProgramManagement: React.FC = () => {
                   <Eye className="h-4 w-4 mr-1" />
                   View
                 </Button>
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleEditProgram(program)}>
+                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleComprehensiveEditProgram(program)}>
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
                 </Button>
@@ -330,6 +337,14 @@ const ProgramManagement: React.FC = () => {
       <ProgramEditModal
         isOpen={editModalOpen}
         onClose={() => setEditModalOpen(false)}
+        program={selectedProgram}
+        onSave={handleSaveProgram}
+      />
+
+      {/* Comprehensive Edit Program Modal */}
+      <ComprehensiveProgramEditModal
+        isOpen={comprehensiveEditModalOpen}
+        onClose={() => setComprehensiveEditModalOpen(false)}
         program={selectedProgram}
         onSave={handleSaveProgram}
       />

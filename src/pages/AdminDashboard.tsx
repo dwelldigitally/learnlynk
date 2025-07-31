@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
-import AdminLayout from "@/components/admin/AdminLayout";
+import ModernAdminLayout from "@/components/admin/ModernAdminLayout";
 import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
 import StudentDetail from "@/components/admin/StudentDetail";
@@ -52,9 +52,9 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <AdminLayout>
+    <ModernAdminLayout>
       {renderContent()}
-    </AdminLayout>
+    </ModernAdminLayout>
   );
 };
 

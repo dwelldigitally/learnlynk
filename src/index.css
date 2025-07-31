@@ -1,82 +1,128 @@
 
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700;800;900&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
  
 @layer base {
   :root {
-    --background: 210 50% 98%;
-    --foreground: 222.2 84% 4.9%;
+    /* Modern Apple-inspired color system */
+    --background: 0 0% 99%;
+    --foreground: 220 14% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 14% 15%;
  
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 14% 15%;
  
-    --primary: 210 100% 50%;
-    --primary-foreground: 210 40% 98%;
- 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
- 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
- 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
- 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
- 
-    --radius: 0.5rem;
+    /* Primary - Modern blue like Apple's system blue */
+    --primary: 214 100% 54%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 214 100% 49%;
+    --primary-light: 214 100% 97%;
     
-    /* SaaS specific colors */
-    --saas-blue: 210 100% 50%;
-    --saas-light-blue: 210 100% 95%;
-    --saas-dark-blue: 210 100% 25%;
-    --saas-green: 142 71% 45%;
-    --saas-red: 0 84% 60%;
-    --saas-yellow: 38 92% 50%;
-    --saas-purple: 270 60% 60%;
-    --saas-gray-light: 210 40% 98%;
-    --saas-gray-medium: 215 16% 46%;
-    --saas-gray-dark: 215 28% 17%;
-    --hubspot-orange: 15 100% 42%;
+    /* Secondary - Soft neutral */
+    --secondary: 220 9% 96%;
+    --secondary-foreground: 220 14% 25%;
+    --secondary-hover: 220 9% 93%;
+ 
+    /* Muted colors */
+    --muted: 220 9% 96%;
+    --muted-foreground: 220 9% 55%;
+ 
+    /* Accent - Modern green */
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 142 76% 97%;
+ 
+    /* Status colors */
+    --success: 142 76% 36%;
+    --warning: 35 91% 65%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders and inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 214 100% 54%;
+ 
+    /* Spacing */
+    --radius: 0.75rem;
+    --radius-sm: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    
+    /* Shadows - Apple-style */
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
+    --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+    
+    /* Sidebar */
+    --sidebar-background: 0 0% 98.5%;
+    --sidebar-foreground: 220 14% 25%;
+    --sidebar-primary: 214 100% 54%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 9% 96%;
+    --sidebar-accent-foreground: 220 14% 25%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 214 100% 54%;
   }
  
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    /* Dark mode - Apple-inspired */
+    --background: 220 27% 8%;
+    --foreground: 220 9% 90%;
  
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 27% 10%;
+    --card-foreground: 220 9% 90%;
  
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 27% 10%;
+    --popover-foreground: 220 9% 90%;
  
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 214 100% 64%;
+    --primary-foreground: 220 27% 8%;
+    --primary-hover: 214 100% 59%;
  
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 27% 16%;
+    --secondary-foreground: 220 9% 80%;
+    --secondary-hover: 220 27% 20%;
  
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 27% 16%;
+    --muted-foreground: 220 9% 65%;
  
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 142 76% 46%;
+    --accent-foreground: 220 27% 8%;
  
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 65%;
+    --destructive-foreground: 220 27% 8%;
  
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 220 27% 20%;
+    --input: 220 27% 20%;
+    --ring: 214 100% 64%;
+    
+    /* Dark mode shadows */
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    
+    /* Dark sidebar */
+    --sidebar-background: 220 27% 9%;
+    --sidebar-foreground: 220 9% 80%;
+    --sidebar-primary: 214 100% 64%;
+    --sidebar-primary-foreground: 220 27% 8%;
+    --sidebar-accent: 220 27% 16%;
+    --sidebar-accent-foreground: 220 9% 80%;
+    --sidebar-border: 220 27% 20%;
+    --sidebar-ring: 214 100% 64%;
   }
 }
  
@@ -86,7 +132,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Apple-style focus states */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+  
+  /* Smooth transitions */
+  * {
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
 }
 

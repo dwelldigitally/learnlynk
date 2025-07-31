@@ -19,6 +19,10 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				inter: ['Inter', 'sans-serif'],
+				sf: ['SF Pro Display', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -27,11 +31,14 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))'
+					foreground: 'hsl(var(--primary-foreground))',
+					hover: 'hsl(var(--primary-hover))',
+					light: 'hsl(var(--primary-light))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
-					foreground: 'hsl(var(--secondary-foreground))'
+					foreground: 'hsl(var(--secondary-foreground))',
+					hover: 'hsl(var(--secondary-hover))'
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
@@ -43,7 +50,8 @@ export default {
 				},
 				accent: {
 					DEFAULT: 'hsl(var(--accent))',
-					foreground: 'hsl(var(--accent-foreground))'
+					foreground: 'hsl(var(--accent-foreground))',
+					light: 'hsl(var(--accent-light))'
 				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
@@ -53,19 +61,8 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				saas: {
-					blue: '#0080FF',
-					'light-blue': '#F0F6FF',
-					'dark-blue': '#0052A3',
-					green: '#00CD81',
-					red: '#FF4D4D',
-					yellow: '#FFD700',
-					gray: {
-						light: '#F5F7FA',
-						medium: '#8A90A5',
-						dark: '#4A4E5C'
-					}
-				},
+				success: 'hsl(var(--success))',
+				warning: 'hsl(var(--warning))',
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -78,9 +75,20 @@ export default {
 				}
 			},
 			borderRadius: {
-				lg: 'var(--radius)',
-				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				lg: 'var(--radius-lg)',
+				md: 'var(--radius)',
+				sm: 'var(--radius-sm)',
+				xl: 'var(--radius-xl)'
+			},
+			boxShadow: {
+				soft: 'var(--shadow-soft)',
+				medium: 'var(--shadow-medium)',
+				large: 'var(--shadow-large)',
+				elevated: 'var(--shadow-elevated)'
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-subtle': 'var(--gradient-subtle)'
 			},
 			keyframes: {
 				'accordion-down': {

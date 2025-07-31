@@ -54,6 +54,7 @@ const CommunicationCenter: React.FC = () => {
   const [automationBuilderOpen, setAutomationBuilderOpen] = useState(false);
   const [templateManagementOpen, setTemplateManagementOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showComposeModal, setShowComposeModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
@@ -200,7 +201,7 @@ const CommunicationCenter: React.FC = () => {
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
-          <Button>
+          <Button onClick={() => setShowComposeModal(true)}>
             <Send className="h-4 w-4 mr-2" />
             Send Message
           </Button>
@@ -648,6 +649,12 @@ const CommunicationCenter: React.FC = () => {
       <CommunicationSettingsModal
         isOpen={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+      
+      <MessageDetailModal 
+        isOpen={showComposeModal}
+        onClose={() => setShowComposeModal(false)}
+        message={null}
       />
     </div>
   );

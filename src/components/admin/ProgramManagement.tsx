@@ -55,8 +55,49 @@ const ProgramManagement: React.FC = () => {
       category: "Healthcare",
       tags: ["healthcare", "support", "training"],
       urlSlug: "health-care-assistant",
-      entryRequirements: [],
-      documentRequirements: [],
+      entryRequirements: [
+        {
+          id: "req-1",
+          type: "academic",
+          title: "High School Diploma",
+          description: "Grade 12 graduation or equivalent",
+          mandatory: true,
+          minimumGrade: "C+",
+          details: "Must include English 12 and Biology 11 or 12"
+        },
+        {
+          id: "req-2", 
+          type: "health",
+          title: "Medical Clearance",
+          description: "Current immunizations and health screening",
+          mandatory: true,
+          details: "Required for clinical placements"
+        }
+      ],
+      documentRequirements: [
+        {
+          id: "doc-1",
+          name: "Official Transcripts",
+          description: "High school and post-secondary transcripts",
+          mandatory: true,
+          acceptedFormats: ["PDF", "JPG", "PNG"],
+          maxSize: 5,
+          stage: "Application",
+          order: 1,
+          instructions: "Submit official transcripts from all institutions attended"
+        },
+        {
+          id: "doc-2",
+          name: "Immunization Records", 
+          description: "Proof of required vaccinations",
+          mandatory: true,
+          acceptedFormats: ["PDF", "JPG"],
+          maxSize: 3,
+          stage: "Pre-enrollment",
+          order: 2,
+          instructions: "Must include MMR, Hepatitis B, and TB screening"
+        }
+      ],
       feeStructure: {
         tuitionFee: 15500,
         currency: "CAD" as const,
@@ -110,8 +151,49 @@ const ProgramManagement: React.FC = () => {
       category: "Education",
       tags: ["education", "children", "teaching"],
       urlSlug: "early-childhood-education",
-      entryRequirements: [],
-      documentRequirements: [],
+      entryRequirements: [
+        {
+          id: "req-3",
+          type: "academic",
+          title: "High School Diploma",
+          description: "Grade 12 graduation or equivalent",
+          mandatory: true,
+          minimumGrade: "B",
+          details: "Must include English 12 and Psychology or Child Development course"
+        },
+        {
+          id: "req-4",
+          type: "experience", 
+          title: "Volunteer Experience",
+          description: "20 hours of volunteer work with children",
+          mandatory: false,
+          details: "Recommended but not required for admission"
+        }
+      ],
+      documentRequirements: [
+        {
+          id: "doc-3",
+          name: "Official Transcripts",
+          description: "High school transcripts showing completion",
+          mandatory: true,
+          acceptedFormats: ["PDF", "JPG", "PNG"],
+          maxSize: 5,
+          stage: "Application",
+          order: 1,
+          instructions: "Submit official high school transcripts"
+        },
+        {
+          id: "doc-4",
+          name: "Criminal Record Check",
+          description: "Clear criminal background check",
+          mandatory: true,
+          acceptedFormats: ["PDF"],
+          maxSize: 2,
+          stage: "Pre-enrollment", 
+          order: 2,
+          instructions: "Must be completed within 6 months of program start"
+        }
+      ],
       feeStructure: {
         tuitionFee: 18500,
         currency: "CAD" as const,
@@ -169,6 +251,20 @@ const ProgramManagement: React.FC = () => {
       description: `${updatedProgram.name} has been successfully updated.`,
     });
     // Here you would update the programs list in state or make an API call
+  };
+
+  const handleAddIntake = () => {
+    toast({
+      title: "Add Intake",
+      description: "Intake creation functionality will be implemented here.",
+    });
+  };
+
+  const handleEditIntake = (programId: string, intakeId: string) => {
+    toast({
+      title: "Edit Intake", 
+      description: `Editing intake ${intakeId} for program ${programId}`,
+    });
   };
 
 
@@ -263,7 +359,7 @@ const ProgramManagement: React.FC = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Intake Management</CardTitle>
-                <Button>
+                <Button onClick={() => handleAddIntake()}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Intake
                 </Button>
@@ -306,10 +402,20 @@ const ProgramManagement: React.FC = () => {
                               />
                             </div>
                             <div className="flex space-x-1">
-                              <Button variant="outline" size="sm" className="flex-1">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1"
+                                onClick={() => handleEditIntake(program.id, `intake-${index}`)}
+                              >
                                 <Edit className="h-3 w-3" />
                               </Button>
-                              <Button variant="outline" size="sm" className="flex-1">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="flex-1"
+                                onClick={() => toast({ title: "Calendar", description: "Calendar view coming soon" })}
+                              >
                                 <Calendar className="h-3 w-3" />
                               </Button>
                             </div>

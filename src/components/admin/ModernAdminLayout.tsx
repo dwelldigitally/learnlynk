@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 
 const navigation = [
   { name: 'Overview', href: '/admin', icon: BarChart3, count: null },
+  { name: 'Leads', href: '/admin/leads', icon: Users, count: null },
   { name: 'Students', href: '/admin/students', icon: Users, count: 24 },
   { name: 'Programs', href: '/admin/programs', icon: GraduationCap, count: null },
   { name: 'Events', href: '/admin/events', icon: Calendar, count: 3 },

@@ -14,6 +14,65 @@ export type Database = {
   }
   public: {
     Tables: {
+      advisor_performance: {
+        Row: {
+          advisor_id: string
+          conversion_rate: number | null
+          created_at: string
+          id: string
+          is_available: boolean | null
+          leads_assigned: number | null
+          leads_contacted: number | null
+          leads_converted: number | null
+          max_daily_assignments: number | null
+          performance_tier: string | null
+          period_end: string
+          period_start: string
+          response_time_avg: number | null
+          updated_at: string
+        }
+        Insert: {
+          advisor_id: string
+          conversion_rate?: number | null
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          leads_assigned?: number | null
+          leads_contacted?: number | null
+          leads_converted?: number | null
+          max_daily_assignments?: number | null
+          performance_tier?: string | null
+          period_end: string
+          period_start: string
+          response_time_avg?: number | null
+          updated_at?: string
+        }
+        Update: {
+          advisor_id?: string
+          conversion_rate?: number | null
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          leads_assigned?: number | null
+          leads_contacted?: number | null
+          leads_converted?: number | null
+          max_daily_assignments?: number | null
+          performance_tier?: string | null
+          period_end?: string
+          period_start?: string
+          response_time_avg?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advisor_performance_advisor_id_fkey"
+            columns: ["advisor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       company_profile: {
         Row: {
           address: string | null
@@ -116,6 +175,204 @@ export type Database = {
           name?: string
           order_index?: number
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      lead_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_description: string
+          activity_type: string
+          created_at: string
+          id: string
+          lead_id: string
+          performed_at: string
+          performed_by: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_description: string
+          activity_type: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          performed_at?: string
+          performed_by?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_description?: string
+          activity_type?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          performed_at?: string
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_activities_performed_by_fkey"
+            columns: ["performed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      lead_routing_rules: {
+        Row: {
+          assignment_config: Json
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          assignment_config: Json
+          conditions: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          assignment_config?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          ai_score: number | null
+          assigned_at: string | null
+          assigned_to: string | null
+          assignment_method:
+            | Database["public"]["Enums"]["assignment_method"]
+            | null
+          city: string | null
+          country: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          ip_address: unknown | null
+          last_contacted_at: string | null
+          last_name: string
+          lead_score: number | null
+          next_follow_up_at: string | null
+          notes: string | null
+          phone: string | null
+          priority: Database["public"]["Enums"]["lead_priority"]
+          program_interest: string[] | null
+          qualification_stage: string | null
+          referrer_url: string | null
+          source: Database["public"]["Enums"]["lead_source"]
+          source_details: string | null
+          state: string | null
+          status: Database["public"]["Enums"]["lead_status"]
+          tags: string[] | null
+          updated_at: string
+          user_agent: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          ai_score?: number | null
+          assigned_at?: string | null
+          assigned_to?: string | null
+          assignment_method?:
+            | Database["public"]["Enums"]["assignment_method"]
+            | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          ip_address?: unknown | null
+          last_contacted_at?: string | null
+          last_name: string
+          lead_score?: number | null
+          next_follow_up_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          priority?: Database["public"]["Enums"]["lead_priority"]
+          program_interest?: string[] | null
+          qualification_stage?: string | null
+          referrer_url?: string | null
+          source: Database["public"]["Enums"]["lead_source"]
+          source_details?: string | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          tags?: string[] | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          ai_score?: number | null
+          assigned_at?: string | null
+          assigned_to?: string | null
+          assignment_method?:
+            | Database["public"]["Enums"]["assignment_method"]
+            | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          ip_address?: unknown | null
+          last_contacted_at?: string | null
+          last_name?: string
+          lead_score?: number | null
+          next_follow_up_at?: string | null
+          notes?: string | null
+          phone?: string | null
+          priority?: Database["public"]["Enums"]["lead_priority"]
+          program_interest?: string[] | null
+          qualification_stage?: string | null
+          referrer_url?: string | null
+          source?: Database["public"]["Enums"]["lead_source"]
+          source_details?: string | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["lead_status"]
+          tags?: string[] | null
+          updated_at?: string
+          user_agent?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: []
       }
@@ -296,7 +553,32 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      assignment_method:
+        | "manual"
+        | "round_robin"
+        | "ai_based"
+        | "geography"
+        | "performance"
+      lead_priority: "low" | "medium" | "high" | "urgent"
+      lead_source:
+        | "web"
+        | "social_media"
+        | "event"
+        | "agent"
+        | "email"
+        | "referral"
+        | "phone"
+        | "walk_in"
+        | "api_import"
+        | "csv_import"
+      lead_status:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "nurturing"
+        | "converted"
+        | "lost"
+        | "unqualified"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -423,6 +705,36 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      assignment_method: [
+        "manual",
+        "round_robin",
+        "ai_based",
+        "geography",
+        "performance",
+      ],
+      lead_priority: ["low", "medium", "high", "urgent"],
+      lead_source: [
+        "web",
+        "social_media",
+        "event",
+        "agent",
+        "email",
+        "referral",
+        "phone",
+        "walk_in",
+        "api_import",
+        "csv_import",
+      ],
+      lead_status: [
+        "new",
+        "contacted",
+        "qualified",
+        "nurturing",
+        "converted",
+        "lost",
+        "unqualified",
+      ],
+    },
   },
 } as const

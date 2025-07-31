@@ -38,9 +38,9 @@ const AdminDashboard: React.FC = () => {
         return <EnhancedDocumentManagement />;
       case "/admin/events":
         return <EventManagement />;
-      case "/admin/communications":
+      case "/admin/communication":
         return <CommunicationCenter />;
-      case "/admin/finance":
+      case "/admin/financial":
         return <FinancialManagement />;
       case "/admin/team":
         return <TeamManagement />;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { EventWizard, EventData } from "./wizard/EventWizard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,6 +36,13 @@ import {
 
 const EventManagement: React.FC = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
+
+  const handleCreateEvent = (eventData: EventData) => {
+    console.log("Creating event:", eventData);
+    setIsWizardOpen(false);
+  };
 
   const events = [
     {
@@ -195,7 +203,7 @@ const EventManagement: React.FC = () => {
           <h1 className="text-3xl font-bold text-foreground">Event Management</h1>
           <p className="text-muted-foreground">Create and manage student events and sessions</p>
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
+        <Button onClick={() => setIsWizardOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Create Event
         </Button>
@@ -333,8 +341,17 @@ const EventManagement: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
-      <CreateEventDialog />
+      
+      {isWizardOpen && (
+        <EventWizard
+          onClose={() => {
+            setIsWizardOpen(false);
+            setEditingEvent(null);
+          }}
+          onSave={handleCreateEvent}
+          editingEvent={editingEvent || undefined}
+        />
+      )}
     </div>
   );
 };

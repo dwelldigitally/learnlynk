@@ -167,14 +167,14 @@ const Home: React.FC = () => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
               >
-                The Future of
+                Connect. Learn.
                 <motion.span 
                   className="block text-emerald-300"
                   initial={{ x: -50, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
                 >
-                  Education CRM
+                  Transform Together.
                 </motion.span>
               </motion.h1>
               

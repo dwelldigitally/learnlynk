@@ -108,77 +108,56 @@ export function GridFormBuilder({
       </div>
 
       {/* Form Rows */}
-      <Draggable draggableId="form-rows" index={0}>
-        {(provided) => (
-          <div ref={provided.innerRef} {...provided.draggableProps}>
-            <div className="space-y-4">
-              {rows.map((row, rowIndex) => (
-                <Card key={row.id} className="p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2">
-                      <div {...provided.dragHandleProps}>
-                        <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
-                      </div>
-                      <span className="text-sm font-medium">
-                        Row {rowIndex + 1} ({row.columns} {row.columns === 1 ? 'column' : 'columns'})
-                      </span>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onRowDelete(row.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-
-                  <div className={cn("grid gap-4", getGridClasses(row.columns))}>
-                    {Array.from({ length: row.columns }).map((_, columnIndex) => {
-                      const field = row.fields[columnIndex];
-                      
-                      return (
-                        <div key={`${row.id}-${columnIndex}`}>
-                          {field ? (
-                            <Draggable draggableId={field.id} index={columnIndex}>
-                              {(provided, snapshot) => (
-                                <div
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  className={cn(
-                                    "transition-all",
-                                    snapshot.isDragging && "opacity-75 rotate-2 shadow-lg"
-                                  )}
-                                >
-                                  <div {...provided.dragHandleProps}>
-                                    <FieldConfigEditor
-                                      field={field}
-                                      onUpdate={(updates) => onFieldUpdate(field.id, updates)}
-                                      onRemove={() => onFieldDelete(field.id)}
-                                      availableFields={[]}
-                                      compact={true}
-                                    />
-                                  </div>
-                                </div>
-                              )}
-                            </Draggable>
-                          ) : (
-                            <DropZone
-                              rowId={row.id}
-                              columnIndex={columnIndex}
-                              onFieldAdd={onFieldAdd}
-                              isEmpty={true}
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Card>
-              ))}
+      <div className="space-y-4">
+        {rows.map((row, rowIndex) => (
+          <Card key={row.id} className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <GripVertical className="h-4 w-4 text-muted-foreground cursor-move" />
+                <span className="text-sm font-medium">
+                  Row {rowIndex + 1} ({row.columns} {row.columns === 1 ? 'column' : 'columns'})
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onRowDelete(row.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
-          </div>
-        )}
-      </Draggable>
+
+            <div className={cn("grid gap-4", getGridClasses(row.columns))}>
+              {Array.from({ length: row.columns }).map((_, columnIndex) => {
+                const field = row.fields[columnIndex];
+                
+                return (
+                  <div key={`${row.id}-${columnIndex}`}>
+                    {field ? (
+                      <div className="transition-all">
+                        <FieldConfigEditor
+                          field={field}
+                          onUpdate={(updates) => onFieldUpdate(field.id, updates)}
+                          onRemove={() => onFieldDelete(field.id)}
+                          availableFields={[]}
+                          compact={true}
+                        />
+                      </div>
+                    ) : (
+                      <DropZone
+                        rowId={row.id}
+                        columnIndex={columnIndex}
+                        onFieldAdd={onFieldAdd}
+                        isEmpty={true}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        ))}
+      </div>
 
       {/* Empty State */}
       {rows.length === 0 && (

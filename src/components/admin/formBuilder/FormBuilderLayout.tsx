@@ -41,7 +41,6 @@ interface FormBuilderLayoutProps {
   onFieldAdd: (fieldType: FormFieldType, insertIndex?: number) => void;
   onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onFieldDelete: (fieldId: string) => void;
-  onFieldReorder: (fromIndex: number, toIndex: number) => void;
   children: React.ReactNode;
 }
 
@@ -73,7 +72,6 @@ export function FormBuilderLayout({
   onFieldAdd,
   onFieldUpdate,
   onFieldDelete,
-  onFieldReorder,
   children
 }: FormBuilderLayoutProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,15 +87,10 @@ export function FormBuilderLayout({
     
     const { source, destination } = result;
     
-    // Adding field from palette
+    // Adding field from palette to form
     if (source.droppableId === 'field-palette' && destination.droppableId === 'form-fields') {
       const fieldType = fieldTypes[source.index];
       onFieldAdd(fieldType.type);
-    }
-    
-    // Reordering fields
-    if (source.droppableId === 'form-fields' && destination.droppableId === 'form-fields') {
-      onFieldReorder(source.index, destination.index);
     }
   };
 

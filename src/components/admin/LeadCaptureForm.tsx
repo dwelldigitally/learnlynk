@@ -397,7 +397,6 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
         onFieldAdd={(fieldType, insertIndex) => handleFieldAdd(fieldType, insertIndex)}
         onFieldUpdate={handleFieldUpdate}
         onFieldDelete={handleFieldDelete}
-        onFieldReorder={(from, to) => {}}
       >
         <Card className="min-h-full">
           <CardHeader className="flex flex-row items-center justify-between pb-4">

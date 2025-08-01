@@ -17,6 +17,7 @@ import { BulkLeadOperations } from './BulkLeadOperations';
 import { LeadRoutingRules } from './LeadRoutingRules';
 import { LeadScoringEngine } from './LeadScoringEngine';
 import { LeadAnalyticsDashboard } from './LeadAnalyticsDashboard';
+import AILeadEnhancement from './AILeadEnhancement';
 import { Plus, Search, Filter, Download, UserPlus, Settings, Target, BarChart, Upload } from 'lucide-react';
 
 export function LeadManagement() {
@@ -176,8 +177,9 @@ export function LeadManagement() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="ai">AI Features</TabsTrigger>
           <TabsTrigger value="capture">Lead Forms</TabsTrigger>
           <TabsTrigger value="routing">Routing Rules</TabsTrigger>
           <TabsTrigger value="scoring">Scoring Engine</TabsTrigger>
@@ -310,6 +312,10 @@ export function LeadManagement() {
               />
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="ai">
+          <AILeadEnhancement />
         </TabsContent>
 
         <TabsContent value="capture">

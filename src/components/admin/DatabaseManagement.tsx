@@ -6,7 +6,9 @@ import { MasterDataManagement } from './database/MasterDataManagement';
 import { IntegrationHub } from './database/IntegrationHub';
 import { SystemTemplates } from './database/SystemTemplates';
 import { AdvancedSettings } from './database/AdvancedSettings';
-import { Database, Settings, Link, FileText, Cog } from 'lucide-react';
+import AIAgentsHub from './database/AIAgentsHub';
+import BehaviorAnalytics from './database/BehaviorAnalytics';
+import { Database, Settings, Link, FileText, Cog, Bot, Brain } from 'lucide-react';
 
 export const DatabaseManagement = () => {
   const [activeTab, setActiveTab] = useState('custom-fields');
@@ -22,7 +24,7 @@ export const DatabaseManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="custom-fields" className="flex items-center space-x-2">
             <Settings className="h-4 w-4" />
             <span>Custom Fields</span>
@@ -38,6 +40,14 @@ export const DatabaseManagement = () => {
           <TabsTrigger value="templates" className="flex items-center space-x-2">
             <FileText className="h-4 w-4" />
             <span>Templates</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai-agents" className="flex items-center space-x-2">
+            <Bot className="h-4 w-4" />
+            <span>AI Agents</span>
+          </TabsTrigger>
+          <TabsTrigger value="behavior" className="flex items-center space-x-2">
+            <Brain className="h-4 w-4" />
+            <span>Behavior AI</span>
           </TabsTrigger>
           <TabsTrigger value="advanced" className="flex items-center space-x-2">
             <Cog className="h-4 w-4" />
@@ -97,6 +107,34 @@ export const DatabaseManagement = () => {
             </CardHeader>
             <CardContent>
               <SystemTemplates />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ai-agents">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Agents Hub</CardTitle>
+              <CardDescription>
+                Configure and manage autonomous AI agents for automation
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AIAgentsHub />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="behavior">
+          <Card>
+            <CardHeader>
+              <CardTitle>Behavior Analytics</CardTitle>
+              <CardDescription>
+                AI-powered insights into student and lead behavior patterns
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BehaviorAnalytics />
             </CardContent>
           </Card>
         </TabsContent>

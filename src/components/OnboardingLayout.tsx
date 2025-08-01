@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { UserButton } from "@clerk/clerk-react";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 interface OnboardingLayoutProps {
   children: React.ReactNode;
@@ -45,7 +45,7 @@ const OnboardingLayout: React.FC<OnboardingLayoutProps> = ({
             <div className="text-saas-gray-medium text-sm">
               Step {currentStep} of {totalSteps}
             </div>
-            <UserButton afterSignOutUrl="/" />
+            <UserMenu />
           </div>
         </div>
         

@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { UserButton } from "@clerk/clerk-react";
+import { UserMenu } from "@/components/auth/UserMenu";
 import UserInviteForm from "@/components/dashboard/UserInviteForm";
 
 const Dashboard: React.FC = () => {
@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
             />
           </div>
           <div className="flex items-center space-x-4">
-            <UserButton afterSignOutUrl="/sign-in" />
+            <UserMenu />
           </div>
         </div>
       </header>

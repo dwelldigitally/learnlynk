@@ -295,10 +295,11 @@ export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilder
                     <Select
                       value={condition.type}
                       onValueChange={(value: any) => {
+                        const operatorValue = OPERATORS[value as keyof typeof OPERATORS]?.[0]?.value || 'equals';
                         updateCondition(group.id, condition.id, { 
                           type: value,
                           field: FIELD_OPTIONS[value as keyof typeof FIELD_OPTIONS]?.[0] || '',
-                          operator: OPERATORS[value as keyof typeof OPERATORS]?.[0]?.value || 'equals',
+                          operator: operatorValue as 'equals' | 'in' | 'not_in' | 'greater_than' | 'less_than' | 'contains' | 'between',
                           value: null
                         });
                       }}

@@ -4,6 +4,8 @@ import { Link, useLocation } from "react-router-dom";
 import Chatbot from "@/components/Chatbot";
 import { Mail, Bell, Plus, Home, FileText, ClipboardList, Calendar, DollarSign, Briefcase, CreditCard, Newspaper, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { UserMenu } from "@/components/auth/UserMenu";
+import { useProfile } from "@/hooks/useProfile";
 import NotificationCentre from "@/components/student/NotificationCentre";
 import FloatingMarketingMessages from "@/components/student/FloatingMarketingMessages";
 import CampusTourBooking from "@/components/student/CampusTourBooking";
@@ -19,6 +21,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const currentPath = location.pathname;
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { profile } = useProfile();
 
   // Navigation items for the sidebar
   const navItems = [
@@ -63,11 +66,13 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               onClick={() => setIsProfileOpen(true)}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium mr-3">
-                T
+                {profile?.first_name?.[0] || 'S'}
               </div>
               <div className="flex-1">
-                <h3 className="font-medium text-sm">Tushar Malhotra</h3>
-                <p className="text-xs text-gray-500">malhotratushar37@gmail.com</p>
+                <h3 className="font-medium text-sm">
+                  {profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Student'}
+                </h3>
+                <p className="text-xs text-gray-500">{profile?.email || 'student@wcc.ca'}</p>
               </div>
               <div className="text-xs text-gray-400">Edit</div>
             </div>
@@ -85,7 +90,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium cursor-pointer"
               onClick={() => setIsProfileOpen(true)}
             >
-              T
+              {profile?.first_name?.[0] || 'S'}
             </div>
           </div>
         )}
@@ -141,7 +146,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           {/* Left Section */}
           <div className="flex-1">
             <h1 className="text-2xl font-semibold flex items-center">
-              Hey Tushar <span className="ml-2">👋</span>
+              Hey {profile?.first_name || 'Student'} <span className="ml-2">👋</span>
             </h1>
           </div>
           
@@ -153,13 +158,14 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           {/* Right Section */}
           <div className="flex-1 flex items-center justify-end space-x-4">
             <div className="text-right text-sm">
-              <div>Student Id: WCC1047859</div>
-              <div className="text-gray-500">Tushar.Malhotra@student.wcc.ca</div>
+              <div>Student Id: {profile?.student_id || 'WCC1047859'}</div>
+              <div className="text-gray-500">{profile?.email || 'student@wcc.ca'}</div>
             </div>
             <Link to="/student/messages" className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
               <Mail size={20} />
             </Link>
             <NotificationCentre />
+            <UserMenu />
           </div>
         </header>
 

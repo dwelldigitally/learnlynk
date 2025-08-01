@@ -24,6 +24,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { UserMenu } from '@/components/auth/UserMenu';
+import { useProfile } from '@/hooks/useProfile';
 import { cn } from '@/lib/utils';
 
 const navigation = [
@@ -48,6 +50,7 @@ interface ModernAdminLayoutProps {
 const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const { profile } = useProfile();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -143,14 +146,18 @@ const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
               onClick={handleProfileClick}
             >
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder-avatar.jpg" />
+                <AvatarImage src={profile?.avatar_url || "/placeholder-avatar.jpg"} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                  AD
+                  {profile?.first_name?.[0]}{profile?.last_name?.[0]}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground truncate">Admin User</p>
-                <p className="text-xs text-muted-foreground truncate">admin@learnlynk.com</p>
+                <p className="text-sm font-medium text-foreground truncate">
+                  {profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Admin User'}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {profile?.email || 'admin@learnlynk.com'}
+                </p>
               </div>
             </div>
           </div>
@@ -198,15 +205,7 @@ const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
                 </Badge>
               </Button>
               
-              <Avatar 
-                className="h-8 w-8 cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all"
-                onClick={handleProfileClick}
-              >
-                <AvatarImage src="/placeholder-avatar.jpg" />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-                  AD
-                </AvatarFallback>
-              </Avatar>
+              <UserMenu />
             </div>
           </div>
         </header>

@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bot, Brain, MessageSquare, FileText, TrendingUp, Users, Calendar, Zap, Settings, Play, Pause, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { NaturalLanguageCampaignBuilder } from './NaturalLanguageCampaignBuilder';
 
 interface AIAgent {
   id: string;
@@ -165,9 +166,10 @@ const AIAgentsHub: React.FC = () => {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="agents">Active Agents</TabsTrigger>
+          <TabsTrigger value="campaign-builder">Campaign Builder</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
@@ -335,6 +337,10 @@ const AIAgentsHub: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="campaign-builder" className="space-y-6">
+          <NaturalLanguageCampaignBuilder />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">

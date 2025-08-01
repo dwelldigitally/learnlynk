@@ -73,6 +73,42 @@ export type Database = {
           },
         ]
       }
+      advisor_teams: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_daily_assignments: number | null
+          name: string
+          region: string | null
+          specializations: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_daily_assignments?: number | null
+          name: string
+          region?: string | null
+          specializations?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_daily_assignments?: number | null
+          name?: string
+          region?: string | null
+          specializations?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       company_profile: {
         Row: {
           address: string | null
@@ -439,6 +475,178 @@ export type Database = {
         }
         Relationships: []
       }
+      routing_rule_conditions: {
+        Row: {
+          condition_type: string
+          created_at: string
+          field_name: string
+          field_value: Json
+          group_id: string | null
+          id: string
+          is_required: boolean | null
+          operator: string
+          rule_id: string
+        }
+        Insert: {
+          condition_type: string
+          created_at?: string
+          field_name: string
+          field_value: Json
+          group_id?: string | null
+          id?: string
+          is_required?: boolean | null
+          operator: string
+          rule_id: string
+        }
+        Update: {
+          condition_type?: string
+          created_at?: string
+          field_name?: string
+          field_value?: Json
+          group_id?: string | null
+          id?: string
+          is_required?: boolean | null
+          operator?: string
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routing_rule_conditions_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "lead_routing_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routing_templates: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_system_template: boolean | null
+          name: string
+          template_data: Json
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_system_template?: boolean | null
+          name: string
+          template_data: Json
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_system_template?: boolean | null
+          name?: string
+          template_data?: Json
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Relationships: []
+      }
+      rule_execution_logs: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          error_message: string | null
+          execution_data: Json | null
+          execution_result: string
+          execution_time_ms: number | null
+          id: string
+          lead_id: string
+          rule_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_data?: Json | null
+          execution_result: string
+          execution_time_ms?: number | null
+          id?: string
+          lead_id: string
+          rule_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_data?: Json | null
+          execution_result?: string
+          execution_time_ms?: number | null
+          id?: string
+          lead_id?: string
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rule_execution_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rule_execution_logs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "lead_routing_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_members: {
+        Row: {
+          advisor_id: string
+          assigned_leads_today: number | null
+          created_at: string
+          id: string
+          is_active: boolean
+          role: string | null
+          team_id: string
+        }
+        Insert: {
+          advisor_id: string
+          assigned_leads_today?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          role?: string | null
+          team_id: string
+        }
+        Update: {
+          advisor_id?: string
+          assigned_leads_today?: number | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          role?: string | null
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "advisor_teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_actions: {
         Row: {
           action_config: Json
@@ -559,6 +767,9 @@ export type Database = {
         | "ai_based"
         | "geography"
         | "performance"
+        | "team_based"
+        | "territory_based"
+        | "workload_based"
       lead_priority: "low" | "medium" | "high" | "urgent"
       lead_source:
         | "web"
@@ -571,6 +782,9 @@ export type Database = {
         | "walk_in"
         | "api_import"
         | "csv_import"
+        | "chatbot"
+        | "ads"
+        | "forms"
       lead_status:
         | "new"
         | "contacted"
@@ -712,6 +926,9 @@ export const Constants = {
         "ai_based",
         "geography",
         "performance",
+        "team_based",
+        "territory_based",
+        "workload_based",
       ],
       lead_priority: ["low", "medium", "high", "urgent"],
       lead_source: [
@@ -725,6 +942,9 @@ export const Constants = {
         "walk_in",
         "api_import",
         "csv_import",
+        "chatbot",
+        "ads",
+        "forms",
       ],
       lead_status: [
         "new",

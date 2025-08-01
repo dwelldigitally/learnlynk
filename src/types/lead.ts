@@ -8,7 +8,10 @@ export type LeadSource =
   | 'phone'
   | 'walk_in'
   | 'api_import'
-  | 'csv_import';
+  | 'csv_import'
+  | 'chatbot'
+  | 'ads'
+  | 'forms';
 
 export type LeadStatus = 
   | 'new'
@@ -30,7 +33,10 @@ export type AssignmentMethod =
   | 'round_robin'
   | 'ai_based'
   | 'geography'
-  | 'performance';
+  | 'performance'
+  | 'team_based'
+  | 'territory_based'
+  | 'workload_based';
 
 export interface Lead {
   id: string;

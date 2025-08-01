@@ -37,18 +37,23 @@ const DropZone = ({
           ref={provided.innerRef}
           {...provided.droppableProps}
           className={cn(
-            "min-h-24 border-2 border-dashed rounded-lg transition-all",
+            "min-h-24 border-2 border-dashed rounded-lg transition-all p-4",
             snapshot.isDraggingOver 
               ? "border-primary bg-primary/5 border-solid" 
               : "border-muted-foreground/30 hover:border-primary/50",
-            isEmpty ? "flex items-center justify-center" : "p-2"
+            isEmpty ? "flex items-center justify-center" : ""
           )}
         >
           {isEmpty && (
-            <FieldInsertButton 
-              onFieldAdd={(fieldType) => onFieldAdd(fieldType, rowId, columnIndex)}
-              className="m-0"
-            />
+            <div className="text-center">
+              <FieldInsertButton 
+                onFieldAdd={(fieldType) => onFieldAdd(fieldType, rowId, columnIndex)}
+                className="m-0"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Drop field here or click +
+              </p>
+            </div>
           )}
           {provided.placeholder}
         </div>

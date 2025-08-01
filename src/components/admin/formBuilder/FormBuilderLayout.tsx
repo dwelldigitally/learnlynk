@@ -38,7 +38,7 @@ interface FormBuilderLayoutProps {
   onFormCreate: () => void;
   onFormDelete: (formId: string) => void;
   onFormDuplicate: (formId: string) => void;
-  onFieldAdd: (fieldType: FormFieldType, insertIndex?: number) => void;
+  onFieldAdd: (fieldType: FormFieldType, insertIndex?: number, rowId?: string) => void;
   onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onFieldDelete: (fieldId: string) => void;
   children: React.ReactNode;
@@ -87,8 +87,16 @@ export function FormBuilderLayout({
     
     const { source, destination } = result;
     
-    // Adding field from palette to form
-    if (source.droppableId === 'field-palette' && destination.droppableId === 'form-fields') {
+    // Adding field from palette to grid drop zone
+    if (source.droppableId === 'field-palette' && destination.droppableId.includes('-')) {
+      const fieldType = fieldTypes[source.index];
+      const [rowId, columnIndex] = destination.droppableId.split('-');
+      if (onFieldAdd && typeof onFieldAdd === 'function') {
+        onFieldAdd(fieldType.type, parseInt(columnIndex), rowId);
+      }
+    }
+    // Adding field from palette to form (list mode)
+    else if (source.droppableId === 'field-palette' && destination.droppableId === 'form-fields') {
       const fieldType = fieldTypes[source.index];
       onFieldAdd(fieldType.type);
     }

@@ -289,7 +289,7 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
     }
   };
 
-  const handleFieldAdd = (fieldType: FormFieldType, insertIndex?: number) => {
+  const handleFieldAdd = (fieldType: FormFieldType, insertIndex?: number, rowId?: string) => {
     const newField: FormField = {
       id: `field_${Date.now()}`,
       label: `New ${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
@@ -299,6 +299,13 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
       placeholder: `Enter ${fieldType}`,
     };
     
+    // If rowId is provided, add to grid (handled by handleGridFieldAdd)
+    if (rowId) {
+      handleGridFieldAdd(fieldType, rowId, insertIndex || 0);
+      return;
+    }
+    
+    // Otherwise add to list form
     setForms(prev => prev.map(form => {
       if (form.id === selectedFormId) {
         const newFields = [...form.fields];
@@ -394,7 +401,7 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
         onFormCreate={handleFormCreate}
         onFormDelete={handleFormDelete}
         onFormDuplicate={handleFormDuplicate}
-        onFieldAdd={(fieldType, insertIndex) => handleFieldAdd(fieldType, insertIndex)}
+        onFieldAdd={(fieldType, insertIndex, rowId) => handleFieldAdd(fieldType, insertIndex, rowId)}
         onFieldUpdate={handleFieldUpdate}
         onFieldDelete={handleFieldDelete}
       >

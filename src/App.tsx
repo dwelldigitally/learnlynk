@@ -4,12 +4,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Index from "./pages/Index";
-import ManagerDashboard from "./pages/ManagerDashboard";
+import Home from "./pages/Home";
+import ModernSignIn from "./pages/ModernSignIn";
+import ModernSignUp from "./pages/ModernSignUp";
+import ModernOnboarding from "./components/onboarding/ModernOnboarding";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
-import SignIn from "./pages/SignIn";
-import SignUp from "./pages/SignUp";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
 import { useState, useEffect } from "react";
@@ -22,9 +22,9 @@ const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
   return <>{element}</>;
 };
 
-// Simplified OnboardingRoute without clerk dependency
+// Modern onboarding route
 const OnboardingRoute = () => {
-  return <Index />;
+  return <ModernOnboarding />;
 };
 
 const App = () => {
@@ -55,14 +55,12 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<OnboardingRoute />} />
-            <Route path="/sign-in" element={<SignIn />} />
-            <Route path="/sign-up" element={<SignUp />} />
-            <Route path="/step/:stepNumber" element={<OnboardingRoute />} />
-            <Route path="/dashboard" element={<Navigate to="/manager" replace />} /> 
-            <Route path="/manager" element={<ProtectedRoute element={<ManagerDashboard />} />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/sign-in" element={<ModernSignIn />} />
+            <Route path="/sign-up" element={<ModernSignUp />} />
+            <Route path="/onboarding" element={<OnboardingRoute />} />
+            <Route path="/dashboard" element={<Navigate to="/admin" replace />} /> 
             <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
-            <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
             
             {/* Student Portal Routes */}
             <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />

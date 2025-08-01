@@ -64,6 +64,17 @@
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(214 100% 97%) 0%, hsl(214 100% 99%) 50%, hsl(220 9% 98%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    
+    /* Neomorphism shadows */
+    --neo-shadow-light: 8px 8px 16px rgba(163, 177, 198, 0.15), -8px -8px 16px rgba(255, 255, 255, 0.7);
+    --neo-shadow-dark: inset 4px 4px 8px rgba(163, 177, 198, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
+    --neo-shadow-pressed: inset 6px 6px 12px rgba(163, 177, 198, 0.2), inset -6px -6px 12px rgba(255, 255, 255, 0.6);
+    
+    /* Glass morphism */
+    --glass-backdrop: backdrop-filter: blur(12px) saturate(200%);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.18);
     
     /* Sidebar */
     --sidebar-background: 0 0% 98.5%;
@@ -149,71 +160,106 @@
   }
 }
 
-/* Custom styles for the onboarding process */
-.onboarding-card {
-  @apply bg-white rounded-xl shadow-lg p-8;
-  width: 60%;
-  height: 100%;
-  max-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+/* Modern Design System Utilities */
+
+/* Neomorphism */
+.neo-card {
+  background: hsl(var(--background));
+  box-shadow: var(--neo-shadow-light);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s ease;
 }
 
-.slide-container {
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
-  padding-right: 8px;
-  scrollbar-width: thin;
+.neo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neo-shadow-light), 0 8px 25px rgba(163, 177, 198, 0.15);
 }
 
-.slide-container::-webkit-scrollbar {
-  width: 6px;
+.neo-button {
+  @apply relative overflow-hidden;
+  background: hsl(var(--background));
+  box-shadow: var(--neo-shadow-light);
+  transition: all 0.2s ease;
 }
 
-.slide-container::-webkit-scrollbar-track {
-  @apply bg-transparent;
+.neo-button:hover {
+  box-shadow: var(--neo-shadow-dark);
 }
 
-.slide-container::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 rounded-full;
+.neo-button:active {
+  box-shadow: var(--neo-shadow-pressed);
+  transform: scale(0.98);
 }
 
-.progress-dot {
-  @apply w-2 h-2 rounded-full bg-gray-300 transition-colors duration-300;
+/* Glassmorphism */
+.glass-card {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(12px) saturate(200%);
+  border: var(--glass-border);
+  border-radius: var(--radius-lg);
+  position: relative;
 }
 
-.progress-dot.active {
-  @apply bg-primary;
+.glass-button {
+  @apply relative overflow-hidden;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out;
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Hero Section */
+.hero-gradient {
+  background: var(--gradient-hero);
+  position: relative;
 }
 
-/* Custom subtle pulse animation */
-.animate-subtle-pulse {
-  animation: subtlePulse 5s ease-in-out infinite;
+.hero-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(214, 100%, 54%, 0.1) 0%, transparent 70%),
+              radial-gradient(circle at 70% 80%, rgba(142, 76%, 36%, 0.08) 0%, transparent 70%);
+  pointer-events: none;
 }
 
-@keyframes subtlePulse {
-  0%, 95% {
-    opacity: 1;
-    transform: scale(1);
+/* Floating Animation */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
   }
   50% {
-    opacity: 0.8;
-    transform: scale(1.02);
+    transform: translateY(-10px);
   }
+}
+
+/* Stagger animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+
+/* Loading States */
+.loading-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }

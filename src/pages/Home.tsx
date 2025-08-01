@@ -1,125 +1,85 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Brain, 
-  Shield, 
-  BarChart3, 
-  Users, 
-  GraduationCap, 
-  BookOpen,
-  Award,
-  TrendingUp,
-  ArrowRight,
-  CheckCircle,
-  Target,
-  Zap,
-  Globe,
-  Clock,
-  Star,
-  Building2,
-  PlayCircle
-} from 'lucide-react';
-import educationHero from '@/assets/education-hero.jpg';
+import { Badge } from '@/components/ui/badge';
+import { PlayCircle, ArrowRight, Menu, X, CheckCircle, Star, Clock, Shield, TrendingUp } from 'lucide-react';
+import { AnimatedSection } from '@/components/animated/AnimatedSection';
+import { VideoSection } from '@/components/animated/VideoSection';
+import { InteractiveFeatures } from '@/components/animated/InteractiveFeatures';
+import { StatisticsCounter } from '@/components/animated/StatisticsCounter';
+import { ParallaxSection } from '@/components/animated/ParallaxSection';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import heroImage from '@/assets/education-hero.jpg';
+import demoVideoImage from '@/assets/demo-video-poster.jpg';
+import heroVideoImage from '@/assets/hero-video-poster.jpg';
 import crmDashboard from '@/assets/crm-dashboard.jpg';
-import studentsAI from '@/assets/students-ai.jpg';
-import educationAnalytics from '@/assets/education-analytics.jpg';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
-
-  const features = [
-    {
-      icon: <Brain className="w-8 h-8 text-blue-600" />,
-      title: "AI-Powered Enrollment",
-      description: "Leverage machine learning to predict enrollment trends, optimize recruitment strategies, and increase conversion rates by 40%."
-    },
-    {
-      icon: <Target className="w-8 h-8 text-emerald-600" />,
-      title: "Student Lifecycle Management",
-      description: "Track every touchpoint from initial inquiry to alumni engagement with comprehensive pipeline management and automated workflows."
-    },
-    {
-      icon: <BarChart3 className="w-8 h-8 text-purple-600" />,
-      title: "Predictive Analytics",
-      description: "Identify at-risk students early, predict retention rates, and optimize resource allocation with real-time institutional intelligence."
-    },
-    {
-      icon: <Zap className="w-8 h-8 text-orange-600" />,
-      title: "Automated Communications",
-      description: "Deploy personalized, multichannel campaigns that nurture prospects and engage current students with AI-driven messaging."
-    },
-    {
-      icon: <Shield className="w-8 h-8 text-red-600" />,
-      title: "FERPA Compliant",
-      description: "Enterprise-grade security with full FERPA compliance, role-based access control, and audit trails for complete data protection."
-    },
-    {
-      icon: <Globe className="w-8 h-8 text-indigo-600" />,
-      title: "Integration Ecosystem",
-      description: "Seamlessly connect with your existing SIS, LMS, and financial systems through our robust API and pre-built integrations."
-    }
-  ];
-
-  const solutions = [
-    {
-      title: "Admissions & Recruitment",
-      description: "Streamline your entire admissions funnel with AI-powered lead scoring and automated nurture campaigns.",
-      image: studentsAI,
-      stats: ["3x faster application processing", "45% increase in qualified leads", "60% reduction in manual tasks"]
-    },
-    {
-      title: "Student Success & Retention",
-      description: "Proactively identify at-risk students and deploy targeted interventions to improve retention rates.",
-      image: educationAnalytics,
-      stats: ["25% improvement in retention", "Early warning system", "Personalized support plans"]
-    },
-    {
-      title: "Institutional Analytics",
-      description: "Make data-driven decisions with comprehensive dashboards and predictive modeling capabilities.",
-      image: crmDashboard,
-      stats: ["Real-time reporting", "Predictive modeling", "ROI optimization"]
-    }
-  ];
-
-  const stats = [
-    { value: "2.5M+", label: "Students Managed" },
-    { value: "89%", label: "Average Retention Rate" },
-    { value: "1,200+", label: "Educational Institutions" },
-    { value: "45%", label: "Increase in Enrollment" }
-  ];
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { scrollY } = useScroll();
+  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0.3]);
+  const heroScale = useTransform(scrollY, [0, 500], [1, 1.1]);
 
   const testimonials = [
     {
       quote: "Learnlynk transformed our enrollment process. We've seen a 40% increase in qualified applications and our team is more efficient than ever.",
       name: "Dr. Sarah Johnson",
       title: "Vice President of Enrollment",
-      institution: "State University"
+      institution: "State University",
+      avatar: "SJ"
     },
     {
       quote: "The predictive analytics helped us identify at-risk students early and implement targeted support, improving our retention by 25%.",
       name: "Michael Chen",
       title: "Director of Student Success",
-      institution: "Community College Network"
+      institution: "Community College Network",
+      avatar: "MC"
+    },
+    {
+      quote: "Integration with our existing systems was seamless. The platform pays for itself through improved efficiency and higher conversion rates.",
+      name: "Dr. Amanda Rodriguez",
+      title: "Chief Information Officer",
+      institution: "Metropolitan University",
+      avatar: "AR"
     }
   ];
 
+  const integrations = [
+    { name: "Salesforce", logo: "🔗" },
+    { name: "Canvas LMS", logo: "📚" },
+    { name: "Banner ERP", logo: "🏛️" },
+    { name: "Blackboard", logo: "📋" },
+    { name: "PeopleSoft", logo: "👥" },
+    { name: "Workday", logo: "💼" }
+  ];
+
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+    <div className="min-h-screen overflow-x-hidden">
+      {/* Animated Navigation */}
+      <motion.nav 
+        className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border"
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <motion.div 
+              className="flex items-center space-x-2"
+              whileHover={{ scale: 1.05 }}
+            >
               <img 
                 src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
                 alt="Learnlynk Logo" 
                 className="h-8"
               />
               <span className="text-xl font-bold text-foreground">Learnlynk</span>
-            </div>
-            <div className="flex items-center space-x-4">
+            </motion.div>
+            
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center space-x-4">
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/sign-in')}
@@ -134,69 +94,152 @@ const Home: React.FC = () => {
                 Get Started
               </Button>
             </div>
-          </div>
-        </div>
-      </nav>
 
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-16 px-6 overflow-hidden">
-        <div 
+            {/* Mobile Menu Button */}
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </Button>
+          </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <motion.div 
+              className="md:hidden mt-4 pb-4 border-t border-border"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="flex flex-col space-y-2 pt-4">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => navigate('/sign-in')}
+                  className="justify-start"
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  onClick={() => navigate('/sign-up')}
+                  className="justify-start"
+                >
+                  Get Started
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </motion.nav>
+
+      {/* Hero Section with Parallax Video */}
+      <section className="relative pt-24 pb-16 px-6 overflow-hidden min-h-screen flex items-center">
+        <motion.div 
           className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `linear-gradient(135deg, rgba(37, 99, 235, 0.9), rgba(16, 185, 129, 0.8)), url(${educationHero})`,
+          style={{ 
+            opacity: heroOpacity,
+            scale: heroScale,
+            backgroundImage: `linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(16, 185, 129, 0.7)), url(${heroImage})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundAttachment: 'fixed'
           }}
         />
+        
         <div className="container mx-auto relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-left">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6">
+            <AnimatedSection animation="slideLeft" className="text-left">
+              <motion.div 
+                className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
                 <Star className="w-4 h-4 mr-2" />
                 Trusted by 1,200+ Institutions
-              </div>
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+              </motion.div>
+              
+              <motion.h1 
+                className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
+              >
                 The Future of
-                <span className="block text-emerald-300">
+                <motion.span 
+                  className="block text-emerald-300"
+                  initial={{ x: -50, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
+                >
                   Education CRM
-                </span>
-              </h1>
-              <p className="text-xl text-white/90 mb-8 max-w-2xl leading-relaxed">
+                </motion.span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-xl text-white/90 mb-8 max-w-2xl leading-relaxed"
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
                 Harness the power of AI to transform student recruitment, engagement, and success. 
                 Drive enrollment growth while ensuring no student falls through the cracks.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              </motion.p>
+              
+              <motion.div 
+                className="flex flex-col sm:flex-row gap-4 mb-8"
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 1.0 }}
+              >
                 <Button 
                   size="lg" 
                   onClick={() => navigate('/sign-up')}
-                  className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold"
+                  className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold group"
                 >
                   Start Free 30-Day Trial
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="border-white text-white bg-white/20 hover:bg-white/30 px-8 py-4 text-lg backdrop-blur-sm"
+                  className="border-white text-white bg-white/20 hover:bg-white/30 px-8 py-4 text-lg backdrop-blur-sm group"
                 >
-                  <PlayCircle className="mr-2 w-5 h-5" />
+                  <PlayCircle className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
                   Watch Demo
                 </Button>
-              </div>
-              <div className="flex items-center text-white/80 text-sm">
+              </motion.div>
+              
+              <motion.div 
+                className="flex items-center text-white/80 text-sm"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+              >
                 <CheckCircle className="w-4 h-4 mr-2 text-emerald-300" />
                 No credit card required • Setup in under 5 minutes
-              </div>
-            </div>
-            <div className="lg:block hidden">
-              <div className="relative">
+              </motion.div>
+            </AnimatedSection>
+
+            <AnimatedSection animation="slideRight" className="lg:block hidden">
+              <motion.div 
+                className="relative"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
+              >
                 <img 
                   src={crmDashboard} 
                   alt="Education CRM Dashboard" 
-                  className="rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-300"
+                  className="rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500"
                 />
-                <div className="absolute -bottom-4 -left-4 bg-white rounded-lg p-4 shadow-lg">
+                <motion.div 
+                  className="absolute -bottom-4 -left-4 bg-white rounded-lg p-4 shadow-lg"
+                  initial={{ scale: 0, rotate: -10 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ delay: 1.5, type: "spring" }}
+                >
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                       <TrendingUp className="w-4 h-4 text-white" />
@@ -206,253 +249,314 @@ const Home: React.FC = () => {
                       <div className="text-xs text-gray-600">+45% this quarter</div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
+                </motion.div>
+              </motion.div>
+            </AnimatedSection>
           </div>
         </div>
       </section>
 
-      {/* Stats Section */}
-      <section className="py-16 px-6 bg-gray-50">
+      {/* Animated Statistics Section */}
+      <AnimatedSection animation="fadeIn" className="py-16 px-6 bg-muted/30">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Proven Results Across Higher Education</h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <motion.h2 
+              className="text-3xl font-bold mb-4"
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+            >
+              Proven Results Across Higher Education
+            </motion.h2>
+            <motion.p 
+              className="text-lg text-muted-foreground max-w-2xl mx-auto"
+              initial={{ y: 20, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
               Join leading institutions that have transformed their enrollment and retention outcomes
+            </motion.p>
+          </div>
+          <StatisticsCounter />
+        </div>
+      </AnimatedSection>
+
+      {/* Video Demo Section */}
+      <section className="py-20 px-6">
+        <div className="container mx-auto">
+          <AnimatedSection animation="fadeIn" className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
+              See Learnlynk in Action
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Watch how leading institutions are transforming their student lifecycle management
             </p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <Card key={index} className="text-center border-0 shadow-lg bg-white">
-                <CardContent className="p-6">
-                  <div className="text-4xl md:text-5xl font-bold text-blue-600 mb-2">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-600 font-medium">
-                    {stat.label}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          </AnimatedSection>
+          
+          <AnimatedSection animation="scale" className="max-w-4xl mx-auto">
+            <VideoSection
+              src="#" // Placeholder - would be actual video URL
+              poster={demoVideoImage}
+              title="Complete Platform Walkthrough"
+              description="Discover how Learnlynk streamlines enrollment, improves retention, and drives student success"
+              className="h-96 md:h-[500px]"
+            />
+          </AnimatedSection>
         </div>
       </section>
 
-      {/* Solutions Section */}
-      <section className="py-20 px-6">
+      {/* Interactive Features Section */}
+      <section className="py-20 px-6 bg-muted/30">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <AnimatedSection animation="fadeIn" className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Purpose-Built for Higher Education
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Unlike generic CRMs, Learnlynk is designed specifically for the unique challenges 
               of student recruitment, enrollment, and success in higher education.
             </p>
-          </div>
+          </AnimatedSection>
           
-          <div className="space-y-16">
-            {solutions.map((solution, index) => (
-              <div key={index} className={`grid lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''}`}>
-                <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
-                  <h3 className="text-3xl font-bold text-gray-900 mb-4">{solution.title}</h3>
-                  <p className="text-lg text-gray-600 mb-6 leading-relaxed">{solution.description}</p>
-                  <div className="space-y-3">
-                    {solution.stats.map((stat, statIndex) => (
-                      <div key={statIndex} className="flex items-center">
-                        <CheckCircle className="w-5 h-5 text-emerald-500 mr-3" />
-                        <span className="text-gray-700 font-medium">{stat}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <Button className="mt-6 bg-blue-600 hover:bg-blue-700">
-                    Learn More <ArrowRight className="ml-2 w-4 h-4" />
-                  </Button>
-                </div>
-                <div className={index % 2 === 1 ? 'lg:col-start-1' : ''}>
-                  <img 
-                    src={solution.image} 
-                    alt={solution.title}
-                    className="rounded-xl shadow-xl w-full h-auto"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+          <AnimatedSection animation="slideUp">
+            <InteractiveFeatures />
+          </AnimatedSection>
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section className="py-20 px-6 bg-gray-50">
+      {/* Integration Carousel */}
+      <section className="py-16 px-6">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              Advanced Features for Modern Education
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Everything you need to modernize your student lifecycle management
+          <AnimatedSection animation="fadeIn" className="text-center mb-12">
+            <h2 className="text-3xl font-bold mb-4">Seamless Integrations</h2>
+            <p className="text-lg text-muted-foreground">
+              Connect with your existing education technology stack
             </p>
-          </div>
+          </AnimatedSection>
           
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white">
-                <CardContent className="p-8">
-                  <div className="flex flex-col items-start text-left">
-                    <div className="mb-4 p-3 bg-gray-100 rounded-xl">
-                      {feature.icon}
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {feature.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+          <motion.div 
+            className="flex overflow-hidden space-x-8"
+            animate={{ x: [0, -100] }}
+            transition={{ 
+              duration: 20, 
+              repeat: Infinity, 
+              repeatType: "loop",
+              ease: "linear" 
+            }}
+          >
+            {[...integrations, ...integrations].map((integration, index) => (
+              <motion.div
+                key={index}
+                className="flex-shrink-0 bg-card rounded-lg p-6 border min-w-[200px] text-center"
+                whileHover={{ scale: 1.05, y: -5 }}
+              >
+                <div className="text-4xl mb-2">{integration.logo}</div>
+                <h3 className="font-semibold">{integration.name}</h3>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-6">
+      {/* Animated Testimonials */}
+      <section className="py-20 px-6 bg-muted/30">
         <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+          <AnimatedSection animation="fadeIn" className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-6">
               Trusted by Educational Leaders
             </h2>
-          </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          </AnimatedSection>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-lg bg-white">
-                <CardContent className="p-8">
-                  <div className="flex mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-                    ))}
-                  </div>
-                  <blockquote className="text-lg text-gray-700 mb-6 italic">
-                    "{testimonial.quote}"
-                  </blockquote>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                      {testimonial.name.split(' ').map(n => n[0]).join('')}
-                    </div>
-                    <div className="ml-4">
-                      <div className="font-semibold text-gray-900">{testimonial.name}</div>
-                      <div className="text-sm text-gray-600">{testimonial.title}</div>
-                      <div className="text-sm text-gray-500">{testimonial.institution}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <AnimatedSection 
+                key={index} 
+                animation="slideUp" 
+                delay={index * 0.2}
+              >
+                <motion.div
+                  whileHover={{ y: -10, scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card className="border-0 shadow-lg bg-card h-full">
+                    <CardContent className="p-8">
+                      <div className="flex mb-4">
+                        {[...Array(5)].map((_, i) => (
+                          <motion.div
+                            key={i}
+                            initial={{ scale: 0, rotate: -180 }}
+                            whileInView={{ scale: 1, rotate: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ delay: i * 0.1 }}
+                          >
+                            <Star className="w-5 h-5 text-yellow-400 fill-current" />
+                          </motion.div>
+                        ))}
+                      </div>
+                      <blockquote className="text-lg text-muted-foreground mb-6 italic">
+                        "{testimonial.quote}"
+                      </blockquote>
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold">
+                          {testimonial.avatar}
+                        </div>
+                        <div className="ml-4">
+                          <div className="font-semibold">{testimonial.name}</div>
+                          <div className="text-sm text-muted-foreground">{testimonial.title}</div>
+                          <div className="text-sm text-muted-foreground">{testimonial.institution}</div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-blue-600 to-emerald-600">
+      {/* Animated CTA Section */}
+      <section className="py-20 px-6 bg-gradient-to-r from-primary to-primary-glow">
         <div className="container mx-auto">
-          <Card className="text-center max-w-4xl mx-auto border-0 shadow-2xl bg-white">
-            <CardContent className="p-12">
-              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
-                Ready to Transform Your Institution?
-              </h2>
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                Join over 1,200 educational institutions already using Learnlynk 
-                to increase enrollment and improve student success rates.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6">
-                <Button 
-                  size="lg" 
-                  onClick={() => navigate('/sign-up')}
-                  className="bg-blue-600 hover:bg-blue-700 px-8 py-4 text-lg font-semibold"
+          <AnimatedSection animation="scale">
+            <Card className="text-center max-w-4xl mx-auto border-0 shadow-2xl bg-background">
+              <CardContent className="p-12">
+                <motion.h2 
+                  className="text-3xl md:text-4xl font-bold mb-6"
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
                 >
-                  Start Your Free 30-Day Trial
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="px-8 py-4 text-lg border-gray-300 text-gray-700 hover:bg-gray-50"
+                  Ready to Transform Your Institution?
+                </motion.h2>
+                <motion.p 
+                  className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
                 >
-                  Schedule a Demo
-                </Button>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm text-gray-500">
-                <div className="flex items-center">
-                  <CheckCircle className="w-4 h-4 mr-2 text-emerald-500" />
-                  No credit card required
-                </div>
-                <div className="flex items-center">
-                  <Clock className="w-4 h-4 mr-2 text-emerald-500" />
-                  Setup in under 5 minutes
-                </div>
-                <div className="flex items-center">
-                  <Shield className="w-4 h-4 mr-2 text-emerald-500" />
-                  FERPA compliant
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                  Join over 1,200 educational institutions already using Learnlynk 
+                  to increase enrollment and improve student success rates.
+                </motion.p>
+                
+                <motion.div 
+                  className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-6"
+                  initial={{ y: 20, opacity: 0 }}
+                  whileInView={{ y: 0, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <Button 
+                    size="lg" 
+                    onClick={() => navigate('/sign-up')}
+                    className="bg-primary hover:bg-primary-hover px-8 py-4 text-lg font-semibold group"
+                  >
+                    Start Your Free 30-Day Trial
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="lg"
+                    className="px-8 py-4 text-lg border-border hover:bg-muted"
+                  >
+                    Schedule a Demo
+                  </Button>
+                </motion.div>
+                
+                <motion.div 
+                  className="flex flex-col sm:flex-row gap-4 justify-center items-center text-sm text-muted-foreground"
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <div className="flex items-center">
+                    <CheckCircle className="w-4 h-4 mr-2 text-emerald-500" />
+                    No credit card required
+                  </div>
+                  <div className="flex items-center">
+                    <Clock className="w-4 h-4 mr-2 text-emerald-500" />
+                    Setup in under 5 minutes
+                  </div>
+                  <div className="flex items-center">
+                    <Shield className="w-4 h-4 mr-2 text-emerald-500" />
+                    FERPA compliant
+                  </div>
+                </motion.div>
+              </CardContent>
+            </Card>
+          </AnimatedSection>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-16 px-6 bg-gray-900 text-white">
+      <footer className="py-16 px-6 bg-muted">
         <div className="container mx-auto">
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
-              <div className="flex items-center space-x-2 mb-4">
+              <motion.div 
+                className="flex items-center space-x-2 mb-4"
+                whileHover={{ scale: 1.05 }}
+              >
                 <img 
                   src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
                   alt="Learnlynk Logo" 
                   className="h-8"
                 />
                 <span className="text-xl font-bold">Learnlynk</span>
-              </div>
-              <p className="text-gray-400 mb-4">
-                The leading AI-powered CRM platform designed specifically for higher education institutions.
+              </motion.div>
+              <p className="text-muted-foreground mb-4">
+                Transforming education through intelligent CRM solutions designed specifically for higher education institutions.
               </p>
-              <div className="flex items-center text-sm text-gray-400">
-                <Shield className="w-4 h-4 mr-2" />
-                SOC 2 Type II & FERPA Compliant
-              </div>
             </div>
+            
             <div>
-              <h4 className="font-semibold mb-4">Solutions</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Admissions & Recruitment</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Student Success</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Alumni Relations</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Analytics & Reporting</a></li>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Integrations</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Security</a></li>
               </ul>
             </div>
+            
             <div>
               <h4 className="font-semibold mb-4">Resources</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Case Studies</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Webinars</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Support Center</a></li>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">Documentation</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Case Studies</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Support</a></li>
               </ul>
             </div>
+            
             <div>
               <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              <ul className="space-y-2 text-muted-foreground">
+                <li><a href="#" className="hover:text-foreground transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Contact</a></li>
+                <li><a href="#" className="hover:text-foreground transition-colors">Privacy</a></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
-            <p>© 2024 Learnlynk. All rights reserved. Empowering educational institutions with AI-driven insights.</p>
+          
+          <div className="border-t border-border pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <p className="text-muted-foreground text-sm">
+                © 2024 Learnlynk. All rights reserved.
+              </p>
+              <div className="flex space-x-4 mt-4 md:mt-0">
+                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Privacy Policy
+                </a>
+                <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Terms of Service
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

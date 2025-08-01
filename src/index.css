@@ -177,7 +177,6 @@
 
 .neo-button {
   @apply relative overflow-hidden;
-  background: hsl(var(--background));
   box-shadow: var(--neo-shadow-light);
   transition: all 0.2s ease;
 }

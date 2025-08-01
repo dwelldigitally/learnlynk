@@ -10,11 +10,12 @@ import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
 import { LeadSource, LeadFormData } from '@/types/lead';
 import { Copy, Eye, Code, Edit, Plus, Trash2, Save } from 'lucide-react';
-import { FormConfig, FormField, FormData, FormErrors } from '@/types/formBuilder';
+import { FormConfig, FormField, FormData, FormErrors, FormFieldType } from '@/types/formBuilder';
 import { FieldRenderer } from './formBuilder/FieldRenderer';
 import { FieldConfigEditor } from './formBuilder/FieldConfigEditor';
 import { ConditionalLogicEngine } from './formBuilder/ConditionalLogicEngine';
 import { FormValidation } from './formBuilder/FormValidation';
+import { FormBuilderLayout } from './formBuilder/FormBuilderLayout';
 
 interface LeadCaptureFormProps {
   onLeadCreated?: () => void;
@@ -39,95 +40,102 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
   
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formConfig, setFormConfig] = useState<FormConfig>({
-    title: 'Get Started Today',
-    description: 'Tell us about your educational goals and we\'ll help you find the right program.',
-    fields: [
-      { 
-        id: 'first_name', 
-        label: 'First Name', 
-        type: 'text', 
-        required: true, 
-        enabled: true,
-        placeholder: 'Enter your first name',
-        validation: [{ type: 'required', message: 'First name is required' }]
-      },
-      { 
-        id: 'last_name', 
-        label: 'Last Name', 
-        type: 'text', 
-        required: true, 
-        enabled: true,
-        placeholder: 'Enter your last name',
-        validation: [{ type: 'required', message: 'Last name is required' }]
-      },
-      { 
-        id: 'email', 
-        label: 'Email Address', 
-        type: 'email', 
-        required: true, 
-        enabled: true,
-        placeholder: 'Enter your email address',
-        validation: [
-          { type: 'required', message: 'Email is required' },
-          { type: 'pattern', value: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$', message: 'Please enter a valid email address' }
-        ]
-      },
-      { 
-        id: 'phone', 
-        label: 'Phone Number', 
-        type: 'tel', 
-        required: false, 
-        enabled: true,
-        placeholder: 'Enter your phone number',
-        helpText: 'We may contact you via phone for program information'
-      },
-      { 
-        id: 'country', 
-        label: 'Country', 
-        type: 'select', 
-        required: false, 
-        enabled: true,
-        placeholder: 'Select your country',
-        options: [
-          { label: 'Canada', value: 'canada' },
-          { label: 'United States', value: 'usa' },
-          { label: 'United Kingdom', value: 'uk' },
-          { label: 'Australia', value: 'australia' },
-          { label: 'Other', value: 'other' }
-        ]
-      },
-      { 
-        id: 'program_interest', 
-        label: 'Programs of Interest', 
-        type: 'multi-select', 
-        required: false, 
-        enabled: true,
-        helpText: 'Select all programs you are interested in',
-        options: [
-          { label: 'Health Care Assistant', value: 'health_care_assistant' },
-          { label: 'Aviation', value: 'aviation' },
-          { label: 'Education Assistant', value: 'education_assistant' },
-          { label: 'Hospitality', value: 'hospitality' },
-          { label: 'Early Childhood Education', value: 'ece' },
-          { label: 'Medical Laboratory Assistant', value: 'mla' }
-        ]
-      },
-      { 
-        id: 'marketing_consent', 
-        label: 'Marketing Communications', 
-        type: 'consent', 
-        required: false, 
-        enabled: true,
-        helpText: 'I agree to receive marketing communications and updates about programs.'
-      }
-    ],
-    submitButtonText: 'Get Information',
-    privacyText: 'By submitting this form, you agree to our privacy policy and terms of service.',
-    successMessage: 'Thank you for your interest! We\'ll be in touch soon.',
-    errorMessage: 'Failed to submit form. Please try again.'
-  });
+  const [selectedFormId, setSelectedFormId] = useState<string>('default');
+  const [forms, setForms] = useState<FormConfig[]>([
+    {
+      id: 'default',
+      title: 'Get Started Today',
+      description: 'Tell us about your educational goals and we\'ll help you find the right program.',
+      fields: [
+        { 
+          id: 'first_name', 
+          label: 'First Name', 
+          type: 'text', 
+          required: true, 
+          enabled: true,
+          placeholder: 'Enter your first name',
+          validation: [{ type: 'required', message: 'First name is required' }]
+        },
+        { 
+          id: 'last_name', 
+          label: 'Last Name', 
+          type: 'text', 
+          required: true, 
+          enabled: true,
+          placeholder: 'Enter your last name',
+          validation: [{ type: 'required', message: 'Last name is required' }]
+        },
+        { 
+          id: 'email', 
+          label: 'Email Address', 
+          type: 'email', 
+          required: true, 
+          enabled: true,
+          placeholder: 'Enter your email address',
+          validation: [
+            { type: 'required', message: 'Email is required' },
+            { type: 'pattern', value: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$', message: 'Please enter a valid email address' }
+          ]
+        },
+        { 
+          id: 'phone', 
+          label: 'Phone Number', 
+          type: 'tel', 
+          required: false, 
+          enabled: true,
+          placeholder: 'Enter your phone number',
+          helpText: 'We may contact you via phone for program information'
+        },
+        { 
+          id: 'country', 
+          label: 'Country', 
+          type: 'select', 
+          required: false, 
+          enabled: true,
+          placeholder: 'Select your country',
+          options: [
+            { label: 'Canada', value: 'canada' },
+            { label: 'United States', value: 'usa' },
+            { label: 'United Kingdom', value: 'uk' },
+            { label: 'Australia', value: 'australia' },
+            { label: 'Other', value: 'other' }
+          ]
+        },
+        { 
+          id: 'program_interest', 
+          label: 'Programs of Interest', 
+          type: 'multi-select', 
+          required: false, 
+          enabled: true,
+          helpText: 'Select all programs you are interested in',
+          options: [
+            { label: 'Health Care Assistant', value: 'health_care_assistant' },
+            { label: 'Aviation', value: 'aviation' },
+            { label: 'Education Assistant', value: 'education_assistant' },
+            { label: 'Hospitality', value: 'hospitality' },
+            { label: 'Early Childhood Education', value: 'ece' },
+            { label: 'Medical Laboratory Assistant', value: 'mla' }
+          ]
+        },
+        { 
+          id: 'marketing_consent', 
+          label: 'Marketing Communications', 
+          type: 'consent', 
+          required: false, 
+          enabled: true,
+          helpText: 'I agree to receive marketing communications and updates about programs.'
+        }
+      ],
+      submitButtonText: 'Get Information',
+      privacyText: 'By submitting this form, you agree to our privacy policy and terms of service.',
+      successMessage: 'Thank you for your interest! We\'ll be in touch soon.',
+      errorMessage: 'Failed to submit form. Please try again.'
+    }
+  ]);
   const { toast } = useToast();
+
+  const selectedForm = forms.find(f => f.id === selectedFormId);
+  const formConfig = selectedForm || forms[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,196 +253,124 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
     });
   };
 
-  const saveFormConfig = () => {
-    // Here you would typically save to a backend
-    toast({
-      title: 'Form Updated',
-      description: 'Lead capture form configuration has been saved.'
-    });
+  const handleFormCreate = () => {
+    const newForm: FormConfig = {
+      id: `form_${Date.now()}`,
+      title: 'New Form',
+      description: 'Form description',
+      fields: [],
+      submitButtonText: 'Submit',
+    };
+    setForms(prev => [...prev, newForm]);
+    setSelectedFormId(newForm.id!);
   };
 
-  const addField = () => {
+  const handleFormDelete = (formId: string) => {
+    setForms(prev => prev.filter(f => f.id !== formId));
+    if (selectedFormId === formId) {
+      setSelectedFormId(forms[0]?.id || '');
+    }
+  };
+
+  const handleFormDuplicate = (formId: string) => {
+    const formToDuplicate = forms.find(f => f.id === formId);
+    if (formToDuplicate) {
+      const newForm: FormConfig = {
+        ...formToDuplicate,
+        id: `form_${Date.now()}`,
+        title: `${formToDuplicate.title} (Copy)`,
+      };
+      setForms(prev => [...prev, newForm]);
+    }
+  };
+
+  const handleFieldAdd = (fieldType: FormFieldType) => {
     const newField: FormField = {
-      id: `custom_field_${Date.now()}`,
-      label: 'New Field',
-      type: 'text',
+      id: `field_${Date.now()}`,
+      label: `New ${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
+      type: fieldType,
       required: false,
       enabled: true,
-      placeholder: 'Enter value',
+      placeholder: `Enter ${fieldType}`,
     };
-    setFormConfig(prev => ({
-      ...prev,
-      fields: [...prev.fields, newField]
-    }));
+    
+    setForms(prev => prev.map(form => 
+      form.id === selectedFormId 
+        ? { ...form, fields: [...form.fields, newField] }
+        : form
+    ));
   };
 
-  const removeField = (fieldId: string) => {
-    setFormConfig(prev => ({
-      ...prev,
-      fields: prev.fields.filter(field => field.id !== fieldId)
-    }));
+  const handleFieldUpdate = (fieldId: string, updates: Partial<FormField>) => {
+    setForms(prev => prev.map(form => 
+      form.id === selectedFormId 
+        ? { 
+            ...form, 
+            fields: form.fields.map(field => 
+              field.id === fieldId ? { ...field, ...updates } : field
+            )
+          }
+        : form
+    ));
   };
 
-  const updateField = (fieldId: string, updates: Partial<FormField>) => {
-    setFormConfig(prev => ({
-      ...prev,
-      fields: prev.fields.map(field => 
-        field.id === fieldId ? { ...field, ...updates } : field
-      )
+  const handleFieldDelete = (fieldId: string) => {
+    setForms(prev => prev.map(form => 
+      form.id === selectedFormId 
+        ? { ...form, fields: form.fields.filter(field => field.id !== fieldId) }
+        : form
+    ));
+  };
+
+  const handleFieldReorder = (fromIndex: number, toIndex: number) => {
+    setForms(prev => prev.map(form => {
+      if (form.id === selectedFormId) {
+        const newFields = [...form.fields];
+        const [movedField] = newFields.splice(fromIndex, 1);
+        newFields.splice(toIndex, 0, movedField);
+        return { ...form, fields: newFields };
+      }
+      return form;
     }));
   };
 
   if (!embedded) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold">Lead Capture Forms</h2>
-            <p className="text-muted-foreground">Create and manage lead capture forms for your website</p>
-          </div>
-        </div>
-
-        <Tabs defaultValue="preview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="configure">Configure</TabsTrigger>
-            <TabsTrigger value="embed">Embed</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="preview">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Form Preview
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <LeadCaptureForm embedded={true} formId="preview" onLeadCreated={onLeadCreated} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="configure">
-            <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Form Settings</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="form-title">Form Title</Label>
-                      <Input
-                        id="form-title"
-                        value={formConfig.title}
-                        onChange={(e) => setFormConfig(prev => ({ ...prev, title: e.target.value }))}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="submit-button">Submit Button Text</Label>
-                      <Input
-                        id="submit-button"
-                        value={formConfig.submitButtonText}
-                        onChange={(e) => setFormConfig(prev => ({ ...prev, submitButtonText: e.target.value }))}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="form-description">Description</Label>
-                    <Textarea
-                      id="form-description"
-                      value={formConfig.description}
-                      onChange={(e) => setFormConfig(prev => ({ ...prev, description: e.target.value }))}
-                      rows={3}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="success-message">Success Message</Label>
-                      <Textarea
-                        id="success-message"
-                        value={formConfig.successMessage || ''}
-                        onChange={(e) => setFormConfig(prev => ({ ...prev, successMessage: e.target.value }))}
-                        rows={2}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="error-message">Error Message</Label>
-                      <Textarea
-                        id="error-message"
-                        value={formConfig.errorMessage || ''}
-                        onChange={(e) => setFormConfig(prev => ({ ...prev, errorMessage: e.target.value }))}
-                        rows={2}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Form Fields</CardTitle>
-                    <Button onClick={addField} size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Field
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {formConfig.fields.map((field) => (
-                      <FieldConfigEditor
-                        key={field.id}
-                        field={field}
-                        onUpdate={(updates) => updateField(field.id, updates)}
-                        onRemove={() => removeField(field.id)}
-                        availableFields={formConfig.fields.filter(f => f.id !== field.id)}
-                      />
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <div className="flex justify-end">
-                <Button onClick={saveFormConfig}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Configuration
-                </Button>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="embed">
-            <Card>
-              <CardHeader>
-                <CardTitle>Embed Code</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <p className="text-sm text-muted-foreground">
-                    Copy this code and paste it into your website where you want the lead form to appear:
-                  </p>
-                  <div className="relative">
-                    <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
-                      <code>{generateEmbedCode()}</code>
-                    </pre>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="absolute top-2 right-2"
-                      onClick={copyEmbedCode}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                  </div>
+      <FormBuilderLayout
+        forms={forms}
+        selectedFormId={selectedFormId}
+        onFormSelect={setSelectedFormId}
+        onFormCreate={handleFormCreate}
+        onFormDelete={handleFormDelete}
+        onFormDuplicate={handleFormDuplicate}
+        onFieldAdd={handleFieldAdd}
+        onFieldUpdate={handleFieldUpdate}
+        onFieldDelete={handleFieldDelete}
+        onFieldReorder={handleFieldReorder}
+      >
+        <Card className="h-full">
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {formConfig.fields.map((field) => (
+                <FieldConfigEditor
+                  key={field.id}
+                  field={field}
+                  onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
+                  onRemove={() => handleFieldDelete(field.id)}
+                  availableFields={formConfig.fields.filter(f => f.id !== field.id)}
+                />
+              ))}
+              
+              {formConfig.fields.length === 0 && (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="text-lg mb-2">No fields added yet</p>
+                  <p>Drag field types from the sidebar or use the + button to add fields</p>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </FormBuilderLayout>
     );
   }
 

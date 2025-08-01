@@ -16,6 +16,7 @@ import { FieldConfigEditor } from './formBuilder/FieldConfigEditor';
 import { ConditionalLogicEngine } from './formBuilder/ConditionalLogicEngine';
 import { FormValidation } from './formBuilder/FormValidation';
 import { FormBuilderLayout } from './formBuilder/FormBuilderLayout';
+import { FieldInsertButton } from './formBuilder/FieldInsertButton';
 
 interface LeadCaptureFormProps {
   onLeadCreated?: () => void;
@@ -284,7 +285,7 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
     }
   };
 
-  const handleFieldAdd = (fieldType: FormFieldType) => {
+  const handleFieldAdd = (fieldType: FormFieldType, insertIndex?: number) => {
     const newField: FormField = {
       id: `field_${Date.now()}`,
       label: `New ${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
@@ -294,11 +295,18 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
       placeholder: `Enter ${fieldType}`,
     };
     
-    setForms(prev => prev.map(form => 
-      form.id === selectedFormId 
-        ? { ...form, fields: [...form.fields, newField] }
-        : form
-    ));
+    setForms(prev => prev.map(form => {
+      if (form.id === selectedFormId) {
+        const newFields = [...form.fields];
+        if (insertIndex !== undefined) {
+          newFields.splice(insertIndex, 0, newField);
+        } else {
+          newFields.push(newField);
+        }
+        return { ...form, fields: newFields };
+      }
+      return form;
+    }));
   };
 
   const handleFieldUpdate = (fieldId: string, updates: Partial<FormField>) => {
@@ -343,28 +351,46 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
         onFormCreate={handleFormCreate}
         onFormDelete={handleFormDelete}
         onFormDuplicate={handleFormDuplicate}
-        onFieldAdd={handleFieldAdd}
+        onFieldAdd={(fieldType, insertIndex) => handleFieldAdd(fieldType, insertIndex)}
         onFieldUpdate={handleFieldUpdate}
         onFieldDelete={handleFieldDelete}
         onFieldReorder={handleFieldReorder}
       >
         <Card className="h-full">
+          <CardHeader className="flex flex-row items-center justify-between pb-4">
+            <div>
+              <CardTitle className="text-xl">{formConfig.title}</CardTitle>
+              <p className="text-sm text-muted-foreground">{formConfig.fields.length} fields</p>
+            </div>
+            <Button onClick={() => toast({ title: 'Form Saved', description: 'Form configuration saved successfully!' })}>
+              <Save className="h-4 w-4 mr-2" />
+              Save Form
+            </Button>
+          </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              {formConfig.fields.map((field) => (
-                <FieldConfigEditor
-                  key={field.id}
-                  field={field}
-                  onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
-                  onRemove={() => handleFieldDelete(field.id)}
-                  availableFields={formConfig.fields.filter(f => f.id !== field.id)}
-                />
+              {formConfig.fields.map((field, index) => (
+                <div key={field.id} className="space-y-2">
+                  <FieldConfigEditor
+                    field={field}
+                    onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
+                    onRemove={() => handleFieldDelete(field.id)}
+                    availableFields={formConfig.fields.filter(f => f.id !== field.id)}
+                  />
+                  <FieldInsertButton 
+                    onFieldAdd={(fieldType) => handleFieldAdd(fieldType, index + 1)}
+                  />
+                </div>
               ))}
               
               {formConfig.fields.length === 0 && (
                 <div className="text-center py-12 text-muted-foreground">
                   <p className="text-lg mb-2">No fields added yet</p>
                   <p>Drag field types from the sidebar or use the + button to add fields</p>
+                  <FieldInsertButton 
+                    onFieldAdd={(fieldType) => handleFieldAdd(fieldType, 0)}
+                    className="mt-4"
+                  />
                 </div>
               )}
             </div>

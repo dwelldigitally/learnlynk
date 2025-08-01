@@ -38,7 +38,7 @@ interface FormBuilderLayoutProps {
   onFormCreate: () => void;
   onFormDelete: (formId: string) => void;
   onFormDuplicate: (formId: string) => void;
-  onFieldAdd: (fieldType: FormFieldType) => void;
+  onFieldAdd: (fieldType: FormFieldType, insertIndex?: number) => void;
   onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onFieldDelete: (fieldId: string) => void;
   onFieldReorder: (fromIndex: number, toIndex: number) => void;

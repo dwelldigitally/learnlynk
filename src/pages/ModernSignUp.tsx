@@ -4,10 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { GlassCard } from '@/components/modern/GlassCard';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle, User, Building } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const ModernSignUp: React.FC = () => {
+  const { signUp } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -58,11 +60,22 @@ const ModernSignUp: React.FC = () => {
     }
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const metadata = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        user_role: userRole,
+        institution_name: formData.institutionName,
+        student_id: formData.studentId
+      };
+
+      const { error } = await signUp(formData.email, formData.password, metadata);
       
-      // Redirect to onboarding
-      navigate('/onboarding');
+      if (error) {
+        setError(error.message);
+      } else {
+        // Show success message and redirect to onboarding
+        navigate('/onboarding');
+      }
     } catch (err) {
       setError('Failed to create account. Please try again.');
     } finally {

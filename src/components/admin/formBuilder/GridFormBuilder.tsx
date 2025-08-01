@@ -145,7 +145,7 @@ export function GridFormBuilder({
                           onUpdate={(updates) => onFieldUpdate(field.id, updates)}
                           onRemove={() => onFieldDelete(field.id)}
                           availableFields={[]}
-                          compact={true}
+                          compact={false}
                         />
                       </div>
                     ) : (

@@ -17,6 +17,8 @@ import { ConditionalLogicEngine } from './formBuilder/ConditionalLogicEngine';
 import { FormValidation } from './formBuilder/FormValidation';
 import { FormBuilderLayout } from './formBuilder/FormBuilderLayout';
 import { FieldInsertButton } from './formBuilder/FieldInsertButton';
+import { GridFormBuilder } from './formBuilder/GridFormBuilder';
+import { FormRow } from '@/types/formLayout';
 
 interface LeadCaptureFormProps {
   onLeadCreated?: () => void;
@@ -42,6 +44,8 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [selectedFormId, setSelectedFormId] = useState<string>('default');
+  const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
+  const [formRows, setFormRows] = useState<FormRow[]>([]);
   const [forms, setForms] = useState<FormConfig[]>([
     {
       id: 'default',
@@ -330,16 +334,55 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
     ));
   };
 
-  const handleFieldReorder = (fromIndex: number, toIndex: number) => {
-    setForms(prev => prev.map(form => {
-      if (form.id === selectedFormId) {
-        const newFields = [...form.fields];
-        const [movedField] = newFields.splice(fromIndex, 1);
-        newFields.splice(toIndex, 0, movedField);
-        return { ...form, fields: newFields };
+  const handleRowAdd = (columns: number) => {
+    const newRow: FormRow = {
+      id: `row_${Date.now()}`,
+      fields: Array(columns).fill(null),
+      columns
+    };
+    setFormRows(prev => [...prev, newRow]);
+  };
+
+  const handleRowDelete = (rowId: string) => {
+    setFormRows(prev => prev.filter(row => row.id !== rowId));
+  };
+
+  const handleGridFieldAdd = (fieldType: FormFieldType, rowId: string, columnIndex: number) => {
+    const newField: FormField = {
+      id: `field_${Date.now()}`,
+      label: `New ${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
+      type: fieldType,
+      required: false,
+      enabled: true,
+      placeholder: `Enter ${fieldType}`,
+    };
+    
+    setFormRows(prev => prev.map(row => {
+      if (row.id === rowId) {
+        const newFields = [...row.fields];
+        newFields[columnIndex] = newField;
+        return { ...row, fields: newFields };
       }
-      return form;
+      return row;
     }));
+  };
+
+  const handleGridFieldUpdate = (fieldId: string, updates: Partial<FormField>) => {
+    setFormRows(prev => prev.map(row => ({
+      ...row,
+      fields: row.fields.map(field => 
+        field && field.id === fieldId ? { ...field, ...updates } : field
+      )
+    })));
+  };
+
+  const handleGridFieldDelete = (fieldId: string) => {
+    setFormRows(prev => prev.map(row => ({
+      ...row,
+      fields: row.fields.map(field => 
+        field && field.id === fieldId ? null : field
+      )
+    })));
   };
 
   if (!embedded) {
@@ -354,46 +397,79 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
         onFieldAdd={(fieldType, insertIndex) => handleFieldAdd(fieldType, insertIndex)}
         onFieldUpdate={handleFieldUpdate}
         onFieldDelete={handleFieldDelete}
-        onFieldReorder={handleFieldReorder}
+        onFieldReorder={(from, to) => {}}
       >
         <Card className="min-h-full">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
               <CardTitle className="text-xl">{formConfig.title}</CardTitle>
-              <p className="text-sm text-muted-foreground">{formConfig.fields.length} fields</p>
+              <p className="text-sm text-muted-foreground">
+                {layoutMode === 'list' ? formConfig.fields.length : formRows.reduce((total, row) => total + row.fields.filter(f => f).length, 0)} fields
+              </p>
             </div>
-            <Button onClick={() => toast({ title: 'Form Saved', description: 'Form configuration saved successfully!' })}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Form
-            </Button>
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-lg border">
+                <Button
+                  variant={layoutMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setLayoutMode('list')}
+                  className="rounded-r-none"
+                >
+                  List
+                </Button>
+                <Button
+                  variant={layoutMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setLayoutMode('grid')}
+                  className="rounded-l-none"
+                >
+                  Grid
+                </Button>
+              </div>
+              <Button onClick={() => toast({ title: 'Form Saved', description: 'Form configuration saved successfully!' })}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Form
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="p-6 pb-8">
-            <div className="space-y-4 max-w-none">
-              {formConfig.fields.map((field, index) => (
-                <div key={field.id} className="space-y-2">
-                  <FieldConfigEditor
-                    field={field}
-                    onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
-                    onRemove={() => handleFieldDelete(field.id)}
-                    availableFields={formConfig.fields.filter(f => f.id !== field.id)}
-                  />
-                  <FieldInsertButton 
-                    onFieldAdd={(fieldType) => handleFieldAdd(fieldType, index + 1)}
-                  />
-                </div>
-              ))}
-              
-              {formConfig.fields.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <p className="text-lg mb-2">No fields added yet</p>
-                  <p>Drag field types from the sidebar or use the + button to add fields</p>
-                  <FieldInsertButton 
-                    onFieldAdd={(fieldType) => handleFieldAdd(fieldType, 0)}
-                    className="mt-4"
-                  />
-                </div>
-              )}
-            </div>
+            {layoutMode === 'list' ? (
+              <div className="space-y-4 max-w-none">
+                {formConfig.fields.map((field, index) => (
+                  <div key={field.id} className="space-y-2">
+                    <FieldConfigEditor
+                      field={field}
+                      onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
+                      onRemove={() => handleFieldDelete(field.id)}
+                      availableFields={formConfig.fields.filter(f => f.id !== field.id)}
+                    />
+                    <FieldInsertButton 
+                      onFieldAdd={(fieldType) => handleFieldAdd(fieldType, index + 1)}
+                    />
+                  </div>
+                ))}
+                
+                {formConfig.fields.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <p className="text-lg mb-2">No fields added yet</p>
+                    <p>Drag field types from the sidebar or use the + button to add fields</p>
+                    <FieldInsertButton 
+                      onFieldAdd={(fieldType) => handleFieldAdd(fieldType, 0)}
+                      className="mt-4"
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <GridFormBuilder
+                rows={formRows}
+                onRowAdd={handleRowAdd}
+                onRowDelete={handleRowDelete}
+                onFieldUpdate={handleGridFieldUpdate}
+                onFieldDelete={handleGridFieldDelete}
+                onFieldAdd={handleGridFieldAdd}
+              />
+            )}
           </CardContent>
         </Card>
       </FormBuilderLayout>

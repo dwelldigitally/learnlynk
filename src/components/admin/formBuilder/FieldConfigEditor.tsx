@@ -10,12 +10,14 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Settings, ChevronDown, ChevronRight } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { FormField, FormFieldType, FormFieldOption, ValidationRule, ConditionalLogic } from '@/types/formBuilder';
+import { cn } from '@/lib/utils';
 
 interface FieldConfigEditorProps {
   field: FormField;
   onUpdate: (updates: Partial<FormField>) => void;
   onRemove: () => void;
   availableFields: FormField[];
+  compact?: boolean;
 }
 
 const fieldTypeOptions: { value: FormFieldType; label: string }[] = [
@@ -37,7 +39,7 @@ const fieldTypeOptions: { value: FormFieldType; label: string }[] = [
   { value: 'consent', label: 'Consent Checkbox' },
 ];
 
-export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }: FieldConfigEditorProps) {
+export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields, compact = false }: FieldConfigEditorProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -117,13 +119,15 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </Button>
-              </CollapsibleTrigger>
-            </Collapsible>
+            {!compact && (
+              <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+              </Collapsible>
+            )}
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={field.enabled}
@@ -141,11 +145,11 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }
         </div>
       </CardHeader>
 
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+      <Collapsible open={compact || isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleContent>
           <CardContent className="space-y-4">
             {/* Basic Configuration */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className={cn("grid gap-4", compact ? "grid-cols-1" : "grid-cols-2")}>
               <div>
                 <Label htmlFor={`${field.id}-label`}>Field Label</Label>
                 <Input
@@ -155,24 +159,26 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }
                   placeholder="Enter field label"
                 />
               </div>
-              <div>
-                <Label htmlFor={`${field.id}-type`}>Field Type</Label>
-                <Select value={field.type} onValueChange={(value: FormFieldType) => onUpdate({ type: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background">
-                    {fieldTypeOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              {!compact && (
+                <div>
+                  <Label htmlFor={`${field.id}-type`}>Field Type</Label>
+                  <Select value={field.type} onValueChange={(value: FormFieldType) => onUpdate({ type: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      {fieldTypeOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className={cn("grid gap-4", compact ? "grid-cols-1" : "grid-cols-2")}>
               <div>
                 <Label htmlFor={`${field.id}-placeholder`}>Placeholder</Label>
                 <Input
@@ -182,26 +188,30 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }
                   placeholder="Enter placeholder text"
                 />
               </div>
-              <div className="flex items-center space-x-2 pt-6">
-                <Checkbox
-                  id={`${field.id}-required`}
-                  checked={field.required}
-                  onCheckedChange={(checked) => onUpdate({ required: !!checked })}
-                />
-                <Label htmlFor={`${field.id}-required`}>Required Field</Label>
-              </div>
+              {!compact && (
+                <div className="flex items-center space-x-2 pt-6">
+                  <Checkbox
+                    id={`${field.id}-required`}
+                    checked={field.required}
+                    onCheckedChange={(checked) => onUpdate({ required: !!checked })}
+                  />
+                  <Label htmlFor={`${field.id}-required`}>Required Field</Label>
+                </div>
+              )}
             </div>
 
-            <div>
-              <Label htmlFor={`${field.id}-help`}>Help Text</Label>
-              <Textarea
-                id={`${field.id}-help`}
-                value={field.helpText || ''}
-                onChange={(e) => onUpdate({ helpText: e.target.value })}
-                placeholder="Optional help text for users"
-                rows={2}
-              />
-            </div>
+            {!compact && (
+              <div>
+                <Label htmlFor={`${field.id}-help`}>Help Text</Label>
+                <Textarea
+                  id={`${field.id}-help`}
+                  value={field.helpText || ''}
+                  onChange={(e) => onUpdate({ helpText: e.target.value })}
+                  placeholder="Optional help text for users"
+                  rows={2}
+                />
+              </div>
+            )}
 
             {/* Field-Specific Configuration */}
             {needsOptions && (
@@ -298,7 +308,8 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }
               </div>
             )}
 
-            {/* Advanced Configuration */}
+            {/* Advanced Configuration - Hidden in compact mode */}
+            {!compact && (
             <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
               <CollapsibleTrigger asChild>
                 <Button variant="ghost" size="sm" className="w-full">
@@ -419,6 +430,7 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields }
                 </div>
               </CollapsibleContent>
             </Collapsible>
+            )}
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

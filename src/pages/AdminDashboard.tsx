@@ -16,6 +16,7 @@ import SystemConfiguration from "@/components/admin/SystemConfiguration";
 import ProfilePage from "@/components/admin/ProfilePage";
 import CompanyPage from "@/components/admin/CompanyPage";
 import { LeadManagement } from "@/components/admin/LeadManagement";
+import { DatabaseManagement } from "@/components/admin/DatabaseManagement";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -51,6 +52,8 @@ const AdminDashboard: React.FC = () => {
         return <AnalyticsReporting />;
       case "/admin/settings":
         return <SystemConfiguration />;
+      case "/admin/database":
+        return <DatabaseManagement />;
       case "/admin/profile":
         return <ProfilePage />;
       default:

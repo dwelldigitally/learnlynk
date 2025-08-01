@@ -18,7 +18,8 @@ import {
   Menu,
   X,
   Building2,
-  User
+  User,
+  Database
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +41,7 @@ const navigation = [
   { name: 'Team', href: '/admin/team', icon: UserCheck, count: null },
   { name: 'Workflows', href: '/admin/workflows', icon: GitBranch, count: null },
   { name: 'Analytics', href: '/admin/analytics', icon: BarChart3, count: null },
+  { name: 'Database', href: '/admin/database', icon: Database, count: null },
   { name: 'Settings', href: '/admin/settings', icon: Settings, count: null },
 ];
 

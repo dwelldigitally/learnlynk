@@ -254,12 +254,12 @@ export function FormBuilderLayout({
                 </div>
               </div>
 
-              <TabsContent value="builder" className="h-[calc(100%-80px)]">
+              <TabsContent value="builder" className="mt-4 flex-1 overflow-auto">
                 {children}
               </TabsContent>
               
-              <TabsContent value="preview" className="h-[calc(100%-80px)]">
-                <Card className="h-full">
+              <TabsContent value="preview" className="mt-4 flex-1 overflow-auto">
+                <Card className="min-h-full">
                   <CardContent className="p-6">
                     <div className="max-w-md mx-auto">
                       {/* Form preview would go here */}
@@ -271,8 +271,8 @@ export function FormBuilderLayout({
                 </Card>
               </TabsContent>
               
-              <TabsContent value="settings" className="h-[calc(100%-80px)]">
-                <Card className="h-full">
+              <TabsContent value="settings" className="mt-4 flex-1 overflow-auto">
+                <Card className="min-h-full">
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       <div>
@@ -293,7 +293,7 @@ export function FormBuilderLayout({
               </TabsContent>
             </Tabs>
           ) : (
-            <Card className="h-full flex items-center justify-center">
+            <Card className="min-h-full flex items-center justify-center">
               <CardContent className="text-center">
                 <h3 className="text-lg font-medium mb-2">No Form Selected</h3>
                 <p className="text-muted-foreground mb-4">

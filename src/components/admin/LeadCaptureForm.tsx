@@ -356,7 +356,7 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
         onFieldDelete={handleFieldDelete}
         onFieldReorder={handleFieldReorder}
       >
-        <Card className="h-full">
+        <Card className="min-h-full">
           <CardHeader className="flex flex-row items-center justify-between pb-4">
             <div>
               <CardTitle className="text-xl">{formConfig.title}</CardTitle>
@@ -367,8 +367,8 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
               Save Form
             </Button>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-4">
+          <CardContent className="p-6 pb-8">
+            <div className="space-y-4 max-w-none">
               {formConfig.fields.map((field, index) => (
                 <div key={field.id} className="space-y-2">
                   <FieldConfigEditor

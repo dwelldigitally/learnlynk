@@ -153,9 +153,9 @@ const Home: React.FC = () => {
             <AnimatedSection animation="slideLeft" className="text-left">
               <motion.div 
                 className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6"
-                initial={{ scale: 0.8, opacity: 0 }}
+                initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
               >
                 <Star className="w-4 h-4 mr-2" />
                 Trusted by 1,200+ Institutions
@@ -163,16 +163,16 @@ const Home: React.FC = () => {
               
               <motion.h1 
                 className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-                initial={{ y: 50, opacity: 0 }}
+                initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
               >
                 Connect. Learn.
                 <motion.span 
                   className="block text-emerald-300"
-                  initial={{ x: -50, opacity: 0 }}
+                  initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.8 }}
+                  transition={{ delay: 0.25, duration: 0.4 }}
                 >
                   Transform Together.
                 </motion.span>
@@ -180,9 +180,9 @@ const Home: React.FC = () => {
               
               <motion.p 
                 className="text-xl text-white/90 mb-8 max-w-2xl leading-relaxed"
-                initial={{ y: 30, opacity: 0 }}
+                initial={{ y: 15, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 0.35, duration: 0.3 }}
               >
                 Harness the power of AI to transform student recruitment, engagement, and success. 
                 Drive enrollment growth while ensuring no student falls through the cracks.
@@ -190,9 +190,9 @@ const Home: React.FC = () => {
               
               <motion.div 
                 className="flex flex-col sm:flex-row gap-4 mb-8"
-                initial={{ y: 30, opacity: 0 }}
+                initial={{ y: 15, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1.0 }}
+                transition={{ delay: 0.45, duration: 0.3 }}
               >
                 <Button 
                   size="lg" 
@@ -216,7 +216,7 @@ const Home: React.FC = () => {
                 className="flex items-center text-white/80 text-sm"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1.2 }}
+                transition={{ delay: 0.55, duration: 0.3 }}
               >
                 <CheckCircle className="w-4 h-4 mr-2 text-emerald-300" />
                 No credit card required • Setup in under 5 minutes

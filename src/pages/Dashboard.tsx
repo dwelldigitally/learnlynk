@@ -13,7 +13,7 @@ const Dashboard: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
             <img 
-              src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+              src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
               alt="Learnlynk Logo" 
               className="h-8"
             />

@@ -500,7 +500,7 @@ const Home: React.FC = () => {
                 whileHover={{ scale: 1.05 }}
               >
                 <img 
-                  src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+                  src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
                   alt="Learnlynk Logo" 
                   className="h-8"
                 />

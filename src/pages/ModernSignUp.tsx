@@ -311,11 +311,10 @@ const ModernSignUp: React.FC = () => {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-6">
             <img 
-              src="/lovable-uploads/3c634d34-1dd4-4d6c-a352-49362db4fc12.png" 
+              src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
               alt="Learnlynk Logo" 
               className="h-10"
             />
-            <span className="text-2xl font-bold text-foreground">Learnlynk</span>
           </div>
           <h1 className="text-3xl font-bold text-foreground mb-2">
             Join Learnlynk

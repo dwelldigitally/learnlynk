@@ -58,6 +58,15 @@ const DocumentManagement: React.FC = () => {
   };
 
   return (
+    <ConditionalDataWrapper
+      isLoading={isLoading}
+      showEmptyState={showEmptyState}
+      hasDemoAccess={hasDemoAccess}
+      hasRealData={hasRealData}
+      emptyTitle="No Documents Yet"
+      emptyDescription="Student documents will appear here once they start uploading required files."
+      loadingRows={5}
+    >
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -74,10 +83,10 @@ const DocumentManagement: React.FC = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { title: "Pending Review", count: documents.filter(d => d.status === 'pending').length, color: "text-yellow-600", bgColor: "bg-yellow-100" },
-          { title: "Under Review", count: documents.filter(d => d.status === 'under_review').length, color: "text-blue-600", bgColor: "bg-blue-100" },
-          { title: "Approved", count: documents.filter(d => d.status === 'approved').length, color: "text-green-600", bgColor: "bg-green-100" },
-          { title: "Rejected", count: documents.filter(d => d.status === 'rejected').length, color: "text-red-600", bgColor: "bg-red-100" }
+          { title: "Pending Review", count: documents?.filter(d => d.status === 'pending').length || 0, color: "text-yellow-600", bgColor: "bg-yellow-100" },
+          { title: "Under Review", count: documents?.filter(d => d.status === 'under_review').length || 0, color: "text-blue-600", bgColor: "bg-blue-100" },
+          { title: "Approved", count: documents?.filter(d => d.status === 'approved').length || 0, color: "text-green-600", bgColor: "bg-green-100" },
+          { title: "Rejected", count: documents?.filter(d => d.status === 'rejected').length || 0, color: "text-red-600", bgColor: "bg-red-100" }
         ].map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
@@ -271,6 +280,7 @@ const DocumentManagement: React.FC = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </ConditionalDataWrapper>
   );
 };
 

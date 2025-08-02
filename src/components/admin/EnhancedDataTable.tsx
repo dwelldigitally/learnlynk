@@ -159,7 +159,7 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
 
   const handleFilterChange = (filterKey: string, value: any) => {
     const newFilters = { ...activeFilters };
-    if (value === null || value === undefined || value === '') {
+    if (value === null || value === undefined || value === '' || value === 'all') {
       delete newFilters[filterKey];
     } else {
       newFilters[filterKey] = value;
@@ -337,14 +337,14 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
               <div key={filter.key} className="space-y-1">
                 <label className="text-xs font-medium">{filter.label}</label>
                 <Select
-                  value={activeFilters[filter.key] || ''}
+                  value={activeFilters[filter.key] || 'all'}
                   onValueChange={(value) => handleFilterChange(filter.key, value)}
                 >
                   <SelectTrigger className="h-8">
                     <SelectValue placeholder="All" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All</SelectItem>
+                    <SelectItem value="all">All</SelectItem>
                     {filter.options.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
                         {option.label}

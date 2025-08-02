@@ -17,6 +17,9 @@ import { LeadScoringEngine } from './LeadScoringEngine';
 import { LeadAnalyticsDashboard } from './LeadAnalyticsDashboard';
 import AILeadEnhancement from './AILeadEnhancement';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
+import { CommunicationTemplateManager } from './CommunicationTemplateManager';
+import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
 
@@ -33,6 +36,7 @@ export function LeadManagement() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  const [showEnhancedModal, setShowEnhancedModal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -332,14 +336,16 @@ export function LeadManagement() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="ai">AI Features</TabsTrigger>
           <TabsTrigger value="capture">Lead Forms</TabsTrigger>
           <TabsTrigger value="routing">Routing Rules</TabsTrigger>
           <TabsTrigger value="scoring">Scoring Engine</TabsTrigger>
-          <TabsTrigger value="bulk">Bulk Operations</TabsTrigger>
+          <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="advanced-analytics">Advanced Analytics</TabsTrigger>
+          <TabsTrigger value="bulk">Bulk Operations</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -469,7 +475,7 @@ export function LeadManagement() {
                   const lead = leads.find(l => l.id === row.id);
                   if (lead) {
                     setSelectedLead(lead);
-                    setShowLeadDetail(true);
+                    setShowEnhancedModal(true);
                   }
                 }}
                 onSelectionChange={setSelectedLeadIds}
@@ -493,6 +499,10 @@ export function LeadManagement() {
           }} />
         </TabsContent>
 
+        <TabsContent value="templates">
+          <CommunicationTemplateManager />
+        </TabsContent>
+
         <TabsContent value="scoring">
           <LeadScoringEngine />
         </TabsContent>
@@ -510,6 +520,10 @@ export function LeadManagement() {
         <TabsContent value="analytics">
           <LeadAnalyticsDashboard />
         </TabsContent>
+
+        <TabsContent value="advanced-analytics">
+          <AdvancedLeadAnalyticsDashboard />
+        </TabsContent>
       </Tabs>
 
       {/* Modals */}
@@ -519,6 +533,23 @@ export function LeadManagement() {
         onLeadCreated={handleLeadCreated}
       />
 
+      {/* Enhanced Lead Detail Modal */}
+      <EnhancedLeadDetailModal
+        lead={selectedLead}
+        isOpen={showEnhancedModal}
+        onClose={() => {
+          setShowEnhancedModal(false);
+          setSelectedLead(null);
+        }}
+        onLeadUpdate={(updatedLead) => {
+          setLeads(prev => prev.map(lead => 
+            lead.id === updatedLead.id ? updatedLead : lead
+          ));
+          loadStats();
+        }}
+      />
+
+      {/* Legacy Lead Detail Modal for fallback */}
       {selectedLead && (
         <LeadDetailModal
           open={showLeadDetail}

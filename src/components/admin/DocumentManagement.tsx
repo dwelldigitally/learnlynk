@@ -30,48 +30,12 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import { useConditionalDocuments } from "@/hooks/useConditionalDocuments";
+import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 
 const DocumentManagement: React.FC = () => {
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
-
-  const documents = [
-    {
-      id: "1",
-      name: "High School Transcript",
-      studentName: "Sarah Johnson",
-      program: "Health Care Assistant",
-      intake: "April 2024",
-      uploadDate: "2024-01-15",
-      status: "pending",
-      fileType: "PDF",
-      fileSize: "2.3 MB",
-      requirement: "Academic Records"
-    },
-    {
-      id: "2", 
-      name: "Government ID",
-      studentName: "Michael Chen",
-      program: "Early Childhood Education",
-      intake: "May 2024",
-      uploadDate: "2024-01-14",
-      status: "under-review",
-      fileType: "PDF", 
-      fileSize: "1.8 MB",
-      requirement: "Identity Verification"
-    },
-    {
-      id: "3",
-      name: "English Proficiency Test",
-      studentName: "Emma Davis", 
-      program: "Aviation Maintenance",
-      intake: "June 2024",
-      uploadDate: "2024-01-13",
-      status: "approved",
-      fileType: "PDF",
-      fileSize: "3.1 MB",
-      requirement: "Language Proficiency"
-    }
-  ];
+  const { data: documents, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalDocuments();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -110,10 +74,10 @@ const DocumentManagement: React.FC = () => {
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { title: "Pending Review", count: 45, color: "text-yellow-600", bgColor: "bg-yellow-100" },
-          { title: "Under Review", count: 23, color: "text-blue-600", bgColor: "bg-blue-100" },
-          { title: "Approved Today", count: 67, color: "text-green-600", bgColor: "bg-green-100" },
-          { title: "Rejected", count: 8, color: "text-red-600", bgColor: "bg-red-100" }
+          { title: "Pending Review", count: documents.filter(d => d.status === 'pending').length, color: "text-yellow-600", bgColor: "bg-yellow-100" },
+          { title: "Under Review", count: documents.filter(d => d.status === 'under_review').length, color: "text-blue-600", bgColor: "bg-blue-100" },
+          { title: "Approved", count: documents.filter(d => d.status === 'approved').length, color: "text-green-600", bgColor: "bg-green-100" },
+          { title: "Rejected", count: documents.filter(d => d.status === 'rejected').length, color: "text-red-600", bgColor: "bg-red-100" }
         ].map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
@@ -179,87 +143,95 @@ const DocumentManagement: React.FC = () => {
           {/* Documents Table */}
           <Card>
             <CardHeader>
-              <CardTitle>Documents Pending Review ({documents.length})</CardTitle>
+              <CardTitle>Documents Pending Review ({documents.filter(d => d.status === 'pending').length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Document</TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Program</TableHead>
-                    <TableHead>Requirement</TableHead>
-                    <TableHead>Upload Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {documents.map((doc) => (
-                    <TableRow key={doc.id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedDocuments.includes(doc.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedDocuments([...selectedDocuments, doc.id]);
-                            } else {
-                              setSelectedDocuments(selectedDocuments.filter(id => id !== doc.id));
-                            }
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <FileText className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="font-medium">{doc.name}</p>
-                            <p className="text-sm text-muted-foreground">{doc.fileType} • {doc.fileSize}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src="/placeholder.svg" />
-                            <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                          </Avatar>
-                          <span className="font-medium">{doc.studentName}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{doc.program}</TableCell>
-                      <TableCell>{doc.requirement}</TableCell>
-                      <TableCell>{new Date(doc.uploadDate).toLocaleDateString()}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(doc.status)}
-                          <Badge variant={getStatusColor(doc.status)}>
-                            {doc.status.replace('-', ' ')}
-                          </Badge>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex space-x-1">
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <XCircle className="h-4 w-4 text-red-600" />
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
+              <ConditionalDataWrapper
+                isLoading={isLoading}
+                showEmptyState={showEmptyState}
+                hasDemoAccess={hasDemoAccess}
+                hasRealData={hasRealData}
+                emptyTitle="No Documents to Review"
+                emptyDescription="Document submissions will appear here for review."
+                loadingRows={5}
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12"></TableHead>
+                      <TableHead>Document</TableHead>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Upload Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {documents.filter(d => d.status === 'pending').map((doc) => (
+                      <TableRow key={doc.id}>
+                        <TableCell>
+                          <input
+                            type="checkbox"
+                            checked={selectedDocuments.includes(doc.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedDocuments([...selectedDocuments, doc.id]);
+                              } else {
+                                setSelectedDocuments(selectedDocuments.filter(id => id !== doc.id));
+                              }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-3">
+                            <FileText className="h-5 w-5 text-muted-foreground" />
+                            <div>
+                              <p className="font-medium">{doc.name}</p>
+                              <p className="text-sm text-muted-foreground">{doc.fileSize ? `${Math.round(doc.fileSize / 1024)} KB` : 'Unknown size'}</p>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src="/placeholder.svg" />
+                              <AvatarFallback>ST</AvatarFallback>
+                            </Avatar>
+                            <span className="font-medium">{doc.studentId}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{doc.type}</TableCell>
+                        <TableCell>{new Date(doc.uploadedAt || Date.now()).toLocaleDateString()}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            {getStatusIcon(doc.status)}
+                            <Badge variant={getStatusColor(doc.status)}>
+                              {doc.status.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex space-x-1">
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <XCircle className="h-4 w-4 text-red-600" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <MessageSquare className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ConditionalDataWrapper>
             </CardContent>
           </Card>
         </TabsContent>

@@ -45,6 +45,8 @@ import {
   TrendingUp
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useConditionalCommunications } from "@/hooks/useConditionalCommunications";
+import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 
 const CommunicationCenter: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -59,45 +61,22 @@ const CommunicationCenter: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const { toast } = useToast();
+  
+  const { data: communications, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalCommunications();
 
-  const messages = [
-    {
-      id: "1",
-      studentName: "Sarah Johnson",
-      subject: "Question about HCA Program Requirements",
-      message: "Hi, I have a question about the clinical placement requirements for the Health Care Assistant program...",
-      timestamp: "2024-01-15 14:30",
-      status: "unread",
-      priority: "normal",
-      assignedTo: "Nicole Adams",
-      program: "Health Care Assistant",
-      channel: "email"
-    },
-    {
-      id: "2",
-      studentName: "Michael Chen", 
-      subject: "Payment Plan Inquiry",
-      message: "I would like to know more about the available payment plans for the ECE program...",
-      timestamp: "2024-01-15 12:15",
-      status: "replied",
-      priority: "normal",
-      assignedTo: "Robert Smith",
-      program: "Early Childhood Education",
-      channel: "portal"
-    },
-    {
-      id: "3",
-      studentName: "Emma Davis",
-      subject: "Document Upload Issue",
-      message: "I'm having trouble uploading my transcript. The file seems to be the right size but...",
-      timestamp: "2024-01-15 09:45",
-      status: "in-progress",
-      priority: "high",
-      assignedTo: "Sarah Kim",
-      program: "Aviation Maintenance",
-      channel: "portal"
-    }
-  ];
+  // Transform communications data to match expected message format
+  const messages = communications.map(comm => ({
+    id: comm.id,
+    studentName: comm.studentId || "Student",
+    subject: comm.subject,
+    message: comm.content,
+    timestamp: new Date(comm.sentAt || Date.now()).toISOString(),
+    status: comm.status,
+    priority: "normal", // Default priority
+    assignedTo: "System",
+    program: "Unknown",
+    channel: comm.type
+  }));
 
   const automations = [
     {
@@ -211,10 +190,10 @@ const CommunicationCenter: React.FC = () => {
       {/* Communication Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {[
-          { title: "Unread Messages", count: 23, icon: MessageSquare, color: "text-red-600" },
-          { title: "Emails Sent Today", count: 156, icon: Mail, color: "text-blue-600" },
-          { title: "Response Time", count: "2.5h", icon: Clock, color: "text-green-600" },
-          { title: "Resolved Today", count: 89, icon: CheckCircle, color: "text-purple-600" }
+          { title: "Total Messages", count: communications.length, icon: MessageSquare, color: "text-red-600" },
+          { title: "Sent Messages", count: communications.filter(c => c.status === 'sent').length, icon: Mail, color: "text-blue-600" },
+          { title: "Scheduled", count: communications.filter(c => c.status === 'scheduled').length, icon: Clock, color: "text-green-600" },
+          { title: "Email Type", count: communications.filter(c => c.type === 'email').length, icon: CheckCircle, color: "text-purple-600" }
         ].map((stat, index) => (
           <Card key={index}>
             <CardContent className="p-6">
@@ -319,7 +298,16 @@ const CommunicationCenter: React.FC = () => {
               <CardTitle>Student Messages ({filteredMessages.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
+              <ConditionalDataWrapper
+                isLoading={isLoading}
+                showEmptyState={showEmptyState}
+                hasDemoAccess={hasDemoAccess}
+                hasRealData={hasRealData}
+                emptyTitle="No Communications"
+                emptyDescription="Student communications will appear here."
+                loadingRows={5}
+              >
+                <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-12"></TableHead>
@@ -403,6 +391,7 @@ const CommunicationCenter: React.FC = () => {
                   ))}
                 </TableBody>
               </Table>
+              </ConditionalDataWrapper>
             </CardContent>
           </Card>
         </TabsContent>

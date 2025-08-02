@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Eye, CheckCircle, XCircle, Search, ArrowLeft, DollarSign } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useConditionalScholarships } from "@/hooks/useConditionalScholarships";
+import { ConditionalDataWrapper } from "@/components/admin/ConditionalDataWrapper";
 
 interface ScholarshipApplication {
   id: string;
@@ -43,6 +45,8 @@ export const ScholarshipApplications = () => {
   const [awardAmount, setAwardAmount] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
 
+  const { data: scholarshipApplications, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalScholarships();
+
   // Mock scholarship data - replace with actual API call
   const scholarship = {
     id: scholarshipId,
@@ -52,53 +56,23 @@ export const ScholarshipApplications = () => {
     description: "Supporting outstanding students in Science, Technology, Engineering, and Mathematics fields.",
   };
 
-  // Mock applications data - replace with actual API call
-  const mockApplications: ScholarshipApplication[] = [
-    {
-      id: "1",
-      studentName: "Alex Thompson",
-      studentId: "STU001",
-      email: "sarah.johnson@email.com",
-      gpa: 3.8,
-      submittedDate: "2024-01-15",
-      status: "pending",
-      essayScore: 85,
-      documentsComplete: true,
-      essay: "My passion for environmental science began when I witnessed the effects of climate change...",
-      transcript: "transcript_sarah_johnson.pdf",
-      recommendationLetters: ["Dr. Smith recommendation", "Prof. Wilson recommendation"],
-    },
-    {
-      id: "2", 
-      studentName: "Jordan Smith",
-      studentId: "STU002",
-      email: "michael.chen@email.com",
-      gpa: 3.9,
-      submittedDate: "2024-01-12",
-      status: "awarded",
-      essayScore: 92,
-      documentsComplete: true,
-      awardAmount: 2500,
-      essay: "Innovation in computer science has always been my driving force...",
-      transcript: "transcript_michael_chen.pdf",
-      recommendationLetters: ["Dr. Garcia recommendation", "Prof. Lee recommendation"],
-    },
-    {
-      id: "3",
-      studentName: "Casey Wilson",
-      studentId: "STU003", 
-      email: "emily.rodriguez@email.com",
-      gpa: 3.2,
-      submittedDate: "2024-01-20",
-      status: "rejected",
-      essayScore: 65,
-      documentsComplete: false,
-      rejectionReason: "Incomplete documentation - missing transcript",
-      essay: "Mathematics has always been challenging but rewarding for me...",
-      transcript: "",
-      recommendationLetters: ["Prof. Davis recommendation"],
-    },
-  ];
+  // Transform scholarship applications data to match expected format
+  const mockApplications: ScholarshipApplication[] = scholarshipApplications.map(app => ({
+    id: app.id,
+    studentName: app.studentName,
+    studentId: app.studentName.replace(/\s+/g, '').toUpperCase().slice(0, 6),
+    email: `${app.studentName.toLowerCase().replace(/\s+/g, '.')}@email.com`,
+    gpa: 3.5 + Math.random() * 1.0, // Random GPA between 3.5-4.5
+    submittedDate: app.applicationDate,
+    status: app.status as "pending" | "awarded" | "rejected",
+    essayScore: app.eligibilityScore,
+    documentsComplete: app.documentsSubmitted,
+    awardAmount: app.status === 'approved' ? app.amount : undefined,
+    rejectionReason: app.status === 'rejected' ? "Application review completed" : undefined,
+    essay: "Student essay content...",
+    transcript: app.documentsSubmitted ? "transcript.pdf" : "",
+    recommendationLetters: app.documentsSubmitted ? ["Recommendation letter"] : [],
+  }));
 
   const pendingApplications = mockApplications.filter(app => app.status === "pending");
   const awardedApplications = mockApplications.filter(app => app.status === "awarded");
@@ -179,73 +153,83 @@ export const ScholarshipApplications = () => {
         </Select>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Student</TableHead>
-            <TableHead>GPA</TableHead>
-            <TableHead>Essay Score</TableHead>
-            <TableHead>Submitted</TableHead>
-            <TableHead>Documents</TableHead>
-            <TableHead>Status</TableHead>
-            {showActions && <TableHead>Actions</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {applications.map((application) => (
-            <TableRow key={application.id}>
-              <TableCell>
-                <div>
-                  <div className="font-medium">{application.studentName}</div>
-                  <div className="text-sm text-muted-foreground">{application.studentId}</div>
-                  <div className="text-sm text-muted-foreground">{application.email}</div>
-                </div>
-              </TableCell>
-              <TableCell>{application.gpa}</TableCell>
-              <TableCell>{application.essayScore || "N/A"}</TableCell>
-              <TableCell>{application.submittedDate}</TableCell>
-              <TableCell>
-                <Badge variant={application.documentsComplete ? "default" : "destructive"}>
-                  {application.documentsComplete ? "Complete" : "Incomplete"}
-                </Badge>
-              </TableCell>
-              <TableCell>{getStatusBadge(application.status)}</TableCell>
-              {showActions && (
+      <ConditionalDataWrapper
+        isLoading={isLoading}
+        showEmptyState={showEmptyState && applications.length === 0}
+        hasDemoAccess={hasDemoAccess}
+        hasRealData={hasRealData}
+        emptyTitle="No Scholarship Applications"
+        emptyDescription="Scholarship applications will appear here when submitted."
+        loadingRows={5}
+      >
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Student</TableHead>
+              <TableHead>GPA</TableHead>
+              <TableHead>Essay Score</TableHead>
+              <TableHead>Submitted</TableHead>
+              <TableHead>Documents</TableHead>
+              <TableHead>Status</TableHead>
+              {showActions && <TableHead>Actions</TableHead>}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {applications.map((application) => (
+              <TableRow key={application.id}>
                 <TableCell>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => handleViewApplication(application)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    {application.status === "pending" && (
-                      <>
-                        <Button 
-                          size="sm" 
-                          onClick={() => {
-                            setSelectedApplication(application);
-                            setAwardModalOpen(true);
-                          }}
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="destructive" 
-                          onClick={() => {
-                            setSelectedApplication(application);
-                            setRejectModalOpen(true);
-                          }}
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
+                  <div>
+                    <div className="font-medium">{application.studentName}</div>
+                    <div className="text-sm text-muted-foreground">{application.studentId}</div>
+                    <div className="text-sm text-muted-foreground">{application.email}</div>
                   </div>
                 </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                <TableCell>{application.gpa?.toFixed(2)}</TableCell>
+                <TableCell>{application.essayScore || "N/A"}</TableCell>
+                <TableCell>{application.submittedDate}</TableCell>
+                <TableCell>
+                  <Badge variant={application.documentsComplete ? "default" : "destructive"}>
+                    {application.documentsComplete ? "Complete" : "Incomplete"}
+                  </Badge>
+                </TableCell>
+                <TableCell>{getStatusBadge(application.status)}</TableCell>
+                {showActions && (
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <Button size="sm" variant="outline" onClick={() => handleViewApplication(application)}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      {application.status === "pending" && (
+                        <>
+                          <Button 
+                            size="sm" 
+                            onClick={() => {
+                              setSelectedApplication(application);
+                              setAwardModalOpen(true);
+                            }}
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive" 
+                            onClick={() => {
+                              setSelectedApplication(application);
+                              setRejectModalOpen(true);
+                            }}
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </TableCell>
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ConditionalDataWrapper>
     </div>
   );
 

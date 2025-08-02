@@ -15,12 +15,20 @@ import {
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import ModernStatsCard from "./ModernStatsCard";
+import { useConditionalStudents } from "@/hooks/useConditionalStudents";
+import { useConditionalCommunications } from "@/hooks/useConditionalCommunications";
+import { useConditionalDocuments } from "@/hooks/useConditionalDocuments";
+import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 
 const AdminOverview: React.FC = () => {
+  const { data: students, isLoading: loadingStudents, showEmptyState: studentsEmpty, hasDemoAccess, hasRealData } = useConditionalStudents();
+  const { data: communications, isLoading: loadingComms } = useConditionalCommunications();
+  const { data: documents, isLoading: loadingDocs } = useConditionalDocuments();
+
   const stats = [
     { 
       title: "Total Students", 
-      value: "1,247", 
+      value: students.length.toString(), 
       change: { value: 12, type: "increase" as const, period: "last month" }, 
       icon: Users, 
       description: "Active enrolled students"
@@ -34,40 +42,54 @@ const AdminOverview: React.FC = () => {
     },
     { 
       title: "Pending Documents", 
-      value: "89", 
+      value: documents.filter(d => d.status === 'pending').length.toString(), 
       change: { value: 5, type: "decrease" as const, period: "last week" }, 
       icon: FileCheck, 
       description: "Awaiting review"
     },
     { 
-      title: "Upcoming Events", 
-      value: "12", 
+      title: "Recent Communications", 
+      value: communications.length.toString(), 
       change: { value: 25, type: "increase" as const, period: "last month" }, 
       icon: Calendar, 
-      description: "Scheduled events"
+      description: "Active communications"
     },
   ];
 
-  const recentActivity = [
-    { student: "Alex Thompson", action: "Submitted HCA application", time: "2 minutes ago", status: "pending" },
-    { student: "Jordan Smith", action: "Payment completed - ECE Program", time: "15 minutes ago", status: "completed" },
-    { student: "Emma Davis", action: "Document approved - Transcript", time: "1 hour ago", status: "approved" },
-    { student: "James Wilson", action: "Registered for Info Session", time: "2 hours ago", status: "registered" },
-    { student: "Lisa Brown", action: "Application submitted - Aviation", time: "3 hours ago", status: "pending" },
-  ];
+  // Get recent activity from communications
+  const recentActivity = communications.slice(0, 5).map(comm => ({
+    student: comm.studentId || "Student",
+    action: `${comm.type}: ${comm.subject}`,
+    time: new Date(comm.sentAt || Date.now()).toLocaleDateString(),
+    status: comm.status
+  }));
 
-  const programStats = [
-    { name: "Health Care Assistant", enrolled: 245, capacity: 280, percentage: 87 },
-    { name: "Early Childhood Education", enrolled: 156, capacity: 180, percentage: 87 },
-    { name: "Aviation Maintenance", enrolled: 89, capacity: 120, percentage: 74 },
-    { name: "Education Assistant", enrolled: 67, capacity: 80, percentage: 84 },
-  ];
+  // Program stats based on students data
+  const programStats = students.reduce((acc: any[], student) => {
+    const existing = acc.find(p => p.name === student.program);
+    if (existing) {
+      existing.enrolled++;
+    } else {
+      acc.push({
+        name: student.program,
+        enrolled: 1,
+        capacity: 100, // Default capacity
+        percentage: 0
+      });
+    }
+    return acc;
+  }, []).map(p => ({
+    ...p,
+    percentage: Math.round((p.enrolled / p.capacity) * 100)
+  }));
 
-  const atRiskStudents = [
-    { name: "Alex Thompson", program: "HCA", issue: "No documents uploaded", days: 7 },
-    { name: "Maria Rodriguez", program: "ECE", issue: "Payment overdue", days: 3 },
-    { name: "David Kim", program: "Aviation", issue: "No response to emails", days: 12 },
-  ];
+  // At-risk students from students data
+  const atRiskStudents = students.filter(s => s.riskLevel === 'high').slice(0, 3).map(student => ({
+    name: `${student.firstName} ${student.lastName}`,
+    program: student.program,
+    issue: "Requires attention",
+    days: Math.floor(Math.random() * 14) + 1
+  }));
 
   return (
     <div className="space-y-6">
@@ -107,20 +129,30 @@ const AdminOverview: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            {programStats.map((program, index) => (
-              <div key={index} className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm font-medium text-foreground">{program.name}</span>
-                  <span className="text-sm text-muted-foreground font-medium">
-                    {program.enrolled}/{program.capacity}
-                  </span>
+            <ConditionalDataWrapper
+              isLoading={loadingStudents}
+              showEmptyState={studentsEmpty}
+              hasDemoAccess={hasDemoAccess}
+              hasRealData={hasRealData}
+              emptyTitle="No Programs Available"
+              emptyDescription="Add students to see program enrollment statistics."
+              loadingRows={3}
+            >
+              {programStats.map((program, index) => (
+                <div key={index} className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-foreground">{program.name}</span>
+                    <span className="text-sm text-muted-foreground font-medium">
+                      {program.enrolled}/{program.capacity}
+                    </span>
+                  </div>
+                  <Progress value={program.percentage} className="h-2" />
+                  <div className="text-xs text-muted-foreground">
+                    {program.percentage}% capacity
+                  </div>
                 </div>
-                <Progress value={program.percentage} className="h-2" />
-                <div className="text-xs text-muted-foreground">
-                  {program.percentage}% capacity
-                </div>
-              </div>
-            ))}
+              ))}
+            </ConditionalDataWrapper>
           </CardContent>
         </Card>
 
@@ -133,22 +165,32 @@ const AdminOverview: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {atRiskStudents.map((student, index) => (
-              <div key={index} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                <div>
-                  <p className="font-medium text-foreground">{student.name}</p>
-                  <p className="text-sm text-muted-foreground">{student.program} • {student.issue}</p>
+            <ConditionalDataWrapper
+              isLoading={loadingStudents}
+              showEmptyState={studentsEmpty}
+              hasDemoAccess={hasDemoAccess}
+              hasRealData={hasRealData}
+              emptyTitle="No At-Risk Students"
+              emptyDescription="Students requiring attention will appear here."
+              loadingRows={3}
+            >
+              {atRiskStudents.map((student, index) => (
+                <div key={index} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                  <div>
+                    <p className="font-medium text-foreground">{student.name}</p>
+                    <p className="text-sm text-muted-foreground">{student.program} • {student.issue}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
+                      {student.days} days
+                    </Badge>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">
-                    {student.days} days
-                  </Badge>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </ConditionalDataWrapper>
           </CardContent>
         </Card>
       </div>
@@ -162,29 +204,39 @@ const AdminOverview: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {recentActivity.map((activity, index) => (
-              <div key={index} className="flex items-center justify-between p-4 hover:bg-muted/50 rounded-lg transition-all duration-200 group">
-                <div className="flex items-center space-x-4">
-                  <div className="w-2 h-2 bg-primary rounded-full group-hover:scale-125 transition-transform"></div>
-                  <div>
-                    <p className="font-medium text-foreground">{activity.student}</p>
-                    <p className="text-sm text-muted-foreground">{activity.action}</p>
+          <ConditionalDataWrapper
+            isLoading={loadingComms}
+            showEmptyState={recentActivity.length === 0 && !loadingComms}
+            hasDemoAccess={hasDemoAccess}
+            hasRealData={hasRealData}
+            emptyTitle="No Recent Activity"
+            emptyDescription="Student communications and activities will appear here."
+            loadingRows={5}
+          >
+            <div className="space-y-3">
+              {recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center justify-between p-4 hover:bg-muted/50 rounded-lg transition-all duration-200 group">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-2 h-2 bg-primary rounded-full group-hover:scale-125 transition-transform"></div>
+                    <div>
+                      <p className="font-medium text-foreground">{activity.student}</p>
+                      <p className="text-sm text-muted-foreground">{activity.action}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge variant={
+                      activity.status === 'completed' || activity.status === 'sent' ? 'default' :
+                      activity.status === 'approved' ? 'secondary' :
+                      activity.status === 'pending' ? 'outline' : 'outline'
+                    } className="text-xs font-medium">
+                      {activity.status}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <Badge variant={
-                    activity.status === 'completed' ? 'default' :
-                    activity.status === 'approved' ? 'secondary' :
-                    activity.status === 'pending' ? 'outline' : 'outline'
-                  } className="text-xs font-medium">
-                    {activity.status}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground mt-1">{activity.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ConditionalDataWrapper>
         </CardContent>
       </Card>
     </div>

@@ -247,6 +247,96 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          date: string
+          description: string | null
+          id: string
+          location: string | null
+          program_id: string | null
+          registrations: number | null
+          status: string | null
+          time: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          date: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          program_id?: string | null
+          registrations?: number | null
+          status?: string | null
+          time?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          date?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          program_id?: string | null
+          registrations?: number | null
+          status?: string | null
+          time?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      financial_records: {
+        Row: {
+          amount: number
+          created_at: string
+          due_date: string | null
+          id: string
+          payment_type: string | null
+          program: string
+          status: string | null
+          student_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          payment_type?: string | null
+          program: string
+          status?: string | null
+          student_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          payment_type?: string | null
+          program?: string
+          status?: string | null
+          student_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lead_activities: {
         Row: {
           activity_data: Json | null
@@ -506,6 +596,51 @@ export type Database = {
           theme_preference?: string | null
           timezone?: string | null
           title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      programs: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration: string
+          enrollment_status: string | null
+          id: string
+          name: string
+          next_intake: string | null
+          requirements: string[] | null
+          tuition: number | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration: string
+          enrollment_status?: string | null
+          id?: string
+          name: string
+          next_intake?: string | null
+          requirements?: string[] | null
+          tuition?: number | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration?: string
+          enrollment_status?: string | null
+          id?: string
+          name?: string
+          next_intake?: string | null
+          requirements?: string[] | null
+          tuition?: number | null
+          type?: string
           updated_at?: string
           user_id?: string
         }

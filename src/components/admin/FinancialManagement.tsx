@@ -21,6 +21,11 @@ import {
   Filter
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useConditionalData } from '@/hooks/useConditionalData';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { DemoDataService } from '@/services/demoDataService';
+import { FinancialService } from '@/services/financialService';
+import { ProgramService } from '@/services/programService';
 import { EnhancedProgramFeeModal } from "./modals/EnhancedProgramFeeModal";
 import { ProgramConfigurationModal } from "./modals/ProgramConfigurationModal";
 import { PaymentDetailModal } from "./modals/PaymentDetailModal";
@@ -48,6 +53,19 @@ const FinancialManagement = () => {
   });
 
   const { toast } = useToast();
+
+  // Data hooks
+  const financialData = useConditionalData(
+    ['financial-records'],
+    DemoDataService.getDemoFinancialRecords,
+    FinancialService.getFinancialRecords
+  );
+  
+  const programsData = useConditionalData(
+    ['programs'],
+    DemoDataService.getDemoPrograms,
+    ProgramService.getPrograms
+  );
 
   // Mock data
   const financialStats = [
@@ -172,11 +190,11 @@ const FinancialManagement = () => {
     },
   ];
 
-  const filteredPayments = mockApplicationPayments.filter(payment => {
+  const filteredPayments = financialData.data.filter(payment => {
     if (selectedProgram !== "all" && payment.program !== selectedProgram) return false;
     if (paymentFilters.status !== "all" && payment.status !== paymentFilters.status) return false;
-    if (paymentFilters.search && !payment.studentName.toLowerCase().includes(paymentFilters.search.toLowerCase()) &&
-        !payment.studentId.toLowerCase().includes(paymentFilters.search.toLowerCase())) return false;
+    if (paymentFilters.search && !payment.student_name.toLowerCase().includes(paymentFilters.search.toLowerCase()) &&
+        !payment.id.toLowerCase().includes(paymentFilters.search.toLowerCase())) return false;
     return true;
   });
 
@@ -448,14 +466,14 @@ const FinancialManagement = () => {
                     <SelectTrigger className="w-48">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Programs</SelectItem>
-                      {mockPrograms.map((program) => (
-                        <SelectItem key={program.id} value={program.name}>
-                          {program.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                     <SelectContent>
+                       <SelectItem value="all">All Programs</SelectItem>
+                       {programsData.data.map((program) => (
+                         <SelectItem key={program.id} value={program.name}>
+                           {program.name}
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
                   </Select>
                   <Button 
                     onClick={handleBulkReminder}
@@ -469,83 +487,92 @@ const FinancialManagement = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">
-                      <Checkbox
-                        checked={selectedStudents.length === filteredPayments.length && filteredPayments.length > 0}
-                        onCheckedChange={() => {
-                          if (selectedStudents.length === filteredPayments.length) {
-                            setSelectedStudents([]);
-                          } else {
-                            handleSelectAll(filteredPayments);
-                          }
-                        }}
-                      />
-                    </TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Program</TableHead>
-                    <TableHead>Amount Due</TableHead>
-                    <TableHead>Due Date</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPayments.map((payment) => (
-                    <TableRow key={payment.id}>
-                      <TableCell>
+              <ConditionalDataWrapper
+                isLoading={financialData.isLoading}
+                showEmptyState={financialData.showEmptyState}
+                hasDemoAccess={financialData.hasDemoAccess}
+                hasRealData={financialData.hasRealData}
+                emptyTitle="No Payment Records Found"
+                emptyDescription="Student payment records will appear here once students start making payments."
+              >
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12">
                         <Checkbox
-                          checked={selectedStudents.some(s => s.id === payment.id)}
-                          onCheckedChange={(checked) => handleStudentSelection(payment, checked as boolean)}
+                          checked={selectedStudents.length === filteredPayments.length && filteredPayments.length > 0}
+                          onCheckedChange={() => {
+                            if (selectedStudents.length === filteredPayments.length) {
+                              setSelectedStudents([]);
+                            } else {
+                              handleSelectAll(filteredPayments);
+                            }
+                          }}
                         />
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{payment.studentName}</div>
-                          <div className="text-sm text-muted-foreground">{payment.studentId}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{payment.program}</TableCell>
-                      <TableCell>${payment.amountDue.toLocaleString()}</TableCell>
-                      <TableCell>{payment.dueDate}</TableCell>
-                      <TableCell>{getStatusBadge(payment.status)}</TableCell>
-                      <TableCell>
-                        <div className="flex space-x-2">
-                          <Button
-                            size="sm"
-                            onClick={() => handleSendInvoice(payment)}
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                          >
-                            <Mail className="h-4 w-4 mr-1" />
-                            Invoice
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleSendReminder(payment)}
-                          >
-                            <MessageSquare className="h-4 w-4 mr-1" />
-                            Reminder
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setSelectedPayment(payment);
-                              setPaymentDetailModalOpen(true);
-                            }}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Details
-                          </Button>
-                        </div>
-                      </TableCell>
+                      </TableHead>
+                      <TableHead>Student</TableHead>
+                      <TableHead>Program</TableHead>
+                      <TableHead>Amount Due</TableHead>
+                      <TableHead>Due Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPayments.map((payment) => (
+                      <TableRow key={payment.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedStudents.some(s => s.id === payment.id)}
+                            onCheckedChange={(checked) => handleStudentSelection(payment, checked as boolean)}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{payment.student_name}</div>
+                            <div className="text-sm text-muted-foreground">{payment.id}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>{payment.program}</TableCell>
+                        <TableCell>${payment.amount.toLocaleString()}</TableCell>
+                        <TableCell>{payment.due_date}</TableCell>
+                        <TableCell>{getStatusBadge(payment.status)}</TableCell>
+                        <TableCell>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleSendInvoice(payment)}
+                              className="bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              <Mail className="h-4 w-4 mr-1" />
+                              Invoice
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleSendReminder(payment)}
+                            >
+                              <MessageSquare className="h-4 w-4 mr-1" />
+                              Reminder
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setSelectedPayment(payment);
+                                setPaymentDetailModalOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Details
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ConditionalDataWrapper>
             </CardContent>
           </Card>
         </TabsContent>

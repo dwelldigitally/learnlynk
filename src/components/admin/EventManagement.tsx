@@ -314,7 +314,7 @@ const EventManagement: React.FC = () => {
                     </p>
                   </div>
                 </CardContent>
-              </Card>
+                </Card>
             ))}
           </div>
         </TabsContent>

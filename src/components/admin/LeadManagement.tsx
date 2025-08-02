@@ -1,15 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { LeadService } from '@/services/leadService';
+import { EnhancedLeadService, EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { Lead, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
-import ModernDataTable from './ModernDataTable';
+import { EnhancedDataTable } from './EnhancedDataTable';
+import { AdvancedFilterPanel } from './AdvancedFilterPanel';
 import { LeadFormModal } from './LeadFormModal';
 import { LeadDetailModal } from './LeadDetailModal';
 import { LeadCaptureForm } from './LeadCaptureForm';
@@ -20,19 +18,31 @@ import { LeadAnalyticsDashboard } from './LeadAnalyticsDashboard';
 import AILeadEnhancement from './AILeadEnhancement';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { useDemoDataAccess } from '@/services/demoDataService';
-import { Plus, Search, Filter, Download, UserPlus, Settings, Target, BarChart, Upload } from 'lucide-react';
+import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
 
 export function LeadManagement() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<LeadStatus | 'all'>('all');
-  const [sourceFilter, setSourceFilter] = useState<LeadSource | 'all'>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [filters, setFilters] = useState<EnhancedLeadFilters>({});
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [selectedLeads, setSelectedLeads] = useState<Lead[]>([]);
+  const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [filterOptions, setFilterOptions] = useState({
+    sources: [] as string[],
+    statuses: [] as string[],
+    priorities: [] as string[],
+    assignees: [] as Array<{ id: string; name: string }>,
+    programs: [] as string[]
+  });
   const [stats, setStats] = useState({
     total: 0,
     new_leads: 0,
@@ -47,18 +57,22 @@ export function LeadManagement() {
   useEffect(() => {
     loadLeads();
     loadStats();
-  }, [statusFilter, sourceFilter]);
+    loadFilterOptions();
+  }, [currentPage, pageSize, filters, sortBy, sortOrder]);
 
-  const loadLeads = async () => {
+  const loadLeads = useCallback(async () => {
     try {
       setLoading(true);
-      const filters = {
-        ...(statusFilter !== 'all' && { status: [statusFilter] }),
-        ...(sourceFilter !== 'all' && { source: [sourceFilter] })
+      const enhancedFilters: EnhancedLeadFilters = {
+        ...filters,
+        sortBy,
+        sortOrder
       };
       
-      const { leads: fetchedLeads } = await LeadService.getLeads(filters);
-      setLeads(fetchedLeads);
+      const response = await EnhancedLeadService.getLeads(currentPage, pageSize, enhancedFilters);
+      setLeads(response.leads);
+      setTotalCount(response.total);
+      setTotalPages(response.totalPages);
     } catch (error) {
       toast({
         title: 'Error',
@@ -68,19 +82,31 @@ export function LeadManagement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentPage, pageSize, filters, sortBy, sortOrder, toast]);
 
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     try {
+      // Use legacy service for stats for now
+      const { LeadService } = await import('@/services/leadService');
       const statsData = await LeadService.getLeadStats();
       setStats(statsData);
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
-  };
+  }, []);
+
+  const loadFilterOptions = useCallback(async () => {
+    try {
+      const options = await EnhancedLeadService.getFilterOptions();
+      setFilterOptions(options);
+    } catch (error) {
+      console.error('Failed to load filter options:', error);
+    }
+  }, []);
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
+      const { LeadService } = await import('@/services/leadService');
       await LeadService.updateLeadStatus(leadId, newStatus);
       await loadLeads();
       toast({
@@ -129,46 +155,165 @@ export function LeadManagement() {
     }
   };
 
-  const filteredLeads = leads.filter(lead => 
-    `${lead.first_name} ${lead.last_name} ${lead.email}`.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Enhanced table handlers
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleSearch = (query: string) => {
+    setFilters(prev => ({ ...prev, search: query }));
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleSort = (column: string, order: 'asc' | 'desc') => {
+    setSortBy(column);
+    setSortOrder(order);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleFilter = (newFilters: Record<string, any>) => {
+    setFilters(prev => ({ ...prev, ...newFilters }));
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleExport = async () => {
+    try {
+      const blob = await EnhancedLeadService.exportLeads(filters);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `leads-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: 'Success',
+        description: 'Leads exported successfully'
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to export leads',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleBulkAction = async (action: string, selectedIds: string[]) => {
+    try {
+      let operation;
+      switch (action) {
+        case 'Delete Selected':
+          operation = {
+            operation: 'delete' as const,
+            leadIds: selectedIds
+          };
+          break;
+        case 'Mark as Contacted':
+          operation = {
+            operation: 'status_change' as const,
+            leadIds: selectedIds,
+            data: { status: 'contacted' }
+          };
+          break;
+        case 'Mark as Qualified':
+          operation = {
+            operation: 'status_change' as const,
+            leadIds: selectedIds,
+            data: { status: 'qualified' }
+          };
+          break;
+        default:
+          return;
+      }
+
+      const result = await EnhancedLeadService.performBulkOperation(operation);
+      
+      if (result.success > 0) {
+        toast({
+          title: 'Success',
+          description: `${result.success} leads updated successfully`
+        });
+        setSelectedLeadIds([]);
+        loadLeads();
+      }
+      
+      if (result.failed > 0) {
+        toast({
+          title: 'Warning',
+          description: `${result.failed} leads failed to update`,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to perform bulk operation',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const columns = [
-    { key: 'name', label: 'Name', sortable: true },
-    { key: 'email', label: 'Email', sortable: true },
-    { key: 'phone', label: 'Phone', sortable: false },
-    { key: 'source', label: 'Source', sortable: true },
-    { key: 'status', label: 'Status', sortable: true },
-    { key: 'priority', label: 'Priority', sortable: true },
-    { key: 'lead_score', label: 'Score', sortable: true },
-    { key: 'created_at', label: 'Created', sortable: true },
-    { key: 'assigned_to', label: 'Assigned To', sortable: false }
+    { key: 'name', label: 'Name', sortable: true, type: 'text' as const },
+    { key: 'email', label: 'Email', sortable: true, type: 'text' as const },
+    { key: 'phone', label: 'Phone', sortable: false, type: 'text' as const },
+    { key: 'source', label: 'Source', sortable: true, type: 'text' as const },
+    { key: 'status', label: 'Status', sortable: true, type: 'custom' as const, render: (value: any) => (
+      <Badge variant={getStatusBadgeVariant(value)}>
+        {value.toUpperCase()}
+      </Badge>
+    )},
+    { key: 'priority', label: 'Priority', sortable: true, type: 'custom' as const, render: (value: any) => (
+      <Badge variant={getPriorityBadgeVariant(value)}>
+        {value.toUpperCase()}
+      </Badge>
+    )},
+    { key: 'lead_score', label: 'Score', sortable: true, type: 'number' as const },
+    { key: 'created_at', label: 'Created', sortable: true, type: 'date' as const },
+    { key: 'assigned_to', label: 'Assigned To', sortable: false, type: 'text' as const }
   ];
 
-  const tableData = filteredLeads.map(lead => ({
+  const tableData = leads.map(lead => ({
     id: lead.id,
     name: `${lead.first_name} ${lead.last_name}`,
     email: lead.email,
     phone: lead.phone || '-',
     source: lead.source.replace('_', ' ').toUpperCase(),
-    status: (
-      <Badge variant={getStatusBadgeVariant(lead.status)}>
-        {lead.status.toUpperCase()}
-      </Badge>
-    ),
-    priority: (
-      <Badge variant={getPriorityBadgeVariant(lead.priority)}>
-        {lead.priority.toUpperCase()}
-      </Badge>
-    ),
+    status: lead.status,
+    priority: lead.priority,
     lead_score: lead.lead_score,
-    created_at: new Date(lead.created_at).toLocaleDateString(),
-    assigned_to: lead.assigned_to || 'Unassigned',
-    onClick: () => {
-      setSelectedLead(lead);
-      setShowLeadDetail(true);
-    }
+    created_at: lead.created_at,
+    assigned_to: lead.assigned_to || 'Unassigned'
   }));
+
+  const quickFilters = [
+    { label: 'New Today', filter: { date_range: { start: new Date(), end: new Date() }, status: ['new'] } },
+    { label: 'Unassigned', filter: { assigned_to: [] } },
+    { label: 'High Priority', filter: { priority: ['high', 'urgent'] } },
+    { label: 'Hot Leads', filter: { lead_score_range: { min: 80, max: 100 } } }
+  ];
+
+  const enhancedFilterOptions = [
+    { key: 'status', label: 'Status', options: filterOptions.statuses.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) })) },
+    { key: 'source', label: 'Source', options: filterOptions.sources.map(s => ({ value: s, label: s.replace('_', ' ').toUpperCase() })) },
+    { key: 'priority', label: 'Priority', options: filterOptions.priorities.map(p => ({ value: p, label: p.charAt(0).toUpperCase() + p.slice(1) })) },
+    { key: 'assigned_to', label: 'Assigned To', options: filterOptions.assignees.map(a => ({ value: a.id, label: a.name })) }
+  ];
+
+  const bulkActions = [
+    { label: 'Mark as Contacted', onClick: (ids: string[]) => handleBulkAction('Mark as Contacted', ids) },
+    { label: 'Mark as Qualified', onClick: (ids: string[]) => handleBulkAction('Mark as Qualified', ids) },
+    { label: 'Delete Selected', onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids), variant: 'destructive' as const }
+  ];
 
   return (
     <div className="space-y-6">
@@ -244,87 +389,86 @@ export function LeadManagement() {
           </div>
 
           {/* Main Content */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Lead Management</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Button onClick={() => setShowLeadForm(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Lead
-                  </Button>
-                  <Button variant="outline">
-                    <Download className="h-4 w-4 mr-2" />
-                    Export
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Filters */}
-              <div className="flex items-center gap-4 mb-6">
-                <div className="relative flex-1 max-w-sm">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <Input
-                    placeholder="Search leads..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as LeadStatus | 'all')}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="contacted">Contacted</SelectItem>
-                    <SelectItem value="qualified">Qualified</SelectItem>
-                    <SelectItem value="nurturing">Nurturing</SelectItem>
-                    <SelectItem value="converted">Converted</SelectItem>
-                    <SelectItem value="lost">Lost</SelectItem>
-                    <SelectItem value="unqualified">Unqualified</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={sourceFilter} onValueChange={(value) => setSourceFilter(value as LeadSource | 'all')}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="All Sources" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Sources</SelectItem>
-                    <SelectItem value="web">Web</SelectItem>
-                    <SelectItem value="social_media">Social Media</SelectItem>
-                    <SelectItem value="event">Event</SelectItem>
-                    <SelectItem value="agent">Agent</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="referral">Referral</SelectItem>
-                    <SelectItem value="phone">Phone</SelectItem>
-                    <SelectItem value="walk_in">Walk In</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Data Table */}
-              <ConditionalDataWrapper
-                isLoading={loading}
-                showEmptyState={!hasDemoAccess && leads.length === 0}
-                hasDemoAccess={hasDemoAccess || false}
-                hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))}
-                emptyTitle="No Leads Yet"
-                emptyDescription="Create your first lead to get started with lead management."
-                loadingRows={5}
+          <div className="space-y-6">
+            {/* Advanced Filters Toggle */}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
               >
-                <ModernDataTable
-                  title="Leads"
-                  columns={columns}
-                  data={tableData}
-                  searchable={false}
-                  exportable={true}
-                />
-              </ConditionalDataWrapper>
-            </CardContent>
-          </Card>
+                <Filter className="h-4 w-4 mr-2" />
+                Advanced Filters
+              </Button>
+              <Button onClick={() => setShowLeadForm(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Lead
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setFilters({});
+                  setCurrentPage(1);
+                }}
+              >
+                <FileX className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
+            </div>
+
+            {/* Advanced Filters Panel */}
+            {showAdvancedFilters && (
+              <AdvancedFilterPanel
+                filters={filters}
+                onFiltersChange={handleFilter}
+              />
+            )}
+
+            {/* Enhanced Data Table */}
+            <ConditionalDataWrapper
+              isLoading={loading}
+              showEmptyState={!hasDemoAccess && leads.length === 0}
+              hasDemoAccess={hasDemoAccess || false}
+              hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))}
+              emptyTitle="No Leads Yet"
+              emptyDescription="Create your first lead to get started with lead management."
+              loadingRows={5}
+            >
+              <EnhancedDataTable
+                title="Lead Management"
+                columns={columns}
+                data={tableData}
+                totalCount={totalCount}
+                currentPage={currentPage}
+                totalPages={totalPages}
+                pageSize={pageSize}
+                loading={loading}
+                searchable={true}
+                filterable={true}
+                exportable={true}
+                selectable={true}
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                filterOptions={enhancedFilterOptions}
+                quickFilters={quickFilters}
+                selectedIds={selectedLeadIds}
+                bulkActions={bulkActions}
+                onPageChange={handlePageChange}
+                onPageSizeChange={handlePageSizeChange}
+                onSearch={handleSearch}
+                onSort={handleSort}
+                onFilter={handleFilter}
+                onExport={handleExport}
+                onRowClick={(row) => {
+                  const lead = leads.find(l => l.id === row.id);
+                  if (lead) {
+                    setSelectedLead(lead);
+                    setShowLeadDetail(true);
+                  }
+                }}
+                onSelectionChange={setSelectedLeadIds}
+              />
+            </ConditionalDataWrapper>
+          </div>
         </TabsContent>
 
         <TabsContent value="ai">
@@ -345,7 +489,7 @@ export function LeadManagement() {
 
         <TabsContent value="bulk">
           <BulkLeadOperations 
-            selectedLeads={selectedLeads} 
+            selectedLeads={leads.filter(lead => selectedLeadIds.includes(lead.id))} 
             onOperationComplete={loadLeads} 
           />
         </TabsContent>

@@ -50,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, metadata?: any) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -58,6 +58,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         data: metadata
       }
     });
+
+    // Create demo data assignment for new user
+    if (data.user && !error) {
+      const { DemoDataService } = await import('@/services/demoDataService');
+      await DemoDataService.createDemoDataAssignment(data.user.id, email);
+    }
+    
     return { error };
   };
 

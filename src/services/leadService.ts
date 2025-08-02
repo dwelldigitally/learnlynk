@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, LeadActivity, LeadFormData, LeadAssignmentRequest, LeadSearchFilters, LeadStatus } from '@/types/lead';
+import { DemoDataService } from './demoDataService';
 
 export class LeadService {
   // Create a new lead
@@ -21,8 +22,26 @@ export class LeadService {
     return data as Lead;
   }
 
-  // Get all leads with optional filters
+  // Get all leads with optional filters and demo data support
   static async getLeads(filters?: LeadSearchFilters, page = 1, limit = 50): Promise<{ leads: Lead[]; total: number }> {
+    // Check if user has demo data access
+    const hasDemoData = await DemoDataService.hasUserDemoData();
+    
+    // If user has demo data and database is empty, return demo data
+    if (hasDemoData) {
+      const { data: existingLeads } = await supabase
+        .from('leads')
+        .select('id', { count: 'exact', head: true });
+      
+      if (!existingLeads || existingLeads.length === 0) {
+        const demoLeads = DemoDataService.getDemoLeads();
+        return {
+          leads: demoLeads as Lead[],
+          total: demoLeads.length
+        };
+      }
+    }
+
     let query = supabase
       .from('leads')
       .select('*', { count: 'exact' })
@@ -218,7 +237,7 @@ export class LeadService {
     }
   }
 
-  // Get lead statistics
+  // Get lead statistics with demo data support
   static async getLeadStats(): Promise<{
     total: number;
     new_leads: number;
@@ -227,12 +246,28 @@ export class LeadService {
     converted: number;
     conversion_rate: number;
   }> {
+    // Check if user has demo data access
+    const hasDemoData = await DemoDataService.hasUserDemoData();
+    
     const { data, error } = await supabase
       .from('leads')
       .select('status');
 
     if (error) {
       throw new Error(`Failed to fetch lead stats: ${error.message}`);
+    }
+
+    // If user has demo data and no real data exists, return demo analytics
+    if (hasDemoData && (!data || data.length === 0)) {
+      const demoAnalytics = DemoDataService.getDemoAnalytics();
+      return {
+        total: demoAnalytics.totalLeads,
+        new_leads: demoAnalytics.newLeads,
+        contacted: demoAnalytics.contactedLeads,
+        qualified: demoAnalytics.qualifiedLeads,
+        converted: demoAnalytics.convertedLeads,
+        conversion_rate: demoAnalytics.conversionRate
+      };
     }
 
     const stats = data.reduce((acc, lead) => {

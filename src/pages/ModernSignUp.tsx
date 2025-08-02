@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GlassCard } from '@/components/modern/GlassCard';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,12 +15,28 @@ const ModernSignUp: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [userRole, setUserRole] = useState<'admin' | 'student' | null>(null);
+
+  // Available institutions for student selection
+  const institutions = [
+    'Harvard University',
+    'MIT',
+    'Stanford University',
+    'University of California, Berkeley',
+    'Columbia University',
+    'Princeton University',
+    'Yale University',
+    'University of Pennsylvania',
+    'Duke University',
+    'Northwestern University',
+    'Other'
+  ];
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
     institutionName: '',
+    institution: '',
     studentId: '',
     agreeToTerms: false
   });
@@ -59,12 +76,18 @@ const ModernSignUp: React.FC = () => {
       return;
     }
 
+    if (userRole === 'student' && !formData.institution) {
+      setError('Please select your institution');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const metadata = {
         first_name: formData.firstName,
         last_name: formData.lastName,
         user_role: userRole,
-        institution_name: formData.institutionName,
+        institution_name: userRole === 'admin' ? formData.institutionName : formData.institution,
         student_id: formData.studentId
       };
 
@@ -216,18 +239,40 @@ const ModernSignUp: React.FC = () => {
         )}
 
         {userRole === 'student' && (
-          <div className="space-y-2">
-            <Label htmlFor="studentId" className="text-foreground font-medium">
-              Student ID (Optional)
-            </Label>
-            <Input
-              id="studentId"
-              value={formData.studentId}
-              onChange={(e) => handleInputChange('studentId', e.target.value)}
-              placeholder="ST2024001"
-              className="glass-button"
-            />
-          </div>
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="institution" className="text-foreground font-medium">
+                Institution *
+              </Label>
+              <Select
+                value={formData.institution}
+                onValueChange={(value) => handleInputChange('institution', value)}
+              >
+                <SelectTrigger className="glass-button">
+                  <SelectValue placeholder="Select your institution" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border-border">
+                  {institutions.map((institution) => (
+                    <SelectItem key={institution} value={institution}>
+                      {institution}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="studentId" className="text-foreground font-medium">
+                Student ID (Optional)
+              </Label>
+              <Input
+                id="studentId"
+                value={formData.studentId}
+                onChange={(e) => handleInputChange('studentId', e.target.value)}
+                placeholder="ST2024001"
+                className="glass-button"
+              />
+            </div>
+          </>
         )}
 
         <div className="space-y-2">

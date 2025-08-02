@@ -323,7 +323,7 @@ export function LeadManagement() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="w-full max-w-none space-y-6 px-2">{/* Full width container */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Lead Management</h1>

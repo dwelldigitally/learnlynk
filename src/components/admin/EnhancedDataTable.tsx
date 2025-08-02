@@ -208,7 +208,7 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
   const isPartiallySelected = selectedIds.length > 0 && selectedIds.length < data.length;
 
   return (
-    <Card className={cn("border-0 shadow-soft", className)}>
+    <Card className={cn("border-0 shadow-soft w-full", className)}>{/* Ensure full width */}
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -274,9 +274,9 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
         </div>
         
         {/* Search and Filters */}
-        <div className="flex items-center gap-3 mt-4">
+        <div className="flex items-center gap-3 mt-4 flex-wrap">
           {searchable && (
-            <div className="relative flex-1 max-w-sm">
+            <div className="relative flex-1 min-w-[280px] max-w-sm">{/* Allow more flexible width */}
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search leads..."
@@ -377,8 +377,8 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
 
         {/* Table */}
         {!loading && (
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div className="w-full overflow-x-auto">{/* Full width table container */}
+            <table className="w-full min-w-full">{/* Ensure table takes full width */}
               <thead>
                 <tr className="border-b border-border">
                   {selectable && (
@@ -456,12 +456,12 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
         
         {/* Pagination */}
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-border">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-4 border-t border-border gap-4">{/* Responsive pagination with full width */}
             <div className="text-sm text-muted-foreground">
               Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount.toLocaleString()} results
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">{/* Allow pagination to wrap on smaller screens */}
               <Button
                 variant="outline"
                 size="sm"

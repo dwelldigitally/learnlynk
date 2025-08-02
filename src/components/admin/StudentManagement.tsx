@@ -36,6 +36,8 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { useConditionalStudents } from '@/hooks/useConditionalStudents';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 
 const StudentManagement: React.FC = () => {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
@@ -48,110 +50,8 @@ const StudentManagement: React.FC = () => {
   const [filterRiskLevel, setFilterRiskLevel] = useState("all");
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  const students = [
-    {
-      id: "1",
-      name: "Alex Thompson",
-      email: "sarah.johnson@email.com",
-      program: "Health Care Assistant",
-      stage: "DOCUMENT_APPROVAL",
-      progress: 75,
-      leadScore: 85,
-      advisor: "Nicole Adams",
-      submissionDate: "2024-01-15",
-      riskLevel: "low",
-      lastActivity: "2 hours ago",
-      intake: "Spring 2024",
-      campus: "Downtown Campus",
-      studentType: "International",
-      country: "India"
-    },
-    {
-      id: "2",
-      name: "Jordan Smith",
-      email: "michael.chen@email.com",
-      program: "Early Childhood Education",
-      stage: "FEE_PAYMENT",
-      progress: 90,
-      leadScore: 92,
-      advisor: "Nicole Adams",
-      submissionDate: "2024-01-10",
-      riskLevel: "low",
-      lastActivity: "1 day ago",
-      intake: "Fall 2024",
-      campus: "North Campus",
-      studentType: "International",
-      country: "China"
-    },
-    {
-      id: "3",
-      name: "Emma Davis",
-      email: "emma.davis@email.com",
-      program: "Aviation Maintenance",
-      stage: "SEND_DOCUMENTS",
-      progress: 45,
-      leadScore: 60,
-      advisor: "Robert Smith",
-      submissionDate: "2024-01-20",
-      riskLevel: "high",
-      lastActivity: "7 days ago",
-      intake: "Summer 2024",
-      campus: "Technical Campus",
-      studentType: "Domestic",
-      country: "Canada"
-    },
-    {
-      id: "4",
-      name: "James Wilson",
-      email: "james.wilson@email.com",
-      program: "Education Assistant",
-      stage: "ACCEPTED",
-      progress: 100,
-      leadScore: 95,
-      advisor: "Sarah Kim",
-      submissionDate: "2024-01-05",
-      riskLevel: "low",
-      lastActivity: "Active",
-      intake: "Spring 2024",
-      campus: "Downtown Campus",
-      studentType: "Domestic",
-      country: "Canada"
-    },
-    {
-      id: "5",
-      name: "Maria Rodriguez",
-      email: "maria.rodriguez@email.com",
-      program: "Health Care Assistant",
-      stage: "LEAD_FORM",
-      progress: 25,
-      leadScore: 45,
-      advisor: "Nicole Adams",
-      submissionDate: "2024-01-25",
-      riskLevel: "medium",
-      lastActivity: "3 days ago",
-      intake: "Fall 2024",
-      campus: "Downtown Campus",
-      studentType: "International",
-      country: "Mexico"
-    },
-    {
-      id: "6",
-      name: "David Thompson",
-      email: "david.thompson@email.com",
-      program: "Aviation Maintenance",
-      stage: "DOCUMENT_APPROVAL",
-      progress: 80,
-      leadScore: 88,
-      advisor: "Robert Smith",
-      submissionDate: "2024-01-12",
-      riskLevel: "low",
-      lastActivity: "1 hour ago",
-      intake: "Summer 2024",
-      campus: "Technical Campus",
-      studentType: "Domestic",
-      country: "Canada"
-    }
-  ];
+  const { data: students, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalStudents();
+
 
   const getStageColor = (stage: string) => {
     switch (stage) {
@@ -193,9 +93,10 @@ const StudentManagement: React.FC = () => {
     searchTerm !== ""
   ].filter(Boolean).length;
 
-  const filteredStudents = students.filter(student => {
+  const filteredStudents = students?.filter(student => {
     // Search filter
-    if (searchTerm && !student.name.toLowerCase().includes(searchTerm.toLowerCase()) && 
+    const fullName = `${student.firstName} ${student.lastName}`;
+    if (searchTerm && !fullName.toLowerCase().includes(searchTerm.toLowerCase()) && 
         !student.email.toLowerCase().includes(searchTerm.toLowerCase())) return false;
     
     // Stage filter
@@ -204,22 +105,22 @@ const StudentManagement: React.FC = () => {
     // Program filter
     if (filterProgram !== "all" && student.program !== filterProgram) return false;
     
-    // Intake filter
-    if (filterIntake !== "all" && student.intake !== filterIntake) return false;
-    
-    // Campus filter
-    if (filterCampus !== "all" && student.campus !== filterCampus) return false;
-    
-    // Student type filter
-    if (filterStudentType !== "all" && student.studentType !== filterStudentType) return false;
-    
     // Risk level filter
     if (filterRiskLevel !== "all" && student.riskLevel !== filterRiskLevel) return false;
     
     return true;
-  });
+  }) || [];
 
   return (
+    <ConditionalDataWrapper
+      isLoading={isLoading}
+      showEmptyState={showEmptyState}
+      hasDemoAccess={hasDemoAccess}
+      hasRealData={hasRealData}
+      emptyTitle="No Students Yet"
+      emptyDescription="Start by adding your first student to track their application progress."
+      loadingRows={5}
+    >
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -444,14 +345,14 @@ const StudentManagement: React.FC = () => {
                         <div className="flex items-center space-x-3">
                           <Avatar className="h-8 w-8">
                             <AvatarImage src="/placeholder.svg" />
-                            <AvatarFallback>{student.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                            <AvatarFallback>{student.firstName?.[0]}{student.lastName?.[0]}</AvatarFallback>
                           </Avatar>
                           <div>
                             <Link 
                               to={`/admin/students/${student.id}`}
                               className="font-medium text-primary hover:underline"
                             >
-                              {student.name}
+                              {student.firstName} {student.lastName}
                             </Link>
                             <p className="text-sm text-muted-foreground">{student.email}</p>
                           </div>
@@ -460,15 +361,15 @@ const StudentManagement: React.FC = () => {
                       <TableCell>{student.program}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className="text-xs">
-                          {student.intake}
+                          {student.stage}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm">
-                        {student.campus}
+                        Campus Info
                       </TableCell>
                       <TableCell>
-                        <Badge variant={student.studentType === 'International' ? 'secondary' : 'default'} className="text-xs">
-                          {student.studentType}
+                        <Badge variant="default" className="text-xs">
+                          Type
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -478,25 +379,25 @@ const StudentManagement: React.FC = () => {
                       </TableCell>
                       <TableCell>
                         <div className="space-y-1">
-                          <Progress value={student.progress} className="h-2 w-16" />
-                          <span className="text-xs text-muted-foreground">{student.progress}%</span>
+                          <Progress value={student.progress || 0} className="h-2 w-16" />
+                          <span className="text-xs text-muted-foreground">{student.progress || 0}%</span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-1">
-                          <span className="font-medium">{student.leadScore}</span>
+                          <span className="font-medium">{student.leadScore || 0}</span>
                           <div className={`w-2 h-2 rounded-full ${
-                            student.leadScore >= 80 ? 'bg-green-500' :
-                            student.leadScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'
+                            (student.leadScore || 0) >= 80 ? 'bg-green-500' :
+                            (student.leadScore || 0) >= 60 ? 'bg-yellow-500' : 'bg-red-500'
                           }`}></div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className={`flex items-center space-x-1 ${getRiskColor(student.riskLevel)}`}>
-                          {student.riskLevel === 'high' && <AlertTriangle className="h-4 w-4" />}
-                          {student.riskLevel === 'medium' && <Clock className="h-4 w-4" />}
-                          {student.riskLevel === 'low' && <CheckCircle className="h-4 w-4" />}
-                          <span className="text-xs capitalize">{student.riskLevel}</span>
+                        <div className={`flex items-center space-x-1 ${getRiskColor(student.riskLevel || 'low')}`}>
+                          {(student.riskLevel || 'low') === 'high' && <AlertTriangle className="h-4 w-4" />}
+                          {(student.riskLevel || 'low') === 'medium' && <Clock className="h-4 w-4" />}
+                          {(student.riskLevel || 'low') === 'low' && <CheckCircle className="h-4 w-4" />}
+                          <span className="text-xs capitalize">{student.riskLevel || 'low'}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -552,6 +453,7 @@ const StudentManagement: React.FC = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </ConditionalDataWrapper>
   );
 };
 

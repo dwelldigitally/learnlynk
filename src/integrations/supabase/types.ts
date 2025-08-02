@@ -214,6 +214,39 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_data_assignments: {
+        Row: {
+          assigned_at: string
+          created_at: string
+          demo_type: string
+          email: string
+          has_demo_data: boolean
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          created_at?: string
+          demo_type?: string
+          email: string
+          has_demo_data?: boolean
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          created_at?: string
+          demo_type?: string
+          email?: string
+          has_demo_data?: boolean
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lead_activities: {
         Row: {
           activity_data: Json | null
@@ -758,7 +791,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      assign_demo_data_to_user: {
+        Args: { target_email: string; demo_enabled?: boolean }
+        Returns: boolean
+      }
+      user_has_demo_data: {
+        Args: { user_email?: string }
+        Returns: boolean
+      }
     }
     Enums: {
       assignment_method:

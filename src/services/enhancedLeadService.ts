@@ -110,11 +110,17 @@ export class EnhancedLeadService {
       throw new Error(`Failed to fetch leads: ${error.message}`);
     }
 
+    // Ensure ip_address is properly typed
+    const typedLeads = (data || []).map(lead => ({
+      ...lead,
+      ip_address: String(lead.ip_address || '')
+    })) as Lead[];
+
     const total = count || 0;
     const totalPages = Math.ceil(total / limitedPageSize);
 
     return {
-      leads: (data as Lead[]) || [],
+      leads: typedLeads,
       total,
       currentPage: page,
       totalPages,
@@ -210,8 +216,14 @@ export class EnhancedLeadService {
       throw new Error(`Failed to export leads: ${error.message}`);
     }
 
+    // Type the data properly before CSV generation
+    const typedData = (data || []).map(lead => ({
+      ...lead,
+      ip_address: String(lead.ip_address || '')
+    })) as Lead[];
+
     if (format === 'csv') {
-      return this.generateCSV(data || []);
+      return this.generateCSV(typedData);
     } else {
       throw new Error('Excel export not implemented yet');
     }
@@ -285,10 +297,13 @@ export class EnhancedLeadService {
     const total = demoLeads.length;
     const totalPages = Math.ceil(total / pageSize);
     const offset = (page - 1) * pageSize;
-    const paginatedLeads = demoLeads.slice(offset, offset + pageSize);
+      const paginatedLeads = demoLeads.slice(offset, offset + pageSize).map(lead => ({
+        ...lead,
+        ip_address: String(lead.ip_address || '')
+      }));
 
     return {
-      leads: paginatedLeads,
+      leads: paginatedLeads as Lead[],
       total,
       currentPage: page,
       totalPages,
@@ -300,6 +315,10 @@ export class EnhancedLeadService {
   private static async bulkAssign(leadIds: string[], advisorId: string, assignmentMethod: string): Promise<{ success: number; failed: number; errors: string[] }> {
     const results = { success: 0, failed: 0, errors: [] as string[] };
 
+    // Validate assignment method
+    const validMethods = ['manual', 'round_robin', 'ai_based', 'geography', 'performance', 'team_based', 'territory_based', 'workload_based'];
+    const method = validMethods.includes(assignmentMethod) ? assignmentMethod : 'manual';
+
     for (const leadId of leadIds) {
       try {
         await supabase
@@ -307,7 +326,7 @@ export class EnhancedLeadService {
           .update({
             assigned_to: advisorId,
             assigned_at: new Date().toISOString(),
-            assignment_method: assignmentMethod
+            assignment_method: method as any
           })
           .eq('id', leadId);
         

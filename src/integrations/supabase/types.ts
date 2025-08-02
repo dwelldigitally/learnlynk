@@ -109,6 +109,48 @@ export type Database = {
         }
         Relationships: []
       }
+      communication_templates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          subject: string | null
+          type: string
+          updated_at: string
+          usage_count: number | null
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          subject?: string | null
+          type: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          subject?: string | null
+          type?: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
       company_profile: {
         Row: {
           address: string | null
@@ -385,6 +427,87 @@ export type Database = {
           },
         ]
       }
+      lead_communications: {
+        Row: {
+          communication_date: string
+          content: string
+          created_at: string
+          direction: string
+          id: string
+          lead_id: string
+          metadata: Json | null
+          scheduled_for: string | null
+          status: string
+          subject: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          communication_date?: string
+          content: string
+          created_at?: string
+          direction: string
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          scheduled_for?: string | null
+          status?: string
+          subject?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          communication_date?: string
+          content?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          scheduled_for?: string | null
+          status?: string
+          subject?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lead_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_private: boolean
+          lead_id: string
+          note_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          lead_id: string
+          note_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_private?: boolean
+          lead_id?: string
+          note_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lead_routing_rules: {
         Row: {
           assignment_config: Json
@@ -418,6 +541,57 @@ export type Database = {
           name?: string
           priority?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      lead_tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          lead_id: string
+          priority: string
+          reminder_at: string | null
+          status: string
+          task_type: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          lead_id: string
+          priority?: string
+          reminder_at?: string | null
+          status?: string
+          task_type: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          lead_id?: string
+          priority?: string
+          reminder_at?: string | null
+          status?: string
+          task_type?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

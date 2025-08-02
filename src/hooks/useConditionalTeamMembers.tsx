@@ -7,7 +7,7 @@ import { DemoDataService } from '@/services/demoDataService';
 export function useConditionalTeamMembers() {
   return useConditionalData(
     ['team-members'],
-    () => DemoDataService.getDemoTeamMembers(),
+    () => [], // No demo team members yet
     undefined // No real team service yet
   );
 }

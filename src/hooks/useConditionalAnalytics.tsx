@@ -7,7 +7,7 @@ import { DemoDataService } from '@/services/demoDataService';
 export function useConditionalAnalytics() {
   return useConditionalData(
     ['analytics'],
-    () => DemoDataService.getDemoAnalyticsData(),
+    () => [DemoDataService.getDemoAnalytics()], // Wrap in array
     undefined // No real analytics service yet
   );
 }

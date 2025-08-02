@@ -56,7 +56,7 @@ export const ScholarshipApplications = () => {
   const mockApplications: ScholarshipApplication[] = [
     {
       id: "1",
-      studentName: "Sarah Johnson",
+      studentName: "Alex Thompson",
       studentId: "STU001",
       email: "sarah.johnson@email.com",
       gpa: 3.8,
@@ -70,7 +70,7 @@ export const ScholarshipApplications = () => {
     },
     {
       id: "2", 
-      studentName: "Michael Chen",
+      studentName: "Jordan Smith",
       studentId: "STU002",
       email: "michael.chen@email.com",
       gpa: 3.9,
@@ -85,7 +85,7 @@ export const ScholarshipApplications = () => {
     },
     {
       id: "3",
-      studentName: "Emily Rodriguez",
+      studentName: "Casey Wilson",
       studentId: "STU003", 
       email: "emily.rodriguez@email.com",
       gpa: 3.2,

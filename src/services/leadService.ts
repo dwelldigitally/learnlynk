@@ -5,10 +5,13 @@ import { DemoDataService } from './demoDataService';
 export class LeadService {
   // Create a new lead
   static async createLead(leadData: LeadFormData): Promise<Lead> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase
       .from('leads')
       .insert([{
         ...leadData,
+        user_id: user?.id,
         tags: [],
         lead_score: 0
       }])
@@ -24,27 +27,39 @@ export class LeadService {
 
   // Get all leads with optional filters and demo data support
   static async getLeads(filters?: LeadSearchFilters, page = 1, limit = 50): Promise<{ leads: Lead[]; total: number }> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.log('No authenticated user found');
+      return { leads: [], total: 0 };
+    }
+
     // Check if user has demo data access
     const hasDemoData = await DemoDataService.hasUserDemoData();
+    console.log('User has demo data access:', hasDemoData);
     
-    // If user has demo data and database is empty, return demo data
-    if (hasDemoData) {
-      const { data: existingLeads } = await supabase
-        .from('leads')
-        .select('id', { count: 'exact', head: true });
-      
-      if (!existingLeads || existingLeads.length === 0) {
-        const demoLeads = DemoDataService.getDemoLeads();
-        return {
-          leads: demoLeads as Lead[],
-          total: demoLeads.length
-        };
-      }
+    // Check if user has any real leads of their own
+    const { data: userLeads, count: userLeadsCount } = await supabase
+      .from('leads')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+    
+    console.log('User leads count:', userLeadsCount);
+    
+    // If user has demo data and no real leads of their own, return demo data
+    if (hasDemoData && (userLeadsCount === 0 || userLeadsCount === null)) {
+      console.log('Returning demo leads for user');
+      const demoLeads = DemoDataService.getDemoLeads();
+      return {
+        leads: demoLeads as Lead[],
+        total: demoLeads.length
+      };
     }
 
     let query = supabase
       .from('leads')
       .select('*', { count: 'exact' })
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     // Apply filters
@@ -246,19 +261,30 @@ export class LeadService {
     converted: number;
     conversion_rate: number;
   }> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return { total: 0, new_leads: 0, contacted: 0, qualified: 0, converted: 0, conversion_rate: 0 };
+    }
+
     // Check if user has demo data access
     const hasDemoData = await DemoDataService.hasUserDemoData();
+    console.log('Getting lead stats - user has demo data:', hasDemoData);
     
     const { data, error } = await supabase
       .from('leads')
-      .select('status');
+      .select('status')
+      .eq('user_id', user.id);
 
     if (error) {
       throw new Error(`Failed to fetch lead stats: ${error.message}`);
     }
 
+    console.log('User lead stats count:', data?.length || 0);
+
     // If user has demo data and no real data exists, return demo analytics
     if (hasDemoData && (!data || data.length === 0)) {
+      console.log('Returning demo analytics');
       const demoAnalytics = DemoDataService.getDemoAnalytics();
       return {
         total: demoAnalytics.totalLeads,

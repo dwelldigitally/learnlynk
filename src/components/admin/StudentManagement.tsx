@@ -51,7 +51,7 @@ const StudentManagement: React.FC = () => {
   const students = [
     {
       id: "1",
-      name: "Sarah Johnson",
+      name: "Alex Thompson",
       email: "sarah.johnson@email.com",
       program: "Health Care Assistant",
       stage: "DOCUMENT_APPROVAL",
@@ -68,7 +68,7 @@ const StudentManagement: React.FC = () => {
     },
     {
       id: "2",
-      name: "Michael Chen",
+      name: "Jordan Smith",
       email: "michael.chen@email.com",
       program: "Early Childhood Education",
       stage: "FEE_PAYMENT",

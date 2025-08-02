@@ -49,8 +49,8 @@ const AdminOverview: React.FC = () => {
   ];
 
   const recentActivity = [
-    { student: "Sarah Johnson", action: "Submitted HCA application", time: "2 minutes ago", status: "pending" },
-    { student: "Michael Chen", action: "Payment completed - ECE Program", time: "15 minutes ago", status: "completed" },
+    { student: "Alex Thompson", action: "Submitted HCA application", time: "2 minutes ago", status: "pending" },
+    { student: "Jordan Smith", action: "Payment completed - ECE Program", time: "15 minutes ago", status: "completed" },
     { student: "Emma Davis", action: "Document approved - Transcript", time: "1 hour ago", status: "approved" },
     { student: "James Wilson", action: "Registered for Info Session", time: "2 hours ago", status: "registered" },
     { student: "Lisa Brown", action: "Application submitted - Aviation", time: "3 hours ago", status: "pending" },

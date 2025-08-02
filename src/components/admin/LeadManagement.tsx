@@ -18,6 +18,8 @@ import { LeadRoutingRules } from './LeadRoutingRules';
 import { LeadScoringEngine } from './LeadScoringEngine';
 import { LeadAnalyticsDashboard } from './LeadAnalyticsDashboard';
 import AILeadEnhancement from './AILeadEnhancement';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Search, Filter, Download, UserPlus, Settings, Target, BarChart, Upload } from 'lucide-react';
 
 export function LeadManagement() {
@@ -40,6 +42,7 @@ export function LeadManagement() {
     conversion_rate: 0
   });
   const { toast } = useToast();
+  const { data: hasDemoAccess } = useDemoDataAccess();
 
   useEffect(() => {
     loadLeads();
@@ -303,13 +306,23 @@ export function LeadManagement() {
               </div>
 
               {/* Data Table */}
-              <ModernDataTable
-                title="Leads"
-                columns={columns}
-                data={tableData}
-                searchable={false}
-                exportable={true}
-              />
+              <ConditionalDataWrapper
+                isLoading={loading}
+                showEmptyState={!hasDemoAccess && leads.length === 0}
+                hasDemoAccess={hasDemoAccess || false}
+                hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))}
+                emptyTitle="No Leads Yet"
+                emptyDescription="Create your first lead to get started with lead management."
+                loadingRows={5}
+              >
+                <ModernDataTable
+                  title="Leads"
+                  columns={columns}
+                  data={tableData}
+                  searchable={false}
+                  exportable={true}
+                />
+              </ConditionalDataWrapper>
             </CardContent>
           </Card>
         </TabsContent>

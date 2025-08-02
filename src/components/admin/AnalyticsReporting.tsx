@@ -17,8 +17,11 @@ import {
   LineChart
 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useConditionalAnalytics } from '@/hooks/useConditionalAnalytics';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 
 const AnalyticsReporting: React.FC = () => {
+  const { data: analyticsDataArray, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalAnalytics();
   const kpis = [
     { 
       title: "Lead Conversion Rate", 
@@ -98,6 +101,15 @@ const AnalyticsReporting: React.FC = () => {
   ];
 
   return (
+    <ConditionalDataWrapper
+      isLoading={isLoading}
+      showEmptyState={showEmptyState}
+      hasDemoAccess={hasDemoAccess}
+      hasRealData={hasRealData}
+      emptyTitle="No Analytics Data"
+      emptyDescription="Analytics will appear here once you have student data and activities."
+      loadingRows={3}
+    >
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
@@ -369,6 +381,7 @@ const AnalyticsReporting: React.FC = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </ConditionalDataWrapper>
   );
 };
 

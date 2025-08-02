@@ -54,7 +54,8 @@ export function LeadManagement() {
   const { toast } = useToast();
   const { data: hasDemoAccess, isLoading: demoAccessLoading } = useDemoDataAccess();
 
-  const loadLeads = useCallback(async () => {
+  // STEP 1: Simple, non-reactive functions to stop infinite loop
+  const loadLeads = async () => {
     try {
       console.log('LoadLeads called at:', new Date().toISOString());
       setLoading(true);
@@ -77,47 +78,41 @@ export function LeadManagement() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, filters, sortBy, sortOrder, toast]);
+  };
 
-  const loadStats = useCallback(async () => {
+  const loadStats = async () => {
     try {
       console.log('LoadStats called at:', new Date().toISOString());
-      // Use legacy service for stats for now
       const { LeadService } = await import('@/services/leadService');
       const statsData = await LeadService.getLeadStats();
       setStats(statsData);
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
-  }, []); // NO dependencies to prevent re-creation
+  };
 
-  const loadFilterOptions = useCallback(async () => {
+  const loadFilterOptions = async () => {
     try {
       const options = await EnhancedLeadService.getFilterOptions();
       setFilterOptions(options);
     } catch (error) {
       console.error('Failed to load filter options:', error);
     }
-  }, []);
+  };
 
-  // Only run leads loading when pagination/filter params change
+  // STEP 1: Only run on mount, no dependencies that can cause loops
   useEffect(() => {
-    console.log('useEffect for loadLeads triggered');
+    console.log('Initial mount - loading data');
     loadLeads();
-  }, [loadLeads]);
-
-  // Only run stats/options loading once on mount  
-  useEffect(() => {
-    console.log('useEffect for loadStats triggered');
     loadStats();
     loadFilterOptions();
-  }, []); // Empty dependency array - only run once
+  }, []); // ONLY run once on mount
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
       const { LeadService } = await import('@/services/leadService');
       await LeadService.updateLeadStatus(leadId, newStatus);
-      // Only reload leads, not stats to avoid infinite loop
+      // STEP 1: Simple reload without complex dependencies
       await loadLeads();
       toast({
         title: 'Success',
@@ -132,17 +127,17 @@ export function LeadManagement() {
     }
   };
 
-  const handleLeadCreated = useCallback(() => {
+  const handleLeadCreated = () => {
     console.log('HandleLeadCreated called at:', new Date().toISOString());
     setShowLeadForm(false);
-    // Reload data without triggering infinite loop
+    // STEP 1: Simple reload
     loadLeads();
     loadStats();
     toast({
       title: 'Success',
       description: 'Lead created successfully'
     });
-  }, [loadLeads, loadStats, toast]);
+  };
 
   const getStatusBadgeVariant = (status: LeadStatus) => {
     switch (status) {

@@ -52,19 +52,11 @@ export function LeadManagement() {
     conversion_rate: 0
   });
   const { toast } = useToast();
-  const { data: hasDemoAccess } = useDemoDataAccess();
-
-  useEffect(() => {
-    loadLeads();
-  }, [currentPage, pageSize, filters, sortBy, sortOrder]);
-
-  useEffect(() => {
-    loadStats();
-    loadFilterOptions();
-  }, []); // Only run once on mount
+  const { data: hasDemoAccess, isLoading: demoAccessLoading } = useDemoDataAccess();
 
   const loadLeads = useCallback(async () => {
     try {
+      console.log('LoadLeads called at:', new Date().toISOString());
       setLoading(true);
       const enhancedFilters: EnhancedLeadFilters = {
         ...filters,
@@ -89,6 +81,7 @@ export function LeadManagement() {
 
   const loadStats = useCallback(async () => {
     try {
+      console.log('LoadStats called at:', new Date().toISOString());
       // Use legacy service for stats for now
       const { LeadService } = await import('@/services/leadService');
       const statsData = await LeadService.getLeadStats();
@@ -96,7 +89,7 @@ export function LeadManagement() {
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
-  }, []);
+  }, []); // NO dependencies to prevent re-creation
 
   const loadFilterOptions = useCallback(async () => {
     try {
@@ -106,6 +99,19 @@ export function LeadManagement() {
       console.error('Failed to load filter options:', error);
     }
   }, []);
+
+  // Only run leads loading when pagination/filter params change
+  useEffect(() => {
+    console.log('useEffect for loadLeads triggered');
+    loadLeads();
+  }, [loadLeads]);
+
+  // Only run stats/options loading once on mount  
+  useEffect(() => {
+    console.log('useEffect for loadStats triggered');
+    loadStats();
+    loadFilterOptions();
+  }, []); // Empty dependency array - only run once
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
@@ -126,7 +132,8 @@ export function LeadManagement() {
     }
   };
 
-  const handleLeadCreated = () => {
+  const handleLeadCreated = useCallback(() => {
+    console.log('HandleLeadCreated called at:', new Date().toISOString());
     setShowLeadForm(false);
     // Reload data without triggering infinite loop
     loadLeads();
@@ -135,7 +142,7 @@ export function LeadManagement() {
       title: 'Success',
       description: 'Lead created successfully'
     });
-  };
+  }, [loadLeads, loadStats, toast]);
 
   const getStatusBadgeVariant = (status: LeadStatus) => {
     switch (status) {
@@ -481,11 +488,14 @@ export function LeadManagement() {
         </TabsContent>
 
         <TabsContent value="capture">
-          <LeadCaptureForm onLeadCreated={loadLeads} />
+          <LeadCaptureForm onLeadCreated={handleLeadCreated} />
         </TabsContent>
 
         <TabsContent value="routing">
-          <LeadRoutingRules onRuleCreated={loadLeads} />
+          <LeadRoutingRules onRuleCreated={() => {
+            loadLeads();
+            loadStats();
+          }} />
         </TabsContent>
 
         <TabsContent value="scoring">
@@ -495,7 +505,10 @@ export function LeadManagement() {
         <TabsContent value="bulk">
           <BulkLeadOperations 
             selectedLeads={leads.filter(lead => selectedLeadIds.includes(lead.id))} 
-            onOperationComplete={loadLeads} 
+            onOperationComplete={() => {
+              loadLeads();
+              loadStats();
+            }} 
           />
         </TabsContent>
 
@@ -517,7 +530,10 @@ export function LeadManagement() {
           onOpenChange={setShowLeadDetail}
           lead={selectedLead}
           onStatusChange={handleStatusChange}
-          onLeadUpdated={loadLeads}
+          onLeadUpdated={() => {
+            loadLeads();
+            loadStats();
+          }}
         />
       )}
     </div>

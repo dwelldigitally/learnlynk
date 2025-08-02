@@ -56,9 +56,12 @@ export function LeadManagement() {
 
   useEffect(() => {
     loadLeads();
+  }, [currentPage, pageSize, filters, sortBy, sortOrder]);
+
+  useEffect(() => {
     loadStats();
     loadFilterOptions();
-  }, [currentPage, pageSize, filters, sortBy, sortOrder]);
+  }, []); // Only run once on mount
 
   const loadLeads = useCallback(async () => {
     try {
@@ -108,6 +111,7 @@ export function LeadManagement() {
     try {
       const { LeadService } = await import('@/services/leadService');
       await LeadService.updateLeadStatus(leadId, newStatus);
+      // Only reload leads, not stats to avoid infinite loop
       await loadLeads();
       toast({
         title: 'Success',
@@ -124,6 +128,7 @@ export function LeadManagement() {
 
   const handleLeadCreated = () => {
     setShowLeadForm(false);
+    // Reload data without triggering infinite loop
     loadLeads();
     loadStats();
     toast({

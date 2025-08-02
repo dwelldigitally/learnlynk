@@ -288,6 +288,211 @@ export class DemoDataService {
       }
     ];
   }
+
+  /**
+   * Get demo students data
+   */
+  static getDemoStudents() {
+    return [
+      {
+        id: 's1',
+        studentId: 'WCC001',
+        firstName: 'Sarah',
+        lastName: 'Johnson',
+        email: 'sarah.johnson@example.com',
+        phone: '+1-555-0123',
+        program: 'Computer Science',
+        stage: 'DOCUMENT_APPROVAL',
+        acceptanceLikelihood: 85,
+        riskLevel: 'low',
+        progress: 75,
+        leadScore: 92,
+        country: 'Canada',
+        city: 'Toronto',
+        state: 'ON'
+      },
+      {
+        id: 's2',
+        studentId: 'WCC002',
+        firstName: 'Michael',
+        lastName: 'Chen',
+        email: 'michael.chen@example.com',
+        phone: '+1-555-0124',
+        program: 'Business Administration',
+        stage: 'FEE_PAYMENT',
+        acceptanceLikelihood: 78,
+        riskLevel: 'medium',
+        progress: 60,
+        leadScore: 87,
+        country: 'Canada',
+        city: 'Vancouver',
+        state: 'BC'
+      },
+      {
+        id: 's3',
+        studentId: 'WCC003',
+        firstName: 'Emily',
+        lastName: 'Rodriguez',
+        email: 'emily.rodriguez@example.com',
+        phone: '+1-555-0125',
+        program: 'Engineering',
+        stage: 'SEND_DOCUMENTS',
+        acceptanceLikelihood: 45,
+        riskLevel: 'high',
+        progress: 30,
+        leadScore: 65,
+        country: 'USA',
+        city: 'New York',
+        state: 'NY'
+      },
+      {
+        id: 's4',
+        studentId: 'WCC004',
+        firstName: 'David',
+        lastName: 'Thompson',
+        email: 'david.thompson@example.com',
+        phone: '+1-555-0126',
+        program: 'Psychology',
+        stage: 'ACCEPTED',
+        acceptanceLikelihood: 95,
+        riskLevel: 'low',
+        progress: 100,
+        leadScore: 98,
+        country: 'Canada',
+        city: 'Calgary',
+        state: 'AB'
+      }
+    ];
+  }
+
+  /**
+   * Get demo communications data
+   */
+  static getDemoCommunications() {
+    return [
+      {
+        id: 'comm1',
+        studentId: 's1',
+        type: 'email',
+        subject: 'Welcome to WCC',
+        content: 'Welcome to Western Career College! We are excited to have you join our community.',
+        direction: 'outbound',
+        status: 'sent',
+        sentAt: '2024-01-15T10:00:00Z'
+      },
+      {
+        id: 'comm2',
+        studentId: 's2',
+        type: 'phone',
+        subject: 'Follow-up Call',
+        content: 'Discussed program requirements and next steps.',
+        direction: 'outbound',
+        status: 'completed',
+        sentAt: '2024-01-16T14:30:00Z'
+      },
+      {
+        id: 'comm3',
+        studentId: 's3',
+        type: 'email',
+        subject: 'Document Submission Required',
+        content: 'Please submit your transcripts and other required documents.',
+        direction: 'outbound',
+        status: 'sent',
+        sentAt: '2024-01-17T09:15:00Z'
+      }
+    ];
+  }
+
+  /**
+   * Get demo documents data
+   */
+  static getDemoDocuments() {
+    return [
+      {
+        id: 'doc1',
+        studentId: 's1',
+        name: 'High School Transcript',
+        type: 'transcript',
+        fileSize: 245760,
+        status: 'approved',
+        uploadedAt: '2024-01-10T08:00:00Z',
+        reviewedAt: '2024-01-12T10:00:00Z'
+      },
+      {
+        id: 'doc2',
+        studentId: 's2',
+        name: 'Birth Certificate',
+        type: 'identification',
+        fileSize: 156789,
+        status: 'under_review',
+        uploadedAt: '2024-01-15T14:00:00Z'
+      },
+      {
+        id: 'doc3',
+        studentId: 's3',
+        name: 'College Transcript',
+        type: 'transcript',
+        fileSize: 334521,
+        status: 'pending',
+        uploadedAt: '2024-01-18T11:30:00Z'
+      },
+      {
+        id: 'doc4',
+        studentId: 's1',
+        name: 'Passport Copy',
+        type: 'identification',
+        fileSize: 198765,
+        status: 'rejected',
+        uploadedAt: '2024-01-08T16:45:00Z',
+        reviewedAt: '2024-01-09T09:00:00Z',
+        comments: 'Image quality too low, please resubmit'
+      }
+    ];
+  }
+
+  /**
+   * Get demo scholarship applications data
+   */
+  static getDemoScholarshipApplications() {
+    return [
+      {
+        id: 'sch1',
+        studentName: 'Sarah Johnson',
+        scholarshipName: 'Academic Excellence Scholarship',
+        scholarshipType: 'merit',
+        amount: 5000,
+        applicationDate: '2024-01-10',
+        deadline: '2024-03-15',
+        status: 'approved',
+        eligibilityScore: 92,
+        documentsSubmitted: true
+      },
+      {
+        id: 'sch2',
+        studentName: 'Michael Chen',
+        scholarshipName: 'Business Leadership Grant',
+        scholarshipType: 'merit',
+        amount: 3000,
+        applicationDate: '2024-01-12',
+        deadline: '2024-03-20',
+        status: 'under_review',
+        eligibilityScore: 87,
+        documentsSubmitted: true
+      },
+      {
+        id: 'sch3',
+        studentName: 'Emily Rodriguez',
+        scholarshipName: 'Need-Based Financial Aid',
+        scholarshipType: 'need',
+        amount: 7500,
+        applicationDate: '2024-01-14',
+        deadline: '2024-04-01',
+        status: 'submitted',
+        eligibilityScore: 75,
+        documentsSubmitted: false
+      }
+    ];
+  }
 }
 
 /**

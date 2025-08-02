@@ -780,6 +780,222 @@ export type Database = {
           },
         ]
       }
+      scholarship_applications: {
+        Row: {
+          amount: number
+          application_date: string
+          created_at: string
+          deadline: string | null
+          documents_submitted: boolean | null
+          eligibility_score: number | null
+          id: string
+          scholarship_name: string
+          scholarship_type: string
+          status: string
+          student_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          application_date: string
+          created_at?: string
+          deadline?: string | null
+          documents_submitted?: boolean | null
+          eligibility_score?: number | null
+          id?: string
+          scholarship_name: string
+          scholarship_type: string
+          status?: string
+          student_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          application_date?: string
+          created_at?: string
+          deadline?: string | null
+          documents_submitted?: boolean | null
+          eligibility_score?: number | null
+          id?: string
+          scholarship_name?: string
+          scholarship_type?: string
+          status?: string
+          student_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_communications: {
+        Row: {
+          content: string
+          created_at: string
+          direction: string
+          id: string
+          scheduled_at: string | null
+          sent_at: string | null
+          status: string
+          student_id: string
+          subject: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          direction?: string
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          student_id: string
+          subject: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          direction?: string
+          id?: string
+          scheduled_at?: string | null
+          sent_at?: string | null
+          status?: string
+          student_id?: string
+          subject?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_documents: {
+        Row: {
+          comments: string | null
+          created_at: string
+          file_size: number | null
+          file_url: string | null
+          id: string
+          name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          student_id: string
+          type: string
+          updated_at: string
+          uploaded_at: string | null
+          user_id: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          student_id: string
+          type: string
+          updated_at?: string
+          uploaded_at?: string | null
+          user_id: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          student_id?: string
+          type?: string
+          updated_at?: string
+          uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      students: {
+        Row: {
+          acceptance_likelihood: number | null
+          city: string | null
+          country: string | null
+          created_at: string
+          date_of_birth: string | null
+          email: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          id: string
+          last_name: string
+          lead_score: number | null
+          phone: string | null
+          program: string
+          progress: number | null
+          risk_level: string | null
+          stage: string
+          state: string | null
+          student_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acceptance_likelihood?: number | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          lead_score?: number | null
+          phone?: string | null
+          program: string
+          progress?: number | null
+          risk_level?: string | null
+          stage?: string
+          state?: string | null
+          student_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acceptance_likelihood?: number | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          lead_score?: number | null
+          phone?: string | null
+          program?: string
+          progress?: number | null
+          risk_level?: string | null
+          stage?: string
+          state?: string | null
+          student_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       team_members: {
         Row: {
           advisor_id: string

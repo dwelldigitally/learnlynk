@@ -6,6 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { useConditionalData } from '@/hooks/useConditionalData';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { DemoDataService } from '@/services/demoDataService';
+import { EventService } from '@/services/eventService';
 import { 
   Dialog,
   DialogContent,
@@ -35,62 +40,59 @@ import {
 } from "lucide-react";
 
 const EventManagement: React.FC = () => {
+  const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventData | null>(null);
 
+  // Data hooks
+  const eventsData = useConditionalData(
+    ['events'],
+    DemoDataService.getDemoEvents,
+    EventService.getEvents
+  );
+
   const handleCreateEvent = (eventData: EventData) => {
     console.log("Creating event:", eventData);
     setIsWizardOpen(false);
+    toast({
+      title: "Event Created",
+      description: `${eventData.title} has been successfully created.`,
+    });
   };
 
-  const events = [
+  // Mock events for display (different structure than real data)
+  const mockEvents = [
     {
       id: "1",
-      title: "Health Care Assistant Info Session",
-      description: "Learn about our HCA program, career opportunities, and application process.",
-      date: "2024-04-15",
-      time: "18:00",
-      location: "Surrey Campus - Room 101",
-      type: "info_session",
-      isVirtual: false,
-      capacity: 50,
-      registered: 37,
-      program: "Health Care Assistant",
-      status: "upcoming",
-      registrationDeadline: "2024-04-14"
-    },
-    {
-      id: "2", 
-      title: "Virtual ECE Program Workshop",
-      description: "Interactive workshop covering child development and educational techniques.",
-      date: "2024-04-20",
+      title: "Virtual Information Session",
+      type: "webinar",
+      date: "2024-03-15",
       time: "14:00",
-      location: "Online (Teams)",
-      type: "workshop",
-      isVirtual: true,
+      location: "Online Platform",
       capacity: 100,
-      registered: 78,
-      program: "Early Childhood Education",
-      status: "upcoming",
-      registrationDeadline: "2024-04-19"
+      registered: 67,
+      description: "Learn about our programs and admission process in this comprehensive virtual session.",
+      program: "General",
+      isVirtual: true
     },
     {
-      id: "3",
-      title: "Campus Tour - Aviation Facilities",
-      description: "Guided tour of our aviation maintenance facilities and labs.",
-      date: "2024-04-25",
+      id: "2",
+      title: "Campus Open House",
+      type: "tour",
+      date: "2024-03-22",
       time: "10:00",
-      location: "Richmond Campus",
-      type: "campus_tour",
-      isVirtual: false,
-      capacity: 25,
-      registered: 22,
-      program: "Aviation Maintenance",
-      status: "upcoming",
-      registrationDeadline: "2024-04-24"
+      location: "Main Campus",
+      capacity: 50,
+      registered: 42,
+      description: "Visit our campus, meet faculty, and explore our facilities.",
+      program: "Business Administration",
+      isVirtual: false
     }
   ];
+
+  // For demo purposes, show mock data if not in empty state
+  const events = eventsData.showEmptyState ? [] : mockEvents;
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
@@ -239,84 +241,93 @@ const EventManagement: React.FC = () => {
         </TabsList>
 
         <TabsContent value="upcoming" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {events.map((event) => (
-              <Card key={event.id} className="hover:shadow-md transition-shadow">
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
-                      <Badge className={getEventTypeColor(event.type)}>
-                        {event.type.replace('_', ' ')}
-                      </Badge>
+          <ConditionalDataWrapper
+            isLoading={eventsData.isLoading}
+            showEmptyState={eventsData.showEmptyState}
+            hasDemoAccess={eventsData.hasDemoAccess}
+            hasRealData={eventsData.hasRealData}
+            emptyTitle="No Events Found"
+            emptyDescription="Create your first event to start engaging with students."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {events.map((event) => (
+                <Card key={event.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
+                        <Badge variant="outline">
+                          {event.type.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <div className="flex space-x-1">
+                        <Button variant="ghost" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex space-x-1">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {event.description}
-                  </p>
-
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{new Date(event.date).toLocaleDateString()} at {event.time}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {event.isVirtual ? (
-                        <Video className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>{event.registered}/{event.capacity} registered</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>Registration</span>
-                      <span>{Math.round((event.registered / event.capacity) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300" 
-                        style={{ width: `${(event.registered / event.capacity) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Eye className="h-4 w-4 mr-1" />
-                      View
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
-                      <Users className="h-4 w-4 mr-1" />
-                      Attendees
-                    </Button>
-                  </div>
-
-                  <div className="pt-2 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      Program: <span className="font-medium">{event.program}</span>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {event.description}
                     </p>
-                  </div>
-                </CardContent>
+
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span>{new Date(event.date).toLocaleDateString()} at {event.time}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        {event.isVirtual ? (
+                          <Video className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <span>{event.location}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span>{event.registered}/{event.capacity} registered</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Registration</span>
+                        <span>{Math.round((event.registered / event.capacity) * 100)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full transition-all duration-300" 
+                          style={{ width: `${(event.registered / event.capacity) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm" className="flex-1">
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1">
+                        <Users className="h-4 w-4 mr-1" />
+                        Attendees
+                      </Button>
+                    </div>
+
+                    <div className="pt-2 border-t">
+                      <p className="text-xs text-muted-foreground">
+                        Program: <span className="font-medium">{event.program}</span>
+                      </p>
+                    </div>
+                  </CardContent>
                 </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          </ConditionalDataWrapper>
         </TabsContent>
 
         <TabsContent value="past">

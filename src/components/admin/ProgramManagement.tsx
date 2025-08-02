@@ -3,6 +3,11 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useConditionalData } from '@/hooks/useConditionalData';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { DemoDataService } from '@/services/demoDataService';
+import { ProgramService } from '@/services/programService';
 import ProgramWizard from "./ProgramWizard";
 import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
@@ -27,7 +32,6 @@ import {
   Eye,
   Settings
 } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
 
 const ProgramManagement: React.FC = () => {
   const { toast } = useToast();
@@ -38,273 +42,45 @@ const ProgramManagement: React.FC = () => {
   const [comprehensiveEditModalOpen, setComprehensiveEditModalOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
-  const programs = [
+  // Data hooks
+  const programsData = useConditionalData(
+    ['programs'],
+    DemoDataService.getDemoPrograms,
+    ProgramService.getPrograms
+  );
+
+  // Mock programs data for the overview section (with different structure than real data)
+  const mockPrograms = [
     {
       id: "1",
       name: "Health Care Assistant",
       description: "Comprehensive healthcare training program preparing students for careers in healthcare support.",
-      shortDescription: "Healthcare training program",
-      marketingCopy: "",
-      images: [],
       duration: "10 months",
       type: "certificate" as const,
-      campus: ["Surrey Campus"],
-      deliveryMethod: "in-person" as const,
       color: "#3B82F6",
       status: "active" as const,
-      category: "Healthcare",
-      tags: ["healthcare", "support", "training"],
-      urlSlug: "health-care-assistant",
-      entryRequirements: [
-        {
-          id: "req-1",
-          type: "academic",
-          title: "High School Diploma",
-          description: "Grade 12 graduation or equivalent",
-          mandatory: true,
-          minimumGrade: "C+",
-          details: "Must include English 12 and Biology 11 or 12"
-        },
-        {
-          id: "req-2", 
-          type: "health",
-          title: "Medical Clearance",
-          description: "Current immunizations and health screening",
-          mandatory: true,
-          details: "Required for clinical placements"
-        }
-      ],
-      documentRequirements: [
-        {
-          id: "doc-1",
-          name: "Official Transcripts",
-          description: "High school and post-secondary transcripts",
-          mandatory: true,
-          acceptedFormats: ["PDF", "JPG", "PNG"],
-          maxSize: 5,
-          stage: "Application",
-          order: 1,
-          instructions: "Submit official transcripts from all institutions attended"
-        },
-        {
-          id: "doc-2",
-          name: "Immunization Records", 
-          description: "Proof of required vaccinations",
-          mandatory: true,
-          acceptedFormats: ["PDF", "JPG"],
-          maxSize: 3,
-          stage: "Pre-enrollment",
-          order: 2,
-          instructions: "Must include MMR, Hepatitis B, and TB screening"
-        }
-      ],
-      feeStructure: {
-        domesticFees: [
-          {
-            id: "fee-1",
-            type: "Tuition Fee",
-            amount: 15500,
-            currency: "CAD",
-            required: true,
-            description: "Main program tuition fee for domestic students"
-          },
-          {
-            id: "fee-2", 
-            type: "Technology Fee",
-            amount: 350,
-            currency: "CAD",
-            required: true,
-            description: "Technology and equipment usage fee"
-          }
-        ],
-        internationalFees: [
-          {
-            id: "fee-3",
-            type: "Tuition Fee", 
-            amount: 22500,
-            currency: "CAD",
-            required: true,
-            description: "Main program tuition fee for international students"
-          },
-          {
-            id: "fee-4",
-            type: "Technology Fee",
-            amount: 350,
-            currency: "CAD", 
-            required: true,
-            description: "Technology and equipment usage fee"
-          },
-          {
-            id: "fee-5",
-            type: "International Student Services Fee",
-            amount: 750,
-            currency: "CAD",
-            required: true,
-            description: "Additional services and support for international students"
-          }
-        ],
-        paymentPlans: [],
-        scholarships: [],
-      },
-      customQuestions: [],
-      intakes: [
-        { 
-          id: "intake-1",
-          date: "2024-04-15", 
-          capacity: 70, 
-          enrolled: 65, 
-          status: "open" as const,
-          applicationDeadline: "2024-04-01",
-          notifications: []
-        },
-        { 
-          id: "intake-2",
-          date: "2024-07-15", 
-          capacity: 70, 
-          enrolled: 45, 
-          status: "open" as const,
-          applicationDeadline: "2024-07-01",
-          notifications: []
-        },
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: "admin",
-      // Legacy fields for display
       enrolled: 245,
       capacity: 280,
-      tuitionFee: 15500, // Using domestic tuition for display
+      tuitionFee: 15500,
       nextIntake: "2024-04-15",
     },
     {
       id: "2",
       name: "Early Childhood Education",
       description: "Develop skills needed to work with children in various educational settings.",
-      shortDescription: "Early childhood education",
-      marketingCopy: "",
-      images: [],
       duration: "12 months",
       type: "diploma" as const,
-      campus: ["Vancouver Campus"],
-      deliveryMethod: "in-person" as const,
       color: "#10B981",
       status: "active" as const,
-      category: "Education",
-      tags: ["education", "children", "teaching"],
-      urlSlug: "early-childhood-education",
-      entryRequirements: [
-        {
-          id: "req-3",
-          type: "academic",
-          title: "High School Diploma",
-          description: "Grade 12 graduation or equivalent",
-          mandatory: true,
-          minimumGrade: "B",
-          details: "Must include English 12 and Psychology or Child Development course"
-        },
-        {
-          id: "req-4",
-          type: "experience", 
-          title: "Volunteer Experience",
-          description: "20 hours of volunteer work with children",
-          mandatory: false,
-          details: "Recommended but not required for admission"
-        }
-      ],
-      documentRequirements: [
-        {
-          id: "doc-3",
-          name: "Official Transcripts",
-          description: "High school transcripts showing completion",
-          mandatory: true,
-          acceptedFormats: ["PDF", "JPG", "PNG"],
-          maxSize: 5,
-          stage: "Application",
-          order: 1,
-          instructions: "Submit official high school transcripts"
-        },
-        {
-          id: "doc-4",
-          name: "Criminal Record Check",
-          description: "Clear criminal background check",
-          mandatory: true,
-          acceptedFormats: ["PDF"],
-          maxSize: 2,
-          stage: "Pre-enrollment", 
-          order: 2,
-          instructions: "Must be completed within 6 months of program start"
-        }
-      ],
-      feeStructure: {
-        domesticFees: [
-          {
-            id: "fee-6",
-            type: "Tuition Fee",
-            amount: 18500,
-            currency: "CAD",
-            required: true,
-            description: "Main program tuition fee for domestic students"
-          },
-          {
-            id: "fee-7",
-            type: "Books & Materials",
-            amount: 650,
-            currency: "CAD",
-            required: true,
-            description: "Required textbooks and learning materials"
-          }
-        ],
-        internationalFees: [
-          {
-            id: "fee-8",
-            type: "Tuition Fee",
-            amount: 26500,
-            currency: "CAD",
-            required: true,
-            description: "Main program tuition fee for international students"
-          },
-          {
-            id: "fee-9",
-            type: "Books & Materials",
-            amount: 650,
-            currency: "CAD",
-            required: true,
-            description: "Required textbooks and learning materials"
-          },
-          {
-            id: "fee-10",
-            type: "International Student Services Fee",
-            amount: 950,
-            currency: "CAD",
-            required: true,
-            description: "Additional services and support for international students"
-          }
-        ],
-        paymentPlans: [],
-        scholarships: [],
-      },
-      customQuestions: [],
-      intakes: [
-        { 
-          id: "intake-3",
-          date: "2024-05-01", 
-          capacity: 45, 
-          enrolled: 42, 
-          status: "open" as const,
-          applicationDeadline: "2024-04-15",
-          notifications: []
-        },
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: "admin",
-      // Legacy fields for display
       enrolled: 156,
       capacity: 180,
-      tuitionFee: 18500, // Using domestic tuition for display
+      tuitionFee: 18500,
       nextIntake: "2024-05-01",
     }
   ];
+
+  // For demo purposes, show mock data if not in empty state
+  const programs = programsData.showEmptyState ? [] : mockPrograms;
 
   const handleViewProgram = (program: any) => {
     setSelectedProgram(program);
@@ -332,7 +108,6 @@ const ProgramManagement: React.FC = () => {
       title: "Program Updated",
       description: `${updatedProgram.name} has been successfully updated.`,
     });
-    // Here you would update the programs list in state or make an API call
   };
 
   const handleAddIntake = () => {
@@ -365,67 +140,81 @@ const ProgramManagement: React.FC = () => {
       </div>
 
       {/* Programs Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {programs.map((program) => (
-          <Card key={program.id} className="relative overflow-hidden">
-            <div 
-              className="absolute top-0 left-0 right-0 h-1" 
-              style={{ backgroundColor: program.color }}
-            />
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{program.name}</CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {program.type} • {program.duration}
-                  </p>
+      <ConditionalDataWrapper
+        isLoading={programsData.isLoading}
+        showEmptyState={programsData.showEmptyState}
+        hasDemoAccess={programsData.hasDemoAccess}
+        hasRealData={programsData.hasRealData}
+        emptyTitle="No Programs Found"
+        emptyDescription="Create your first program to start managing educational offerings."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {programs.map((program) => (
+            <Card key={program.id} className="relative overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 right-0 h-1" 
+                style={{ backgroundColor: program.color }}
+              />
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="text-lg">{program.name}</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {program.type} • {program.duration}
+                    </p>
+                  </div>
+                  <Badge variant={program.status === 'active' ? 'default' : 'secondary'}>
+                    {program.status}
+                  </Badge>
                 </div>
-                <Badge variant={program.status === 'active' ? 'default' : 'secondary'}>
-                  {program.status}
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground line-clamp-2">
-                {program.description}
-              </p>
-              
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Enrollment</span>
-                  <span>{program.enrolled}/{program.capacity}</span>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {program.description}
+                </p>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Enrollment</span>
+                    <span>{program.enrolled}/{program.capacity}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${(program.enrolled / program.capacity) * 100}%` }}
+                    />
+                  </div>
                 </div>
-                <Progress value={(program.enrolled / program.capacity) * 100} className="h-2" />
-              </div>
 
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <p className="text-muted-foreground">Tuition Fee</p>
-                  <p className="font-medium">${program.tuitionFee.toLocaleString()}</p>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Tuition Fee</p>
+                    <p className="font-medium">${program.tuitionFee.toLocaleString()}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Next Intake</p>
+                    <p className="font-medium">{new Date(program.nextIntake).toLocaleDateString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-muted-foreground">Next Intake</p>
-                  <p className="font-medium">{new Date(program.nextIntake).toLocaleDateString()}</p>
-                </div>
-              </div>
 
-              <div className="flex space-x-2">
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProgram(program)}>
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-                <Button variant="outline" size="sm" className="flex-1" onClick={() => handleComprehensiveEditProgram(program)}>
-                  <Edit className="h-4 w-4 mr-1" />
-                  Edit
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleSettingsProgram(program)}>
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProgram(program)}>
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleComprehensiveEditProgram(program)}>
+                    <Edit className="h-4 w-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleSettingsProgram(program)}>
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </ConditionalDataWrapper>
 
       {/* Detailed Management Tabs */}
       <Tabs defaultValue="intakes" className="space-y-4">
@@ -459,17 +248,18 @@ const ProgramManagement: React.FC = () => {
                       {program.name}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                      {program.intakes.map((intake, index) => (
+                      {/* Mock intake data for tabs section */}
+                      {[
+                        { date: "2024-04-15", enrolled: 65, capacity: 70, status: "open" },
+                        { date: "2024-07-15", enrolled: 45, capacity: 70, status: "open" }
+                      ].map((intake, index) => (
                         <Card key={index} className="p-4">
                           <div className="space-y-2">
                             <div className="flex justify-between items-center">
                               <p className="font-medium">
                                 {new Date(intake.date).toLocaleDateString()}
                               </p>
-                              <Badge variant={
-                                intake.status === 'open' ? 'default' :
-                                intake.status === 'planning' ? 'outline' : 'secondary'
-                              }>
+                              <Badge variant={intake.status === 'open' ? 'default' : 'secondary'}>
                                 {intake.status}
                               </Badge>
                             </div>

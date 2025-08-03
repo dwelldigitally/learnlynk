@@ -50,7 +50,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
   };
 
   const handleFilterChange = (key: keyof IntakeFilters, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value || undefined }));
+    setFilters(prev => ({ ...prev, [key]: value === 'all' ? undefined : value }));
   };
 
   const clearFilters = () => {
@@ -178,7 +178,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
                   <SelectValue placeholder="Program Type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   {filterOptions.programTypes?.map((type: string) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
@@ -190,7 +190,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
                   <SelectValue placeholder="Delivery Method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Methods</SelectItem>
+                  <SelectItem value="all">All Methods</SelectItem>
                   {filterOptions.deliveryMethods?.map((method: string) => (
                     <SelectItem key={method} value={method}>{method}</SelectItem>
                   ))}
@@ -202,7 +202,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
                   <SelectValue placeholder="Campus" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Campuses</SelectItem>
+                  <SelectItem value="all">All Campuses</SelectItem>
                   {filterOptions.campuses?.map((campus: string) => (
                     <SelectItem key={campus} value={campus}>{campus}</SelectItem>
                   ))}
@@ -214,7 +214,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   {filterOptions.statuses?.map((status: string) => (
                     <SelectItem key={status} value={status}>{status}</SelectItem>
                   ))}

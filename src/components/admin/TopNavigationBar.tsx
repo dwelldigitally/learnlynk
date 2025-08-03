@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronDown, Search, Bell, User } from "lucide-react";
 import { navigationStructure } from "@/data/navigationStructure";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ export function TopNavigationBar({
   onToggleMobileMenu 
 }: TopNavigationBarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
 
   const getActiveSectionFromPath = () => {
@@ -35,6 +36,15 @@ export function TopNavigationBar({
       }
     }
     return navigationStructure.sections[0].id;
+  };
+
+  const handleSectionClick = (sectionId: string) => {
+    const section = navigationStructure.sections.find(s => s.id === sectionId);
+    if (section && section.items.length > 0) {
+      // Navigate to the first item in the section
+      navigate(section.items[0].href);
+      onSectionChange(sectionId);
+    }
   };
 
   const currentActiveSection = activeSection || getActiveSectionFromPath();
@@ -78,7 +88,7 @@ export function TopNavigationBar({
                     ? "bg-muted text-foreground" 
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
-                onClick={() => onSectionChange(section.id)}
+                onClick={() => handleSectionClick(section.id)}
               >
                 <section.icon className="w-4 h-4 mr-2" />
                 {section.name}

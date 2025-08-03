@@ -77,8 +77,12 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
           <div className="flex-1 overflow-y-auto p-4">
             <nav className="space-y-1">
               {filteredItems.map((item) => {
-                const isActive = location.pathname === item.href || 
-                  location.pathname.startsWith(item.href + '/');
+                // Sort by path length (longest first) to find most specific match
+                const sortedItems = [...filteredItems].sort((a, b) => b.href.length - a.href.length);
+                const mostSpecificMatch = sortedItems.find(sortedItem => 
+                  location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/')
+                );
+                const isActive = mostSpecificMatch?.href === item.href;
                 
                 return (
                   <NavLink

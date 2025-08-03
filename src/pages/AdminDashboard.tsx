@@ -16,6 +16,15 @@ import SystemConfiguration from "@/components/admin/SystemConfiguration";
 import ProfilePage from "@/components/admin/ProfilePage";
 import CompanyPage from "@/components/admin/CompanyPage";
 import { LeadManagement } from "@/components/admin/LeadManagement";
+import { LeadOverview } from "@/components/admin/leads/LeadOverview";
+import { LeadAIFeatures } from "@/components/admin/leads/LeadAIFeatures";
+import { LeadForms } from "@/components/admin/leads/LeadForms";
+import { LeadRoutingRules } from "@/components/admin/leads/LeadRoutingRules";
+import { LeadScoringEngine } from "@/components/admin/leads/LeadScoringEngine";
+import { LeadTemplates } from "@/components/admin/leads/LeadTemplates";
+import { LeadAnalytics } from "@/components/admin/leads/LeadAnalytics";
+import { LeadAdvancedAnalytics } from "@/components/admin/leads/LeadAdvancedAnalytics";
+import { LeadBulkOperations } from "@/components/admin/leads/LeadBulkOperations";
 import { DatabaseManagement } from "@/components/admin/DatabaseManagement";
 import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 
@@ -32,7 +41,23 @@ const AdminDashboard: React.FC = () => {
       case "/admin":
         return <AdminOverview />;
       case "/admin/leads":
-        return <LeadManagement />;
+        return <LeadOverview />;
+      case "/admin/leads/ai":
+        return <LeadAIFeatures />;
+      case "/admin/leads/forms":
+        return <LeadForms />;
+      case "/admin/leads/routing":
+        return <LeadRoutingRules />;
+      case "/admin/leads/scoring":
+        return <LeadScoringEngine />;
+      case "/admin/leads/templates":
+        return <LeadTemplates />;
+      case "/admin/leads/analytics":
+        return <LeadAnalytics />;
+      case "/admin/leads/advanced-analytics":
+        return <LeadAdvancedAnalytics />;
+      case "/admin/leads/bulk":
+        return <LeadBulkOperations />;
       case "/admin/students":
         return <StudentManagement />;
       case "/admin/programs":

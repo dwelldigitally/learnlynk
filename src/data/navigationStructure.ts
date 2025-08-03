@@ -30,11 +30,16 @@ export const navigationStructure: NavigationStructure = {
       name: "Contacts",
       icon: Users,
       items: [
-        { name: "All Leads", href: "/admin/leads", icon: Users },
-        { name: "Students", href: "/admin/students", icon: GraduationCap },
-        { name: "Lead Scoring", href: "/admin/scoring", icon: Target },
-        { name: "Routing Rules", href: "/admin/routing", icon: Route },
-        { name: "Import/Export", href: "/admin/import", icon: Upload }
+        { name: "Lead Overview", href: "/admin/leads", icon: Users },
+        { name: "AI Features", href: "/admin/leads/ai", icon: Zap },
+        { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
+        { name: "Routing Rules", href: "/admin/leads/routing", icon: Route },
+        { name: "Scoring Engine", href: "/admin/leads/scoring", icon: Target },
+        { name: "Templates", href: "/admin/leads/templates", icon: Mail },
+        { name: "Analytics", href: "/admin/leads/analytics", icon: BarChart3 },
+        { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: PieChart },
+        { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
+        { name: "Students", href: "/admin/students", icon: GraduationCap }
       ]
     },
     {

@@ -170,25 +170,41 @@ const ProgramManagement: React.FC = () => {
     setComprehensiveEditModalOpen(true);
   };
 
-  const handleSaveProgram = (updatedProgram: any) => {
-    console.log("Saving program:", updatedProgram);
-    toast({
-      title: "Program Updated",
-      description: `${updatedProgram.name} has been successfully updated.`,
-    });
+  const handleSaveProgram = async (updatedProgram: any) => {
+    try {
+      if (updatedProgram.id) {
+        await ProgramService.updateProgram(updatedProgram.id, {
+          name: updatedProgram.name,
+          description: updatedProgram.description,
+          type: updatedProgram.type,
+          duration: updatedProgram.duration,
+          tuition: updatedProgram.tuitionFee,
+          requirements: updatedProgram.requirements
+        });
+        
+        // Refresh data
+        programsData.refetch();
+        
+        toast({
+          title: "Program Updated",
+          description: `${updatedProgram.name} has been successfully updated.`,
+        });
+      }
+    } catch (error) {
+      console.error("Error saving program:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update program. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleAddIntake = () => {
+  const handleRefreshData = () => {
+    programsData.refetch();
     toast({
-      title: "Add Intake",
-      description: "Intake creation functionality will be implemented here.",
-    });
-  };
-
-  const handleEditIntake = (programId: string, intakeId: string) => {
-    toast({
-      title: "Edit Intake", 
-      description: `Editing intake ${intakeId} for program ${programId}`,
+      title: "Data Refreshed",
+      description: "Program and intake data has been refreshed.",
     });
   };
 

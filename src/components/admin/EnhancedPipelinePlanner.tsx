@@ -11,41 +11,41 @@ import { Search, Calendar, MapPin, Users, Filter, SortAsc, Bell, Target } from '
 import { enhancedIntakeService, type EnhancedIntake, type IntakeFilters, type SortOptions } from '@/services/enhancedIntakeService';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useQuery } from '@tanstack/react-query';
 
 const EnhancedPipelinePlanner: React.FC = () => {
-  const [intakes, setIntakes] = useState<EnhancedIntake[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<IntakeFilters>({});
-  const [sort, setSort] = useState<SortOptions>({ field: 'start_date', direction: 'asc' });
-  const [filterOptions, setFilterOptions] = useState<any>({});
+  const [sortConfig, setSortConfig] = useState<SortOptions>({ field: 'start_date', direction: 'asc' });
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
-  useEffect(() => {
-    loadData();
-  }, [filters, sort]);
+  const { data: intakes = [], isLoading, error, refetch } = useQuery({
+    queryKey: ['enhanced-intakes', filters, sortConfig],
+    queryFn: () => enhancedIntakeService.getIntakesWithProgramData(filters, sortConfig),
+    refetchInterval: 30000,
+  });
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [intakeData, options] = await Promise.all([
-        enhancedIntakeService.getIntakesWithProgramData(filters, sort),
-        enhancedIntakeService.getFilterOptions()
-      ]);
-      setIntakes(intakeData);
-      setFilterOptions(options);
-    } catch (error) {
-      console.error('Failed to load pipeline data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: filterOptions = {} } = useQuery({
+    queryKey: ['intake-filter-options'],
+    queryFn: () => enhancedIntakeService.getFilterOptions(),
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Listen for intake changes to refresh data
+  React.useEffect(() => {
+    const handleRefresh = () => {
+      refetch();
+    };
+
+    // You can add event listeners here if needed
+    return () => {
+      // Cleanup
+    };
+  }, [refetch]);
 
   const handleApproachChange = async (intakeId: string, approach: 'aggressive' | 'balanced' | 'neutral') => {
     const success = await enhancedIntakeService.updateSalesApproach(intakeId, approach);
     if (success) {
-      setIntakes(prev => prev.map(intake => 
-        intake.id === intakeId ? { ...intake, sales_approach: approach } : intake
-      ));
+      refetch(); // Refresh data after update
     }
   };
 
@@ -84,7 +84,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
 
   const activeFiltersCount = Object.values(filters).filter(v => v && v !== '').length;
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -134,7 +134,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
               </div>
             </div>
 
-            <Select value={sort.field} onValueChange={(value) => setSort(prev => ({ ...prev, field: value as any }))}>
+            <Select value={sortConfig.field} onValueChange={(value) => setSortConfig(prev => ({ ...prev, field: value as any }))}>
               <SelectTrigger className="w-48">
                 <SortAsc className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
@@ -150,9 +150,9 @@ const EnhancedPipelinePlanner: React.FC = () => {
 
             <Button
               variant="outline"
-              onClick={() => setSort(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
+              onClick={() => setSortConfig(prev => ({ ...prev, direction: prev.direction === 'asc' ? 'desc' : 'asc' }))}
             >
-              {sort.direction === 'asc' ? '↑' : '↓'}
+              {sortConfig.direction === 'asc' ? '↑' : '↓'}
             </Button>
 
             <Button
@@ -348,7 +348,7 @@ const EnhancedPipelinePlanner: React.FC = () => {
         })}
       </div>
 
-      {intakes.length === 0 && !loading && (
+      {intakes.length === 0 && !isLoading && (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Calendar className="h-12 w-12 text-muted-foreground mb-4" />

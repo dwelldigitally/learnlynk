@@ -22,7 +22,10 @@ import RequirementsStep from "../wizard/RequirementsStep";
 import DocumentsStep from "../wizard/DocumentsStep";
 import FeeStructureStep from "../wizard/FeeStructureStep";
 import IntakeQuestionsStep from "../wizard/IntakeQuestionsStep";
-import IntakeDatesStep from "../wizard/IntakeDatesStep";
+import { IntakeManagement } from "../IntakeManagement";
+import { ProgramService } from "@/services/programService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { IntakeService } from "@/services/intakeService";
 
 interface ComprehensiveProgramEditModalProps {
   isOpen: boolean;
@@ -39,7 +42,16 @@ export const ComprehensiveProgramEditModal = ({
 }: ComprehensiveProgramEditModalProps) => {
   const [editingProgram, setEditingProgram] = useState<Partial<Program> | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch intakes for the program
+  const { data: intakes = [] } = useQuery({
+    queryKey: ['intakes', program?.id],
+    queryFn: () => program?.id ? IntakeService.getIntakesByProgramId(program.id) : Promise.resolve([]),
+    enabled: isOpen && !!program?.id,
+  });
 
   React.useEffect(() => {
     if (isOpen && program) {
@@ -53,22 +65,37 @@ export const ComprehensiveProgramEditModal = ({
     setHasChanges(true);
   };
 
-  const handleSave = () => {
-    if (!editingProgram || !program) return;
+  const handleSave = async () => {
+    if (!editingProgram || !program || isSaving) return;
 
-    const updatedProgram: Program = {
-      ...program,
-      ...editingProgram,
-      updatedAt: new Date().toISOString(),
-    };
+    setIsSaving(true);
+    try {
+      const updatedProgram: Program = {
+        ...program,
+        ...editingProgram,
+        updatedAt: new Date().toISOString(),
+      };
 
-    onSave(updatedProgram);
-    setHasChanges(false);
-    toast({
-      title: "Program Updated",
-      description: "The program has been successfully updated.",
-    });
-    onClose();
+      await onSave(updatedProgram);
+      setHasChanges(false);
+      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      queryClient.invalidateQueries({ queryKey: ['intakes'] });
+      
+      toast({
+        title: "Program Updated",
+        description: "The program has been successfully updated.",
+      });
+      onClose();
+    } catch (error) {
+      console.error('Error saving program:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update program. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleClose = () => {
@@ -116,9 +143,9 @@ export const ComprehensiveProgramEditModal = ({
     },
     {
       id: "intakes",
-      label: "Intake Dates",
+      label: "Intake Management",
       icon: Calendar,
-      component: IntakeDatesStep,
+      component: IntakeManagement,
     },
   ];
 
@@ -140,12 +167,12 @@ export const ComprehensiveProgramEditModal = ({
             )}
             <Button 
               onClick={handleSave} 
-              disabled={!hasChanges}
+              disabled={!hasChanges || isSaving}
               size="sm"
               className="flex items-center gap-2"
             >
               <Save className="h-4 w-4" />
-              Save Changes
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>
         </DialogHeader>
@@ -170,12 +197,25 @@ export const ComprehensiveProgramEditModal = ({
               return (
                 <TabsContent key={tab.id} value={tab.id} className="mt-0">
                   <div className="p-4 border rounded-lg bg-card">
-                    <StepComponent
-                      data={editingProgram}
-                      onDataChange={handleDataChange}
-                      onNext={() => {}} // Not needed for editing
-                      onPrevious={() => {}} // Not needed for editing
-                    />
+                    {tab.id === 'intakes' ? (
+                      <IntakeManagement
+                        programId={program?.id || ''}
+                        intakes={intakes}
+                        onIntakeChange={() => {
+                          queryClient.invalidateQueries({ queryKey: ['intakes', program?.id] });
+                          setHasChanges(true);
+                        }}
+                      />
+                    ) : (
+                      <StepComponent
+                        data={editingProgram}
+                        onDataChange={handleDataChange}
+                        onNext={() => {}} // Not needed for editing
+                        onPrevious={() => {}} // Not needed for editing
+                        programId={program?.id || ''}
+                        intakes={intakes}
+                      />
+                    )}
                   </div>
                 </TabsContent>
               );

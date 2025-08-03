@@ -14,7 +14,7 @@ export function useConditionalData<T>(
   const { data: hasDemoAccess, isLoading: isCheckingAccess } = useDemoDataAccess();
 
   // Query real data if available
-  const { data: realData, isLoading: isLoadingReal } = useQuery({
+  const { data: realData, isLoading: isLoadingReal, refetch } = useQuery({
     queryKey: [...queryKey, 'real'],
     queryFn: realDataQuery || (() => Promise.resolve([])),
     enabled: enabled && !!realDataQuery,
@@ -51,6 +51,7 @@ export function useConditionalData<T>(
     isLoading,
     showEmptyState,
     hasDemoAccess: hasDemoAccess || false,
-    hasRealData: (realData && realData.length > 0) || false
+    hasRealData: (realData && realData.length > 0) || false,
+    refetch
   };
 }

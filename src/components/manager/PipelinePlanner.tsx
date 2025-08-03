@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { Intake } from "@/types/pipeline";
-import intakeService from "@/services/intakeService";
+import { IntakeService } from "@/services/intakeService";
 
 const PipelinePlanner: React.FC = () => {
   const [intakes, setIntakes] = useState<Intake[]>([]);
@@ -20,8 +20,20 @@ const PipelinePlanner: React.FC = () => {
     const fetchIntakes = async () => {
       setLoading(true);
       try {
-        const data = await intakeService.getIntakes();
-        setIntakes(data);
+        const data = await IntakeService.getAllIntakes();
+        // Transform data to match expected Intake interface
+        const transformedData = data.map((intake: any) => ({
+          id: intake.id,
+          program: intake.programs?.name || 'Unknown Program',
+          date: new Date(intake.start_date).toLocaleDateString(),
+          time: 'TBA', // Not available in new structure
+          location: intake.campus || 'TBA',
+          enrollmentPercentage: 0, // Would need to calculate from enrollment data
+          capacityPercentage: 0, // Would need to calculate from enrollment data
+          status: (intake.status === 'open' ? 'healthy' : 'warning') as "healthy" | "warning" | "critical",
+          approach: intake.sales_approach || 'balanced'
+        }));
+        setIntakes(transformedData);
       } catch (error) {
         console.error("Error fetching intakes:", error);
         toast({
@@ -39,7 +51,8 @@ const PipelinePlanner: React.FC = () => {
 
   const handleApproachChange = async (intakeId: string, newApproach: "aggressive" | "balanced" | "neutral") => {
     try {
-      const success = await intakeService.updateIntakeApproach(intakeId, newApproach);
+      await IntakeService.updateSalesApproach(intakeId, newApproach);
+      const success = true;
       
       if (success) {
         setIntakes(prevIntakes => 
@@ -88,8 +101,33 @@ const PipelinePlanner: React.FC = () => {
     setIntakes(sortedIntakes);
   };
 
-  // Get the strategies from the service
-  const strategies = intakeService.getIntakeStrategies();
+  // Mock strategies for the old intake structure
+  const strategies = {
+    aggressive: {
+      actions: [
+        "Assign leads to top performers",
+        "Prepare email campaigns",
+        "Increase marketing budget",
+        "Prioritize follow-ups"
+      ]
+    },
+    balanced: {
+      actions: [
+        "Distribute leads evenly",
+        "Standard follow-up sequence",
+        "Normal marketing budget",
+        "Regular engagement tracking"
+      ]
+    },
+    neutral: {
+      actions: [
+        "Self-service registration",
+        "Minimal direct outreach",
+        "Reduced marketing spend",
+        "Automated workflows"
+      ]
+    }
+  };
 
   return (
     <Card>

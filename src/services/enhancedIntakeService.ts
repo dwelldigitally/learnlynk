@@ -46,82 +46,59 @@ class EnhancedIntakeService {
         throw new Error('User not authenticated');
       }
 
-      // Get intakes with program data
-      let query = supabase
+      // First get intakes
+      const { data: intakes, error: intakesError } = await supabase
         .from('intakes')
-        .select(`
-          *,
-          programs!inner (
-            name,
-            type,
-            description
-          )
-        `)
+        .select('*')
         .eq('user_id', user.id);
 
-      // Apply filters
-      if (filters?.search) {
-        query = query.or(`name.ilike.%${filters.search}%,programs.name.ilike.%${filters.search}%`);
-      }
-      if (filters?.program_type) {
-        query = query.eq('programs.type', filters.program_type);
-      }
-      if (filters?.delivery_method) {
-        query = query.eq('delivery_method', filters.delivery_method);
-      }
-      if (filters?.campus) {
-        query = query.eq('campus', filters.campus);
-      }
-      if (filters?.status) {
-        query = query.eq('status', filters.status);
-      }
-      if (filters?.sales_approach) {
-        query = query.eq('sales_approach', filters.sales_approach);
-      }
-      if (filters?.start_date_from) {
-        query = query.gte('start_date', filters.start_date_from);
-      }
-      if (filters?.start_date_to) {
-        query = query.lte('start_date', filters.start_date_to);
+      if (intakesError) {
+        console.error('Error fetching intakes:', intakesError);
+        throw intakesError;
       }
 
-      // Apply sorting
-      if (sort) {
-        if (sort.field === 'program_name') {
-          query = query.order('programs.name', { ascending: sort.direction === 'asc' });
-        } else {
-          query = query.order(sort.field, { ascending: sort.direction === 'asc' });
-        }
-      } else {
-        query = query.order('start_date', { ascending: true });
+      if (!intakes || intakes.length === 0) {
+        return [];
       }
 
-      const { data: intakes, error } = await query;
+      // Get programs data
+      const programIds = [...new Set(intakes.map(intake => intake.program_id))];
+      const { data: programs, error: programsError } = await supabase
+        .from('programs')
+        .select('id, name, type, description')
+        .eq('user_id', user.id)
+        .in('id', programIds);
 
-      if (error) {
-        console.error('Error fetching intakes:', error);
-        throw error;
+      if (programsError) {
+        console.error('Error fetching programs:', programsError);
+        throw programsError;
       }
 
-      if (!intakes) return [];
+      // Create program lookup map
+      const programMap = new Map();
+      programs?.forEach(program => {
+        programMap.set(program.id, program);
+      });
 
-      // Get enrollment counts for each intake
-      const intakeIds = intakes.map(intake => intake.id);
+      // Get enrollment counts
       const { data: enrollmentData } = await supabase
         .from('students')
         .select('id, program')
         .eq('user_id', user.id)
         .in('stage', ['ACCEPTED', 'ENROLLED', 'ACTIVE']);
 
-      // Calculate enrollment by matching program names
+      // Calculate enrollment by program name
       const enrollmentByProgram: Record<string, number> = {};
       enrollmentData?.forEach(student => {
         enrollmentByProgram[student.program] = (enrollmentByProgram[student.program] || 0) + 1;
       });
 
       // Transform and enhance data
-      const enhancedIntakes: EnhancedIntake[] = intakes.map(intake => {
-        const enrolled_count = enrollmentByProgram[intake.programs.name] || 0;
+      let enhancedIntakes: EnhancedIntake[] = intakes.map(intake => {
+        const program = programMap.get(intake.program_id);
+        if (!program) return null;
+
+        const enrolled_count = enrollmentByProgram[program.name] || 0;
         const enrollment_percentage = intake.capacity > 0 ? (enrolled_count / intake.capacity) * 100 : 0;
         const capacity_percentage = Math.min(enrollment_percentage, 100);
         
@@ -132,8 +109,8 @@ class EnhancedIntakeService {
         return {
           id: intake.id,
           program_id: intake.program_id,
-          program_name: intake.programs.name,
-          program_type: intake.programs.type,
+          program_name: program.name,
+          program_type: program.type,
           name: intake.name,
           start_date: intake.start_date,
           application_deadline: intake.application_deadline,
@@ -148,7 +125,66 @@ class EnhancedIntakeService {
           capacity_percentage,
           health_status
         };
-      });
+      }).filter(Boolean) as EnhancedIntake[];
+
+      // Apply filters
+      if (filters?.search) {
+        enhancedIntakes = enhancedIntakes.filter(intake => 
+          intake.name.toLowerCase().includes(filters.search!.toLowerCase()) ||
+          intake.program_name.toLowerCase().includes(filters.search!.toLowerCase())
+        );
+      }
+      if (filters?.program_type) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.program_type === filters.program_type);
+      }
+      if (filters?.delivery_method) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.delivery_method === filters.delivery_method);
+      }
+      if (filters?.campus) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.campus === filters.campus);
+      }
+      if (filters?.status) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.status === filters.status);
+      }
+      if (filters?.sales_approach) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.sales_approach === filters.sales_approach);
+      }
+      if (filters?.start_date_from) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.start_date >= filters.start_date_from!);
+      }
+      if (filters?.start_date_to) {
+        enhancedIntakes = enhancedIntakes.filter(intake => intake.start_date <= filters.start_date_to!);
+      }
+
+      // Apply sorting
+      if (sort) {
+        enhancedIntakes.sort((a, b) => {
+          let aValue, bValue;
+          switch (sort.field) {
+            case 'program_name':
+              aValue = a.program_name;
+              bValue = b.program_name;
+              break;
+            case 'enrollment_percentage':
+              aValue = a.enrollment_percentage;
+              bValue = b.enrollment_percentage;
+              break;
+            case 'capacity':
+              aValue = a.capacity;
+              bValue = b.capacity;
+              break;
+            default:
+              aValue = a[sort.field];
+              bValue = b[sort.field];
+          }
+
+          if (aValue < bValue) return sort.direction === 'asc' ? -1 : 1;
+          if (aValue > bValue) return sort.direction === 'asc' ? 1 : -1;
+          return 0;
+        });
+      } else {
+        enhancedIntakes.sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+      }
 
       return enhancedIntakes;
 
@@ -188,20 +224,20 @@ class EnhancedIntakeService {
 
       const { data: intakes } = await supabase
         .from('intakes')
-        .select(`
-          delivery_method,
-          campus,
-          status,
-          programs!inner (type)
-        `)
+        .select('delivery_method, campus, status, program_id')
         .eq('user_id', user.id);
 
-      if (!intakes) return {};
+      const { data: programs } = await supabase
+        .from('programs')
+        .select('type')
+        .eq('user_id', user.id);
 
-      const programTypes = [...new Set(intakes.map(i => i.programs.type))];
-      const deliveryMethods = [...new Set(intakes.map(i => i.delivery_method))];
-      const campuses = [...new Set(intakes.map(i => i.campus).filter(Boolean))];
-      const statuses = [...new Set(intakes.map(i => i.status))];
+      if (!intakes && !programs) return {};
+
+      const programTypes = programs ? [...new Set(programs.map(p => p.type))] : [];
+      const deliveryMethods = intakes ? [...new Set(intakes.map(i => i.delivery_method))] : [];
+      const campuses = intakes ? [...new Set(intakes.map(i => i.campus).filter(Boolean))] : [];
+      const statuses = intakes ? [...new Set(intakes.map(i => i.status))] : [];
 
       return {
         programTypes,

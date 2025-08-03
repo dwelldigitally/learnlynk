@@ -15,6 +15,7 @@ import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
 import { ProgramSettingsModal } from "./modals/ProgramSettingsModal";
 import { ComprehensiveProgramEditModal } from "./modals/ComprehensiveProgramEditModal";
+import { EnhancedPipelinePlanner } from "./EnhancedPipelinePlanner";
 import { 
   Select,
   SelectContent,

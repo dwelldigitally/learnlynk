@@ -55,36 +55,62 @@ export const ComprehensiveProgramEditModal = ({
 
   React.useEffect(() => {
     if (isOpen && program) {
+      console.log('ComprehensiveProgramEditModal - Original program data:', program);
+      
       // Transform database program data to UI format
       // Cast to any to handle potential database field name differences
       const dbProgram = program as any;
       
+      // Handle JSONB data that may come as strings or objects
+      const parseJSONBField = (field: any) => {
+        if (typeof field === 'string') {
+          try {
+            return JSON.parse(field);
+          } catch {
+            return field;
+          }
+        }
+        return field || [];
+      };
+
       const transformedProgram = {
         ...program,
         // Map JSONB fields back to UI format (handle both camelCase and snake_case)
-        entryRequirements: dbProgram.entry_requirements || program.entryRequirements || [],
-        documentRequirements: dbProgram.document_requirements || program.documentRequirements || [],
-        customQuestions: dbProgram.custom_questions || program.customQuestions || [],
-        feeStructure: dbProgram.fee_structure || program.feeStructure || {
+        entryRequirements: parseJSONBField(dbProgram.entry_requirements) || parseJSONBField(program.entryRequirements) || [],
+        documentRequirements: parseJSONBField(dbProgram.document_requirements) || parseJSONBField(program.documentRequirements) || [],
+        customQuestions: parseJSONBField(dbProgram.custom_questions) || parseJSONBField(program.customQuestions) || [],
+        feeStructure: parseJSONBField(dbProgram.fee_structure) || parseJSONBField(program.feeStructure) || {
           domesticFees: [],
           internationalFees: [],
           paymentPlans: [],
           scholarships: []
         },
         // Extract metadata back to top level if stored in metadata JSONB
-        images: dbProgram.metadata?.images || program.images || [],
-        campus: dbProgram.metadata?.campus || program.campus || [],
-        deliveryMethod: dbProgram.metadata?.deliveryMethod || program.deliveryMethod || 'in-person',
-        color: dbProgram.metadata?.color || program.color || '#3B82F6',
-        status: dbProgram.metadata?.status || program.status || 'draft',
-        category: dbProgram.metadata?.category || program.category || '',
-        tags: dbProgram.metadata?.tags || program.tags || [],
-        urlSlug: dbProgram.metadata?.urlSlug || program.urlSlug || '',
-        shortDescription: dbProgram.metadata?.shortDescription || program.shortDescription || '',
-        marketingCopy: dbProgram.metadata?.marketingCopy || program.marketingCopy || ''
+        metadata: parseJSONBField(dbProgram.metadata) || {},
+      };
+
+      // Extract metadata fields to top level
+      const metadata = transformedProgram.metadata || {};
+      const finalProgram = {
+        ...transformedProgram,
+        images: metadata.images || program.images || [],
+        campus: metadata.campus || program.campus || [],
+        deliveryMethod: metadata.deliveryMethod || program.deliveryMethod || 'in-person',
+        color: metadata.color || program.color || '#3B82F6',
+        status: metadata.status || program.status || 'draft',
+        category: metadata.category || program.category || '',
+        tags: metadata.tags || program.tags || [],
+        urlSlug: metadata.urlSlug || program.urlSlug || '',
+        shortDescription: metadata.shortDescription || program.shortDescription || '',
+        marketingCopy: metadata.marketingCopy || program.marketingCopy || ''
       };
       
-      setEditingProgram(transformedProgram);
+      console.log('ComprehensiveProgramEditModal - Transformed program data:', finalProgram);
+      console.log('Entry Requirements:', finalProgram.entryRequirements);
+      console.log('Document Requirements:', finalProgram.documentRequirements);
+      console.log('Fee Structure:', finalProgram.feeStructure);
+      
+      setEditingProgram(finalProgram);
       setHasChanges(false);
     }
   }, [isOpen, program]);

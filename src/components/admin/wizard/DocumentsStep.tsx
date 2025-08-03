@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,6 +62,12 @@ const DocumentsStep: React.FC<DocumentsStepProps> = ({
   const [editingDocument, setEditingDocument] = useState<DocumentRequirement | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('DocumentsStep - Received data:', data);
+    console.log('DocumentsStep - Document requirements:', data.documentRequirements);
+  }, [data]);
 
   const addDocument = (document: Omit<DocumentRequirement, 'id' | 'order'>) => {
     const newDocument: DocumentRequirement = {

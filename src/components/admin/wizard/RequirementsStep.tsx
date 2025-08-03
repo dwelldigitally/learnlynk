@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,6 +51,12 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
 }) => {
   const [editingRequirement, setEditingRequirement] = useState<EntryRequirement | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('RequirementsStep - Received data:', data);
+    console.log('RequirementsStep - Entry requirements:', data.entryRequirements);
+  }, [data]);
 
   const addRequirement = (requirement: Omit<EntryRequirement, 'id'>) => {
     const newRequirement: EntryRequirement = {

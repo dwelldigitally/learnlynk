@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,11 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
   data,
   onDataChange
 }) => {
+  // Debug logging
+  useEffect(() => {
+    console.log('FeeStructureStep - Received data:', data);
+    console.log('FeeStructureStep - Fee structure:', data.feeStructure);
+  }, [data]);
   const addFee = (type: 'domestic' | 'international') => {
     const newFee: FeeItem = {
       id: `fee-${Date.now()}`,

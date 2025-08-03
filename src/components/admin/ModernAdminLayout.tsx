@@ -38,6 +38,9 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
+  // Check if we're on the home page
+  const isHomePage = location.pathname === '/admin';
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top Navigation Bar */}
@@ -49,15 +52,17 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
 
       {/* Main Layout: Sidebar + Content */}
       <div className="flex flex-1 relative">
-        {/* Dynamic Sidebar */}
-        <DynamicSidebar
-          activeSection={currentActiveSection}
-          isOpen={sidebarOpen}
-          onClose={closeSidebar}
-        />
+        {/* Dynamic Sidebar - Hide on home page */}
+        {!isHomePage && (
+          <DynamicSidebar
+            activeSection={currentActiveSection}
+            isOpen={sidebarOpen}
+            onClose={closeSidebar}
+          />
+        )}
 
         {/* Main Content Area */}
-        <main className="flex-1 w-full lg:ml-80">
+        <main className={`flex-1 w-full ${!isHomePage ? 'lg:ml-80' : ''}`}>
           {children || <Outlet />}
         </main>
       </div>

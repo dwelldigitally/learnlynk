@@ -20,7 +20,9 @@ import {
   Clock
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useQueryClient } from "@tanstack/react-query";
 import { Program, ProgramWizardState } from "@/types/program";
+import { ProgramService } from "@/services/programService";
 
 // Import step components
 import BasicInfoStep from "./wizard/BasicInfoStep";
@@ -55,6 +57,7 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
   onSave
 }) => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const autoSaveRef = useRef<NodeJS.Timeout>();
 
   const [wizardState, setWizardState] = useState<ProgramWizardState>(() => ({
@@ -179,7 +182,7 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
     }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validateStep(wizardState.currentStep)) {
       toast({
         title: "Validation Error",
@@ -189,26 +192,48 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
       return;
     }
 
-    const programData: Program = {
-      ...wizardState.data,
-      id: editingProgram?.id || `prog_${Date.now()}`,
-      createdAt: editingProgram?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: editingProgram?.createdBy || 'current_user',
-      status: 'active'
-    } as Program;
+    try {
+      // Map wizard data to database schema
+      const programData = {
+        name: wizardState.data.name,
+        description: wizardState.data.description,
+        type: wizardState.data.type,
+        duration: wizardState.data.duration,
+        requirements: wizardState.data.entryRequirements?.map(req => req.description || req.title) || [],
+        tuition: wizardState.data.feeStructure?.domesticFees?.[0]?.amount || 0,
+        next_intake: wizardState.data.intakes?.[0]?.date || null,
+        enrollment_status: wizardState.data.status === 'active' ? 'open' : 'closed'
+      };
 
-    onSave?.(programData);
-    
-    // Clear draft
-    localStorage.removeItem('program-wizard-draft');
-    
-    toast({
-      title: editingProgram ? "Program Updated" : "Program Created",
-      description: `${programData.name} has been successfully ${editingProgram ? 'updated' : 'created'}.`,
-    });
-    
-    onOpenChange(false);
+      let savedProgram;
+      if (editingProgram) {
+        savedProgram = await ProgramService.updateProgram(editingProgram.id, programData);
+      } else {
+        savedProgram = await ProgramService.createProgram(programData);
+      }
+
+      // Invalidate and refetch programs query
+      await queryClient.invalidateQueries({ queryKey: ['programs'] });
+
+      onSave?.(savedProgram);
+      
+      // Clear draft
+      localStorage.removeItem('program-wizard-draft');
+      
+      toast({
+        title: editingProgram ? "Program Updated" : "Program Created",
+        description: `${programData.name} has been successfully ${editingProgram ? 'updated' : 'created'}.`,
+      });
+      
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error saving program:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save program. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const renderStepContent = () => {

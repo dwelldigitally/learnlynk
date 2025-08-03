@@ -49,10 +49,25 @@ const ProgramManagement: React.FC = () => {
     ProgramService.getPrograms
   );
 
-  // Mock programs data for the overview section (with different structure than real data)
+  // Transform real database data to match UI expectations
+  const transformProgramData = (dbProgram: any) => ({
+    id: dbProgram.id,
+    name: dbProgram.name,
+    description: dbProgram.description || "No description available",
+    duration: dbProgram.duration,
+    type: dbProgram.type,
+    color: "#3B82F6", // Default color
+    status: dbProgram.enrollment_status === 'open' ? 'active' : 'inactive',
+    enrolled: Math.floor(Math.random() * 200) + 50, // Mock enrollment data
+    capacity: Math.floor(Math.random() * 100) + 200, // Mock capacity data
+    tuitionFee: dbProgram.tuition || 0,
+    nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0],
+  });
+
+  // Mock programs data for demo purposes
   const mockPrograms = [
     {
-      id: "1",
+      id: "demo-1",
       name: "Health Care Assistant",
       description: "Comprehensive healthcare training program preparing students for careers in healthcare support.",
       duration: "10 months",
@@ -65,7 +80,7 @@ const ProgramManagement: React.FC = () => {
       nextIntake: "2024-04-15",
     },
     {
-      id: "2",
+      id: "demo-2",
       name: "Early Childhood Education",
       description: "Develop skills needed to work with children in various educational settings.",
       duration: "12 months",
@@ -79,8 +94,12 @@ const ProgramManagement: React.FC = () => {
     }
   ];
 
-  // For demo purposes, show mock data if not in empty state
-  const programs = programsData.showEmptyState ? [] : mockPrograms;
+  // Use real data if available, otherwise fall back to demo/mock data
+  const programs = programsData.hasRealData 
+    ? programsData.data.map(transformProgramData)
+    : programsData.showEmptyState 
+      ? [] 
+      : mockPrograms;
 
   const handleViewProgram = (program: any) => {
     setSelectedProgram(program);
@@ -341,10 +360,7 @@ const ProgramManagement: React.FC = () => {
         onOpenChange={setShowWizard}
         onSave={(program) => {
           console.log('Program created:', program);
-          toast({
-            title: "Program Created",
-            description: `${program.name} has been successfully created.`,
-          });
+          // The wizard now handles database saving and query invalidation
         }}
       />
 

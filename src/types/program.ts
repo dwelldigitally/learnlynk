@@ -171,6 +171,9 @@ export interface ProgramIntake {
   earlyBirdDeadline?: string;
   earlyBirdDiscount?: number;
   location?: string;
+  studyMode: "full-time" | "part-time";
+  deliveryMethod: "online" | "hybrid" | "in-class";
+  campusLocation: string;
   notes?: string;
   notifications: IntakeNotification[];
 }

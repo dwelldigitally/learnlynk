@@ -211,6 +211,26 @@ export default {
 						opacity: '1',
 						transform: 'scale(1) translateY(0)'
 					}
+				},
+				'dropdown-enter': {
+					'0%': {
+						opacity: '0',
+						transform: 'scale(0.96) translateY(-8px)'
+					},
+					'100%': {
+						opacity: '1',
+						transform: 'scale(1) translateY(0)'
+					}
+				},
+				'dropdown-exit': {
+					'0%': {
+						opacity: '1',
+						transform: 'scale(1) translateY(0)'
+					},
+					'100%': {
+						opacity: '0',
+						transform: 'scale(0.96) translateY(-8px)'
+					}
 				}
 			},
 			animation: {
@@ -230,7 +250,9 @@ export default {
 				'stagger-2': 'stagger 0.6s ease-out 0.2s both',
 				'stagger-3': 'stagger 0.6s ease-out 0.3s both',
 				'stagger-4': 'stagger 0.6s ease-out 0.4s both',
-				'stagger-5': 'stagger 0.6s ease-out 0.5s both'
+				'stagger-5': 'stagger 0.6s ease-out 0.5s both',
+				'dropdown-enter': 'dropdown-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+				'dropdown-exit': 'dropdown-exit 0.15s ease-in'
 			}
 		}
 	},

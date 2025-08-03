@@ -9,7 +9,7 @@ import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { DemoDataService } from '@/services/demoDataService';
 import { ProgramService } from '@/services/programService';
 import { supabase } from '@/integrations/supabase/client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import ProgramWizard from "./ProgramWizard";
 import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
@@ -33,11 +33,13 @@ import {
   DollarSign,
   FileText,
   Eye,
-  Settings
+  Settings,
+  RefreshCw
 } from "lucide-react";
 
 const ProgramManagement: React.FC = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showWizard, setShowWizard] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -200,11 +202,16 @@ const ProgramManagement: React.FC = () => {
     }
   };
 
-  const handleRefreshData = () => {
-    programsData.refetch();
+  const handleRefreshData = async () => {
+    console.log('Force refreshing all program data...');
+    // Clear cache completely and refetch
+    queryClient.removeQueries({ queryKey: ['programs'] });
+    await queryClient.invalidateQueries({ queryKey: ['programs'] });
+    await programsData.refetch();
+    
     toast({
       title: "Data Refreshed",
-      description: "Program and intake data has been refreshed.",
+      description: "Program data has been completely refreshed with latest JSONB fields.",
     });
   };
 
@@ -217,10 +224,16 @@ const ProgramManagement: React.FC = () => {
           <h1 className="text-3xl font-bold text-foreground">Program Management</h1>
           <p className="text-muted-foreground">Manage programs, intakes, and enrollment</p>
         </div>
-        <Button onClick={() => setShowWizard(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Program
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleRefreshData}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Data
+          </Button>
+          <Button onClick={() => setShowWizard(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Program
+          </Button>
+        </div>
       </div>
 
       {/* Programs Overview */}

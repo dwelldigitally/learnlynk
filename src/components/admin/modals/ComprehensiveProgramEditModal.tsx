@@ -54,19 +54,26 @@ export const ComprehensiveProgramEditModal = ({
   });
 
   React.useEffect(() => {
-    if (isOpen && program) {
-      console.log('ComprehensiveProgramEditModal - Original program data:', program);
-      
-      // If the program doesn't have JSONB fields, fetch fresh data
-      const hasJSONBFields = (program as any).entry_requirements || (program as any).document_requirements || (program as any).fee_structure || (program as any).custom_questions;
-      
-      if (!hasJSONBFields) {
-        console.log('Program missing JSONB fields, triggering data refresh...');
-        // Force refresh to get the latest data with JSONB fields
-        queryClient.invalidateQueries({ queryKey: ['programs'] });
-        queryClient.refetchQueries({ queryKey: ['programs'] });
-        console.warn('Program data is missing JSONB fields. Refreshing programs list.');
-      }
+    const handleProgramData = async () => {
+      if (isOpen && program) {
+        console.log('ComprehensiveProgramEditModal - Original program data:', program);
+        
+        // If the program doesn't have JSONB fields, fetch fresh data
+        const hasJSONBFields = (program as any).entry_requirements || (program as any).document_requirements || (program as any).fee_structure || (program as any).custom_questions;
+        
+        if (!hasJSONBFields) {
+          console.log('Program missing JSONB fields, forcing complete data refresh...');
+          // Remove stale cache and force fresh fetch
+          queryClient.removeQueries({ queryKey: ['programs'] });
+          await queryClient.refetchQueries({ queryKey: ['programs'] });
+          console.warn('Program data is missing JSONB fields. Forced complete cache refresh.');
+          
+          // Close modal to force reopening with fresh data
+          setTimeout(() => {
+            onClose();
+          }, 100);
+          return;
+        }
       
       // Transform database program data to UI format
       // Cast to any to handle potential database field name differences
@@ -121,10 +128,13 @@ export const ComprehensiveProgramEditModal = ({
       console.log('Document Requirements:', finalProgram.documentRequirements);
       console.log('Fee Structure:', finalProgram.feeStructure);
       
-      setEditingProgram(finalProgram);
-      setHasChanges(false);
-    }
-  }, [isOpen, program]);
+        setEditingProgram(finalProgram);
+        setHasChanges(false);
+      }
+    };
+    
+    handleProgramData();
+  }, [isOpen, program, queryClient, onClose]);
 
   const handleDataChange = (newData: Partial<Program>) => {
     setEditingProgram(prev => ({ ...prev, ...newData }));
@@ -141,7 +151,8 @@ export const ComprehensiveProgramEditModal = ({
       
       setHasChanges(false);
       
-      // Force refresh the programs list to get updated JSONB data
+      // Force complete refresh of programs data
+      queryClient.removeQueries({ queryKey: ['programs'] });
       await queryClient.invalidateQueries({ queryKey: ['programs'] });
       await queryClient.refetchQueries({ queryKey: ['programs'] });
       queryClient.invalidateQueries({ queryKey: ['intakes'] });

@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
 interface TopNavigationBarProps {
@@ -36,15 +37,6 @@ export function TopNavigationBar({
       }
     }
     return navigationStructure.sections[0].id;
-  };
-
-  const handleSectionClick = (sectionId: string) => {
-    const section = navigationStructure.sections.find(s => s.id === sectionId);
-    if (section && section.items.length > 0) {
-      // Navigate to the first item in the section
-      navigate(section.items[0].href);
-      onSectionChange(sectionId);
-    }
   };
 
   const currentActiveSection = activeSection || getActiveSectionFromPath();
@@ -80,20 +72,59 @@ export function TopNavigationBar({
           {navigationStructure.sections.map((section) => {
             const isActive = currentActiveSection === section.id;
             return (
-              <Button
-                key={section.id}
-                variant={isActive ? "secondary" : "ghost"}
-                className={`h-10 px-4 text-sm font-medium transition-colors ${
-                  isActive 
-                    ? "bg-muted text-foreground" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-                onClick={() => handleSectionClick(section.id)}
-              >
-                <section.icon className="w-4 h-4 mr-2" />
-                {section.name}
-                <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
-              </Button>
+              <DropdownMenu key={section.id}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    className={`h-10 px-4 text-sm font-medium transition-colors ${
+                      isActive 
+                        ? "bg-muted text-foreground" 
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    <section.icon className="w-4 h-4 mr-2" />
+                    {section.name}
+                    <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent 
+                  align="start" 
+                  className="w-56 bg-background border border-border shadow-lg z-50"
+                >
+                  {section.items.map((item, index) => {
+                    const isItemActive = location.pathname === item.href || 
+                      location.pathname.startsWith(item.href + '/');
+                    return (
+                      <DropdownMenuItem
+                        key={item.href}
+                        onClick={() => {
+                          navigate(item.href);
+                          onSectionChange(section.id);
+                        }}
+                        className={`flex items-center space-x-3 px-3 py-2 cursor-pointer ${
+                          isItemActive 
+                            ? 'bg-primary/10 text-primary font-medium' 
+                            : 'hover:bg-muted'
+                        }`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                        <span>{item.name}</span>
+                        {item.count && (
+                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                            {item.count}
+                          </span>
+                        )}
+                        {item.badge && (
+                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                            {item.badge}
+                          </span>
+                        )}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                  {section.items.length > 3 && <DropdownMenuSeparator />}
+                </DropdownMenuContent>
+              </DropdownMenu>
             );
           })}
         </nav>

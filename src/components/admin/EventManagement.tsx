@@ -54,21 +54,30 @@ const EventManagement: React.FC = () => {
 
   const handleCreateEvent = async (eventData: EventData) => {
     try {
-      console.log("Creating event:", eventData);
+      console.log("Creating event with full data:", JSON.stringify(eventData, null, 2));
       
-      // Map EventData to database format
+      // Validate required fields
+      if (!eventData.title) {
+        throw new Error("Event title is required");
+      }
+      
+      // Map EventData to database format with proper null-safe access
       const eventToSave = {
-        title: eventData.title,
-        description: eventData.description,
-        type: eventData.category,
-        date: eventData.startDate,
-        time: eventData.startTime,
-        location: eventData.eventType === 'virtual' ? 'Online' : eventData.venue.name,
-        capacity: eventData.maxCapacity || eventData.venue.capacity,
+        title: eventData.title || "Untitled Event",
+        description: eventData.description || "",
+        type: eventData.category || "workshop",
+        date: eventData.startDate || new Date().toISOString().split('T')[0],
+        time: eventData.startTime || "09:00",
+        location: eventData.eventType === 'virtual' 
+          ? 'Online' 
+          : (eventData.venue?.name || "TBD"),
+        capacity: eventData.venue?.capacity || eventData.maxCapacity || 50,
         registrations: 0,
-        program_id: null, // Can be connected to a program if needed
+        program_id: null,
         status: eventData.isPublic ? 'published' : 'draft'
       };
+
+      console.log("Mapped event data for database:", JSON.stringify(eventToSave, null, 2));
 
       await EventService.createEvent(eventToSave);
       

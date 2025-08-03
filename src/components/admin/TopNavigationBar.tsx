@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import AdminNotificationCentre from "./AdminNotificationCentre";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface TopNavigationBarProps {
   activeSection: string;
@@ -28,6 +30,7 @@ export function TopNavigationBar({
   const location = useLocation();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const { unreadCount } = useNotifications();
 
   const getActiveSectionFromPath = () => {
     const path = location.pathname;
@@ -305,27 +308,9 @@ export function TopNavigationBar({
         </div>
 
         {/* Notifications */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-5 h-5" />
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-              >
-                3
-              </Badge>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuItem>
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">New lead assigned</p>
-                <p className="text-xs text-muted-foreground">John Smith from University Program</p>
-              </div>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="relative">
+          <AdminNotificationCentre unreadCount={unreadCount} />
+        </div>
 
         {/* User Menu */}
         <DropdownMenu>

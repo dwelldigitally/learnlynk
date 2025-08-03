@@ -52,13 +52,42 @@ const EventManagement: React.FC = () => {
     EventService.getEvents
   );
 
-  const handleCreateEvent = (eventData: EventData) => {
-    console.log("Creating event:", eventData);
-    setIsWizardOpen(false);
-    toast({
-      title: "Event Created",
-      description: `${eventData.title} has been successfully created.`,
-    });
+  const handleCreateEvent = async (eventData: EventData) => {
+    try {
+      console.log("Creating event:", eventData);
+      
+      // Map EventData to database format
+      const eventToSave = {
+        title: eventData.title,
+        description: eventData.description,
+        type: eventData.category,
+        date: eventData.startDate,
+        time: eventData.startTime,
+        location: eventData.eventType === 'virtual' ? 'Online' : eventData.venue.name,
+        capacity: eventData.maxCapacity || eventData.venue.capacity,
+        registrations: 0,
+        program_id: null, // Can be connected to a program if needed
+        status: eventData.isPublic ? 'published' : 'draft'
+      };
+
+      await EventService.createEvent(eventToSave);
+      
+      // Refresh events data
+      eventsData.refetch();
+      
+      setIsWizardOpen(false);
+      toast({
+        title: "Event Published Successfully!",
+        description: `${eventData.title} has been published and is now live.`,
+      });
+    } catch (error) {
+      console.error('Error creating event:', error);
+      toast({
+        title: "Error Publishing Event",
+        description: "There was an error publishing your event. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Mock events for display (different structure than real data)

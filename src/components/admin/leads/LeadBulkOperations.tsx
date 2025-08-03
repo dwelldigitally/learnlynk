@@ -2,7 +2,7 @@ import { BulkLeadOperations as BulkOperationsComponent } from "@/components/admi
 
 export function LeadBulkOperations() {
   return (
-    <div className="w-full max-w-none space-y-6">
+    <div className="p-6 pt-8 w-full max-w-none space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Bulk Operations</h1>

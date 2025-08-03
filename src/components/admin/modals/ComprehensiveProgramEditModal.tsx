@@ -57,6 +57,17 @@ export const ComprehensiveProgramEditModal = ({
     if (isOpen && program) {
       console.log('ComprehensiveProgramEditModal - Original program data:', program);
       
+      // If the program doesn't have JSONB fields, fetch fresh data
+      const hasJSONBFields = (program as any).entry_requirements || (program as any).document_requirements || (program as any).fee_structure || (program as any).custom_questions;
+      
+      if (!hasJSONBFields) {
+        console.log('Program missing JSONB fields, triggering data refresh...');
+        // Force refresh to get the latest data with JSONB fields
+        queryClient.invalidateQueries({ queryKey: ['programs'] });
+        queryClient.refetchQueries({ queryKey: ['programs'] });
+        console.warn('Program data is missing JSONB fields. Refreshing programs list.');
+      }
+      
       // Transform database program data to UI format
       // Cast to any to handle potential database field name differences
       const dbProgram = program as any;
@@ -129,7 +140,10 @@ export const ComprehensiveProgramEditModal = ({
       await ProgramService.updateProgram(program.id, editingProgram);
       
       setHasChanges(false);
-      queryClient.invalidateQueries({ queryKey: ['programs'] });
+      
+      // Force refresh the programs list to get updated JSONB data
+      await queryClient.invalidateQueries({ queryKey: ['programs'] });
+      await queryClient.refetchQueries({ queryKey: ['programs'] });
       queryClient.invalidateQueries({ queryKey: ['intakes'] });
       
       // Call the onSave callback with the editing program data

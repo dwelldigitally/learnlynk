@@ -95,7 +95,7 @@ export class NotificationService {
       try {
         const { data } = await supabase
           .from('student_documents')
-          .select('id, document_name, created_at')
+          .select('id, name, created_at')
           .eq('status', 'pending')
           .order('created_at', { ascending: false })
           .limit(5);
@@ -109,7 +109,7 @@ export class NotificationService {
           id: 'pending-docs',
           type: 'pending_document',
           title: `${pendingDocs.length} Document${pendingDocs.length > 1 ? 's' : ''} Pending Review`,
-          description: `Latest: ${pendingDocs[0].document_name}`,
+          description: `Latest: ${pendingDocs[0].name}`,
           count: pendingDocs.length,
           isRead: false,
           created_at: pendingDocs[0].created_at,

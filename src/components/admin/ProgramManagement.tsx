@@ -8,6 +8,8 @@ import { useConditionalData } from '@/hooks/useConditionalData';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { DemoDataService } from '@/services/demoDataService';
 import { ProgramService } from '@/services/programService';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import ProgramWizard from "./ProgramWizard";
 import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
@@ -49,20 +51,64 @@ const ProgramManagement: React.FC = () => {
     ProgramService.getPrograms
   );
 
-  // Transform real database data to match UI expectations
-  const transformProgramData = (dbProgram: any) => ({
-    id: dbProgram.id,
-    name: dbProgram.name,
-    description: dbProgram.description || "No description available",
-    duration: dbProgram.duration,
-    type: dbProgram.type,
-    color: "#3B82F6", // Default color
-    status: dbProgram.enrollment_status === 'open' ? 'active' : 'inactive',
-    enrolled: Math.floor(Math.random() * 200) + 50, // Mock enrollment data
-    capacity: Math.floor(Math.random() * 100) + 200, // Mock capacity data
-    tuitionFee: dbProgram.tuition || 0,
-    nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0],
+  // Hook to get enrollment data for real programs
+  const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery({
+    queryKey: ['program-enrollment'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return {};
+      
+      // Get all programs for this user
+      const { data: programs } = await supabase
+        .from('programs')
+        .select('id, name')
+        .eq('user_id', user.id);
+
+      // Get approved students count per program  
+      const { data: approvedStudents } = await supabase
+        .from('students')
+        .select('program, id')
+        .eq('user_id', user.id)
+        .eq('stage', 'APPROVED');
+
+      const enrollmentMap: Record<string, { enrolled: number; capacity: number }> = {};
+      
+      if (programs) {
+        for (const program of programs) {
+          // Count approved students for this program (match by program name since that's how students reference programs)
+          const enrolledCount = approvedStudents?.filter(s => s.program === program.name).length || 0;
+          
+          enrollmentMap[program.id] = {
+            enrolled: enrolledCount,
+            capacity: 0 // Will be 0 until intake management is fully implemented
+          };
+        }
+      }
+      
+      return enrollmentMap;
+    },
+    enabled: programsData.hasRealData,
+    staleTime: 30000 // Cache for 30 seconds
   });
+
+  // Transform real database data to match UI expectations
+  const transformProgramData = (dbProgram: any) => {
+    const enrollment = enrollmentData?.[dbProgram.id] || { enrolled: 0, capacity: 0 };
+    
+    return {
+      id: dbProgram.id,
+      name: dbProgram.name,
+      description: dbProgram.description || "No description available",
+      duration: dbProgram.duration,
+      type: dbProgram.type,
+      color: "#3B82F6", // Default color
+      status: dbProgram.enrollment_status === 'open' ? 'active' : 'inactive',
+      enrolled: enrollment.enrolled,
+      capacity: enrollment.capacity,
+      tuitionFee: dbProgram.tuition || 0,
+      nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0],
+    };
+  };
 
   // Mock programs data for demo purposes
   const mockPrograms = [
@@ -100,6 +146,8 @@ const ProgramManagement: React.FC = () => {
     : programsData.showEmptyState 
       ? [] 
       : mockPrograms;
+
+  const isLoading = programsData.isLoading || (programsData.hasRealData && enrollmentLoading);
 
   const handleViewProgram = (program: any) => {
     setSelectedProgram(program);
@@ -160,7 +208,7 @@ const ProgramManagement: React.FC = () => {
 
       {/* Programs Overview */}
       <ConditionalDataWrapper
-        isLoading={programsData.isLoading}
+        isLoading={isLoading}
         showEmptyState={programsData.showEmptyState}
         hasDemoAccess={programsData.hasDemoAccess}
         hasRealData={programsData.hasRealData}
@@ -195,14 +243,21 @@ const ProgramManagement: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Enrollment</span>
-                    <span>{program.enrolled}/{program.capacity}</span>
+                    <span>{program.enrolled}/{program.capacity || 0}</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div 
                       className="bg-primary h-2 rounded-full transition-all duration-300" 
-                      style={{ width: `${(program.enrolled / program.capacity) * 100}%` }}
+                      style={{ 
+                        width: program.capacity > 0 
+                          ? `${Math.min((program.enrolled / program.capacity) * 100, 100)}%` 
+                          : '0%' 
+                      }}
                     />
                   </div>
+                  {program.capacity === 0 && (
+                    <p className="text-xs text-muted-foreground">No intake capacity configured</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-sm">

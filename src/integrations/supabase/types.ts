@@ -111,8 +111,11 @@ export type Database = {
       }
       communication_templates: {
         Row: {
+          ai_generated: boolean | null
+          ai_suggestions: Json | null
           content: string
           created_at: string
+          generation_prompt: string | null
           id: string
           is_active: boolean
           name: string
@@ -124,8 +127,11 @@ export type Database = {
           variables: Json | null
         }
         Insert: {
+          ai_generated?: boolean | null
+          ai_suggestions?: Json | null
           content: string
           created_at?: string
+          generation_prompt?: string | null
           id?: string
           is_active?: boolean
           name: string
@@ -137,8 +143,11 @@ export type Database = {
           variables?: Json | null
         }
         Update: {
+          ai_generated?: boolean | null
+          ai_suggestions?: Json | null
           content?: string
           created_at?: string
+          generation_prompt?: string | null
           id?: string
           is_active?: boolean
           name?: string

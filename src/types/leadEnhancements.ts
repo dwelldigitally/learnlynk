@@ -75,6 +75,9 @@ export interface CommunicationTemplate {
   variables: string[];
   is_active: boolean;
   usage_count: number;
+  ai_generated?: boolean;
+  generation_prompt?: string;
+  ai_suggestions?: string[];
   created_at: string;
   updated_at: string;
 }

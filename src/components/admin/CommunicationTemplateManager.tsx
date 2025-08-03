@@ -8,11 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Edit, Trash2, Copy, Mail, MessageSquare, Eye, Code } from 'lucide-react';
+import { Plus, Edit, Trash2, Copy, Mail, MessageSquare, Eye, Code, Sparkles, Wand2 } from 'lucide-react';
 import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
 import { CommunicationTemplateService } from '@/services/communicationTemplateService';
 import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
+import { AITemplateAssistant } from './AITemplateAssistant';
 
 export function CommunicationTemplateManager() {
   const { toast } = useToast();
@@ -20,6 +21,8 @@ export function CommunicationTemplateManager() {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+  const [aiMode, setAiMode] = useState<'generate' | 'improve'>('generate');
   const [editingTemplate, setEditingTemplate] = useState<CommunicationTemplate | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<CommunicationTemplate | null>(null);
   const [activeTab, setActiveTab] = useState('email');
@@ -139,6 +142,44 @@ export function CommunicationTemplateManager() {
     setValue('content', newContent);
   };
 
+  const handleAIGenerate = () => {
+    setAiMode('generate');
+    setEditingTemplate(null);
+    setIsAIAssistantOpen(true);
+  };
+
+  const handleAIImprove = (template: CommunicationTemplate) => {
+    setAiMode('improve');
+    setEditingTemplate(template);
+    setIsAIAssistantOpen(true);
+  };
+
+  const handleAISave = async (templateData: any) => {
+    try {
+      if (editingTemplate && aiMode === 'improve') {
+        await CommunicationTemplateService.updateTemplate(editingTemplate.id, templateData);
+        toast({
+          title: "Success",
+          description: "Template improved successfully!",
+        });
+      } else {
+        await CommunicationTemplateService.createTemplate(templateData);
+        toast({
+          title: "Success",
+          description: "AI template created successfully!",
+        });
+      }
+      loadTemplates();
+    } catch (error) {
+      console.error('Error saving AI template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save template",
+        variant: "destructive",
+      });
+    }
+  };
+
   const emailTemplates = templates.filter(t => t.type === 'email');
   const smsTemplates = templates.filter(t => t.type === 'sms');
 
@@ -151,111 +192,117 @@ export function CommunicationTemplateManager() {
             Create and manage reusable templates for emails and SMS messages
           </p>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={(open) => {
-          setShowCreateDialog(open);
-          if (!open) {
-            setEditingTemplate(null);
-            reset();
-          }
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Template
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>
-                {editingTemplate ? 'Edit Template' : 'Create New Template'}
-              </DialogTitle>
-            </DialogHeader>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="name">Template Name</Label>
-                      <Input 
-                        {...register('name', { required: true })}
-                        placeholder="Enter template name"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="type">Type</Label>
-                      <Select onValueChange={(value) => setValue('type', value as any)} defaultValue="email">
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="sms">SMS</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {watch('type') === 'email' && (
-                    <div>
-                      <Label htmlFor="subject">Subject Line</Label>
-                      <Input 
-                        {...register('subject')}
-                        placeholder="Email subject (can include variables)"
-                      />
-                    </div>
-                  )}
-
-                  <div>
-                    <Label htmlFor="content">Content</Label>
-                    <Textarea 
-                      {...register('content', { required: true })}
-                      placeholder="Template content (use variables like {{first_name}})"
-                      rows={10}
-                    />
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isCreating}>
-                      {isCreating ? 'Saving...' : editingTemplate ? 'Update Template' : 'Create Template'}
-                    </Button>
-                  </div>
-                </form>
-              </div>
-
-              <div className="lg:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      <Code className="h-4 w-4" />
-                      Available Variables
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {TEMPLATE_VARIABLES.map((variable) => (
-                      <div key={variable.key} className="space-y-1">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="w-full justify-start text-xs h-auto py-2"
-                          onClick={() => insertVariable(variable.key)}
-                        >
-                          <span className="font-mono">{variable.key}</span>
-                        </Button>
-                        <p className="text-xs text-muted-foreground px-2">
-                          {variable.description}
-                        </p>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleAIGenerate}>
+            <Sparkles className="h-4 w-4 mr-2" />
+            Generate with AI
+          </Button>
+          <Dialog open={showCreateDialog} onOpenChange={(open) => {
+            setShowCreateDialog(open);
+            if (!open) {
+              setEditingTemplate(null);
+              reset();
+            }
+          }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Template
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>
+                  {editingTemplate ? 'Edit Template' : 'Create New Template'}
+                </DialogTitle>
+              </DialogHeader>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="name">Template Name</Label>
+                        <Input 
+                          {...register('name', { required: true })}
+                          placeholder="Enter template name"
+                        />
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
+                      <div>
+                        <Label htmlFor="type">Type</Label>
+                        <Select onValueChange={(value) => setValue('type', value as any)} defaultValue="email">
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="sms">SMS</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {watch('type') === 'email' && (
+                      <div>
+                        <Label htmlFor="subject">Subject Line</Label>
+                        <Input 
+                          {...register('subject')}
+                          placeholder="Email subject (can include variables)"
+                        />
+                      </div>
+                    )}
+
+                    <div>
+                      <Label htmlFor="content">Content</Label>
+                      <Textarea 
+                        {...register('content', { required: true })}
+                        placeholder="Template content (use variables like {{first_name}})"
+                        rows={10}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={isCreating}>
+                        {isCreating ? 'Saving...' : editingTemplate ? 'Update Template' : 'Create Template'}
+                      </Button>
+                    </div>
+                  </form>
+                </div>
+
+                <div className="lg:col-span-1">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Code className="h-4 w-4" />
+                        Available Variables
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {TEMPLATE_VARIABLES.map((variable) => (
+                        <div key={variable.key} className="space-y-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="w-full justify-start text-xs h-auto py-2"
+                            onClick={() => insertVariable(variable.key)}
+                          >
+                            <span className="font-mono">{variable.key}</span>
+                          </Button>
+                          <p className="text-xs text-muted-foreground px-2">
+                            {variable.description}
+                          </p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -293,6 +340,19 @@ export function CommunicationTemplateManager() {
                   <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
                     {template.content}
                   </p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {template.ai_generated && (
+                      <Badge variant="outline" className="text-xs">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        AI Generated
+                      </Badge>
+                    )}
+                    {template.variables?.map((variable, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {variable}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
@@ -307,6 +367,13 @@ export function CommunicationTemplateManager() {
                       onClick={() => handleEditTemplate(template)}
                     >
                       <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleAIImprove(template)}
+                    >
+                      <Wand2 className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -355,6 +422,19 @@ export function CommunicationTemplateManager() {
                   <p className="text-sm text-muted-foreground mb-4">
                     {template.content}
                   </p>
+                  <div className="flex flex-wrap gap-1 mb-3">
+                    {template.ai_generated && (
+                      <Badge variant="outline" className="text-xs">
+                        <Sparkles className="h-3 w-3 mr-1" />
+                        AI Generated
+                      </Badge>
+                    )}
+                    {template.variables?.map((variable, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {variable}
+                      </Badge>
+                    ))}
+                  </div>
                   <div className="flex items-center gap-1">
                     <Button
                       variant="ghost"
@@ -369,6 +449,13 @@ export function CommunicationTemplateManager() {
                       onClick={() => handleEditTemplate(template)}
                     >
                       <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleAIImprove(template)}
+                    >
+                      <Wand2 className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -447,6 +534,14 @@ export function CommunicationTemplateManager() {
           )}
         </DialogContent>
       </Dialog>
+
+      <AITemplateAssistant
+        isOpen={isAIAssistantOpen}
+        onClose={() => setIsAIAssistantOpen(false)}
+        onSave={handleAISave}
+        existingTemplate={editingTemplate}
+        mode={aiMode}
+      />
     </div>
   );
 }

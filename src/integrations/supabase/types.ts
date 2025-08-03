@@ -379,6 +379,57 @@ export type Database = {
         }
         Relationships: []
       }
+      intakes: {
+        Row: {
+          application_deadline: string | null
+          campus: string | null
+          capacity: number
+          created_at: string
+          delivery_method: string
+          id: string
+          name: string
+          program_id: string
+          sales_approach: string
+          start_date: string
+          status: string
+          study_mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          campus?: string | null
+          capacity?: number
+          created_at?: string
+          delivery_method?: string
+          id?: string
+          name: string
+          program_id: string
+          sales_approach?: string
+          start_date: string
+          status?: string
+          study_mode?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_deadline?: string | null
+          campus?: string | null
+          capacity?: number
+          created_at?: string
+          delivery_method?: string
+          id?: string
+          name?: string
+          program_id?: string
+          sales_approach?: string
+          start_date?: string
+          status?: string
+          study_mode?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lead_activities: {
         Row: {
           activity_data: Json | null

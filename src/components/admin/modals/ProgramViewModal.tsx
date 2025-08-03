@@ -168,7 +168,7 @@ export const ProgramViewModal = ({ isOpen, onClose, program }: ProgramViewModalP
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {program.intakes.map((intake, index) => (
+                  {(program.intakes || []).map((intake, index) => (
                     <Card key={index} className="p-4">
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">

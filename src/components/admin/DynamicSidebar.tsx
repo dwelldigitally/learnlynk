@@ -85,10 +85,10 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                     key={item.href}
                     to={item.href}
                     onClick={onClose}
-                    className={({ isActive: navIsActive }) => `
+                    className={() => `
                       flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium
                       transition-colors duration-200
-                      ${navIsActive || isActive
+                      ${isActive
                         ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                       }

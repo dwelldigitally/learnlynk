@@ -107,7 +107,7 @@ export function TopNavigationBar({
                             const isItemActive = location.pathname === item.href || 
                               location.pathname.startsWith(item.href + '/');
                             return (
-                              <div
+                              <DropdownMenuItem
                                 key={item.href}
                                 onClick={() => {
                                   navigate(item.href);
@@ -142,7 +142,7 @@ export function TopNavigationBar({
                                     {item.badge}
                                   </span>
                                 )}
-                              </div>
+                              </DropdownMenuItem>
                             );
                           })}
                         </div>
@@ -156,7 +156,7 @@ export function TopNavigationBar({
                             const isItemActive = location.pathname === item.href || 
                               location.pathname.startsWith(item.href + '/');
                             return (
-                              <div
+                              <DropdownMenuItem
                                 key={item.href}
                                 onClick={() => {
                                   navigate(item.href);
@@ -191,7 +191,7 @@ export function TopNavigationBar({
                                     {item.badge}
                                   </span>
                                 )}
-                              </div>
+                              </DropdownMenuItem>
                             );
                           })}
                         </div>
@@ -203,7 +203,7 @@ export function TopNavigationBar({
                           const isItemActive = location.pathname === item.href || 
                             location.pathname.startsWith(item.href + '/');
                           return (
-                            <div
+                            <DropdownMenuItem
                               key={item.href}
                               onClick={() => {
                                 navigate(item.href);
@@ -217,7 +217,7 @@ export function TopNavigationBar({
                             >
                               <item.icon className="w-5 h-5" />
                               <span className="text-sm font-medium">{item.name}</span>
-                            </div>
+                            </DropdownMenuItem>
                           );
                         })}
                       </div>

@@ -22,7 +22,6 @@ import { CommunicationTemplateManager } from './CommunicationTemplateManager';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
-
 export function LeadManagement() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,7 +43,10 @@ export function LeadManagement() {
     sources: [] as string[],
     statuses: [] as string[],
     priorities: [] as string[],
-    assignees: [] as Array<{ id: string; name: string }>,
+    assignees: [] as Array<{
+      id: string;
+      name: string;
+    }>,
     programs: [] as string[]
   });
   const [stats, setStats] = useState({
@@ -55,8 +57,13 @@ export function LeadManagement() {
     converted: 0,
     conversion_rate: 0
   });
-  const { toast } = useToast();
-  const { data: hasDemoAccess, isLoading: demoAccessLoading } = useDemoDataAccess();
+  const {
+    toast
+  } = useToast();
+  const {
+    data: hasDemoAccess,
+    isLoading: demoAccessLoading
+  } = useDemoDataAccess();
 
   // STEP 1: Simple, non-reactive functions to stop infinite loop
   const loadLeads = async () => {
@@ -68,7 +75,6 @@ export function LeadManagement() {
         sortBy,
         sortOrder
       };
-      
       const response = await EnhancedLeadService.getLeads(currentPage, pageSize, enhancedFilters);
       setLeads(response.leads);
       setTotalCount(response.total);
@@ -83,18 +89,18 @@ export function LeadManagement() {
       setLoading(false);
     }
   };
-
   const loadStats = async () => {
     try {
       console.log('LoadStats called at:', new Date().toISOString());
-      const { LeadService } = await import('@/services/leadService');
+      const {
+        LeadService
+      } = await import('@/services/leadService');
       const statsData = await LeadService.getLeadStats();
       setStats(statsData);
     } catch (error) {
       console.error('Failed to load stats:', error);
     }
   };
-
   const loadFilterOptions = async () => {
     try {
       const options = await EnhancedLeadService.getFilterOptions();
@@ -114,7 +120,9 @@ export function LeadManagement() {
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
-      const { LeadService } = await import('@/services/leadService');
+      const {
+        LeadService
+      } = await import('@/services/leadService');
       await LeadService.updateLeadStatus(leadId, newStatus);
       // STEP 1: Simple reload without complex dependencies
       await loadLeads();
@@ -130,7 +138,6 @@ export function LeadManagement() {
       });
     }
   };
-
   const handleLeadCreated = () => {
     console.log('HandleLeadCreated called at:', new Date().toISOString());
     setShowLeadForm(false);
@@ -142,27 +149,38 @@ export function LeadManagement() {
       description: 'Lead created successfully'
     });
   };
-
   const getStatusBadgeVariant = (status: LeadStatus) => {
     switch (status) {
-      case 'new': return 'default';
-      case 'contacted': return 'secondary';
-      case 'qualified': return 'outline';
-      case 'nurturing': return 'default';
-      case 'converted': return 'default';
-      case 'lost': return 'destructive';
-      case 'unqualified': return 'secondary';
-      default: return 'default';
+      case 'new':
+        return 'default';
+      case 'contacted':
+        return 'secondary';
+      case 'qualified':
+        return 'outline';
+      case 'nurturing':
+        return 'default';
+      case 'converted':
+        return 'default';
+      case 'lost':
+        return 'destructive';
+      case 'unqualified':
+        return 'secondary';
+      default:
+        return 'default';
     }
   };
-
   const getPriorityBadgeVariant = (priority: LeadPriority) => {
     switch (priority) {
-      case 'urgent': return 'destructive';
-      case 'high': return 'default';
-      case 'medium': return 'secondary';
-      case 'low': return 'outline';
-      default: return 'outline';
+      case 'urgent':
+        return 'destructive';
+      case 'high':
+        return 'default';
+      case 'medium':
+        return 'secondary';
+      case 'low':
+        return 'outline';
+      default:
+        return 'outline';
     }
   };
 
@@ -170,28 +188,29 @@ export function LeadManagement() {
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1); // Reset to first page
   };
-
   const handleSearch = (query: string) => {
-    setFilters(prev => ({ ...prev, search: query }));
+    setFilters(prev => ({
+      ...prev,
+      search: query
+    }));
     setCurrentPage(1); // Reset to first page
   };
-
   const handleSort = (column: string, order: 'asc' | 'desc') => {
     setSortBy(column);
     setSortOrder(order);
     setCurrentPage(1); // Reset to first page
   };
-
   const handleFilter = (newFilters: Record<string, any>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters(prev => ({
+      ...prev,
+      ...newFilters
+    }));
     setCurrentPage(1); // Reset to first page
   };
-
   const handleExport = async () => {
     try {
       const blob = await EnhancedLeadService.exportLeads(filters);
@@ -204,7 +223,6 @@ export function LeadManagement() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-      
       toast({
         title: 'Success',
         description: 'Leads exported successfully'
@@ -217,7 +235,6 @@ export function LeadManagement() {
       });
     }
   };
-
   const handleBulkAction = async (action: string, selectedIds: string[]) => {
     try {
       let operation;
@@ -232,22 +249,24 @@ export function LeadManagement() {
           operation = {
             operation: 'status_change' as const,
             leadIds: selectedIds,
-            data: { status: 'contacted' }
+            data: {
+              status: 'contacted'
+            }
           };
           break;
         case 'Mark as Qualified':
           operation = {
             operation: 'status_change' as const,
             leadIds: selectedIds,
-            data: { status: 'qualified' }
+            data: {
+              status: 'qualified'
+            }
           };
           break;
         default:
           return;
       }
-
       const result = await EnhancedLeadService.performBulkOperation(operation);
-      
       if (result.success > 0) {
         toast({
           title: 'Success',
@@ -256,7 +275,6 @@ export function LeadManagement() {
         setSelectedLeadIds([]);
         loadLeads();
       }
-      
       if (result.failed > 0) {
         toast({
           title: 'Warning',
@@ -272,27 +290,58 @@ export function LeadManagement() {
       });
     }
   };
-
-  const columns = [
-    { key: 'name', label: 'Name', sortable: true, type: 'text' as const },
-    { key: 'email', label: 'Email', sortable: true, type: 'text' as const },
-    { key: 'phone', label: 'Phone', sortable: false, type: 'text' as const },
-    { key: 'source', label: 'Source', sortable: true, type: 'text' as const },
-    { key: 'status', label: 'Status', sortable: true, type: 'custom' as const, render: (value: any) => (
-      <Badge variant={getStatusBadgeVariant(value)}>
+  const columns = [{
+    key: 'name',
+    label: 'Name',
+    sortable: true,
+    type: 'text' as const
+  }, {
+    key: 'email',
+    label: 'Email',
+    sortable: true,
+    type: 'text' as const
+  }, {
+    key: 'phone',
+    label: 'Phone',
+    sortable: false,
+    type: 'text' as const
+  }, {
+    key: 'source',
+    label: 'Source',
+    sortable: true,
+    type: 'text' as const
+  }, {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    type: 'custom' as const,
+    render: (value: any) => <Badge variant={getStatusBadgeVariant(value)}>
         {value.toUpperCase()}
       </Badge>
-    )},
-    { key: 'priority', label: 'Priority', sortable: true, type: 'custom' as const, render: (value: any) => (
-      <Badge variant={getPriorityBadgeVariant(value)}>
+  }, {
+    key: 'priority',
+    label: 'Priority',
+    sortable: true,
+    type: 'custom' as const,
+    render: (value: any) => <Badge variant={getPriorityBadgeVariant(value)}>
         {value.toUpperCase()}
       </Badge>
-    )},
-    { key: 'lead_score', label: 'Score', sortable: true, type: 'number' as const },
-    { key: 'created_at', label: 'Created', sortable: true, type: 'date' as const },
-    { key: 'assigned_to', label: 'Assigned To', sortable: false, type: 'text' as const }
-  ];
-
+  }, {
+    key: 'lead_score',
+    label: 'Score',
+    sortable: true,
+    type: 'number' as const
+  }, {
+    key: 'created_at',
+    label: 'Created',
+    sortable: true,
+    type: 'date' as const
+  }, {
+    key: 'assigned_to',
+    label: 'Assigned To',
+    sortable: false,
+    type: 'text' as const
+  }];
   const tableData = leads.map(lead => ({
     id: lead.id,
     name: `${lead.first_name} ${lead.last_name}`,
@@ -305,32 +354,78 @@ export function LeadManagement() {
     created_at: lead.created_at,
     assigned_to: lead.assigned_to || 'Unassigned'
   }));
-
-  const quickFilters = [
-    { label: 'New Today', filter: { date_range: { start: new Date(), end: new Date() }, status: ['new'] } },
-    { label: 'Unassigned', filter: { assigned_to: [] } },
-    { label: 'High Priority', filter: { priority: ['high', 'urgent'] } },
-    { label: 'Hot Leads', filter: { lead_score_range: { min: 80, max: 100 } } }
-  ];
-
-  const enhancedFilterOptions = [
-    { key: 'status', label: 'Status', options: filterOptions.statuses.map(s => ({ value: s, label: s.charAt(0).toUpperCase() + s.slice(1) })) },
-    { key: 'source', label: 'Source', options: filterOptions.sources.map(s => ({ value: s, label: s.replace('_', ' ').toUpperCase() })) },
-    { key: 'priority', label: 'Priority', options: filterOptions.priorities.map(p => ({ value: p, label: p.charAt(0).toUpperCase() + p.slice(1) })) },
-    { key: 'assigned_to', label: 'Assigned To', options: filterOptions.assignees.map(a => ({ value: a.id, label: a.name })) }
-  ];
-
-  const bulkActions = [
-    { label: 'Mark as Contacted', onClick: (ids: string[]) => handleBulkAction('Mark as Contacted', ids) },
-    { label: 'Mark as Qualified', onClick: (ids: string[]) => handleBulkAction('Mark as Qualified', ids) },
-    { label: 'Delete Selected', onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids), variant: 'destructive' as const }
-  ];
-
-  return (
-    <div className="w-full max-w-none space-y-6">{/* Full width container */}
+  const quickFilters = [{
+    label: 'New Today',
+    filter: {
+      date_range: {
+        start: new Date(),
+        end: new Date()
+      },
+      status: ['new']
+    }
+  }, {
+    label: 'Unassigned',
+    filter: {
+      assigned_to: []
+    }
+  }, {
+    label: 'High Priority',
+    filter: {
+      priority: ['high', 'urgent']
+    }
+  }, {
+    label: 'Hot Leads',
+    filter: {
+      lead_score_range: {
+        min: 80,
+        max: 100
+      }
+    }
+  }];
+  const enhancedFilterOptions = [{
+    key: 'status',
+    label: 'Status',
+    options: filterOptions.statuses.map(s => ({
+      value: s,
+      label: s.charAt(0).toUpperCase() + s.slice(1)
+    }))
+  }, {
+    key: 'source',
+    label: 'Source',
+    options: filterOptions.sources.map(s => ({
+      value: s,
+      label: s.replace('_', ' ').toUpperCase()
+    }))
+  }, {
+    key: 'priority',
+    label: 'Priority',
+    options: filterOptions.priorities.map(p => ({
+      value: p,
+      label: p.charAt(0).toUpperCase() + p.slice(1)
+    }))
+  }, {
+    key: 'assigned_to',
+    label: 'Assigned To',
+    options: filterOptions.assignees.map(a => ({
+      value: a.id,
+      label: a.name
+    }))
+  }];
+  const bulkActions = [{
+    label: 'Mark as Contacted',
+    onClick: (ids: string[]) => handleBulkAction('Mark as Contacted', ids)
+  }, {
+    label: 'Mark as Qualified',
+    onClick: (ids: string[]) => handleBulkAction('Mark as Qualified', ids)
+  }, {
+    label: 'Delete Selected',
+    onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
+    variant: 'destructive' as const
+  }];
+  return <div className="w-full max-w-none space-y-6 px-2">{/* Full width container */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Lead Management</h1>
+          <h1 className="text-3xl font-bold py-[25px]">Lead Management</h1>
           <p className="text-muted-foreground">Comprehensive lead generation, routing, and conversion system</p>
         </div>
       </div>
@@ -405,10 +500,7 @@ export function LeadManagement() {
           <div className="space-y-6">
             {/* Advanced Filters Toggle */}
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-              >
+              <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
                 <Filter className="h-4 w-4 mr-2" />
                 Advanced Filters
               </Button>
@@ -416,70 +508,27 @@ export function LeadManagement() {
                 <Plus className="h-4 w-4 mr-2" />
                 Add Lead
               </Button>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setFilters({});
-                  setCurrentPage(1);
-                }}
-              >
+              <Button variant="outline" onClick={() => {
+              setFilters({});
+              setCurrentPage(1);
+            }}>
                 <FileX className="h-4 w-4 mr-2" />
                 Clear Filters
               </Button>
             </div>
 
             {/* Advanced Filters Panel */}
-            {showAdvancedFilters && (
-              <AdvancedFilterPanel
-                filters={filters}
-                onFiltersChange={handleFilter}
-              />
-            )}
+            {showAdvancedFilters && <AdvancedFilterPanel filters={filters} onFiltersChange={handleFilter} />}
 
             {/* Enhanced Data Table */}
-            <ConditionalDataWrapper
-              isLoading={loading}
-              showEmptyState={!hasDemoAccess && leads.length === 0}
-              hasDemoAccess={hasDemoAccess || false}
-              hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))}
-              emptyTitle="No Leads Yet"
-              emptyDescription="Create your first lead to get started with lead management."
-              loadingRows={5}
-            >
-              <EnhancedDataTable
-                title="Lead Management"
-                columns={columns}
-                data={tableData}
-                totalCount={totalCount}
-                currentPage={currentPage}
-                totalPages={totalPages}
-                pageSize={pageSize}
-                loading={loading}
-                searchable={true}
-                filterable={true}
-                exportable={true}
-                selectable={true}
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                filterOptions={enhancedFilterOptions}
-                quickFilters={quickFilters}
-                selectedIds={selectedLeadIds}
-                bulkActions={bulkActions}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-                onSearch={handleSearch}
-                onSort={handleSort}
-                onFilter={handleFilter}
-                onExport={handleExport}
-                onRowClick={(row) => {
-                  const lead = leads.find(l => l.id === row.id);
-                  if (lead) {
-                    setSelectedLead(lead);
-                    setShowEnhancedModal(true);
-                  }
-                }}
-                onSelectionChange={setSelectedLeadIds}
-              />
+            <ConditionalDataWrapper isLoading={loading} showEmptyState={!hasDemoAccess && leads.length === 0} hasDemoAccess={hasDemoAccess || false} hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} emptyTitle="No Leads Yet" emptyDescription="Create your first lead to get started with lead management." loadingRows={5}>
+              <EnhancedDataTable title="Lead Management" columns={columns} data={tableData} totalCount={totalCount} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} loading={loading} searchable={true} filterable={true} exportable={true} selectable={true} sortBy={sortBy} sortOrder={sortOrder} filterOptions={enhancedFilterOptions} quickFilters={quickFilters} selectedIds={selectedLeadIds} bulkActions={bulkActions} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} onSearch={handleSearch} onSort={handleSort} onFilter={handleFilter} onExport={handleExport} onRowClick={row => {
+              const lead = leads.find(l => l.id === row.id);
+              if (lead) {
+                setSelectedLead(lead);
+                setShowEnhancedModal(true);
+              }
+            }} onSelectionChange={setSelectedLeadIds} />
             </ConditionalDataWrapper>
           </div>
         </TabsContent>
@@ -494,9 +543,9 @@ export function LeadManagement() {
 
         <TabsContent value="routing">
           <LeadRoutingRules onRuleCreated={() => {
-            loadLeads();
-            loadStats();
-          }} />
+          loadLeads();
+          loadStats();
+        }} />
         </TabsContent>
 
         <TabsContent value="templates">
@@ -508,13 +557,10 @@ export function LeadManagement() {
         </TabsContent>
 
         <TabsContent value="bulk">
-          <BulkLeadOperations 
-            selectedLeads={leads.filter(lead => selectedLeadIds.includes(lead.id))} 
-            onOperationComplete={() => {
-              loadLeads();
-              loadStats();
-            }} 
-          />
+          <BulkLeadOperations selectedLeads={leads.filter(lead => selectedLeadIds.includes(lead.id))} onOperationComplete={() => {
+          loadLeads();
+          loadStats();
+        }} />
         </TabsContent>
 
         <TabsContent value="analytics">
@@ -527,41 +573,21 @@ export function LeadManagement() {
       </Tabs>
 
       {/* Modals */}
-      <LeadFormModal
-        open={showLeadForm}
-        onOpenChange={setShowLeadForm}
-        onLeadCreated={handleLeadCreated}
-      />
+      <LeadFormModal open={showLeadForm} onOpenChange={setShowLeadForm} onLeadCreated={handleLeadCreated} />
 
       {/* Enhanced Lead Detail Modal */}
-      <EnhancedLeadDetailModal
-        lead={selectedLead}
-        isOpen={showEnhancedModal}
-        onClose={() => {
-          setShowEnhancedModal(false);
-          setSelectedLead(null);
-        }}
-        onLeadUpdate={(updatedLead) => {
-          setLeads(prev => prev.map(lead => 
-            lead.id === updatedLead.id ? updatedLead : lead
-          ));
-          loadStats();
-        }}
-      />
+      <EnhancedLeadDetailModal lead={selectedLead} isOpen={showEnhancedModal} onClose={() => {
+      setShowEnhancedModal(false);
+      setSelectedLead(null);
+    }} onLeadUpdate={updatedLead => {
+      setLeads(prev => prev.map(lead => lead.id === updatedLead.id ? updatedLead : lead));
+      loadStats();
+    }} />
 
       {/* Legacy Lead Detail Modal for fallback */}
-      {selectedLead && (
-        <LeadDetailModal
-          open={showLeadDetail}
-          onOpenChange={setShowLeadDetail}
-          lead={selectedLead}
-          onStatusChange={handleStatusChange}
-          onLeadUpdated={() => {
-            loadLeads();
-            loadStats();
-          }}
-        />
-      )}
-    </div>
-  );
+      {selectedLead && <LeadDetailModal open={showLeadDetail} onOpenChange={setShowLeadDetail} lead={selectedLead} onStatusChange={handleStatusChange} onLeadUpdated={() => {
+      loadLeads();
+      loadStats();
+    }} />}
+    </div>;
 }

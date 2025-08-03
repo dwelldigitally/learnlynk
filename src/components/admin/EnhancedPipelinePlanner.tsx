@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,10 +8,10 @@ import { Progress } from '@/components/ui/progress';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Calendar, MapPin, Users, Filter, SortAsc, Bell, Target } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 import { enhancedIntakeService, type EnhancedIntake, type IntakeFilters, type SortOptions } from '@/services/enhancedIntakeService';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { useQuery } from '@tanstack/react-query';
 
 const EnhancedPipelinePlanner: React.FC = () => {
   const [filters, setFilters] = useState<IntakeFilters>({});

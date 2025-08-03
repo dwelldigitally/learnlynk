@@ -483,26 +483,33 @@ export function LeadManagement() {
           </Card>
         </div>
 
+        {/* Filters & Actions Bar */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
+                <Filter className="h-4 w-4 mr-2" />
+                Advanced Filters
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setFilters({});
+                setCurrentPage(1);
+              }}>
+                <FileX className="h-4 w-4 mr-2" />
+                Clear Filters
+              </Button>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button onClick={() => setShowLeadForm(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Lead
+              </Button>
+            </div>
+          </div>
+        </Card>
+
         {/* Main Content */}
         <div className="space-y-6">
-          {/* Advanced Filters Toggle */}
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
-              <Filter className="h-4 w-4 mr-2" />
-              Advanced Filters
-            </Button>
-            <Button onClick={() => setShowLeadForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Lead
-            </Button>
-            <Button variant="outline" onClick={() => {
-            setFilters({});
-            setCurrentPage(1);
-          }}>
-              <FileX className="h-4 w-4 mr-2" />
-              Clear Filters
-            </Button>
-          </div>
 
           {/* Advanced Filters Panel */}
           {showAdvancedFilters && <AdvancedFilterPanel filters={filters} onFiltersChange={handleFilter} />}

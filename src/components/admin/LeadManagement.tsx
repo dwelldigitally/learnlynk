@@ -484,7 +484,7 @@ export function LeadManagement() {
         </div>
 
         {/* Filters & Actions Bar */}
-        <Card className="p-4">
+        <Card className="p-4 bg-muted/50 border-2 border-primary/20">{/* Made more visible for debugging */}
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-2">
               <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>

@@ -56,10 +56,18 @@ export function useNotifications() {
     };
   }, []);
 
+  // Calculate actual unread count considering localStorage
+  const getActualUnreadCount = () => {
+    const readNotifications = NotificationService.getReadNotifications();
+    return notifications.filter(n => !readNotifications.has(n.id)).length;
+  };
+
   return {
-    unreadCount,
+    unreadCount: getActualUnreadCount(),
     notifications,
     isLoading,
-    refreshNotifications: fetchNotifications
+    refreshNotifications: fetchNotifications,
+    markAsRead: NotificationService.markAsRead,
+    markAllAsRead: NotificationService.markAllAsRead
   };
 }

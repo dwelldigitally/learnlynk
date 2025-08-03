@@ -180,4 +180,29 @@ export class NotificationService {
       return [];
     }
   }
+
+  // Mark notification as read in localStorage  
+  static markAsRead(notificationId: string): void {
+    const readNotifications = this.getReadNotifications();
+    readNotifications.add(notificationId);
+    localStorage.setItem('admin-read-notifications', JSON.stringify(Array.from(readNotifications)));
+  }
+
+  // Mark all notifications as read
+  static markAllAsRead(notificationIds: string[]): void {
+    const readNotifications = new Set(notificationIds);
+    localStorage.setItem('admin-read-notifications', JSON.stringify(Array.from(readNotifications)));
+  }
+
+  // Get read notifications from localStorage
+  static getReadNotifications(): Set<string> {
+    const stored = localStorage.getItem('admin-read-notifications');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  }
+
+  // Get actual unread count considering localStorage
+  static getActualUnreadCount(notifications: AdminNotification[]): number {
+    const readNotifications = this.getReadNotifications();
+    return notifications.filter(n => !readNotifications.has(n.id)).length;
+  }
 }

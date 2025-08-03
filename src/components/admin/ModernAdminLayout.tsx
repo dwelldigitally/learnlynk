@@ -29,6 +29,7 @@ import { UserMenu } from '@/components/auth/UserMenu';
 import { useProfile } from '@/hooks/useProfile';
 import { useNotifications } from '@/hooks/useNotifications';
 import { cn } from '@/lib/utils';
+import AdminNotificationCentre from './AdminNotificationCentre';
 
 const navigation = [
   { name: 'Overview', href: '/admin', icon: BarChart3, count: null },
@@ -203,14 +204,7 @@ const ModernAdminLayout: React.FC<ModernAdminLayoutProps> = ({ children }) => {
                 {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
               
-              <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                <Bell className="h-4 w-4" />
-                {unreadCount > 0 && (
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs bg-destructive text-destructive-foreground">
-                    {unreadCount > 99 ? '99+' : unreadCount}
-                  </Badge>
-                )}
-              </Button>
+              <AdminNotificationCentre unreadCount={unreadCount} />
               
               <UserMenu />
             </div>

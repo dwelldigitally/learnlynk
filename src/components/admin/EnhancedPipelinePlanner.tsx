@@ -12,7 +12,7 @@ import { enhancedIntakeService, type EnhancedIntake, type IntakeFilters, type So
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
-export function EnhancedPipelinePlanner() {
+const EnhancedPipelinePlanner: React.FC = () => {
   const [intakes, setIntakes] = useState<EnhancedIntake[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<IntakeFilters>({});
@@ -369,4 +369,6 @@ export function EnhancedPipelinePlanner() {
       )}
     </div>
   );
-}
+};
+
+export { EnhancedPipelinePlanner };

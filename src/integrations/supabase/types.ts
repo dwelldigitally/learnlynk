@@ -829,10 +829,15 @@ export type Database = {
       programs: {
         Row: {
           created_at: string
+          custom_questions: Json | null
           description: string | null
+          document_requirements: Json | null
           duration: string
           enrollment_status: string | null
+          entry_requirements: Json | null
+          fee_structure: Json | null
           id: string
+          metadata: Json | null
           name: string
           next_intake: string | null
           requirements: string[] | null
@@ -843,10 +848,15 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          custom_questions?: Json | null
           description?: string | null
+          document_requirements?: Json | null
           duration: string
           enrollment_status?: string | null
+          entry_requirements?: Json | null
+          fee_structure?: Json | null
           id?: string
+          metadata?: Json | null
           name: string
           next_intake?: string | null
           requirements?: string[] | null
@@ -857,10 +867,15 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          custom_questions?: Json | null
           description?: string | null
+          document_requirements?: Json | null
           duration?: string
           enrollment_status?: string | null
+          entry_requirements?: Json | null
+          fee_structure?: Json | null
           id?: string
+          metadata?: Json | null
           name?: string
           next_intake?: string | null
           requirements?: string[] | null

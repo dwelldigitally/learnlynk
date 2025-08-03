@@ -55,7 +55,36 @@ export const ComprehensiveProgramEditModal = ({
 
   React.useEffect(() => {
     if (isOpen && program) {
-      setEditingProgram({ ...program });
+      // Transform database program data to UI format
+      // Cast to any to handle potential database field name differences
+      const dbProgram = program as any;
+      
+      const transformedProgram = {
+        ...program,
+        // Map JSONB fields back to UI format (handle both camelCase and snake_case)
+        entryRequirements: dbProgram.entry_requirements || program.entryRequirements || [],
+        documentRequirements: dbProgram.document_requirements || program.documentRequirements || [],
+        customQuestions: dbProgram.custom_questions || program.customQuestions || [],
+        feeStructure: dbProgram.fee_structure || program.feeStructure || {
+          domesticFees: [],
+          internationalFees: [],
+          paymentPlans: [],
+          scholarships: []
+        },
+        // Extract metadata back to top level if stored in metadata JSONB
+        images: dbProgram.metadata?.images || program.images || [],
+        campus: dbProgram.metadata?.campus || program.campus || [],
+        deliveryMethod: dbProgram.metadata?.deliveryMethod || program.deliveryMethod || 'in-person',
+        color: dbProgram.metadata?.color || program.color || '#3B82F6',
+        status: dbProgram.metadata?.status || program.status || 'draft',
+        category: dbProgram.metadata?.category || program.category || '',
+        tags: dbProgram.metadata?.tags || program.tags || [],
+        urlSlug: dbProgram.metadata?.urlSlug || program.urlSlug || '',
+        shortDescription: dbProgram.metadata?.shortDescription || program.shortDescription || '',
+        marketingCopy: dbProgram.metadata?.marketingCopy || program.marketingCopy || ''
+      };
+      
+      setEditingProgram(transformedProgram);
       setHasChanges(false);
     }
   }, [isOpen, program]);
@@ -70,16 +99,15 @@ export const ComprehensiveProgramEditModal = ({
 
     setIsSaving(true);
     try {
-      const updatedProgram: Program = {
-        ...program,
-        ...editingProgram,
-        updatedAt: new Date().toISOString(),
-      };
-
-      await onSave(updatedProgram);
+      // Use ProgramService to update the program properly
+      await ProgramService.updateProgram(program.id, editingProgram);
+      
       setHasChanges(false);
       queryClient.invalidateQueries({ queryKey: ['programs'] });
       queryClient.invalidateQueries({ queryKey: ['intakes'] });
+      
+      // Call the onSave callback with the editing program data
+      onSave(editingProgram as Program);
       
       toast({
         title: "Program Updated",

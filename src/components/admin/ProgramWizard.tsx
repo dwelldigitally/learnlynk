@@ -193,16 +193,41 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
     }
 
     try {
-      // Map wizard data to database schema
+      // Map complete wizard data to database schema - save ALL collected data
       const programData = {
+        // Basic fields
         name: wizardState.data.name,
         description: wizardState.data.description,
         type: wizardState.data.type,
         duration: wizardState.data.duration,
         requirements: wizardState.data.entryRequirements?.map(req => req.description || req.title) || [],
-        tuition: wizardState.data.feeStructure?.domesticFees?.[0]?.amount || 0,
+        tuition: wizardState.data.feeStructure?.domesticFees?.[0]?.amount || 
+                wizardState.data.feeStructure?.internationalFees?.[0]?.amount || 0,
         next_intake: wizardState.data.intakes?.[0]?.date || null,
-        enrollment_status: wizardState.data.status === 'active' ? 'open' : 'closed'
+        enrollment_status: wizardState.data.status === 'active' ? 'open' : 'closed',
+        
+        // Rich data structures saved to JSONB columns
+        entryRequirements: wizardState.data.entryRequirements || [],
+        documentRequirements: wizardState.data.documentRequirements || [],
+        feeStructure: wizardState.data.feeStructure || {
+          domesticFees: [],
+          internationalFees: [],
+          paymentPlans: [],
+          scholarships: []
+        },
+        customQuestions: wizardState.data.customQuestions || [],
+        
+        // Additional metadata
+        images: wizardState.data.images || [],
+        campus: wizardState.data.campus || [],
+        deliveryMethod: wizardState.data.deliveryMethod || 'in-person',
+        color: wizardState.data.color || '#3B82F6',
+        status: wizardState.data.status || 'draft',
+        category: wizardState.data.category || '',
+        tags: wizardState.data.tags || [],
+        urlSlug: wizardState.data.urlSlug || '',
+        shortDescription: wizardState.data.shortDescription || '',
+        marketingCopy: wizardState.data.marketingCopy || ''
       };
 
       let savedProgram;

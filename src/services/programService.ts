@@ -29,12 +29,41 @@ export class ProgramService {
       throw new Error('User not authenticated');
     }
 
+    // Prepare the program data with proper JSONB field mapping
+    const programData = {
+      name: program.name,
+      type: program.type,
+      description: program.description,
+      duration: program.duration,
+      tuition: program.tuition,
+      next_intake: program.next_intake,
+      enrollment_status: program.enrollment_status || 'open',
+      requirements: program.requirements || [],
+      // New JSONB fields
+      entry_requirements: program.entryRequirements || [],
+      document_requirements: program.documentRequirements || [],
+      fee_structure: program.feeStructure || {},
+      custom_questions: program.customQuestions || [],
+      metadata: {
+        images: program.images || [],
+        campus: program.campus || [],
+        deliveryMethod: program.deliveryMethod || 'in-person',
+        color: program.color || '#0ea5e9',
+        status: program.status || 'draft',
+        category: program.category || '',
+        tags: program.tags || [],
+        urlSlug: program.urlSlug || '',
+        shortDescription: program.shortDescription || '',
+        marketingCopy: program.marketingCopy || '',
+        createdBy: user.id,
+        ...program.metadata
+      },
+      user_id: user.id
+    };
+
     const { data, error } = await supabase
       .from('programs')
-      .insert({
-        ...program,
-        user_id: user.id
-      })
+      .insert(programData)
       .select()
       .single();
 
@@ -50,9 +79,46 @@ export class ProgramService {
    * Update a program
    */
   static async updateProgram(id: string, program: any) {
+    // Prepare the update data with proper JSONB field mapping
+    const updateData = {
+      name: program.name,
+      type: program.type,
+      description: program.description,
+      duration: program.duration,
+      tuition: program.tuition,
+      next_intake: program.next_intake,
+      enrollment_status: program.enrollment_status,
+      requirements: program.requirements,
+      // New JSONB fields
+      entry_requirements: program.entryRequirements || program.entry_requirements,
+      document_requirements: program.documentRequirements || program.document_requirements,
+      fee_structure: program.feeStructure || program.fee_structure,
+      custom_questions: program.customQuestions || program.custom_questions,
+      metadata: {
+        ...(program.metadata || {}),
+        images: program.images || [],
+        campus: program.campus || [],
+        deliveryMethod: program.deliveryMethod,
+        color: program.color,
+        status: program.status,
+        category: program.category,
+        tags: program.tags || [],
+        urlSlug: program.urlSlug,
+        shortDescription: program.shortDescription,
+        marketingCopy: program.marketingCopy
+      }
+    };
+
+    // Remove undefined values
+    Object.keys(updateData).forEach(key => {
+      if (updateData[key] === undefined) {
+        delete updateData[key];
+      }
+    });
+
     const { data, error } = await supabase
       .from('programs')
-      .update(program)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();

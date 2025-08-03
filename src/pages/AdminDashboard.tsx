@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import ModernAdminLayout from "@/components/admin/ModernAdminLayout";
+import { SidebarAdminLayout } from "@/components/admin/SidebarAdminLayout";
+import { LayoutToggle } from "@/components/admin/LayoutToggle";
 import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
 import StudentDetail from "@/components/admin/StudentDetail";
@@ -30,6 +32,16 @@ import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
+  const [useSidebarLayout, setUseSidebarLayout] = useState(false);
+
+  // Show layout toggle on settings page
+  if (location.pathname === '/admin/settings' && !useSidebarLayout) {
+    return (
+      <ModernAdminLayout>
+        <LayoutToggle onUseSidebarLayout={() => setUseSidebarLayout(true)} />
+      </ModernAdminLayout>
+    );
+  }
   
   const renderContent = () => {
     // Check for student detail route pattern
@@ -77,7 +89,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/analytics":
         return <AnalyticsReporting />;
       case "/admin/settings":
-        return <SystemConfiguration />;
+        return <ProfilePage />;
       case "/admin/database":
         return <DatabaseManagement />;
       case "/admin/demo-data":
@@ -89,6 +101,16 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Use sidebar layout if enabled
+  if (useSidebarLayout) {
+    return (
+      <SidebarAdminLayout onToggleLayout={() => setUseSidebarLayout(false)}>
+        {renderContent()}
+      </SidebarAdminLayout>
+    );
+  }
+
+  // Use original layout
   return (
     <ModernAdminLayout>
       {renderContent()}

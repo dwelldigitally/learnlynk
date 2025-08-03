@@ -26,6 +26,14 @@ import type { NavigationStructure } from "@/types/navigation";
 export const navigationStructure: NavigationStructure = {
   sections: [
     {
+      id: "home",
+      name: "Home",
+      icon: Users,
+      items: [
+        { name: "Dashboard", href: "/admin", icon: BarChart3 }
+      ]
+    },
+    {
       id: "contacts",
       name: "Contacts",
       icon: Users,

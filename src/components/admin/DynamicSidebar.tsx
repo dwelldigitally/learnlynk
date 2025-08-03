@@ -41,14 +41,14 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
       {/* Mobile overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
       <div className={`
-        fixed lg:static inset-y-0 left-0 z-50 w-80 bg-background border-r border-border
+        fixed lg:static inset-y-0 left-0 z-30 w-80 bg-background border-r border-border
         transform transition-transform duration-200 ease-in-out lg:transform-none
         ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         top-16 lg:top-0

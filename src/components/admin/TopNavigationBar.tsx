@@ -72,6 +72,29 @@ export function TopNavigationBar({
           {navigationStructure.sections.map((section) => {
             const isActive = currentActiveSection === section.id;
             const needsMegaMenu = section.items.length > 5;
+            const isSingleItem = section.items.length === 1;
+            
+            if (isSingleItem) {
+              // For single item sections like Home, navigate directly
+              return (
+                <Button
+                  key={section.id}
+                  variant={isActive ? "secondary" : "ghost"}
+                  className={`h-10 px-4 text-sm font-medium transition-colors ${
+                    isActive 
+                      ? "bg-muted text-foreground" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                  onClick={() => {
+                    navigate(section.items[0].href);
+                    onSectionChange(section.id);
+                  }}
+                >
+                  <section.icon className="w-4 h-4 mr-2" />
+                  {section.name}
+                </Button>
+              );
+            }
             
             return (
               <DropdownMenu key={section.id}>

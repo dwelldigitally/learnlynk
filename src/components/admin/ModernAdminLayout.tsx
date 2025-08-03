@@ -57,7 +57,7 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
         />
 
         {/* Main Content Area */}
-        <main className="flex-1 lg:ml-64 overflow-auto">
+        <main className="flex-1 w-full lg:ml-64">
           {children || <Outlet />}
         </main>
       </div>

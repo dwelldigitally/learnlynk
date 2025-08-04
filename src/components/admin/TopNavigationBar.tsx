@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, Search, Bell, User } from "lucide-react";
+import { useLocation, useNavigate, Link } from "react-router-dom";
+import { ChevronDown, Search, Bell, User, Building2, Settings, LogOut } from "lucide-react";
 import { navigationStructure } from "@/data/navigationStructure";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -122,7 +123,7 @@ export function TopNavigationBar({
                     align="start" 
                     className="w-[600px] bg-background border border-border shadow-lg z-50 p-6"
                   >
-                    {section.id === 'contacts' ? (
+                    {section.id === 'leads-marketing' ? (
                       <div className="grid grid-cols-2 gap-6">
                         {/* Lead Management Column */}
                         <div className="space-y-4">
@@ -173,10 +174,10 @@ export function TopNavigationBar({
                           })}
                         </div>
                         
-                        {/* Analytics & Operations Column */}
+                        {/* Marketing & Communication Column */}
                         <div className="space-y-4">
                           <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-                            Analytics & Operations
+                            Marketing & Communication
                           </h3>
                           {section.items.slice(5).map((item) => {
                             const isItemActive = location.pathname === item.href || 
@@ -200,11 +201,10 @@ export function TopNavigationBar({
                                 <div className="flex-1 min-w-0">
                                   <div className="text-sm font-medium">{item.name}</div>
                                   <div className="text-xs text-muted-foreground mt-0.5">
-                                    {item.name === 'Analytics' && 'View lead analytics and reports'}
-                                    {item.name === 'Advanced Analytics' && 'Deep insights and metrics'}
-                                    {item.name === 'Templates' && 'Communication templates'}
                                     {item.name === 'Bulk Operations' && 'Mass lead operations'}
-                                    {item.name === 'Students' && 'Student management'}
+                                    {item.name === 'Communication Center' && 'Manage communications'}
+                                    {item.name === 'Campaigns' && 'Marketing campaigns'}
+                                    {item.name === 'Intake Management' && 'Manage application periods'}
                                   </div>
                                 </div>
                                 {item.count && (
@@ -325,9 +325,32 @@ export function TopNavigationBar({
               <ChevronDown className="w-3 h-3 text-muted-foreground hidden sm:block" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>Profile Settings</DropdownMenuItem>
-            <DropdownMenuItem>Sign Out</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/admin/profile" className="flex items-center">
+                <User className="mr-2 h-4 w-4" />
+                Profile Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/admin/company" className="flex items-center">
+                <Building2 className="mr-2 h-4 w-4" />
+                Company Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/admin/settings" className="flex items-center">
+                <Settings className="mr-2 h-4 w-4" />
+                System Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => {/* Sign out logic */}}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Sign out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

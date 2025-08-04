@@ -29,6 +29,12 @@ import { LeadAdvancedAnalytics } from "@/components/admin/leads/LeadAdvancedAnal
 import { LeadBulkOperations } from "@/components/admin/leads/LeadBulkOperations";
 import { DatabaseManagement } from "@/components/admin/DatabaseManagement";
 import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
+import { CampaignManagement } from "@/components/admin/CampaignManagement";
+import { ApplicationsManagement } from "@/components/admin/ApplicationsManagement";
+import { RequirementsManagement } from "@/components/admin/RequirementsManagement";
+import { ReportsManagement } from "@/components/admin/ReportsManagement";
+import { CompanySettings } from "@/components/admin/CompanySettings";
+import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -96,6 +102,18 @@ const AdminDashboard: React.FC = () => {
         return <DemoDataManagement />;
       case "/admin/profile":
         return <ProfilePage />;
+      case "/admin/campaigns":
+        return <CampaignManagement />;
+      case "/admin/applications":
+        return <ApplicationsManagement />;
+      case "/admin/intake":
+        return <IntakeManagementStandalone />;
+      case "/admin/requirements":
+        return <RequirementsManagement />;
+      case "/admin/reports":
+        return <ReportsManagement />;
+      case "/admin/company":
+        return <CompanySettings />;
       default:
         return <AdminOverview />;
     }

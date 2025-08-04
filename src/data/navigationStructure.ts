@@ -34,9 +34,9 @@ export const navigationStructure: NavigationStructure = {
       ]
     },
     {
-      id: "contacts",
-      name: "Contacts",
-      icon: Users,
+      id: "leads-marketing",
+      name: "Leads & Marketing",
+      icon: UserPlus,
       items: [
         { name: "Lead Overview", href: "/admin/leads", icon: Users },
         { name: "AI Features", href: "/admin/leads/ai", icon: Zap },
@@ -44,46 +44,44 @@ export const navigationStructure: NavigationStructure = {
         { name: "Routing Rules", href: "/admin/leads/routing", icon: Route },
         { name: "Scoring Engine", href: "/admin/leads/scoring", icon: Target },
         { name: "Templates", href: "/admin/leads/templates", icon: Mail },
-        { name: "Analytics", href: "/admin/leads/analytics", icon: BarChart3 },
-        { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: PieChart },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
-        { name: "Students", href: "/admin/students", icon: GraduationCap }
-      ]
-    },
-    {
-      id: "engagement",
-      name: "Engagement",
-      icon: MessageSquare,
-      items: [
         { name: "Communication Center", href: "/admin/communication", icon: MessageSquare },
-        { name: "Templates", href: "/admin/templates", icon: Mail },
-        { name: "Automations", href: "/admin/automations", icon: Zap },
-        { name: "Events", href: "/admin/events", icon: Calendar },
-        { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase }
+        { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase },
+        { name: "Intake Management", href: "/admin/intake", icon: GitBranch }
       ]
     },
     {
-      id: "applications",
-      name: "Applications",
-      icon: FileText,
+      id: "students-applications",
+      name: "Students & Applications",
+      icon: GraduationCap,
       items: [
-        { name: "Programs", href: "/admin/programs", icon: BookOpen },
+        { name: "Student Overview", href: "/admin/students", icon: GraduationCap },
         { name: "Applications", href: "/admin/applications", icon: FileText },
-        { name: "Workflows", href: "/admin/workflows", icon: Workflow },
-        { name: "Intake Management", href: "/admin/intake", icon: GitBranch },
-        { name: "Requirements", href: "/admin/requirements", icon: Shield }
+        { name: "Events", href: "/admin/events", icon: Calendar },
+        { name: "Documents", href: "/admin/documents", icon: Upload }
       ]
     },
     {
-      id: "data-automations",
-      name: "Data + Automations",
+      id: "data-management",
+      name: "Data Management",
       icon: Database,
       items: [
-        { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { name: "Reports", href: "/admin/reports", icon: PieChart },
+        { name: "Programs", href: "/admin/programs", icon: BookOpen },
+        { name: "Workflows", href: "/admin/workflows", icon: Workflow },
+        { name: "Requirements", href: "/admin/requirements", icon: Shield },
         { name: "Database", href: "/admin/database", icon: Database },
-        { name: "Team Management", href: "/admin/team", icon: UserCog },
-        { name: "Settings", href: "/admin/settings", icon: Settings }
+        { name: "Team Management", href: "/admin/team", icon: UserCog }
+      ]
+    },
+    {
+      id: "analytics-reports",
+      name: "Analytics & Reports",
+      icon: BarChart3,
+      items: [
+        { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
+        { name: "Reports", href: "/admin/reports", icon: PieChart },
+        { name: "Lead Analytics", href: "/admin/leads/analytics", icon: BarChart3 },
+        { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: PieChart }
       ]
     }
   ]

@@ -1,460 +1,417 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  Send, 
-  Download,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  User,
-  X,
-  ChevronDown,
-  ChevronUp
-} from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { useConditionalStudents } from '@/hooks/useConditionalStudents';
-import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { MoreHorizontal, Search, Filter, Download, MessageSquare, Mail, AlertTriangle, Clock, CheckCircle2, Users, Plus, Upload } from "lucide-react";
+import { useConditionalStudents } from "@/hooks/useConditionalStudents";
+import { useStudentsPaginated, useStudentMutations, StudentFilters, StudentService } from "@/services/studentService";
+import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
+import { EnhancedDataTable } from "./EnhancedDataTable";
+import { AddStudentModal } from "./modals/AddStudentModal";
+import { ImportStudentsModal } from "./modals/ImportStudentsModal";
+import { toast } from "sonner";
 
-const StudentManagement: React.FC = () => {
+export default function StudentManagement() {
+  const [pagination, setPagination] = useState({
+    page: 1,
+    pageSize: 25,
+    sortBy: 'created_at',
+    sortOrder: 'desc' as 'asc' | 'desc'
+  });
+  
+  const [filters, setFilters] = useState<StudentFilters>({});
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStage, setFilterStage] = useState("all");
-  const [filterProgram, setFilterProgram] = useState("all");
-  const [filterIntake, setFilterIntake] = useState("all");
-  const [filterCampus, setFilterCampus] = useState("all");
-  const [filterStudentType, setFilterStudentType] = useState("all");
-  const [filterRiskLevel, setFilterRiskLevel] = useState("all");
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
-  const { data: students, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalStudents();
+  // Use paginated query for better performance
+  const { data: paginatedData, isLoading, refetch } = useStudentsPaginated(pagination, filters);
+  const { data: legacyStudents = [], showEmptyState } = useConditionalStudents();
+  
+  const { bulkDeleteStudents, bulkUpdateStudents } = useStudentMutations();
 
+  const students = paginatedData?.data || [];
+  const total = paginatedData?.total || 0;
 
   const getStageColor = (stage: string) => {
     switch (stage) {
-      case "LEAD_FORM": return "outline";
-      case "SEND_DOCUMENTS": return "secondary";
-      case "DOCUMENT_APPROVAL": return "default";
-      case "FEE_PAYMENT": return "default";
-      case "ACCEPTED": return "secondary";
-      default: return "outline";
+      case 'LEAD_FORM': return 'outline';
+      case 'SEND_DOCUMENTS': return 'secondary';
+      case 'DOCUMENT_APPROVAL': return 'default';
+      case 'FEE_PAYMENT': return 'default';
+      case 'ACCEPTED': return 'secondary';
+      default: return 'outline';
     }
   };
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
-      case "high": return "text-red-600";
-      case "medium": return "text-yellow-600";
-      case "low": return "text-green-600";
-      default: return "text-gray-600";
+      case 'high': return 'destructive';
+      case 'medium': return 'default';
+      case 'low': return 'secondary';
+      default: return 'outline';
     }
   };
 
   const clearAllFilters = () => {
-    setSearchTerm("");
-    setFilterStage("all");
-    setFilterProgram("all");
-    setFilterIntake("all");
-    setFilterCampus("all");
-    setFilterStudentType("all");
-    setFilterRiskLevel("all");
+    setFilters({});
+    setPagination(prev => ({ ...prev, page: 1 }));
   };
 
-  const activeFiltersCount = [
-    filterStage !== "all",
-    filterProgram !== "all",
-    filterIntake !== "all",
-    filterCampus !== "all",
-    filterStudentType !== "all",
-    filterRiskLevel !== "all",
-    searchTerm !== ""
-  ].filter(Boolean).length;
+  const activeFiltersCount = Object.values(filters).filter(Boolean).length;
 
-  const filteredStudents = students?.filter(student => {
-    // Search filter
-    const fullName = `${student.firstName} ${student.lastName}`;
-    if (searchTerm && !fullName.toLowerCase().includes(searchTerm.toLowerCase()) && 
-        !student.email.toLowerCase().includes(searchTerm.toLowerCase())) return false;
+  // Handle filter changes
+  const handleFilterChange = (key: keyof StudentFilters, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value || undefined
+    }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  // Handle bulk actions
+  const handleBulkDelete = async () => {
+    if (selectedStudents.length === 0) return;
     
-    // Stage filter
-    if (filterStage !== "all" && student.stage !== filterStage) return false;
+    try {
+      await bulkDeleteStudents.mutateAsync(selectedStudents);
+      toast.success(`Deleted ${selectedStudents.length} students`);
+      setSelectedStudents([]);
+      refetch();
+    } catch (error) {
+      toast.error('Failed to delete students');
+    }
+  };
+
+  const handleBulkStageUpdate = async (newStage: string) => {
+    if (selectedStudents.length === 0) return;
     
-    // Program filter
-    if (filterProgram !== "all" && student.program !== filterProgram) return false;
-    
-    // Risk level filter
-    if (filterRiskLevel !== "all" && student.riskLevel !== filterRiskLevel) return false;
-    
-    return true;
-  }) || [];
+    try {
+      await bulkUpdateStudents.mutateAsync({
+        ids: selectedStudents,
+        updates: { stage: newStage }
+      });
+      toast.success(`Updated ${selectedStudents.length} students`);
+      setSelectedStudents([]);
+      refetch();
+    } catch (error) {
+      toast.error('Failed to update students');
+    }
+  };
+
+  // Handle export
+  const handleExport = async () => {
+    try {
+      const exportData = await StudentService.exportStudents(filters);
+      const csv = [
+        Object.keys(exportData[0]).join(','),
+        ...exportData.map(row => Object.values(row).join(','))
+      ].join('\n');
+      
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `students-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast.success('Students exported successfully');
+    } catch (error) {
+      toast.error('Failed to export students');
+    }
+  };
+
+  // Calculate pipeline stats from all data for overview
+  const pipelineStats = useMemo(() => {
+    const allStudents = legacyStudents.length > 0 ? legacyStudents : students;
+    const stats = {
+      total: total || allStudents.length,
+      leadForm: 0,
+      documents: 0,
+      approval: 0,
+      payment: 0,
+      accepted: 0
+    };
+
+    allStudents.forEach((student: any) => {
+      switch (student.stage) {
+        case 'LEAD_FORM':
+          stats.leadForm++;
+          break;
+        case 'SEND_DOCUMENTS':
+          stats.documents++;
+          break;
+        case 'DOCUMENT_APPROVAL':
+          stats.approval++;
+          break;
+        case 'FEE_PAYMENT':
+          stats.payment++;
+          break;
+        case 'ACCEPTED':
+          stats.accepted++;
+          break;
+      }
+    });
+
+    return stats;
+  }, [students, legacyStudents, total]);
+
+  // Define columns for EnhancedDataTable
+  const studentColumns = [
+    {
+      key: 'firstName' as const,
+      label: 'Student',
+      sortable: true,
+      renderType: 'custom' as const,
+      render: (student: any) => (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="text-xs">
+              {student.firstName?.[0]}{student.lastName?.[0]}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium text-sm">
+              {student.firstName} {student.lastName}
+            </div>
+            <div className="text-xs text-muted-foreground">{student.email}</div>
+            <div className="text-xs text-muted-foreground">ID: {student.studentId}</div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'program' as const,
+      label: 'Program',
+      sortable: true
+    },
+    {
+      key: 'stage' as const,
+      label: 'Stage',
+      sortable: true,
+      renderType: 'custom' as const,
+      render: (student: any) => (
+        <Badge variant={getStageColor(student.stage)}>
+          {student.stage?.replace('_', ' ')}
+        </Badge>
+      )
+    },
+    {
+      key: 'progress' as const,
+      label: 'Progress',
+      sortable: true,
+      renderType: 'custom' as const,
+      render: (student: any) => (
+        <div className="w-full">
+          <div className="flex justify-between text-xs mb-1">
+            <span>Progress</span>
+            <span>{student.progress || 0}%</span>
+          </div>
+          <div className="w-full bg-muted rounded-full h-2">
+            <div 
+              className="bg-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${student.progress || 0}%` }}
+            />
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'riskLevel' as const,
+      label: 'Risk',
+      sortable: true,
+      renderType: 'custom' as const,
+      render: (student: any) => (
+        <Badge variant={getRiskColor(student.riskLevel)}>
+          {student.riskLevel}
+        </Badge>
+      )
+    },
+    {
+      key: 'country' as const,
+      label: 'Location',
+      sortable: true,
+      renderType: 'custom' as const,
+      render: (student: any) => (
+        <div className="text-sm">
+          <div>{student.city || 'N/A'}</div>
+          <div className="text-muted-foreground text-xs">{student.country}</div>
+        </div>
+      )
+    }
+  ];
+
+  const filterOptions = [
+    {
+      key: 'stage' as const,
+      label: 'Stage',
+      options: [
+        { value: 'LEAD_FORM', label: 'Lead Form' },
+        { value: 'SEND_DOCUMENTS', label: 'Send Documents' },
+        { value: 'DOCUMENT_APPROVAL', label: 'Document Approval' },
+        { value: 'FEE_PAYMENT', label: 'Fee Payment' },
+        { value: 'ACCEPTED', label: 'Accepted' }
+      ]
+    },
+    {
+      key: 'riskLevel' as const,
+      label: 'Risk Level',
+      options: [
+        { value: 'low', label: 'Low' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'high', label: 'High' }
+      ]
+    }
+  ];
+
+  const bulkActions = [
+    {
+      label: 'Delete Selected',
+      onClick: () => handleBulkDelete(),
+      variant: 'destructive' as const
+    },
+    {
+      label: 'Move to Documents',
+      onClick: () => handleBulkStageUpdate('SEND_DOCUMENTS')
+    },
+    {
+      label: 'Move to Approval',
+      onClick: () => handleBulkStageUpdate('DOCUMENT_APPROVAL')
+    },
+    {
+      label: 'Send Message',
+      onClick: () => toast.info('Bulk messaging coming soon')
+    }
+  ];
 
   return (
-    <ConditionalDataWrapper
-      isLoading={isLoading}
-      showEmptyState={showEmptyState}
-      hasDemoAccess={hasDemoAccess}
-      hasRealData={hasRealData}
-      emptyTitle="No Students Yet"
-      emptyDescription="Start by adding your first student to track their application progress."
-      loadingRows={5}
-    >
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
-          <p className="text-muted-foreground">Manage student applications and progress</p>
+    <div className="p-6 space-y-6">
+      <ConditionalDataWrapper 
+        isLoading={isLoading} 
+        showEmptyState={showEmptyState}
+      >
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage and track student applications through their admission journey
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Import
+            </Button>
+            <Button size="sm" onClick={() => setAddModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Student
+            </Button>
+          </div>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button>
-            <Send className="h-4 w-4 mr-2" />
-            Bulk Message
-          </Button>
-        </div>
-      </div>
 
-      {/* Pipeline Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {[
-          { stage: "Lead Form", count: 156, color: "bg-blue-500" },
-          { stage: "Documents", count: 89, color: "bg-yellow-500" },
-          { stage: "Approval", count: 45, color: "bg-orange-500" },
-          { stage: "Payment", count: 23, color: "bg-purple-500" },
-          { stage: "Accepted", count: 112, color: "bg-green-500" }
-        ].map((item, index) => (
-          <Card key={index}>
+        {/* Pipeline Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+          <Card>
             <CardContent className="p-4">
               <div className="flex items-center space-x-3">
-                <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
+                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{item.stage}</p>
-                  <p className="text-2xl font-bold">{item.count}</p>
+                  <p className="text-sm text-muted-foreground">Lead Form</p>
+                  <p className="text-2xl font-bold">{pipelineStats.leadForm}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      <Tabs defaultValue="all-students" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all-students">All Students</TabsTrigger>
-          <TabsTrigger value="at-risk">At Risk</TabsTrigger>
-          <TabsTrigger value="pending-approval">Pending Approval</TabsTrigger>
-          <TabsTrigger value="new-applications">New Applications</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all-students" className="space-y-4">
-          {/* Filters */}
           <Card>
-            <CardContent className="p-4 space-y-4">
-              {/* Primary Filters Row */}
-              <div className="flex flex-wrap gap-4 items-center">
-                <div className="flex-1 min-w-[200px]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Search students..." 
-                      className="pl-10" 
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Documents</p>
+                  <p className="text-2xl font-bold">{pipelineStats.documents}</p>
                 </div>
-                
-                <Select value={filterStage} onValueChange={setFilterStage}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by stage" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Stages</SelectItem>
-                    <SelectItem value="LEAD_FORM">Lead Form</SelectItem>
-                    <SelectItem value="SEND_DOCUMENTS">Send Documents</SelectItem>
-                    <SelectItem value="DOCUMENT_APPROVAL">Document Approval</SelectItem>
-                    <SelectItem value="FEE_PAYMENT">Fee Payment</SelectItem>
-                    <SelectItem value="ACCEPTED">Accepted</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select value={filterProgram} onValueChange={setFilterProgram}>
-                  <SelectTrigger className="w-[200px]">
-                    <SelectValue placeholder="Filter by program" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Programs</SelectItem>
-                    <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
-                    <SelectItem value="Early Childhood Education">Early Childhood Education</SelectItem>
-                    <SelectItem value="Aviation Maintenance">Aviation Maintenance</SelectItem>
-                    <SelectItem value="Education Assistant">Education Assistant</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="relative"
-                >
-                  <Filter className="h-4 w-4 mr-2" />
-                  Advanced Filters
-                  {showAdvancedFilters ? <ChevronUp className="h-4 w-4 ml-2" /> : <ChevronDown className="h-4 w-4 ml-2" />}
-                  {activeFiltersCount > 0 && (
-                    <Badge variant="destructive" className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">
-                      {activeFiltersCount}
-                    </Badge>
-                  )}
-                </Button>
               </div>
-
-              {/* Advanced Filters Section */}
-              {showAdvancedFilters && (
-                <div className="border-t pt-4 space-y-4">
-                  <div className="flex flex-wrap gap-4 items-center">
-                    <Select value={filterIntake} onValueChange={setFilterIntake}>
-                      <SelectTrigger className="w-[160px]">
-                        <SelectValue placeholder="Intake" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Intakes</SelectItem>
-                        <SelectItem value="Spring 2024">Spring 2024</SelectItem>
-                        <SelectItem value="Summer 2024">Summer 2024</SelectItem>
-                        <SelectItem value="Fall 2024">Fall 2024</SelectItem>
-                        <SelectItem value="Winter 2025">Winter 2025</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={filterCampus} onValueChange={setFilterCampus}>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Campus" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Campuses</SelectItem>
-                        <SelectItem value="Downtown Campus">Downtown Campus</SelectItem>
-                        <SelectItem value="North Campus">North Campus</SelectItem>
-                        <SelectItem value="Technical Campus">Technical Campus</SelectItem>
-                        <SelectItem value="Online Campus">Online Campus</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={filterStudentType} onValueChange={setFilterStudentType}>
-                      <SelectTrigger className="w-[160px]">
-                        <SelectValue placeholder="Student Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Students</SelectItem>
-                        <SelectItem value="Domestic">Domestic</SelectItem>
-                        <SelectItem value="International">International</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select value={filterRiskLevel} onValueChange={setFilterRiskLevel}>
-                      <SelectTrigger className="w-[140px]">
-                        <SelectValue placeholder="Risk Level" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Risk Levels</SelectItem>
-                        <SelectItem value="low">Low Risk</SelectItem>
-                        <SelectItem value="medium">Medium Risk</SelectItem>
-                        <SelectItem value="high">High Risk</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  {/* Clear Filters */}
-                  {activeFiltersCount > 0 && (
-                    <div className="flex justify-between items-center pt-2 border-t">
-                      <p className="text-sm text-muted-foreground">
-                        {activeFiltersCount} filter{activeFiltersCount > 1 ? 's' : ''} applied
-                      </p>
-                      <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                        <X className="h-4 w-4 mr-2" />
-                        Clear All Filters
-                      </Button>
-                    </div>
-                  )}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Approval</p>
+                  <p className="text-2xl font-bold">{pipelineStats.approval}</p>
                 </div>
-              )}
+              </div>
             </CardContent>
           </Card>
-
-          {/* Students Table */}
           <Card>
-            <CardHeader>
-              <CardTitle>Students ({filteredStudents.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Program</TableHead>
-                    <TableHead>Intake</TableHead>
-                    <TableHead>Campus</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Stage</TableHead>
-                    <TableHead>Progress</TableHead>
-                    <TableHead>Lead Score</TableHead>
-                    <TableHead>Risk</TableHead>
-                    <TableHead className="w-24">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredStudents.map((student) => (
-                    <TableRow key={student.id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedStudents.includes(student.id)}
-                          onChange={(e) => {
-                            if (e.target.checked) {
-                              setSelectedStudents([...selectedStudents, student.id]);
-                            } else {
-                              setSelectedStudents(selectedStudents.filter(id => id !== student.id));
-                            }
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src="/placeholder.svg" />
-                            <AvatarFallback>{student.firstName?.[0]}{student.lastName?.[0]}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <Link 
-                              to={`/admin/students/${student.id}`}
-                              className="font-medium text-primary hover:underline"
-                            >
-                              {student.firstName} {student.lastName}
-                            </Link>
-                            <p className="text-sm text-muted-foreground">{student.email}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{student.program}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">
-                          {student.stage}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        Campus Info
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="default" className="text-xs">
-                          Type
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStageColor(student.stage)}>
-                          {student.stage.replace('_', ' ')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <Progress value={student.progress || 0} className="h-2 w-16" />
-                          <span className="text-xs text-muted-foreground">{student.progress || 0}%</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          <span className="font-medium">{student.leadScore || 0}</span>
-                          <div className={`w-2 h-2 rounded-full ${
-                            (student.leadScore || 0) >= 80 ? 'bg-green-500' :
-                            (student.leadScore || 0) >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                          }`}></div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className={`flex items-center space-x-1 ${getRiskColor(student.riskLevel || 'low')}`}>
-                          {(student.riskLevel || 'low') === 'high' && <AlertTriangle className="h-4 w-4" />}
-                          {(student.riskLevel || 'low') === 'medium' && <Clock className="h-4 w-4" />}
-                          {(student.riskLevel || 'low') === 'low' && <CheckCircle className="h-4 w-4" />}
-                          <span className="text-xs capitalize">{student.riskLevel || 'low'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Link to={`/admin/students/${student.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Payment</p>
+                  <p className="text-2xl font-bold">{pipelineStats.payment}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Other tabs would have similar structure but filtered data */}
-        <TabsContent value="at-risk">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-red-600" />
-                Students at Risk
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Students who haven't been active or need immediate attention.</p>
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Accepted</p>
+                  <p className="text-2xl font-bold">{pipelineStats.accepted}</p>
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
 
-        <TabsContent value="pending-approval">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Document Approval</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Students with documents waiting for review.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <EnhancedDataTable
+          title="Students"
+          columns={studentColumns}
+          data={students}
+          totalRecords={total}
+          currentPage={pagination.page}
+          pageSize={pagination.pageSize}
+          isLoading={isLoading}
+          showSearch={true}
+          showFilters={true}
+          showExport={true}
+          showAddButton={false}
+          filterOptions={filterOptions}
+          bulkActions={bulkActions}
+          selectedRows={selectedStudents}
+          onSelectionChange={setSelectedStudents}
+          onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+          onPageSizeChange={(pageSize) => setPagination(prev => ({ ...prev, pageSize, page: 1 }))}
+          onSort={(sortBy, sortOrder) => setPagination(prev => ({ ...prev, sortBy, sortOrder }))}
+          onSearch={(search) => handleFilterChange('search', search)}
+          onFilterChange={(filterKey, filterValue) => handleFilterChange(filterKey as keyof StudentFilters, filterValue)}
+          onExport={handleExport}
+        />
+      </ConditionalDataWrapper>
 
-        <TabsContent value="new-applications">
-          <Card>
-            <CardHeader>
-              <CardTitle>New Applications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Recent applications that need initial review.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <AddStudentModal 
+        open={addModalOpen} 
+        onOpenChange={setAddModalOpen}
+      />
+      
+      <ImportStudentsModal 
+        open={importModalOpen} 
+        onOpenChange={setImportModalOpen}
+      />
     </div>
-    </ConditionalDataWrapper>
   );
-};
-
-export default StudentManagement;
+}

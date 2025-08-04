@@ -380,36 +380,64 @@ export default function StudentManagement() {
           </Card>
         </div>
 
-        <EnhancedDataTable
-          title="Students"
-          columns={studentColumns}
-          data={students}
-          totalCount={total}
-          currentPage={pagination.page}
-          totalPages={paginatedData?.totalPages || 1}
-          pageSize={pagination.pageSize}
-          loading={isLoading}
-          searchable={true}
-          filterable={true}
-          exportable={true}
-          selectable={true}
-          sortBy={pagination.sortBy}
-          sortOrder={pagination.sortOrder}
-          filterOptions={filterOptions}
-          bulkActions={bulkActions}
-          selectedIds={selectedStudents}
-          onSelectionChange={setSelectedStudents}
-          onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
-          onPageSizeChange={(pageSize) => setPagination(prev => ({ ...prev, pageSize, page: 1 }))}
-          onSort={(sortBy, sortOrder) => setPagination(prev => ({ ...prev, sortBy, sortOrder }))}
-          onSearch={(search) => handleFilterChange('search', search)}
-          onFilter={(filters) => {
-            Object.entries(filters).forEach(([key, value]) => {
-              handleFilterChange(key as keyof StudentFilters, value as string);
-            });
-          }}
-          onExport={handleExport}
-        />
+        {/* Action buttons and enhanced table container */}
+        <Card>
+          <CardHeader className="pb-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-semibold">Students ({total})</h2>
+                <p className="text-sm text-muted-foreground">
+                  Manage student applications and track progress
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={handleExport}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Import
+                </Button>
+                <Button size="sm" onClick={() => setAddModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Student
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <EnhancedDataTable
+              title=""
+              columns={studentColumns}
+              data={students}
+              totalCount={total}
+              currentPage={pagination.page}
+              totalPages={paginatedData?.totalPages || 1}
+              pageSize={pagination.pageSize}
+              loading={isLoading}
+              searchable={true}
+              filterable={true}
+              exportable={false}
+              selectable={true}
+              sortBy={pagination.sortBy}
+              sortOrder={pagination.sortOrder}
+              filterOptions={filterOptions}
+              bulkActions={bulkActions}
+              selectedIds={selectedStudents}
+              onSelectionChange={setSelectedStudents}
+              onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+              onPageSizeChange={(pageSize) => setPagination(prev => ({ ...prev, pageSize, page: 1 }))}
+              onSort={(sortBy, sortOrder) => setPagination(prev => ({ ...prev, sortBy, sortOrder }))}
+              onSearch={(search) => handleFilterChange('search', search)}
+              onFilter={(filters) => {
+                Object.entries(filters).forEach(([key, value]) => {
+                  handleFilterChange(key as keyof StudentFilters, value as string);
+                });
+              }}
+            />
+          </CardContent>
+        </Card>
       </ConditionalDataWrapper>
 
       <AddStudentModal 

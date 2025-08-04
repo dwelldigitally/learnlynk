@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { Search, Calendar, TrendingUp, Users } from 'lucide-react';
 
@@ -14,6 +17,8 @@ interface AdvisorManagementProps {
 export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) {
   const [advisors, setAdvisors] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [selectedAdvisor, setSelectedAdvisor] = useState<any>(null);
   const { toast } = useToast();
 
   // Mock advisors for demonstration
@@ -244,7 +249,15 @@ export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) 
                   {/* Schedule */}
                   <div className="col-span-2">
                     <p className="text-sm">{formatSchedule(advisor.schedule)}</p>
-                    <Button variant="outline" size="sm" className="mt-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mt-1"
+                      onClick={() => {
+                        setSelectedAdvisor(advisor);
+                        setShowScheduleModal(true);
+                      }}
+                    >
                       <Calendar className="h-3 w-3 mr-1" />
                       Adjust
                     </Button>
@@ -331,6 +344,92 @@ export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) 
           </CardContent>
         </Card>
       </div>
+
+      {/* Schedule Management Modal */}
+      <Dialog open={showScheduleModal} onOpenChange={setShowScheduleModal}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Manage Schedule - {selectedAdvisor?.name}</DialogTitle>
+          </DialogHeader>
+          
+          {selectedAdvisor && (
+            <div className="space-y-6">
+              {/* Working Days */}
+              <div>
+                <Label className="text-base font-medium">Working Days</Label>
+                <div className="grid grid-cols-7 gap-2 mt-2">
+                  {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
+                    <div key={day} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={day}
+                        checked={selectedAdvisor.schedule.days.includes(day)}
+                        onCheckedChange={(checked) => {
+                          const updatedDays = checked 
+                            ? [...selectedAdvisor.schedule.days, day]
+                            : selectedAdvisor.schedule.days.filter((d: string) => d !== day);
+                          setSelectedAdvisor({
+                            ...selectedAdvisor,
+                            schedule: { ...selectedAdvisor.schedule, days: updatedDays }
+                          });
+                        }}
+                      />
+                      <Label htmlFor={day} className="text-sm capitalize">
+                        {day.slice(0, 3)}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Working Hours */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="start_time">Start Time</Label>
+                  <Input
+                    id="start_time"
+                    type="time"
+                    value={selectedAdvisor.schedule.start_time}
+                    onChange={(e) => setSelectedAdvisor({
+                      ...selectedAdvisor,
+                      schedule: { ...selectedAdvisor.schedule, start_time: e.target.value }
+                    })}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="end_time">End Time</Label>
+                  <Input
+                    id="end_time"
+                    type="time"
+                    value={selectedAdvisor.schedule.end_time}
+                    onChange={(e) => setSelectedAdvisor({
+                      ...selectedAdvisor,
+                      schedule: { ...selectedAdvisor.schedule, end_time: e.target.value }
+                    })}
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowScheduleModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    updateAdvisorSettings(selectedAdvisor.id, { schedule: selectedAdvisor.schedule });
+                    setShowScheduleModal(false);
+                  }}
+                >
+                  Save Schedule
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

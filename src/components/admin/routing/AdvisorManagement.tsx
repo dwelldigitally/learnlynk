@@ -1,0 +1,336 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { Search, Calendar, TrendingUp, Users } from 'lucide-react';
+
+interface AdvisorManagementProps {
+  onAdvisorUpdated?: () => void;
+}
+
+export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) {
+  const [advisors, setAdvisors] = useState<any[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
+
+  // Mock advisors for demonstration
+  useEffect(() => {
+    setAdvisors([
+      {
+        id: 'advisor-1',
+        name: 'Nicole Ye',
+        email: 'nicole.y@example.com',
+        max_assignments: 10,
+        current_assignments: 22,
+        status: 'active',
+        schedule: {
+          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+          start_time: '09:00',
+          end_time: '17:00'
+        },
+        performance_tier: 'Top',
+        team_id: 'team-1',
+        response_time_avg: 45,
+        conversion_rate: 25.5
+      },
+      {
+        id: 'advisor-2',
+        name: 'Sarah Johnson',
+        email: 'sarah.j@example.com',
+        max_assignments: 8,
+        current_assignments: 17,
+        status: 'active',
+        schedule: {
+          days: ['tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
+          start_time: '10:00',
+          end_time: '18:00'
+        },
+        performance_tier: 'Advanced',
+        team_id: 'team-1',
+        response_time_avg: 32,
+        conversion_rate: 31.2
+      },
+      {
+        id: 'advisor-3',
+        name: 'Michael Lee',
+        email: 'michael.l@example.com',
+        max_assignments: 6,
+        current_assignments: 12,
+        status: 'inactive',
+        schedule: {
+          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+          start_time: '08:00',
+          end_time: '16:00'
+        },
+        performance_tier: 'Standard',
+        team_id: 'team-2',
+        response_time_avg: 58,
+        conversion_rate: 18.7
+      },
+      {
+        id: 'advisor-4',
+        name: 'Emily Chen',
+        email: 'emily.c@example.com',
+        max_assignments: 12,
+        current_assignments: 26,
+        status: 'active',
+        schedule: {
+          days: ['wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+          start_time: '12:00',
+          end_time: '20:00'
+        },
+        performance_tier: 'Top',
+        team_id: 'team-2',
+        response_time_avg: 28,
+        conversion_rate: 35.8
+      },
+      {
+        id: 'advisor-5',
+        name: 'Robert Williams',
+        email: 'robert.w@example.com',
+        max_assignments: 8,
+        current_assignments: 14,
+        status: 'active',
+        schedule: {
+          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+          start_time: '09:00',
+          end_time: '17:00'
+        },
+        performance_tier: 'Advanced',
+        team_id: 'team-1',
+        response_time_avg: 41,
+        conversion_rate: 28.9
+      }
+    ]);
+  }, []);
+
+  const updateAdvisorSettings = (advisorId: string, updates: any) => {
+    setAdvisors(prev => prev.map(advisor => 
+      advisor.id === advisorId ? { ...advisor, ...updates } : advisor
+    ));
+    toast({
+      title: 'Success',
+      description: 'Advisor settings updated successfully'
+    });
+    
+    if (onAdvisorUpdated) {
+      onAdvisorUpdated();
+    }
+  };
+
+  const filteredAdvisors = advisors.filter(advisor =>
+    advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    advisor.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const getCapacityPercentage = (current: number, max: number) => {
+    return Math.min((current / max) * 100, 100);
+  };
+
+  const getCapacityColor = (percentage: number) => {
+    if (percentage >= 100) return 'bg-red-500';
+    if (percentage >= 80) return 'bg-orange-500';
+    if (percentage >= 60) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+
+  const formatSchedule = (schedule: any) => {
+    const dayMap: { [key: string]: string } = {
+      monday: 'Mon',
+      tuesday: 'Tue', 
+      wednesday: 'Wed',
+      thursday: 'Thu',
+      friday: 'Fri',
+      saturday: 'Sat',
+      sunday: 'Sun'
+    };
+    
+    const days = schedule.days.map((day: string) => dayMap[day]).join(', ');
+    return `${days} (${schedule.start_time} - ${schedule.end_time})`;
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Advisor Management</h2>
+          <p className="text-muted-foreground">Manage individual advisor settings, workload, and performance</p>
+        </div>
+      </div>
+
+      {/* Search and Stats */}
+      <div className="flex items-center justify-between">
+        <div className="relative w-96">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            placeholder="Search advisors..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <div className="flex items-center gap-4 text-sm">
+          <span>Total: {advisors.length}</span>
+          <span>Active: {advisors.filter(a => a.status === 'active').length}</span>
+          <span>Capacity: {Math.round((advisors.reduce((sum, a) => sum + a.current_assignments, 0) / advisors.reduce((sum, a) => sum + a.max_assignments, 0)) * 100)}%</span>
+        </div>
+      </div>
+
+      {/* Advisor List */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Advisor Settings</CardTitle>
+          <p className="text-sm text-muted-foreground">Manage your advisors' workload, status, and performance settings</p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Header Row */}
+            <div className="grid grid-cols-12 gap-4 py-2 text-sm font-medium text-muted-foreground border-b">
+              <div className="col-span-3">Advisor</div>
+              <div className="col-span-2">Max Assignments</div>
+              <div className="col-span-1">Status</div>
+              <div className="col-span-2">Schedule</div>
+              <div className="col-span-2">Performance Tier</div>
+              <div className="col-span-2">Capacity</div>
+            </div>
+
+            {/* Advisor Rows */}
+            {filteredAdvisors.map(advisor => {
+              const capacityPercentage = getCapacityPercentage(advisor.current_assignments, advisor.max_assignments);
+              
+              return (
+                <div key={advisor.id} className="grid grid-cols-12 gap-4 py-3 items-center border-b last:border-b-0">
+                  {/* Advisor Info */}
+                  <div className="col-span-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 bg-primary/10 rounded-full flex items-center justify-center text-sm font-medium">
+                        {advisor.name.split(' ').map((n: string) => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="font-medium">{advisor.name}</p>
+                        <p className="text-sm text-muted-foreground">{advisor.email}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Max Assignments */}
+                  <div className="col-span-2">
+                    <Input
+                      type="number"
+                      value={advisor.max_assignments}
+                      onChange={(e) => updateAdvisorSettings(advisor.id, { max_assignments: parseInt(e.target.value) })}
+                      className="w-20"
+                      min="1"
+                    />
+                    <span className="text-sm text-muted-foreground ml-2">per week</span>
+                  </div>
+
+                  {/* Status */}
+                  <div className="col-span-1">
+                    <Switch
+                      checked={advisor.status === 'active'}
+                      onCheckedChange={(checked) => 
+                        updateAdvisorSettings(advisor.id, { status: checked ? 'active' : 'inactive' })
+                      }
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {advisor.status === 'active' ? 'Active' : 'Inactive'}
+                    </p>
+                  </div>
+
+                  {/* Schedule */}
+                  <div className="col-span-2">
+                    <p className="text-sm">{formatSchedule(advisor.schedule)}</p>
+                    <Button variant="outline" size="sm" className="mt-1">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      Adjust
+                    </Button>
+                  </div>
+
+                  {/* Performance Tier */}
+                  <div className="col-span-2">
+                    <Select 
+                      value={advisor.performance_tier}
+                      onValueChange={(value) => updateAdvisorSettings(advisor.id, { performance_tier: value })}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Top">Top Performer</SelectItem>
+                        <SelectItem value="Advanced">Advanced</SelectItem>
+                        <SelectItem value="Standard">Standard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Capacity */}
+                  <div className="col-span-2">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>{advisor.current_assignments} of {advisor.max_assignments}</span>
+                        <span>{Math.round(capacityPercentage)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full transition-all ${getCapacityColor(capacityPercentage)}`}
+                          style={{ width: `${Math.min(capacityPercentage, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Performance Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Avg Response Time</p>
+                <p className="text-2xl font-bold">
+                  {Math.round(advisors.reduce((sum, a) => sum + a.response_time_avg, 0) / advisors.length)}m
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Avg Conversion Rate</p>
+                <p className="text-2xl font-bold">
+                  {Math.round((advisors.reduce((sum, a) => sum + a.conversion_rate, 0) / advisors.length) * 10) / 10}%
+                </p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Capacity</p>
+                <p className="text-2xl font-bold">
+                  {advisors.reduce((sum, a) => sum + a.current_assignments, 0)}/{advisors.reduce((sum, a) => sum + a.max_assignments, 0)}
+                </p>
+              </div>
+              <Users className="h-8 w-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

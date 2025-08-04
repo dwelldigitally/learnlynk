@@ -292,152 +292,145 @@ export default function StudentManagement() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Header with buttons - always visible */}
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage and track student applications through their admission journey
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
+            <Upload className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+          <Button size="sm" onClick={() => setAddModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Student
+          </Button>
+        </div>
+      </div>
+
       <ConditionalDataWrapper 
         isLoading={isLoading} 
         showEmptyState={showEmptyState}
         hasDemoAccess={hasDemoAccess || false}
         hasRealData={hasRealData || false}
+        emptyTitle="No Students Yet"
+        emptyDescription="Start by adding your first student or importing student data to begin managing applications."
       >
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage and track student applications through their admission journey
-            </p>
+        {/* Pipeline Overview - only show when there's data */}
+        {!showEmptyState && (
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Lead Form</p>
+                    <p className="text-2xl font-bold">{pipelineStats.leadForm}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Documents</p>
+                    <p className="text-2xl font-bold">{pipelineStats.documents}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Approval</p>
+                    <p className="text-2xl font-bold">{pipelineStats.approval}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Payment</p>
+                    <p className="text-2xl font-bold">{pipelineStats.payment}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Accepted</p>
+                    <p className="text-2xl font-bold">{pipelineStats.accepted}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
-              <Upload className="w-4 h-4 mr-2" />
-              Import
-            </Button>
-            <Button size="sm" onClick={() => setAddModalOpen(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Student
-            </Button>
-          </div>
-        </div>
+        )}
 
-        {/* Pipeline Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+        {/* Enhanced Data Table - only show when there's data */}
+        {!showEmptyState && (
           <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+            <CardHeader className="pb-4">
+              <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-muted-foreground">Lead Form</p>
-                  <p className="text-2xl font-bold">{pipelineStats.leadForm}</p>
+                  <h2 className="text-xl font-semibold">Students ({total})</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Manage student applications and track progress
+                  </p>
                 </div>
               </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <EnhancedDataTable
+                title=""
+                columns={studentColumns}
+                data={students}
+                totalCount={total}
+                currentPage={pagination.page}
+                totalPages={paginatedData?.totalPages || 1}
+                pageSize={pagination.pageSize}
+                loading={isLoading}
+                searchable={true}
+                filterable={true}
+                exportable={false}
+                selectable={true}
+                sortBy={pagination.sortBy}
+                sortOrder={pagination.sortOrder}
+                filterOptions={filterOptions}
+                bulkActions={bulkActions}
+                selectedIds={selectedStudents}
+                onSelectionChange={setSelectedStudents}
+                onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
+                onPageSizeChange={(pageSize) => setPagination(prev => ({ ...prev, pageSize, page: 1 }))}
+                onSort={(sortBy, sortOrder) => setPagination(prev => ({ ...prev, sortBy, sortOrder }))}
+                onSearch={(search) => handleFilterChange('search', search)}
+                onFilter={(filters) => {
+                  Object.entries(filters).forEach(([key, value]) => {
+                    handleFilterChange(key as keyof StudentFilters, value as string);
+                  });
+                }}
+              />
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Documents</p>
-                  <p className="text-2xl font-bold">{pipelineStats.documents}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Approval</p>
-                  <p className="text-2xl font-bold">{pipelineStats.approval}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Payment</p>
-                  <p className="text-2xl font-bold">{pipelineStats.payment}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Accepted</p>
-                  <p className="text-2xl font-bold">{pipelineStats.accepted}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Action buttons and enhanced table container */}
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-xl font-semibold">Students ({total})</h2>
-                <p className="text-sm text-muted-foreground">
-                  Manage student applications and track progress
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleExport}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Export
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import
-                </Button>
-                <Button size="sm" onClick={() => setAddModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Student
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <EnhancedDataTable
-              title=""
-              columns={studentColumns}
-              data={students}
-              totalCount={total}
-              currentPage={pagination.page}
-              totalPages={paginatedData?.totalPages || 1}
-              pageSize={pagination.pageSize}
-              loading={isLoading}
-              searchable={true}
-              filterable={true}
-              exportable={false}
-              selectable={true}
-              sortBy={pagination.sortBy}
-              sortOrder={pagination.sortOrder}
-              filterOptions={filterOptions}
-              bulkActions={bulkActions}
-              selectedIds={selectedStudents}
-              onSelectionChange={setSelectedStudents}
-              onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
-              onPageSizeChange={(pageSize) => setPagination(prev => ({ ...prev, pageSize, page: 1 }))}
-              onSort={(sortBy, sortOrder) => setPagination(prev => ({ ...prev, sortBy, sortOrder }))}
-              onSearch={(search) => handleFilterChange('search', search)}
-              onFilter={(filters) => {
-                Object.entries(filters).forEach(([key, value]) => {
-                  handleFilterChange(key as keyof StudentFilters, value as string);
-                });
-              }}
-            />
-          </CardContent>
-        </Card>
+        )}
       </ConditionalDataWrapper>
 
       <AddStudentModal 

@@ -31,7 +31,7 @@ export default function StudentManagement() {
 
   // Use paginated query for better performance
   const { data: paginatedData, isLoading, refetch } = useStudentsPaginated(pagination, filters);
-  const { data: legacyStudents = [], showEmptyState } = useConditionalStudents();
+  const { data: legacyStudents = [], showEmptyState, hasDemoAccess, hasRealData } = useConditionalStudents();
   
   const { bulkDeleteStudents, bulkUpdateStudents } = useStudentMutations();
 
@@ -295,6 +295,8 @@ export default function StudentManagement() {
       <ConditionalDataWrapper 
         isLoading={isLoading} 
         showEmptyState={showEmptyState}
+        hasDemoAccess={hasDemoAccess || false}
+        hasRealData={hasRealData || false}
       >
         <div className="flex justify-between items-start">
           <div>
@@ -382,23 +384,30 @@ export default function StudentManagement() {
           title="Students"
           columns={studentColumns}
           data={students}
-          totalRecords={total}
+          totalCount={total}
           currentPage={pagination.page}
+          totalPages={paginatedData?.totalPages || 1}
           pageSize={pagination.pageSize}
-          isLoading={isLoading}
-          showSearch={true}
-          showFilters={true}
-          showExport={true}
-          showAddButton={false}
+          loading={isLoading}
+          searchable={true}
+          filterable={true}
+          exportable={true}
+          selectable={true}
+          sortBy={pagination.sortBy}
+          sortOrder={pagination.sortOrder}
           filterOptions={filterOptions}
           bulkActions={bulkActions}
-          selectedRows={selectedStudents}
+          selectedIds={selectedStudents}
           onSelectionChange={setSelectedStudents}
           onPageChange={(page) => setPagination(prev => ({ ...prev, page }))}
           onPageSizeChange={(pageSize) => setPagination(prev => ({ ...prev, pageSize, page: 1 }))}
           onSort={(sortBy, sortOrder) => setPagination(prev => ({ ...prev, sortBy, sortOrder }))}
           onSearch={(search) => handleFilterChange('search', search)}
-          onFilterChange={(filterKey, filterValue) => handleFilterChange(filterKey as keyof StudentFilters, filterValue)}
+          onFilter={(filters) => {
+            Object.entries(filters).forEach(([key, value]) => {
+              handleFilterChange(key as keyof StudentFilters, value as string);
+            });
+          }}
           onExport={handleExport}
         />
       </ConditionalDataWrapper>

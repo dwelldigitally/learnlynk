@@ -110,10 +110,7 @@ export function TopNavigationBar({
                         ? "bg-muted text-foreground" 
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
+                    type="button"
                   >
                     <section.icon className="w-4 h-4 mr-2" />
                     {section.name}

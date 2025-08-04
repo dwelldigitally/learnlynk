@@ -140,6 +140,7 @@ export default function StudentManagement() {
     };
 
     allStudents.forEach((student: any) => {
+      if (!student) return; // Add null check
       switch (student.stage) {
         case 'LEAD_FORM':
           stats.leadForm++;

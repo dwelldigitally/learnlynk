@@ -278,7 +278,7 @@ export function BulkLeadOperations({ selectedLeads = [], onOperationComplete }: 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Bulk Operations</h2>
+        <h1 className="text-3xl font-bold tracking-tight">Bulk Operations</h1>
         <p className="text-muted-foreground">Import leads, assign in bulk, and manage multiple leads at once</p>
       </div>
 

@@ -2,16 +2,7 @@ import { BulkLeadOperations as BulkOperationsComponent } from "@/components/admi
 
 export function LeadBulkOperations() {
   return (
-    <div className="p-6 pt-8 w-full max-w-none space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Bulk Operations</h1>
-        <p className="text-muted-foreground">
-          Perform bulk actions on multiple leads including import, export, and updates
-        </p>
-      </div>
-
-      {/* Bulk Operations Component */}
+    <div className="p-6 pt-8 w-full max-w-none">
       <BulkOperationsComponent onOperationComplete={() => {}} />
     </div>
   );

@@ -103,8 +103,16 @@ export function FormBuilderLayout({
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex h-[calc(100vh-120px)] gap-4">
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Lead Forms</h1>
+        <p className="text-muted-foreground">
+          Create and manage lead capture forms for your marketing campaigns
+        </p>
+      </div>
+      
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="flex h-[calc(100vh-180px)] gap-4">
         {/* Forms Sidebar */}
         <div className="w-80 space-y-4">
           {/* Forms List */}
@@ -310,5 +318,6 @@ export function FormBuilderLayout({
         </div>
       </div>
     </DragDropContext>
+    </div>
   );
 }

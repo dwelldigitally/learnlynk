@@ -187,7 +187,7 @@ export function CommunicationTemplateManager() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Communication Templates</h2>
+          <h1 className="text-3xl font-bold tracking-tight">Communication Templates</h1>
           <p className="text-muted-foreground">
             Create and manage reusable templates for emails and SMS messages
           </p>

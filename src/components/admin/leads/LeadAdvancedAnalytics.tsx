@@ -2,16 +2,7 @@ import { AdvancedLeadAnalyticsDashboard } from "@/components/admin/AdvancedLeadA
 
 export function LeadAdvancedAnalytics() {
   return (
-    <div className="p-6 pt-8 w-full max-w-none space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Advanced Analytics</h1>
-        <p className="text-muted-foreground">
-          Deep insights and predictive analytics for lead management
-        </p>
-      </div>
-
-      {/* Advanced Analytics Component */}
+    <div className="p-6 pt-8 w-full max-w-none">
       <AdvancedLeadAnalyticsDashboard />
     </div>
   );

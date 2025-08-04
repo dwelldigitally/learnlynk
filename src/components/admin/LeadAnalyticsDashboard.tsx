@@ -135,7 +135,7 @@ export function LeadAnalyticsDashboard() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Lead Analytics</h2>
+          <h1 className="text-3xl font-bold tracking-tight">Lead Analytics</h1>
             <p className="text-muted-foreground">Loading analytics data...</p>
           </div>
         </div>
@@ -167,7 +167,7 @@ export function LeadAnalyticsDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Lead Analytics</h2>
+          <h1 className="text-3xl font-bold tracking-tight">Lead Analytics</h1>
           <p className="text-muted-foreground">Comprehensive insights into your lead generation and conversion performance</p>
         </div>
         <div className="flex items-center gap-2">

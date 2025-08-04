@@ -169,22 +169,25 @@ export default function StudentManagement() {
       label: 'Student',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-xs">
-              {student.first_name?.[0]}{student.last_name?.[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="font-medium text-sm">
-              {student.first_name} {student.last_name}
+      render: (student: any) => {
+        if (!student) return <div>Loading...</div>;
+        return (
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-xs">
+                {student.first_name?.[0] || 'N'}{student.last_name?.[0] || 'A'}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <div className="font-medium text-sm">
+                {student.first_name || 'N/A'} {student.last_name || ''}
+              </div>
+              <div className="text-xs text-muted-foreground">{student.email || 'No email'}</div>
+              <div className="text-xs text-muted-foreground">ID: {student.student_id || 'N/A'}</div>
             </div>
-            <div className="text-xs text-muted-foreground">{student.email}</div>
-            <div className="text-xs text-muted-foreground">ID: {student.student_id}</div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
       key: 'program' as const,
@@ -196,54 +199,67 @@ export default function StudentManagement() {
       label: 'Stage',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => (
-        <Badge variant={getStageColor(student.stage)}>
-          {student.stage?.replace('_', ' ')}
-        </Badge>
-      )
+      render: (student: any) => {
+        if (!student) return <div>Loading...</div>;
+        return (
+          <Badge variant={getStageColor(student.stage || '')}>
+            {student.stage?.replace('_', ' ') || 'N/A'}
+          </Badge>
+        );
+      }
     },
     {
       key: 'progress' as const,
       label: 'Progress',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => (
-        <div className="w-full">
-          <div className="flex justify-between text-xs mb-1">
-            <span>Progress</span>
-            <span>{student.progress || 0}%</span>
+      render: (student: any) => {
+        if (!student) return <div>Loading...</div>;
+        const progress = student.progress || 0;
+        return (
+          <div className="w-full">
+            <div className="flex justify-between text-xs mb-1">
+              <span>Progress</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div 
+                className="bg-primary h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-muted rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ width: `${student.progress || 0}%` }}
-            />
-          </div>
-        </div>
-      )
+        );
+      }
     },
     {
       key: 'risk_level' as const,
       label: 'Risk',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => (
-        <Badge variant={getRiskColor(student.risk_level)}>
-          {student.risk_level}
-        </Badge>
-      )
+      render: (student: any) => {
+        if (!student) return <div>Loading...</div>;
+        return (
+          <Badge variant={getRiskColor(student.risk_level || '')}>
+            {student.risk_level || 'N/A'}
+          </Badge>
+        );
+      }
     },
     {
       key: 'country' as const,
       label: 'Location',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => (
-        <div className="text-sm">
-          <div>{student.city || 'N/A'}</div>
-          <div className="text-muted-foreground text-xs">{student.country}</div>
-        </div>
-      )
+      render: (student: any) => {
+        if (!student) return <div>Loading...</div>;
+        return (
+          <div className="text-sm">
+            <div>{student.city || 'N/A'}</div>
+            <div className="text-muted-foreground text-xs">{student.country || 'N/A'}</div>
+          </div>
+        );
+      }
     }
   ];
 

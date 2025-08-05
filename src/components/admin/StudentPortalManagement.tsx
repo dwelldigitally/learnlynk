@@ -631,7 +631,7 @@ export const StudentPortalManagement = () => {
                   {students.map((student) => (
                     <div key={student.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-1">
-                        <h4 className="font-medium">{student.firstName} {student.lastName}</h4>
+                        <h4 className="font-medium">{student.first_name} {student.last_name}</h4>
                         <p className="text-sm text-muted-foreground">{student.email}</p>
                         <div className="flex gap-2">
                           <Badge variant="secondary">{student.program}</Badge>

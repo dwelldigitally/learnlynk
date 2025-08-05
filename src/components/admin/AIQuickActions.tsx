@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { HelpIcon } from "@/components/ui/help-icon";
+import { useHelpContent } from "@/hooks/useHelpContent";
 
 interface AIAction {
   id: string;
@@ -29,11 +31,13 @@ interface AIAction {
   type: 'instant' | 'bulk' | 'analysis';
   context: string[];
   urgent?: boolean;
+  helpKey: string;
 }
 
 export function AIQuickActions() {
   const location = useLocation();
   const { toast } = useToast();
+  const { getHelpContent } = useHelpContent();
   const [loading, setLoading] = useState<string | null>(null);
   const currentPath = location.pathname;
 
@@ -64,6 +68,7 @@ export function AIQuickActions() {
       icon: Target,
       type: "bulk",
       context: ["/admin/leads"],
+      helpKey: "aiLeadScoring",
       action: async () => {
         const { data, error } = await supabase.functions.invoke('ai-lead-scoring', {
           body: { analysisType: 'revamp' }
@@ -78,6 +83,7 @@ export function AIQuickActions() {
       icon: MessageSquare,
       type: "bulk",
       context: ["/admin/leads", "/admin/communication"],
+      helpKey: "smartFollowups",
       action: async () => {
         const { data, error } = await supabase.functions.invoke('ai-template-assistant', {
           body: {
@@ -98,6 +104,7 @@ export function AIQuickActions() {
       type: "analysis",
       context: ["/admin/leads"],
       urgent: true,
+      helpKey: "priorityAnalysis",
       action: async () => {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
@@ -109,6 +116,7 @@ export function AIQuickActions() {
       icon: Users,
       type: "bulk",
       context: ["/admin/leads", "/admin/team"],
+      helpKey: "smartAssignment",
       action: async () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
@@ -120,6 +128,7 @@ export function AIQuickActions() {
       icon: Clock,
       type: "instant",
       context: ["/admin/leads"],
+      helpKey: "contactTiming",
       action: async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
@@ -162,6 +171,10 @@ export function AIQuickActions() {
         <CardTitle className="text-sm flex items-center gap-2">
           <Bot className="h-4 w-4 text-primary" />
           AI Quick Actions
+          <HelpIcon 
+            content={getHelpContent("aiQuickActions")}
+            size="sm"
+          />
         </CardTitle>
       </CardHeader>
       
@@ -189,7 +202,13 @@ export function AIQuickActions() {
                       <action.icon className="h-4 w-4 text-orange-500" />
                     )}
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-xs">{action.title}</div>
+                      <div className="flex items-center gap-1">
+                        <div className="font-medium text-xs">{action.title}</div>
+                        <HelpIcon 
+                          content={getHelpContent(action.helpKey)}
+                          size="sm"
+                        />
+                      </div>
                       <div className="text-xs text-muted-foreground">{action.description}</div>
                     </div>
                   </div>
@@ -217,7 +236,13 @@ export function AIQuickActions() {
                   <action.icon className="h-4 w-4 text-primary" />
                 )}
                 <div className="flex-1 text-left">
-                  <div className="font-medium text-xs">{action.title}</div>
+                  <div className="flex items-center gap-1">
+                    <div className="font-medium text-xs">{action.title}</div>
+                    <HelpIcon 
+                      content={getHelpContent(action.helpKey)}
+                      size="sm"
+                    />
+                  </div>
                   <div className="text-xs text-muted-foreground">{action.description}</div>
                 </div>
               </div>

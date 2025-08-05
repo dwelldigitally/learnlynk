@@ -304,6 +304,75 @@ export const helpContent: HelpContent = {
         <li>Integration with marketing campaigns</li>
       </ul>
     </div>
+  ),
+  
+  // AI Quick Actions
+  aiQuickActions: (
+    <div className="space-y-2">
+      <p className="font-medium">AI Quick Actions</p>
+      <p>Smart automation tools that help you manage leads more efficiently using artificial intelligence.</p>
+      <p className="text-xs mt-1">These actions analyze your data and provide instant insights or automate repetitive tasks.</p>
+    </div>
+  ),
+  aiLeadScoring: (
+    <div className="space-y-2">
+      <p className="font-medium">AI Lead Scoring</p>
+      <p>Machine learning algorithm that automatically analyzes lead data to assign priority scores (0-100).</p>
+      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
+        <li>Considers engagement history, demographics, and behavior</li>
+        <li>Updates scores in real-time as new data comes in</li>
+        <li>Helps prioritize which leads to contact first</li>
+        <li>More accurate than manual scoring methods</li>
+      </ul>
+    </div>
+  ),
+  smartFollowups: (
+    <div className="space-y-2">
+      <p className="font-medium">Smart Follow-ups</p>
+      <p>AI generates personalized follow-up messages based on lead profile and interaction history.</p>
+      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
+        <li>Analyzes previous conversations and responses</li>
+        <li>Suggests optimal timing for follow-up contact</li>
+        <li>Creates relevant, personalized message content</li>
+        <li>Improves response rates and engagement</li>
+      </ul>
+    </div>
+  ),
+  priorityAnalysis: (
+    <div className="space-y-2">
+      <p className="font-medium">Priority Analysis</p>
+      <p>AI identifies leads that require immediate attention based on urgency indicators and deadlines.</p>
+      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
+        <li>Detects application deadlines and time-sensitive opportunities</li>
+        <li>Analyzes engagement patterns for hot leads</li>
+        <li>Flags leads showing signs of disengagement</li>
+        <li>Provides action recommendations for each priority lead</li>
+      </ul>
+    </div>
+  ),
+  smartAssignment: (
+    <div className="space-y-2">
+      <p className="font-medium">Smart Assignment</p>
+      <p>AI-powered lead distribution that matches leads with the most suitable advisors automatically.</p>
+      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
+        <li>Considers advisor expertise, workload, and performance</li>
+        <li>Matches lead preferences with advisor strengths</li>
+        <li>Balances workload across team members</li>
+        <li>Improves conversion rates through better matching</li>
+      </ul>
+    </div>
+  ),
+  contactTiming: (
+    <div className="space-y-2">
+      <p className="font-medium">Contact Timing Optimization</p>
+      <p>AI analyzes lead behavior patterns to determine the best times to make contact for maximum response rates.</p>
+      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
+        <li>Studies when leads are most active and responsive</li>
+        <li>Considers time zones and communication preferences</li>
+        <li>Suggests optimal days and times for outreach</li>
+        <li>Increases likelihood of successful connections</li>
+      </ul>
+    </div>
   )
 }
 

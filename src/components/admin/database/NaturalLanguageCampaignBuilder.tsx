@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { MessageCircle, Send, Sparkles, Users, Target, Calendar, Mail, MessageSquare, Zap, Download, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import { CampaignService } from '@/services/campaignService';
 
 interface ChatMessage {
   id: string;
@@ -55,7 +56,11 @@ const campaignSuggestions: CampaignSuggestion[] = [
   }
 ];
 
-export const NaturalLanguageCampaignBuilder = () => {
+interface NaturalLanguageCampaignBuilderProps {
+  onCampaignCreated?: (campaign: any) => void;
+}
+
+export const NaturalLanguageCampaignBuilder = ({ onCampaignCreated }: NaturalLanguageCampaignBuilderProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -197,9 +202,32 @@ I can help you refine the messaging, adjust timing, or add additional channels. 
     // Would open in WorkflowBuilder
   };
 
-  const handleExportWorkflow = (workflowData: any) => {
-    toast.success('Workflow exported successfully!');
-    // Would export to JSON or open in WorkflowBuilder
+  const handleExportWorkflow = async (workflowData: any) => {
+    try {
+      const campaign = await CampaignService.createCampaign({
+        name: workflowData.name,
+        description: `AI-generated campaign created from user prompt`,
+        campaign_type: workflowData.channels.includes('email') ? 'email' : 'mixed',
+        status: 'draft',
+        campaign_data: workflowData,
+        workflow_config: {
+          steps: workflowData.steps,
+          duration: workflowData.duration,
+          channels: workflowData.channels,
+          triggers: workflowData.triggers
+        },
+        target_audience: {
+          type: workflowData.type || 'general',
+          criteria: {}
+        }
+      });
+
+      toast.success('Campaign created successfully!');
+      onCampaignCreated?.(campaign);
+    } catch (error) {
+      toast.error('Failed to create campaign');
+      console.error('Campaign creation error:', error);
+    }
   };
 
   return (

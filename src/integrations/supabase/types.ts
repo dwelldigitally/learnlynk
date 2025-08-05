@@ -109,6 +109,123 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_executions: {
+        Row: {
+          campaign_id: string
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          execution_data: Json | null
+          id: string
+          lead_id: string | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          campaign_id: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_data?: Json | null
+          id?: string
+          lead_id?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          campaign_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_data?: Json | null
+          id?: string
+          lead_id?: string | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      campaign_steps: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          order_index: number
+          step_config: Json
+          step_type: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          step_config?: Json
+          step_type: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          order_index?: number
+          step_config?: Json
+          step_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      campaigns: {
+        Row: {
+          campaign_data: Json | null
+          campaign_type: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          start_date: string | null
+          status: string
+          target_audience: Json | null
+          updated_at: string
+          user_id: string
+          workflow_config: Json | null
+        }
+        Insert: {
+          campaign_data?: Json | null
+          campaign_type?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+          user_id: string
+          workflow_config?: Json | null
+        }
+        Update: {
+          campaign_data?: Json | null
+          campaign_type?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+          user_id?: string
+          workflow_config?: Json | null
+        }
+        Relationships: []
+      }
       communication_templates: {
         Row: {
           ai_generated: boolean | null

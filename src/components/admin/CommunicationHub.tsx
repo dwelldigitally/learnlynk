@@ -399,7 +399,6 @@ const CommunicationHub: React.FC = () => {
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="automations">Automations</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="ai-emails" className="space-y-4">
@@ -891,47 +890,6 @@ const CommunicationHub: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Message Volume</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span>This Month</span>
-                    <span className="font-semibold">{communications.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span>Last Month</span>
-                    <span className="font-semibold">89</span>
-                  </div>
-                  <div className="flex justify-between items-center text-green-600">
-                    <span>Growth</span>
-                    <span className="font-semibold">+15%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Template Usage</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {templates.slice(0, 3).map((template) => (
-                    <div key={template.id} className="flex justify-between items-center">
-                      <span className="truncate">{template.name}</span>
-                      <span className="font-semibold">{template.usage_count} uses</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
 
       {/* Modals */}

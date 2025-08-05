@@ -1,0 +1,246 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { StudentPortalService, StudentPortalContent, StudentPortalMessage, StudentPortalConfig } from '@/services/studentPortalService';
+import { useEffect } from 'react';
+import { toast } from '@/hooks/use-toast';
+
+// Content hooks
+export function usePortalContent() {
+  return useQuery({
+    queryKey: ['portal-content'],
+    queryFn: StudentPortalService.getPortalContent,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function usePublishedContent() {
+  return useQuery({
+    queryKey: ['published-content'],
+    queryFn: StudentPortalService.getPublishedContent,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+}
+
+export function useContentMutations() {
+  const queryClient = useQueryClient();
+
+  const createContent = useMutation({
+    mutationFn: StudentPortalService.createPortalContent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-content'] });
+      queryClient.invalidateQueries({ queryKey: ['published-content'] });
+      toast({
+        title: "Content Created",
+        description: "Portal content has been created successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to create content. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateContent = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<StudentPortalContent> }) =>
+      StudentPortalService.updatePortalContent(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-content'] });
+      queryClient.invalidateQueries({ queryKey: ['published-content'] });
+      toast({
+        title: "Content Updated",
+        description: "Portal content has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update content. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteContent = useMutation({
+    mutationFn: StudentPortalService.deletePortalContent,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-content'] });
+      queryClient.invalidateQueries({ queryKey: ['published-content'] });
+      toast({
+        title: "Content Deleted",
+        description: "Portal content has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete content. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return {
+    createContent,
+    updateContent,
+    deleteContent,
+  };
+}
+
+// Message hooks
+export function usePortalMessages() {
+  return useQuery({
+    queryKey: ['portal-messages'],
+    queryFn: StudentPortalService.getPortalMessages,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useStudentMessages(studentId: string) {
+  return useQuery({
+    queryKey: ['student-messages', studentId],
+    queryFn: () => StudentPortalService.getStudentMessages(studentId),
+    enabled: !!studentId,
+    staleTime: 1 * 60 * 1000, // 1 minute
+  });
+}
+
+export function useMessageMutations() {
+  const queryClient = useQueryClient();
+
+  const createMessage = useMutation({
+    mutationFn: StudentPortalService.createPortalMessage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['student-messages'] });
+      toast({
+        title: "Message Sent",
+        description: "Message has been sent to selected students.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMessage = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<StudentPortalMessage> }) =>
+      StudentPortalService.updatePortalMessage(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['student-messages'] });
+      toast({
+        title: "Message Updated",
+        description: "Message has been updated successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to update message. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMessage = useMutation({
+    mutationFn: StudentPortalService.deletePortalMessage,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['student-messages'] });
+      toast({
+        title: "Message Deleted",
+        description: "Message has been deleted successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to delete message. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const markAsRead = useMutation({
+    mutationFn: ({ messageId, studentId }: { messageId: string; studentId: string }) =>
+      StudentPortalService.markMessageAsRead(messageId, studentId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['student-messages'] });
+    },
+  });
+
+  return {
+    createMessage,
+    updateMessage,
+    deleteMessage,
+    markAsRead,
+  };
+}
+
+// Configuration hooks
+export function usePortalConfig() {
+  return useQuery({
+    queryKey: ['portal-config'],
+    queryFn: StudentPortalService.getPortalConfig,
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+}
+
+export function useConfigMutations() {
+  const queryClient = useQueryClient();
+
+  const saveConfig = useMutation({
+    mutationFn: StudentPortalService.createOrUpdatePortalConfig,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portal-config'] });
+      toast({
+        title: "Configuration Saved",
+        description: "Portal configuration has been saved successfully.",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to save configuration. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  return {
+    saveConfig,
+  };
+}
+
+// Real-time hooks
+export function useRealTimePortalUpdates() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const contentSub = StudentPortalService.subscribeToContentChanges(() => {
+      queryClient.invalidateQueries({ queryKey: ['portal-content'] });
+      queryClient.invalidateQueries({ queryKey: ['published-content'] });
+    });
+
+    const messageSub = StudentPortalService.subscribeToMessageChanges(() => {
+      queryClient.invalidateQueries({ queryKey: ['portal-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['student-messages'] });
+    });
+
+    const configSub = StudentPortalService.subscribeToConfigChanges(() => {
+      queryClient.invalidateQueries({ queryKey: ['portal-config'] });
+    });
+
+    return () => {
+      contentSub.unsubscribe();
+      messageSub.unsubscribe();
+      configSub.unsubscribe();
+    };
+  }, [queryClient]);
+}

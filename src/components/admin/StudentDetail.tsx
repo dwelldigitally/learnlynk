@@ -31,6 +31,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { useConditionalStudents } from '@/hooks/useConditionalStudents';
+import { useStudentsPaginated } from '@/services/studentService';
 import { useConditionalPrograms } from '@/hooks/useConditionalPrograms';
 import { useConditionalFinancials } from '@/hooks/useConditionalFinancials';
 import { useConditionalDocuments } from '@/hooks/useConditionalDocuments';
@@ -42,20 +43,49 @@ export function StudentDetail() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Fetch data using existing hooks
-  const { data: students } = useConditionalStudents();
+  // Fetch data using existing hooks - try both conditional and direct
+  const { data: students, isLoading: studentsLoading } = useConditionalStudents();
+  const { data: paginatedStudents } = useStudentsPaginated({ page: 1, pageSize: 1000 }, {});
   const { data: programs } = useConditionalPrograms();
   const { data: financials } = useConditionalFinancials();
   const { data: allDocuments } = useConditionalDocuments();
   const { data: documents } = useStudentDocuments(studentId || '');
   const { data: communications } = useStudentCommunications(studentId || '');
 
-  // Find the current student
-  const student = students?.find((s: any) => s.id === studentId);
+  // Debug logging
+  console.log('StudentDetail Debug:', {
+    studentId,
+    students,
+    paginatedStudents,
+    studentsLoading,
+    studentsCount: students?.length,
+    paginatedCount: paginatedStudents?.data?.length
+  });
+
+  // Try to find student in either dataset
+  const allStudents = paginatedStudents?.data || students;
+  const student = allStudents?.find((s: any) => s.id === studentId);
   const studentFinancials = financials?.filter((f: any) => 
     f.student_name === `${student?.first_name} ${student?.last_name}`
   );
   const studentDocuments = documents || allDocuments?.filter((d: any) => d.student_id === studentId);
+
+  console.log('Student lookup:', {
+    studentId,
+    foundStudent: student,
+    allStudentIds: students?.map((s: any) => s.id)
+  });
+
+  if (studentsLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <h3 className="text-lg font-medium">Loading...</h3>
+          <p className="text-muted-foreground">Fetching student information...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!student) {
     return (

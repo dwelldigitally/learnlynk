@@ -175,15 +175,19 @@ export function AIQuickActions() {
     }
   ];
 
-  // Filter actions based on current context
-  const contextualActions = aiActions.filter(action => 
-    action.context.some(ctx => currentPath.startsWith(ctx))
-  );
+  // Filter actions based on current context, or show default actions for admin pages
+  const contextualActions = currentPath.startsWith('/admin') 
+    ? aiActions.filter(action => 
+        action.context.some(ctx => currentPath.startsWith(ctx)) ||
+        action.context.includes('/admin/leads') // Default fallback to lead actions
+      )
+    : [];
 
   const urgentActions = contextualActions.filter(action => action.urgent);
   const regularActions = contextualActions.filter(action => !action.urgent);
 
-  if (contextualActions.length === 0) {
+  // Always show the component on admin pages, even if no specific actions
+  if (!currentPath.startsWith('/admin')) {
     return null;
   }
 

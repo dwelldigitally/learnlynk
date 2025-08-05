@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,12 +23,16 @@ import { PaymentsContracts } from '@/components/admin/leads/PaymentsContracts';
 import { AdminPanel } from '@/components/admin/leads/AdminPanel';
 
 export default function LeadDetailPage() {
-  const { leadId } = useParams<{ leadId: string }>();
+  const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+
+  // Extract leadId from pathname since we're not using proper route params
+  const leadId = location.pathname.split('/').pop();
+  console.log('🆔 Extracted leadId from pathname:', leadId);
 
   useEffect(() => {
     if (leadId) {

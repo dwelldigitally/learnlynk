@@ -37,14 +37,24 @@ export default function LeadDetailPage() {
   }, [leadId]);
 
   const loadLead = async () => {
-    if (!leadId) return;
+    if (!leadId) {
+      console.log('❌ No leadId found');
+      return;
+    }
+    
+    console.log('🔍 Loading lead with ID:', leadId);
     
     try {
       setLoading(true);
+      console.log('📡 Calling LeadService.getLeadById...');
       const leadData = await LeadService.getLeadById(leadId);
+      console.log('📊 Lead data received:', leadData);
+      
       if (leadData) {
         setLead(leadData);
+        console.log('✅ Lead set successfully');
       } else {
+        console.log('❌ No lead data returned');
         toast({
           title: 'Error',
           description: 'Lead not found',
@@ -53,6 +63,7 @@ export default function LeadDetailPage() {
         navigate('/admin/leads');
       }
     } catch (error) {
+      console.log('❌ Error loading lead:', error);
       toast({
         title: 'Error',
         description: 'Failed to load lead',

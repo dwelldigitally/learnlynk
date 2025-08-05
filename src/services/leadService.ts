@@ -112,11 +112,17 @@ export class LeadService {
 
   // Get a single lead by ID
   static async getLeadById(id: string): Promise<Lead | null> {
+    console.log('🔧 LeadService.getLeadById called with ID:', id);
+    
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
+      console.log('❌ User not authenticated:', authError);
       throw new Error('User not authenticated');
     }
+
+    console.log('👤 User authenticated:', user.id);
+    console.log('🔍 Querying lead with ID:', id, 'and user_id:', user.id);
 
     const { data, error } = await supabase
       .from('leads')
@@ -125,10 +131,14 @@ export class LeadService {
       .eq('user_id', user.id)
       .maybeSingle();
 
+    console.log('📊 Query result - data:', data, 'error:', error);
+
     if (error) {
+      console.log('❌ Database error:', error);
       throw new Error(`Failed to fetch lead: ${error.message}`);
     }
 
+    console.log('✅ Returning lead data:', data);
     return data as Lead;
   }
 

@@ -175,15 +175,8 @@ export default function StudentManagement() {
       label: 'Student',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => {
+      render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
-        
-        // Debug logging to check the student object
-        console.log('Student object:', student);
-        console.log('first_name:', student.first_name);
-        console.log('last_name:', student.last_name);
-        console.log('firstName:', student.firstName);
-        console.log('lastName:', student.lastName);
         
         return (
           <div className="flex items-center gap-3">
@@ -213,7 +206,7 @@ export default function StudentManagement() {
       label: 'Stage',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => {
+      render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
         return (
           <Badge variant={getStageColor(student.stage || '')}>
@@ -227,7 +220,7 @@ export default function StudentManagement() {
       label: 'Progress',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => {
+      render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
         const progress = student.progress || 0;
         return (
@@ -251,7 +244,7 @@ export default function StudentManagement() {
       label: 'Risk',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => {
+      render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
         return (
           <Badge variant={getRiskColor(student.risk_level || '')}>
@@ -265,7 +258,7 @@ export default function StudentManagement() {
       label: 'Location',
       sortable: true,
       renderType: 'custom' as const,
-      render: (student: any) => {
+      render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
         return (
           <div className="text-sm">

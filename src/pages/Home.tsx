@@ -9,6 +9,8 @@ import { VideoSection } from '@/components/animated/VideoSection';
 import { InteractiveFeatures } from '@/components/animated/InteractiveFeatures';
 import { StatisticsCounter } from '@/components/animated/StatisticsCounter';
 import { ParallaxSection } from '@/components/animated/ParallaxSection';
+import { ModernNavigation } from '@/components/modern/ModernNavigation';
+import { ModernHero } from '@/components/modern/ModernHero';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import heroImage from '@/assets/education-hero.jpg';
 import demoVideoImage from '@/assets/demo-video-poster.jpg';
@@ -56,204 +58,12 @@ const Home: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
-      {/* Animated Navigation */}
-      <motion.nav 
-        className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border"
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <motion.div 
-              className="flex items-center space-x-2"
-              whileHover={{ scale: 1.05 }}
-            >
-              <img 
-                src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
-                alt="Learnlynk Logo" 
-                className="h-8"
-              />
-            </motion.div>
-            
-            {/* Desktop Menu */}
-            <div className="hidden md:flex items-center space-x-4">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/sign-in')}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Sign In
-              </Button>
-              <Button 
-                onClick={() => navigate('/sign-up')}
-                className="bg-primary hover:bg-primary-hover"
-              >
-                Get Started
-              </Button>
-            </div>
+    <div className="min-h-screen overflow-x-hidden mesh-gradient">
+      {/* Modern Navigation */}
+      <ModernNavigation />
 
-            {/* Mobile Menu Button */}
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </Button>
-          </div>
-
-          {/* Mobile Menu */}
-          {isMenuOpen && (
-            <motion.div 
-              className="md:hidden mt-4 pb-4 border-t border-border"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              transition={{ duration: 0.3 }}
-            >
-              <div className="flex flex-col space-y-2 pt-4">
-                <Button 
-                  variant="ghost" 
-                  onClick={() => navigate('/sign-in')}
-                  className="justify-start"
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  onClick={() => navigate('/sign-up')}
-                  className="justify-start"
-                >
-                  Get Started
-                </Button>
-              </div>
-            </motion.div>
-          )}
-        </div>
-      </motion.nav>
-
-      {/* Hero Section with Parallax Video */}
-      <section className="relative pt-24 pb-16 px-6 overflow-hidden min-h-screen flex items-center">
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ 
-            opacity: heroOpacity,
-            scale: heroScale,
-            backgroundImage: `linear-gradient(135deg, rgba(37, 99, 235, 0.8), rgba(16, 185, 129, 0.7)), url(${heroImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed'
-          }}
-        />
-        
-        <div className="container mx-auto relative z-10">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <AnimatedSection animation="slideLeft" className="text-left">
-              <motion.div 
-                className="inline-flex items-center px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-sm font-medium mb-6"
-                initial={{ scale: 0.95, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.3 }}
-              >
-                <Star className="w-4 h-4 mr-2" />
-                Trusted by 1,200+ Institutions
-              </motion.div>
-              
-              <motion.h1 
-                className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.15, duration: 0.4 }}
-              >
-                Connect. Learn.
-                <motion.span 
-                  className="block text-emerald-300"
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.25, duration: 0.4 }}
-                >
-                  Transform Together.
-                </motion.span>
-              </motion.h1>
-              
-              <motion.p 
-                className="text-xl text-white/90 mb-8 max-w-2xl leading-relaxed"
-                initial={{ y: 15, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.35, duration: 0.3 }}
-              >
-                Harness the power of AI to transform student recruitment, engagement, and success. 
-                Drive enrollment growth while ensuring no student falls through the cracks.
-              </motion.p>
-              
-              <motion.div 
-                className="flex flex-col sm:flex-row gap-4 mb-8"
-                initial={{ y: 15, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.45, duration: 0.3 }}
-              >
-                <Button 
-                  size="lg" 
-                  onClick={() => navigate('/sign-up')}
-                  className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-4 text-lg font-semibold group"
-                >
-                  Start Free 30-Day Trial
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="lg"
-                  className="border-white text-white bg-white/20 hover:bg-white/30 px-8 py-4 text-lg backdrop-blur-sm group"
-                >
-                  <PlayCircle className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-                  Watch Demo
-                </Button>
-              </motion.div>
-              
-              <motion.div 
-                className="flex items-center text-white/80 text-sm"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.55, duration: 0.3 }}
-              >
-                <CheckCircle className="w-4 h-4 mr-2 text-emerald-300" />
-                No credit card required • Setup in under 5 minutes
-              </motion.div>
-            </AnimatedSection>
-
-            <AnimatedSection animation="slideRight" className="lg:block hidden">
-              <motion.div 
-                className="relative"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <img 
-                  src={crmDashboard} 
-                  alt="Education CRM Dashboard" 
-                  className="rounded-xl shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-500"
-                />
-                <motion.div 
-                  className="absolute -bottom-4 -left-4 bg-white rounded-lg p-4 shadow-lg"
-                  initial={{ scale: 0, rotate: -10 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ delay: 1.5, type: "spring" }}
-                >
-                  <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-gray-900">Enrollment Up</div>
-                      <div className="text-xs text-gray-600">+45% this quarter</div>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-            </AnimatedSection>
-          </div>
-        </div>
-      </section>
+      {/* Modern Hero Section */}
+      <ModernHero />
 
       {/* Animated Statistics Section */}
       <AnimatedSection animation="fadeIn" className="py-16 px-6 bg-muted/30">

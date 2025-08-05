@@ -177,6 +177,14 @@ export default function StudentManagement() {
       renderType: 'custom' as const,
       render: (student: any) => {
         if (!student) return <div>Loading...</div>;
+        
+        // Debug logging to check the student object
+        console.log('Student object:', student);
+        console.log('first_name:', student.first_name);
+        console.log('last_name:', student.last_name);
+        console.log('firstName:', student.firstName);
+        console.log('lastName:', student.lastName);
+        
         return (
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">

@@ -108,6 +108,9 @@ export function AdminSidebar() {
   const currentPath = location.pathname;
   const collapsed = state === "collapsed";
 
+  // Debug logging
+  console.log('AdminSidebar render - collapsed:', collapsed, 'state:', state);
+
   const isActive = (path: string) => currentPath === path || currentPath.startsWith(path + '/');
   
   const getNavClass = (url: string) => {

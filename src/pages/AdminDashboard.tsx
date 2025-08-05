@@ -1,5 +1,6 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import LeadDetailPage from './LeadDetailPage';
 import ModernAdminLayout from "@/components/admin/ModernAdminLayout";
 import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
@@ -43,6 +44,11 @@ const AdminDashboard: React.FC = () => {
     // Check for student detail route pattern
     if (location.pathname.startsWith("/admin/students/") && location.pathname !== "/admin/students") {
       return <StudentDetail />;
+    }
+    
+    // Check for lead detail route pattern
+    if (location.pathname.startsWith("/admin/leads/") && location.pathname !== "/admin/leads") {
+      return <LeadDetailPage />;
     }
     
     switch (location.pathname) {

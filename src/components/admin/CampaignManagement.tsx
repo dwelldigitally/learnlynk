@@ -6,8 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye } from 'lucide-react';
+import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye, Workflow, GitBranch } from 'lucide-react';
 import { NaturalLanguageCampaignBuilder } from './database/NaturalLanguageCampaignBuilder';
+import { WorkflowCampaignBuilder } from './WorkflowCampaignBuilder';
 import { CampaignService, type Campaign } from '@/services/campaignService';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -18,6 +19,7 @@ export function CampaignManagement() {
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -122,33 +124,63 @@ export function CampaignManagement() {
             Create and manage marketing campaigns to drive lead generation
           </p>
         </div>
-        <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
-          <DialogTrigger asChild>
-            <Button>
-              <Bot className="h-4 w-4 mr-2" />
-              Create with AI
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>AI Campaign Builder</DialogTitle>
-              <DialogDescription>
-                Use natural language to create sophisticated marketing campaigns
-              </DialogDescription>
-            </DialogHeader>
-            <NaturalLanguageCampaignBuilder 
-              onCampaignCreated={(campaign) => {
-                setCampaigns([campaign, ...campaigns]);
-                setShowBuilder(false);
-                loadAnalytics();
-                toast({
-                  title: "Success",
-                  description: "Campaign created successfully",
-                });
-              }}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex space-x-2">
+          <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Bot className="h-4 w-4 mr-2" />
+                Create with AI
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>AI Campaign Builder</DialogTitle>
+                <DialogDescription>
+                  Use natural language to create sophisticated marketing campaigns
+                </DialogDescription>
+              </DialogHeader>
+              <NaturalLanguageCampaignBuilder 
+                onCampaignCreated={(campaign) => {
+                  setCampaigns([campaign, ...campaigns]);
+                  setShowBuilder(false);
+                  loadAnalytics();
+                  toast({
+                    title: "Success",
+                    description: "Campaign created successfully",
+                  });
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={showWorkflowBuilder} onOpenChange={setShowWorkflowBuilder}>
+            <DialogTrigger asChild>
+              <Button>
+                <GitBranch className="h-4 w-4 mr-2" />
+                Workflow Builder
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Step-by-Step Workflow Builder</DialogTitle>
+                <DialogDescription>
+                  Build multi-step campaigns with precise timing, conditions, and multiple channels
+                </DialogDescription>
+              </DialogHeader>
+              <WorkflowCampaignBuilder 
+                onCampaignCreated={(campaign) => {
+                  setCampaigns([campaign, ...campaigns]);
+                  setShowWorkflowBuilder(false);
+                  loadAnalytics();
+                  toast({
+                    title: "Success",
+                    description: "Workflow campaign created successfully",
+                  });
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -216,14 +248,21 @@ export function CampaignManagement() {
               ) : campaigns.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>No campaigns found</p>
-                  <Button 
-                    variant="outline" 
-                    className="mt-4"
-                    onClick={() => setShowBuilder(true)}
-                  >
-                    <Bot className="h-4 w-4 mr-2" />
-                    Create Your First Campaign
-                  </Button>
+                  <div className="flex space-x-2 mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowBuilder(true)}
+                    >
+                      <Bot className="h-4 w-4 mr-2" />
+                      Create with AI
+                    </Button>
+                    <Button 
+                      onClick={() => setShowWorkflowBuilder(true)}
+                    >
+                      <GitBranch className="h-4 w-4 mr-2" />
+                      Workflow Builder
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <Table>
@@ -241,7 +280,14 @@ export function CampaignManagement() {
                     {campaigns.map((campaign) => (
                       <TableRow key={campaign.id}>
                         <TableCell className="font-medium">{campaign.name}</TableCell>
-                        <TableCell className="capitalize">{campaign.campaign_type}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-1">
+                            {campaign.campaign_type === 'workflow' && (
+                              <Workflow className="h-3 w-3 text-blue-500" />
+                            )}
+                            <span className="capitalize">{campaign.campaign_type}</span>
+                          </div>
+                        </TableCell>
                         <TableCell>{getStatusBadge(campaign.status)}</TableCell>
                         <TableCell>{format(new Date(campaign.created_at), 'MMM dd, yyyy')}</TableCell>
                         <TableCell>

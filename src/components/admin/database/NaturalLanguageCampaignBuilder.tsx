@@ -117,83 +117,209 @@ export const NaturalLanguageCampaignBuilder = ({ onCampaignCreated }: NaturalLan
   const generateAIResponse = (input: string): string => {
     // Simulate AI response based on input
     if (input.toLowerCase().includes('nurture')) {
-      return `I've created a comprehensive nurture campaign for you! Here's what I've built:
+      return `I've created a comprehensive 7-step nurture workflow for you! Here's the complete sequence:
 
-**Campaign Overview:**
-📧 7-email sequence over 3 weeks
-🎯 Targeted at healthcare program leads
-📊 Automated behavior-based triggers
-⏰ Optimal send times based on engagement data
+**Campaign Workflow:**
+🚀 **Step 1: Welcome Email** (Immediate)
+   Subject: "Welcome to Your Healthcare Journey!"
+   Content: Program overview and what to expect
 
-**Email Sequence:**
-1. Welcome & Program Overview (Day 1)
-2. Success Stories from Alumni (Day 3)
-3. Career Outcomes & Salary Data (Day 7)
-4. Faculty Spotlight (Day 10)
-5. Application Process Guide (Day 14)
-6. Financial Aid Options (Day 17)
-7. Final Call to Action (Day 21)
+⏰ **Step 2: Wait 2 Days**
 
-**Advanced Features:**
-✨ Dynamic content based on lead location
-📱 SMS backup for non-openers
-🔄 Automatic A/B testing on subject lines
-📈 Real-time performance tracking
+📧 **Step 3: Success Stories Email** (Day 3)
+   Subject: "From Student to Healthcare Professional"
+   Content: Alumni success stories and career outcomes
 
-Would you like me to customize any of these elements or add additional touchpoints?`;
+⏰ **Step 4: Wait 4 Days**
+
+📊 **Step 5: Career Data Email** (Day 7)
+   Subject: "Your Future Salary & Job Prospects"
+   Content: Employment statistics and salary data
+
+⏰ **Step 6: Wait 3 Days**
+
+👨‍⚕️ **Step 7: Faculty Spotlight Email** (Day 10)
+   Subject: "Meet Your Expert Instructors"
+   Content: Faculty credentials and teaching approach
+
+⏰ **Step 8: Wait 4 Days**
+
+📋 **Step 9: Application Guide Email** (Day 14)
+   Subject: "Ready to Apply? Here's How"
+   Content: Step-by-step application process
+
+⏰ **Step 10: Wait 3 Days**
+
+💰 **Step 11: Financial Aid Email** (Day 17)
+   Subject: "Make Your Education Affordable"
+   Content: Scholarships, payment plans, and financial aid
+
+⏰ **Step 12: Wait 4 Days**
+
+🎯 **Step 13: Final CTA Email** (Day 21)
+   Subject: "Your Healthcare Career Starts Now"
+   Content: Urgency-driven call to action with deadline
+
+**Smart Features:**
+✨ Conditional branching based on email opens
+📱 SMS follow-up for non-openers after day 7
+📞 Advisor call task created if no response by day 21
+
+Ready to build this workflow step-by-step?`;
     }
 
     if (input.toLowerCase().includes('reactivation') || input.toLowerCase().includes('cold')) {
-      return `Perfect! I've designed a multi-channel reactivation campaign for your cold leads:
+      return `Perfect! I've designed a multi-touch reactivation workflow for cold leads:
 
-**Campaign Strategy:**
-🎯 Target: Leads inactive for 30+ days
-📊 Multi-channel approach (Email + SMS + Phone)
-⚡ Escalating urgency sequence
-🎁 Special incentives for re-engagement
+**Reactivation Workflow:**
+🔄 **Step 1: "We Miss You" Email** (Immediate)
+   Subject: "We miss you [First Name]!"
+   Content: Soft reconnection message with value reminder
 
-**Sequence Breakdown:**
-Week 1: "We Miss You" soft touch (Email)
-Week 2: Value-focused content + limited offer (Email + SMS)
-Week 3: Final chance with urgent messaging (Email + SMS + Call task)
+⏰ **Step 2: Wait 3 Days**
 
-**Smart Features:**
-🤖 AI-powered subject line optimization
-📱 Mobile-first design
-🏆 Win-back offers based on lead score
-📞 Automatic advisor assignment for responders
+📧 **Step 3: Value-Add Email** (Day 4)
+   Subject: "Here's what you've been missing..."
+   Content: New program updates, success stories
 
-The campaign includes behavioral triggers and will automatically pause if leads re-engage. Ready to deploy?`;
+⏰ **Step 4: Wait 2 Days**
+
+📱 **Step 5: SMS Message** (Day 6)
+   Content: "Quick question - still interested in [Program]? Reply YES for exclusive offer"
+
+⏰ **Step 6: Wait 4 Days**
+
+🎁 **Step 7: Limited Offer Email** (Day 10)
+   Subject: "Exclusive comeback offer - 48 hours only"
+   Content: Special discount or incentive
+
+⏰ **Step 8: Wait 1 Day**
+
+📱 **Step 9: SMS Reminder** (Day 11)
+   Content: "24 hours left on your exclusive offer!"
+
+⏰ **Step 10: Wait 2 Days**
+
+📞 **Step 11: Advisor Call Task** (Day 13)
+   Action: Create task for advisor to make personal call
+
+⏰ **Step 12: Wait 7 Days**
+
+📧 **Step 13: Final Touch Email** (Day 20)
+   Subject: "One last thing before we say goodbye..."
+   Content: Final attempt with feedback request
+
+**Conditional Logic:**
+- If lead opens any email → Branch to active nurture sequence
+- If lead responds to SMS → Immediate advisor assignment
+- If lead doesn't engage after 20 days → Move to quarterly check-in sequence
+
+Ready to activate this multi-touch reactivation workflow?`;
     }
 
-    return `Great request! I've analyzed your requirements and created a custom campaign strategy:
+    return `Great request! I've analyzed your requirements and created a step-by-step campaign workflow:
 
-**Campaign Structure:**
-📋 Multi-step automated workflow
-🎯 Audience segmentation based on your criteria
-📊 Performance tracking and optimization
-⚡ Real-time personalization
+**Multi-Step Campaign Workflow:**
 
-**Key Components:**
-✅ Automated email sequences
-✅ SMS integration for high-priority messages
-✅ Calendar booking automation
-✅ Lead scoring adjustments
-✅ Follow-up task creation
+🚀 **Step 1: Initial Touch** (Immediate)
+   Channel: Email
+   Purpose: Introduction and value proposition
 
-**Next Steps:**
-I can help you refine the messaging, adjust timing, or add additional channels. What specific aspects would you like to customize?`;
+⏰ **Step 2: Wait Period** (2-3 days)
+   Smart timing based on lead behavior
+
+📧 **Step 3: Follow-up Touch** 
+   Channel: Email or SMS based on preferences
+   Purpose: Reinforce value and address objections
+
+⏰ **Step 4: Conditional Wait**
+   Duration varies based on engagement level
+
+📞 **Step 5: Personal Outreach**
+   Action: Create advisor task for personal touch
+   Trigger: If no engagement after previous steps
+
+🎯 **Step 6: Final CTA**
+   Multi-channel final push with urgency
+
+**Advanced Features:**
+✅ Behavioral triggers and conditions
+✅ Dynamic timing based on engagement
+✅ Multi-channel progression (Email → SMS → Call)
+✅ Automatic lead scoring adjustments
+✅ Performance tracking per step
+
+Would you like me to customize the timing, messaging, or add specific conditions to any step?`;
   };
 
   const generateWorkflowData = (input: string) => {
-    // Generate mock workflow data structure
+    if (input.toLowerCase().includes('nurture')) {
+      return {
+        name: `Healthcare Nurture Campaign - ${new Date().toLocaleDateString()}`,
+        type: 'nurture',
+        steps: 13,
+        channels: ['email', 'sms', 'call'],
+        duration: '21 days',
+        triggers: ['lead_created', 'program_interest'],
+        workflowSteps: [
+          { type: 'email', title: 'Welcome Email', content: 'Welcome to your healthcare journey!', order: 0 },
+          { type: 'wait', delay: { value: 2, unit: 'days' }, order: 1 },
+          { type: 'email', title: 'Success Stories', content: 'From student to healthcare professional...', order: 2 },
+          { type: 'wait', delay: { value: 4, unit: 'days' }, order: 3 },
+          { type: 'email', title: 'Career Data', content: 'Your future salary & job prospects...', order: 4 },
+          { type: 'wait', delay: { value: 3, unit: 'days' }, order: 5 },
+          { type: 'email', title: 'Faculty Spotlight', content: 'Meet your expert instructors...', order: 6 },
+          { type: 'wait', delay: { value: 4, unit: 'days' }, order: 7 },
+          { type: 'email', title: 'Application Guide', content: 'Ready to apply? Here\'s how...', order: 8 },
+          { type: 'wait', delay: { value: 3, unit: 'days' }, order: 9 },
+          { type: 'email', title: 'Financial Aid', content: 'Make your education affordable...', order: 10 },
+          { type: 'wait', delay: { value: 4, unit: 'days' }, order: 11 },
+          { type: 'email', title: 'Final CTA', content: 'Your healthcare career starts now...', order: 12 }
+        ]
+      };
+    }
+
+    if (input.toLowerCase().includes('reactivation') || input.toLowerCase().includes('cold')) {
+      return {
+        name: `Cold Lead Reactivation - ${new Date().toLocaleDateString()}`,
+        type: 'reactivation',
+        steps: 13,
+        channels: ['email', 'sms', 'call'],
+        duration: '20 days',
+        triggers: ['lead_inactive_30_days'],
+        workflowSteps: [
+          { type: 'email', title: 'We Miss You', content: 'We miss you [First Name]!', order: 0 },
+          { type: 'wait', delay: { value: 3, unit: 'days' }, order: 1 },
+          { type: 'email', title: 'Value-Add Email', content: 'Here\'s what you\'ve been missing...', order: 2 },
+          { type: 'wait', delay: { value: 2, unit: 'days' }, order: 3 },
+          { type: 'sms', title: 'SMS Check-in', content: 'Still interested in [Program]? Reply YES for exclusive offer', order: 4 },
+          { type: 'wait', delay: { value: 4, unit: 'days' }, order: 5 },
+          { type: 'email', title: 'Limited Offer', content: 'Exclusive comeback offer - 48 hours only', order: 6 },
+          { type: 'wait', delay: { value: 1, unit: 'days' }, order: 7 },
+          { type: 'sms', title: 'SMS Reminder', content: '24 hours left on your exclusive offer!', order: 8 },
+          { type: 'wait', delay: { value: 2, unit: 'days' }, order: 9 },
+          { type: 'call', title: 'Advisor Call', content: 'Personal outreach call', order: 10 },
+          { type: 'wait', delay: { value: 7, unit: 'days' }, order: 11 },
+          { type: 'email', title: 'Final Touch', content: 'One last thing before we say goodbye...', order: 12 }
+        ]
+      };
+    }
+
     return {
-      name: `AI Generated Campaign - ${new Date().toLocaleDateString()}`,
-      type: 'nurture',
-      steps: 7,
+      name: `Custom Campaign - ${new Date().toLocaleDateString()}`,
+      type: 'custom',
+      steps: 6,
       channels: ['email', 'sms'],
-      duration: '21 days',
-      triggers: ['lead_created', 'behavior_score']
+      duration: '14 days',
+      triggers: ['lead_created'],
+      workflowSteps: [
+        { type: 'email', title: 'Initial Touch', content: 'Introduction and value proposition', order: 0 },
+        { type: 'wait', delay: { value: 2, unit: 'days' }, order: 1 },
+        { type: 'email', title: 'Follow-up', content: 'Reinforce value and address objections', order: 2 },
+        { type: 'wait', delay: { value: 3, unit: 'days' }, order: 3 },
+        { type: 'call', title: 'Personal Outreach', content: 'Advisor call task', order: 4 },
+        { type: 'email', title: 'Final CTA', content: 'Final call to action with urgency', order: 5 }
+      ]
     };
   };
 
@@ -206,8 +332,8 @@ I can help you refine the messaging, adjust timing, or add additional channels. 
     try {
       const campaign = await CampaignService.createCampaign({
         name: workflowData.name,
-        description: `AI-generated campaign created from user prompt`,
-        campaign_type: workflowData.channels.includes('email') ? 'email' : 'mixed',
+        description: `AI-generated ${workflowData.type} campaign with ${workflowData.steps} steps`,
+        campaign_type: 'workflow',
         status: 'draft',
         campaign_data: workflowData,
         workflow_config: {
@@ -222,7 +348,24 @@ I can help you refine the messaging, adjust timing, or add additional channels. 
         }
       });
 
-      toast.success('Campaign created successfully!');
+      // Create campaign steps in database
+      if (workflowData.workflowSteps) {
+        for (const step of workflowData.workflowSteps) {
+          await CampaignService.createCampaignStep({
+            campaign_id: campaign.id,
+            step_type: step.type,
+            order_index: step.order,
+            step_config: {
+              title: step.title,
+              content: step.content,
+              subject: step.subject,
+              delay: step.delay
+            }
+          });
+        }
+      }
+
+      toast.success('Campaign workflow created successfully!');
       onCampaignCreated?.(campaign);
     } catch (error) {
       toast.error('Failed to create campaign');

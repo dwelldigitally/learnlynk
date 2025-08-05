@@ -72,6 +72,27 @@ export class CampaignService {
     return data || [];
   }
 
+  static async updateCampaignStep(id: string, updates: Partial<CampaignStep>): Promise<CampaignStep> {
+    const { data, error } = await supabase
+      .from('campaign_steps')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async deleteCampaignStep(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('campaign_steps')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
   static async createCampaignStep(stepData: CampaignStepInsert): Promise<CampaignStep> {
     const { data, error } = await supabase
       .from('campaign_steps')

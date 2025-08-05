@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { HelpIcon } from '@/components/ui/help-icon';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -15,6 +16,7 @@ interface ModernStatsCardProps {
   icon?: React.ComponentType<{ className?: string }>;
   description?: string;
   className?: string;
+  helpContent?: React.ReactNode;
 }
 
 const ModernStatsCard: React.FC<ModernStatsCardProps> = ({
@@ -23,7 +25,8 @@ const ModernStatsCard: React.FC<ModernStatsCardProps> = ({
   change,
   icon: Icon,
   description,
-  className
+  className,
+  helpContent
 }) => {
   return (
     <Card className={cn(
@@ -34,7 +37,15 @@ const ModernStatsCard: React.FC<ModernStatsCardProps> = ({
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium text-muted-foreground">{title}</p>
+              {helpContent && (
+                <HelpIcon 
+                  content={helpContent}
+                  size="sm"
+                />
+              )}
+            </div>
             <div className="flex items-baseline space-x-2">
               <h3 className="text-2xl font-bold text-foreground tracking-tight">{value}</h3>
               {change && (

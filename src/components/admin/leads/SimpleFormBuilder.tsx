@@ -12,12 +12,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Save, Eye } from "lucide-react";
+import { HelpIcon } from "@/components/ui/help-icon";
+import { HelpLabel } from "@/components/ui/help-section";
+import { useHelpContent } from "@/hooks/useHelpContent";
 
 interface SimpleFormBuilderProps {
   formId?: string;
 }
 
 export function SimpleFormBuilder({ formId }: SimpleFormBuilderProps) {
+  const { getHelpContent } = useHelpContent();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -51,9 +55,15 @@ export function SimpleFormBuilder({ formId }: SimpleFormBuilderProps) {
     <div className="space-y-6">
       {/* Form Settings */}
       <Card>
-        <CardHeader>
-          <CardTitle>Form Settings</CardTitle>
-        </CardHeader>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <CardTitle>Form Settings</CardTitle>
+              <HelpIcon 
+                content={getHelpContent('formSettings')}
+                size="sm"
+              />
+            </div>
+          </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -102,7 +112,10 @@ export function SimpleFormBuilder({ formId }: SimpleFormBuilderProps) {
               <div key={field.id} className="p-4 border rounded-lg">
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label>Field Type</Label>
+                  <HelpLabel 
+                    label="Field Type" 
+                    helpKey="fieldTypes"
+                  />
                     <Select value={field.type}>
                       <SelectTrigger>
                         <SelectValue />
@@ -118,7 +131,10 @@ export function SimpleFormBuilder({ formId }: SimpleFormBuilderProps) {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Field Label</Label>
+                  <HelpLabel 
+                    label="Field Label" 
+                    helpKey="fieldLabel"
+                  />
                     <Input
                       value={field.label}
                       onChange={(e) => {

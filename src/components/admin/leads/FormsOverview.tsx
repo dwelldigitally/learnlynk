@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Plus, Search, Filter, MoreHorizontal, Edit, Copy, Trash2, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { HelpIcon } from "@/components/ui/help-icon";
+import { useHelpContent } from "@/hooks/useHelpContent";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +20,7 @@ interface FormsOverviewProps {
 }
 
 export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) {
+  const { getHelpContent } = useHelpContent();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Mock data for demonstration
@@ -87,7 +90,13 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Lead Forms</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-foreground">Lead Forms</h1>
+            <HelpIcon 
+              content={getHelpContent('leadCapture')}
+              size="md"
+            />
+          </div>
           <p className="text-muted-foreground">Manage and track your lead capture forms</p>
         </div>
         <Button onClick={onCreateForm} className="flex items-center gap-2">
@@ -121,6 +130,7 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
           value={`${formsStats.conversionRate}%`}
           change={{ value: 3.2, type: "increase", period: "last month" }}
           icon={BarChart3}
+          helpContent={getHelpContent('formConversion')}
         />
       </div>
 

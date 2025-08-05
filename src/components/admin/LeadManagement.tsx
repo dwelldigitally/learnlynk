@@ -22,7 +22,10 @@ import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
+import { HelpIcon } from '@/components/ui/help-icon';
+import { useHelpContent } from '@/hooks/useHelpContent';
 export function LeadManagement() {
+  const { getHelpContent } = useHelpContent();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +26,7 @@ import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, F
 import { HelpIcon } from '@/components/ui/help-icon';
 import { useHelpContent } from '@/hooks/useHelpContent';
 export function LeadManagement() {
+  const navigate = useNavigate();
   const { getHelpContent } = useHelpContent();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -522,8 +524,8 @@ export function LeadManagement() {
             <EnhancedDataTable title="Lead Management" columns={columns} data={tableData} totalCount={totalCount} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} loading={loading} searchable={true} filterable={true} exportable={true} selectable={true} sortBy={sortBy} sortOrder={sortOrder} filterOptions={enhancedFilterOptions} quickFilters={quickFilters} selectedIds={selectedLeadIds} bulkActions={bulkActions} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} onSearch={handleSearch} onSort={handleSort} onFilter={handleFilter} onExport={handleExport} onRowClick={row => {
             const lead = leads.find(l => l.id === row.id);
             if (lead) {
-              setSelectedLead(lead);
-              setShowEnhancedModal(true);
+              // Navigate to individual lead page using React Router
+              navigate(`/admin/leads/${lead.id}`);
             }
           }} onSelectionChange={setSelectedLeadIds} />
           </ConditionalDataWrapper>

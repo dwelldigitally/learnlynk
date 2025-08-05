@@ -18,7 +18,7 @@ import { LeadAnalyticsDashboard } from './LeadAnalyticsDashboard';
 import AILeadEnhancement from './AILeadEnhancement';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
-import { CommunicationTemplateManager } from './CommunicationTemplateManager';
+import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';

@@ -10,7 +10,7 @@ import ProgramManagement from "@/components/admin/ProgramManagement";
 import WorkflowManagement from "@/components/admin/WorkflowManagement";
 import EnhancedDocumentManagement from "@/components/admin/EnhancedDocumentManagement";
 import EventManagement from "@/components/admin/EventManagement";
-import CommunicationCenter from "@/components/admin/CommunicationCenter";
+import CommunicationHub from "@/components/admin/CommunicationHub";
 import FinancialManagement from "@/components/admin/FinancialManagement";
 import TeamManagement from "@/components/admin/TeamManagement";
 import AnalyticsReporting from "@/components/admin/AnalyticsReporting";
@@ -87,7 +87,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/events":
         return <EventManagement />;
       case "/admin/communication":
-        return <CommunicationCenter />;
+        return <CommunicationHub />;
       case "/admin/financial":
         return <FinancialManagement />;
       case "/admin/team":

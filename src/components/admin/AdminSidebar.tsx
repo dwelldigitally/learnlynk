@@ -94,8 +94,7 @@ const sidebarItems = [
   {
     title: "Communication",
     items: [
-      { title: "Communication Center", url: "/admin/communication", icon: MessageSquare },
-      { title: "Templates", url: "/admin/templates", icon: Mail },
+      { title: "Communication Hub", url: "/admin/communication", icon: MessageSquare },
       { title: "Events", url: "/admin/events", icon: Calendar },
     ]
   }

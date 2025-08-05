@@ -46,6 +46,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { AIQuickActions } from "./AIQuickActions";
 
 const sidebarItems = [
   {
@@ -137,6 +138,9 @@ export function AdminSidebar() {
             </div>
           )}
         </div>
+
+        {/* AI Quick Actions */}
+        {!collapsed && <AIQuickActions />}
 
         {sidebarItems.map((group, groupIndex) => {
           const hasActiveItem = group.items.some(item => isActive(item.url));

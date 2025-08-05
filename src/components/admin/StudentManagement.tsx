@@ -7,7 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MoreHorizontal, Search, Filter, Download, MessageSquare, Mail, AlertTriangle, Clock, CheckCircle2, Users, Plus, Upload } from "lucide-react";
+import { MoreHorizontal, Search, Filter, Download, MessageSquare, Mail, AlertTriangle, Clock, CheckCircle2, Users, Plus, Upload, Eye, Phone, Edit } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useConditionalStudents } from "@/hooks/useConditionalStudents";
 import { useStudentsPaginated, useStudentMutations, StudentFilters, StudentService } from "@/services/studentService";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
@@ -17,6 +19,7 @@ import { ImportStudentsModal } from "./modals/ImportStudentsModal";
 import { toast } from "sonner";
 
 export default function StudentManagement() {
+  const navigate = useNavigate();
   const [pagination, setPagination] = useState({
     page: 1,
     pageSize: 25,
@@ -186,7 +189,13 @@ export default function StudentManagement() {
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium text-sm">
+              <div 
+                className="font-medium text-sm cursor-pointer text-primary hover:underline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/admin/students/${student.id}`);
+                }}
+              >
                 {student.first_name || 'N/A'} {student.last_name || ''}
               </div>
               <div className="text-xs text-muted-foreground">{student.email || 'No email'}</div>
@@ -267,6 +276,39 @@ export default function StudentManagement() {
           </div>
         );
       }
+    },
+    {
+      key: 'actions' as const,
+      label: 'Actions',
+      sortable: false,
+      renderType: 'custom' as const,
+      render: (value: any, student: any) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => navigate(`/admin/students/${student.id}`)}>
+              <Eye className="h-4 w-4 mr-2" />
+              View Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Mail className="h-4 w-4 mr-2" />
+              Send Email
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Phone className="h-4 w-4 mr-2" />
+              Call Student
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Details
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
     }
   ];
 
@@ -450,6 +492,7 @@ export default function StudentManagement() {
                     handleFilterChange(key as keyof StudentFilters, value as string);
                   });
                 }}
+                onRowClick={(student) => navigate(`/admin/students/${student.id}`)}
               />
             </CardContent>
           </Card>

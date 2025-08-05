@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { LeadCaptureForm } from "@/components/admin/LeadCaptureForm";
 import { FormsOverview } from "./FormsOverview";
-import { SimpleFormBuilder } from "./SimpleFormBuilder";
+import { AdvancedFormBuilder } from "../formBuilder/AdvancedFormBuilder";
 
 export function LeadForms() {
   const [view, setView] = useState<'overview' | 'capture' | 'builder'>('overview');
@@ -42,7 +42,14 @@ export function LeadForms() {
               {editingFormId ? 'Edit Form' : 'Create New Form'}
             </h1>
           </div>
-          <SimpleFormBuilder formId={editingFormId} />
+          <AdvancedFormBuilder 
+            formId={editingFormId}
+            onSave={(formConfig) => {
+              console.log('Form saved:', formConfig);
+              // Handle form save
+            }}
+            onCancel={handleBackToOverview}
+          />
         </div>
       ) : (
         <LeadCaptureForm />

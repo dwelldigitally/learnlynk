@@ -175,6 +175,11 @@ export function AIQuickActions() {
     }
   ];
 
+  // Debug logging
+  console.log('🔍 AIQuickActions Debug:');
+  console.log('- Current path:', currentPath);
+  console.log('- Total AI actions:', aiActions.length);
+  
   // Filter actions based on current context, or show default actions for admin pages
   const contextualActions = currentPath.startsWith('/admin') 
     ? aiActions.filter(action => 
@@ -183,13 +188,22 @@ export function AIQuickActions() {
       )
     : [];
 
+  console.log('- Filtered contextual actions:', contextualActions.length);
+  console.log('- Contextual actions:', contextualActions.map(a => a.title));
+
   const urgentActions = contextualActions.filter(action => action.urgent);
   const regularActions = contextualActions.filter(action => !action.urgent);
+  
+  console.log('- Urgent actions:', urgentActions.length);
+  console.log('- Regular actions:', regularActions.length);
 
   // Always show the component on admin pages, even if no specific actions
   if (!currentPath.startsWith('/admin')) {
+    console.log('- Not on admin page, returning null');
     return null;
   }
+
+  console.log('- Rendering AI Quick Actions component');
 
   return (
     <Card className="mx-2 mb-4 bg-card/50 backdrop-blur-sm border-primary/10">

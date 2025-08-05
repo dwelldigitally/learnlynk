@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
 import { DynamicSidebar } from './DynamicSidebar';
-import { AIQuickActions } from './AIQuickActions';
 import { navigationStructure } from '@/data/navigationStructure';
 
 interface ModernAdminLayoutProps {
@@ -63,22 +62,8 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
         )}
 
         {/* Main Content Area */}
-        <main className={`flex-1 w-full ${!isHomePage ? 'lg:ml-80' : ''}`}>
-          <div className="flex">
-            {/* AI Quick Actions Panel - Fixed on right side */}
-            <div className="flex-1">
-              {children || <Outlet />}
-            </div>
-            
-            {/* AI Quick Actions Sidebar - Always visible on admin pages */}
-            {location.pathname.startsWith('/admin') && (
-              <div className="hidden xl:block w-80 border-l border-border bg-card/50 backdrop-blur-sm">
-                <div className="sticky top-16 p-4">
-                  <AIQuickActions />
-                </div>
-              </div>
-            )}
-          </div>
+<main className={`flex-1 w-full ${!isHomePage ? 'lg:ml-80' : ''}`}>
+          {children || <Outlet />}
         </main>
       </div>
     </div>

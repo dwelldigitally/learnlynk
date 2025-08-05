@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { useState } from "react";
+import { AIQuickActions } from "./AIQuickActions";
 
 interface DynamicSidebarProps {
   activeSection: string;
@@ -168,6 +169,11 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                   </>
                 )}
               </div>
+            </div>
+
+            {/* AI Quick Actions Section */}
+            <div className="mt-6 pt-4 border-t border-border">
+              <AIQuickActions />
             </div>
           </div>
         </div>

@@ -109,6 +109,72 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_feature_analytics: {
+        Row: {
+          created_at: string
+          feature_id: string
+          id: string
+          metric_data: Json | null
+          metric_name: string
+          metric_value: number
+          recorded_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_id: string
+          id?: string
+          metric_data?: Json | null
+          metric_name: string
+          metric_value: number
+          recorded_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_id?: string
+          id?: string
+          metric_data?: Json | null
+          metric_name?: string
+          metric_value?: number
+          recorded_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_feature_configurations: {
+        Row: {
+          created_at: string
+          feature_id: string
+          feature_name: string
+          id: string
+          is_active: boolean
+          settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_id: string
+          feature_name: string
+          id?: string
+          is_active?: boolean
+          settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_id?: string
+          feature_name?: string
+          id?: string
+          is_active?: boolean
+          settings?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       automation_action_logs: {
         Row: {
           action_data: Json | null

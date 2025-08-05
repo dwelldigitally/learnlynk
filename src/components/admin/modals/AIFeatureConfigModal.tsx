@@ -354,7 +354,7 @@ export function AIFeatureConfigModal({
             <div key={factor} className="space-y-2">
               <div className="flex justify-between">
                 <Label className="capitalize">{factor.replace('_', ' ')}</Label>
-                <span className="text-sm text-muted-foreground">{weight}%</span>
+                <span className="text-sm text-muted-foreground">{weight as number}%</span>
               </div>
               <Slider
                 value={[weight as number]}
@@ -379,12 +379,12 @@ export function AIFeatureConfigModal({
               <Label className="capitalize flex items-center gap-2">
                 {level}
                 <Badge variant={level === 'hot' ? 'destructive' : level === 'warm' ? 'default' : 'secondary'}>
-                  {threshold}+
+                  {threshold as number}+
                 </Badge>
               </Label>
               <Input
                 type="number"
-                value={threshold}
+                value={threshold as number}
                 onChange={(e) => updateNestedConfig('thresholds', level, parseInt(e.target.value))}
                 min={0}
                 max={100}

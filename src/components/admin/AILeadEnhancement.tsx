@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Brain, MessageSquare, FileText, Calendar, TrendingUp, Zap, Settings } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import { AIFeatureConfigModal } from '@/components/admin/modals/AIFeatureConfigModal';
 
 interface AIFeature {
   id: string;

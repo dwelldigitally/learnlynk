@@ -66,23 +66,16 @@ export class StudentService {
       throw error;
     }
 
-    // Transform database format to match demo data format
+    // Keep original database format for compatibility with existing components
     const transformedData = (data || []).map(student => ({
-      id: student.id,
+      ...student, // Keep all original fields
+      // Add camelCase aliases for backwards compatibility
       studentId: student.student_id,
       firstName: student.first_name,
       lastName: student.last_name,
-      email: student.email,
-      phone: student.phone,
-      program: student.program,
-      stage: student.stage,
       acceptanceLikelihood: student.acceptance_likelihood,
       riskLevel: student.risk_level,
-      progress: student.progress,
       leadScore: student.lead_score,
-      country: student.country,
-      city: student.city,
-      state: student.state,
       createdAt: student.created_at,
       updatedAt: student.updated_at
     }));

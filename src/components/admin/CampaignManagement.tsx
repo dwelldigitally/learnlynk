@@ -51,6 +51,29 @@ export function CampaignManagement() {
     }
   };
 
+  const handleCreateDummyCampaigns = async () => {
+    setLoading(true);
+    try {
+      const { DummyCampaignService } = await import('@/services/dummyCampaignService');
+      await DummyCampaignService.createDummyCampaigns();
+      await loadCampaigns();
+      await loadAnalytics();
+      toast({
+        title: "Success",
+        description: "5 dummy campaigns created successfully!",
+      });
+    } catch (error) {
+      console.error('Error creating dummy campaigns:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create dummy campaigns",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleDeleteCampaign = async (id: string) => {
     try {
       await CampaignService.deleteCampaign(id);
@@ -248,7 +271,7 @@ export function CampaignManagement() {
               ) : campaigns.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>No campaigns found</p>
-                  <div className="flex space-x-2 mt-4">
+                  <div className="flex flex-wrap gap-2 mt-4 justify-center">
                     <Button 
                       variant="outline" 
                       onClick={() => setShowBuilder(true)}
@@ -261,6 +284,14 @@ export function CampaignManagement() {
                     >
                       <GitBranch className="h-4 w-4 mr-2" />
                       Workflow Builder
+                    </Button>
+                    <Button 
+                      variant="secondary"
+                      onClick={handleCreateDummyCampaigns}
+                      disabled={loading}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Sample Campaigns
                     </Button>
                   </div>
                 </div>

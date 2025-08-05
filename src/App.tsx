@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
 import LeadDetailPage from "./pages/LeadDetailPage";
+import StudentDetailPage from "./pages/StudentDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,9 @@ const App = () => {
               
               {/* Lead detail route - use a specific pattern to avoid conflicts */}
               <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
+              
+              {/* Student detail route - use a specific pattern to avoid conflicts */}
+              <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

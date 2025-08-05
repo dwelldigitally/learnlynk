@@ -193,7 +193,7 @@ export default function StudentManagement() {
                 className="font-medium text-sm cursor-pointer text-primary hover:underline"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/admin/students/${student.id}`);
+                  navigate(`/admin/students/detail/${student.id}`);
                 }}
               >
                 {student.first_name || 'N/A'} {student.last_name || ''}
@@ -290,7 +290,7 @@ export default function StudentManagement() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate(`/admin/students/${student.id}`)}>
+            <DropdownMenuItem onClick={() => navigate(`/admin/students/detail/${student.id}`)}>
               <Eye className="h-4 w-4 mr-2" />
               View Profile
             </DropdownMenuItem>

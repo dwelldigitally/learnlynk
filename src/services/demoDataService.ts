@@ -499,7 +499,15 @@ export class DemoDataService {
  * React hook to check if user has demo data access
  */
 export function useDemoDataAccess() {
-  const { user } = useAuth();
+  // Safe auth access - return loading state if auth context not available
+  let user = null;
+  try {
+    const authContext = useAuth();
+    user = authContext.user;
+  } catch (error) {
+    // Auth context not available - this can happen during initial render
+    console.warn('Auth context not available, returning demo data disabled');
+  }
   
   return useQuery({
     queryKey: ['demo-data-access', user?.id],

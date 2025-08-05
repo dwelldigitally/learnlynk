@@ -57,6 +57,7 @@ import { useConditionalCommunications } from "@/hooks/useConditionalCommunicatio
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
 import { CommunicationTemplateService } from '@/services/communicationTemplateService';
+import EmailManagement from './EmailManagement';
 
 const CommunicationHub: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -387,13 +388,18 @@ const CommunicationHub: React.FC = () => {
         ))}
       </div>
 
-      <Tabs defaultValue="messages" className="space-y-4">
+      <Tabs defaultValue="emails" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="emails">Email Management</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="automations">Automations</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="emails" className="space-y-4">
+          <EmailManagement />
+        </TabsContent>
 
         <TabsContent value="messages" className="space-y-4">
           {/* Filters */}

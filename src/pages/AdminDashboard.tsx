@@ -36,6 +36,7 @@ import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { CompanySettings } from "@/components/admin/CompanySettings";
 import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
+import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -83,6 +84,8 @@ const AdminDashboard: React.FC = () => {
         return <LeadBulkOperations />;
       case "/admin/students":
         return <StudentManagement />;
+      case "/admin/student-portal":
+        return <StudentPortalManagement />;
       case "/admin/programs":
         return <ProgramManagement />;
       case "/admin/workflows":

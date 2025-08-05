@@ -60,7 +60,7 @@ export function AIQuickActions() {
     {
       id: "score-leads",
       title: "AI Lead Scoring",
-      description: "Score all unscored leads using AI",
+      description: "Score unscored leads",
       icon: Target,
       type: "bulk",
       context: ["/admin/leads"],
@@ -72,20 +72,9 @@ export function AIQuickActions() {
       }
     },
     {
-      id: "generate-forms",
-      title: "AI Form Builder",
-      description: "Generate smart lead capture forms",
-      icon: Sparkles,
-      type: "instant",
-      context: ["/admin/leads/forms"],
-      action: async () => {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-    },
-    {
       id: "generate-followup",
       title: "Smart Follow-ups",
-      description: "Generate personalized follow-up templates",
+      description: "Generate follow-up templates",
       icon: MessageSquare,
       type: "bulk",
       context: ["/admin/leads", "/admin/communication"],
@@ -104,59 +93,22 @@ export function AIQuickActions() {
     {
       id: "priority-analysis",
       title: "Priority Analysis",
-      description: "AI-powered lead prioritization",
+      description: "AI lead prioritization",
       icon: TrendingUp,
       type: "analysis",
       context: ["/admin/leads"],
       urgent: true,
       action: async () => {
-        // Simulate AI analysis
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
     },
     {
       id: "smart-assignment",
       title: "Smart Assignment",
-      description: "AI-based lead distribution",
+      description: "AI lead distribution",
       icon: Users,
       type: "bulk",
       context: ["/admin/leads", "/admin/team"],
-      action: async () => {
-        // Simulate smart assignment logic
-        await new Promise(resolve => setTimeout(resolve, 1500));
-      }
-    },
-    {
-      id: "conversion-prediction",
-      title: "Conversion Forecast",
-      description: "Predict lead conversion probability",
-      icon: Sparkles,
-      type: "analysis",
-      context: ["/admin/leads", "/admin/analytics"],
-      action: async () => {
-        // Simulate prediction analysis
-        await new Promise(resolve => setTimeout(resolve, 3000));
-      }
-    },
-    {
-      id: "campaign-optimization",
-      title: "Campaign AI Optimizer",
-      description: "AI-powered campaign performance optimization",
-      icon: Zap,
-      type: "analysis",
-      context: ["/admin/campaigns"],
-      action: async () => {
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      }
-    },
-    {
-      id: "auto-campaign",
-      title: "Smart Campaign Builder",
-      description: "Generate AI-driven campaign workflows",
-      icon: Bot,
-      type: "instant",
-      context: ["/admin/campaigns"],
-      urgent: true,
       action: async () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
       }
@@ -164,12 +116,11 @@ export function AIQuickActions() {
     {
       id: "optimal-timing",
       title: "Contact Timing",
-      description: "AI-optimized contact scheduling",
+      description: "AI contact scheduling",
       icon: Clock,
       type: "instant",
       context: ["/admin/leads"],
       action: async () => {
-        // Simulate timing optimization
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }

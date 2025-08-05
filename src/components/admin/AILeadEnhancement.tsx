@@ -19,6 +19,8 @@ interface AIFeature {
 
 const AILeadEnhancement: React.FC = () => {
   const { toast } = useToast();
+  const [configModalOpen, setConfigModalOpen] = useState(false);
+  const [selectedFeature, setSelectedFeature] = useState<AIFeature | null>(null);
   const [aiFeatures, setAIFeatures] = useState<AIFeature[]>([
     {
       id: 'auto-follow-up',
@@ -100,6 +102,19 @@ const AILeadEnhancement: React.FC = () => {
     acc[feature.category].push(feature);
     return acc;
   }, {} as Record<string, AIFeature[]>);
+
+  const handleConfigureFeature = (feature: AIFeature) => {
+    setSelectedFeature(feature);
+    setConfigModalOpen(true);
+  };
+
+  const handleSaveConfiguration = (config: any) => {
+    toast({
+      title: "Configuration Saved",
+      description: `${selectedFeature?.name} has been configured successfully.`,
+    });
+    setConfigModalOpen(false);
+  };
 
   return (
     <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
@@ -226,7 +241,7 @@ const AILeadEnhancement: React.FC = () => {
                       {feature.enabled && (
                         <CardContent>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" onClick={() => handleConfigureFeature(feature)}>
                               <Settings className="h-3 w-3 mr-1" />
                               Configure
                             </Button>
@@ -245,6 +260,16 @@ const AILeadEnhancement: React.FC = () => {
           ))}
         </Tabs>
       </CardContent>
+      
+      {selectedFeature && (
+        <AIFeatureConfigModal
+          isOpen={configModalOpen}
+          onClose={() => setConfigModalOpen(false)}
+          featureId={selectedFeature.id}
+          featureName={selectedFeature.name}
+          onSave={handleSaveConfiguration}
+        />
+      )}
     </Card>
   );
 };

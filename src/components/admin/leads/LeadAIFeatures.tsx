@@ -3,6 +3,8 @@ import AILeadEnhancement from "@/components/admin/AILeadEnhancement";
 import { AdvancedLeadAnalyticsDashboard } from "@/components/admin/AdvancedLeadAnalyticsDashboard";
 import { BulkLeadOperations } from "@/components/admin/BulkLeadOperations";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AutomationWorkflowBuilder } from "@/components/admin/leads/AutomationWorkflowBuilder";
+import { AIAnalyticsDashboard } from "@/components/admin/leads/AIAnalyticsDashboard";
 
 export function LeadAIFeatures() {
   return (
@@ -29,23 +31,11 @@ export function LeadAIFeatures() {
         </TabsContent>
 
         <TabsContent value="automation" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Template Assistant</CardTitle>
-              <CardDescription>
-                AI-powered template generation and optimization
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Template automation features will be available here.
-              </p>
-            </CardContent>
-          </Card>
+          <AutomationWorkflowBuilder />
         </TabsContent>
 
         <TabsContent value="analysis" className="space-y-6">
-          <AdvancedLeadAnalyticsDashboard />
+          <AIAnalyticsDashboard />
         </TabsContent>
 
         <TabsContent value="prediction" className="space-y-6">

@@ -112,10 +112,17 @@ export class LeadService {
 
   // Get a single lead by ID
   static async getLeadById(id: string): Promise<Lead | null> {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .select('*')
       .eq('id', id)
+      .eq('user_id', user.id)
       .maybeSingle();
 
     if (error) {

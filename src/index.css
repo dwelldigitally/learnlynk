@@ -8,56 +8,46 @@
  
 @layer base {
   :root {
-    /* Soft, approachable color system */
-    --background: 210 40% 98%;
-    --foreground: 215 25% 27%;
+    /* Modern Apple-inspired color system */
+    --background: 0 0% 99%;
+    --foreground: 220 14% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 27%;
+    --card-foreground: 220 14% 15%;
  
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    --popover-foreground: 220 14% 15%;
  
-    /* Primary - Soft purple-blue gradient */
-    --primary: 250 84% 54%;
+    /* Primary - Modern blue like Apple's system blue */
+    --primary: 214 100% 54%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 250 84% 48%;
-    --primary-light: 250 100% 97%;
+    --primary-hover: 214 100% 49%;
+    --primary-light: 214 100% 97%;
     
-    /* Secondary - Warm neutral */
-    --secondary: 215 20% 95%;
-    --secondary-foreground: 215 25% 35%;
-    --secondary-hover: 215 25% 90%;
+    /* Secondary - Soft neutral */
+    --secondary: 220 9% 96%;
+    --secondary-foreground: 220 14% 25%;
+    --secondary-hover: 220 9% 93%;
  
     /* Muted colors */
-    --muted: 215 20% 95%;
-    --muted-foreground: 215 16% 57%;
+    --muted: 220 9% 96%;
+    --muted-foreground: 220 9% 55%;
  
-    /* Accent - Soft emerald */
-    --accent: 160 84% 39%;
+    /* Accent - Modern green */
+    --accent: 142 76% 36%;
     --accent-foreground: 0 0% 100%;
-    --accent-light: 160 84% 97%;
- 
-    /* Priority colors - contextual and soft */
-    --priority-low: 200 100% 97%;
-    --priority-low-foreground: 200 84% 45%;
-    --priority-medium: 35 100% 97%;
-    --priority-medium-foreground: 35 84% 45%;
-    --priority-high: 0 100% 97%;
-    --priority-high-foreground: 0 84% 45%;
-    --priority-urgent: 280 100% 97%;
-    --priority-urgent-foreground: 280 84% 45%;
+    --accent-light: 142 76% 97%;
  
     /* Status colors */
-    --success: 160 84% 39%;
-    --warning: 35 91% 55%;
-    --destructive: 0 84% 50%;
+    --success: 142 76% 36%;
+    --warning: 35 91% 65%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Borders and inputs */
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 250 84% 54%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 214 100% 54%;
  
     /* Spacing */
     --radius: 0.75rem;
@@ -72,11 +62,10 @@
     --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(250 100% 99%) 0%, hsl(210 40% 98%) 50%, hsl(160 84% 99%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(214 100% 97%) 0%, hsl(214 100% 99%) 50%, hsl(220 9% 98%) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
     
     /* Neomorphism shadows */
     --neo-shadow-light: 8px 8px 16px rgba(163, 177, 198, 0.15), -8px -8px 16px rgba(255, 255, 255, 0.7);
@@ -289,54 +278,4 @@
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
-}
-
-/* Priority Cards */
-.priority-card {
-  @apply relative rounded-lg border transition-all duration-300 hover:shadow-lg;
-}
-
-.priority-low {
-  @apply bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 text-blue-800;
-}
-
-.priority-medium {
-  @apply bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-200 text-amber-800;
-}
-
-.priority-high {
-  @apply bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200 text-orange-800;
-}
-
-.priority-urgent {
-  @apply bg-gradient-to-br from-red-50 to-red-100/50 border-red-200 text-red-800;
-}
-
-/* Interactive card hover effects */
-.interactive-card {
-  @apply transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg cursor-pointer;
-}
-
-.status-badge-new {
-  @apply bg-blue-100 text-blue-700 border border-blue-200;
-}
-
-.status-badge-contacted {
-  @apply bg-purple-100 text-purple-700 border border-purple-200;
-}
-
-.status-badge-qualified {
-  @apply bg-green-100 text-green-700 border border-green-200;
-}
-
-.status-badge-nurturing {
-  @apply bg-amber-100 text-amber-700 border border-amber-200;
-}
-
-.status-badge-converted {
-  @apply bg-emerald-100 text-emerald-700 border border-emerald-200;
-}
-
-.status-badge-lost {
-  @apply bg-red-100 text-red-700 border border-red-200;
 }

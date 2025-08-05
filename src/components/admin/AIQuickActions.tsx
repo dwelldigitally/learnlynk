@@ -72,6 +72,17 @@ export function AIQuickActions() {
       }
     },
     {
+      id: "generate-forms",
+      title: "AI Form Builder",
+      description: "Generate smart lead capture forms",
+      icon: Sparkles,
+      type: "instant",
+      context: ["/admin/leads/forms"],
+      action: async () => {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    },
+    {
       id: "generate-followup",
       title: "Smart Follow-ups",
       description: "Generate personalized follow-up templates",

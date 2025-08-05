@@ -1630,6 +1630,66 @@ export type Database = {
         }
         Relationships: []
       }
+      student_applications: {
+        Row: {
+          acceptance_likelihood: number | null
+          application_deadline: string | null
+          application_number: string
+          created_at: string
+          documents: Json | null
+          estimated_decision: string | null
+          id: string
+          next_step: string | null
+          program_id: string | null
+          progress: number | null
+          requirements: Json | null
+          stage: string
+          status: string
+          student_id: string
+          submission_date: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acceptance_likelihood?: number | null
+          application_deadline?: string | null
+          application_number: string
+          created_at?: string
+          documents?: Json | null
+          estimated_decision?: string | null
+          id?: string
+          next_step?: string | null
+          program_id?: string | null
+          progress?: number | null
+          requirements?: Json | null
+          stage?: string
+          status?: string
+          student_id: string
+          submission_date?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acceptance_likelihood?: number | null
+          application_deadline?: string | null
+          application_number?: string
+          created_at?: string
+          documents?: Json | null
+          estimated_decision?: string | null
+          id?: string
+          next_step?: string | null
+          program_id?: string | null
+          progress?: number | null
+          requirements?: Json | null
+          stage?: string
+          status?: string
+          student_id?: string
+          submission_date?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_communications: {
         Row: {
           content: string
@@ -1722,6 +1782,171 @@ export type Database = {
           type?: string
           updated_at?: string
           uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_portal_config: {
+        Row: {
+          config_key: string
+          config_value: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config_key: string
+          config_value: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config_key?: string
+          config_value?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_portal_content: {
+        Row: {
+          author: string | null
+          capacity: number | null
+          content: string | null
+          content_type: string
+          created_at: string
+          date: string | null
+          description: string | null
+          event_type: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          location: string | null
+          max_capacity: number | null
+          metadata: Json | null
+          read_time: string | null
+          registered_count: number | null
+          target_audience: Json | null
+          time: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author?: string | null
+          capacity?: number | null
+          content?: string | null
+          content_type: string
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          event_type?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          location?: string | null
+          max_capacity?: number | null
+          metadata?: Json | null
+          read_time?: string | null
+          registered_count?: number | null
+          target_audience?: Json | null
+          time?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author?: string | null
+          capacity?: number | null
+          content?: string | null
+          content_type?: string
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          event_type?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          location?: string | null
+          max_capacity?: number | null
+          metadata?: Json | null
+          read_time?: string | null
+          registered_count?: number | null
+          target_audience?: Json | null
+          time?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_portal_messages: {
+        Row: {
+          attachments: Json | null
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message_type: string
+          metadata: Json | null
+          parent_message_id: string | null
+          priority: string | null
+          read_at: string | null
+          sender_id: string | null
+          sender_name: string
+          sender_type: string
+          student_id: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: Json | null
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          parent_message_id?: string | null
+          priority?: string | null
+          read_at?: string | null
+          sender_id?: string | null
+          sender_name: string
+          sender_type?: string
+          student_id: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachments?: Json | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message_type?: string
+          metadata?: Json | null
+          parent_message_id?: string | null
+          priority?: string | null
+          read_at?: string | null
+          sender_id?: string | null
+          sender_name?: string
+          sender_type?: string
+          student_id?: string
+          subject?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

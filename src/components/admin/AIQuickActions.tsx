@@ -192,7 +192,6 @@ export function AIQuickActions() {
                       <div className="font-medium text-xs">{action.title}</div>
                       <div className="text-xs text-muted-foreground">{action.description}</div>
                     </div>
-                    <ArrowRight className="h-3 w-3 text-muted-foreground" />
                   </div>
                 </Button>
               ))}
@@ -220,12 +219,6 @@ export function AIQuickActions() {
                 <div className="flex-1 text-left">
                   <div className="font-medium text-xs">{action.title}</div>
                   <div className="text-xs text-muted-foreground">{action.description}</div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Badge variant="secondary" className="text-xs">
-                    {action.type}
-                  </Badge>
-                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
                 </div>
               </div>
             </Button>

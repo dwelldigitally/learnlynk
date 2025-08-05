@@ -35,6 +35,7 @@ import { RequirementsManagement } from "@/components/admin/RequirementsManagemen
 import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { CompanySettings } from "@/components/admin/CompanySettings";
 import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
+import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -60,6 +61,8 @@ const AdminDashboard: React.FC = () => {
         return <AdminOverview />;
       case "/admin/leads":
         return <LeadOverview />;
+      case "/admin/leads/workflow":
+        return <LeadWorkflowHub />;
       case "/admin/leads/ai":
         return <LeadAIFeatures />;
       case "/admin/leads/forms":

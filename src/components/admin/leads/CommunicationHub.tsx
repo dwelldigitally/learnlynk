@@ -8,7 +8,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft, Zap } from 'lucide-react';
+import { AIVideoIntegration } from './AIVideoIntegration';
+import { AITranscriptionPanel } from './AITranscriptionPanel';
+import { AIMeetingAnalysis } from './AIMeetingAnalysis';
+import { AIFollowUpGenerator } from './AIFollowUpGenerator';
 import { Lead } from '@/types/lead';
 import { LeadCommunication, CommunicationFormData, CommunicationType, CommunicationDirection } from '@/types/leadEnhancements';
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
@@ -128,13 +133,25 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Communication Hub
-          </div>
+    <div className="space-y-6">
+      <Tabs defaultValue="communications" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="communications">Communications</TabsTrigger>
+          <TabsTrigger value="ai-features">
+            <Zap className="h-4 w-4 mr-2" />
+            AI Features
+          </TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="communications" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MessageSquare className="h-5 w-5" />
+                  Communication Hub
+                </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm">
@@ -263,5 +280,67 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
         )}
       </CardContent>
     </Card>
+        </TabsContent>
+        
+        <TabsContent value="ai-features" className="mt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AIVideoIntegration 
+              leadId={lead.id} 
+              onMeetingScheduled={(meetingData) => {
+                // Handle meeting scheduled
+                console.log('Meeting scheduled:', meetingData);
+                onUpdate();
+              }}
+            />
+            <AITranscriptionPanel 
+              leadId={lead.id}
+              onTranscriptUpdate={(transcript) => {
+                // Handle transcript updates
+                console.log('Transcript updated:', transcript);
+              }}
+            />
+            <AIMeetingAnalysis 
+              leadId={lead.id}
+            />
+            <AIFollowUpGenerator 
+              leadId={lead.id}
+              onActionCreated={(action) => {
+                // Handle action creation
+                console.log('Action created:', action);
+                onUpdate();
+              }}
+            />
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="analytics" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Communication Analytics</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 border rounded-lg">
+                  <div className="text-2xl font-bold text-primary">{communications.length}</div>
+                  <div className="text-sm text-muted-foreground">Total Communications</div>
+                </div>
+                <div className="text-center p-4 border rounded-lg">
+                  <div className="text-2xl font-bold text-green-600">
+                    {communications.filter(c => c.direction === 'inbound').length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Inbound Responses</div>
+                </div>
+                <div className="text-center p-4 border rounded-lg">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {communications.filter(c => c.type === 'meeting').length}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Meetings Held</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

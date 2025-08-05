@@ -415,6 +415,331 @@ export type Database = {
         }
         Relationships: []
       }
+      email_accounts: {
+        Row: {
+          access_token_encrypted: string | null
+          account_type: string
+          created_at: string
+          display_name: string | null
+          email_address: string
+          id: string
+          is_active: boolean
+          provider: string
+          refresh_token_encrypted: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          account_type?: string
+          created_at?: string
+          display_name?: string | null
+          email_address: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          account_type?: string
+          created_at?: string
+          display_name?: string | null
+          email_address?: string
+          id?: string
+          is_active?: boolean
+          provider?: string
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_analytics: {
+        Row: {
+          conversion_action: string | null
+          created_at: string
+          email_id: string
+          first_response_at: string | null
+          id: string
+          lead_score_after: number | null
+          lead_score_before: number | null
+          resolution_time_minutes: number | null
+          resolved_at: string | null
+          response_time_minutes: number | null
+          user_id: string
+        }
+        Insert: {
+          conversion_action?: string | null
+          created_at?: string
+          email_id: string
+          first_response_at?: string | null
+          id?: string
+          lead_score_after?: number | null
+          lead_score_before?: number | null
+          resolution_time_minutes?: number | null
+          resolved_at?: string | null
+          response_time_minutes?: number | null
+          user_id: string
+        }
+        Update: {
+          conversion_action?: string | null
+          created_at?: string
+          email_id?: string
+          first_response_at?: string | null
+          id?: string
+          lead_score_after?: number | null
+          lead_score_before?: number | null
+          resolution_time_minutes?: number | null
+          resolved_at?: string | null
+          response_time_minutes?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_analytics_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_attachments: {
+        Row: {
+          content_bytes: string | null
+          content_type: string | null
+          created_at: string
+          download_url: string | null
+          email_id: string
+          id: string
+          is_inline: boolean | null
+          microsoft_attachment_id: string | null
+          name: string
+          size_bytes: number | null
+        }
+        Insert: {
+          content_bytes?: string | null
+          content_type?: string | null
+          created_at?: string
+          download_url?: string | null
+          email_id: string
+          id?: string
+          is_inline?: boolean | null
+          microsoft_attachment_id?: string | null
+          name: string
+          size_bytes?: number | null
+        }
+        Update: {
+          content_bytes?: string | null
+          content_type?: string | null
+          created_at?: string
+          download_url?: string | null
+          email_id?: string
+          id?: string
+          is_inline?: boolean | null
+          microsoft_attachment_id?: string | null
+          name?: string
+          size_bytes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_attachments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_drafts: {
+        Row: {
+          ai_confidence_score: number | null
+          bcc_emails: Json | null
+          body_content: string | null
+          cc_emails: Json | null
+          created_at: string
+          created_by: string
+          id: string
+          is_ai_generated: boolean | null
+          original_email_id: string | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string | null
+          subject: string | null
+          suggested_attachments: Json | null
+          to_emails: Json | null
+          updated_at: string
+        }
+        Insert: {
+          ai_confidence_score?: number | null
+          bcc_emails?: Json | null
+          body_content?: string | null
+          cc_emails?: Json | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_ai_generated?: boolean | null
+          original_email_id?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+          suggested_attachments?: Json | null
+          to_emails?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          ai_confidence_score?: number | null
+          bcc_emails?: Json | null
+          body_content?: string | null
+          cc_emails?: Json | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_ai_generated?: boolean | null
+          original_email_id?: string | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string | null
+          subject?: string | null
+          suggested_attachments?: Json | null
+          to_emails?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_drafts_original_email_id_fkey"
+            columns: ["original_email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      emails: {
+        Row: {
+          ai_lead_match_confidence: number | null
+          ai_priority_score: number | null
+          ai_suggested_actions: Json | null
+          assigned_at: string | null
+          assigned_to: string | null
+          bcc_emails: Json | null
+          body_content: string | null
+          body_preview: string | null
+          cc_emails: Json | null
+          created_at: string
+          created_datetime: string
+          email_account_id: string
+          from_email: string
+          from_name: string | null
+          has_attachments: boolean | null
+          id: string
+          importance: string | null
+          is_read: boolean
+          lead_id: string | null
+          microsoft_id: string
+          microsoft_metadata: Json | null
+          received_datetime: string
+          sent_datetime: string | null
+          status: string | null
+          subject: string | null
+          team_inbox_id: string | null
+          thread_id: string | null
+          to_emails: Json | null
+          updated_at: string
+        }
+        Insert: {
+          ai_lead_match_confidence?: number | null
+          ai_priority_score?: number | null
+          ai_suggested_actions?: Json | null
+          assigned_at?: string | null
+          assigned_to?: string | null
+          bcc_emails?: Json | null
+          body_content?: string | null
+          body_preview?: string | null
+          cc_emails?: Json | null
+          created_at?: string
+          created_datetime?: string
+          email_account_id: string
+          from_email: string
+          from_name?: string | null
+          has_attachments?: boolean | null
+          id?: string
+          importance?: string | null
+          is_read?: boolean
+          lead_id?: string | null
+          microsoft_id: string
+          microsoft_metadata?: Json | null
+          received_datetime: string
+          sent_datetime?: string | null
+          status?: string | null
+          subject?: string | null
+          team_inbox_id?: string | null
+          thread_id?: string | null
+          to_emails?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          ai_lead_match_confidence?: number | null
+          ai_priority_score?: number | null
+          ai_suggested_actions?: Json | null
+          assigned_at?: string | null
+          assigned_to?: string | null
+          bcc_emails?: Json | null
+          body_content?: string | null
+          body_preview?: string | null
+          cc_emails?: Json | null
+          created_at?: string
+          created_datetime?: string
+          email_account_id?: string
+          from_email?: string
+          from_name?: string | null
+          has_attachments?: boolean | null
+          id?: string
+          importance?: string | null
+          is_read?: boolean
+          lead_id?: string | null
+          microsoft_id?: string
+          microsoft_metadata?: Json | null
+          received_datetime?: string
+          sent_datetime?: string | null
+          status?: string | null
+          subject?: string | null
+          team_inbox_id?: string | null
+          thread_id?: string | null
+          to_emails?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emails_email_account_id_fkey"
+            columns: ["email_account_id"]
+            isOneToOne: false
+            referencedRelation: "email_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "emails_team_inbox_id_fkey"
+            columns: ["team_inbox_id"]
+            isOneToOne: false
+            referencedRelation: "team_inboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           capacity: number | null
@@ -1361,6 +1686,85 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      team_inbox_members: {
+        Row: {
+          added_at: string
+          id: string
+          permissions: Json | null
+          role: string
+          team_inbox_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          permissions?: Json | null
+          role?: string
+          team_inbox_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          permissions?: Json | null
+          role?: string
+          team_inbox_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_inbox_members_team_inbox_id_fkey"
+            columns: ["team_inbox_id"]
+            isOneToOne: false
+            referencedRelation: "team_inboxes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_inboxes: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          email_account_id: string
+          email_address: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          email_account_id: string
+          email_address: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          email_account_id?: string
+          email_address?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_inboxes_email_account_id_fkey"
+            columns: ["email_account_id"]
+            isOneToOne: false
+            referencedRelation: "email_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_members: {
         Row: {

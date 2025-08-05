@@ -23,11 +23,22 @@ export default function LeadDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('communication');
 
+  // UUID validation function
+  const isValidUUID = (uuid: string): boolean => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(uuid);
+  };
+
   useEffect(() => {
     if (leadId) {
+      // Check if leadId is a valid UUID, if not redirect to leads overview
+      if (!isValidUUID(leadId)) {
+        navigate('/admin/leads', { replace: true });
+        return;
+      }
       loadLead();
     }
-  }, [leadId]);
+  }, [leadId, navigate]);
 
   const loadLead = async () => {
     if (!leadId) {

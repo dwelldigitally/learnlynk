@@ -31,9 +31,15 @@ const App = () => {
               <Route path="/sign-up" element={<ModernSignUp />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ModernOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin" replace />} /> 
-              <Route path="/admin/leads/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
-              <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
+              
+              {/* Specific admin routes first */}
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
+              
+              {/* Lead detail route - only matches UUIDs */}
+              <Route path="/admin/leads/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
+              
+              {/* General admin routes */}
+              <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               
               {/* Student Portal Routes */}
               <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />

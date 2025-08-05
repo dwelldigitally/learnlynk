@@ -109,6 +109,117 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_action_logs: {
+        Row: {
+          action_data: Json | null
+          action_type: string
+          created_at: string
+          error_message: string | null
+          execution_id: string
+          id: string
+          status: string
+        }
+        Insert: {
+          action_data?: Json | null
+          action_type: string
+          created_at?: string
+          error_message?: string | null
+          execution_id: string
+          id?: string
+          status?: string
+        }
+        Update: {
+          action_data?: Json | null
+          action_type?: string
+          created_at?: string
+          error_message?: string | null
+          execution_id?: string
+          id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      automation_executions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          execution_data: Json | null
+          id: string
+          lead_id: string
+          rule_id: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_data?: Json | null
+          id?: string
+          lead_id: string
+          rule_id: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          execution_data?: Json | null
+          id?: string
+          lead_id?: string
+          rule_id?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      automation_rules: {
+        Row: {
+          actions: Json
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          trigger_config?: Json
+          trigger_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_executions: {
         Row: {
           campaign_id: string

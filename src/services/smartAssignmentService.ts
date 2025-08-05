@@ -89,7 +89,7 @@ export class SmartAssignmentService {
   static async assignLeadToAdvisor(
     leadId: string, 
     advisorId: string, 
-    method: 'smart' | 'manual' | 'round_robin' = 'smart'
+    method: 'ai_based' | 'manual' | 'round_robin' = 'ai_based'
   ): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     
@@ -103,7 +103,7 @@ export class SmartAssignmentService {
       .update({
         assigned_to: advisorId,
         assigned_at: new Date().toISOString(),
-        assignment_method: method
+        assignment_method: method as any
       })
       .eq('id', leadId);
 
@@ -264,7 +264,7 @@ export class SmartAssignmentService {
         id: perf.advisor_id,
         name: teamMember?.name || `Advisor ${perf.advisor_id.slice(0, 8)}`,
         email: teamMember?.email || '',
-        specializations: teamMember?.specializations || [],
+        specializations: teams.find(t => t.members.some(m => m.id === perf.advisor_id))?.specializations || [],
         currentLoad: perf.leads_assigned - perf.leads_converted,
         maxCapacity: perf.max_daily_assignments || 10,
         performanceScore: (perf.conversion_rate || 0) * 100,

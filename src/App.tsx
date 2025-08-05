@@ -35,10 +35,10 @@ const App = () => {
               {/* Specific admin routes first */}
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
               
-              {/* Lead detail route - only matches UUIDs */}
-              <Route path="/admin/leads/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
+              {/* Lead detail route - use a specific pattern to avoid conflicts */}
+              <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
               
-              {/* General admin routes */}
+              {/* General admin routes - this handles all /admin/leads/* static routes */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               
               {/* Student Portal Routes */}

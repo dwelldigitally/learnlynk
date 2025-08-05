@@ -525,7 +525,7 @@ export function LeadManagement() {
             const lead = leads.find(l => l.id === row.id);
             if (lead) {
               // Navigate to individual lead page using React Router
-              navigate(`/admin/leads/${lead.id}`);
+              navigate(`/admin/leads/detail/${lead.id}`);
             }
           }} onSelectionChange={setSelectedLeadIds} />
           </ConditionalDataWrapper>

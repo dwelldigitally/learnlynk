@@ -6,17 +6,6 @@ export interface HelpContent {
 
 export const helpContent: HelpContent = {
   // Lead Management
-  leadScore: (
-    <div className="space-y-2">
-      <p className="font-medium">Lead Score</p>
-      <p>A numerical value (0-100) indicating how likely a lead is to convert based on their profile, behavior, and engagement.</p>
-      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
-        <li>0-30: Low priority</li>
-        <li>31-60: Medium priority</li>
-        <li>61-100: High priority</li>
-      </ul>
-    </div>
-  ),
   conversionRate: (
     <div className="space-y-2">
       <p className="font-medium">Conversion Rate</p>
@@ -372,6 +361,21 @@ export const helpContent: HelpContent = {
         <li>Suggests optimal days and times for outreach</li>
         <li>Increases likelihood of successful connections</li>
       </ul>
+    </div>
+  ),
+  
+  // Enhanced Lead Management
+  leadScore: (
+    <div className="space-y-2">
+      <p className="font-medium">Lead Score</p>
+      <p>A numerical value (0-100) that indicates how likely a lead is to convert into a student.</p>
+      <ul className="list-disc list-inside text-xs space-y-1 mt-2">
+        <li>80-100: Hot leads - immediate follow-up recommended</li>
+        <li>60-79: Warm leads - engage within 24 hours</li>
+        <li>40-59: Medium leads - nurture with targeted content</li>
+        <li>0-39: Cold leads - long-term nurturing required</li>
+      </ul>
+      <p className="text-xs mt-1">AI continuously updates scores based on new interactions and behavior patterns.</p>
     </div>
   )
 }

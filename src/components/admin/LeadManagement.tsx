@@ -20,6 +20,7 @@ import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
 import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
+import { InteractiveLeadGrid } from './leads/InteractiveLeadGrid';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
@@ -425,109 +426,32 @@ export function LeadManagement() {
     onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
     variant: 'destructive' as const
   }];
-  return <div className="w-full max-w-7xl mx-auto space-y-6 px-6 pr-8">{/* Container with right margin */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold py-[25px]">Lead Management</h1>
-          <p className="text-muted-foreground">Comprehensive lead generation, routing, and conversion system</p>
-        </div>
-      </div>
-
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">New Leads</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.new_leads}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Contacted</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.contacted}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Qualified</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{stats.qualified}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Converted</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.converted}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Conversion Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.conversion_rate.toFixed(1)}%</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Filters & Actions Bar */}
-        <Card className="p-4 bg-muted/50 border-2 border-primary/20">{/* Made more visible for debugging */}
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
-                <Filter className="h-4 w-4 mr-2" />
-                Advanced Filters
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setFilters({});
-                setCurrentPage(1);
-              }}>
-                <FileX className="h-4 w-4 mr-2" />
-                Clear Filters
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => setShowLeadForm(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Lead
-              </Button>
-            </div>
-          </div>
-        </Card>
-
-        {/* Main Content */}
-        <div className="space-y-6">
-
-          {/* Advanced Filters Panel */}
-          {showAdvancedFilters && <AdvancedFilterPanel filters={filters} onFiltersChange={handleFilter} />}
-
-          {/* Enhanced Data Table */}
-          <ConditionalDataWrapper isLoading={loading} showEmptyState={!hasDemoAccess && leads.length === 0} hasDemoAccess={hasDemoAccess || false} hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} emptyTitle="No Leads Yet" emptyDescription="Create your first lead to get started with lead management." loadingRows={5}>
-            <EnhancedDataTable title="Lead Management" columns={columns} data={tableData} totalCount={totalCount} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} loading={loading} searchable={true} filterable={true} exportable={true} selectable={true} sortBy={sortBy} sortOrder={sortOrder} filterOptions={enhancedFilterOptions} quickFilters={quickFilters} selectedIds={selectedLeadIds} bulkActions={bulkActions} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} onSearch={handleSearch} onSort={handleSort} onFilter={handleFilter} onExport={handleExport} onRowClick={row => {
-            const lead = leads.find(l => l.id === row.id);
-            if (lead) {
-              setSelectedLead(lead);
-              setShowEnhancedModal(true);
-            }
-          }} onSelectionChange={setSelectedLeadIds} />
-          </ConditionalDataWrapper>
-        </div>
+  return <div className="w-full max-w-7xl mx-auto space-y-6 px-6 pr-8">
+      {/* Interactive Lead Grid */}
+      <ConditionalDataWrapper 
+        isLoading={loading} 
+        showEmptyState={!hasDemoAccess && leads.length === 0} 
+        hasDemoAccess={hasDemoAccess || false} 
+        hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} 
+        emptyTitle="No Leads Yet" 
+        emptyDescription="Create your first lead to get started with lead management." 
+        loadingRows={5}
+      >
+        <InteractiveLeadGrid
+          leads={leads}
+          onStatusChange={handleStatusChange}
+          onViewDetails={(lead) => {
+            setSelectedLead(lead);
+            setShowEnhancedModal(true);
+          }}
+          onEdit={(lead) => {
+            setSelectedLead(lead);
+            setShowLeadForm(true);
+          }}
+          onAddLead={() => setShowLeadForm(true)}
+          onExport={handleExport}
+        />
+      </ConditionalDataWrapper>
 
       {/* Modals */}
       <LeadFormModal open={showLeadForm} onOpenChange={setShowLeadForm} onLeadCreated={handleLeadCreated} />

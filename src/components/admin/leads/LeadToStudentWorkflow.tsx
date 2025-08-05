@@ -66,6 +66,40 @@ export function LeadToStudentWorkflow() {
     );
   }
 
+  if (activeView === 'capacity') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => setActiveView('overview')}
+            className="text-sm"
+          >
+            ← Back to Workflow Overview
+          </Button>
+        </div>
+        <TeamCapacityDashboard />
+      </div>
+    );
+  }
+
+  if (activeView === 'routing') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => setActiveView('overview')}
+            className="text-sm"
+          >
+            ← Back to Workflow Overview
+          </Button>
+        </div>
+        <AdvancedRoutingEngine />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -183,58 +217,82 @@ export function LeadToStudentWorkflow() {
       </Card>
 
       {/* Action Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveView('queue')}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-              Handover Queue Management
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CheckCircle className="h-4 w-4 text-green-600" />
+              Handover Queue
             </CardTitle>
-            <CardDescription>
-              Review and process qualified leads ready for student conversion
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Ready for conversion</span>
-                <Badge className="bg-green-100 text-green-800">{workflowStats.readyForConversion} leads</Badge>
+            <div className="space-y-3">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground">{workflowStats.readyForConversion}</p>
+                <p className="text-xs text-muted-foreground">Ready for conversion</p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Average processing time</span>
-                <span className="text-sm font-medium">{workflowStats.averageTimeToConvert} days</span>
-              </div>
-              <Button className="w-full" onClick={() => setActiveView('queue')}>
+              <Button size="sm" className="w-full" onClick={() => setActiveView('queue')}>
                 Manage Queue
-                <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
           </CardContent>
         </Card>
 
         <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveView('automation')}>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5 text-blue-600" />
-              Workflow Automation
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Zap className="h-4 w-4 text-blue-600" />
+              Automation
             </CardTitle>
-            <CardDescription>
-              Configure and monitor automated lead processing rules
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Active automation rules</span>
-                <Badge className="bg-blue-100 text-blue-800">{workflowStats.activeAutomations} active</Badge>
+            <div className="space-y-3">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground">{workflowStats.activeAutomations}</p>
+                <p className="text-xs text-muted-foreground">Active rules</p>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total rules configured</span>
-                <span className="text-sm font-medium">{workflowStats.automationRules} rules</span>
+              <Button size="sm" className="w-full" onClick={() => setActiveView('automation')}>
+                Manage Rules
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveView('capacity')}>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Users className="h-4 w-4 text-purple-600" />
+              Team Capacity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground">78%</p>
+                <p className="text-xs text-muted-foreground">Utilization rate</p>
               </div>
-              <Button className="w-full" onClick={() => setActiveView('automation')}>
-                Manage Automation
-                <ArrowRight className="h-4 w-4 ml-2" />
+              <Button size="sm" className="w-full" onClick={() => setActiveView('capacity')}>
+                View Capacity
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => setActiveView('routing')}>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <TrendingUp className="h-4 w-4 text-orange-600" />
+              Smart Routing
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-foreground">89%</p>
+                <p className="text-xs text-muted-foreground">Assignment accuracy</p>
+              </div>
+              <Button size="sm" className="w-full" onClick={() => setActiveView('routing')}>
+                Configure Rules
               </Button>
             </div>
           </CardContent>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LeadHandoverQueue } from "./LeadHandoverQueue";
 import { LeadWorkflowAutomation } from "./LeadWorkflowAutomation";
+import { TeamCapacityDashboard } from "../TeamCapacityDashboard";
+import { AdvancedRoutingEngine } from "../AdvancedRoutingEngine";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +19,7 @@ import {
 } from "lucide-react";
 
 export function LeadToStudentWorkflow() {
-  const [activeView, setActiveView] = useState<'overview' | 'queue' | 'automation'>('overview');
+  const [activeView, setActiveView] = useState<'overview' | 'queue' | 'automation' | 'capacity' | 'routing'>('overview');
 
   const workflowStats = {
     totalLeads: 1247,

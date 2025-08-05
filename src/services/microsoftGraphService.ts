@@ -12,12 +12,12 @@ export class MicrosoftGraphService {
    */
   static getAuthConfig(): MicrosoftAuthConfig {
     return {
-      clientId: 'your-microsoft-app-client-id', // This would come from environment
-      tenantId: 'common', // Or specific tenant ID
-      redirectUri: `${window.location.origin}/auth/microsoft/callback`,
+      clientId: 'demo-client-id', // Demo mode - would be configured with real app registration
+      tenantId: 'common', 
+      redirectUri: `${window.location.origin}/admin/communication`,
       scopes: [
         'https://graph.microsoft.com/Mail.Read',
-        'https://graph.microsoft.com/Mail.ReadWrite',
+        'https://graph.microsoft.com/Mail.ReadWrite', 
         'https://graph.microsoft.com/Mail.Send',
         'https://graph.microsoft.com/User.Read'
       ]

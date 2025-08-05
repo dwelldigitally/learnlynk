@@ -92,8 +92,11 @@ const EmailManagement: React.FC = () => {
   };
 
   const handleConnectOutlook = () => {
-    const authUrl = MicrosoftGraphService.getAuthUrl();
-    window.location.href = authUrl;
+    toast({
+      title: "Demo Mode",
+      description: "Outlook integration would require a configured Microsoft app registration. This is a demo environment.",
+      variant: "default"
+    });
   };
 
   const handleEmailAction = async (emailId: string, action: string) => {

@@ -35,8 +35,13 @@ export default function StudentManagement() {
   
   const { bulkDeleteStudents, bulkUpdateStudents } = useStudentMutations();
 
-  const students = paginatedData?.data || [];
-  const total = paginatedData?.total || 0;
+  // Determine data source: use demo data if available and no real data, otherwise use paginated data
+  const students = (hasDemoAccess && !hasRealData && legacyStudents.length > 0) 
+    ? legacyStudents 
+    : (paginatedData?.data || []);
+  const total = (hasDemoAccess && !hasRealData && legacyStudents.length > 0) 
+    ? legacyStudents.length 
+    : (paginatedData?.total || 0);
 
   const getStageColor = (stage: string) => {
     switch (stage) {

@@ -43,9 +43,8 @@ export const navigationStructure: NavigationStructure = {
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
         { name: "Routing Rules", href: "/admin/leads/routing", icon: Route },
         { name: "Scoring Engine", href: "/admin/leads/scoring", icon: Target },
-        { name: "Templates", href: "/admin/leads/templates", icon: Mail },
+        { name: "Communication Hub", href: "/admin/communication", icon: MessageSquare },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
-        { name: "Communication Center", href: "/admin/communication", icon: MessageSquare },
         { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase },
         { name: "Intake Management", href: "/admin/intake", icon: GitBranch }
       ]

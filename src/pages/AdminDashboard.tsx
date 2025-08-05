@@ -69,7 +69,9 @@ const AdminDashboard: React.FC = () => {
       case "/admin/leads/scoring":
         return <LeadScoringEngine />;
       case "/admin/leads/templates":
-        return <LeadTemplates />;
+        // Redirect to unified communication hub
+        window.history.replaceState(null, '', '/admin/communication');
+        return <CommunicationHub />;
       case "/admin/leads/analytics":
         return <LeadAnalytics />;
       case "/admin/leads/advanced-analytics":

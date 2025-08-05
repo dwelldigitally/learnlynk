@@ -139,6 +139,29 @@ export function AIQuickActions() {
       }
     },
     {
+      id: "campaign-optimization",
+      title: "Campaign AI Optimizer",
+      description: "AI-powered campaign performance optimization",
+      icon: Zap,
+      type: "analysis",
+      context: ["/admin/campaigns"],
+      action: async () => {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    },
+    {
+      id: "auto-campaign",
+      title: "Smart Campaign Builder",
+      description: "Generate AI-driven campaign workflows",
+      icon: Bot,
+      type: "instant",
+      context: ["/admin/campaigns"],
+      urgent: true,
+      action: async () => {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    },
+    {
       id: "optimal-timing",
       title: "Contact Timing",
       description: "AI-optimized contact scheduling",

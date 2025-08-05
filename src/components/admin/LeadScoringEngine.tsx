@@ -141,7 +141,7 @@ export function LeadScoringEngine() {
         { priority: 'medium', program_interest: 'Education', country: 'Canada', email: 'mary@school.ca', converted: true }
       ];
 
-      const response = await fetch('/functions/v1/ai-lead-scoring', {
+      const response = await fetch('https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/ai-lead-scoring', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

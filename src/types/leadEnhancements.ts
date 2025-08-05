@@ -113,7 +113,7 @@ export interface NoteFormData {
 // Enhanced Lead Timeline Entry
 export interface LeadTimelineEntry {
   id: string;
-  type: 'communication' | 'task' | 'note' | 'status_change' | 'assignment';
+  type: 'communication' | 'task' | 'note' | 'status_change' | 'assignment' | 'system' | 'interest_change' | 'ai_insight';
   title: string;
   description: string;
   timestamp: string;

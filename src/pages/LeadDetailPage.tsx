@@ -13,6 +13,7 @@ import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
 import { ActivityTimeline } from '@/components/admin/leads/ActivityTimeline';
 import { TasksAndNotes } from '@/components/admin/leads/TasksAndNotes';
+import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -104,6 +105,13 @@ export default function LeadDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Top Navigation */}
+      <TopNavigationBar 
+        activeSection="leads" 
+        onSectionChange={() => {}} 
+        onToggleMobileMenu={() => {}} 
+      />
+      
       {/* Header with back button */}
       <div className="border-b bg-card px-6 py-4">
         <div className="flex items-center justify-between">
@@ -129,7 +137,7 @@ export default function LeadDetailPage() {
       </div>
 
       {/* Three-column layout */}
-      <div className="flex h-[calc(100vh-80px)]">
+      <div className="flex h-[calc(100vh-140px)]">
         {/* Left Sidebar - Lead Details */}
         <LeadSidebar lead={lead} onUpdate={loadLead} />
         

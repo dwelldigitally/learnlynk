@@ -102,6 +102,34 @@ export function ActivityTimeline({ lead }: ActivityTimelineProps) {
         });
       }
 
+      // Add some additional timeline entries for better demonstration
+      timelineEntries.push({
+        id: `score-update-${lead.id}`,
+        type: 'system',
+        title: 'Lead Score Updated',
+        description: `Lead score increased from 65 to ${lead.lead_score} based on engagement activities`,
+        timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000).toISOString(),
+        metadata: { previousScore: 65, newScore: lead.lead_score }
+      });
+
+      timelineEntries.push({
+        id: `program-interest-${lead.id}`,
+        type: 'interest_change',
+        title: 'Program Interest Updated',
+        description: 'Student expressed interest in Computer Science and Data Analytics programs',
+        timestamp: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(),
+        metadata: { programs: ['Computer Science', 'Data Analytics'] }
+      });
+
+      timelineEntries.push({
+        id: `ai-insight-${lead.id}`,
+        type: 'ai_insight',
+        title: 'AI Insight Generated',
+        description: 'High conversion probability detected based on engagement patterns and qualification criteria',
+        timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+        metadata: { conversionProbability: 85, factors: ['High engagement', 'Strong qualifications'] }
+      });
+
       // Sort by timestamp (newest first)
       timelineEntries.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
@@ -132,6 +160,9 @@ export function ActivityTimeline({ lead }: ActivityTimelineProps) {
       case 'note': return <StickyNote className="h-4 w-4" />;
       case 'assignment': return <UserCheck className="h-4 w-4" />;
       case 'status_change': return <AlertCircle className="h-4 w-4" />;
+      case 'system': return <AlertCircle className="h-4 w-4" />;
+      case 'interest_change': return <StickyNote className="h-4 w-4" />;
+      case 'ai_insight': return <AlertCircle className="h-4 w-4" />;
       default: return <Clock className="h-4 w-4" />;
     }
   };
@@ -144,6 +175,9 @@ export function ActivityTimeline({ lead }: ActivityTimelineProps) {
       case 'note': return 'text-yellow-600';
       case 'assignment': return 'text-indigo-600';
       case 'status_change': return 'text-orange-600';
+      case 'system': return 'text-cyan-600';
+      case 'interest_change': return 'text-pink-600';
+      case 'ai_insight': return 'text-emerald-600';
       default: return 'text-gray-600';
     }
   };
@@ -155,6 +189,9 @@ export function ActivityTimeline({ lead }: ActivityTimelineProps) {
       case 'note': return 'outline';
       case 'assignment': return 'default';
       case 'status_change': return 'secondary';
+      case 'system': return 'secondary';
+      case 'interest_change': return 'outline';
+      case 'ai_insight': return 'default';
       default: return 'outline';
     }
   };

@@ -8,6 +8,7 @@ import {
   Calendar, MessageSquare, FileText
 } from 'lucide-react';
 import { Lead } from '@/types/lead';
+import { SmartAdvisorMatch } from './SmartAdvisorMatch';
 
 interface LeadRightSidebarProps {
   lead: Lead;
@@ -134,6 +135,9 @@ export function LeadRightSidebar({ lead }: LeadRightSidebarProps) {
           )}
         </CardContent>
       </Card>
+
+      {/* Smart Advisor Match */}
+      <SmartAdvisorMatch lead={lead} />
 
       {/* Lead Analytics */}
       <Card>

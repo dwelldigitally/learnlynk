@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
+import LeadDetailPage from "./pages/LeadDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => {
               <Route path="/sign-up" element={<ModernSignUp />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ModernOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin" replace />} /> 
+              <Route path="/admin/leads/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
               

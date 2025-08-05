@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,16 +15,12 @@ import { ActivityTimeline } from '@/components/admin/leads/ActivityTimeline';
 import { TasksAndNotes } from '@/components/admin/leads/TasksAndNotes';
 
 export default function LeadDetailPage() {
-  const location = useLocation();
   const navigate = useNavigate();
+  const { leadId } = useParams();
   const { toast } = useToast();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('communication');
-
-  // Extract leadId from pathname since we're not using proper route params
-  const leadId = location.pathname.split('/').pop();
-  console.log('🆔 Extracted leadId from pathname:', leadId);
 
   useEffect(() => {
     if (leadId) {
@@ -107,38 +103,38 @@ export default function LeadDetailPage() {
   }
 
   return (
-    <div className="flex h-screen bg-background">
-      {/* Left Sidebar - Lead Details */}
-      <LeadSidebar lead={lead} onUpdate={loadLead} />
-      
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <div className="border-b bg-card px-6 py-4 flex-shrink-0">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Leads
-              </Button>
-              <div>
-                <h1 className="text-xl font-bold">{lead.first_name} {lead.last_name}</h1>
-                <p className="text-sm text-muted-foreground">{lead.email}</p>
-              </div>
+    <div className="min-h-screen bg-background">
+      {/* Header with back button */}
+      <div className="border-b bg-card px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Leads
+            </Button>
+            <div>
+              <h1 className="text-xl font-bold">{lead.first_name} {lead.last_name}</h1>
+              <p className="text-sm text-muted-foreground">{lead.email}</p>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge className={getStatusColor(lead.status)}>
-                {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-              </Badge>
-              <div className="text-sm text-muted-foreground">
-                Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
-              </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Badge className={getStatusColor(lead.status)}>
+              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+            </Badge>
+            <div className="text-sm text-muted-foreground">
+              Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex min-h-0">
+      {/* Three-column layout */}
+      <div className="flex h-[calc(100vh-80px)]">
+        {/* Left Sidebar - Lead Details */}
+        <LeadSidebar lead={lead} onUpdate={loadLead} />
+        
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               <TabsList className="grid w-full grid-cols-4 mb-6">
@@ -180,10 +176,10 @@ export default function LeadDetailPage() {
             </Tabs>
           </div>
         </div>
+        
+        {/* Right Sidebar - AI Insights */}
+        <LeadRightSidebar lead={lead} />
       </div>
-      
-      {/* Right Sidebar - AI Insights */}
-      <LeadRightSidebar lead={lead} />
     </div>
   );
 }

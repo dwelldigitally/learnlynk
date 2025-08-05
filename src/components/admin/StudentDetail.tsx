@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Mail, 
@@ -38,8 +38,11 @@ import { useConditionalDocuments } from '@/hooks/useConditionalDocuments';
 import { useStudentDocuments } from '@/services/documentService';
 import { useStudentCommunications } from '@/services/communicationService';
 
-export function StudentDetail() {
-  const { studentId } = useParams<{ studentId: string }>();
+interface StudentDetailProps {
+  studentId: string;
+}
+
+export function StudentDetail({ studentId }: StudentDetailProps) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
 

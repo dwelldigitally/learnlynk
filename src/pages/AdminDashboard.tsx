@@ -43,7 +43,9 @@ const AdminDashboard: React.FC = () => {
   const renderContent = () => {
     // Check for student detail route pattern
     if (location.pathname.startsWith("/admin/students/") && location.pathname !== "/admin/students") {
-      return <StudentDetail />;
+      // Extract student ID from the pathname
+      const studentId = location.pathname.split("/admin/students/")[1];
+      return <StudentDetail studentId={studentId} />;
     }
     
     // Lead detail routes are handled separately to avoid layout wrapper

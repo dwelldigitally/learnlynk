@@ -1,5 +1,6 @@
 import React from "react"
 import { HelpIcon } from "./help-icon"
+import { useHelpContent } from "@/hooks/useHelpContent"
 import { cn } from "@/lib/utils"
 
 interface HelpSectionProps {
@@ -17,7 +18,7 @@ export function HelpSection({
   className,
   titleClassName 
 }: HelpSectionProps) {
-  const { getHelpContent } = require('@/hooks/useHelpContent').useHelpContent()
+  const { getHelpContent } = useHelpContent()
   
   return (
     <div className={cn("space-y-4", className)}>
@@ -46,7 +47,7 @@ export function HelpLabel({
   required = false, 
   className 
 }: HelpLabelProps) {
-  const { getHelpContent } = require('@/hooks/useHelpContent').useHelpContent()
+  const { getHelpContent } = useHelpContent()
   
   return (
     <div className={cn("flex items-center gap-1.5", className)}>

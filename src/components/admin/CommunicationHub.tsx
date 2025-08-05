@@ -58,6 +58,7 @@ import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
 import { CommunicationTemplateService } from '@/services/communicationTemplateService';
 import EmailManagement from './EmailManagement';
+import { AIEmailInbox } from '@/components/admin/communication/AIEmailInbox';
 
 const CommunicationHub: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -388,14 +389,22 @@ const CommunicationHub: React.FC = () => {
         ))}
       </div>
 
-      <Tabs defaultValue="emails" className="space-y-4">
+      <Tabs defaultValue="ai-emails" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="ai-emails" className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4" />
+            AI Email Hub
+          </TabsTrigger>
           <TabsTrigger value="emails">Email Management</TabsTrigger>
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
           <TabsTrigger value="automations">Automations</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="ai-emails" className="space-y-4">
+          <AIEmailInbox />
+        </TabsContent>
 
         <TabsContent value="emails" className="space-y-4">
           <EmailManagement />

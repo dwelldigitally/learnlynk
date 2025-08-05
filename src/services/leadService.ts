@@ -114,6 +114,23 @@ export class LeadService {
   static async getLeadById(id: string): Promise<Lead | null> {
     console.log('🔧 LeadService.getLeadById called with ID:', id);
     
+    // Check if this is a demo lead ID
+    if (id.startsWith('demo-')) {
+      console.log('🎭 Demo lead ID detected, checking demo data access');
+      
+      const hasDemoData = await DemoDataService.hasUserDemoData();
+      if (!hasDemoData) {
+        console.log('❌ User does not have demo data access');
+        return null;
+      }
+      
+      const demoLeads = DemoDataService.getDemoLeads();
+      const demoLead = demoLeads.find(lead => lead.id === id);
+      
+      console.log('🎭 Found demo lead:', demoLead);
+      return demoLead as Lead || null;
+    }
+    
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {

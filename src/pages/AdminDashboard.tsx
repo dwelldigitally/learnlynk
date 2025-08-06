@@ -26,7 +26,7 @@ import { LeadTemplates } from "@/components/admin/leads/LeadTemplates";
 import { LeadAnalytics } from "@/components/admin/leads/LeadAnalytics";
 import { LeadAdvancedAnalytics } from "@/components/admin/leads/LeadAdvancedAnalytics";
 import { LeadBulkOperations } from "@/components/admin/leads/LeadBulkOperations";
-import { DatabaseManagement } from "@/components/admin/DatabaseManagement";
+import { ConfigurationManagement } from "@/components/admin/ConfigurationManagement";
 import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 import { CampaignManagement } from "@/components/admin/CampaignManagement";
 import { ApplicationsManagement } from "@/components/admin/ApplicationsManagement";
@@ -63,10 +63,18 @@ const AdminDashboard: React.FC = () => {
         return <LeadAIFeatures />;
       case "/admin/leads/forms":
         return <LeadForms />;
-      case "/admin/leads/routing":
-        return <LeadRoutingRules />;
-      case "/admin/leads/scoring":
-        return <LeadScoringEngine />;
+      case "/admin/configuration":
+      case "/admin/configuration/custom-fields":
+      case "/admin/configuration/master-data":
+      case "/admin/configuration/integrations":
+      case "/admin/configuration/templates":
+      case "/admin/configuration/ai-agents":
+      case "/admin/configuration/behavior":
+      case "/admin/configuration/routing":
+      case "/admin/configuration/scoring":
+      case "/admin/configuration/company":
+      case "/admin/configuration/system":
+        return <ConfigurationManagement />;
       case "/admin/leads/templates":
         // Redirect to unified communication hub
         window.history.replaceState(null, '', '/admin/communication');
@@ -102,7 +110,9 @@ const AdminDashboard: React.FC = () => {
       case "/admin/settings":
         return <ProfilePage />;
       case "/admin/database":
-        return <DatabaseManagement />;
+        // Redirect old database route to configuration
+        window.history.replaceState(null, '', '/admin/configuration');
+        return <ConfigurationManagement />;
       case "/admin/demo-data":
         return <DemoDataManagement />;
       case "/admin/profile":

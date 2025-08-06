@@ -20,7 +20,11 @@ import {
   PieChart,
   Shield,
   UserCog,
-  FileCheck
+  FileCheck,
+  Link,
+  Bot,
+  Brain,
+  Cog
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -43,8 +47,6 @@ export const navigationStructure: NavigationStructure = {
         { name: "Workflow Hub", href: "/admin/leads/workflow", icon: Workflow },
         { name: "AI Features", href: "/admin/leads/ai", icon: Zap },
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
-        { name: "Routing Rules", href: "/admin/leads/routing", icon: Route },
-        { name: "Scoring Engine", href: "/admin/leads/scoring", icon: Target },
         { 
           name: "Communication Hub", 
           href: "/admin/communication", 
@@ -79,8 +81,24 @@ export const navigationStructure: NavigationStructure = {
         { name: "Workflows", href: "/admin/workflows", icon: Workflow },
         { name: "Requirements", href: "/admin/requirements", icon: Shield },
         { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
-        { name: "Database", href: "/admin/database", icon: Database },
         { name: "Team Management", href: "/admin/team", icon: UserCog }
+      ]
+    },
+    {
+      id: "configuration",
+      name: "Configuration",
+      icon: Settings,
+      items: [
+        { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
+        { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
+        { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },
+        { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
+        { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
+        { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
+        { name: "Lead Routing Rules", href: "/admin/configuration/routing", icon: Route },
+        { name: "Lead Scoring Engine", href: "/admin/configuration/scoring", icon: Target },
+        { name: "Company Profile", href: "/admin/configuration/company", icon: Briefcase },
+        { name: "System Settings", href: "/admin/configuration/system", icon: Cog }
       ]
     },
     {

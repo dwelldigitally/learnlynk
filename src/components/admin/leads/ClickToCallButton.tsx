@@ -192,6 +192,15 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
 
   const buttonState = getButtonState();
   const isAircallConfigured = settings?.is_active && settings?.click_to_call_enabled;
+  
+  console.log('ClickToCallButton render:', { 
+    phoneNumber, 
+    settings, 
+    settingsLoaded, 
+    settingsError, 
+    buttonState, 
+    isAircallConfigured 
+  });
 
   return (
     <TooltipProvider>
@@ -201,7 +210,10 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
             <Button
               variant={variant}
               size={size}
-              onClick={handleCall}
+              onClick={(e) => {
+                console.log('Button click event fired!', e);
+                handleCall();
+              }}
               disabled={buttonState.disabled}
               className={className}
             >

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedLeadService, EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { Lead, LeadStatus, LeadSource, LeadPriority, LeadStage } from '@/types/lead';
-import { EnhancedDataTable } from './EnhancedDataTable';
+import { RefinedLeadTable } from './RefinedLeadTable';
 import { AdvancedFilterPanel } from './AdvancedFilterPanel';
 import { LeadFormModal } from './LeadFormModal';
 import { LeadDetailModal } from './LeadDetailModal';
@@ -523,7 +523,7 @@ export function LeadManagement() {
             emptyDescription="Create your first lead to get started with lead management." 
             loadingRows={5}
           >
-            <EnhancedDataTable 
+            <RefinedLeadTable 
               title="Lead Management" 
               columns={columns} 
               data={tableData} 

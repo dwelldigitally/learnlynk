@@ -2,24 +2,28 @@ import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, FileText, Clock, CheckCircle, XCircle, Eye, User } from 'lucide-react';
+import { Plus, FileText, Clock, CheckCircle, XCircle, Eye, User, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useConditionalApplications } from '@/hooks/useConditionalApplications';
 import { EnhancedDataTable } from './EnhancedDataTable';
 import { ApplicationQuickViewModal } from './modals/ApplicationQuickViewModal';
 import { StudentApplication } from '@/types/application';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { ApplicationService } from '@/services/applicationService';
+import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 export function ApplicationsManagement() {
   const navigate = useNavigate();
-  const { data: applications, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalApplications();
+  const { toast } = useToast();
+  const { data: applications, isLoading, showEmptyState, hasDemoAccess, hasRealData, refetch } = useConditionalApplications();
   const [selectedApplication, setSelectedApplication] = useState<StudentApplication | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [isAddingDummies, setIsAddingDummies] = useState(false);
 
   const pageSize = 10;
   const filteredApplications = applications || [];
@@ -48,6 +52,26 @@ export function ApplicationsManagement() {
   const handleQuickView = (application: StudentApplication) => {
     setSelectedApplication(application);
     setIsQuickViewOpen(true);
+  };
+
+  const handleAddDummyApplications = async () => {
+    setIsAddingDummies(true);
+    try {
+      await ApplicationService.addDummyApplications();
+      await refetch();
+      toast({
+        title: "Success",
+        description: "5 dummy applications have been added to your database",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to add dummy applications. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingDummies(false);
+    }
   };
 
   const handleViewFullProfile = (studentId: string) => {
@@ -154,10 +178,22 @@ export function ApplicationsManagement() {
             Monitor and manage student applications across all programs
           </p>
         </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Application
-        </Button>
+        <div className="flex gap-2">
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Application
+          </Button>
+          {!hasRealData && (
+            <Button 
+              variant="outline" 
+              onClick={handleAddDummyApplications}
+              disabled={isAddingDummies}
+            >
+              <Database className="h-4 w-4 mr-2" />
+              {isAddingDummies ? 'Adding...' : 'Add Sample Data'}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

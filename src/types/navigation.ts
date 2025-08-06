@@ -4,6 +4,7 @@ export interface NavigationItem {
   icon: React.ComponentType<{ className?: string }>;
   count?: number;
   badge?: string;
+  subItems?: NavigationItem[];
 }
 
 export interface MainNavSection {

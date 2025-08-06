@@ -84,40 +84,73 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                   location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/')
                 );
                 const isActive = mostSpecificMatch?.href === item.href;
+                const hasSubItems = item.subItems && item.subItems.length > 0;
+                const isSubItemActive = hasSubItems && item.subItems.some(subItem => 
+                  location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/')
+                );
                 
                 return (
-                  <NavLink
-                    key={item.href}
-                    to={item.href}
-                    onClick={onClose}
-                    className={() => `
-                      flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium
-                      transition-colors duration-200
-                      ${isActive
-                        ? 'bg-primary text-primary-foreground shadow-sm'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                      }
-                    `}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    <span>{item.name}</span>
-                    {item.count && (
-                      <span className={`
-                        ml-auto text-xs px-2 py-0.5 rounded-full
-                        ${isActive 
-                          ? 'bg-primary-foreground/20 text-primary-foreground' 
-                          : 'bg-muted text-muted-foreground'
+                  <div key={item.href}>
+                    <NavLink
+                      to={item.href}
+                      onClick={onClose}
+                      className={() => `
+                        flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium
+                        transition-colors duration-200
+                        ${isActive || isSubItemActive
+                          ? 'bg-primary text-primary-foreground shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                         }
-                      `}>
-                        {item.count}
-                      </span>
+                      `}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.name}</span>
+                      {item.count && (
+                        <span className={`
+                          ml-auto text-xs px-2 py-0.5 rounded-full
+                          ${isActive || isSubItemActive
+                            ? 'bg-primary-foreground/20 text-primary-foreground' 
+                            : 'bg-muted text-muted-foreground'
+                          }
+                        `}>
+                          {item.count}
+                        </span>
+                      )}
+                      {item.badge && (
+                        <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                          {item.badge}
+                        </span>
+                      )}
+                    </NavLink>
+                    
+                    {/* Sub-items */}
+                    {hasSubItems && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        {item.subItems.map((subItem) => {
+                          const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
+                          
+                          return (
+                            <NavLink
+                              key={subItem.href}
+                              to={subItem.href}
+                              onClick={onClose}
+                              className={() => `
+                                flex items-center space-x-3 px-3 py-1.5 rounded-md text-sm
+                                transition-colors duration-200
+                                ${isSubActive
+                                  ? 'bg-primary/10 text-primary font-medium border-l-2 border-primary'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                                }
+                              `}
+                            >
+                              <subItem.icon className="w-3.5 h-3.5" />
+                              <span>{subItem.name}</span>
+                            </NavLink>
+                          );
+                        })}
+                      </div>
                     )}
-                    {item.badge && (
-                      <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                        {item.badge}
-                      </span>
-                    )}
-                  </NavLink>
+                  </div>
                 );
               })}
             </nav>

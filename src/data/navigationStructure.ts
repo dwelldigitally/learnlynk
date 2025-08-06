@@ -44,8 +44,14 @@ export const navigationStructure: NavigationStructure = {
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
         { name: "Routing Rules", href: "/admin/leads/routing", icon: Route },
         { name: "Scoring Engine", href: "/admin/leads/scoring", icon: Target },
-        { name: "Communication Hub", href: "/admin/communication", icon: MessageSquare },
-        { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail },
+        { 
+          name: "Communication Hub", 
+          href: "/admin/communication", 
+          icon: MessageSquare,
+          subItems: [
+            { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail }
+          ]
+        },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
         { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase },
         { name: "Intake Management", href: "/admin/intake", icon: GitBranch }

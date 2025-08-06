@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   FormInput, 
   Workflow, 
@@ -12,10 +11,6 @@ import {
   Eye, 
   Edit, 
   Trash2, 
-  Copy,
-  BarChart3,
-  Clock,
-  Users,
   FileText
 } from 'lucide-react';
 import { CampaignService, type Campaign } from '@/services/campaignService';
@@ -198,89 +193,101 @@ export function BuilderSelectionPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <Tabs defaultValue="builders" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="builders" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Create New
-            </TabsTrigger>
-            <TabsTrigger value="existing" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Manage Existing
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="builders" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left Side - Create New Builders */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Create New</h2>
+              <p className="text-muted-foreground text-sm">Choose a builder to get started</p>
+            </div>
+            
+            <div className="space-y-4">
               {builderOptions.map((option) => {
                 const Icon = option.icon;
                 return (
                   <Card key={option.type} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
                     <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
-                    <CardHeader className="relative">
-                      <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${option.color} p-3 mb-4`}>
-                        <Icon className="h-6 w-6 text-white" />
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${option.color} p-3 flex-shrink-0`}>
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-lg mb-2">{option.title}</h3>
+                          <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                            {option.description}
+                          </p>
+                          <Button 
+                            className="w-full" 
+                            onClick={() => navigate(option.route)}
+                          >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Create {option.title.split(' ')[0]}
+                          </Button>
+                        </div>
                       </div>
-                      <CardTitle className="text-xl">{option.title}</CardTitle>
-                      <CardDescription className="text-sm line-clamp-3">
-                        {option.description}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="relative">
-                      <Button 
-                        className="w-full" 
-                        onClick={() => navigate(option.route)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Create {option.title.split(' ')[0]}
-                      </Button>
                     </CardContent>
                   </Card>
                 );
               })}
             </div>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="existing" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Right Side - Manage Existing */}
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-2">Manage Existing</h2>
+              <p className="text-muted-foreground text-sm">View and edit your current builders</p>
+            </div>
+            
+            <div className="space-y-6">
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <FormInput className="h-5 w-5 text-blue-500" />
                     Forms
+                    <Badge variant="secondary" className="ml-auto">
+                      {forms.length}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-96 overflow-y-auto">
+                <CardContent className="max-h-64 overflow-y-auto">
                   {renderItemsList(forms, 'forms')}
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Workflow className="h-5 w-5 text-purple-500" />
                     Workflows
+                    <Badge variant="secondary" className="ml-auto">
+                      {workflows.length}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-96 overflow-y-auto">
+                <CardContent className="max-h-64 overflow-y-auto">
                   {renderItemsList(workflows, 'workflows')}
                 </CardContent>
               </Card>
 
               <Card>
-                <CardHeader>
+                <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Mail className="h-5 w-5 text-green-500" />
                     Campaigns
+                    <Badge variant="secondary" className="ml-auto">
+                      {campaigns.length}
+                    </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-96 overflow-y-auto">
+                <CardContent className="max-h-64 overflow-y-auto">
                   {renderItemsList(campaigns, 'campaigns')}
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </div>
     </div>
   );

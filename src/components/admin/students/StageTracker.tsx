@@ -5,16 +5,19 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { 
-  Target, 
-  Mail, 
-  TrendingUp, 
-  FileText, 
+  Users, 
+  Send, 
+  Star, 
+  FileCheck, 
   CheckCircle2, 
-  AlertTriangle, 
-  CreditCard, 
-  Clock, 
-  Sparkles,
-  Bot
+  AlertCircle, 
+  Receipt, 
+  Calendar, 
+  Gift,
+  Bot,
+  UserCheck,
+  Clock,
+  FileX
 } from "lucide-react";
 
 interface StageTrackerProps {
@@ -32,29 +35,29 @@ interface StageTrackerProps {
 
 const stageAIActions = {
   'LEAD_FORM': [
-    { id: 'auto-qualify', icon: Target, label: 'Auto-Qualify High Scorers' },
-    { id: 'welcome-sequence', icon: Mail, label: 'Send Welcome Sequence' },
-    { id: 'score-prioritization', icon: TrendingUp, label: 'Update Lead Scores' }
+    { id: 'auto-qualify', icon: UserCheck, label: 'Auto-Qualify High Scorers' },
+    { id: 'welcome-sequence', icon: Send, label: 'Send Welcome Sequence' },
+    { id: 'score-prioritization', icon: Star, label: 'Update Lead Scores' }
   ],
   'SEND_DOCUMENTS': [
-    { id: 'document-reminders', icon: FileText, label: 'Send Document Reminders' },
-    { id: 'generate-checklists', icon: CheckCircle2, label: 'Generate Checklists' },
-    { id: 'flag-incomplete', icon: AlertTriangle, label: 'Flag Incomplete Apps' }
+    { id: 'document-reminders', icon: Send, label: 'Send Document Reminders' },
+    { id: 'generate-checklists', icon: FileCheck, label: 'Generate Checklists' },
+    { id: 'flag-incomplete', icon: FileX, label: 'Flag Incomplete Applications' }
   ],
   'DOCUMENT_APPROVAL': [
-    { id: 'auto-approve', icon: CheckCircle2, label: 'Auto-Approve Qualified' },
-    { id: 'flag-issues', icon: AlertTriangle, label: 'Flag Document Issues' },
-    { id: 'approval-recommendations', icon: Bot, label: 'AI Recommendations' }
+    { id: 'auto-approve', icon: CheckCircle2, label: 'Auto-Approve Qualified Documents' },
+    { id: 'flag-issues', icon: AlertCircle, label: 'Flag Document Issues' },
+    { id: 'approval-recommendations', icon: Bot, label: 'Generate AI Recommendations' }
   ],
   'FEE_PAYMENT': [
-    { id: 'payment-reminders', icon: CreditCard, label: 'Send Payment Reminders' },
-    { id: 'payment-plans', icon: CreditCard, label: 'Offer Payment Plans' },
-    { id: 'flag-payment-issues', icon: AlertTriangle, label: 'Flag Payment Issues' }
+    { id: 'payment-reminders', icon: Receipt, label: 'Send Payment Reminders' },
+    { id: 'payment-plans', icon: Calendar, label: 'Offer Payment Plans' },
+    { id: 'flag-payment-issues', icon: AlertCircle, label: 'Flag Payment Issues' }
   ],
   'ACCEPTED': [
-    { id: 'onboarding-materials', icon: FileText, label: 'Send Onboarding Materials' },
-    { id: 'schedule-orientation', icon: Clock, label: 'Schedule Orientation' },
-    { id: 'welcome-packages', icon: Sparkles, label: 'Generate Welcome Packages' }
+    { id: 'onboarding-materials', icon: FileCheck, label: 'Send Onboarding Materials' },
+    { id: 'schedule-orientation', icon: Calendar, label: 'Schedule Orientation Sessions' },
+    { id: 'welcome-packages', icon: Gift, label: 'Generate Welcome Packages' }
   ]
 };
 
@@ -132,29 +135,23 @@ export function StageTracker({ stages, activeStage, onStageChange, onAIAction, s
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-7 w-7 p-0"
+                        className="h-7 w-7 p-0 hover:bg-primary/10"
                         onClick={() => handleAIAction(action.id, activeStage)}
-                        disabled={selectedStudentsCount === 0}
                       >
                         <action.icon className="h-3 w-3" />
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="text-xs">{action.label}</p>
-                      {selectedStudentsCount === 0 && (
-                        <p className="text-xs text-muted-foreground">Select students first</p>
-                      )}
+                      <p className="text-xs font-medium">{action.label}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Apply to all students in this stage
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 ))}
               </div>
             </TooltipProvider>
 
-            {selectedStudentsCount === 0 && (
-              <span className="text-xs text-muted-foreground ml-2">
-                Select students to enable AI actions
-              </span>
-            )}
           </div>
         </div>
       )}

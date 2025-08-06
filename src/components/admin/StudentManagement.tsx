@@ -18,7 +18,6 @@ import { AddStudentModal } from "./modals/AddStudentModal";
 import { ImportStudentsModal } from "./modals/ImportStudentsModal";
 import { StageTracker } from "./students/StageTracker";
 import { StageFilters } from "./students/StageFilters";
-import { AISidebar } from "./students/AISidebar";
 import { toast } from "sonner";
 
 export default function StudentManagement() {
@@ -152,11 +151,17 @@ export default function StudentManagement() {
   };
 
   // Handle AI bulk actions
-  const handleAIBulkAction = async (actionId: string, studentIds: string[]) => {
+  const handleAIBulkAction = async (actionId: string, stage: string) => {
+    if (selectedStudents.length === 0) {
+      toast.error('Please select students first');
+      return;
+    }
+    
+    toast.info(`AI Action: ${actionId} for ${selectedStudents.length} students in ${stage} stage`);
     // Simulate AI action processing
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`AI Action: ${actionId} for students:`, studentIds);
+        console.log(`AI Action: ${actionId} for students:`, selectedStudents, 'in stage:', stage);
         resolve(true);
       }, 1000);
     });
@@ -410,12 +415,6 @@ export default function StudentManagement() {
             <Upload className="w-4 h-4 mr-2" />
             Import
           </Button>
-          <AISidebar
-            activeStage={activeStage}
-            selectedStudents={selectedStudents}
-            totalStudents={total}
-            onBulkAction={handleAIBulkAction}
-          />
           <Button size="sm" onClick={() => setAddModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Add Student
@@ -438,6 +437,8 @@ export default function StudentManagement() {
               stages={stageTrackerData}
               activeStage={activeStage}
               onStageChange={handleStageChange}
+              onAIAction={handleAIBulkAction}
+              selectedStudentsCount={selectedStudents.length}
             />
             
             <StageFilters

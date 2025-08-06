@@ -43,6 +43,28 @@ export interface ProgramApplication {
   applicationDeadline: string;
 }
 
+export interface StudentApplication {
+  id: string;
+  studentId: string;
+  studentName: string;
+  email: string;
+  phone?: string;
+  program: string;
+  applicationDate: Date;
+  status: 'submitted' | 'under-review' | 'approved' | 'rejected' | 'pending-documents';
+  stage: AdmissionStage;
+  progress: number;
+  acceptanceLikelihood: number;
+  documentsSubmitted: number;
+  documentsRequired: number;
+  advisorAssigned?: string;
+  estimatedDecision?: Date;
+  lastActivity?: Date;
+  priority: 'low' | 'medium' | 'high';
+  country?: string;
+  city?: string;
+}
+
 export interface AlumniProfile {
   name: string;
   graduationYear: string;

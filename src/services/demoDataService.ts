@@ -519,6 +519,140 @@ export class DemoDataService {
   }
 
   /**
+   * Get demo student applications data
+   */
+  static getDemoApplications() {
+    return [
+      {
+        id: 'app-1',
+        studentId: 'demo-student-1',
+        studentName: 'Sarah Johnson',
+        email: 'sarah.johnson@email.com',
+        phone: '+1-555-0123',
+        program: 'Health Care Assistant',
+        applicationDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
+        status: 'under-review' as const,
+        stage: 'DOCUMENT_APPROVAL' as const,
+        progress: 75,
+        acceptanceLikelihood: 85,
+        documentsSubmitted: 6,
+        documentsRequired: 8,
+        advisorAssigned: 'Dr. Emily Roberts',
+        estimatedDecision: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        lastActivity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        priority: 'high' as const,
+        country: 'United States',
+        city: 'San Francisco'
+      },
+      {
+        id: 'app-2',
+        studentId: 'demo-student-2',
+        studentName: 'Michael Chen',
+        email: 'michael.chen@email.com',
+        phone: '+1-555-0456',
+        program: 'Computer Science',
+        applicationDate: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+        status: 'pending-documents' as const,
+        stage: 'SEND_DOCUMENTS' as const,
+        progress: 45,
+        acceptanceLikelihood: 78,
+        documentsSubmitted: 3,
+        documentsRequired: 7,
+        advisorAssigned: 'Prof. James Wilson',
+        estimatedDecision: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        lastActivity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        priority: 'medium' as const,
+        country: 'Canada',
+        city: 'Toronto'
+      },
+      {
+        id: 'app-3',
+        studentId: 'demo-student-3',
+        studentName: 'Emily Davis',
+        email: 'emily.davis@email.com',
+        phone: '+1-555-0789',
+        program: 'Data Analytics',
+        applicationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        status: 'approved' as const,
+        stage: 'FEE_PAYMENT' as const,
+        progress: 90,
+        acceptanceLikelihood: 95,
+        documentsSubmitted: 8,
+        documentsRequired: 8,
+        advisorAssigned: 'Dr. Sarah Martinez',
+        estimatedDecision: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        lastActivity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        priority: 'high' as const,
+        country: 'United Kingdom',
+        city: 'London'
+      },
+      {
+        id: 'app-4',
+        studentId: 'demo-student-4',
+        studentName: 'James Rodriguez',
+        email: 'james.rodriguez@email.com',
+        phone: '+1-555-1234',
+        program: 'Business Administration',
+        applicationDate: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000),
+        status: 'rejected' as const,
+        stage: 'DOCUMENT_APPROVAL' as const,
+        progress: 60,
+        acceptanceLikelihood: 35,
+        documentsSubmitted: 5,
+        documentsRequired: 8,
+        advisorAssigned: 'Dr. Michael Brown',
+        estimatedDecision: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        lastActivity: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        priority: 'low' as const,
+        country: 'Mexico',
+        city: 'Mexico City'
+      },
+      {
+        id: 'app-5',
+        studentId: 'demo-student-5',
+        studentName: 'Lisa Wang',
+        email: 'lisa.wang@email.com',
+        phone: '+1-555-5678',
+        program: 'Nursing',
+        applicationDate: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
+        status: 'submitted' as const,
+        stage: 'LEAD_FORM' as const,
+        progress: 25,
+        acceptanceLikelihood: 72,
+        documentsSubmitted: 2,
+        documentsRequired: 8,
+        advisorAssigned: 'Dr. Jennifer Lee',
+        estimatedDecision: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+        lastActivity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        priority: 'medium' as const,
+        country: 'Singapore',
+        city: 'Singapore'
+      },
+      {
+        id: 'app-6',
+        studentId: 'demo-student-6',
+        studentName: 'David Thompson',
+        email: 'david.thompson@email.com',
+        phone: '+1-555-9999',
+        program: 'Digital Marketing',
+        applicationDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        status: 'under-review' as const,
+        stage: 'DOCUMENT_APPROVAL' as const,
+        progress: 80,
+        acceptanceLikelihood: 88,
+        documentsSubmitted: 7,
+        documentsRequired: 8,
+        advisorAssigned: 'Prof. Amanda Clark',
+        estimatedDecision: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        lastActivity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        priority: 'high' as const,
+        country: 'Australia',
+        city: 'Sydney'
+      }
+    ];
+  }
+
+  /**
    * Get demo scholarship applications data
    */
   static getDemoScholarshipApplications() {

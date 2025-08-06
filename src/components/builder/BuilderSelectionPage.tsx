@@ -11,8 +11,11 @@ import {
   Eye, 
   Edit, 
   Trash2, 
-  FileText
+  FileText,
+  MoreHorizontal
 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CampaignService, type Campaign } from '@/services/campaignService';
 import { WorkflowService, type Workflow as WorkflowType } from '@/services/workflowService';
 import { FormService, type Form } from '@/services/formService';
@@ -107,56 +110,81 @@ export function BuilderSelectionPage() {
     }
   ];
 
-  const renderItemsList = (items: any[], type: string) => {
+  const renderItemsTable = (items: any[], type: string) => {
     if (loading) {
       return <div className="text-center py-8 text-muted-foreground">Loading...</div>;
     }
 
     if (items.length === 0) {
       return (
-        <div className="text-center py-8 text-muted-foreground">
+        <div className="text-center py-12 text-muted-foreground">
           <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-          <p>No {type} created yet</p>
+          <p className="font-medium">No {type} created yet</p>
           <p className="text-sm">Start building your first {type.slice(0, -1)}</p>
         </div>
       );
     }
 
     return (
-      <div className="space-y-3">
-        {items.map((item) => (
-          <Card key={item.id} className="hover:shadow-md transition-shadow">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-sm truncate">{item.name || item.title}</h4>
-                  <p className="text-xs text-muted-foreground truncate mt-1">
-                    {item.description}
-                  </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant={(item.status === 'active' || item.status === 'published' || item.is_active) ? 'default' : 'secondary'} className="text-xs">
-                      {item.status || (item.is_active ? 'active' : 'inactive')}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(item.created_at).toLocaleDateString()}
-                    </span>
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Created</TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {items.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  <div>
+                    <p className="font-medium text-sm">{item.name || item.title}</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                      {item.description}
+                    </p>
                   </div>
-                </div>
-                <div className="flex items-center gap-1 ml-3">
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/admin/builder/${type}/${item.id}`)}>
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => navigate(`/admin/builder/${type}/${item.id}/edit`)}>
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <Button size="sm" variant="ghost" onClick={() => handleDelete(type.slice(0, -1) as any, item.id)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={(item.status === 'active' || item.status === 'published' || item.is_active) ? 'default' : 'secondary'} className="text-xs">
+                    {item.status || (item.is_active ? 'active' : 'inactive')}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-xs text-muted-foreground">
+                  {new Date(item.created_at).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => navigate(`/admin/builder/${type}/${item.id}`)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(`/admin/builder/${type}/${item.id}/edit`)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(type.slice(0, -1) as any, item.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   };
@@ -251,8 +279,8 @@ export function BuilderSelectionPage() {
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-64 overflow-y-auto">
-                  {renderItemsList(forms, 'forms')}
+                <CardContent>
+                  {renderItemsTable(forms, 'forms')}
                 </CardContent>
               </Card>
 
@@ -266,8 +294,8 @@ export function BuilderSelectionPage() {
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-64 overflow-y-auto">
-                  {renderItemsList(workflows, 'workflows')}
+                <CardContent>
+                  {renderItemsTable(workflows, 'workflows')}
                 </CardContent>
               </Card>
 
@@ -281,8 +309,8 @@ export function BuilderSelectionPage() {
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="max-h-64 overflow-y-auto">
-                  {renderItemsList(campaigns, 'campaigns')}
+                <CardContent>
+                  {renderItemsTable(campaigns, 'campaigns')}
                 </CardContent>
               </Card>
             </div>

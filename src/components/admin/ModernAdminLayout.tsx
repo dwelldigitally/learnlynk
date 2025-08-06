@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
-import { DynamicSidebar } from './DynamicSidebar';
+import { ModernSidebar } from './ModernSidebar';
 import { AircallWidgetWrapper } from './leads/AircallWidgetProvider';
 import { navigationStructure } from '@/data/navigationStructure';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 
 interface ModernAdminLayoutProps {
   children?: React.ReactNode;
@@ -45,33 +46,33 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
 
   return (
     <AircallWidgetWrapper>
-      <div className="min-h-screen bg-background flex flex-col">
-        {/* Top Navigation Bar */}
-        <TopNavigationBar
-          activeSection={currentActiveSection}
-          onSectionChange={handleSectionChange}
-          onToggleMobileMenu={toggleSidebar}
-        />
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen bg-background flex flex-col w-full">
+          {/* Top Navigation Bar */}
+          <TopNavigationBar
+            activeSection={currentActiveSection}
+            onSectionChange={handleSectionChange}
+            onToggleMobileMenu={toggleSidebar}
+          />
 
-        {/* Main Layout: Sidebar + Content */}
-        <div className="flex flex-1 relative">
-          {/* Dynamic Sidebar - Hide on home page and configuration pages */}
-          {!isHomePage && !isConfigurationPage && (
-            <DynamicSidebar
-              activeSection={currentActiveSection}
-              isOpen={sidebarOpen}
-              onClose={closeSidebar}
-            />
-          )}
+          {/* Main Layout: Sidebar + Content */}
+          <div className="flex flex-1 w-full">
+            {/* Modern Sidebar - Hide on home page and configuration pages */}
+            {!isHomePage && !isConfigurationPage && (
+              <ModernSidebar activeSection={currentActiveSection} />
+            )}
 
-          {/* Main Content Area */}
-          <main className="flex-1 w-full min-h-screen bg-background/50">
-            <div className="h-full">
-              {children || <Outlet />}
-            </div>
-          </main>
+            {/* Main Content Area */}
+            <SidebarInset className="flex-1 w-full">
+              <main className="w-full min-h-screen bg-background/50">
+                <div className="h-full w-full">
+                  {children || <Outlet />}
+                </div>
+              </main>
+            </SidebarInset>
+          </div>
         </div>
-      </div>
+      </SidebarProvider>
     </AircallWidgetWrapper>
   );
 }

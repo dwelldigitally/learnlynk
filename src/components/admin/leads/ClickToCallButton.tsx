@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Phone, PhoneCall } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Phone, PhoneCall, AlertCircle, Copy } from 'lucide-react';
 import { AircallService, AircallSettings } from '@/services/aircallService';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,6 +24,8 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [settings, setSettings] = useState<AircallSettings | null>(null);
+  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -31,18 +34,26 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
 
   const loadSettings = async () => {
     try {
+      console.log('Loading Aircall settings...');
       const data = await AircallService.getSettings();
+      console.log('Aircall settings loaded:', data);
       setSettings(data);
+      setSettingsError(null);
     } catch (error) {
       console.error('Error loading Aircall settings:', error);
+      setSettingsError(error instanceof Error ? error.message : 'Failed to load settings');
+    } finally {
+      setSettingsLoaded(true);
     }
   };
 
   const handleCall = async () => {
+    console.log('Call button clicked:', { phoneNumber, settings, settingsLoaded });
+    
     if (!settings?.is_active || !settings?.click_to_call_enabled) {
       toast({
         title: "Call Feature Disabled",
-        description: "Please enable Aircall integration and click-to-call feature",
+        description: "Please enable Aircall integration and click-to-call feature in settings",
         variant: "destructive"
       });
       return;
@@ -59,6 +70,7 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
 
     try {
       setIsLoading(true);
+      console.log('Initiating call to:', phoneNumber);
       
       // Find or create lead if leadId is not provided
       let targetLeadId = leadId;
@@ -74,7 +86,30 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
         }
       }
 
-      // Initiate the call
+      // For demo purposes, simulate call initiation if no API credentials
+      if (!settings.api_id || !settings.api_token_encrypted) {
+        console.log('Demo mode: Simulating call initiation');
+        
+        // Create call record for demo
+        await AircallService.createCall({
+          aircall_call_id: `demo-${Date.now()}`,
+          lead_id: targetLeadId,
+          phone_number: phoneNumber,
+          direction: 'outbound',
+          status: 'initial',
+          duration: 0,
+          started_at: new Date().toISOString(),
+          aircall_metadata: { demo: true }
+        });
+
+        toast({
+          title: "Demo Call Initiated",
+          description: `Demo call to ${formatPhoneNumber(phoneNumber)} - Configure Aircall API for real calls`,
+        });
+        return;
+      }
+
+      // Initiate the real call
       const callResponse = await AircallService.initiateCall(phoneNumber, settings);
       
       // Create call record
@@ -91,13 +126,13 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
 
       toast({
         title: "Call Initiated",
-        description: `Calling ${phoneNumber}...`,
+        description: `Calling ${formatPhoneNumber(phoneNumber)}...`,
       });
     } catch (error) {
       console.error('Call initiation error:', error);
       toast({
         title: "Call Failed",
-        description: "Unable to initiate call. Please try again.",
+        description: error instanceof Error ? error.message : "Unable to initiate call. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -105,10 +140,15 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
     }
   };
 
-  // Don't render if Aircall is not configured or click-to-call is disabled
-  if (!settings?.is_active || !settings?.click_to_call_enabled) {
-    return null;
-  }
+  const handleCopyPhone = () => {
+    if (phoneNumber) {
+      navigator.clipboard.writeText(phoneNumber);
+      toast({
+        title: "Phone Number Copied",
+        description: `${formatPhoneNumber(phoneNumber)} copied to clipboard`,
+      });
+    }
+  };
 
   const formatPhoneNumber = (phone: string) => {
     const cleaned = phone.replace(/\D/g, '');
@@ -118,25 +158,91 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
     return phone;
   };
 
+  const getButtonState = () => {
+    if (!settingsLoaded) {
+      return { disabled: true, tooltip: "Loading Aircall settings..." };
+    }
+    
+    if (settingsError) {
+      return { disabled: true, tooltip: `Settings error: ${settingsError}` };
+    }
+    
+    if (!settings) {
+      return { disabled: true, tooltip: "Aircall not configured - Go to settings to connect" };
+    }
+    
+    if (!settings.is_active) {
+      return { disabled: true, tooltip: "Aircall integration is disabled" };
+    }
+    
+    if (!settings.click_to_call_enabled) {
+      return { disabled: true, tooltip: "Click-to-call feature is disabled" };
+    }
+    
+    if (!phoneNumber) {
+      return { disabled: true, tooltip: "No phone number available" };
+    }
+    
+    if (isLoading) {
+      return { disabled: true, tooltip: "Initiating call..." };
+    }
+    
+    return { disabled: false, tooltip: `Call ${formatPhoneNumber(phoneNumber)}` };
+  };
+
+  const buttonState = getButtonState();
+  const isAircallConfigured = settings?.is_active && settings?.click_to_call_enabled;
+
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={handleCall}
-      disabled={isLoading || !phoneNumber}
-      className={className}
-      title={`Call ${formatPhoneNumber(phoneNumber)}`}
-    >
-      {isLoading ? (
-        <PhoneCall className="h-4 w-4 animate-pulse" />
-      ) : (
-        <Phone className="h-4 w-4" />
-      )}
-      {showLabel && (
-        <span className="ml-2">
-          {isLoading ? 'Calling...' : 'Call'}
-        </span>
-      )}
-    </Button>
+    <TooltipProvider>
+      <div className="flex gap-1">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={variant}
+              size={size}
+              onClick={handleCall}
+              disabled={buttonState.disabled}
+              className={className}
+            >
+              {isLoading ? (
+                <PhoneCall className="h-4 w-4 animate-pulse" />
+              ) : !isAircallConfigured ? (
+                <AlertCircle className="h-4 w-4" />
+              ) : (
+                <Phone className="h-4 w-4" />
+              )}
+              {showLabel && (
+                <span className="ml-2">
+                  {isLoading ? 'Calling...' : 'Call'}
+                </span>
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{buttonState.tooltip}</p>
+          </TooltipContent>
+        </Tooltip>
+        
+        {/* Copy phone fallback when call isn't available */}
+        {phoneNumber && !isAircallConfigured && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size={size}
+                onClick={handleCopyPhone}
+                className="px-2"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Copy phone number</p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+      </div>
+    </TooltipProvider>
   );
 };

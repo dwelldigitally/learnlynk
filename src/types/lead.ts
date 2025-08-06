@@ -22,6 +22,15 @@ export type LeadStatus =
   | 'lost'
   | 'unqualified';
 
+export type LeadStage = 
+  | 'NEW_INQUIRY'
+  | 'QUALIFICATION'
+  | 'NURTURING'
+  | 'PROPOSAL_SENT'
+  | 'APPLICATION_STARTED'
+  | 'CONVERTED'
+  | 'LOST';
+
 export type LeadPriority = 
   | 'low'
   | 'medium'
@@ -50,6 +59,7 @@ export interface Lead {
   source: LeadSource;
   source_details?: string;
   status: LeadStatus;
+  stage?: LeadStage;
   priority: LeadPriority;
   lead_score: number;
   ai_score?: number;
@@ -142,6 +152,7 @@ export interface LeadAssignmentRequest {
 
 export interface LeadSearchFilters {
   status?: LeadStatus[];
+  stage?: LeadStage[];
   source?: LeadSource[];
   priority?: LeadPriority[];
   assigned_to?: string[];

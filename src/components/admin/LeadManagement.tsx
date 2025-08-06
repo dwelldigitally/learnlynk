@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedLeadService, EnhancedLeadFilters } from '@/services/enhancedLeadService';
-import { Lead, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
+import { Lead, LeadStatus, LeadSource, LeadPriority, LeadStage } from '@/types/lead';
 import { EnhancedDataTable } from './EnhancedDataTable';
 import { AdvancedFilterPanel } from './AdvancedFilterPanel';
 import { LeadFormModal } from './LeadFormModal';
@@ -21,6 +21,8 @@ import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
 import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
+import { LeadStageTracker } from './leads/LeadStageTracker';
+import { LeadStageFilters } from './leads/LeadStageFilters';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
@@ -39,11 +41,11 @@ export function LeadManagement() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeStage, setActiveStage] = useState('all');
   const [showEnhancedModal, setShowEnhancedModal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showStageFilters, setShowStageFilters] = useState(false);
   const [filterOptions, setFilterOptions] = useState({
     sources: [] as string[],
     statuses: [] as string[],
@@ -54,14 +56,15 @@ export function LeadManagement() {
     }>,
     programs: [] as string[]
   });
-  const [stats, setStats] = useState({
-    total: 0,
-    new_leads: 0,
-    contacted: 0,
-    qualified: 0,
-    converted: 0,
-    conversion_rate: 0
-  });
+  const [stageStats, setStageStats] = useState([
+    { key: 'NEW_INQUIRY', label: 'New Inquiry', count: 0, color: 'bg-blue-500' },
+    { key: 'QUALIFICATION', label: 'Qualification', count: 0, color: 'bg-orange-500' },
+    { key: 'NURTURING', label: 'Nurturing', count: 0, color: 'bg-purple-500' },
+    { key: 'PROPOSAL_SENT', label: 'Proposal Sent', count: 0, color: 'bg-yellow-500' },
+    { key: 'APPLICATION_STARTED', label: 'Application', count: 0, color: 'bg-indigo-500' },
+    { key: 'CONVERTED', label: 'Converted', count: 0, color: 'bg-green-500' },
+    { key: 'LOST', label: 'Lost', count: 0, color: 'bg-red-500' }
+  ]);
   const {
     toast
   } = useToast();
@@ -94,16 +97,21 @@ export function LeadManagement() {
       setLoading(false);
     }
   };
-  const loadStats = async () => {
+  const loadStageStats = async () => {
     try {
-      console.log('LoadStats called at:', new Date().toISOString());
-      const {
-        LeadService
-      } = await import('@/services/leadService');
-      const statsData = await LeadService.getLeadStats();
-      setStats(statsData);
+      // Calculate stage stats from current leads
+      const stageCounts = leads.reduce((acc, lead) => {
+        const stage = lead.stage || 'NEW_INQUIRY';
+        acc[stage] = (acc[stage] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      setStageStats(prev => prev.map(stage => ({
+        ...stage,
+        count: stageCounts[stage.key] || 0
+      })));
     } catch (error) {
-      console.error('Failed to load stats:', error);
+      console.error('Failed to load stage stats:', error);
     }
   };
   const loadFilterOptions = async () => {
@@ -115,13 +123,17 @@ export function LeadManagement() {
     }
   };
 
-  // STEP 1: Only run on mount, no dependencies that can cause loops
+  // Load initial data
   useEffect(() => {
     console.log('Initial mount - loading data');
     loadLeads();
-    loadStats();
     loadFilterOptions();
-  }, []); // ONLY run once on mount
+  }, []);
+
+  // Update stage stats when leads change
+  useEffect(() => {
+    loadStageStats();
+  }, [leads]);
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
@@ -146,9 +158,7 @@ export function LeadManagement() {
   const handleLeadCreated = () => {
     console.log('HandleLeadCreated called at:', new Date().toISOString());
     setShowLeadForm(false);
-    // STEP 1: Simple reload
     loadLeads();
-    loadStats();
     toast({
       title: 'Success',
       description: 'Lead created successfully'
@@ -436,65 +446,31 @@ export function LeadManagement() {
       </div>
 
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">New Leads</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.new_leads}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Contacted</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{stats.contacted}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Qualified</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{stats.qualified}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Converted</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats.converted}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Conversion Rate</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.conversion_rate.toFixed(1)}%</div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Lead Stage Tracker */}
+        <LeadStageTracker
+          stages={stageStats}
+          activeStage={activeStage}
+          onStageChange={setActiveStage}
+          onAIAction={(action, stage) => {
+            toast({
+              title: 'AI Action Triggered',
+              description: `${action} will be applied to all leads in ${stage} stage`
+            });
+          }}
+          selectedLeadsCount={selectedLeadIds.length}
+        />
 
-        {/* Filters & Actions Bar */}
-        <Card className="p-4 bg-muted/50 border-2 border-primary/20">{/* Made more visible for debugging */}
+        {/* Enhanced Filters & Actions Bar */}
+        <Card className="p-4">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}>
+              <Button variant="outline" onClick={() => setShowStageFilters(!showStageFilters)}>
                 <Filter className="h-4 w-4 mr-2" />
-                Advanced Filters
+                Stage Filters
+              </Button>
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Export
               </Button>
               <Button variant="outline" onClick={() => {
                 setFilters({});
@@ -516,8 +492,16 @@ export function LeadManagement() {
         {/* Main Content */}
         <div className="space-y-6">
 
-          {/* Advanced Filters Panel */}
-          {showAdvancedFilters && <AdvancedFilterPanel filters={filters} onFiltersChange={handleFilter} />}
+          {/* Stage-specific Filters */}
+          {showStageFilters && (
+            <LeadStageFilters
+              activeStage={activeStage}
+              filters={filters}
+              onFilterChange={setFilters}
+              onClearFilters={() => setFilters({})}
+              programs={filterOptions.programs}
+            />
+          )}
 
           {/* Enhanced Data Table */}
           <ConditionalDataWrapper isLoading={loading} showEmptyState={!hasDemoAccess && leads.length === 0} hasDemoAccess={hasDemoAccess || false} hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} emptyTitle="No Leads Yet" emptyDescription="Create your first lead to get started with lead management." loadingRows={5}>
@@ -540,13 +524,11 @@ export function LeadManagement() {
       setSelectedLead(null);
     }} onLeadUpdate={updatedLead => {
       setLeads(prev => prev.map(lead => lead.id === updatedLead.id ? updatedLead : lead));
-      loadStats();
     }} />
 
       {/* Legacy Lead Detail Modal for fallback */}
       {selectedLead && <LeadDetailModal open={showLeadDetail} onOpenChange={setShowLeadDetail} lead={selectedLead} onStatusChange={handleStatusChange} onLeadUpdated={() => {
       loadLeads();
-      loadStats();
     }} />}
     </div>;
 }

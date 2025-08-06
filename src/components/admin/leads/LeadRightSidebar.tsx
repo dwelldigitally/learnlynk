@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { SmartAdvisorMatch } from './SmartAdvisorMatch';
+import { ClickToCallButton } from './ClickToCallButton';
 
 interface LeadRightSidebarProps {
   lead: Lead;
@@ -62,6 +63,26 @@ export function LeadRightSidebar({ lead }: LeadRightSidebarProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="space-y-2">
+            {lead.phone && (
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="flex-1 justify-start h-auto p-3">
+                  <div className="flex items-center gap-2 w-full">
+                    <MessageSquare className="h-4 w-4 text-blue-500" />
+                    <div className="text-left flex-1">
+                      <div className="text-sm font-medium">Call lead</div>
+                      <div className="text-xs text-muted-foreground">{lead.phone}</div>
+                    </div>
+                  </div>
+                </Button>
+                <ClickToCallButton 
+                  phoneNumber={lead.phone} 
+                  leadId={lead.id}
+                  variant="default"
+                  size="sm"
+                />
+              </div>
+            )}
+            
             <Button variant="outline" size="sm" className="w-full justify-start h-auto p-3">
               <div className="flex items-center gap-2 w-full">
                 <MessageSquare className="h-4 w-4 text-blue-500" />

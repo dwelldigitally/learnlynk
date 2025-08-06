@@ -175,6 +175,199 @@ export type Database = {
         }
         Relationships: []
       }
+      aircall_call_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          call_id: string
+          created_at: string
+          id: string
+          performed_at: string
+          performed_by: string | null
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          call_id: string
+          created_at?: string
+          id?: string
+          performed_at?: string
+          performed_by?: string | null
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          call_id?: string
+          created_at?: string
+          id?: string
+          performed_at?: string
+          performed_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aircall_call_activities_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "aircall_calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aircall_calls: {
+        Row: {
+          agent_id: string | null
+          agent_name: string | null
+          aircall_call_id: string
+          aircall_metadata: Json | null
+          answered_at: string | null
+          caller_company: string | null
+          caller_name: string | null
+          created_at: string
+          direction: string
+          disposition: string | null
+          duration: number | null
+          ended_at: string | null
+          id: string
+          lead_id: string | null
+          notes: string | null
+          outcome: string | null
+          phone_number: string
+          recording_url: string | null
+          started_at: string | null
+          status: string
+          summary: string | null
+          tags: string[] | null
+          transcription: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          agent_name?: string | null
+          aircall_call_id: string
+          aircall_metadata?: Json | null
+          answered_at?: string | null
+          caller_company?: string | null
+          caller_name?: string | null
+          created_at?: string
+          direction: string
+          disposition?: string | null
+          duration?: number | null
+          ended_at?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          outcome?: string | null
+          phone_number: string
+          recording_url?: string | null
+          started_at?: string | null
+          status: string
+          summary?: string | null
+          tags?: string[] | null
+          transcription?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          agent_name?: string | null
+          aircall_call_id?: string
+          aircall_metadata?: Json | null
+          answered_at?: string | null
+          caller_company?: string | null
+          caller_name?: string | null
+          created_at?: string
+          direction?: string
+          disposition?: string | null
+          duration?: number | null
+          ended_at?: string | null
+          id?: string
+          lead_id?: string | null
+          notes?: string | null
+          outcome?: string | null
+          phone_number?: string
+          recording_url?: string | null
+          started_at?: string | null
+          status?: string
+          summary?: string | null
+          tags?: string[] | null
+          transcription?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aircall_calls_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aircall_settings: {
+        Row: {
+          api_id: string | null
+          api_token_encrypted: string | null
+          auto_create_leads: boolean | null
+          auto_dial_enabled: boolean | null
+          auto_log_calls: boolean | null
+          call_popup_enabled: boolean | null
+          call_recording_enabled: boolean | null
+          click_to_call_enabled: boolean | null
+          connection_status: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          transcription_enabled: boolean | null
+          updated_at: string
+          user_id: string
+          webhook_secret: string | null
+          webhook_url: string | null
+        }
+        Insert: {
+          api_id?: string | null
+          api_token_encrypted?: string | null
+          auto_create_leads?: boolean | null
+          auto_dial_enabled?: boolean | null
+          auto_log_calls?: boolean | null
+          call_popup_enabled?: boolean | null
+          call_recording_enabled?: boolean | null
+          click_to_call_enabled?: boolean | null
+          connection_status?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          transcription_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Update: {
+          api_id?: string | null
+          api_token_encrypted?: string | null
+          auto_create_leads?: boolean | null
+          auto_dial_enabled?: boolean | null
+          auto_log_calls?: boolean | null
+          call_popup_enabled?: boolean | null
+          call_recording_enabled?: boolean | null
+          click_to_call_enabled?: boolean | null
+          connection_status?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          transcription_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+          webhook_secret?: string | null
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           advisor_assigned: string | null

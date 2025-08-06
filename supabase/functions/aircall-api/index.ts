@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
         lead_id: leadId || null,
         phone_number: phoneNumber,
         direction: 'outbound',
-        status: 'queued', // Changed from 'initiated' to 'queued'
+        status: 'initial', // Use 'initial' status which is allowed by DB constraint
         aircall_call_id: `demo_${Date.now()}`,
         created_at: new Date().toISOString(),
       };

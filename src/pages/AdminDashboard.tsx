@@ -36,6 +36,7 @@ import { CompanySettings } from "@/components/admin/CompanySettings";
 import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
+import AIEmailManagementPage from "./AIEmailManagementPage";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -89,6 +90,8 @@ const AdminDashboard: React.FC = () => {
         return <EventManagement />;
       case "/admin/communication":
         return <CommunicationHub />;
+      case "/admin/communication/ai-emails":
+        return <AIEmailManagementPage />;
       case "/admin/financial":
         return <FinancialManagement />;
       case "/admin/team":

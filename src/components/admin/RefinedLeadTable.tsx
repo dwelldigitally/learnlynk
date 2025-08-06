@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { MobileDataTable } from '@/components/ui/mobile-data-table';
 import { 
   Search, 
   Filter, 
@@ -24,7 +26,10 @@ import {
   ChevronDown,
   Users,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Phone,
+  Mail,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -35,6 +40,7 @@ interface Column {
   sortable?: boolean;
   width?: string;
   visible?: boolean;
+  priority?: 'high' | 'medium' | 'low'; // For mobile prioritization
   type?: 'text' | 'number' | 'date' | 'badge' | 'custom';
   render?: (value: any, row: any) => React.ReactNode;
 }
@@ -106,6 +112,148 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
   bulkActions = [],
   className
 }) => {
+  const isMobile = useIsMobile();
+  
+  // Mobile-specific mobile card renderer
+  const renderMobileCard = (item: any, index: number) => (
+    <Card
+      key={item.id}
+      className={cn(
+        "cursor-pointer transition-colors hover:bg-muted/50 mb-3",
+        selectedIds.includes(item.id) && "border-primary bg-primary/5"
+      )}
+      onClick={() => onRowClick?.(item)}
+    >
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center space-x-3 min-w-0 flex-1">
+            {selectable && (
+              <Checkbox
+                checked={selectedIds.includes(item.id)}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    onSelectionChange?.([...selectedIds, item.id]);
+                  } else {
+                    onSelectionChange?.(selectedIds.filter(id => id !== item.id));
+                  }
+                }}
+                className="mt-1"
+                onClick={(e) => e.stopPropagation()}
+              />
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="font-medium text-sm truncate">{item.name}</div>
+              <div className="text-xs text-muted-foreground truncate flex items-center mt-1">
+                <Mail className="w-3 h-3 mr-1" />
+                {item.email}
+              </div>
+              {item.phone && item.phone !== '-' && (
+                <div className="text-xs text-muted-foreground truncate flex items-center mt-1">
+                  <Phone className="w-3 h-3 mr-1" />
+                  {item.phone}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex flex-col items-end space-y-2">
+            <div className="flex items-center space-x-2">
+              {item.status && (
+                <Badge variant="secondary" className="text-xs">
+                  {item.status.toUpperCase()}
+                </Badge>
+              )}
+              {item.priority && (
+                <Badge 
+                  variant={item.priority === 'urgent' ? 'destructive' : 'outline'}
+                  className="text-xs"
+                >
+                  {item.priority.toUpperCase()}
+                </Badge>
+              )}
+            </div>
+            
+            {bulkActions.length > 0 && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => onRowClick?.(item)}>
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Details
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {bulkActions.map((action, actionIndex) => (
+                    <DropdownMenuItem
+                      key={actionIndex}
+                      onClick={() => action.onClick([item.id])}
+                      className={action.variant === 'destructive' ? 'text-destructive' : ''}
+                    >
+                      {action.label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4 text-xs">
+          <div>
+            <span className="text-muted-foreground">Source:</span>
+            <div className="font-medium">{item.source}</div>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Score:</span>
+            <div className="font-medium">{item.lead_score || 'N/A'}</div>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Created:</span>
+            <div className="font-medium">
+              {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A'}
+            </div>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Assigned:</span>
+            <div className="font-medium truncate">{item.assigned_to || 'Unassigned'}</div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  // If mobile, use MobileDataTable
+  if (isMobile) {
+    // Set priority for mobile columns
+    const mobileColumns = initialColumns.map(col => ({
+      ...col,
+      priority: col.key === 'name' || col.key === 'email' ? 'high' as const :
+                col.key === 'status' || col.key === 'priority' ? 'medium' as const :
+                'low' as const
+    }));
+
+    return (
+      <div className={className}>
+        <MobileDataTable
+          title={title}
+          data={data}
+          columns={mobileColumns}
+          searchPlaceholder="Search leads..."
+          enableSearch={searchable}
+          enableFilter={filterable}
+          enableExport={exportable}
+          enableAdd={false}
+          onRowClick={onRowClick}
+          renderMobileCard={renderMobileCard}
+        />
+      </div>
+    );
+  }
+
+  // Desktop version - existing table code
   const [searchQuery, setSearchQuery] = useState('');
   const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({});
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});

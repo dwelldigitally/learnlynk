@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +30,7 @@ import { HelpIcon } from '@/components/ui/help-icon';
 import { useHelpContent } from '@/hooks/useHelpContent';
 export function LeadManagement() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { getHelpContent } = useHelpContent();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -438,27 +440,33 @@ export function LeadManagement() {
     variant: 'destructive' as const
   }];
   return <div className="h-full flex flex-col bg-background">
-    {/* Simple Page Header */}
+    {/* Mobile-Optimized Page Header */}
     <div className="bg-background border-b border-border">
-      <div className="px-4 lg:px-6 xl:px-8 py-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
+        <div className={cn("flex gap-4", isMobile ? "flex-col" : "flex-col lg:flex-row lg:items-center lg:justify-between")}>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Lead Management</h1>
-            <p className="text-muted-foreground mt-1">
-              {totalCount} total leads • {selectedLeadIds.length} selected
+            <h1 className={cn("font-bold text-foreground", isMobile ? "text-xl" : "text-2xl")}>
+              Lead Management
+            </h1>
+            <p className={cn("text-muted-foreground mt-1", isMobile ? "text-sm" : "")}>
+              {totalCount} total leads {selectedLeadIds.length > 0 && `• ${selectedLeadIds.length} selected`}
             </p>
           </div>
           
-          <div className="flex gap-3">
+          <div className={cn("flex gap-3", isMobile ? "flex-col" : "")}>
             <Button 
               variant="outline" 
               onClick={handleExport}
+              size={isMobile ? "default" : "default"}
+              className={isMobile ? "min-h-[44px]" : ""}
             >
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
             <Button 
               onClick={() => setShowLeadForm(true)}
+              size={isMobile ? "default" : "default"}
+              className={isMobile ? "min-h-[44px]" : ""}
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Lead
@@ -468,27 +476,52 @@ export function LeadManagement() {
       </div>
     </div>
 
-    {/* Stats Overview Cards */}
+    {/* Mobile-Optimized Stats Overview Cards */}
     <div className="bg-background">
-      <div className="px-4 lg:px-6 xl:px-8 py-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-          {stageStats.map((stage) => (
-            <Card 
-              key={stage.key}
-              className={cn(
-                "cursor-pointer transition-all duration-200 hover:shadow-md",
-                activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/20"
-              )}
-              onClick={() => setActiveStage(stage.key)}
-            >
-              <CardContent className="p-4 text-center">
-                <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
-                <div className="text-2xl font-bold text-foreground">{stage.count}</div>
-                <div className="text-xs text-muted-foreground font-medium">{stage.label}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
+        {isMobile ? (
+          // Mobile: Horizontal scroll for stats
+          <div className="overflow-x-auto">
+            <div className="flex gap-3 min-w-max pb-2">
+              {stageStats.map((stage) => (
+                <Card 
+                  key={stage.key}
+                  className={cn(
+                    "cursor-pointer transition-all duration-200 hover:shadow-md min-w-[120px] flex-shrink-0",
+                    activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/20"
+                  )}
+                  onClick={() => setActiveStage(stage.key)}
+                >
+                  <CardContent className="p-3 text-center">
+                    <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
+                    <div className="text-xl font-bold text-foreground">{stage.count}</div>
+                    <div className="text-xs text-muted-foreground font-medium leading-tight">{stage.label}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        ) : (
+          // Desktop: Grid layout
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+            {stageStats.map((stage) => (
+              <Card 
+                key={stage.key}
+                className={cn(
+                  "cursor-pointer transition-all duration-200 hover:shadow-md",
+                  activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/20"
+                )}
+                onClick={() => setActiveStage(stage.key)}
+              >
+                <CardContent className="p-4 text-center">
+                  <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
+                  <div className="text-2xl font-bold text-foreground">{stage.count}</div>
+                  <div className="text-xs text-muted-foreground font-medium">{stage.label}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
 

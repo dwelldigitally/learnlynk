@@ -468,7 +468,7 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
                           <Checkbox
                             checked={isAllSelected || isPartiallySelected}
                             onCheckedChange={handleSelectAll}
-                            className="border-border/50 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
+                            className="border-2 border-border bg-background data-[state=checked]:bg-accent data-[state=checked]:border-accent shadow-sm"
                           />
                         </th>
                       )}
@@ -514,7 +514,7 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
                               checked={selectedIds.includes(row.id)}
                               onCheckedChange={(checked) => handleRowSelect(row.id, checked as boolean)}
                               onClick={(e) => e.stopPropagation()}
-                              className="border-border/50 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
+                              className="border-2 border-border bg-background data-[state=checked]:bg-accent data-[state=checked]:border-accent shadow-sm"
                             />
                           </td>
                         )}

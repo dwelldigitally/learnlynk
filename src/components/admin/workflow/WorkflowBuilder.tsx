@@ -226,7 +226,7 @@ const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({ workflow, onClose }) 
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
       <div className="flex items-center gap-4">
         <Button variant="ghost" onClick={onClose} className="gap-2">
           <ArrowLeft className="h-4 w-4" />

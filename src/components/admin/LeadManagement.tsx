@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -436,65 +437,177 @@ export function LeadManagement() {
     onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
     variant: 'destructive' as const
   }];
-  return <div className="w-full space-y-6 px-6">{/* Container with full width and proper padding */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold py-[25px]">Lead Management</h1>
-          <p className="text-muted-foreground">Comprehensive lead generation, routing, and conversion system</p>
+  return <div className="min-h-screen bg-gradient-to-br from-background to-primary-light/20">
+    {/* Modern Header Section */}
+    <div className="bg-primary text-primary-foreground">
+      <div className="container mx-auto px-6 py-8">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight">Lead Management</h1>
+            <p className="text-primary-foreground/80 text-lg">Comprehensive lead generation, routing, and conversion system</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="secondary" 
+              size="lg"
+              onClick={() => setShowLeadForm(true)}
+              className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              Add Lead
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="lg"
+              onClick={handleExport}
+              className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm"
+            >
+              <Download className="w-5 h-5 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
       </div>
+    </div>
 
+    {/* Main Content Container */}
+    <div className="container mx-auto px-6 py-8 space-y-8">
+      
+      {/* Stats Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4">
+        {stageStats.map((stage) => (
+          <Card 
+            key={stage.key}
+            className={cn(
+              "cursor-pointer transition-all duration-200 hover:shadow-lg border-2",
+              activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/30"
+            )}
+            onClick={() => setActiveStage(stage.key)}
+          >
+            <CardContent className="p-4 text-center">
+              <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
+              <div className="text-2xl font-bold text-foreground">{stage.count}</div>
+              <div className="text-xs text-muted-foreground font-medium">{stage.label}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-        {/* Unified Lead Header */}
-        <UnifiedLeadHeader
-          stages={stageStats}
-          activeStage={activeStage}
-          selectedLeadsCount={selectedLeadIds.length}
-          filters={filters}
-          programs={filterOptions.programs}
-          onStageChange={setActiveStage}
-          onFilterChange={(newFilters) => {
-            setFilters(prev => ({ ...prev, ...newFilters }));
-            setCurrentPage(1);
-          }}
-          onClearFilters={() => {
-            setFilters({});
-            setCurrentPage(1);
-          }}
-          onAddLead={() => setShowLeadForm(true)}
-          onExport={handleExport}
-        />
+      {/* Filters and Actions Bar */}
+      <Card className="shadow-sm border-border/50">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-muted-foreground">Filters:</span>
+              </div>
+              
+              {Object.keys(filters).length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    setFilters({});
+                    setCurrentPage(1);
+                  }}
+                  className="text-muted-foreground border-border/50"
+                >
+                  <FileX className="w-4 h-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
+              
+              {selectedLeadIds.length > 0 && (
+                <Badge variant="secondary" className="bg-primary/10 text-primary">
+                  {selectedLeadIds.length} selected
+                </Badge>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">
+                Total: <span className="font-semibold text-foreground">{totalCount}</span> leads
+              </span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {/* Main Content */}
-        <div className="space-y-6">
+      {/* Enhanced Data Table */}
+      <Card className="shadow-sm border-border/50 overflow-hidden">
+        <ConditionalDataWrapper 
+          isLoading={loading} 
+          showEmptyState={!hasDemoAccess && leads.length === 0} 
+          hasDemoAccess={hasDemoAccess || false} 
+          hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} 
+          emptyTitle="No Leads Yet" 
+          emptyDescription="Create your first lead to get started with lead management." 
+          loadingRows={5}
+        >
+          <EnhancedDataTable 
+            title="Lead Management" 
+            columns={columns} 
+            data={tableData} 
+            totalCount={totalCount} 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+            pageSize={pageSize} 
+            loading={loading} 
+            searchable={true} 
+            filterable={true} 
+            exportable={true} 
+            selectable={true} 
+            sortBy={sortBy} 
+            sortOrder={sortOrder} 
+            filterOptions={enhancedFilterOptions} 
+            quickFilters={quickFilters} 
+            selectedIds={selectedLeadIds} 
+            bulkActions={bulkActions} 
+            onPageChange={handlePageChange} 
+            onPageSizeChange={handlePageSizeChange} 
+            onSearch={handleSearch} 
+            onSort={handleSort} 
+            onFilter={handleFilter} 
+            onExport={handleExport} 
+            onRowClick={row => {
+              const lead = leads.find(l => l.id === row.id);
+              if (lead) {
+                navigate(`/admin/leads/detail/${lead.id}`);
+              }
+            }} 
+            onSelectionChange={setSelectedLeadIds} 
+          />
+        </ConditionalDataWrapper>
+      </Card>
+    </div>
+    {/* Modals */}
+    <LeadFormModal open={showLeadForm} onOpenChange={setShowLeadForm} onLeadCreated={handleLeadCreated} />
 
+    {/* Enhanced Lead Detail Modal */}
+    <EnhancedLeadDetailModal 
+      lead={selectedLead} 
+      isOpen={showEnhancedModal} 
+      onClose={() => {
+        setShowEnhancedModal(false);
+        setSelectedLead(null);
+      }} 
+      onLeadUpdate={updatedLead => {
+        setLeads(prev => prev.map(lead => lead.id === updatedLead.id ? updatedLead : lead));
+      }} 
+    />
 
-          {/* Enhanced Data Table */}
-          <ConditionalDataWrapper isLoading={loading} showEmptyState={!hasDemoAccess && leads.length === 0} hasDemoAccess={hasDemoAccess || false} hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} emptyTitle="No Leads Yet" emptyDescription="Create your first lead to get started with lead management." loadingRows={5}>
-            <EnhancedDataTable title="Lead Management" columns={columns} data={tableData} totalCount={totalCount} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} loading={loading} searchable={true} filterable={true} exportable={true} selectable={true} sortBy={sortBy} sortOrder={sortOrder} filterOptions={enhancedFilterOptions} quickFilters={quickFilters} selectedIds={selectedLeadIds} bulkActions={bulkActions} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} onSearch={handleSearch} onSort={handleSort} onFilter={handleFilter} onExport={handleExport} onRowClick={row => {
-            const lead = leads.find(l => l.id === row.id);
-            if (lead) {
-              // Navigate to individual lead page using React Router
-              navigate(`/admin/leads/detail/${lead.id}`);
-            }
-          }} onSelectionChange={setSelectedLeadIds} />
-          </ConditionalDataWrapper>
-        </div>
-
-      {/* Modals */}
-      <LeadFormModal open={showLeadForm} onOpenChange={setShowLeadForm} onLeadCreated={handleLeadCreated} />
-
-      {/* Enhanced Lead Detail Modal */}
-      <EnhancedLeadDetailModal lead={selectedLead} isOpen={showEnhancedModal} onClose={() => {
-      setShowEnhancedModal(false);
-      setSelectedLead(null);
-    }} onLeadUpdate={updatedLead => {
-      setLeads(prev => prev.map(lead => lead.id === updatedLead.id ? updatedLead : lead));
-    }} />
-
-      {/* Legacy Lead Detail Modal for fallback */}
-      {selectedLead && <LeadDetailModal open={showLeadDetail} onOpenChange={setShowLeadDetail} lead={selectedLead} onStatusChange={handleStatusChange} onLeadUpdated={() => {
-      loadLeads();
-    }} />}
-    </div>;
+    {/* Legacy Lead Detail Modal for fallback */}
+    {selectedLead && (
+      <LeadDetailModal 
+        open={showLeadDetail} 
+        onOpenChange={setShowLeadDetail} 
+        lead={selectedLead} 
+        onStatusChange={handleStatusChange} 
+        onLeadUpdated={() => {
+          loadLeads();
+        }} 
+      />
+    )}
+  </div>;
 }

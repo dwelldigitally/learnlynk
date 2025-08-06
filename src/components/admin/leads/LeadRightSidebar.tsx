@@ -10,6 +10,7 @@ import {
 import { Lead } from '@/types/lead';
 import { SmartAdvisorMatch } from './SmartAdvisorMatch';
 import { ClickToCallButton } from './ClickToCallButton';
+import { AircallIntegration } from './AircallIntegration';
 
 interface LeadRightSidebarProps {
   lead: Lead;
@@ -159,6 +160,9 @@ export function LeadRightSidebar({ lead }: LeadRightSidebarProps) {
 
       {/* Smart Advisor Match */}
       <SmartAdvisorMatch lead={lead} />
+
+      {/* Aircall Integration */}
+      <AircallIntegration leadId={lead.id} />
 
       {/* Lead Analytics */}
       <Card>

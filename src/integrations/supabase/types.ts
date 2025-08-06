@@ -1007,6 +1007,74 @@ export type Database = {
         }
         Relationships: []
       }
+      form_submissions: {
+        Row: {
+          form_id: string
+          id: string
+          ip_address: unknown | null
+          submission_data: Json
+          submitted_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          form_id: string
+          id?: string
+          ip_address?: unknown | null
+          submission_data?: Json
+          submitted_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          form_id?: string
+          id?: string
+          ip_address?: unknown | null
+          submission_data?: Json
+          submitted_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_submissions_form_id_fkey"
+            columns: ["form_id"]
+            isOneToOne: false
+            referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forms: {
+        Row: {
+          config: Json
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       intakes: {
         Row: {
           application_deadline: string | null

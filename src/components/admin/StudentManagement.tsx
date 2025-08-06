@@ -397,8 +397,7 @@ export default function StudentManagement() {
   ];
 
   return (
-    <div className="bg-card rounded-lg border shadow-sm">
-      <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6">
         {/* Header with buttons */}
         <div className="flex justify-between items-start">
           <div>
@@ -499,7 +498,6 @@ export default function StudentManagement() {
           </div>
         )}
       </ConditionalDataWrapper>
-      </div>
 
       {/* Modals */}
       <AddStudentModal 

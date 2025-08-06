@@ -15,6 +15,7 @@ import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
 import LeadDetailPage from "./pages/LeadDetailPage";
 import StudentDetailPage from "./pages/StudentDetailPage";
+import { UniversalBuilderPage } from "./pages/UniversalBuilderPage";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,9 @@ const App = () => {
               
               {/* Student detail route - use a specific pattern to avoid conflicts */}
               <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />
+              
+              {/* Universal Builder route */}
+              <Route path="/admin/builder" element={<ProtectedRoute element={<UniversalBuilderPage />} />} />
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

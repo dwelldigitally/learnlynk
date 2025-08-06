@@ -283,7 +283,7 @@ export const AircallIntegration: React.FC<AircallIntegrationProps> = ({ leadId }
                 <Alert className="mb-4">
                   <Phone className="h-4 w-4" />
                   <AlertDescription>
-                    Aircall Widget is now active! Look for the floating phone widget on the right side of your screen. 
+                    Aircall Integration is active! Click-to-call buttons are now available throughout the interface.
                     All calls will be automatically logged and synced with your leads.
                   </AlertDescription>
                 </Alert>

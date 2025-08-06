@@ -47,8 +47,6 @@ export const AircallWidgetWrapper: React.FC<AircallWidgetWrapperProps> = ({ chil
         <AircallWidget
           ref={widgetRef}
           onWidgetReady={() => setIsWidgetReady(true)}
-          onCallStarted={(data) => console.log('Call started:', data)}
-          onCallEnded={(data) => console.log('Call ended:', data)}
         />
       )}
     </AircallWidgetProvider>

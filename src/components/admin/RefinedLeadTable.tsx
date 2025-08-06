@@ -242,12 +242,12 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
 
   return (
     <div className={cn("w-full space-y-4", className)}>
-      {/* Modern Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4">
-        <div className="space-y-1">
+      {/* Enhanced Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 px-6 py-5 bg-gradient-subtle border-b border-border/50">
+        <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-            <Badge variant="outline" className="text-xs">
+            <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
+            <Badge variant="outline" className="text-xs bg-primary-light text-primary font-medium border-primary/20">
               {totalCount.toLocaleString()}
             </Badge>
           </div>
@@ -257,20 +257,24 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
         </div>
         
         {/* Action Bar */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {selectable && selectedIds.length > 0 && (
-            <div className="flex items-center gap-2 mr-3 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg">
-              <Users className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">
-                {selectedIds.length} selected
-              </span>
+            <div className="flex items-center gap-3 mr-4 px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl backdrop-blur-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                <Users className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">
+                  {selectedIds.length} selected
+                </span>
+              </div>
+              <div className="w-px h-4 bg-primary/20"></div>
               {bulkActions.map((action, index) => (
                 <Button
                   key={index}
                   variant={action.variant === 'destructive' ? 'destructive' : 'outline'}
                   size="sm"
                   onClick={() => action.onClick(selectedIds)}
-                  className="h-7"
+                  className="h-8 text-xs"
                 >
                   {action.label}
                 </Button>
@@ -280,25 +284,24 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9">
+              <Button variant="outline" size="sm" className="h-10 px-4 border-border/50 hover:border-accent hover:bg-accent-light/50">
                 <Settings className="h-4 w-4 mr-2" />
                 View
-                <ChevronDown className="h-4 w-4 ml-2" />
+                <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+            <DropdownMenuContent align="end" className="w-52">
+              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border/50">
                 Toggle Columns
               </div>
-              <DropdownMenuSeparator />
               {initialColumns.map((column) => (
                 <DropdownMenuItem
                   key={column.key}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-3 cursor-pointer py-2.5"
                   onClick={() => toggleColumnVisibility(column.key)}
                 >
                   {visibleColumns[column.key] !== false ? (
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-4 w-4 text-accent" />
                   ) : (
                     <EyeOff className="h-4 w-4 opacity-50" />
                   )}
@@ -314,7 +317,7 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
           </DropdownMenu>
 
           {exportable && (
-            <Button variant="outline" size="sm" onClick={onExport} className="h-9">
+            <Button variant="outline" size="sm" onClick={onExport} className="h-10 px-4 border-border/50 hover:border-accent hover:bg-accent-light/50">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
@@ -323,20 +326,20 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
       </div>
 
       {/* Enhanced Filters & Search */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-4 px-6 py-4 bg-background border-b border-border/30">
         {searchable && (
-          <div className="relative flex-1 min-w-[280px]">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative flex-1 min-w-[320px]">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search leads by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 h-10 bg-background border-border"
+              className="pl-11 h-11 bg-background border-border/50 focus:border-accent focus:ring-accent/20"
             />
           </div>
         )}
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Quick Filters */}
           {quickFilters.map((quickFilter, index) => (
             <Button
@@ -344,7 +347,7 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
               variant="outline"
               size="sm"
               onClick={() => onFilter(quickFilter.filter)}
-              className="h-10 text-xs"
+              className="h-11 px-4 text-xs border-border/50 hover:border-accent hover:bg-accent-light/50 hover:text-accent-foreground"
             >
               {quickFilter.label}
             </Button>
@@ -355,12 +358,16 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
               variant={showFilters ? "default" : "outline"}
               size="sm"
               onClick={() => setShowFilters(!showFilters)}
-              className="h-10"
+              className={cn(
+                "h-11 px-4",
+                !showFilters && "border-border/50 hover:border-accent hover:bg-accent-light/50",
+                showFilters && "bg-accent text-accent-foreground"
+              )}
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
               {Object.keys(activeFilters).length > 0 && (
-                <Badge variant="secondary" className="ml-2 h-4 px-1.5 text-xs">
+                <Badge variant="secondary" className="ml-2 h-5 px-2 text-xs bg-accent-light text-accent">
                   {Object.keys(activeFilters).length}
                 </Badge>
               )}
@@ -368,7 +375,7 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
           )}
 
           <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
-            <SelectTrigger className="w-20 h-10">
+            <SelectTrigger className="w-24 h-11 border-border/50 focus:border-accent focus:ring-accent/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -384,19 +391,19 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
 
       {/* Advanced Filters Panel */}
       {showFilters && filterOptions.length > 0 && (
-        <Card className="border-dashed">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="mx-6 border-dashed border-accent/30 bg-accent-light/20">
+          <CardContent className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {filterOptions.map((filter) => (
                 <div key={filter.key} className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {filter.label}
                   </label>
                   <Select
                     value={activeFilters[filter.key] || 'all'}
                     onValueChange={(value) => handleFilterChange(filter.key, value)}
                   >
-                    <SelectTrigger className="h-9">
+                    <SelectTrigger className="h-10 border-border/50 focus:border-accent focus:ring-accent/20">
                       <SelectValue placeholder="All" />
                     </SelectTrigger>
                     <SelectContent>
@@ -412,8 +419,8 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
               ))}
             </div>
             {Object.keys(activeFilters).length > 0 && (
-              <div className="flex justify-end mt-4">
-                <Button variant="outline" size="sm" onClick={clearFilters}>
+              <div className="flex justify-end mt-5 pt-4 border-t border-border/30">
+                <Button variant="outline" size="sm" onClick={clearFilters} className="border-border/50 hover:border-accent hover:bg-accent-light/50">
                   <X className="h-4 w-4 mr-2" />
                   Clear all filters
                 </Button>
@@ -424,40 +431,44 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
       )}
 
       {/* Modern Table */}
-      <Card className="border-0 shadow-sm">
+      <Card className="mx-6 mb-6 border-0 shadow-medium bg-card">
         <CardContent className="p-0">
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Loading leads...</p>
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  <Loader2 className="h-8 w-8 animate-spin text-accent" />
+                  <div className="absolute inset-0 w-8 h-8 border-2 border-accent/20 rounded-full"></div>
+                </div>
+                <p className="text-sm text-muted-foreground font-medium">Loading leads...</p>
               </div>
             </div>
           ) : data.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16">
-              <div className="flex flex-col items-center gap-3 text-center">
-                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                  <Users className="h-6 w-6 text-muted-foreground" />
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-subtle flex items-center justify-center">
+                  <Users className="h-8 w-8 text-muted-foreground" />
                 </div>
-                <div>
-                  <h3 className="font-medium">No leads found</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Try adjusting your search or filter criteria
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-foreground">No leads found</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm">
+                    Try adjusting your search or filter criteria to find the leads you're looking for
                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="w-full overflow-hidden">
+            <div className="w-full overflow-hidden rounded-lg">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-border/50">
+                  <thead className="bg-gradient-subtle">
+                    <tr className="border-b border-border/30">
                       {selectable && (
-                        <th className="px-6 py-4 w-12">
+                        <th className="px-6 py-5 w-16">
                           <Checkbox
                             checked={isAllSelected || isPartiallySelected}
                             onCheckedChange={handleSelectAll}
+                            className="border-border/50 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                           />
                         </th>
                       )}
@@ -465,8 +476,8 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
                         <th
                           key={column.key}
                           className={cn(
-                            "px-6 py-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider",
-                            column.sortable && "cursor-pointer hover:text-foreground select-none",
+                            "px-6 py-5 text-left text-xs font-bold text-muted-foreground uppercase tracking-wider",
+                            column.sortable && "cursor-pointer hover:text-accent select-none transition-colors",
                             column.width && `w-${column.width}`
                           )}
                           onClick={() => column.sortable && handleSort(column.key)}
@@ -474,48 +485,49 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
                           <div className="flex items-center gap-2">
                             {column.label}
                             {column.sortable && (
-                              <div className="transition-colors">
+                              <div className="transition-all duration-200">
                                 {getSortIcon(column.key)}
                               </div>
                             )}
                           </div>
                         </th>
                       ))}
-                      <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider w-16">
+                      <th className="px-6 py-5 text-right text-xs font-bold text-muted-foreground uppercase tracking-wider w-20">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-border/30">
+                  <tbody className="divide-y divide-border/20 bg-background">
                     {data.map((row, index) => (
                       <tr
                         key={row.id || index}
                         className={cn(
-                          "group hover:bg-muted/30 transition-all duration-150",
+                          "group hover:bg-accent-light/30 transition-all duration-200",
                           onRowClick && "cursor-pointer",
-                          selectedIds.includes(row.id) && "bg-primary/5 hover:bg-primary/10"
+                          selectedIds.includes(row.id) && "bg-primary-light/40 hover:bg-primary-light/60 border-l-4 border-l-primary"
                         )}
                         onClick={() => onRowClick?.(row)}
                       >
                         {selectable && (
-                          <td className="px-6 py-4">
+                          <td className="px-6 py-5">
                             <Checkbox
                               checked={selectedIds.includes(row.id)}
                               onCheckedChange={(checked) => handleRowSelect(row.id, checked as boolean)}
                               onClick={(e) => e.stopPropagation()}
+                              className="border-border/50 data-[state=checked]:bg-accent data-[state=checked]:border-accent"
                             />
                           </td>
                         )}
                         {visibleColumnsArray.map((column) => (
-                          <td key={column.key} className="px-6 py-4 whitespace-nowrap">
+                          <td key={column.key} className="px-6 py-5 whitespace-nowrap">
                             {renderCellContent(column, row[column.key], row)}
                           </td>
                         ))}
-                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <td className="px-6 py-5 whitespace-nowrap text-right">
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="h-9 w-9 p-0 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-accent-light/50 hover:text-accent"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <MoreHorizontal className="h-4 w-4" />
@@ -533,20 +545,20 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
 
       {/* Enhanced Pagination */}
       {!loading && totalPages > 1 && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 px-6 py-5 border-t border-border/30 bg-gradient-subtle">
           <div className="text-sm text-muted-foreground">
-            Showing <span className="font-medium">{((currentPage - 1) * pageSize) + 1}</span> to{' '}
-            <span className="font-medium">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
-            <span className="font-medium">{totalCount.toLocaleString()}</span> results
+            Showing <span className="font-semibold text-foreground">{((currentPage - 1) * pageSize) + 1}</span> to{' '}
+            <span className="font-semibold text-foreground">{Math.min(currentPage * pageSize, totalCount)}</span> of{' '}
+            <span className="font-semibold text-foreground">{totalCount.toLocaleString()}</span> results
           </div>
           
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               disabled={currentPage === 1}
               onClick={() => onPageChange(currentPage - 1)}
-              className="h-9 w-9 p-0"
+              className="h-10 w-10 p-0 border-border/50 hover:border-accent hover:bg-accent-light/50 disabled:opacity-50"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -558,7 +570,12 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
                   variant={page === currentPage ? "default" : "outline"}
                   size="sm"
                   onClick={() => onPageChange(page)}
-                  className="h-9 w-9 p-0 text-sm"
+                  className={cn(
+                    "h-10 w-10 p-0 text-sm",
+                    page === currentPage 
+                      ? "bg-accent text-accent-foreground border-accent" 
+                      : "border-border/50 hover:border-accent hover:bg-accent-light/50"
+                  )}
                 >
                   {page}
                 </Button>
@@ -570,7 +587,7 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
               size="sm"
               disabled={currentPage === totalPages}
               onClick={() => onPageChange(currentPage + 1)}
-              className="h-9 w-9 p-0"
+              className="h-10 w-10 p-0 border-border/50 hover:border-accent hover:bg-accent-light/50 disabled:opacity-50"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

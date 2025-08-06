@@ -175,6 +175,60 @@ export type Database = {
         }
         Relationships: []
       }
+      applications: {
+        Row: {
+          advisor_assigned: string | null
+          application_date: string
+          created_at: string
+          documents_submitted: Json | null
+          email: string
+          id: string
+          notes: string | null
+          phone: string | null
+          priority: string
+          program: string
+          progress: number
+          status: string
+          student_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          advisor_assigned?: string | null
+          application_date?: string
+          created_at?: string
+          documents_submitted?: Json | null
+          email: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          priority?: string
+          program: string
+          progress?: number
+          status?: string
+          student_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          advisor_assigned?: string | null
+          application_date?: string
+          created_at?: string
+          documents_submitted?: Json | null
+          email?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          priority?: string
+          program?: string
+          progress?: number
+          status?: string
+          student_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       automation_action_logs: {
         Row: {
           action_data: Json | null

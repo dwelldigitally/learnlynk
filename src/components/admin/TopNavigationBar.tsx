@@ -126,12 +126,12 @@ export function TopNavigationBar({
                   <div className="absolute top-full left-0 mt-1 z-50">
                     {needsMegaMenu ? (
                       // Mega Menu for sections with many items
-                      <div className="w-[600px] bg-[hsl(221,83%,53%)] border border-[hsl(221,83%,45%)] shadow-lg rounded-md p-6">(Reminder: You only invoked a single tool call. Remember that for the sake of efficiency, you should try to parallelize tool calls whenever possible.)
+                      <div className="w-[600px] bg-background border border-border shadow-lg rounded-md p-6">
                         {section.id === 'leads-marketing' ? (
                           <div className="grid grid-cols-2 gap-6">
                             {/* Lead Management Column */}
                             <div className="space-y-4">
-                              <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wide mb-3">
+                              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                                 Lead Management
                               </h3>
                               {section.items.slice(0, 5).map((item) => {
@@ -147,8 +147,8 @@ export function TopNavigationBar({
                                     }}
                                     className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
                                       isItemActive 
-                                        ? 'bg-white/20 text-white' 
-                                        : 'hover:bg-white/10 text-white/80 hover:text-white'
+                                        ? 'bg-primary/10 text-primary' 
+                                        : 'hover:bg-muted/50'
                                     }`}
                                   >
                                     <div className="flex-shrink-0">
@@ -156,7 +156,7 @@ export function TopNavigationBar({
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <div className="text-sm font-medium">{item.name}</div>
-                                      <div className="text-xs text-white/60 mt-0.5">
+                                      <div className="text-xs text-muted-foreground mt-0.5">
                                         {item.name === 'Lead Overview' && 'Manage and track all leads'}
                                         {item.name === 'AI Features' && 'AI-powered lead insights'}
                                         {item.name === 'Lead Forms' && 'Create and manage forms'}
@@ -165,12 +165,12 @@ export function TopNavigationBar({
                                       </div>
                                     </div>
                                     {item.count && (
-                                      <span className="text-xs px-2 py-1 rounded-full bg-white/20 text-white/80">
+                                      <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
                                         {item.count}
                                       </span>
                                     )}
                                     {item.badge && (
-                                      <span className="text-xs px-2 py-1 rounded-full bg-white/30 text-white">
+                                      <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">
                                         {item.badge}
                                       </span>
                                     )}
@@ -181,7 +181,7 @@ export function TopNavigationBar({
                             
                             {/* Marketing & Communication Column */}
                             <div className="space-y-4">
-                              <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wide mb-3">
+                              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
                                 Marketing & Communication
                               </h3>
                               {section.items.slice(5).map((item) => {
@@ -197,8 +197,8 @@ export function TopNavigationBar({
                                     }}
                                     className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
                                       isItemActive 
-                                        ? 'bg-white/20 text-white' 
-                                        : 'hover:bg-white/10 text-white/80 hover:text-white'
+                                        ? 'bg-primary/10 text-primary' 
+                                        : 'hover:bg-muted/50'
                                     }`}
                                   >
                                     <div className="flex-shrink-0">
@@ -206,7 +206,7 @@ export function TopNavigationBar({
                                     </div>
                                     <div className="flex-1 min-w-0">
                                       <div className="text-sm font-medium">{item.name}</div>
-                                      <div className="text-xs text-white/60 mt-0.5">
+                                      <div className="text-xs text-muted-foreground mt-0.5">
                                         {item.name === 'Bulk Operations' && 'Mass lead operations'}
                                         {item.name === 'Communication Center' && 'Manage communications'}
                                         {item.name === 'Campaigns' && 'Marketing campaigns'}
@@ -214,12 +214,12 @@ export function TopNavigationBar({
                                       </div>
                                     </div>
                                     {item.count && (
-                                      <span className="text-xs px-2 py-1 rounded-full bg-white/20 text-white/80">
+                                      <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
                                         {item.count}
                                       </span>
                                     )}
                                     {item.badge && (
-                                      <span className="text-xs px-2 py-1 rounded-full bg-white/30 text-white">
+                                      <span className="text-xs px-2 py-1 rounded-full bg-accent text-accent-foreground">
                                         {item.badge}
                                       </span>
                                     )}
@@ -244,8 +244,8 @@ export function TopNavigationBar({
                                   }}
                                   className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer ${
                                     isItemActive 
-                                      ? 'bg-white/20 text-white' 
-                                      : 'hover:bg-white/10 text-white/80 hover:text-white'
+                                      ? 'bg-primary/10 text-primary' 
+                                      : 'hover:bg-muted/50'
                                   }`}
                                 >
                                   <item.icon className="w-5 h-5" />
@@ -258,7 +258,7 @@ export function TopNavigationBar({
                       </div>
                     ) : (
                       // Regular dropdown for sections with few items
-                      <div className="w-56 bg-[hsl(221,83%,53%)] border border-[hsl(221,83%,45%)] shadow-lg rounded-md z-50">
+                      <div className="w-56 bg-background border border-border shadow-lg rounded-md">
                         {section.items.map((item) => {
                           const isItemActive = location.pathname === item.href || 
                             location.pathname.startsWith(item.href + '/');
@@ -272,19 +272,19 @@ export function TopNavigationBar({
                               }}
                               className={`flex items-center space-x-3 px-3 py-2 cursor-pointer ${
                                 isItemActive 
-                                  ? 'bg-white/20 text-white font-medium' 
-                                  : 'hover:bg-white/10 text-white/80 hover:text-white'
+                                  ? 'bg-primary/10 text-primary font-medium' 
+                                  : 'hover:bg-muted'
                               }`}
                             >
                               <item.icon className="w-4 h-4" />
                               <span>{item.name}</span>
                               {item.count && (
-                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white/20 text-white/80">
+                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                                   {item.count}
                                 </span>
                               )}
                               {item.badge && (
-                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white/30 text-white">
+                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
                                   {item.badge}
                                 </span>
                               )}
@@ -332,17 +332,17 @@ export function TopNavigationBar({
               <ChevronDown className="w-3 h-3 text-muted-foreground hidden sm:block" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-[hsl(221,83%,53%)] border-[hsl(221,83%,45%)] z-50">
-            <DropdownMenuLabel className="text-white">My Account</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="text-white/80 hover:text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">
+            <DropdownMenuItem asChild>
               <Link to="/admin/profile" className="flex items-center">
                 <User className="mr-2 h-4 w-4" />
                 Profile Settings
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => {/* Sign out logic */}} className="text-white/80 hover:text-white hover:bg-white/10 focus:bg-white/10 focus:text-white">
+            <DropdownMenuItem onClick={() => {/* Sign out logic */}}>
               <LogOut className="mr-2 h-4 w-4" />
               Sign out
             </DropdownMenuItem>

@@ -76,15 +76,15 @@
     --glass-backdrop: backdrop-filter: blur(12px) saturate(200%);
     --glass-border: 1px solid rgba(255, 255, 255, 0.18);
     
-    /* Sidebar - Minimal theme */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 10% 15%;
-    --sidebar-primary: 262.1 83.3% 57.8%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3% 92%;
-    --sidebar-accent-foreground: 240 10% 15%;
-    --sidebar-border: 240 5.9% 85%;
-    --sidebar-ring: 262.1 83.3% 57.8%;
+    /* Sidebar */
+    --sidebar-background: 215 85% 35%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 215 85% 30%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 215 70% 45%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 215 85% 30%;
+    --sidebar-ring: 215 85% 35%;
   }
  
   .dark {
@@ -125,15 +125,15 @@
     --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
     --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
     
-    /* Sidebar - Dark theme */
-    --sidebar-background: 240 10% 12%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 262.1 83.3% 57.8%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3% 18%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 240 3% 20%;
-    --sidebar-ring: 262.1 83.3% 57.8%;
+    /* Dark sidebar */
+    --sidebar-background: 215 85% 25%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 215 85% 35%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 215 70% 35%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 215 85% 20%;
+    --sidebar-ring: 215 85% 45%;
   }
 }
  

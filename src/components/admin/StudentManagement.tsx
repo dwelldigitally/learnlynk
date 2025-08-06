@@ -18,7 +18,7 @@ import { AddStudentModal } from "./modals/AddStudentModal";
 import { ImportStudentsModal } from "./modals/ImportStudentsModal";
 import { StageTracker } from "./students/StageTracker";
 import { StageFilters } from "./students/StageFilters";
-import { AIBulkActions } from "./students/AIBulkActions";
+import { AISidebar } from "./students/AISidebar";
 import { toast } from "sonner";
 
 export default function StudentManagement() {
@@ -392,8 +392,8 @@ export default function StudentManagement() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header with buttons - always visible */}
+    <div className="p-6 space-y-4">
+      {/* Header with buttons */}
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
@@ -410,6 +410,12 @@ export default function StudentManagement() {
             <Upload className="w-4 h-4 mr-2" />
             Import
           </Button>
+          <AISidebar
+            activeStage={activeStage}
+            selectedStudents={selectedStudents}
+            totalStudents={total}
+            onBulkAction={handleAIBulkAction}
+          />
           <Button size="sm" onClick={() => setAddModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             Add Student
@@ -425,49 +431,38 @@ export default function StudentManagement() {
         emptyTitle="No Students Yet"
         emptyDescription="Start by adding your first student or importing student data to begin managing applications."
       >
-        {/* Stage Tracker - only show when there's data */}
+        {/* Compact Stage Tracker and Filters */}
         {!showEmptyState && (
-          <StageTracker 
-            stages={stageTrackerData}
-            activeStage={activeStage}
-            onStageChange={handleStageChange}
-          />
+          <div className="space-y-3">
+            <StageTracker 
+              stages={stageTrackerData}
+              activeStage={activeStage}
+              onStageChange={handleStageChange}
+            />
+            
+            <StageFilters
+              activeStage={activeStage}
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onClearFilters={clearAllFilters}
+            />
+          </div>
         )}
 
-        {/* Stage-specific Filters - only show when there's data */}
+        {/* Full Width Data Table */}
         {!showEmptyState && (
-          <StageFilters
-            activeStage={activeStage}
-            filters={filters}
-            onFilterChange={handleFilterChange}
-            onClearFilters={clearAllFilters}
-          />
-        )}
-
-        {/* AI Bulk Actions - only show when there's data */}
-        {!showEmptyState && (
-          <AIBulkActions
-            activeStage={activeStage}
-            selectedStudents={selectedStudents}
-            totalStudents={total}
-            onBulkAction={handleAIBulkAction}
-          />
-        )}
-
-        {/* Enhanced Data Table - only show when there's data */}
-        {!showEmptyState && (
-          <Card>
-            <CardHeader className="pb-4">
+          <div className="bg-card border rounded-lg">
+            <div className="p-4 border-b">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-xl font-semibold">Students ({total})</h2>
+                  <h2 className="text-lg font-semibold">Students ({total})</h2>
                   <p className="text-sm text-muted-foreground">
                     Manage student applications and track progress
                   </p>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent className="pt-0">
+            </div>
+            <div className="p-0">
               <EnhancedDataTable
                 title=""
                 columns={studentColumns}
@@ -498,8 +493,8 @@ export default function StudentManagement() {
                 }}
                 onRowClick={(student) => navigate(`/admin/students/${student.id}`)}
               />
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </ConditionalDataWrapper>
 

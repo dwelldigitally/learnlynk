@@ -16,53 +16,44 @@ interface StageTrackerProps {
 
 export function StageTracker({ stages, activeStage, onStageChange }: StageTrackerProps) {
   return (
-    <div className="bg-card border rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Student Pipeline</h2>
-        <div className="text-sm text-muted-foreground">
-          Total: {stages.reduce((sum, stage) => sum + stage.count, 0)} students
+    <div className="flex items-center justify-between bg-card border rounded-lg p-4">
+      <div className="flex items-center gap-4">
+        <h2 className="text-sm font-semibold">Pipeline:</h2>
+        <div className="text-xs text-muted-foreground">
+          {stages.reduce((sum, stage) => sum + stage.count, 0)} total
         </div>
       </div>
       
-      <Tabs value={activeStage} onValueChange={onStageChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-6 bg-muted/50">
-          <TabsTrigger value="all" className="relative">
-            <div className="flex flex-col items-center gap-1">
-              <span className="text-xs font-medium">All</span>
-              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+      <Tabs value={activeStage} onValueChange={onStageChange} className="flex-1 max-w-3xl">
+        <TabsList className="grid w-full grid-cols-6 bg-muted/50 h-10">
+          <TabsTrigger value="all" className="text-xs">
+            <div className="flex items-center gap-1">
+              <span>All</span>
+              <Badge variant="outline" className="text-xs px-1 py-0">
                 {stages.reduce((sum, stage) => sum + stage.count, 0)}
               </Badge>
             </div>
           </TabsTrigger>
           
-          {stages.map((stage, index) => (
+          {stages.map((stage) => (
             <TabsTrigger 
               key={stage.key} 
               value={stage.key}
-              className="relative"
+              className="text-xs"
             >
-              <div className="flex flex-col items-center gap-1">
-                <div className="flex items-center gap-2">
-                  <div 
-                    className={cn(
-                      "w-2 h-2 rounded-full",
-                      stage.color
-                    )}
-                  />
-                  <span className="text-xs font-medium">{stage.label}</span>
-                </div>
+              <div className="flex items-center gap-1">
+                <div 
+                  className={cn("w-1.5 h-1.5 rounded-full", stage.color)}
+                />
+                <span className="hidden sm:inline">{stage.label}</span>
+                <span className="sm:hidden">{stage.label.substring(0, 3)}</span>
                 <Badge 
                   variant={activeStage === stage.key ? "default" : "outline"} 
-                  className="text-xs px-1.5 py-0.5"
+                  className="text-xs px-1 py-0"
                 >
                   {stage.count}
                 </Badge>
               </div>
-              
-              {/* Progress connector line */}
-              {index < stages.length - 1 && (
-                <div className="absolute -right-4 top-1/2 w-8 h-px bg-border transform -translate-y-1/2 z-10" />
-              )}
             </TabsTrigger>
           ))}
         </TabsList>

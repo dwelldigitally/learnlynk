@@ -84,23 +84,25 @@ export function StageFilters({ activeStage, filters, onFilterChange, onClearFilt
   const config = stageFilterConfigs[activeStage] || stageFilterConfigs['all'];
   const activeFiltersCount = Object.values(filters).filter(Boolean).length;
 
+  if (activeStage === 'all' && activeFiltersCount === 0) {
+    return null; // Don't show filters for "all" unless there are active filters
+  }
+
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-base">{config.title}</CardTitle>
-          {activeFiltersCount > 0 && (
-            <Button variant="ghost" size="sm" onClick={onClearFilters}>
-              <X className="h-4 w-4 mr-1" />
-              Clear ({activeFiltersCount})
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {config.filters.map((filter) => (
-          <div key={filter.key} className="space-y-2">
-            <Label htmlFor={filter.key} className="text-sm font-medium flex items-center gap-1">
+    <div className="bg-card border rounded-lg p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-medium">{config.title}</h3>
+        {activeFiltersCount > 0 && (
+          <Button variant="ghost" size="sm" onClick={onClearFilters}>
+            <X className="h-3 w-3 mr-1" />
+            Clear ({activeFiltersCount})
+          </Button>
+        )}
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {config.filters.slice(0, 4).map((filter) => ( // Limit to 4 filters for compact view
+          <div key={filter.key} className="space-y-1">
+            <Label htmlFor={filter.key} className="text-xs font-medium flex items-center gap-1">
               {filter.icon && <filter.icon className="h-3 w-3" />}
               {filter.label}
             </Label>
@@ -110,8 +112,8 @@ export function StageFilters({ activeStage, filters, onFilterChange, onClearFilt
                 value={filters[filter.key as keyof StudentFilters] || ''}
                 onValueChange={(value) => onFilterChange(filter.key as keyof StudentFilters, value)}
               >
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder={`Select ${filter.label.toLowerCase()}`} />
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Select..." />
                 </SelectTrigger>
                 <SelectContent>
                   {filter.options.map((option) => (
@@ -125,15 +127,15 @@ export function StageFilters({ activeStage, filters, onFilterChange, onClearFilt
               <Input
                 id={filter.key}
                 type={filter.type}
-                placeholder={`Filter by ${filter.label.toLowerCase()}`}
+                placeholder={`Filter...`}
                 value={filters[filter.key as keyof StudentFilters] || ''}
                 onChange={(e) => onFilterChange(filter.key as keyof StudentFilters, e.target.value)}
-                className="h-9"
+                className="h-8 text-xs"
               />
             )}
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

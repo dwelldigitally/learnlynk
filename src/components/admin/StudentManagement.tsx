@@ -397,30 +397,31 @@ export default function StudentManagement() {
   ];
 
   return (
-    <div className="p-6 space-y-4">
-      {/* Header with buttons */}
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage and track student applications through their admission journey
-          </p>
+    <div className="bg-card rounded-lg border shadow-sm">
+      <div className="p-6 space-y-6">
+        {/* Header with buttons */}
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
+            <p className="text-muted-foreground mt-2">
+              Manage and track student applications through their admission journey
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Import
+            </Button>
+            <Button size="sm" onClick={() => setAddModalOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Student
+            </Button>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
-            <Upload className="w-4 h-4 mr-2" />
-            Import
-          </Button>
-          <Button size="sm" onClick={() => setAddModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Student
-          </Button>
-        </div>
-      </div>
 
       <ConditionalDataWrapper 
         isLoading={isLoading} 
@@ -452,8 +453,8 @@ export default function StudentManagement() {
 
         {/* Full Width Data Table */}
         {!showEmptyState && (
-          <div className="bg-card border rounded-lg">
-            <div className="p-4 border-b">
+          <div className="bg-background border rounded-lg shadow-sm">
+            <div className="p-4 border-b bg-muted/30">
               <div className="flex justify-between items-center">
                 <div>
                   <h2 className="text-lg font-semibold">Students ({total})</h2>
@@ -498,7 +499,9 @@ export default function StudentManagement() {
           </div>
         )}
       </ConditionalDataWrapper>
+      </div>
 
+      {/* Modals */}
       <AddStudentModal 
         open={addModalOpen} 
         onOpenChange={setAddModalOpen}

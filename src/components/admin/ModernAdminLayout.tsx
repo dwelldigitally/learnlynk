@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
 import { DynamicSidebar } from './DynamicSidebar';
+import { AircallWidgetWrapper } from './leads/AircallWidgetProvider';
 import { navigationStructure } from '@/data/navigationStructure';
 
 interface ModernAdminLayoutProps {
@@ -43,33 +44,35 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const isConfigurationPage = location.pathname.startsWith('/admin/configuration');
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Top Navigation Bar */}
-      <TopNavigationBar
-        activeSection={currentActiveSection}
-        onSectionChange={handleSectionChange}
-        onToggleMobileMenu={toggleSidebar}
-      />
+    <AircallWidgetWrapper>
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Top Navigation Bar */}
+        <TopNavigationBar
+          activeSection={currentActiveSection}
+          onSectionChange={handleSectionChange}
+          onToggleMobileMenu={toggleSidebar}
+        />
 
-      {/* Main Layout: Sidebar + Content */}
-      <div className="flex flex-1 relative">
-        {/* Dynamic Sidebar - Hide on home page and configuration pages */}
-        {!isHomePage && !isConfigurationPage && (
-          <DynamicSidebar
-            activeSection={currentActiveSection}
-            isOpen={sidebarOpen}
-            onClose={closeSidebar}
-          />
-        )}
+        {/* Main Layout: Sidebar + Content */}
+        <div className="flex flex-1 relative">
+          {/* Dynamic Sidebar - Hide on home page and configuration pages */}
+          {!isHomePage && !isConfigurationPage && (
+            <DynamicSidebar
+              activeSection={currentActiveSection}
+              isOpen={sidebarOpen}
+              onClose={closeSidebar}
+            />
+          )}
 
-        {/* Main Content Area */}
-        <main className="flex-1 w-full min-h-screen bg-background/50">
-          <div className="h-full">
-            {children || <Outlet />}
-          </div>
-        </main>
+          {/* Main Content Area */}
+          <main className="flex-1 w-full min-h-screen bg-background/50">
+            <div className="h-full">
+              {children || <Outlet />}
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </AircallWidgetWrapper>
   );
 }
 

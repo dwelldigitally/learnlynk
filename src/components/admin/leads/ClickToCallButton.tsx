@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Phone, PhoneCall, AlertCircle, Copy } from 'lucide-react';
+import { Phone, PhoneCall, AlertCircle, Copy, Smartphone } from 'lucide-react';
 import { AircallService, AircallSettings } from '@/services/aircallService';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { useAircallWidget } from '@/hooks/useAircallWidget';
 
 interface ClickToCallButtonProps {
   phoneNumber: string;
@@ -48,6 +48,8 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
     }
   };
 
+  const { makeCall, isWidgetReady } = useAircallWidget();
+
   const handleCall = async () => {
     console.log('Call button clicked:', { phoneNumber, settings, settingsLoaded });
     
@@ -69,51 +71,26 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
       return;
     }
 
+    if (!isWidgetReady) {
+      toast({
+        title: "Widget Not Ready",
+        description: "Please wait for the Aircall widget to initialize",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
-      console.log('Initiating call to:', phoneNumber);
+      console.log('Initiating call via widget to:', phoneNumber);
       
-      // Find or create lead if leadId is not provided
-      let targetLeadId = leadId;
-      if (!targetLeadId) {
-        const existingLead = await AircallService.findLeadByPhone(phoneNumber);
-        if (existingLead) {
-          targetLeadId = existingLead.id;
-        } else if (settings.auto_create_leads) {
-          const newLead = await AircallService.createLeadFromCall({
-            phone_number: phoneNumber
-          });
-          targetLeadId = newLead.id;
-        }
-      }
-
-      // For demo purposes, simulate call initiation if no API credentials
-      // Use the edge function which handles lead creation and call logging
-      const response = await supabase.functions.invoke('aircall-api', {
-        body: {
-          phoneNumber,
-          leadId: targetLeadId
-        }
+      // Use the widget to make the call
+      makeCall(phoneNumber);
+      
+      toast({
+        title: "Call Initiated",
+        description: `Calling ${formatPhoneNumber(phoneNumber)} via Aircall widget`,
       });
-
-      if (response.error) {
-        throw new Error(response.error.message || 'Failed to initiate call');
-      }
-
-      console.log('Call initiated successfully:', response.data);
-
-      // Show success message
-      if (response.data?.demo_mode) {
-        toast({
-          title: "Demo Call Initiated",
-          description: `Demo call to ${formatPhoneNumber(phoneNumber)} has been logged.`,
-        });
-      } else {
-        toast({
-          title: "Call Initiated",
-          description: `Call to ${formatPhoneNumber(phoneNumber)} initiated successfully.`,
-        });
-      }
     } catch (error) {
       console.error('Call initiation error:', error);
       toast({
@@ -185,7 +162,8 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
     settingsLoaded, 
     settingsError, 
     buttonState, 
-    isAircallConfigured 
+    isAircallConfigured,
+    isWidgetReady
   });
 
   return (
@@ -200,19 +178,21 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
                 console.log('Button click event fired!', e);
                 handleCall();
               }}
-              disabled={buttonState.disabled}
+              disabled={buttonState.disabled || (isAircallConfigured && !isWidgetReady)}
               className={className}
             >
               {isLoading ? (
                 <PhoneCall className="h-4 w-4 animate-pulse" />
               ) : !isAircallConfigured ? (
                 <AlertCircle className="h-4 w-4" />
+              ) : isWidgetReady ? (
+                <Smartphone className="h-4 w-4" />
               ) : (
                 <Phone className="h-4 w-4" />
               )}
               {showLabel && (
                 <span className="ml-2">
-                  {isLoading ? 'Calling...' : 'Call'}
+                  {isLoading ? 'Calling...' : isWidgetReady ? 'Call' : 'Loading...'}
                 </span>
               )}
             </Button>

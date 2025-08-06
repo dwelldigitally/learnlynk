@@ -237,7 +237,7 @@ export const AircallIntegration: React.FC<AircallIntegrationProps> = ({ leadId }
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Connect your Aircall account to enable click-to-call and call logging features.
+                  Connect your Aircall account to enable the floating widget for seamless calling and call management.
                 </AlertDescription>
               </Alert>
               
@@ -280,6 +280,14 @@ export const AircallIntegration: React.FC<AircallIntegrationProps> = ({ leadId }
               </TabsList>
 
               <TabsContent value="dashboard" className="space-y-4">
+                <Alert className="mb-4">
+                  <Phone className="h-4 w-4" />
+                  <AlertDescription>
+                    Aircall Widget is now active! Look for the floating phone widget on the right side of your screen. 
+                    All calls will be automatically logged and synced with your leads.
+                  </AlertDescription>
+                </Alert>
+                
                 {callStats && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <Card>

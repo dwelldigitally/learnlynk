@@ -90,7 +90,7 @@ export function BuilderSelectionPage() {
       description: 'Create custom forms, applications, and surveys with advanced field types and conditional logic',
       icon: FormInput,
       color: 'from-blue-500 to-blue-600',
-      route: '/admin/builder/forms'
+      route: '/form-builder'
     },
     {
       type: 'workflows',
@@ -98,7 +98,7 @@ export function BuilderSelectionPage() {
       description: 'Build automated lead routing, process workflows, and decision trees with visual flow interface',
       icon: Workflow,
       color: 'from-purple-500 to-purple-600',
-      route: '/admin/builder/workflows'
+      route: '/workflow-builder'
     },
     {
       type: 'campaigns',
@@ -106,7 +106,7 @@ export function BuilderSelectionPage() {
       description: 'Design email and SMS marketing campaigns with automation, targeting, and A/B testing',
       icon: Mail,
       color: 'from-green-500 to-green-600',
-      route: '/admin/builder/campaigns'
+      route: '/campaign-builder'
     }
   ];
 
@@ -162,12 +162,12 @@ export function BuilderSelectionPage() {
                         <MoreHorizontal className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => navigate(`/admin/builder/${type}/${item.id}`)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate(`/admin/builder/${type}/${item.id}/edit`)}>
+                    <DropdownMenuContent align="end" className="z-50">
+                      <DropdownMenuItem onClick={() => {
+                        if (type === 'forms') navigate(`/form-builder/${item.id}`);
+                        else if (type === 'workflows') navigate(`/workflow-builder/${item.id}`);
+                        else if (type === 'campaigns') navigate(`/campaign-builder/${item.id}`);
+                      }}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
@@ -233,7 +233,11 @@ export function BuilderSelectionPage() {
               {builderOptions.map((option) => {
                 const Icon = option.icon;
                 return (
-                  <Card key={option.type} className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                  <Card 
+                    key={option.type} 
+                    className="relative overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                    onClick={() => navigate(option.route)}
+                  >
                     <div className={`absolute inset-0 bg-gradient-to-br ${option.color} opacity-5 group-hover:opacity-10 transition-opacity`} />
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
@@ -245,13 +249,10 @@ export function BuilderSelectionPage() {
                           <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                             {option.description}
                           </p>
-                          <Button 
-                            className="w-full" 
-                            onClick={() => navigate(option.route)}
-                          >
-                            <Plus className="h-4 w-4 mr-2" />
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Plus className="h-4 w-4" />
                             Create {option.title.split(' ')[0]}
-                          </Button>
+                          </div>
                         </div>
                       </div>
                     </CardContent>

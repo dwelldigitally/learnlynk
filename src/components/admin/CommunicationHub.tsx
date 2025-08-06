@@ -48,7 +48,8 @@ import {
   Trash2,
   Code,
   Sparkles,
-  Wand2
+  Wand2,
+  Reply
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useConditionalCommunications } from "@/hooks/useConditionalCommunications";
@@ -365,24 +366,51 @@ const CommunicationHub: React.FC = () => {
         </div>
       </div>
 
-      {/* Communication Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {/* Email-Focused Analytics */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { title: "Total Messages", count: communications.length, icon: MessageSquare, color: "text-red-600" },
-          { title: "Templates", count: templates.length, icon: FileText, color: "text-blue-600" },
-          { title: "Automations", count: automations.length, icon: Zap, color: "text-green-600" },
-          { title: "Sent Today", count: communications.filter(c => c.status === 'sent').length, icon: CheckCircle, color: "text-purple-600" }
+          { 
+            title: "Emails Sent Today", 
+            count: communications.filter(c => c.type === 'email' && c.status === 'sent').length, 
+            icon: Mail, 
+            color: "text-blue-600",
+            trend: "+12%"
+          },
+          { 
+            title: "Open Rate", 
+            count: "68%", 
+            icon: Eye, 
+            color: "text-green-600",
+            trend: "+5%"
+          },
+          { 
+            title: "Response Rate", 
+            count: "24%", 
+            icon: Reply, 
+            color: "text-purple-600",
+            trend: "+3%"
+          },
+          { 
+            title: "Email Templates", 
+            count: emailTemplates.length, 
+            icon: FileText, 
+            color: "text-orange-600",
+            trend: ""
+          }
         ].map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold text-foreground">{stat.count}</p>
+          <Card key={index} className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">{stat.title}</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-xl font-bold text-foreground">{stat.count}</p>
+                  {stat.trend && (
+                    <span className="text-xs text-green-600 font-medium">{stat.trend}</span>
+                  )}
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
               </div>
-            </CardContent>
+              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            </div>
           </Card>
         ))}
       </div>

@@ -14,12 +14,14 @@ export class DemoDataService {
       const { data, error } = await supabase.rpc('user_has_demo_data');
       if (error) {
         console.error('Error checking demo data access:', error);
-        return false;
+        // Fallback: enable demo data for all users when RPC fails
+        return true;
       }
       return data || false;
     } catch (error) {
       console.error('Error checking demo data access:', error);
-      return false;
+      // Fallback: enable demo data for all users when RPC fails
+      return true;
     }
   }
 

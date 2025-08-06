@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
 import { DynamicSidebar } from './DynamicSidebar';
 import { AircallWidgetWrapper } from './leads/AircallWidgetProvider';
 import { navigationStructure } from '@/data/navigationStructure';
+import { useIsMobile, useViewport } from '@/hooks/use-mobile';
 
 interface ModernAdminLayoutProps {
   children?: React.ReactNode;
@@ -13,6 +14,15 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const { orientation } = useViewport();
+
+  // Close sidebar on mobile when route changes
+  useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    }
+  }, [location.pathname, isMobile]);
 
   // Determine active section from current path
   const getActiveSectionFromPath = () => {
@@ -45,7 +55,7 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
 
   return (
     <AircallWidgetWrapper>
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="min-h-screen bg-background flex flex-col w-full">
         {/* Top Navigation Bar */}
         <TopNavigationBar
           activeSection={currentActiveSection}
@@ -54,7 +64,15 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
         />
 
         {/* Main Layout: Sidebar + Content */}
-        <div className="flex flex-1 relative">
+        <div className="flex flex-1 relative w-full">
+          {/* Mobile Overlay */}
+          {isMobile && sidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+              onClick={closeSidebar}
+            />
+          )}
+
           {/* Dynamic Sidebar - Hide on home page and configuration pages */}
           {!isHomePage && !isConfigurationPage && (
             <DynamicSidebar
@@ -65,8 +83,10 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
           )}
 
           {/* Main Content Area */}
-          <main className="flex-1 w-full min-h-screen bg-background/50">
-            <div className="h-full">
+          <main className={`flex-1 w-full min-h-screen bg-background/50 transition-all duration-300 ${
+            isMobile ? 'p-3' : 'p-6'
+          }`}>
+            <div className="h-full max-w-full overflow-x-hidden">
               {children || <Outlet />}
             </div>
           </main>

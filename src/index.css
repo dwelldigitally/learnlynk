@@ -162,6 +162,102 @@
 
 /* Modern Design System Utilities */
 
+/* Mobile Optimizations */
+.mobile-touch-target {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.mobile-text-scale {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.mobile-container {
+  padding: clamp(0.75rem, 4vw, 1.5rem);
+}
+
+.mobile-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .mobile-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Touch-friendly interactive elements */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Swipe indicators */
+.swipe-indicator {
+  position: relative;
+}
+
+.swipe-indicator::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: hsl(var(--muted-foreground));
+  border-radius: 2px;
+  opacity: 0.5;
+}
+
+/* Mobile-specific animations */
+@keyframes mobile-slide-up {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes mobile-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mobile-slide-up {
+  animation: mobile-slide-up 0.3s ease-out;
+}
+
+.mobile-fade-in {
+  animation: mobile-fade-in 0.2s ease-out;
+}
+
+/* Pull-to-refresh styles */
+.pull-to-refresh {
+  transform: translateY(var(--pull-distance, 0px));
+  transition: transform 0.2s ease-out;
+}
+
 /* Neomorphism */
 .neo-card {
   background: hsl(var(--background));

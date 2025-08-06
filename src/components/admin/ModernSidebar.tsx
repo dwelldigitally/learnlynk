@@ -21,7 +21,7 @@ import { navigationStructure } from "@/data/navigationStructure";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AIQuickActions } from "./AIQuickActions";
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface ModernSidebarProps {
@@ -187,51 +187,6 @@ export function ModernSidebar({ activeSection }: ModernSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {!collapsed && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-sidebar-foreground/60 font-semibold tracking-wider">
-              Quick Actions
-            </SidebarGroupLabel>
-            <SidebarGroupContent>
-              <div className="space-y-2 px-2">
-                {currentSection.id === 'leads-marketing' && (
-                  <>
-                    <Button variant="outline" size="sm" className="w-full justify-start text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent">
-                      Add New Lead
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent">
-                      Import Contacts
-                    </Button>
-                  </>
-                )}
-                {currentSection.id === 'students-applications' && (
-                  <>
-                    <Button variant="outline" size="sm" className="w-full justify-start text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent">
-                      Add Program
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent">
-                      Create Workflow
-                    </Button>
-                  </>
-                )}
-                {currentSection.id === 'data-management' && (
-                  <>
-                    <Button variant="outline" size="sm" className="w-full justify-start text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent">
-                      Generate Report
-                    </Button>
-                    <Button variant="outline" size="sm" className="w-full justify-start text-sidebar-foreground border-sidebar-border hover:bg-sidebar-accent">
-                      Add Team Member
-                    </Button>
-                  </>
-                )}
-              </div>
-              
-              <div className="mt-6 pt-4 border-t border-sidebar-border/50">
-                <AIQuickActions />
-              </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
     </Sidebar>
   );

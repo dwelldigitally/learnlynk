@@ -16,6 +16,9 @@ import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 import { EnhancedDataTable } from "./EnhancedDataTable";
 import { AddStudentModal } from "./modals/AddStudentModal";
 import { ImportStudentsModal } from "./modals/ImportStudentsModal";
+import { StageTracker } from "./students/StageTracker";
+import { StageFilters } from "./students/StageFilters";
+import { AIBulkActions } from "./students/AIBulkActions";
 import { toast } from "sonner";
 
 export default function StudentManagement() {
@@ -31,6 +34,7 @@ export default function StudentManagement() {
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const [activeStage, setActiveStage] = useState<string>('all');
 
   // Use paginated query for better performance
   const { data: paginatedData, isLoading, refetch } = useStudentsPaginated(pagination, filters);
@@ -79,6 +83,18 @@ export default function StudentManagement() {
       ...prev,
       [key]: value || undefined
     }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  // Handle stage change
+  const handleStageChange = (stage: string) => {
+    setActiveStage(stage);
+    if (stage === 'all') {
+      const { stage: _, ...filtersWithoutStage } = filters;
+      setFilters(filtersWithoutStage);
+    } else {
+      setFilters(prev => ({ ...prev, stage }));
+    }
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
@@ -135,6 +151,17 @@ export default function StudentManagement() {
     }
   };
 
+  // Handle AI bulk actions
+  const handleAIBulkAction = async (actionId: string, studentIds: string[]) => {
+    // Simulate AI action processing
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log(`AI Action: ${actionId} for students:`, studentIds);
+        resolve(true);
+      }, 1000);
+    });
+  };
+
   // Calculate pipeline stats from all data for overview
   const pipelineStats = useMemo(() => {
     const allStudents = legacyStudents.length > 0 ? legacyStudents : students;
@@ -170,6 +197,15 @@ export default function StudentManagement() {
 
     return stats;
   }, [students, legacyStudents, total]);
+
+  // Stage tracker data
+  const stageTrackerData = useMemo(() => [
+    { key: 'LEAD_FORM', label: 'Lead Form', count: pipelineStats.leadForm, color: 'bg-blue-500' },
+    { key: 'SEND_DOCUMENTS', label: 'Documents', count: pipelineStats.documents, color: 'bg-yellow-500' },
+    { key: 'DOCUMENT_APPROVAL', label: 'Approval', count: pipelineStats.approval, color: 'bg-orange-500' },
+    { key: 'FEE_PAYMENT', label: 'Payment', count: pipelineStats.payment, color: 'bg-purple-500' },
+    { key: 'ACCEPTED', label: 'Accepted', count: pipelineStats.accepted, color: 'bg-green-500' }
+  ], [pipelineStats]);
 
   // Define columns for EnhancedDataTable
   const studentColumns = [
@@ -389,65 +425,33 @@ export default function StudentManagement() {
         emptyTitle="No Students Yet"
         emptyDescription="Start by adding your first student or importing student data to begin managing applications."
       >
-        {/* Pipeline Overview - only show when there's data */}
+        {/* Stage Tracker - only show when there's data */}
         {!showEmptyState && (
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Lead Form</p>
-                    <p className="text-2xl font-bold">{pipelineStats.leadForm}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Documents</p>
-                    <p className="text-2xl font-bold">{pipelineStats.documents}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Approval</p>
-                    <p className="text-2xl font-bold">{pipelineStats.approval}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-purple-500"></div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Payment</p>
-                    <p className="text-2xl font-bold">{pipelineStats.payment}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Accepted</p>
-                    <p className="text-2xl font-bold">{pipelineStats.accepted}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <StageTracker 
+            stages={stageTrackerData}
+            activeStage={activeStage}
+            onStageChange={handleStageChange}
+          />
+        )}
+
+        {/* Stage-specific Filters - only show when there's data */}
+        {!showEmptyState && (
+          <StageFilters
+            activeStage={activeStage}
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onClearFilters={clearAllFilters}
+          />
+        )}
+
+        {/* AI Bulk Actions - only show when there's data */}
+        {!showEmptyState && (
+          <AIBulkActions
+            activeStage={activeStage}
+            selectedStudents={selectedStudents}
+            totalStudents={total}
+            onBulkAction={handleAIBulkAction}
+          />
         )}
 
         {/* Enhanced Data Table - only show when there's data */}

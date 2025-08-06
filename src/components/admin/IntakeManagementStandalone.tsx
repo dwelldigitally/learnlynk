@@ -5,8 +5,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Plus, 
   Calendar, 
@@ -22,12 +24,14 @@ import {
   TrendingDown,
   Minus,
   Settings,
-  Bell
+  Bell,
+  GraduationCap
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useConditionalPrograms } from '@/hooks/useConditionalPrograms';
 import { useConditionalIntakes } from '@/hooks/useConditionalIntakes';
 import { enhancedIntakeService, EnhancedIntake } from '@/services/enhancedIntakeService';
+import { IntakeService, IntakeData } from '@/services/intakeService';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 
@@ -38,6 +42,20 @@ export function IntakeManagementStandalone() {
   const [selectedCampus, setSelectedCampus] = useState<string>('all');
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [sortBy, setSortBy] = useState('start_date');
+  const [isNewIntakeModalOpen, setIsNewIntakeModalOpen] = useState(false);
+  const [newIntakeForm, setNewIntakeForm] = useState<Partial<IntakeData>>({
+    name: '',
+    start_date: '',
+    application_deadline: '',
+    capacity: 30,
+    sales_approach: 'balanced',
+    status: 'open',
+    delivery_method: 'on-campus',
+    study_mode: 'full-time',
+    campus: '',
+    program_id: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch programs and intakes data
   const { data: programs, isLoading: programsLoading } = useConditionalPrograms();
@@ -156,6 +174,38 @@ export function IntakeManagementStandalone() {
     return enhancedIntakeService.getSalesApproachStrategy(approach);
   };
 
+  const handleCreateIntake = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newIntakeForm.program_id) {
+      toast.error('Please select a program');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await IntakeService.createIntake(newIntakeForm as IntakeData);
+      await refetchIntakes();
+      setIsNewIntakeModalOpen(false);
+      setNewIntakeForm({
+        name: '',
+        start_date: '',
+        application_deadline: '',
+        capacity: 30,
+        sales_approach: 'balanced',
+        status: 'open',
+        delivery_method: 'on-campus',
+        study_mode: 'full-time',
+        campus: '',
+        program_id: ''
+      });
+      toast.success('Intake created successfully');
+    } catch (error) {
+      toast.error('Failed to create intake');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (programsLoading || intakesLoading) {
     return (
       <div className="p-6 space-y-6">
@@ -192,10 +242,177 @@ export function IntakeManagementStandalone() {
             <Bell className="h-4 w-4 mr-2" />
             AI Notifications
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            New Intake Period
-          </Button>
+          <Dialog open={isNewIntakeModalOpen} onOpenChange={setIsNewIntakeModalOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                New Intake Period
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Create New Intake Period</DialogTitle>
+                <DialogDescription>
+                  Create a new intake period for an existing program in your system
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleCreateIntake} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="program">Program *</Label>
+                  <Select
+                    value={newIntakeForm.program_id}
+                    onValueChange={(value) => setNewIntakeForm(prev => ({ ...prev, program_id: value }))}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a program from your system" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {programs?.map((program) => (
+                        <SelectItem key={program.id} value={program.id}>
+                          <div className="flex items-center gap-2">
+                            <GraduationCap className="h-4 w-4" />
+                            <div>
+                              <div className="font-medium">{program.name}</div>
+                              <div className="text-xs text-muted-foreground">{program.type}</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {(!programs || programs.length === 0) && (
+                    <p className="text-sm text-muted-foreground">
+                      No programs available. Please create a program first in Program Management.
+                    </p>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="intake_name">Intake Name *</Label>
+                    <Input
+                      id="intake_name"
+                      value={newIntakeForm.name}
+                      onChange={(e) => setNewIntakeForm(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="e.g., Spring 2024, Fall 2024"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="capacity">Capacity *</Label>
+                    <Input
+                      id="capacity"
+                      type="number"
+                      value={newIntakeForm.capacity}
+                      onChange={(e) => setNewIntakeForm(prev => ({ ...prev, capacity: Number(e.target.value) }))}
+                      min="1"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="start_date">Start Date *</Label>
+                    <Input
+                      id="start_date"
+                      type="date"
+                      value={newIntakeForm.start_date}
+                      onChange={(e) => setNewIntakeForm(prev => ({ ...prev, start_date: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="application_deadline">Application Deadline</Label>
+                    <Input
+                      id="application_deadline"
+                      type="date"
+                      value={newIntakeForm.application_deadline}
+                      onChange={(e) => setNewIntakeForm(prev => ({ ...prev, application_deadline: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Study Mode</Label>
+                    <Select
+                      value={newIntakeForm.study_mode}
+                      onValueChange={(value) => setNewIntakeForm(prev => ({ ...prev, study_mode: value as 'full-time' | 'part-time' }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="full-time">Full Time</SelectItem>
+                        <SelectItem value="part-time">Part Time</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Delivery Method</Label>
+                    <Select
+                      value={newIntakeForm.delivery_method}
+                      onValueChange={(value) => setNewIntakeForm(prev => ({ ...prev, delivery_method: value as 'on-campus' | 'online' | 'hybrid' }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="on-campus">On Campus</SelectItem>
+                        <SelectItem value="online">Online</SelectItem>
+                        <SelectItem value="hybrid">Hybrid</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Campus</Label>
+                    <Select
+                      value={newIntakeForm.campus}
+                      onValueChange={(value) => setNewIntakeForm(prev => ({ ...prev, campus: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select campus" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Surrey">Surrey</SelectItem>
+                        <SelectItem value="Vancouver">Vancouver</SelectItem>
+                        <SelectItem value="Richmond">Richmond</SelectItem>
+                        <SelectItem value="Burnaby">Burnaby</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Sales Approach</Label>
+                  <Select
+                    value={newIntakeForm.sales_approach}
+                    onValueChange={(value) => setNewIntakeForm(prev => ({ ...prev, sales_approach: value as 'aggressive' | 'balanced' | 'neutral' }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="aggressive">Aggressive</SelectItem>
+                      <SelectItem value="balanced">Balanced</SelectItem>
+                      <SelectItem value="neutral">Neutral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex justify-end space-x-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsNewIntakeModalOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting || !programs || programs.length === 0}>
+                    {isSubmitting ? 'Creating...' : 'Create Intake'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -271,16 +488,41 @@ export function IntakeManagementStandalone() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {programOverview.map((program) => (
-                    <Card key={program.id} className="border-l-4 border-l-primary/20">
+                    <Card 
+                      key={program.id} 
+                      className="border-l-4 border-l-primary/20 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        setNewIntakeForm(prev => ({ ...prev, program_id: program.id }));
+                        setIsNewIntakeModalOpen(true);
+                      }}
+                    >
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
                           <div>
-                            <CardTitle className="text-base">{program.name}</CardTitle>
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <GraduationCap className="h-4 w-4" />
+                              {program.name}
+                            </CardTitle>
                             <Badge variant="outline" className="mt-1">{program.type}</Badge>
                           </div>
-                          <Badge variant={program.activeIntakes > 0 ? 'default' : 'secondary'}>
-                            {program.activeIntakes} active
-                          </Badge>
+                          <div className="flex flex-col items-end gap-1">
+                            <Badge variant={program.activeIntakes > 0 ? 'default' : 'secondary'}>
+                              {program.activeIntakes} active
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 text-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setNewIntakeForm(prev => ({ ...prev, program_id: program.id }));
+                                setIsNewIntakeModalOpen(true);
+                              }}
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              Add Intake
+                            </Button>
+                          </div>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-3">

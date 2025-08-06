@@ -265,7 +265,7 @@ export const AircallIntegration: React.FC<AircallIntegrationProps> = ({ leadId }
               
               <Button 
                 onClick={handleConnect}
-                disabled={isConnecting}
+                disabled={isConnecting || !apiId.trim() || !apiToken.trim()}
                 className="w-full"
               >
                 {isConnecting ? 'Connecting...' : 'Connect Aircall'}

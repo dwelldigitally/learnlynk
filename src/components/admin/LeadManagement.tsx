@@ -21,8 +21,7 @@ import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
 import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
-import { LeadStageTracker } from './leads/LeadStageTracker';
-import { LeadStageFilters } from './leads/LeadStageFilters';
+import { UnifiedLeadHeader } from './leads/UnifiedLeadHeader';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
@@ -45,7 +44,7 @@ export function LeadManagement() {
   const [showEnhancedModal, setShowEnhancedModal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
-  const [showStageFilters, setShowStageFilters] = useState(false);
+  
   const [filterOptions, setFilterOptions] = useState({
     sources: [] as string[],
     statuses: [] as string[],
@@ -446,62 +445,29 @@ export function LeadManagement() {
       </div>
 
 
-        {/* Lead Stage Tracker */}
-        <LeadStageTracker
+        {/* Unified Lead Header */}
+        <UnifiedLeadHeader
           stages={stageStats}
           activeStage={activeStage}
-          onStageChange={setActiveStage}
-          onAIAction={(action, stage) => {
-            toast({
-              title: 'AI Action Triggered',
-              description: `${action} will be applied to all leads in ${stage} stage`
-            });
-          }}
           selectedLeadsCount={selectedLeadIds.length}
+          filters={filters}
+          programs={filterOptions.programs}
+          onStageChange={setActiveStage}
+          onFilterChange={(newFilters) => {
+            setFilters(prev => ({ ...prev, ...newFilters }));
+            setCurrentPage(1);
+          }}
+          onClearFilters={() => {
+            setFilters({});
+            setCurrentPage(1);
+          }}
+          onAddLead={() => setShowLeadForm(true)}
+          onExport={handleExport}
         />
-
-        {/* Enhanced Filters & Actions Bar */}
-        <Card className="p-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => setShowStageFilters(!showStageFilters)}>
-                <Filter className="h-4 w-4 mr-2" />
-                Stage Filters
-              </Button>
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setFilters({});
-                setCurrentPage(1);
-              }}>
-                <FileX className="h-4 w-4 mr-2" />
-                Clear Filters
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button onClick={() => setShowLeadForm(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Lead
-              </Button>
-            </div>
-          </div>
-        </Card>
 
         {/* Main Content */}
         <div className="space-y-6">
 
-          {/* Stage-specific Filters */}
-          {showStageFilters && (
-            <LeadStageFilters
-              activeStage={activeStage}
-              filters={filters}
-              onFilterChange={setFilters}
-              onClearFilters={() => setFilters({})}
-              programs={filterOptions.programs}
-            />
-          )}
 
           {/* Enhanced Data Table */}
           <ConditionalDataWrapper isLoading={loading} showEmptyState={!hasDemoAccess && leads.length === 0} hasDemoAccess={hasDemoAccess || false} hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} emptyTitle="No Leads Yet" emptyDescription="Create your first lead to get started with lead management." loadingRows={5}>

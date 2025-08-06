@@ -3,11 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Play, Pause, Settings, BarChart } from "lucide-react";
+import { Plus, Play, Pause, Settings, BarChart, Database } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import WorkflowBuilder from "./workflow/WorkflowBuilder";
 import StageManagement from "./workflow/StageManagement";
+import { DummyWorkflowService } from "@/services/dummyWorkflowService";
 
 interface Workflow {
   id: string;
@@ -97,6 +98,29 @@ const WorkflowManagement: React.FC = () => {
     fetchWorkflows();
   };
 
+  const handleCreateSampleData = async () => {
+    try {
+      setLoading(true);
+      await DummyWorkflowService.createDummyWorkflows();
+      await fetchWorkflows();
+      toast({
+        title: "Success",
+        description: `Created ${DummyWorkflowService.getDummyWorkflowCount()} sample workflows`,
+      });
+    } catch (error: any) {
+      console.error('Error creating sample workflows:', error);
+      toast({
+        title: "Error",
+        description: error.message === 'Workflows already exist for this user' 
+          ? "Sample workflows already exist" 
+          : "Failed to create sample workflows",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (showBuilder) {
     return (
       <WorkflowBuilder
@@ -115,10 +139,18 @@ const WorkflowManagement: React.FC = () => {
             Automate student journey with custom workflows and triggers
           </p>
         </div>
-        <Button onClick={handleCreateWorkflow} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Workflow
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleCreateWorkflow} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Workflow
+          </Button>
+          {workflows.length === 0 && (
+            <Button onClick={handleCreateSampleData} variant="outline" className="gap-2">
+              <Database className="h-4 w-4" />
+              Add Sample Data
+            </Button>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue="workflows" className="w-full">
@@ -151,10 +183,16 @@ const WorkflowManagement: React.FC = () => {
                 <p className="text-muted-foreground text-center mb-4">
                   Create your first workflow to automate student communications and actions.
                 </p>
-                <Button onClick={handleCreateWorkflow} className="gap-2">
-                  <Plus className="h-4 w-4" />
-                  Create Your First Workflow
-                </Button>
+                <div className="flex gap-2">
+                  <Button onClick={handleCreateWorkflow} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Your First Workflow
+                  </Button>
+                  <Button onClick={handleCreateSampleData} variant="outline" className="gap-2">
+                    <Database className="h-4 w-4" />
+                    Add Sample Data
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           ) : (

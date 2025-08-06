@@ -59,19 +59,59 @@ Deno.serve(async (req) => {
         throw new Error('Aircall integration is not active');
       }
 
-      // For demo purposes, we'll create a call record without actually calling Aircall API
-      // In production, you would decrypt the api_token_encrypted and make the actual API call
+      // Test Aircall API connection first
+      console.log('Testing Aircall API connection...');
       
-      console.log('Creating demo call record for:', phoneNumber);
+      const pingResponse = await fetch('https://api.aircall.io/v1/ping', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Basic ${btoa(`${settings.api_id}:${settings.api_token_encrypted}`)}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-      // Create call record in database
+      if (!pingResponse.ok) {
+        throw new Error('Aircall API connection failed - please check your credentials');
+      }
+
+      console.log('Aircall API connection successful');
+
+      // Make actual Aircall API call to initiate the call
+      console.log('Initiating actual call via Aircall API for:', phoneNumber);
+
+      const callPayload = {
+        to: phoneNumber,
+        from: settings.api_id, // Use the configured number or agent
+      };
+
+      const aircallResponse = await fetch('https://api.aircall.io/v1/calls', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${btoa(`${settings.api_id}:${settings.api_token_encrypted}`)}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(callPayload),
+      });
+
+      const aircallData = await aircallResponse.json();
+
+      if (!aircallResponse.ok) {
+        console.error('Aircall API error:', aircallData);
+        throw new Error(`Aircall API error: ${aircallData.message || 'Failed to initiate call'}`);
+      }
+
+      console.log('Call initiated successfully via Aircall:', aircallData);
+
+      // Create call record in database with real Aircall data
       const callData = {
         user_id: user.id,
         lead_id: leadId || null,
         phone_number: phoneNumber,
         direction: 'outbound',
-        status: 'initial', // Use 'initial' status which is allowed by DB constraint
-        aircall_call_id: `demo_${Date.now()}`,
+        status: 'initial',
+        aircall_call_id: aircallData.call?.id?.toString() || `aircall_${Date.now()}`,
+        started_at: new Date().toISOString(),
+        aircall_metadata: aircallData,
         created_at: new Date().toISOString(),
       };
 
@@ -95,9 +135,13 @@ Deno.serve(async (req) => {
           .insert({
             lead_id: leadId,
             user_id: user.id,
-            type: 'call',
-            description: `Initiated call to ${phoneNumber}`,
-            metadata: { call_id: callRecord.id, phone_number: phoneNumber },
+            activity_type: 'call',
+            activity_description: `Initiated call to ${phoneNumber} via Aircall`,
+            activity_data: { 
+              call_id: callRecord.id, 
+              phone_number: phoneNumber,
+              aircall_call_id: aircallData.call?.id 
+            },
             created_at: new Date().toISOString(),
           });
 
@@ -106,15 +150,15 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Simulate call initiation success
+      // Return success response with real Aircall data
       const response = {
         success: true,
         call_id: callRecord.id,
-        aircall_call_id: callData.aircall_call_id,
+        aircall_call_id: aircallData.call?.id,
         phone_number: phoneNumber,
         status: 'initiated',
-        demo_mode: true,
-        message: 'Call initiated successfully (Demo Mode)',
+        aircall_data: aircallData,
+        message: 'Call initiated successfully via Aircall API',
       };
 
       return new Response(JSON.stringify(response), {

@@ -341,18 +341,6 @@ export function TopNavigationBar({
                 Profile Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/admin/company" className="flex items-center">
-                <Building2 className="mr-2 h-4 w-4" />
-                Company Settings
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/admin/settings" className="flex items-center">
-                <Settings className="mr-2 h-4 w-4" />
-                System Settings
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => {/* Sign out logic */}}>
               <LogOut className="mr-2 h-4 w-4" />

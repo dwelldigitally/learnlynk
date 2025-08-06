@@ -16,6 +16,9 @@ import { ScholarshipApplications } from "./pages/ScholarshipApplications";
 import LeadDetailPage from "./pages/LeadDetailPage";
 import StudentDetailPage from "./pages/StudentDetailPage";
 import { UniversalBuilderPage } from "./pages/UniversalBuilderPage";
+import { FormBuilderPage } from "./pages/FormBuilderPage";
+import { WorkflowBuilderPage } from "./pages/WorkflowBuilderPage";
+import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
 
 const queryClient = new QueryClient();
 
@@ -43,8 +46,17 @@ const App = () => {
               {/* Student detail route - use a specific pattern to avoid conflicts */}
               <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />
               
-              {/* Universal Builder route */}
+              {/* Universal Builder routes */}
               <Route path="/admin/builder" element={<ProtectedRoute element={<UniversalBuilderPage />} />} />
+              <Route path="/admin/builder/forms" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+              <Route path="/admin/builder/forms/:formId" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+              <Route path="/admin/builder/forms/:formId/edit" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+              <Route path="/admin/builder/workflows" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
+              <Route path="/admin/builder/workflows/:workflowId" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
+              <Route path="/admin/builder/workflows/:workflowId/edit" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
+              <Route path="/admin/builder/campaigns" element={<ProtectedRoute element={<CampaignBuilderPage />} />} />
+              <Route path="/admin/builder/campaigns/:campaignId" element={<ProtectedRoute element={<CampaignBuilderPage />} />} />
+              <Route path="/admin/builder/campaigns/:campaignId/edit" element={<ProtectedRoute element={<CampaignBuilderPage />} />} />
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

@@ -19,7 +19,8 @@ import {
   Upload,
   PieChart,
   Shield,
-  UserCog
+  UserCog,
+  FileCheck
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -77,6 +78,7 @@ export const navigationStructure: NavigationStructure = {
         { name: "Programs", href: "/admin/programs", icon: BookOpen },
         { name: "Workflows", href: "/admin/workflows", icon: Workflow },
         { name: "Requirements", href: "/admin/requirements", icon: Shield },
+        { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
         { name: "Database", href: "/admin/database", icon: Database },
         { name: "Team Management", href: "/admin/team", icon: UserCog }
       ]

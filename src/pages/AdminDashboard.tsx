@@ -31,6 +31,7 @@ import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 import { CampaignManagement } from "@/components/admin/CampaignManagement";
 import { ApplicationsManagement } from "@/components/admin/ApplicationsManagement";
 import { RequirementsManagement } from "@/components/admin/RequirementsManagement";
+import { DocumentTemplatesManagement } from "@/components/admin/DocumentTemplatesManagement";
 import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { CompanySettings } from "@/components/admin/CompanySettings";
 import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
@@ -114,6 +115,8 @@ const AdminDashboard: React.FC = () => {
         return <IntakeManagementStandalone />;
       case "/admin/requirements":
         return <RequirementsManagement />;
+      case "/admin/document-templates":
+        return <DocumentTemplatesManagement />;
       case "/admin/reports":
         return <ReportsManagement />;
       case "/admin/company":

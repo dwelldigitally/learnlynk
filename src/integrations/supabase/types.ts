@@ -646,6 +646,66 @@ export type Database = {
         }
         Relationships: []
       }
+      document_templates: {
+        Row: {
+          accepted_formats: string[]
+          applicable_programs: string[] | null
+          category: string
+          created_at: string
+          description: string | null
+          examples: string[] | null
+          id: string
+          instructions: string | null
+          is_system_template: boolean | null
+          mandatory: boolean
+          max_size: number
+          name: string
+          stage: string
+          type: string
+          updated_at: string
+          usage_count: number | null
+          user_id: string | null
+        }
+        Insert: {
+          accepted_formats?: string[]
+          applicable_programs?: string[] | null
+          category: string
+          created_at?: string
+          description?: string | null
+          examples?: string[] | null
+          id?: string
+          instructions?: string | null
+          is_system_template?: boolean | null
+          mandatory?: boolean
+          max_size?: number
+          name: string
+          stage?: string
+          type: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          accepted_formats?: string[]
+          applicable_programs?: string[] | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          examples?: string[] | null
+          id?: string
+          instructions?: string | null
+          is_system_template?: boolean | null
+          mandatory?: boolean
+          max_size?: number
+          name?: string
+          stage?: string
+          type?: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       email_accounts: {
         Row: {
           access_token_encrypted: string | null

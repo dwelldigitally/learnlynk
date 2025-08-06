@@ -249,173 +249,120 @@ export function CampaignManagement() {
         </Card>
       </div>
 
-      <Tabs defaultValue="campaigns" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="campaigns">All Campaigns</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="drafts">Drafts</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="campaigns" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign List</CardTitle>
-              <CardDescription>
-                Manage all your marketing campaigns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {loading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading campaigns...</div>
-              ) : campaigns.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <p>No campaigns found</p>
-                  <div className="flex flex-wrap gap-2 mt-4 justify-center">
-                    <Button 
-                      variant="outline" 
-                      onClick={() => setShowBuilder(true)}
-                    >
-                      <Bot className="h-4 w-4 mr-2" />
-                      Create with AI
-                    </Button>
-                    <Button 
-                      onClick={() => setShowWorkflowBuilder(true)}
-                    >
-                      <GitBranch className="h-4 w-4 mr-2" />
-                      Workflow Builder
-                    </Button>
-                    <Button 
-                      variant="secondary"
-                      onClick={handleCreateDummyCampaigns}
-                      disabled={loading}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Sample Campaigns
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Start Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {campaigns.map((campaign) => (
-                      <TableRow key={campaign.id}>
-                        <TableCell className="font-medium">{campaign.name}</TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-1">
-                            {campaign.campaign_type === 'workflow' && (
-                              <Workflow className="h-3 w-3 text-blue-500" />
-                            )}
-                            <span className="capitalize">{campaign.campaign_type}</span>
-                          </div>
-                        </TableCell>
-                        <TableCell>{getStatusBadge(campaign.status)}</TableCell>
-                        <TableCell>{format(new Date(campaign.created_at), 'MMM dd, yyyy')}</TableCell>
-                        <TableCell>
-                          {campaign.start_date ? format(new Date(campaign.start_date), 'MMM dd, yyyy') : 'Not set'}
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setSelectedCampaign(campaign)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              {campaign.status === 'draft' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'active')}>
-                                  <Play className="mr-2 h-4 w-4" />
-                                  Activate
-                                </DropdownMenuItem>
-                              )}
-                              {campaign.status === 'active' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'paused')}>
-                                  <Pause className="mr-2 h-4 w-4" />
-                                  Pause
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem 
-                                onClick={() => handleExecuteCampaign(campaign.id)}
-                                disabled={campaign.status !== 'active'}
-                              >
-                                <Play className="mr-2 h-4 w-4" />
-                                Execute Now
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDeleteCampaign(campaign.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="active">
-          <Card>
-            <CardHeader>
-              <CardTitle>Active Campaigns</CardTitle>
-              <CardDescription>Currently running campaigns</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                {campaigns.filter(c => c.status === 'active').length} active campaigns
+      <Card>
+        <CardHeader>
+          <CardTitle>Campaign List</CardTitle>
+          <CardDescription>
+            Manage all your marketing campaigns
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading campaigns...</div>
+          ) : campaigns.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No campaigns found</p>
+              <div className="flex flex-wrap gap-2 mt-4 justify-center">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowBuilder(true)}
+                >
+                  <Bot className="h-4 w-4 mr-2" />
+                  Create with AI
+                </Button>
+                <Button 
+                  onClick={() => setShowWorkflowBuilder(true)}
+                >
+                  <GitBranch className="h-4 w-4 mr-2" />
+                  Workflow Builder
+                </Button>
+                <Button 
+                  variant="secondary"
+                  onClick={handleCreateDummyCampaigns}
+                  disabled={loading}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Sample Campaigns
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="drafts">
-          <Card>
-            <CardHeader>
-              <CardTitle>Draft Campaigns</CardTitle>
-              <CardDescription>Campaigns ready to be activated</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                {campaigns.filter(c => c.status === 'draft').length} draft campaigns
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <Card>
-            <CardHeader>
-              <CardTitle>Campaign Analytics</CardTitle>
-              <CardDescription>Performance metrics and insights</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                Detailed analytics coming soon
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {campaigns.map((campaign) => (
+                  <TableRow key={campaign.id}>
+                    <TableCell className="font-medium">{campaign.name}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        {campaign.campaign_type === 'workflow' && (
+                          <Workflow className="h-3 w-3 text-blue-500" />
+                        )}
+                        <span className="capitalize">{campaign.campaign_type}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(campaign.status)}</TableCell>
+                    <TableCell>{format(new Date(campaign.created_at), 'MMM dd, yyyy')}</TableCell>
+                    <TableCell>
+                      {campaign.start_date ? format(new Date(campaign.start_date), 'MMM dd, yyyy') : 'Not set'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setSelectedCampaign(campaign)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Details
+                          </DropdownMenuItem>
+                          {campaign.status === 'draft' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'active')}>
+                              <Play className="mr-2 h-4 w-4" />
+                              Activate
+                            </DropdownMenuItem>
+                          )}
+                          {campaign.status === 'active' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'paused')}>
+                              <Pause className="mr-2 h-4 w-4" />
+                              Pause
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem 
+                            onClick={() => handleExecuteCampaign(campaign.id)}
+                            disabled={campaign.status !== 'active'}
+                          >
+                            <Play className="mr-2 h-4 w-4" />
+                            Execute Now
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleDeleteCampaign(campaign.id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Campaign Detail Modal */}
       {selectedCampaign && (

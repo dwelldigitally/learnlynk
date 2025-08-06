@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { Plus, Edit, Trash2, MapPin, CreditCard, GraduationCap } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { RequirementsManagement as RequirementsManagementComponent } from './RequirementsManagement';
 
 export const MasterDataManagement = () => {
   const [campuses, setCampuses] = useState([]);
@@ -155,44 +156,9 @@ export const MasterDataManagement = () => {
     </div>
   );
 
-  const RequirementsManagement = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h4 className="text-lg font-medium">Program Entry Requirements</h4>
-          <p className="text-sm text-muted-foreground">Manage standard entry requirements</p>
-        </div>
-        <Button className="flex items-center space-x-2">
-          <Plus className="h-4 w-4" />
-          <span>Add Requirement</span>
-        </Button>
-      </div>
-
-      <div className="grid gap-4">
-        {requirements.map((req: any) => (
-          <Card key={req.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <GraduationCap className="h-5 w-5 text-primary" />
-                  <div>
-                    <CardTitle className="text-base">{req.name}</CardTitle>
-                    <CardDescription>{req.type}</CardDescription>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={req.is_required ? 'destructive' : 'secondary'}>
-                    {req.is_required ? 'Required' : 'Optional'}
-                  </Badge>
-                  <Switch checked={req.is_required} />
-                </div>
-              </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-    </div>
-  );
+  const RequirementsManagement = () => {
+    return <RequirementsManagementComponent />;
+  };
 
   return (
     <div className="space-y-6">

@@ -30,7 +30,7 @@ import { ConfigurationManagement } from "@/components/admin/ConfigurationManagem
 import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 import { CampaignManagement } from "@/components/admin/CampaignManagement";
 import { ApplicationsManagement } from "@/components/admin/ApplicationsManagement";
-import { RequirementsManagement } from "@/components/admin/RequirementsManagement";
+import { RequirementsManagement } from "@/components/admin/database/RequirementsManagement";
 import { DocumentTemplatesManagement } from "@/components/admin/DocumentTemplatesManagement";
 import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { CompanySettings } from "@/components/admin/CompanySettings";

@@ -427,7 +427,7 @@ export function LeadManagement() {
     onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
     variant: 'destructive' as const
   }];
-  return <div className="w-full space-y-6">{/* Container with full width */}
+  return <div className="w-full space-y-6 px-6">{/* Container with full width and proper padding */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold py-[25px]">Lead Management</h1>

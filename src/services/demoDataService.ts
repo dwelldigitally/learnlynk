@@ -705,18 +705,27 @@ export class DemoDataService {
 export function useDemoDataAccess() {
   // Safe auth access - return loading state if auth context not available
   let user = null;
+  let authError = false;
+  
   try {
     const authContext = useAuth();
     user = authContext.user;
   } catch (error) {
     // Auth context not available - this can happen during initial render
-    console.warn('Auth context not available, returning demo data disabled');
+    console.warn('Auth context not available, enabling demo data as fallback');
+    authError = true;
   }
   
   return useQuery({
-    queryKey: ['demo-data-access', user?.id],
-    queryFn: () => DemoDataService.hasUserDemoData(),
-    enabled: !!user,
+    queryKey: ['demo-data-access', user?.id || 'no-auth'],
+    queryFn: () => {
+      if (authError) {
+        // If auth is not available, enable demo data
+        return Promise.resolve(true);
+      }
+      return DemoDataService.hasUserDemoData();
+    },
+    enabled: true, // Always enabled to show demo data when auth isn't ready
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

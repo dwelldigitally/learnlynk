@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -195,15 +196,15 @@ export function UnifiedLeadHeader({
 
           {/* Program Filter */}
           <Select
-            value={filters.program_interest?.[0] || ""}
-            onValueChange={(value) => onFilterChange({ program_interest: value ? [value] : [] })}
+            value={filters.program_interest?.[0] || "all"}
+            onValueChange={(value) => onFilterChange({ program_interest: value === "all" ? [] : [value] })}
           >
             <SelectTrigger className="w-[140px]">
               <GraduationCap className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Program" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Programs</SelectItem>
+              <SelectItem value="all">All Programs</SelectItem>
               {programs.map((program) => (
                 <SelectItem key={program} value={program}>
                   {program}
@@ -229,14 +230,14 @@ export function UnifiedLeadHeader({
             <div>
               <label className="text-sm font-medium mb-2 block">Source</label>
               <Select
-                value={filters.source?.[0] || ""}
-                onValueChange={(value) => onFilterChange({ source: value ? [value as LeadSource] : [] })}
+                value={filters.source?.[0] || "all"}
+                onValueChange={(value) => onFilterChange({ source: value === "all" ? [] : [value as LeadSource] })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Sources" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Sources</SelectItem>
+                  <SelectItem value="all">All Sources</SelectItem>
                   <SelectItem value="website">Website</SelectItem>
                   <SelectItem value="email">Email</SelectItem>
                   <SelectItem value="social_media">Social Media</SelectItem>
@@ -250,14 +251,14 @@ export function UnifiedLeadHeader({
             <div>
               <label className="text-sm font-medium mb-2 block">Priority</label>
               <Select
-                value={filters.priority?.[0] || ""}
-                onValueChange={(value) => onFilterChange({ priority: value ? [value as LeadPriority] : [] })}
+                value={filters.priority?.[0] || "all"}
+                onValueChange={(value) => onFilterChange({ priority: value === "all" ? [] : [value as LeadPriority] })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All Priorities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Priorities</SelectItem>
+                  <SelectItem value="all">All Priorities</SelectItem>
                   <SelectItem value="urgent">Urgent</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
@@ -273,7 +274,7 @@ export function UnifiedLeadHeader({
                 value={
                   filters.lead_score_range?.min === 80 ? "high" :
                   filters.lead_score_range?.min === 50 ? "medium" :
-                  filters.lead_score_range?.min === 20 ? "low" : ""
+                  filters.lead_score_range?.min === 20 ? "low" : "all"
                 }
                 onValueChange={(value) => {
                   const ranges = {
@@ -282,7 +283,7 @@ export function UnifiedLeadHeader({
                     low: { min: 20, max: 49 }
                   };
                   onFilterChange({ 
-                    lead_score_range: value ? ranges[value as keyof typeof ranges] : undefined 
+                    lead_score_range: value === "all" ? undefined : ranges[value as keyof typeof ranges] 
                   });
                 }}
               >
@@ -290,7 +291,7 @@ export function UnifiedLeadHeader({
                   <SelectValue placeholder="All Scores" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Scores</SelectItem>
+                  <SelectItem value="all">All Scores</SelectItem>
                   <SelectItem value="high">High (80-100)</SelectItem>
                   <SelectItem value="medium">Medium (50-79)</SelectItem>
                   <SelectItem value="low">Low (20-49)</SelectItem>

@@ -346,7 +346,7 @@ const CommunicationHub: React.FC = () => {
   const smsTemplates = templates.filter(t => t.type === 'sms');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-6">{/* Added padding to communication hub */}
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

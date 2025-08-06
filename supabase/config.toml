@@ -2,3 +2,6 @@ project_id = "rpxygdaimdiarjpfmswl"
 
 [functions.ai-lead-scoring]
 verify_jwt = false
+
+[functions.aircall-api]
+verify_jwt = true

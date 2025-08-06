@@ -204,34 +204,31 @@ export class AircallService {
     };
   }
 
-  // Initiate a call through Aircall API
+  // Initiate a call through Aircall API (via Edge Function)
   static async initiateCall(phoneNumber: string, settings: AircallSettings): Promise<any> {
+    console.log('Initiating call via Edge Function:', phoneNumber);
+    
     if (!settings.api_id || !settings.api_token_encrypted) {
       throw new Error('Aircall API credentials not configured');
     }
 
     try {
-      // In a real implementation, you would decrypt the API token
-      // and make the actual API call to Aircall
-      const response = await fetch(`${this.BASE_URL}/calls`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Basic ${btoa(`${settings.api_id}:${settings.api_token_encrypted}`)}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          to: phoneNumber,
-          from: 'system' // This would be the agent's number
-        })
+      const { data, error } = await supabase.functions.invoke('aircall-api', {
+        body: {
+          phoneNumber,
+          leadId: null // Will be set by the calling component if available
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to initiate call');
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error.message || 'Failed to initiate call');
       }
 
-      return await response.json();
+      console.log('Call initiated successfully:', data);
+      return data;
     } catch (error) {
-      console.error('Error initiating call:', error);
+      console.error('Error calling aircall-api function:', error);
       throw error;
     }
   }

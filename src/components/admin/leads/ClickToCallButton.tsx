@@ -4,6 +4,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Phone, PhoneCall, AlertCircle, Copy } from 'lucide-react';
 import { AircallService, AircallSettings } from '@/services/aircallService';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ClickToCallButtonProps {
   phoneNumber: string;
@@ -87,47 +88,32 @@ export const ClickToCallButton: React.FC<ClickToCallButtonProps> = ({
       }
 
       // For demo purposes, simulate call initiation if no API credentials
-      if (!settings.api_id || !settings.api_token_encrypted) {
-        console.log('Demo mode: Simulating call initiation');
-        
-        // Create call record for demo
-        await AircallService.createCall({
-          aircall_call_id: `demo-${Date.now()}`,
-          lead_id: targetLeadId,
-          phone_number: phoneNumber,
-          direction: 'outbound',
-          status: 'initial',
-          duration: 0,
-          started_at: new Date().toISOString(),
-          aircall_metadata: { demo: true }
-        });
+      // Use the edge function which handles lead creation and call logging
+      const response = await supabase.functions.invoke('aircall-api', {
+        body: {
+          phoneNumber,
+          leadId: targetLeadId
+        }
+      });
 
-        toast({
-          title: "Demo Call Initiated",
-          description: `Demo call to ${formatPhoneNumber(phoneNumber)} - Configure Aircall API for real calls`,
-        });
-        return;
+      if (response.error) {
+        throw new Error(response.error.message || 'Failed to initiate call');
       }
 
-      // Initiate the real call
-      const callResponse = await AircallService.initiateCall(phoneNumber, settings);
-      
-      // Create call record
-      await AircallService.createCall({
-        aircall_call_id: callResponse.id || `manual-${Date.now()}`,
-        lead_id: targetLeadId,
-        phone_number: phoneNumber,
-        direction: 'outbound',
-        status: 'initial',
-        duration: 0,
-        started_at: new Date().toISOString(),
-        aircall_metadata: callResponse
-      });
+      console.log('Call initiated successfully:', response.data);
 
-      toast({
-        title: "Call Initiated",
-        description: `Calling ${formatPhoneNumber(phoneNumber)}...`,
-      });
+      // Show success message
+      if (response.data?.demo_mode) {
+        toast({
+          title: "Demo Call Initiated",
+          description: `Demo call to ${formatPhoneNumber(phoneNumber)} has been logged.`,
+        });
+      } else {
+        toast({
+          title: "Call Initiated",
+          description: `Call to ${formatPhoneNumber(phoneNumber)} initiated successfully.`,
+        });
+      }
     } catch (error) {
       console.error('Call initiation error:', error);
       toast({

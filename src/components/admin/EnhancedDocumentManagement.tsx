@@ -322,6 +322,15 @@ const EnhancedDocumentManagement: React.FC = () => {
     // For now, could open a modal or navigate to /admin/students/STU-2024-001
   };
 
+  const handleViewAllStudentDocuments = (studentId: string, studentName: string) => {
+    // Filter documents to show only those from this student
+    setFilters(prev => ({
+      ...prev,
+      search: studentName
+    }));
+    console.log('View all documents for student:', studentId, studentName);
+  };
+
   const handleDocumentClick = (documentId: string) => {
     const document = documents.find(doc => doc.id === documentId);
     if (document) {
@@ -913,20 +922,31 @@ const EnhancedDocumentManagement: React.FC = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Avatar className="h-6 w-6">
-                              <AvatarImage src="/placeholder.svg" />
-                              <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <button 
-                                className="font-medium text-primary hover:underline cursor-pointer"
-                                onClick={() => handleStudentClick(doc.studentId)}
-                              >
-                                {doc.studentName}
-                              </button>
-                              <p className="text-xs text-muted-foreground">{doc.studentId}</p>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src="/placeholder.svg" />
+                                <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <button 
+                                  className="font-medium text-primary hover:underline cursor-pointer"
+                                  onClick={() => handleStudentClick(doc.studentId)}
+                                >
+                                  {doc.studentName}
+                                </button>
+                                <p className="text-xs text-muted-foreground">{doc.studentId}</p>
+                              </div>
                             </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewAllStudentDocuments(doc.studentId, doc.studentName)}
+                              className="h-6 px-2 text-xs"
+                            >
+                              <Users className="h-3 w-3 mr-1" />
+                              All Docs
+                            </Button>
                           </div>
                         </TableCell>
                         <TableCell>

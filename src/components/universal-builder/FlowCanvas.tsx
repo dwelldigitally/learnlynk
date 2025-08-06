@@ -28,7 +28,6 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
       case 'email_campaign':
         return Mail;
       case 'send_site_message':
-      case 'send_sms':
       case 'sms_campaign':
         return MessageSquare;
       case 'send_sms':

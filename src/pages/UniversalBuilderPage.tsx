@@ -16,7 +16,7 @@ export function UniversalBuilderPage() {
 
   return (
     <UniversalBuilder
-      builderType="form"
+      builderType="workflow"
       onSave={handleSave}
       onCancel={handleCancel}
     />

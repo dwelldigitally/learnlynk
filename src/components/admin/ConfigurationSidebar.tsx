@@ -13,7 +13,9 @@ import {
   Server,
   ChevronRight,
   Menu,
-  X
+  X,
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -46,9 +48,18 @@ const configurationGroups: ConfigurationGroup[] = [
     ]
   },
   {
-    name: "AI & Automation",
+    name: "AI & Machine Learning",
     items: [
       { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
+      { name: "AI Models", href: "/admin/configuration/ai-models", icon: Brain },
+      { name: "Performance Analytics", href: "/admin/configuration/ai-analytics", icon: TrendingUp },
+    ]
+  },
+  {
+    name: "Workflow Automation",
+    items: [
+      { name: "Visual Builder", href: "/admin/configuration/workflows", icon: Route },
+      { name: "Automation Rules", href: "/admin/configuration/automation-rules", icon: Zap },
       { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
     ]
   },

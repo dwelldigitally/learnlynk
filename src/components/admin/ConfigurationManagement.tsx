@@ -5,6 +5,10 @@ import { MasterDataManagement } from './database/MasterDataManagement';
 import { IntegrationHub } from './database/IntegrationHub';
 import { SystemTemplates } from './database/SystemTemplates';
 import AIAgentsHub from './database/AIAgentsHub';
+import EnhancedAIAgentsHub from './database/EnhancedAIAgentsHub';
+import VisualWorkflowBuilder from './database/VisualWorkflowBuilder';
+import AutomationRulesEngine from './database/AutomationRulesEngine';
+import AIPerformanceDashboard from './database/AIPerformanceDashboard';
 import BehaviorAnalytics from './database/BehaviorAnalytics';
 import { LeadRoutingRules } from './LeadRoutingRules';
 import { LeadScoringEngine } from './LeadScoringEngine';
@@ -29,7 +33,15 @@ export const ConfigurationManagement = () => {
       case '/admin/configuration/templates':
         return <SystemTemplates />;
       case '/admin/configuration/ai-agents':
-        return <AIAgentsHub />;
+        return <EnhancedAIAgentsHub />;
+      case '/admin/configuration/ai-models':
+        return <EnhancedAIAgentsHub />;
+      case '/admin/configuration/ai-analytics':
+        return <AIPerformanceDashboard />;
+      case '/admin/configuration/workflows':
+        return <VisualWorkflowBuilder />;
+      case '/admin/configuration/automation-rules':
+        return <AutomationRulesEngine />;
       case '/admin/configuration/behavior':
         return <BehaviorAnalytics />;
       case '/admin/configuration/routing':

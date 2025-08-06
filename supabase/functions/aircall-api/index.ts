@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
         lead_id: leadId || null,
         phone_number: phoneNumber,
         direction: 'outbound',
-        status: 'initiated',
+        status: 'queued', // Changed from 'initiated' to 'queued'
         aircall_call_id: `demo_${Date.now()}`,
         created_at: new Date().toISOString(),
       };

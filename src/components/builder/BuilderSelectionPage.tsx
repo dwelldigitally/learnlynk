@@ -192,7 +192,7 @@ export function BuilderSelectionPage() {
   return (
     <div className="h-full bg-background">
       <div className="border-b bg-card">
-        <div className="max-w-7xl mx-auto px-6 py-6">
+        <div className="px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-foreground">Universal Builder</h1>
@@ -220,10 +220,10 @@ export function BuilderSelectionPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="px-8 py-8">
+        <div className="grid grid-cols-1 xl:grid-cols-5 gap-8">
           {/* Left Side - Create New Builders */}
-          <div className="space-y-6">
+          <div className="xl:col-span-2 space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-foreground mb-2">Create New</h2>
               <p className="text-muted-foreground text-sm">Choose a builder to get started</p>
@@ -262,13 +262,13 @@ export function BuilderSelectionPage() {
           </div>
 
           {/* Right Side - Manage Existing */}
-          <div className="space-y-6">
+          <div className="xl:col-span-3 space-y-6">
             <div>
               <h2 className="text-xl font-semibold text-foreground mb-2">Manage Existing</h2>
               <p className="text-muted-foreground text-sm">View and edit your current builders</p>
             </div>
             
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg flex items-center gap-2">

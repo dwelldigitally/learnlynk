@@ -24,7 +24,7 @@ import {
   Copy,
   Filter
 } from 'lucide-react';
-import { EntryRequirementsService, EntryRequirementFormData } from '@/services/entryRequirementsService';
+import { EntryRequirementsService, EntryRequirementFormData as ServiceFormData } from '@/services/entryRequirementsService';
 import { useToast } from '@/hooks/use-toast';
 import type { EntryRequirement } from '@/types/program';
 
@@ -37,8 +37,9 @@ const REQUIREMENT_TYPES = [
   { value: 'other', label: 'Other', icon: AlertCircle, color: 'text-gray-600' }
 ];
 
-interface RequirementFormData extends EntryRequirementFormData {
+interface RequirementFormData extends ServiceFormData {
   id?: string;
+  student_type?: string[];
 }
 
 export const RequirementsManagement = () => {
@@ -92,7 +93,7 @@ export const RequirementsManagement = () => {
     }
   };
 
-  const handleCreateRequirement = async (formData: EntryRequirementFormData) => {
+  const handleCreateRequirement = async (formData: ServiceFormData) => {
     try {
       await EntryRequirementsService.createRequirement(formData);
       await fetchRequirements();
@@ -112,7 +113,7 @@ export const RequirementsManagement = () => {
     }
   };
 
-  const handleUpdateRequirement = async (id: string, formData: Partial<EntryRequirementFormData>) => {
+  const handleUpdateRequirement = async (id: string, formData: Partial<ServiceFormData>) => {
     try {
       await EntryRequirementsService.updateRequirement(id, formData);
       await fetchRequirements();
@@ -155,7 +156,7 @@ export const RequirementsManagement = () => {
   };
 
   const handleDuplicateRequirement = async (requirement: EntryRequirement) => {
-    const duplicateData: EntryRequirementFormData = {
+    const duplicateData: ServiceFormData = {
       title: `${requirement.title} (Copy)`,
       description: requirement.description,
       type: requirement.type,
@@ -202,7 +203,7 @@ export const RequirementsManagement = () => {
     onCancel 
   }: { 
     requirement?: RequirementFormData; 
-    onSave: (data: EntryRequirementFormData) => void; 
+    onSave: (data: ServiceFormData) => void; 
     onCancel: () => void; 
   }) => {
     const [formData, setFormData] = useState<RequirementFormData>({
@@ -214,7 +215,8 @@ export const RequirementsManagement = () => {
       minimum_grade: requirement?.minimum_grade || '',
       alternatives: requirement?.alternatives || [],
       category: requirement?.category || 'Custom',
-      applicable_programs: requirement?.applicable_programs || ['All Programs']
+      applicable_programs: requirement?.applicable_programs || ['All Programs'],
+      student_type: requirement?.student_type || ['All Students']
     });
 
     const addAlternative = () => {
@@ -273,16 +275,36 @@ export const RequirementsManagement = () => {
           </div>
 
           <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Checkbox
-                checked={formData.mandatory}
-                onCheckedChange={(checked) => 
-                  setFormData(prev => ({ ...prev, mandatory: !!checked }))
-                }
-              />
-              Mandatory Requirement
-            </Label>
+            <Label>Student Type</Label>
+            <Select
+              value={formData.student_type?.[0] || 'all'}
+              onValueChange={(value) => 
+                setFormData(prev => ({ 
+                  ...prev, 
+                  student_type: value === 'all' ? ['All Students'] : [value]
+                }))
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Students</SelectItem>
+                <SelectItem value="domestic">Domestic Students</SelectItem>
+                <SelectItem value="international">International Students</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            checked={formData.mandatory}
+            onCheckedChange={(checked) => 
+              setFormData(prev => ({ ...prev, mandatory: !!checked }))
+            }
+          />
+          <Label>Mandatory Requirement</Label>
         </div>
 
         <div className="space-y-2">
@@ -373,7 +395,7 @@ export const RequirementsManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>

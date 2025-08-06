@@ -58,91 +58,8 @@ export function AIEmailInbox() {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI-Powered Communication Hub</h1>
-          <p className="text-muted-foreground">
-            Intelligent email management with AI insights and automated actions
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-          </Button>
-          <Button>
-            <Brain className="h-4 w-4 mr-2" />
-            AI Actions
-          </Button>
-        </div>
-      </div>
-
-      {/* AI Insights Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Mail className="h-4 w-4 text-primary" />
-              Total Emails
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{allEmails.length}</div>
-            <p className="text-xs text-muted-foreground">
-              {unreadEmails.length} unread
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-orange-600" />
-              High Priority
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{highPriorityEmails.length}</div>
-            <p className="text-xs text-muted-foreground">
-              AI Score 80+
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Brain className="h-4 w-4 text-primary" />
-              AI Processed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">100%</div>
-            <p className="text-xs text-muted-foreground">
-              All emails analyzed
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Zap className="h-4 w-4 text-green-600" />
-              Auto Actions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">12</div>
-            <p className="text-xs text-muted-foreground">
-              Suggested today
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
+   return (
+    <div className="space-y-4">
       {/* Search and Filter */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1">
@@ -187,20 +104,19 @@ export function AIEmailInbox() {
       </div>
 
       {/* Email List and Detail View */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Email List */}
-        <div className="lg:col-span-1 space-y-3">
-          <h3 className="font-semibold text-lg">Inbox ({filteredEmails.length})</h3>
-          <div className="space-y-2 max-h-[600px] overflow-y-auto">
+        <div className="lg:col-span-1 space-y-2">
+          <div className="space-y-1 max-h-[calc(100vh-200px)] overflow-y-auto">
             {filteredEmails.map((email) => (
               <Card
                 key={email.id}
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selectedEmail === email.id ? 'ring-2 ring-primary' : ''
+                className={`cursor-pointer transition-all hover:shadow-sm ${
+                  selectedEmail === email.id ? 'ring-1 ring-primary' : ''
                 } ${!email.is_read ? 'bg-blue-50/50' : ''}`}
                 onClick={() => setSelectedEmail(email.id)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="space-y-2">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-2">

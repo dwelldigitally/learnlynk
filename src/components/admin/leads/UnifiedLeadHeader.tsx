@@ -72,154 +72,137 @@ export function UnifiedLeadHeader({
   ];
 
   return (
-    <Card className="p-4 space-y-4">
-      {/* Header Row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-muted-foreground">
-            Total: <span className="font-medium text-foreground">{getTotalLeads()}</span>
-            {selectedLeadsCount > 0 && (
-              <span className="ml-2">
-                | Selected: <span className="font-medium text-primary">{selectedLeadsCount}</span>
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={onAddLead}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Lead
-          </Button>
-        </div>
-      </div>
-
-      {/* Stage Tabs Row */}
-      <div className="flex items-center justify-between">
-        <Tabs value={activeStage} onValueChange={onStageChange} className="flex-1">
-          <TabsList className="grid w-full grid-cols-8 h-auto p-1">
-            <TabsTrigger value="all" className="flex flex-col items-center gap-1 py-2">
-              <span className="text-xs font-medium">All</span>
-              <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                {getTotalLeads()}
-              </Badge>
+    <div className="space-y-4">
+      {/* Stage Navigation with Tabs */}
+      <div className="mb-4">
+        <Tabs 
+          value={activeStage} 
+          onValueChange={onStageChange}
+        >
+          <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:grid-cols-none lg:flex h-auto">
+            <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2">
+              All ({getTotalLeads()})
             </TabsTrigger>
             {stages.map((stage) => (
-              <TabsTrigger key={stage.key} value={stage.key} className="flex flex-col items-center gap-1 py-2">
-                <div className="flex items-center gap-1">
-                  <div className={`w-2 h-2 rounded-full ${stage.color}`} />
-                  <span className="text-xs font-medium">{stage.label}</span>
-                </div>
-                <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
-                  {stage.count}
-                </Badge>
+              <TabsTrigger 
+                key={stage.key} 
+                value={stage.key}
+                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2"
+              >
+                {stage.label} ({stage.count})
               </TabsTrigger>
             ))}
           </TabsList>
         </Tabs>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-          className="ml-4"
-        >
-          <Filter className="h-4 w-4 mr-2" />
-          Filters
-        </Button>
       </div>
 
-      {/* Quick Filters Row */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          {quickFilterPresets.map((preset) => (
-            <Button
-              key={preset.label}
-              variant="outline"
-              size="sm"
-              onClick={() => onFilterChange(preset.filter)}
-              className="text-xs"
-            >
-              {preset.label}
-            </Button>
-          ))}
+      {/* Horizontal Filter Bar */}
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="text-sm text-muted-foreground">
+            <span className="font-medium text-foreground">{getTotalLeads()}</span> total leads
+          </div>
+          {selectedLeadsCount > 0 && (
+            <div className="text-sm text-primary">
+              <span className="font-medium">{selectedLeadsCount}</span> selected
+            </div>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="text-xs h-8"
+          >
+            <Filter className="w-3 h-3 mr-1" />
+            Filters
+          </Button>
         </div>
-        
-        <div className="flex items-center gap-2">
-          {/* Date Filter */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Calendar className="h-4 w-4 mr-2" />
-                Date
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-4" align="end">
-              <div className="space-y-3">
-                <div className="text-sm font-medium">Filter by Date Range</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-xs text-muted-foreground">From</label>
-                    <DatePicker
-                      date={filters.date_range?.start}
-                      onDateChange={(date) => 
-                        onFilterChange({
-                          date_range: { 
-                            start: date, 
-                            end: filters.date_range?.end || new Date() 
-                          }
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground">To</label>
-                    <DatePicker
-                      date={filters.date_range?.end}
-                      onDateChange={(date) => 
-                        onFilterChange({
-                          date_range: { 
-                            start: filters.date_range?.start || new Date(), 
-                            end: date 
-                          }
-                        })
-                      }
-                    />
-                  </div>
+      </div>
+
+      {/* Quick Filters in a clean horizontal layout */}
+      <div className="flex flex-wrap items-center gap-3 mt-4">
+        {/* Quick Filters */}
+        {quickFilterPresets.map((preset) => (
+          <Button
+            key={preset.label}
+            variant="outline"
+            size="sm"
+            className="text-xs h-8"
+            onClick={() => onFilterChange(preset.filter)}
+          >
+            {preset.label}
+          </Button>
+        ))}
+
+        {/* Date Range Filter */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="text-xs h-8">
+              <Calendar className="w-3 h-3 mr-1" />
+              Date Range
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-4" align="end">
+            <div className="space-y-3">
+              <div className="text-sm font-medium">Filter by Date Range</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-xs text-muted-foreground">From</label>
+                  <DatePicker
+                    date={filters.date_range?.start}
+                    onDateChange={(date) => 
+                      onFilterChange({
+                        date_range: { 
+                          start: date, 
+                          end: filters.date_range?.end || new Date() 
+                        }
+                      })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">To</label>
+                  <DatePicker
+                    date={filters.date_range?.end}
+                    onDateChange={(date) => 
+                      onFilterChange({
+                        date_range: { 
+                          start: filters.date_range?.start || new Date(), 
+                          end: date 
+                        }
+                      })
+                    }
+                  />
                 </div>
               </div>
-            </PopoverContent>
-          </Popover>
+            </div>
+          </PopoverContent>
+        </Popover>
 
-          {/* Program Filter */}
-          <Select
-            value={filters.program_interest?.[0] || "all"}
-            onValueChange={(value) => onFilterChange({ program_interest: value === "all" ? [] : [value] })}
-          >
-            <SelectTrigger className="w-[140px]">
-              <GraduationCap className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Program" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Programs</SelectItem>
-              {programs.map((program) => (
-                <SelectItem key={program} value={program}>
-                  {program}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Program Interest Filter */}
+        <Select 
+          value={filters.program_interest?.[0] || "all"} 
+          onValueChange={(value) => onFilterChange({ program_interest: value === "all" ? [] : [value] })}
+        >
+          <SelectTrigger className="w-36 h-8 text-xs">
+            <SelectValue placeholder="Program" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Programs</SelectItem>
+            {programs.map((program) => (
+              <SelectItem key={program} value={program}>
+                {program}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-          {Object.keys(filters).length > 0 && (
-            <Button variant="outline" size="sm" onClick={onClearFilters}>
-              <FileX className="h-4 w-4 mr-2" />
-              Clear
-            </Button>
-          )}
-        </div>
+        {/* Clear Filters */}
+        {Object.keys(filters).length > 0 && (
+          <Button variant="ghost" size="sm" onClick={onClearFilters} className="text-xs h-8">
+            Clear
+          </Button>
+        )}
       </div>
 
       {/* Advanced Filters Panel */}
@@ -301,6 +284,6 @@ export function UnifiedLeadHeader({
           </div>
         </div>
       )}
-    </Card>
+    </div>
   );
 }

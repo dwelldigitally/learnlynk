@@ -47,7 +47,7 @@ export function TopNavigationBar({
   const currentActiveSection = activeSection || getActiveSectionFromPath();
 
   return (
-    <div className="h-16 bg-background border-b border-border flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
+    <div className="h-16 bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-4 lg:px-6 sticky top-0 z-50">
       {/* Left side - Logo + Main Navigation */}
       <div className="flex items-center space-x-8">
         {/* Mobile menu button */}
@@ -66,10 +66,10 @@ export function TopNavigationBar({
 
         {/* Logo */}
         <div className="flex items-center space-x-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">W</span>
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">W</span>
           </div>
-          <span className="font-semibold text-lg hidden sm:block">WCC Admin</span>
+          <span className="font-semibold text-lg hidden sm:block text-white">WCC Admin</span>
         </div>
 
         {/* Main Navigation */}
@@ -87,8 +87,8 @@ export function TopNavigationBar({
                   variant={isActive ? "secondary" : "ghost"}
                   className={`h-10 px-4 text-sm font-medium transition-colors ${
                     isActive 
-                      ? "bg-muted text-foreground" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      ? "bg-white/20 text-white" 
+                      : "text-white/80 hover:text-white hover:bg-white/10"
                   }`}
                   onClick={() => {
                     navigate(section.items[0].href);
@@ -112,8 +112,8 @@ export function TopNavigationBar({
                   variant={isActive ? "secondary" : "ghost"}
                   className={`h-10 px-4 text-sm font-medium transition-colors ${
                     isActive 
-                      ? "bg-muted text-foreground" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                      ? "bg-white/20 text-white" 
+                      : "text-white/80 hover:text-white hover:bg-white/10"
                   }`}
                   type="button"
                 >

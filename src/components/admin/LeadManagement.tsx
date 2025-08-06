@@ -437,149 +437,128 @@ export function LeadManagement() {
     onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
     variant: 'destructive' as const
   }];
-  return <div className="min-h-screen bg-gradient-to-br from-background to-primary-light/20">
-    {/* Modern Header Section */}
-    <div className="bg-primary text-primary-foreground">
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <h1 className="text-4xl font-bold tracking-tight">Lead Management</h1>
-            <p className="text-primary-foreground/80 text-lg">Comprehensive lead generation, routing, and conversion system</p>
+  return <div className="h-full flex flex-col bg-background">
+    {/* Simple Page Header */}
+    <div className="bg-background border-b border-border">
+      <div className="px-4 lg:px-6 xl:px-8 py-6">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Lead Management</h1>
+            <p className="text-muted-foreground mt-1">
+              {totalCount} total leads • {selectedLeadIds.length} selected
+            </p>
           </div>
-          <div className="flex items-center gap-4">
+          
+          <div className="flex gap-3">
             <Button 
-              variant="secondary" 
-              size="lg"
-              onClick={() => setShowLeadForm(true)}
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm"
+              variant="outline" 
+              onClick={handleExport}
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Add Lead
+              <Download className="w-4 h-4 mr-2" />
+              Export
             </Button>
             <Button 
-              variant="secondary" 
-              size="lg"
-              onClick={handleExport}
-              className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm"
+              onClick={() => setShowLeadForm(true)}
             >
-              <Download className="w-5 h-5 mr-2" />
-              Export
+              <Plus className="w-4 h-4 mr-2" />
+              Add Lead
             </Button>
           </div>
         </div>
       </div>
     </div>
 
-    {/* Main Content Container */}
-    <div className="container mx-auto px-6 py-8 space-y-8">
-      
-      {/* Stats Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4">
-        {stageStats.map((stage) => (
-          <Card 
-            key={stage.key}
-            className={cn(
-              "cursor-pointer transition-all duration-200 hover:shadow-lg border-2",
-              activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/30"
-            )}
-            onClick={() => setActiveStage(stage.key)}
-          >
-            <CardContent className="p-4 text-center">
-              <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
-              <div className="text-2xl font-bold text-foreground">{stage.count}</div>
-              <div className="text-xs text-muted-foreground font-medium">{stage.label}</div>
-            </CardContent>
-          </Card>
-        ))}
+    {/* Stats Overview Cards */}
+    <div className="bg-background">
+      <div className="px-4 lg:px-6 xl:px-8 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
+          {stageStats.map((stage) => (
+            <Card 
+              key={stage.key}
+              className={cn(
+                "cursor-pointer transition-all duration-200 hover:shadow-md",
+                activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/20"
+              )}
+              onClick={() => setActiveStage(stage.key)}
+            >
+              <CardContent className="p-4 text-center">
+                <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
+                <div className="text-2xl font-bold text-foreground">{stage.count}</div>
+                <div className="text-xs text-muted-foreground font-medium">{stage.label}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
+    </div>
 
-      {/* Filters and Actions Bar */}
-      <Card className="shadow-sm border-border/50">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">Filters:</span>
-              </div>
-              
-              {Object.keys(filters).length > 0 && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => {
-                    setFilters({});
-                    setCurrentPage(1);
-                  }}
-                  className="text-muted-foreground border-border/50"
-                >
-                  <FileX className="w-4 h-4 mr-1" />
-                  Clear All
-                </Button>
-              )}
-              
-              {selectedLeadIds.length > 0 && (
-                <Badge variant="secondary" className="bg-primary/10 text-primary">
-                  {selectedLeadIds.length} selected
-                </Badge>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                Total: <span className="font-semibold text-foreground">{totalCount}</span> leads
-              </span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    {/* Enhanced Filters and Actions Bar */}
+    <div className="bg-background border-b border-border">
+      <div className="px-4 lg:px-6 xl:px-8 py-4">
+        <UnifiedLeadHeader
+          stages={stageStats}
+          activeStage={activeStage}
+          selectedLeadsCount={selectedLeadIds.length}
+          filters={filters}
+          programs={[]} // You might want to fetch this from your program service
+          onStageChange={setActiveStage}
+          onFilterChange={setFilters}
+          onClearFilters={() => setFilters({})}
+          onAddLead={() => setShowLeadForm(true)}
+          onExport={handleExport}
+        />
+      </div>
+    </div>
 
-      {/* Enhanced Data Table */}
-      <Card className="shadow-sm border-border/50 overflow-hidden">
-        <ConditionalDataWrapper 
-          isLoading={loading} 
-          showEmptyState={!hasDemoAccess && leads.length === 0} 
-          hasDemoAccess={hasDemoAccess || false} 
-          hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} 
-          emptyTitle="No Leads Yet" 
-          emptyDescription="Create your first lead to get started with lead management." 
-          loadingRows={5}
-        >
-          <EnhancedDataTable 
-            title="Lead Management" 
-            columns={columns} 
-            data={tableData} 
-            totalCount={totalCount} 
-            currentPage={currentPage} 
-            totalPages={totalPages} 
-            pageSize={pageSize} 
-            loading={loading} 
-            searchable={true} 
-            filterable={true} 
-            exportable={true} 
-            selectable={true} 
-            sortBy={sortBy} 
-            sortOrder={sortOrder} 
-            filterOptions={enhancedFilterOptions} 
-            quickFilters={quickFilters} 
-            selectedIds={selectedLeadIds} 
-            bulkActions={bulkActions} 
-            onPageChange={handlePageChange} 
-            onPageSizeChange={handlePageSizeChange} 
-            onSearch={handleSearch} 
-            onSort={handleSort} 
-            onFilter={handleFilter} 
-            onExport={handleExport} 
-            onRowClick={row => {
-              const lead = leads.find(l => l.id === row.id);
-              if (lead) {
-                navigate(`/admin/leads/detail/${lead.id}`);
-              }
-            }} 
-            onSelectionChange={setSelectedLeadIds} 
-          />
-        </ConditionalDataWrapper>
-      </Card>
+    {/* Main Content Area with Enhanced Data Table */}
+    <div className="flex-1 bg-background">
+      <div className="px-4 lg:px-6 xl:px-8 py-6 h-full">
+        <div className="bg-card border border-border rounded-lg shadow-sm h-full">
+          <ConditionalDataWrapper 
+            isLoading={loading} 
+            showEmptyState={!hasDemoAccess && leads.length === 0} 
+            hasDemoAccess={hasDemoAccess || false} 
+            hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} 
+            emptyTitle="No Leads Yet" 
+            emptyDescription="Create your first lead to get started with lead management." 
+            loadingRows={5}
+          >
+            <EnhancedDataTable 
+              title="Lead Management" 
+              columns={columns} 
+              data={tableData} 
+              totalCount={totalCount} 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              pageSize={pageSize} 
+              loading={loading} 
+              searchable={true} 
+              filterable={true} 
+              exportable={true} 
+              selectable={true} 
+              sortBy={sortBy} 
+              sortOrder={sortOrder} 
+              filterOptions={enhancedFilterOptions} 
+              quickFilters={quickFilters} 
+              selectedIds={selectedLeadIds} 
+              bulkActions={bulkActions} 
+              onPageChange={handlePageChange} 
+              onPageSizeChange={handlePageSizeChange} 
+              onSearch={handleSearch} 
+              onSort={handleSort} 
+              onFilter={handleFilter} 
+              onExport={handleExport} 
+              onRowClick={row => {
+                const lead = leads.find(l => l.id === row.id);
+                if (lead) {
+                  navigate(`/admin/leads/detail/${lead.id}`);
+                }
+              }} 
+              onSelectionChange={setSelectedLeadIds} 
+            />
+          </ConditionalDataWrapper>
+        </div>
+      </div>
     </div>
     {/* Modals */}
     <LeadFormModal open={showLeadForm} onOpenChange={setShowLeadForm} onLeadCreated={handleLeadCreated} />

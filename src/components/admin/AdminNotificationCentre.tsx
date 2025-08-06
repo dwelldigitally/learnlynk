@@ -147,37 +147,47 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96 p-0 z-50" align="end">
-        <div className="p-4 border-b bg-background">
+      <PopoverContent className="w-96 p-0 bg-background border border-border shadow-lg rounded-md z-50" align="end">
+        <div className="p-4 border-b border-border bg-background">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-lg font-semibold">Notifications</h3>
             <div className="flex items-center gap-2">
               {unreadCount > 0 && (
-                <Button variant="ghost" size="sm" onClick={markAllAsRead}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={markAllAsRead}
+                  className="text-sm px-3 py-2 hover:bg-muted/50 transition-colors"
+                >
                   Mark all read
                 </Button>
               )}
-              <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsOpen(false)}
+                className="hover:bg-muted/50 transition-colors"
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
           <Tabs value={selectedFilter} onValueChange={setSelectedFilter} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 text-xs">
-              <TabsTrigger value="all" className="text-xs">
+            <TabsList className="grid w-full grid-cols-5 text-xs h-8">
+              <TabsTrigger value="all" className="text-xs px-2 py-1">
                 All ({getFilterCount("all")})
               </TabsTrigger>
-              <TabsTrigger value="unread" className="text-xs">
+              <TabsTrigger value="unread" className="text-xs px-2 py-1">
                 Unread ({getFilterCount("unread")})
               </TabsTrigger>
-              <TabsTrigger value="new_lead" className="text-xs">
+              <TabsTrigger value="new_lead" className="text-xs px-2 py-1">
                 Leads ({getFilterCount("new_lead")})
               </TabsTrigger>
-              <TabsTrigger value="pending_document" className="text-xs">
+              <TabsTrigger value="pending_document" className="text-xs px-2 py-1">
                 Docs ({getFilterCount("pending_document")})
               </TabsTrigger>
-              <TabsTrigger value="task_overdue" className="text-xs">
+              <TabsTrigger value="task_overdue" className="text-xs px-2 py-1">
                 Tasks ({getFilterCount("task_overdue")})
               </TabsTrigger>
             </TabsList>
@@ -199,7 +209,7 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
                 return (
                   <div
                     key={notification.id}
-                    className={`p-3 cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/50 ${
+                    className={`px-3 py-2.5 cursor-pointer transition-colors hover:bg-muted/50 border-b border-border/50 ${
                       !isRead ? 'bg-muted/30' : ''
                     }`}
                     onClick={() => handleNotificationClick(notification)}
@@ -223,7 +233,7 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
                               )}
                               <Badge 
                                 variant="outline" 
-                                className={`text-xs px-1 py-0 ${getPriorityColor(notification.priority)}`}
+                                className={`text-xs px-2 py-1 rounded-full ${getPriorityColor(notification.priority)}`}
                               >
                                 {notification.priority}
                               </Badge>
@@ -241,10 +251,10 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-6 px-2 text-xs"
+                                  className="h-6 px-2 text-xs hover:bg-muted/50 transition-colors"
                                   onClick={(e) => markAsRead(notification.id, e)}
                                 >
-                                  <CheckCircle className="w-3 h-3 mr-1" />
+                                  <CheckCircle className="w-3 h-3 mr-1 flex-shrink-0" />
                                   Mark read
                                 </Button>
                               )}

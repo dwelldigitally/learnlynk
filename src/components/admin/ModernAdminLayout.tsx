@@ -62,7 +62,7 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
         )}
 
         {/* Main Content Area */}
-        <main className={`flex-1 w-full ${!isHomePage ? 'lg:ml-80' : ''} min-h-screen bg-background/50`}>
+        <main className="flex-1 w-full min-h-screen bg-background/50">
           <div className="h-full">
             {children || <Outlet />}
           </div>

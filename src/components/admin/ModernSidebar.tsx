@@ -21,7 +21,7 @@ import { navigationStructure } from "@/data/navigationStructure";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-
+import { AIQuickActions } from "./AIQuickActions";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface ModernSidebarProps {
@@ -187,6 +187,11 @@ export function ModernSidebar({ activeSection }: ModernSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {!collapsed && (
+          <div className="mt-4 p-2">
+            <AIQuickActions />
+          </div>
+        )}
       </SidebarContent>
     </Sidebar>
   );

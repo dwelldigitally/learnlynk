@@ -94,11 +94,11 @@ export const formElementTypes: ElementTypeConfig[] = [
 export const workflowElementTypes: ElementTypeConfig[] = [
   {
     type: 'trigger',
-    label: 'Trigger',
+    label: 'Task is completed',
     icon: 'Zap',
-    category: 'Automation',
+    category: 'Triggers',
     defaultConfig: {
-      triggerType: 'form_submission',
+      triggerType: 'task_completed',
       conditions: [],
     },
     configSchema: [
@@ -108,75 +108,61 @@ export const workflowElementTypes: ElementTypeConfig[] = [
         type: 'select',
         required: true,
         options: [
-          { label: 'Form Submission', value: 'form_submission' },
+          { label: 'Task is completed', value: 'task_completed' },
           { label: 'Lead Created', value: 'lead_created' },
           { label: 'Email Opened', value: 'email_opened' },
-          { label: 'Time Based', value: 'time_based' },
+          { label: 'Form Submitted', value: 'form_submitted' },
         ]
       },
-      { key: 'conditions', label: 'Conditions', type: 'array' },
     ],
   },
   {
-    type: 'condition',
-    label: 'Condition',
-    icon: 'GitBranch',
-    category: 'Logic',
+    type: 'send_email',
+    label: 'Send an email',
+    icon: 'Mail',
+    category: 'Sending Options',
     defaultConfig: {
-      field: '',
-      operator: 'equals',
-      value: '',
+      subject: 'Hello',
+      content: 'Email content goes here...',
+      isDraft: true,
     },
     configSchema: [
-      { key: 'field', label: 'Field', type: 'text', required: true },
-      { 
-        key: 'operator', 
-        label: 'Operator', 
-        type: 'select',
-        required: true,
-        options: [
-          { label: 'Equals', value: 'equals' },
-          { label: 'Not Equals', value: 'not_equals' },
-          { label: 'Contains', value: 'contains' },
-          { label: 'Greater Than', value: 'greater_than' },
-          { label: 'Less Than', value: 'less_than' },
-        ]
-      },
-      { key: 'value', label: 'Value', type: 'text', required: true },
+      { key: 'subject', label: 'Subject Line', type: 'text', required: true },
+      { key: 'content', label: 'Email Content', type: 'textarea', required: true },
+      { key: 'isDraft', label: 'Currently a draft', type: 'checkbox' },
     ],
   },
   {
-    type: 'action',
-    label: 'Action',
-    icon: 'Play',
-    category: 'Actions',
+    type: 'send_site_message',
+    label: 'Send a site message',
+    icon: 'MessageSquare',
+    category: 'Sending Options',
     defaultConfig: {
-      actionType: 'send_email',
-      config: {},
+      message: 'Site message content...',
     },
     configSchema: [
-      { 
-        key: 'actionType', 
-        label: 'Action Type', 
-        type: 'select',
-        required: true,
-        options: [
-          { label: 'Send Email', value: 'send_email' },
-          { label: 'Create Task', value: 'create_task' },
-          { label: 'Update Lead', value: 'update_lead' },
-          { label: 'Assign Advisor', value: 'assign_advisor' },
-        ]
-      },
-      { key: 'config', label: 'Configuration', type: 'textarea' },
+      { key: 'message', label: 'Message Content', type: 'textarea', required: true },
     ],
   },
   {
-    type: 'delay',
-    label: 'Wait/Delay',
+    type: 'send_sms',
+    label: 'Send an SMS',
+    icon: 'Phone',
+    category: 'Sending Options',
+    defaultConfig: {
+      content: 'SMS message content...',
+    },
+    configSchema: [
+      { key: 'content', label: 'SMS Content', type: 'textarea', required: true },
+    ],
+  },
+  {
+    type: 'wait',
+    label: 'Wait for 7 days',
     icon: 'Clock',
-    category: 'Timing',
+    category: 'Conditions and Workflow',
     defaultConfig: {
-      delay: { value: 1, unit: 'hours' },
+      delay: { value: 7, unit: 'days' },
     },
     configSchema: [
       { key: 'delay.value', label: 'Wait Time', type: 'number', required: true },
@@ -194,84 +180,132 @@ export const workflowElementTypes: ElementTypeConfig[] = [
       },
     ],
   },
+  {
+    type: 'wait_and_check',
+    label: 'Wait for 7 days and check if the email was opened',
+    icon: 'Eye',
+    category: 'Conditions and Workflow',
+    defaultConfig: {
+      delay: { value: 7, unit: 'days' },
+      condition: 'email_opened',
+    },
+    configSchema: [
+      { key: 'delay.value', label: 'Wait Time', type: 'number', required: true },
+      { 
+        key: 'delay.unit', 
+        label: 'Time Unit', 
+        type: 'select',
+        options: [
+          { label: 'Days', value: 'days' },
+          { label: 'Hours', value: 'hours' },
+        ]
+      },
+      { key: 'condition', label: 'Check Condition', type: 'text' },
+    ],
+  },
+  {
+    type: 'wait_and_send',
+    label: 'Wait for 7 days and send email',
+    icon: 'Send',
+    category: 'Conditions and Workflow',
+    defaultConfig: {
+      delay: { value: 7, unit: 'days' },
+      subject: 'Follow up email',
+      content: 'Follow up content...',
+    },
+    configSchema: [
+      { key: 'delay.value', label: 'Wait Time', type: 'number', required: true },
+      { key: 'subject', label: 'Email Subject', type: 'text' },
+      { key: 'content', label: 'Email Content', type: 'textarea' },
+    ],
+  },
 ];
 
 export const campaignElementTypes: ElementTypeConfig[] = [
   {
-    type: 'email',
-    label: 'Email Step',
+    type: 'email_campaign',
+    label: 'Send email campaign',
     icon: 'Mail',
     category: 'Communication',
     defaultConfig: {
-      subject: 'Email Subject',
-      content: 'Email content goes here...',
-      template: '',
+      subject: 'Campaign Email',
+      content: 'Campaign email content...',
+      audience: 'all_leads',
     },
     configSchema: [
       { key: 'subject', label: 'Subject Line', type: 'text', required: true },
       { key: 'content', label: 'Email Content', type: 'textarea', required: true },
-      { key: 'template', label: 'Template', type: 'select' },
+      { 
+        key: 'audience', 
+        label: 'Target Audience', 
+        type: 'select',
+        options: [
+          { label: 'All Leads', value: 'all_leads' },
+          { label: 'Active Leads', value: 'active_leads' },
+          { label: 'Cold Leads', value: 'cold_leads' },
+        ]
+      },
     ],
   },
   {
-    type: 'sms',
-    label: 'SMS Step',
+    type: 'sms_campaign',
+    label: 'Send SMS campaign',
     icon: 'MessageSquare',
     category: 'Communication',
     defaultConfig: {
-      content: 'SMS message content...',
+      content: 'SMS campaign message...',
+      audience: 'all_leads',
     },
     configSchema: [
       { key: 'content', label: 'SMS Content', type: 'textarea', required: true },
-    ],
-  },
-  {
-    type: 'wait',
-    label: 'Wait Step',
-    icon: 'Timer',
-    category: 'Timing',
-    defaultConfig: {
-      waitTime: { value: 1, unit: 'days' },
-    },
-    configSchema: [
-      { key: 'waitTime.value', label: 'Wait Time', type: 'number', required: true },
       { 
-        key: 'waitTime.unit', 
-        label: 'Time Unit', 
+        key: 'audience', 
+        label: 'Target Audience', 
         type: 'select',
-        required: true,
         options: [
-          { label: 'Hours', value: 'hours' },
-          { label: 'Days', value: 'days' },
-          { label: 'Weeks', value: 'weeks' },
+          { label: 'All Leads', value: 'all_leads' },
+          { label: 'Active Leads', value: 'active_leads' },
         ]
       },
     ],
   },
   {
-    type: 'condition',
-    label: 'Condition Step',
-    icon: 'GitBranch',
-    category: 'Logic',
+    type: 'audience_filter',
+    label: 'Filter audience',
+    icon: 'Filter',
+    category: 'Targeting',
     defaultConfig: {
-      field: '',
-      operator: 'equals',
-      value: '',
+      filterType: 'location',
+      filterValue: '',
     },
     configSchema: [
-      { key: 'field', label: 'Field', type: 'text', required: true },
       { 
-        key: 'operator', 
-        label: 'Operator', 
+        key: 'filterType', 
+        label: 'Filter Type', 
         type: 'select',
-        required: true,
         options: [
-          { label: 'Equals', value: 'equals' },
-          { label: 'Not Equals', value: 'not_equals' },
-          { label: 'Contains', value: 'contains' },
+          { label: 'Location', value: 'location' },
+          { label: 'Interest', value: 'interest' },
+          { label: 'Lead Score', value: 'lead_score' },
         ]
       },
-      { key: 'value', label: 'Value', type: 'text', required: true },
+      { key: 'filterValue', label: 'Filter Value', type: 'text', required: true },
+    ],
+  },
+  {
+    type: 'ab_test',
+    label: 'A/B Test',
+    icon: 'TestTube',
+    category: 'Testing',
+    defaultConfig: {
+      testName: 'Subject Line Test',
+      variantA: 'Version A',
+      variantB: 'Version B',
+    },
+    configSchema: [
+      { key: 'testName', label: 'Test Name', type: 'text', required: true },
+      { key: 'variantA', label: 'Variant A', type: 'text', required: true },
+      { key: 'variantB', label: 'Variant B', type: 'text', required: true },
     ],
   },
 ];

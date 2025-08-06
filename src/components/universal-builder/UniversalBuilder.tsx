@@ -12,6 +12,7 @@ import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
 import { ElementPalette } from './ElementPalette';
 import { CanvasArea } from './CanvasArea';
 import { PropertyPanel } from './PropertyPanel';
+import { ActionsSidebar } from './ActionsSidebar';
 import { PreviewPanel } from './PreviewPanel';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
@@ -212,13 +213,15 @@ function UniversalBuilderContent({
 
           <TabsContent value="build" className="flex-1 flex overflow-hidden m-0">
             <div className="flex-1 flex gap-4 p-4">
-              {/* Left Sidebar - Element Palette */}
-              <div className="w-64 flex-shrink-0">
-                <ElementPalette onAddElement={handleAddElement} />
-              </div>
+              {/* Left Sidebar - Element Palette (only for forms) */}
+              {state.config.type === 'form' && (
+                <div className="w-64 flex-shrink-0">
+                  <ElementPalette onAddElement={handleAddElement} />
+                </div>
+              )}
 
               {/* Center - Canvas */}
-              <div className="flex-1 overflow-auto">
+              <div className={`flex-1 overflow-auto ${state.config.type === 'form' ? '' : 'max-w-4xl mx-auto'}`}>
                 {state.isPreviewMode ? (
                   <PreviewPanel />
                 ) : (
@@ -226,9 +229,13 @@ function UniversalBuilderContent({
                 )}
               </div>
 
-              {/* Right Sidebar - Properties */}
+              {/* Right Sidebar - Properties or Actions */}
               <div className="w-80 flex-shrink-0">
-                <PropertyPanel />
+                {state.config.type === 'form' ? (
+                  <PropertyPanel />
+                ) : (
+                  <ActionsSidebar onAddElement={handleAddElement} />
+                )}
               </div>
             </div>
           </TabsContent>

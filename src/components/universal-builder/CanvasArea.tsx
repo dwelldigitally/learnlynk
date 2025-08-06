@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { UniversalElement } from '@/types/universalBuilder';
 import { ElementRenderer } from './ElementRenderer';
+import { FlowCanvas } from './FlowCanvas';
 import { Plus, Trash2, Copy } from 'lucide-react';
 
 interface CanvasAreaProps {
@@ -14,6 +15,11 @@ interface CanvasAreaProps {
 
 export function CanvasArea({ onAddElement }: CanvasAreaProps) {
   const { state, dispatch } = useBuilder();
+
+  // Use FlowCanvas for workflows and campaigns
+  if (state.config.type === 'workflow' || state.config.type === 'campaign') {
+    return <FlowCanvas onAddElement={onAddElement} />;
+  }
 
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;

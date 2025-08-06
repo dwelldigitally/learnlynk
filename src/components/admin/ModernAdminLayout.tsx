@@ -38,8 +38,9 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
-  // Check if we're on the home page
+  // Check if we're on the home page or configuration pages
   const isHomePage = location.pathname === '/admin';
+  const isConfigurationPage = location.pathname.startsWith('/admin/configuration');
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -52,8 +53,8 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
 
       {/* Main Layout: Sidebar + Content */}
       <div className="flex flex-1 relative">
-        {/* Dynamic Sidebar - Hide on home page */}
-        {!isHomePage && (
+        {/* Dynamic Sidebar - Hide on home page and configuration pages */}
+        {!isHomePage && !isConfigurationPage && (
           <DynamicSidebar
             activeSection={currentActiveSection}
             isOpen={sidebarOpen}

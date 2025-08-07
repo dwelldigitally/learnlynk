@@ -38,6 +38,8 @@ import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementS
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
 import AIEmailManagementPage from "./AIEmailManagementPage";
+import RecruiterManagement from "@/components/admin/RecruiterManagement";
+import RecruiterApplicationsManagement from "@/components/admin/RecruiterApplicationsManagement";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -131,6 +133,10 @@ const AdminDashboard: React.FC = () => {
         return <ReportsManagement />;
       case "/admin/company":
         return <CompanySettings />;
+      case "/admin/recruiters":
+        return <RecruiterManagement />;
+      case "/admin/recruiter-applications":
+        return <RecruiterApplicationsManagement />;
       default:
         return <AdminOverview />;
     }

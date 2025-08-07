@@ -11,11 +11,12 @@ import {
   User, Mail, Phone, MapPin, Edit, Save, X, 
   Calendar, MessageSquare, Users, Target,
   Building, Clock, Star, Tag, Brain, TrendingUp,
-  AlertTriangle, CheckCircle, Pause, Activity
+  AlertTriangle, CheckCircle, Pause, Activity, Video
 } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
+import { AIVideoModal } from './AIVideoModal';
 
 interface EnhancedLeadSidebarProps {
   lead: Lead;
@@ -37,6 +38,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
     city: lead.city || ''
   });
   const [saving, setSaving] = useState(false);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const { toast } = useToast();
 
   const handleSave = async () => {
@@ -258,7 +260,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
         </div>
       </div>
 
-      {/* Quick Actions Section */}
+      {/* Quick Actions Section with AI Video Integration */}
       <div className="p-6 border-b border-border">
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
           <MessageSquare className="h-4 w-4 text-green-500" />
@@ -284,9 +286,14 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               SMS
             </Button>
             
-            <Button variant="outline" size="sm" className="w-full justify-start">
-              <Calendar className="h-4 w-4 mr-2" />
-              Schedule Meeting
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-full justify-start bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 border-blue-200"
+              onClick={() => setIsVideoModalOpen(true)}
+            >
+              <Video className="h-4 w-4 mr-2 text-blue-600" />
+              AI Video Meeting
             </Button>
           </div>
           
@@ -498,6 +505,14 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
           </div>
         </div>
       )}
+
+      {/* AI Video Modal */}
+      <AIVideoModal 
+        isOpen={isVideoModalOpen}
+        onClose={() => setIsVideoModalOpen(false)}
+        leadName={`${lead.first_name} ${lead.last_name}`}
+        leadEmail={lead.email}
+      />
     </div>
   );
 }

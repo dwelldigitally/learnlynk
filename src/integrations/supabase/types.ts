@@ -880,6 +880,51 @@ export type Database = {
         }
         Relationships: []
       }
+      configuration_metadata: {
+        Row: {
+          category: string
+          created_at: string
+          data_type: string
+          description: string | null
+          id: string
+          is_encrypted: boolean | null
+          is_system_setting: boolean | null
+          key: string
+          updated_at: string
+          user_id: string
+          validation_rules: Json | null
+          value: Json
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          data_type: string
+          description?: string | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_system_setting?: boolean | null
+          key: string
+          updated_at?: string
+          user_id: string
+          validation_rules?: Json | null
+          value: Json
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          data_type?: string
+          description?: string | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_system_setting?: boolean | null
+          key?: string
+          updated_at?: string
+          user_id?: string
+          validation_rules?: Json | null
+          value?: Json
+        }
+        Relationships: []
+      }
       custom_fields: {
         Row: {
           created_at: string
@@ -1952,6 +1997,462 @@ export type Database = {
           },
         ]
       }
+      master_call_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_estimate: number | null
+          follow_up_required: boolean | null
+          id: string
+          is_active: boolean | null
+          name: string
+          template_notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_estimate?: number | null
+          follow_up_required?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          template_notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_estimate?: number | null
+          follow_up_required?: boolean | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          template_notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_campuses: {
+        Row: {
+          address: string | null
+          capacity: number | null
+          city: string | null
+          code: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          facilities: string[] | null
+          id: string
+          is_active: boolean | null
+          name: string
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          capacity?: number | null
+          city?: string | null
+          code?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          facilities?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          capacity?: number | null
+          city?: string | null
+          code?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          facilities?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      master_communication_templates: {
+        Row: {
+          category: string | null
+          conditional_logic: Json | null
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_system_template: boolean | null
+          name: string
+          subject: string | null
+          tags: string[] | null
+          type: string
+          updated_at: string
+          usage_count: number | null
+          user_id: string
+          variables: Json | null
+        }
+        Insert: {
+          category?: string | null
+          conditional_logic?: Json | null
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_system_template?: boolean | null
+          name: string
+          subject?: string | null
+          tags?: string[] | null
+          type: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id: string
+          variables?: Json | null
+        }
+        Update: {
+          category?: string | null
+          conditional_logic?: Json | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_system_template?: boolean | null
+          name?: string
+          subject?: string | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      master_document_templates: {
+        Row: {
+          accepted_formats: string[] | null
+          applicable_programs: string[] | null
+          category: string | null
+          created_at: string
+          description: string | null
+          examples: string[] | null
+          id: string
+          instructions: string | null
+          is_active: boolean | null
+          is_system_template: boolean | null
+          mandatory: boolean | null
+          max_size: number | null
+          name: string
+          stage: string
+          type: string
+          updated_at: string
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          accepted_formats?: string[] | null
+          applicable_programs?: string[] | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          examples?: string[] | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          is_system_template?: boolean | null
+          mandatory?: boolean | null
+          max_size?: number | null
+          name: string
+          stage: string
+          type: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          accepted_formats?: string[] | null
+          applicable_programs?: string[] | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          examples?: string[] | null
+          id?: string
+          instructions?: string | null
+          is_active?: boolean | null
+          is_system_template?: boolean | null
+          mandatory?: boolean | null
+          max_size?: number | null
+          name?: string
+          stage?: string
+          type?: string
+          updated_at?: string
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_lead_priorities: {
+        Row: {
+          auto_assignment_rules: Json | null
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          level: number
+          name: string
+          sla_hours: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_assignment_rules?: Json | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level: number
+          name: string
+          sla_hours?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_assignment_rules?: Json | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number
+          name?: string
+          sla_hours?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_lead_statuses: {
+        Row: {
+          auto_transition_rules: Json | null
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          order_index: number | null
+          stage: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_transition_rules?: Json | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          order_index?: number | null
+          stage: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_transition_rules?: Json | null
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          order_index?: number | null
+          stage?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_marketing_sources: {
+        Row: {
+          category: string
+          conversion_rate: number | null
+          cost_per_lead: number | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          tracking_parameters: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          conversion_rate?: number | null
+          cost_per_lead?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          tracking_parameters?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          conversion_rate?: number | null
+          cost_per_lead?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          tracking_parameters?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_notification_filters: {
+        Row: {
+          conditions: Json | null
+          created_at: string
+          event_types: string[]
+          frequency: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          recipients: Json | null
+          template_id: string | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string
+          event_types: string[]
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          recipients?: Json | null
+          template_id?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string
+          event_types?: string[]
+          frequency?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          recipients?: Json | null
+          template_id?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_programs: {
+        Row: {
+          campus: string | null
+          category: string | null
+          code: string | null
+          color: string | null
+          created_at: string
+          delivery_method: string | null
+          description: string | null
+          document_requirements: Json | null
+          duration: string | null
+          entry_requirements: Json | null
+          fee_structure: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          status: string | null
+          tags: string[] | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campus?: string | null
+          category?: string | null
+          code?: string | null
+          color?: string | null
+          created_at?: string
+          delivery_method?: string | null
+          description?: string | null
+          document_requirements?: Json | null
+          duration?: string | null
+          entry_requirements?: Json | null
+          fee_structure?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          status?: string | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campus?: string | null
+          category?: string | null
+          code?: string | null
+          color?: string | null
+          created_at?: string
+          delivery_method?: string | null
+          description?: string | null
+          document_requirements?: Json | null
+          duration?: string | null
+          entry_requirements?: Json | null
+          fee_structure?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          status?: string | null
+          tags?: string[] | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       master_records: {
         Row: {
           city: string | null
@@ -2036,6 +2537,168 @@ export type Database = {
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+        }
+        Relationships: []
+      }
+      master_requirements: {
+        Row: {
+          applicable_programs: string[] | null
+          category: string | null
+          created_at: string
+          description: string | null
+          documentation_required: string[] | null
+          id: string
+          is_active: boolean | null
+          is_mandatory: boolean | null
+          maximum_value: string | null
+          minimum_value: string | null
+          name: string
+          type: string
+          units: string | null
+          updated_at: string
+          user_id: string
+          verification_method: string | null
+        }
+        Insert: {
+          applicable_programs?: string[] | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          documentation_required?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          is_mandatory?: boolean | null
+          maximum_value?: string | null
+          minimum_value?: string | null
+          name: string
+          type: string
+          units?: string | null
+          updated_at?: string
+          user_id: string
+          verification_method?: string | null
+        }
+        Update: {
+          applicable_programs?: string[] | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          documentation_required?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          is_mandatory?: boolean | null
+          maximum_value?: string | null
+          minimum_value?: string | null
+          name?: string
+          type?: string
+          units?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_method?: string | null
+        }
+        Relationships: []
+      }
+      master_stages: {
+        Row: {
+          automation_triggers: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          required_fields: string[] | null
+          stage_description: string | null
+          stage_key: string
+          stage_name: string
+          stage_type: string
+          substages: Json | null
+          transition_rules: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          automation_triggers?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          required_fields?: string[] | null
+          stage_description?: string | null
+          stage_key: string
+          stage_name: string
+          stage_type: string
+          substages?: Json | null
+          transition_rules?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          automation_triggers?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          required_fields?: string[] | null
+          stage_description?: string | null
+          stage_key?: string
+          stage_name?: string
+          stage_type?: string
+          substages?: Json | null
+          transition_rules?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      master_teams: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          max_daily_assignments: number | null
+          name: string
+          performance_metrics: Json | null
+          region: string | null
+          specializations: string[] | null
+          type: string
+          updated_at: string
+          user_id: string
+          working_hours: Json | null
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_daily_assignments?: number | null
+          name: string
+          performance_metrics?: Json | null
+          region?: string | null
+          specializations?: string[] | null
+          type: string
+          updated_at?: string
+          user_id: string
+          working_hours?: Json | null
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_daily_assignments?: number | null
+          name?: string
+          performance_metrics?: Json | null
+          region?: string | null
+          specializations?: string[] | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          working_hours?: Json | null
         }
         Relationships: []
       }

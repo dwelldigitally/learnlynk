@@ -9,7 +9,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, metadata?: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
-  signInWithOAuth: (provider: 'google') => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google' | 'azure') => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -81,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signInWithOAuth = async (provider: 'google') => {
+  const signInWithOAuth = async (provider: 'google' | 'azure') => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {

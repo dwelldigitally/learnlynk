@@ -273,16 +273,16 @@ export const ApplicantManagement = () => {
               />
             </div>
             <Select
-              value={filters.substage?.[0] || ''}
+              value={filters.substage?.[0] || 'all'}
               onValueChange={(value) =>
-                setFilters({ ...filters, substage: value ? [value as any] : undefined })
+                setFilters({ ...filters, substage: value === 'all' ? undefined : [value as any] })
               }
             >
               <SelectTrigger className="w-48">
                 <SelectValue placeholder="Filter by stage" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Stages</SelectItem>
+                <SelectItem value="all">All Stages</SelectItem>
                 <SelectItem value="application_started">Application Started</SelectItem>
                 <SelectItem value="documents_submitted">Documents Submitted</SelectItem>
                 <SelectItem value="under_review">Under Review</SelectItem>

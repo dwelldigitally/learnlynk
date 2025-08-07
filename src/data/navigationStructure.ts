@@ -85,17 +85,7 @@ export const navigationStructure: NavigationStructure = {
       name: "Configuration",
       icon: Settings,
       items: [
-        { name: "Stage Configuration", href: "/admin/configuration", icon: Settings },
-        { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
-        { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
-        { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },
-        { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
-        { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
-        { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
-        { name: "Lead Routing Rules", href: "/admin/configuration/routing", icon: Route },
-        { name: "Lead Scoring Engine", href: "/admin/configuration/scoring", icon: Target },
-        { name: "Company Profile", href: "/admin/configuration/company", icon: Briefcase },
-        { name: "System Settings", href: "/admin/configuration/system", icon: Cog }
+        { name: "System Configuration", href: "/admin/configuration", icon: Settings }
       ]
     },
     {

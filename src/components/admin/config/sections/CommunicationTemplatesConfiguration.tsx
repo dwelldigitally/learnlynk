@@ -64,9 +64,31 @@ export const CommunicationTemplatesConfiguration = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Validate required fields
+      if (!formData.name?.trim()) {
+        toast({
+          title: "Error",
+          description: "Template name is required",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      if (!formData.content?.trim()) {
+        toast({
+          title: "Error",
+          description: "Template content is required",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const templateData = {
         ...formData,
-        user_id: user.id
+        user_id: user.id,
+        name: formData.name.trim(),
+        content: formData.content.trim(),
+        type: formData.type || 'email'
       };
 
       if (editingTemplate) {
@@ -247,7 +269,7 @@ export const CommunicationTemplatesConfiguration = () => {
                 rows={8}
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Use {{variable_name}} for dynamic content
+                Use double curly braces for dynamic content like: {`{{first_name}}, {{program_name}}, {{due_date}}`}
               </p>
             </div>
 

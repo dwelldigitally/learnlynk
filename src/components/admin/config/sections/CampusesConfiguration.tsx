@@ -64,9 +64,20 @@ export const CampusesConfiguration = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Validate required fields
+      if (!formData.name?.trim()) {
+        toast({
+          title: "Error",
+          description: "Campus name is required",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const campusData = {
         ...formData,
-        user_id: user.id
+        user_id: user.id,
+        name: formData.name.trim()
       };
 
       if (editingCampus) {

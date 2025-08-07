@@ -301,7 +301,7 @@ export const EnhancedConfigurationManagement = () => {
                 <div key={category}>
                   {(!selectedCategory || selectedCategory === category) && (
                     <>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2 px-2">
+                      <h3 className="text-sm font-medium text-muted-foreground mb-2 px-2 truncate">
                         {category}
                       </h3>
                       {categoryItems.map((section) => {
@@ -310,26 +310,26 @@ export const EnhancedConfigurationManagement = () => {
                           <Button
                             key={section.id}
                             variant={activeSection === section.id ? "default" : "ghost"}
-                            className="w-full justify-start h-auto p-3 mb-2"
+                            className="w-full justify-start h-auto p-3 mb-2 text-left"
                             onClick={() => setActiveSection(section.id)}
                           >
-                            <div className="flex items-start gap-3 w-full">
+                            <div className="flex items-start gap-3 w-full min-w-0">
                               <IconComponent className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 text-left">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-medium">{section.label}</span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="font-medium truncate">{section.label}</span>
                                   {section.isNew && (
-                                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
+                                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5 flex-shrink-0">
                                       New
                                     </Badge>
                                   )}
                                   {section.badge && (
-                                    <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                                    <Badge variant="outline" className="text-xs px-1.5 py-0.5 flex-shrink-0">
                                       {section.badge}
                                     </Badge>
                                   )}
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1">
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                   {section.description}
                                 </p>
                               </div>

@@ -58,9 +58,21 @@ export const LeadPrioritiesConfiguration = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
+      // Validate required fields
+      if (!formData.name?.trim()) {
+        toast({
+          title: "Error",
+          description: "Priority name is required",
+          variant: "destructive"
+        });
+        return;
+      }
+
       const priorityData = {
         ...formData,
-        user_id: user.id
+        user_id: user.id,
+        name: formData.name.trim(),
+        level: formData.level || 3
       };
 
       if (editingPriority) {

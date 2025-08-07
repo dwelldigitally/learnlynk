@@ -272,10 +272,15 @@ export function LeadAIFeatures() {
         <AISmartCommunication lead={mockLead} />
       </div>
 
-      {/* Intelligent Management */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Intelligent Management</h3>
-        <AIIntelligentManagement />
+      {/* Note: Intelligent Management moved to Configuration */}
+      <div className="p-6 bg-muted rounded-lg text-center">
+        <h3 className="text-lg font-semibold mb-2">Intelligence Configuration</h3>
+        <p className="text-muted-foreground mb-4">
+          AI Intelligence features have been moved to the Configuration section for better organization.
+        </p>
+        <Button variant="outline" onClick={() => window.location.href = '/admin/configuration'}>
+          Go to Configuration
+        </Button>
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ import {
   Building2, MapPin, TrendingUp, Phone, Mail, 
   FileText, ClipboardList, AlertTriangle, Calendar,
   CreditCard, Upload, Target, MessageSquare, Video,
-  Megaphone, GitBranch, Zap, Search
+  Megaphone, GitBranch, Zap, Search, Brain, GraduationCap
 } from "lucide-react";
 
 // Import configuration components
@@ -33,6 +33,7 @@ import { NotificationFiltersConfiguration } from './sections/NotificationFilters
 import { RoutingConfiguration } from './sections/RoutingConfiguration';
 import { CompanyProfileConfiguration } from './sections/CompanyProfileConfiguration';
 import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
+import { LeadConfiguration } from './LeadConfiguration';
 
 interface ConfigurationSection {
   id: string;
@@ -46,13 +47,43 @@ interface ConfigurationSection {
 }
 
 const configurationSections: ConfigurationSection[] = [
-  // Data & Database
+  // Leads Configuration
+  {
+    id: 'lead-intelligence',
+    label: 'Intelligence & AI',
+    icon: Brain,
+    description: 'Configure Agentic AI, routing rules, and scoring algorithms',
+    category: 'Leads',
+    component: <LeadConfiguration />
+  },
+  
+  // Students Configuration  
+  {
+    id: 'student-management',
+    label: 'Student Management',
+    icon: GraduationCap,
+    description: 'Configure student lifecycle and management settings',
+    category: 'Students',
+    component: <div className="p-8 text-center text-muted-foreground">Student configuration coming soon</div>
+  },
+  
+  // Applicants Configuration
+  {
+    id: 'applicant-management', 
+    label: 'Applicant Management',
+    icon: FileText,
+    description: 'Configure application process and requirements',
+    category: 'Applicants',
+    component: <div className="p-8 text-center text-muted-foreground">Applicant configuration coming soon</div>
+  },
+
+  // System - Data & Database
   {
     id: 'stages',
     label: 'Stages & Substages',
     icon: Workflow,
     description: 'Configure lead, applicant, and student stages with substages',
-    category: 'Data & Database',
+    category: 'System',
     component: <StageManagement />
   },
   {
@@ -60,7 +91,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Custom Fields',
     icon: Database,
     description: 'Manage custom fields for each stage',
-    category: 'Data & Database',
+    category: 'System',
     component: <CustomFieldsManagement />
   },
   {
@@ -68,7 +99,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Programs',
     icon: Building2,
     description: 'Manage academic programs and their configurations',
-    category: 'Data & Database',
+    category: 'System',
     component: <ProgramsConfiguration />,
     isNew: true
   },
@@ -77,7 +108,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Campuses',
     icon: MapPin,
     description: 'Configure campus locations and facilities',
-    category: 'Data & Database',
+    category: 'System',
     component: <CampusesConfiguration />,
     isNew: true
   },
@@ -86,36 +117,18 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Marketing Sources',
     icon: TrendingUp,
     description: 'Track and manage lead sources',
-    category: 'Data & Database',
+    category: 'System',
     component: <MarketingSourcesConfiguration />,
     isNew: true
   },
-  {
-    id: 'lead-statuses',
-    label: 'Lead Statuses',
-    icon: Target,
-    description: 'Configure lead status options',
-    category: 'Data & Database',
-    component: <LeadStatusesConfiguration />,
-    isNew: true
-  },
-  {
-    id: 'lead-priorities',
-    label: 'Lead Priorities',
-    icon: AlertTriangle,
-    description: 'Set up lead priority levels and SLAs',
-    category: 'Data & Database',
-    component: <LeadPrioritiesConfiguration />,
-    isNew: true
-  },
   
-  // Communication & Templates
+  // System - Communication & Templates
   {
     id: 'communication-templates',
     label: 'Communication Templates',
     icon: MessageSquare,
     description: 'Email, SMS, and meeting templates',
-    category: 'Communication',
+    category: 'System',
     component: <CommunicationTemplatesConfiguration />,
     isNew: true
   },
@@ -124,7 +137,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Document Templates',
     icon: FileText,
     description: 'Document requirements and templates',
-    category: 'Communication',
+    category: 'System',
     component: <DocumentTemplatesConfiguration />,
     isNew: true
   },
@@ -133,7 +146,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Call Types',
     icon: Phone,
     description: 'Configure call categories and templates',
-    category: 'Communication',
+    category: 'System',
     component: <CallTypesConfiguration />,
     isNew: true
   },
@@ -142,7 +155,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Notification Filters',
     icon: Filter,
     description: 'Configure notification rules and filters',
-    category: 'Communication',
+    category: 'System',
     component: <NotificationFiltersConfiguration />,
     isNew: true
   },
@@ -151,18 +164,18 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Requirements',
     icon: ClipboardList,
     description: 'Academic and entry requirements',
-    category: 'Communication',
+    category: 'System',
     component: <RequirementsConfiguration />,
     isNew: true
   },
 
-  // Team Management
+  // System - Team Management
   {
     id: 'internal-teams',
     label: 'Internal Teams',
     icon: Users,
     description: 'Configure internal team assignments',
-    category: 'Team Management',
+    category: 'System',
     component: <TeamManagement />
   },
   {
@@ -170,7 +183,7 @@ const configurationSections: ConfigurationSection[] = [
     label: 'External Recruiters',
     icon: Users,
     description: 'Manage external recruiter teams',
-    category: 'Team Management',
+    category: 'System',
     component: <TeamsConfiguration />,
     isNew: true
   },
@@ -179,80 +192,36 @@ const configurationSections: ConfigurationSection[] = [
     label: 'Routing Rules',
     icon: GitBranch,
     description: 'Configure lead routing and team assignment rules',
-    category: 'Team Management',
+    category: 'System',
     component: <RoutingConfiguration />,
     isNew: true
   },
 
-  // Company Profile
+  // System - Company & Integrations
   {
     id: 'company-profile',
     label: 'Company Profile',
     icon: Building2,
     description: 'Manage company information, branding, and contact details',
-    category: 'Company Settings',
+    category: 'System',
     component: <CompanyProfileConfiguration />,
     isNew: true
   },
-
-  // Process Management
-  {
-    id: 'workflows',
-    label: 'Workflow Rules',
-    icon: GitBranch,
-    description: 'Set up automated stage transitions and rules',
-    category: 'Process Management',
-    component: <div className="p-6 text-center text-muted-foreground">Workflow rules coming soon...</div>
-  },
-  {
-    id: 'campaigns',
-    label: 'Campaigns',
-    icon: Megaphone,
-    description: 'Marketing campaign configurations',
-    category: 'Process Management',
-    component: <div className="p-6 text-center text-muted-foreground">Campaign configuration coming soon...</div>
-  },
-  {
-    id: 'events',
-    label: 'Events',
-    icon: Calendar,
-    description: 'Event types and templates',
-    category: 'Process Management',
-    component: <div className="p-6 text-center text-muted-foreground">Event configuration coming soon...</div>
-  },
-
-  // Integration
   {
     id: 'external-integrations',
     label: 'External Integrations',
     icon: Zap,
     description: 'Connect with external services and APIs',
-    category: 'Integration',
+    category: 'System',
     component: <EnhancedIntegrationHub />,
     isNew: true
-  },
-  {
-    id: 'intake-dates',
-    label: 'Intake Dates',
-    icon: Calendar,
-    description: 'Program intake scheduling',
-    category: 'Integration',
-    component: <div className="p-6 text-center text-muted-foreground">Intake configuration coming soon...</div>
-  },
-  {
-    id: 'payment-forms',
-    label: 'Payment Forms',
-    icon: CreditCard,
-    description: 'Payment form configurations',
-    category: 'Integration',
-    component: <div className="p-6 text-center text-muted-foreground">Payment forms coming soon...</div>
   },
   {
     id: 'automation',
     label: 'Automation',
     icon: Workflow,
     description: 'Automated processes and triggers',
-    category: 'Integration',
+    category: 'System',
     component: <div className="p-6 text-center text-muted-foreground">Automation configuration coming soon...</div>
   }
 ];

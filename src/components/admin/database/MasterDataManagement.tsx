@@ -48,6 +48,8 @@ export const MasterDataManagement = () => {
         { id: '4', name: 'Portfolio', description: 'Design or project portfolio', type: 'Creative', is_required: false }
       ]);
 
+      console.log('Master data loaded:', { campuses: campuses.length, paymentTypes: paymentTypes.length, requirements: requirements.length });
+      
       toast({
         title: "Success",
         description: "Master data loaded successfully",

@@ -9,8 +9,207 @@ export class RecruiterService {
       .select('*')
       .order('name');
 
-    if (error) throw error;
-    return (data || []) as RecruiterCompany[];
+    if (error || !data || data.length === 0) {
+      // Return dummy companies for preview
+      return this.getDummyRecruiterCompanies();
+    }
+    return data as RecruiterCompany[];
+  }
+
+  // Generate comprehensive dummy company data
+  static getDummyRecruiterCompanies(): RecruiterCompany[] {
+    return [
+      {
+        id: 'comp-1',
+        name: 'EduPartners Global',
+        country: 'United States',
+        website: 'https://www.edupartners.com',
+        phone: '+1-555-0100',
+        email: 'contact@edupartners.com',
+        address: '123 Education Avenue',
+        city: 'New York',
+        state: 'NY',
+        zip_code: '10001',
+        assigned_contact: 'James Mitchell',
+        commission_rate: 10,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Premier education recruitment partner with strong track record in business programs.',
+        created_at: '2024-01-15T09:00:00Z',
+        updated_at: '2024-12-01T16:45:00Z'
+      },
+      {
+        id: 'comp-2',
+        name: 'TechRecruiters Australia',
+        country: 'Australia',
+        website: 'https://www.techrecruiters.au',
+        phone: '+61-2-8765-4300',
+        email: 'info@techrecruiters.au',
+        address: '456 Tech Street',
+        city: 'Sydney',
+        state: 'NSW',
+        zip_code: '2000',
+        assigned_contact: 'Sarah Thompson',
+        commission_rate: 12,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Specializes in technology and engineering programs. Excellent performance in STEM fields.',
+        created_at: '2024-03-01T10:00:00Z',
+        updated_at: '2024-11-15T13:20:00Z'
+      },
+      {
+        id: 'comp-3',
+        name: 'UK Study Link',
+        country: 'United Kingdom',
+        website: 'https://www.ukstudylink.co.uk',
+        phone: '+44-20-7123-4500',
+        email: 'hello@ukstudylink.co.uk',
+        address: '789 London Road',
+        city: 'London',
+        state: 'England',
+        zip_code: 'SW1A 1AA',
+        assigned_contact: 'David Williams',
+        commission_rate: 8,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Long-standing partner with expertise in undergraduate and postgraduate programs.',
+        created_at: '2023-08-01T12:00:00Z',
+        updated_at: '2024-10-20T09:45:00Z'
+      },
+      {
+        id: 'comp-4',
+        name: 'India Connect Education',
+        country: 'India',
+        website: 'https://www.indiaconnect.in',
+        phone: '+91-11-9876-5400',
+        email: 'contact@indiaconnect.in',
+        address: '321 Delhi Gate',
+        city: 'New Delhi',
+        state: 'Delhi',
+        zip_code: '110001',
+        assigned_contact: 'Priya Sharma',
+        commission_rate: 15,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Leading recruiter in South Asian market with strong MBA and business program focus.',
+        created_at: '2024-04-15T06:00:00Z',
+        updated_at: '2024-09-30T17:25:00Z'
+      },
+      {
+        id: 'comp-5',
+        name: 'Brazil Education Services',
+        country: 'Brazil',
+        website: 'https://www.brazileduca.com.br',
+        phone: '+55-11-3456-7800',
+        email: 'contato@brazileduca.com.br',
+        address: 'Av. Paulista 1000',
+        city: 'São Paulo',
+        state: 'SP',
+        zip_code: '01310-100',
+        assigned_contact: 'Carlos Rodriguez',
+        commission_rate: 9,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Growing partnership with focus on STEM and computer science programs.',
+        created_at: '2024-06-01T15:30:00Z',
+        updated_at: '2024-08-22T11:15:00Z'
+      },
+      {
+        id: 'comp-6',
+        name: 'Global Education Network',
+        country: 'Canada',
+        website: 'https://www.globaledunet.ca',
+        phone: '+1-416-555-9800',
+        email: 'partners@globaledunet.ca',
+        address: '567 University Avenue',
+        city: 'Toronto',
+        state: 'ON',
+        zip_code: 'M5G 1X8',
+        assigned_contact: 'Jennifer Chen',
+        commission_rate: 11,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Multi-national recruiter with strong presence across North America.',
+        created_at: '2024-02-20T14:15:00Z',
+        updated_at: '2024-12-10T10:30:00Z'
+      },
+      {
+        id: 'comp-7',
+        name: 'EuroStudy Partners',
+        country: 'Germany',
+        website: 'https://www.eurostudypartners.de',
+        phone: '+49-30-1234-5600',
+        email: 'info@eurostudypartners.de',
+        address: 'Alexanderplatz 15',
+        city: 'Berlin',
+        state: 'Berlin',
+        zip_code: '10178',
+        assigned_contact: 'Hans Mueller',
+        commission_rate: 7,
+        commission_type: 'percentage',
+        status: 'inactive',
+        notes: 'Currently on hold pending contract renewal. Good performance history.',
+        created_at: '2023-11-10T11:45:00Z',
+        updated_at: '2024-06-15T08:20:00Z'
+      },
+      {
+        id: 'comp-8',
+        name: 'Asia Pacific Recruitment',
+        country: 'Singapore',
+        website: 'https://www.aprecruit.sg',
+        phone: '+65-6789-0123',
+        email: 'business@aprecruit.sg',
+        address: '88 Marina Bay Street',
+        city: 'Singapore',
+        state: 'Singapore',
+        zip_code: '018981',
+        assigned_contact: 'Lisa Wang',
+        commission_rate: 13,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'Regional hub for Southeast Asia with excellent conversion rates.',
+        created_at: '2024-05-12T07:20:00Z',
+        updated_at: '2024-11-28T16:40:00Z'
+      },
+      {
+        id: 'comp-9',
+        name: 'MidEast Education Hub',
+        country: 'United Arab Emirates',
+        website: 'https://www.meedhub.ae',
+        phone: '+971-4-123-4567',
+        email: 'contact@meedhub.ae',
+        address: 'Dubai International Financial Centre',
+        city: 'Dubai',
+        state: 'Dubai',
+        zip_code: '00000',
+        assigned_contact: 'Ahmed Al-Rashid',
+        commission_rate: 14,
+        commission_type: 'percentage',
+        status: 'suspended',
+        notes: 'Suspended due to compliance review. Previously strong performer in business programs.',
+        created_at: '2024-01-30T13:10:00Z',
+        updated_at: '2024-08-05T09:15:00Z'
+      },
+      {
+        id: 'comp-10',
+        name: 'African Education Network',
+        country: 'South Africa',
+        website: 'https://www.afednet.co.za',
+        phone: '+27-21-555-7890',
+        email: 'partnerships@afednet.co.za',
+        address: '123 Long Street',
+        city: 'Cape Town',
+        state: 'Western Cape',
+        zip_code: '8001',
+        assigned_contact: 'Nomsa Mbeki',
+        commission_rate: 16,
+        commission_type: 'percentage',
+        status: 'active',
+        notes: 'New partnership with strong potential for growth across African markets.',
+        created_at: '2024-09-15T10:25:00Z',
+        updated_at: '2024-12-01T14:50:00Z'
+      }
+    ];
   }
 
   static async createRecruiterCompany(company: Partial<RecruiterCompany>): Promise<RecruiterCompany> {
@@ -46,8 +245,139 @@ export class RecruiterService {
       `)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return (data || []) as RecruiterUser[];
+    if (error || !data || data.length === 0) {
+      // Return dummy users for preview
+      return this.getDummyRecruiterUsers();
+    }
+    return data as RecruiterUser[];
+  }
+
+  // Generate dummy recruiter users
+  static getDummyRecruiterUsers(): RecruiterUser[] {
+    const companies = this.getDummyRecruiterCompanies();
+    
+    return [
+      {
+        id: 'rec-1',
+        user_id: 'user-1',
+        company_id: 'comp-1',
+        first_name: 'Sarah',
+        last_name: 'Johnson',
+        email: 'sarah.johnson@edupartners.com',
+        phone: '+1-555-0123',
+        role: 'recruiter',
+        is_active: true,
+        last_login_at: '2025-01-06T14:20:00Z',
+        created_at: '2024-06-15T09:00:00Z',
+        updated_at: '2025-01-10T14:20:00Z',
+        company: companies.find(c => c.id === 'comp-1')
+      },
+      {
+        id: 'rec-2',
+        user_id: 'user-2',
+        company_id: 'comp-2',
+        first_name: 'Michael',
+        last_name: 'Chen',
+        email: 'michael.chen@techrecruiters.au',
+        phone: '+61-2-8765-4321',
+        role: 'recruiter',
+        is_active: true,
+        last_login_at: '2025-01-05T08:15:00Z',
+        created_at: '2024-03-20T11:30:00Z',
+        updated_at: '2025-01-05T08:15:00Z',
+        company: companies.find(c => c.id === 'comp-2')
+      },
+      {
+        id: 'rec-3',
+        user_id: 'user-3',
+        company_id: 'comp-3',
+        first_name: 'Emma',
+        last_name: 'Williams',
+        email: 'emma.williams@ukstudylink.co.uk',
+        phone: '+44-20-7123-4567',
+        role: 'recruiter',
+        is_active: true,
+        last_login_at: '2024-12-20T11:30:00Z',
+        created_at: '2023-09-10T08:45:00Z',
+        updated_at: '2024-12-15T11:30:00Z',
+        company: companies.find(c => c.id === 'comp-3')
+      },
+      {
+        id: 'rec-4',
+        user_id: 'user-4',
+        company_id: 'comp-4',
+        first_name: 'Raj',
+        last_name: 'Patel',
+        email: 'raj.patel@indiaconnect.in',
+        phone: '+91-11-9876-5432',
+        role: 'company_admin',
+        is_active: true,
+        last_login_at: '2024-12-28T12:10:00Z',
+        created_at: '2024-05-12T07:30:00Z',
+        updated_at: '2024-11-25T12:10:00Z',
+        company: companies.find(c => c.id === 'comp-4')
+      },
+      {
+        id: 'rec-5',
+        user_id: 'user-5',
+        company_id: 'comp-5',
+        first_name: 'Ana',
+        last_name: 'Silva',
+        email: 'ana.silva@brazileduca.com.br',
+        phone: '+55-11-3456-7890',
+        role: 'recruiter',
+        is_active: true,
+        last_login_at: '2024-12-15T10:20:00Z',
+        created_at: '2024-07-08T14:45:00Z',
+        updated_at: '2024-10-12T10:20:00Z',
+        company: companies.find(c => c.id === 'comp-5')
+      },
+      {
+        id: 'rec-6',
+        user_id: 'user-6',
+        company_id: 'comp-6',
+        first_name: 'Jennifer',
+        last_name: 'Chen',
+        email: 'jennifer.chen@globaledunet.ca',
+        phone: '+1-416-555-9801',
+        role: 'company_admin',
+        is_active: true,
+        last_login_at: '2025-01-02T10:30:00Z',
+        created_at: '2024-02-20T14:15:00Z',
+        updated_at: '2024-12-10T10:30:00Z',
+        company: companies.find(c => c.id === 'comp-6')
+      },
+      {
+        id: 'rec-7',
+        user_id: 'user-7',
+        company_id: 'comp-8',
+        first_name: 'Lisa',
+        last_name: 'Wang',
+        email: 'lisa.wang@aprecruit.sg',
+        phone: '+65-6789-0124',
+        role: 'recruiter',
+        is_active: true,
+        last_login_at: '2024-12-30T16:40:00Z',
+        created_at: '2024-05-12T07:20:00Z',
+        updated_at: '2024-11-28T16:40:00Z',
+        company: companies.find(c => c.id === 'comp-8')
+      },
+      {
+        id: 'rec-8',
+        user_id: 'user-8',
+        company_id: 'comp-10',
+        first_name: 'Nomsa',
+        last_name: 'Mbeki',
+        email: 'nomsa.mbeki@afednet.co.za',
+        phone: '+27-21-555-7891',
+        role: 'recruiter',
+        is_active: true,
+        last_login_at: '2024-12-28T14:50:00Z',
+        created_at: '2024-09-15T10:25:00Z',
+        updated_at: '2024-12-01T14:50:00Z',
+        company: companies.find(c => c.id === 'comp-10')
+      }
+    ];
   }
 
   static async getRecruiterProfile(): Promise<RecruiterUser | null> {

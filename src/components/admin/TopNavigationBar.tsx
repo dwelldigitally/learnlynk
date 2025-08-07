@@ -102,26 +102,46 @@ export function TopNavigationBar({
               }
               
               return (
-                <div 
-                  key={section.id}
-                  className="relative"
-                  onMouseEnter={() => setHoveredSection(section.id)}
-                  onMouseLeave={() => setHoveredSection(null)}
-                >
-                  <Button
-                    variant={isActive ? "secondary" : "ghost"}
-                    className={`h-10 px-4 text-sm font-medium transition-colors ${
-                      isActive 
-                        ? "bg-white/20 text-white" 
-                        : "text-white/80 hover:text-white hover:bg-white/10"
-                    }`}
-                    type="button"
-                  >
-                    <section.icon className="w-4 h-4 mr-2" />
-                    {section.name}
-                    <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
-                  </Button>
-                </div>
+                <DropdownMenu key={section.id}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant={isActive ? "secondary" : "ghost"}
+                      className={`h-10 px-4 text-sm font-medium transition-colors ${
+                        isActive 
+                          ? "bg-white/20 text-white" 
+                          : "text-white/80 hover:text-white hover:bg-white/10"
+                      }`}
+                      type="button"
+                    >
+                      <section.icon className="w-4 h-4 mr-2" />
+                      {section.name}
+                      <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-48 bg-background border border-border shadow-lg rounded-md z-50">
+                    {section.items.map((item) => (
+                      <DropdownMenuItem 
+                        key={item.href}
+                        asChild 
+                        className="px-3 py-2.5 transition-colors hover:bg-muted/50 cursor-pointer"
+                      >
+                        <Link 
+                          to={item.href} 
+                          className="flex items-center text-sm"
+                          onClick={() => onSectionChange(section.id)}
+                        >
+                          <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
+                          {item.name}
+                          {item.count !== undefined && (
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              {item.count}
+                            </Badge>
+                          )}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               );
             })}
           </nav>

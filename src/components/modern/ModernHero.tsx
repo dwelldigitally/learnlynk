@@ -1,10 +1,9 @@
 import React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, PlayCircle, Star, CheckCircle, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { BentoGrid } from './BentoGrid';
+import { ArrowRight, Play, GraduationCap, TrendingUp, Users } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 export const ModernHero: React.FC = () => {
   const navigate = useNavigate();

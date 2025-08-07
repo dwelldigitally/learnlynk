@@ -27,12 +27,42 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   // Determine active section from current path
   const getActiveSectionFromPath = () => {
     const path = location.pathname;
+    
+    // Handle specific detail page patterns
+    if (path.startsWith('/admin/leads/')) {
+      return 'leads-marketing';
+    }
+    if (path.startsWith('/admin/students/')) {
+      return 'students-applications';
+    }
+    if (path.startsWith('/admin/applications/')) {
+      return 'students-applications';
+    }
+    if (path.startsWith('/admin/programs/')) {
+      return 'data-management';
+    }
+    if (path.startsWith('/admin/workflows/')) {
+      return 'data-management';
+    }
+    if (path.startsWith('/admin/requirements/')) {
+      return 'data-management';
+    }
+    if (path.startsWith('/admin/analytics/')) {
+      return 'analytics-reports';
+    }
+    if (path.startsWith('/admin/reports/')) {
+      return 'analytics-reports';
+    }
+    
+    // Find section by exact or prefix match
     for (const section of navigationStructure.sections) {
-      if (section.items.some(item => path.startsWith(item.href))) {
+      if (section.items.some(item => path === item.href || path.startsWith(item.href + '/'))) {
         return section.id;
       }
     }
-    return navigationStructure.sections[0].id;
+    
+    // Default to leads-marketing if no match found
+    return 'leads-marketing';
   };
 
   const currentActiveSection = activeSection || getActiveSectionFromPath();

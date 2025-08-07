@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ChevronDown, Search, Bell, User, Building2, Settings, LogOut, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { navigationStructure } from "@/data/navigationStructure";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
 
@@ -35,6 +37,7 @@ export function TopNavigationBar({
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const { unreadCount } = useNotifications();
+  const { signOut } = useAuth();
   const isMobile = useIsMobile();
 
   const getActiveSectionFromPath = () => {
@@ -207,7 +210,15 @@ export function TopNavigationBar({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={() => {/* Sign out logic */}}
+                onClick={async () => {
+                  const { error } = await signOut();
+                  if (error) {
+                    toast.error("Failed to sign out");
+                  } else {
+                    toast.success("Signed out successfully");
+                    navigate("/");
+                  }
+                }}
                 className="px-3 py-2.5 transition-colors hover:bg-muted/50 cursor-pointer text-sm"
               >
                 <LogOut className="mr-2 h-4 w-4 flex-shrink-0" />

@@ -30,6 +30,8 @@ import { RequirementsConfiguration } from './sections/RequirementsConfiguration'
 import { LeadPrioritiesConfiguration } from './sections/LeadPrioritiesConfiguration';
 import { TeamsConfiguration } from './sections/TeamsConfiguration';
 import { NotificationFiltersConfiguration } from './sections/NotificationFiltersConfiguration';
+import { RoutingConfiguration } from './sections/RoutingConfiguration';
+import { CompanyProfileConfiguration } from './sections/CompanyProfileConfiguration';
 
 interface ConfigurationSection {
   id: string;
@@ -171,6 +173,26 @@ const configurationSections: ConfigurationSection[] = [
     component: <TeamsConfiguration />,
     isNew: true
   },
+  {
+    id: 'routing-rules',
+    label: 'Routing Rules',
+    icon: GitBranch,
+    description: 'Configure lead routing and team assignment rules',
+    category: 'Team Management',
+    component: <RoutingConfiguration />,
+    isNew: true
+  },
+
+  // Company Profile
+  {
+    id: 'company-profile',
+    label: 'Company Profile',
+    icon: Building2,
+    description: 'Manage company information, branding, and contact details',
+    category: 'Company Settings',
+    component: <CompanyProfileConfiguration />,
+    isNew: true
+  },
 
   // Process Management
   {
@@ -228,17 +250,32 @@ const configurationSections: ConfigurationSection[] = [
 export const EnhancedConfigurationManagement = () => {
   // Determine initial section based on URL
   const getInitialSection = () => {
-    if (window.location.pathname.includes('/master-data')) {
+    const path = window.location.pathname;
+    if (path.includes('/master-data')) {
       return 'campuses'; // Default to campuses for master data
+    }
+    if (path.includes('/templates')) {
+      return 'communication-templates'; // Default to communication templates
+    }
+    if (path.includes('/routing')) {
+      return 'routing-rules'; // Default to routing rules
+    }
+    if (path.includes('/company')) {
+      return 'company-profile'; // Default to company profile
     }
     return 'stages';
   };
 
   const [activeSection, setActiveSection] = useState(getInitialSection());
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(
-    window.location.pathname.includes('/master-data') ? 'Data & Database' : null
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(() => {
+    const path = window.location.pathname;
+    if (path.includes('/master-data')) return 'Data & Database';
+    if (path.includes('/templates')) return 'Communication';
+    if (path.includes('/routing')) return 'Team Management';
+    if (path.includes('/company')) return 'Company Settings';
+    return null;
+  });
 
   // Get unique categories
   const categories = [...new Set(configurationSections.map(section => section.category))];

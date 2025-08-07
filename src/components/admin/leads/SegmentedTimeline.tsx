@@ -73,6 +73,70 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
     },
   ];
 
+  // Generate dummy audit logs
+  const dummyAuditLogs = [
+    {
+      id: 'audit-1',
+      type: 'audit' as const,
+      title: 'Status Changed',
+      description: 'Lead status changed from "new" to "contacted" by Sarah Johnson',
+      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: User,
+      badge: 'system',
+      stage: 'applicant' as const,
+    },
+    {
+      id: 'audit-2',
+      type: 'audit' as const,
+      title: 'Lead Score Updated',
+      description: 'AI system updated lead score from 72 to 85 based on engagement activity',
+      timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: BookOpen,
+      badge: 'ai',
+      stage: 'applicant' as const,
+    },
+    {
+      id: 'audit-3',
+      type: 'audit' as const,
+      title: 'Advisor Assigned',
+      description: 'Lead automatically assigned to Sarah Johnson by routing rules',
+      timestamp: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: User,
+      badge: 'assignment',
+      stage: 'lead' as const,
+    },
+    {
+      id: 'audit-4',
+      type: 'audit' as const,
+      title: 'Program Interest Updated',
+      description: 'Added "Data Science MBA" to program interests',
+      timestamp: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: GraduationCap,
+      badge: 'field_update',
+      stage: 'lead' as const,
+    },
+    {
+      id: 'audit-5',
+      type: 'audit' as const,
+      title: 'Priority Escalated',
+      description: 'Lead priority changed from "medium" to "high" due to qualification criteria',
+      timestamp: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: BookOpen,
+      badge: 'priority',
+      stage: 'lead' as const,
+    },
+    {
+      id: 'audit-6',
+      type: 'audit' as const,
+      title: 'Lead Created',
+      description: 'Lead created from website form submission',
+      timestamp: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: User,
+      badge: 'creation',
+      stage: 'lead' as const,
+    },
+  ];
+
   // Combine all activities into timeline
   const allActivities = [
     ...communications.map(item => ({
@@ -106,6 +170,7 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
       stage: getActivityStage(item.created_at),
     })),
     ...dummyActivities,
+    ...dummyAuditLogs,
   ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   // Mock function to determine activity stage based on date

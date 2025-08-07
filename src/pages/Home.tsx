@@ -66,25 +66,26 @@ const Home: React.FC = () => {
       <ModernHero />
 
       {/* Animated Statistics Section */}
-      <AnimatedSection animation="fadeIn" className="py-16 px-6 bg-muted/30">
+      <AnimatedSection animation="fadeIn" className="py-16 px-6 bg-gradient-to-r from-yellow-50/50 via-orange-50/50 to-teal-50/50 dark:from-yellow-900/10 dark:via-orange-900/10 dark:to-teal-900/10">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <motion.h2 
-              className="text-3xl font-bold mb-4"
+              className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent"
               initial={{ y: 20, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
             >
-              Proven Results Across Higher Education
+              Why should you choose our education tools?
             </motion.h2>
             <motion.p 
-              className="text-lg text-muted-foreground max-w-2xl mx-auto"
+              className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed"
               initial={{ y: 20, opacity: 0 }}
               whileInView={{ y: 0, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              Join leading institutions that have transformed their enrollment and retention outcomes
+              Join 500+ leading institutions that have revolutionized their student success journey 
+              with measurable results in application quality, retention rates, and enrollment growth.
             </motion.p>
           </div>
           <StatisticsCounter />

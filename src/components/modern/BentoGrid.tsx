@@ -31,22 +31,22 @@ export const BentoGrid: React.FC = () => {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
       {/* Main Hero Card */}
       <BentoCard className="md:col-span-2 lg:col-span-2 md:row-span-2">
-        <div className="p-8 h-full flex flex-col justify-between min-h-[320px]">
+        <div className="p-8 h-full flex flex-col justify-between min-h-[320px] bg-gradient-to-br from-yellow-400/5 via-orange-400/5 to-teal-400/5">
           <div>
-            <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20">
+            <Badge variant="secondary" className="mb-4 bg-gradient-to-r from-yellow-400/20 to-orange-400/20 text-orange-700 dark:text-orange-300 border-orange-400/30">
               <Brain className="w-3 h-3 mr-1" />
-              AI-Powered
+              Smart Analytics
             </Badge>
             <h3 className="text-2xl font-bold mb-3 leading-tight">
-              Transform Student Recruitment with Intelligent Analytics
+              Easily track qualified applications and student journey
             </h3>
             <p className="text-muted-foreground mb-6 leading-relaxed">
-              Leverage machine learning to predict student success, optimize enrollment funnels, 
-              and create personalized engagement journeys that convert prospects into enrolled students.
+              Build a real community of prospective students with intelligent tracking, 
+              personalized engagement workflows, and data-driven insights that convert interest into enrollment.
             </p>
           </div>
-          <div className="flex items-center text-primary group cursor-pointer">
-            <span className="font-medium">Explore AI Features</span>
+          <div className="flex items-center text-orange-600 dark:text-orange-400 group cursor-pointer">
+            <span className="font-medium">Start Building Community</span>
             <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
           </div>
         </div>
@@ -54,24 +54,24 @@ export const BentoGrid: React.FC = () => {
 
       {/* Stats Card */}
       <BentoCard className="lg:col-span-1">
-        <div className="p-6 text-center">
-          <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <TrendingUp className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+        <div className="p-6 text-center bg-gradient-to-br from-teal-400/10 to-blue-400/10">
+          <div className="w-12 h-12 bg-gradient-to-r from-teal-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="w-6 h-6 text-white" />
           </div>
-          <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mb-1">45%</div>
-          <div className="text-sm text-muted-foreground">Avg. Enrollment Increase</div>
+          <div className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent mb-1">89%</div>
+          <div className="text-sm text-muted-foreground font-medium">Student Success Rate</div>
         </div>
       </BentoCard>
 
       {/* Quick Feature */}
       <BentoCard className="lg:col-span-1">
-        <div className="p-6">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-4">
-            <Users className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+        <div className="p-6 bg-gradient-to-br from-purple-400/10 to-pink-400/10">
+          <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-4">
+            <Users className="w-6 h-6 text-white" />
           </div>
-          <h4 className="font-semibold mb-2">Student Journey Mapping</h4>
+          <h4 className="font-semibold mb-2">Intelligent Student Matching</h4>
           <p className="text-sm text-muted-foreground">
-            Track every touchpoint from prospect to graduation
+            Smart algorithms match students to perfect programs and opportunities
           </p>
         </div>
       </BentoCard>

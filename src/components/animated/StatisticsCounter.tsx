@@ -16,36 +16,36 @@ interface StatisticProps {
 
 const statistics: StatisticProps[] = [
   {
-    icon: Building,
-    value: 500,
-    label: 'Universities',
-    suffix: '+',
-    color: 'from-blue-500 to-blue-600',
-    description: 'Higher education institutions trust our platform'
+    icon: TrendingUp,
+    value: 40,
+    label: 'Increase in Qualified Applications',
+    suffix: '%',
+    color: 'from-yellow-500 to-orange-500',
+    description: 'Average improvement in application quality and conversion'
   },
   {
     icon: Users,
-    value: 2.5,
-    label: 'Million Students',
-    suffix: 'M',
-    color: 'from-green-500 to-green-600',
-    description: 'Students enrolled through our system'
+    value: 89,
+    label: 'Improvement in Student Retention',
+    suffix: '%',
+    color: 'from-teal-500 to-blue-500',
+    description: 'Better student outcomes and graduation rates'
   },
   {
-    icon: TrendingUp,
-    value: 40,
-    label: 'Increase in Enrollment',
-    suffix: '%',
-    color: 'from-purple-500 to-purple-600',
-    description: 'Average enrollment improvement'
+    icon: Building,
+    value: 500,
+    label: 'Education Partners',
+    suffix: '+',
+    color: 'from-purple-500 to-pink-500',
+    description: 'Universities and colleges using our platform'
   },
   {
     icon: GraduationCap,
-    value: 98,
-    label: 'Satisfaction Rate',
-    suffix: '%',
-    color: 'from-orange-500 to-orange-600',
-    description: 'Customer satisfaction score'
+    value: 2.5,
+    label: 'Students Successfully Enrolled',
+    suffix: 'M',
+    color: 'from-emerald-500 to-green-500',
+    description: 'Total enrollments facilitated through our system'
   }
 ];
 

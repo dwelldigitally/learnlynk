@@ -25,25 +25,40 @@ export const MasterDataManagement = () => {
 
   const fetchMasterData = async () => {
     try {
-      // For now, we'll use placeholder data since the tables need to be created
+      setIsLoading(true);
+      
+      // Use sample data that matches the database structure for now
       setCampuses([
-        { id: '1', name: 'Main Campus', location: 'Downtown', is_active: true },
-        { id: '2', name: 'North Campus', location: 'Suburbs', is_active: true }
+        { id: '1', name: 'Sydney Campus', location: 'Sydney CBD', country: 'Australia', is_active: true },
+        { id: '2', name: 'Melbourne Campus', location: 'Melbourne CBD', country: 'Australia', is_active: true },
+        { id: '3', name: 'Brisbane Campus', location: 'Brisbane City', country: 'Australia', is_active: false }
       ]);
       
       setPaymentTypes([
-        { id: '1', name: 'Credit Card', description: 'Visa, MasterCard, AMEX', is_active: true },
+        { id: '1', name: 'Credit Card', description: 'Visa, MasterCard, AMEX accepted', is_active: true },
         { id: '2', name: 'Bank Transfer', description: 'Direct bank transfer', is_active: true },
-        { id: '3', name: 'Installments', description: 'Payment plans', is_active: false }
+        { id: '3', name: 'Payment Plan', description: 'Installment payment plan', is_active: true },
+        { id: '4', name: 'Student Loan', description: 'Government student loan', is_active: false }
       ]);
       
       setRequirements([
-        { id: '1', name: 'High School Diploma', type: 'Educational', is_required: true },
-        { id: '2', name: 'English Proficiency Test', type: 'Language', is_required: true },
-        { id: '3', name: 'Work Experience', type: 'Professional', is_required: false }
+        { id: '1', name: 'High School Certificate', description: 'Completed secondary education', type: 'Educational', is_required: true },
+        { id: '2', name: 'IELTS 6.5', description: 'English language proficiency', type: 'Language', is_required: true },
+        { id: '3', name: 'Work Experience', description: 'Minimum 2 years relevant experience', type: 'Professional', is_required: false },
+        { id: '4', name: 'Portfolio', description: 'Design or project portfolio', type: 'Creative', is_required: false }
       ]);
+
+      toast({
+        title: "Success",
+        description: "Master data loaded successfully",
+      });
     } catch (error) {
       console.error('Error fetching master data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load master data",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }

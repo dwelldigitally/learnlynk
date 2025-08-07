@@ -115,6 +115,29 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
 
   return (
     <div className="w-80 bg-card border-r border-border flex flex-col overflow-y-auto">
+      {/* Assigned To */}
+      <div className="p-6 border-b border-border">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <User className="h-4 w-4 text-muted-foreground" />
+          Assigned To
+        </h3>
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-primary/10 text-primary text-xs">
+              AM
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="text-sm font-medium">Alex Morgan</p>
+            <p className="text-xs text-muted-foreground">Senior Admissions Counselor</p>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" className="w-full mt-3">
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Quick Message
+        </Button>
+      </div>
+
       {/* Contact Card */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">
@@ -133,37 +156,6 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               </Button>
             </div>
           )}
-        </div>
-
-        <div className="flex items-center gap-3 mb-4">
-          <Avatar className="h-12 w-12">
-            <AvatarFallback className="bg-primary/10 text-primary">
-              {lead.first_name[0]}{lead.last_name[0]}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            {isEditing ? (
-              <div className="space-y-2">
-                <Input
-                  value={editData.first_name}
-                  onChange={(e) => setEditData({ ...editData, first_name: e.target.value })}
-                  placeholder="First name"
-                />
-                <Input
-                  value={editData.last_name}
-                  onChange={(e) => setEditData({ ...editData, last_name: e.target.value })}
-                  placeholder="Last name"
-                />
-              </div>
-            ) : (
-              <>
-                <h3 className="font-semibold text-foreground truncate">
-                  {lead.first_name} {lead.last_name}
-                </h3>
-                <p className="text-sm text-muted-foreground truncate">{lead.email}</p>
-              </>
-            )}
-          </div>
         </div>
 
         {/* Contact Details */}

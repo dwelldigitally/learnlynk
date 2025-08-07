@@ -138,7 +138,7 @@ export default function LeadDetailPage() {
       <QuickActionBar lead={lead} onUpdate={loadLead} />
 
       {/* Three-column layout */}
-      <div className="flex h-[calc(100vh-200px)]">
+      <div className="flex min-h-0">
         {/* Left Sidebar - Enhanced Lead Details with AI Insights */}
         <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
         
@@ -146,20 +146,20 @@ export default function LeadDetailPage() {
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="communication" className="flex items-center gap-2">
+              <TabsList className="inline-flex h-9 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground mb-4 w-auto">
+                <TabsTrigger value="communication" className="flex items-center gap-2 px-3 py-1.5 text-sm">
                   <MessageSquare className="h-4 w-4" />
                   Communication
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2">
+                <TabsTrigger value="documents" className="flex items-center gap-2 px-3 py-1.5 text-sm">
                   <FileText className="h-4 w-4" />
                   Documents
                 </TabsTrigger>
-                <TabsTrigger value="timeline" className="flex items-center gap-2">
+                <TabsTrigger value="timeline" className="flex items-center gap-2 px-3 py-1.5 text-sm">
                   <Clock className="h-4 w-4" />
                   Activity
                 </TabsTrigger>
-                <TabsTrigger value="tasks" className="flex items-center gap-2">
+                <TabsTrigger value="tasks" className="flex items-center gap-2 px-3 py-1.5 text-sm">
                   <Users className="h-4 w-4" />
                   Tasks & Notes
                 </TabsTrigger>

@@ -381,6 +381,8 @@ export type Database = {
           priority: string
           program: string
           progress: number
+          recruiter_company_id: string | null
+          recruiter_id: string | null
           status: string
           student_name: string
           updated_at: string
@@ -398,6 +400,8 @@ export type Database = {
           priority?: string
           program: string
           progress?: number
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
           status?: string
           student_name: string
           updated_at?: string
@@ -415,12 +419,29 @@ export type Database = {
           priority?: string
           program?: string
           progress?: number
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
           status?: string
           student_name?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "applications_recruiter_company_id_fkey"
+            columns: ["recruiter_company_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       automation_action_logs: {
         Row: {
@@ -1673,6 +1694,8 @@ export type Database = {
           priority: Database["public"]["Enums"]["lead_priority"]
           program_interest: string[] | null
           qualification_stage: string | null
+          recruiter_company_id: string | null
+          recruiter_id: string | null
           referrer_url: string | null
           source: Database["public"]["Enums"]["lead_source"]
           source_details: string | null
@@ -1711,6 +1734,8 @@ export type Database = {
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
           qualification_stage?: string | null
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
           referrer_url?: string | null
           source: Database["public"]["Enums"]["lead_source"]
           source_details?: string | null
@@ -1749,6 +1774,8 @@ export type Database = {
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
           qualification_stage?: string | null
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
           referrer_url?: string | null
           source?: Database["public"]["Enums"]["lead_source"]
           source_details?: string | null
@@ -1764,7 +1791,22 @@ export type Database = {
           utm_source?: string | null
           utm_term?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "leads_recruiter_company_id_fkey"
+            columns: ["recruiter_company_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1888,6 +1930,309 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      recruiter_applications: {
+        Row: {
+          application_id: string | null
+          approved_at: string | null
+          assigned_to: string | null
+          commission_amount: number | null
+          commission_status: string | null
+          company_id: string
+          created_at: string
+          id: string
+          intake_date: string | null
+          internal_notes: string | null
+          notes_to_registrar: string | null
+          program: string
+          recruiter_id: string
+          reviewed_at: string | null
+          status: string | null
+          student_id: string | null
+          submitted_at: string
+          updated_at: string
+        }
+        Insert: {
+          application_id?: string | null
+          approved_at?: string | null
+          assigned_to?: string | null
+          commission_amount?: number | null
+          commission_status?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          intake_date?: string | null
+          internal_notes?: string | null
+          notes_to_registrar?: string | null
+          program: string
+          recruiter_id: string
+          reviewed_at?: string | null
+          status?: string | null
+          student_id?: string | null
+          submitted_at?: string
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string | null
+          approved_at?: string | null
+          assigned_to?: string | null
+          commission_amount?: number | null
+          commission_status?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          intake_date?: string | null
+          internal_notes?: string | null
+          notes_to_registrar?: string | null
+          program?: string
+          recruiter_id?: string
+          reviewed_at?: string | null
+          status?: string | null
+          student_id?: string | null
+          submitted_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruiter_applications_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recruiter_applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recruiter_applications_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recruiter_applications_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruiter_communications: {
+        Row: {
+          created_at: string
+          id: string
+          is_internal: boolean | null
+          message: string
+          read_at: string | null
+          recruiter_application_id: string
+          sender_id: string
+          sender_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean | null
+          message: string
+          read_at?: string | null
+          recruiter_application_id: string
+          sender_id: string
+          sender_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_internal?: boolean | null
+          message?: string
+          read_at?: string | null
+          recruiter_application_id?: string
+          sender_id?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruiter_communications_recruiter_application_id_fkey"
+            columns: ["recruiter_application_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruiter_companies: {
+        Row: {
+          address: string | null
+          assigned_contact: string | null
+          city: string | null
+          commission_rate: number | null
+          commission_type: string | null
+          country: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          phone: string | null
+          state: string | null
+          status: string | null
+          updated_at: string
+          website: string | null
+          zip_code: string | null
+        }
+        Insert: {
+          address?: string | null
+          assigned_contact?: string | null
+          city?: string | null
+          commission_rate?: number | null
+          commission_type?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          phone?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string
+          website?: string | null
+          zip_code?: string | null
+        }
+        Update: {
+          address?: string | null
+          assigned_contact?: string | null
+          city?: string | null
+          commission_rate?: number | null
+          commission_type?: string | null
+          country?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          state?: string | null
+          status?: string | null
+          updated_at?: string
+          website?: string | null
+          zip_code?: string | null
+        }
+        Relationships: []
+      }
+      recruiter_documents: {
+        Row: {
+          created_at: string
+          document_name: string
+          document_type: string
+          feedback: string | null
+          file_path: string | null
+          file_size: number | null
+          id: string
+          recruiter_application_id: string
+          status: string | null
+          updated_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          document_type: string
+          feedback?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          recruiter_application_id: string
+          status?: string | null
+          updated_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          feedback?: string | null
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          recruiter_application_id?: string
+          status?: string | null
+          updated_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruiter_documents_recruiter_application_id_fkey"
+            columns: ["recruiter_application_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recruiter_documents_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "recruiter_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      recruiter_users: {
+        Row: {
+          company_id: string
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          is_active: boolean | null
+          last_login_at: string | null
+          last_name: string
+          phone: string | null
+          role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          is_active?: boolean | null
+          last_login_at?: string | null
+          last_name: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_login_at?: string | null
+          last_name?: string
+          phone?: string | null
+          role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recruiter_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       routing_rule_conditions: {
         Row: {
@@ -2409,6 +2754,8 @@ export type Database = {
           phone: string | null
           program: string
           progress: number | null
+          recruiter_company_id: string | null
+          recruiter_id: string | null
           risk_level: string | null
           stage: string
           state: string | null
@@ -2432,6 +2779,8 @@ export type Database = {
           phone?: string | null
           program: string
           progress?: number | null
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
           risk_level?: string | null
           stage?: string
           state?: string | null
@@ -2455,6 +2804,8 @@ export type Database = {
           phone?: string | null
           program?: string
           progress?: number | null
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
           risk_level?: string | null
           stage?: string
           state?: string | null
@@ -2462,7 +2813,22 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "students_recruiter_company_id_fkey"
+            columns: ["recruiter_company_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "students_recruiter_id_fkey"
+            columns: ["recruiter_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       team_inbox_members: {
         Row: {

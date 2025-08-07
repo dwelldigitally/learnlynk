@@ -368,6 +368,89 @@ export type Database = {
         }
         Relationships: []
       }
+      applicants: {
+        Row: {
+          application_deadline: string | null
+          application_type: string
+          assigned_at: string | null
+          assigned_to: string | null
+          created_at: string
+          decision: string | null
+          decision_date: string | null
+          decision_notes: string | null
+          documents_approved: Json | null
+          documents_submitted: Json | null
+          id: string
+          master_record_id: string
+          notes: string | null
+          payment_amount: number | null
+          payment_status: string | null
+          priority: string | null
+          program: string
+          recruiter_company_id: string | null
+          recruiter_id: string | null
+          substage: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_deadline?: string | null
+          application_type?: string
+          assigned_at?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          decision?: string | null
+          decision_date?: string | null
+          decision_notes?: string | null
+          documents_approved?: Json | null
+          documents_submitted?: Json | null
+          id?: string
+          master_record_id: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_status?: string | null
+          priority?: string | null
+          program: string
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
+          substage?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_deadline?: string | null
+          application_type?: string
+          assigned_at?: string | null
+          assigned_to?: string | null
+          created_at?: string
+          decision?: string | null
+          decision_date?: string | null
+          decision_notes?: string | null
+          documents_approved?: Json | null
+          documents_submitted?: Json | null
+          id?: string
+          master_record_id?: string
+          notes?: string | null
+          payment_amount?: number | null
+          payment_status?: string | null
+          priority?: string | null
+          program?: string
+          recruiter_company_id?: string | null
+          recruiter_id?: string | null
+          substage?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applicants_master_record_id_fkey"
+            columns: ["master_record_id"]
+            isOneToOne: false
+            referencedRelation: "master_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       applications: {
         Row: {
           advisor_assigned: string | null
@@ -794,6 +877,54 @@ export type Database = {
           vision?: string | null
           website?: string | null
           zip_code?: string | null
+        }
+        Relationships: []
+      }
+      custom_fields: {
+        Row: {
+          created_at: string
+          field_label: string
+          field_name: string
+          field_options: Json | null
+          field_type: string
+          id: string
+          is_enabled: boolean | null
+          is_required: boolean | null
+          order_index: number | null
+          stage: string
+          updated_at: string
+          user_id: string
+          validation_rules: Json | null
+        }
+        Insert: {
+          created_at?: string
+          field_label: string
+          field_name: string
+          field_options?: Json | null
+          field_type: string
+          id?: string
+          is_enabled?: boolean | null
+          is_required?: boolean | null
+          order_index?: number | null
+          stage: string
+          updated_at?: string
+          user_id: string
+          validation_rules?: Json | null
+        }
+        Update: {
+          created_at?: string
+          field_label?: string
+          field_name?: string
+          field_options?: Json | null
+          field_type?: string
+          id?: string
+          is_enabled?: boolean | null
+          is_required?: boolean | null
+          order_index?: number | null
+          stage?: string
+          updated_at?: string
+          user_id?: string
+          validation_rules?: Json | null
         }
         Relationships: []
       }
@@ -1688,6 +1819,7 @@ export type Database = {
           last_contacted_at: string | null
           last_name: string
           lead_score: number | null
+          master_record_id: string | null
           next_follow_up_at: string | null
           notes: string | null
           phone: string | null
@@ -1701,6 +1833,7 @@ export type Database = {
           source_details: string | null
           state: string | null
           status: Database["public"]["Enums"]["lead_status"]
+          substage: string | null
           tags: string[] | null
           updated_at: string
           user_agent: string | null
@@ -1728,6 +1861,7 @@ export type Database = {
           last_contacted_at?: string | null
           last_name: string
           lead_score?: number | null
+          master_record_id?: string | null
           next_follow_up_at?: string | null
           notes?: string | null
           phone?: string | null
@@ -1741,6 +1875,7 @@ export type Database = {
           source_details?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
+          substage?: string | null
           tags?: string[] | null
           updated_at?: string
           user_agent?: string | null
@@ -1768,6 +1903,7 @@ export type Database = {
           last_contacted_at?: string | null
           last_name?: string
           lead_score?: number | null
+          master_record_id?: string | null
           next_follow_up_at?: string | null
           notes?: string | null
           phone?: string | null
@@ -1781,6 +1917,7 @@ export type Database = {
           source_details?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
+          substage?: string | null
           tags?: string[] | null
           updated_at?: string
           user_agent?: string | null
@@ -1792,6 +1929,13 @@ export type Database = {
           utm_term?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "leads_master_record_id_fkey"
+            columns: ["master_record_id"]
+            isOneToOne: false
+            referencedRelation: "master_records"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "leads_recruiter_company_id_fkey"
             columns: ["recruiter_company_id"]
@@ -1807,6 +1951,93 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      master_records: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          current_stage: string
+          current_substage: string | null
+          email: string
+          first_name: string
+          id: string
+          ip_address: unknown | null
+          last_name: string
+          phone: string | null
+          program_interest: string[] | null
+          referrer_url: string | null
+          source: string
+          source_details: string | null
+          stage_entered_at: string
+          state: string | null
+          tags: string[] | null
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          current_stage: string
+          current_substage?: string | null
+          email: string
+          first_name: string
+          id?: string
+          ip_address?: unknown | null
+          last_name: string
+          phone?: string | null
+          program_interest?: string[] | null
+          referrer_url?: string | null
+          source: string
+          source_details?: string | null
+          stage_entered_at?: string
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          current_stage?: string
+          current_substage?: string | null
+          email?: string
+          first_name?: string
+          id?: string
+          ip_address?: unknown | null
+          last_name?: string
+          phone?: string | null
+          program_interest?: string[] | null
+          referrer_url?: string | null
+          source?: string
+          source_details?: string | null
+          stage_entered_at?: string
+          state?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -2416,6 +2647,98 @@ export type Database = {
         }
         Relationships: []
       }
+      stage_history: {
+        Row: {
+          created_at: string
+          from_stage: string | null
+          from_substage: string | null
+          id: string
+          master_record_id: string
+          metadata: Json | null
+          to_stage: string
+          to_substage: string | null
+          transition_reason: string | null
+          transitioned_at: string
+          transitioned_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          from_stage?: string | null
+          from_substage?: string | null
+          id?: string
+          master_record_id: string
+          metadata?: Json | null
+          to_stage: string
+          to_substage?: string | null
+          transition_reason?: string | null
+          transitioned_at?: string
+          transitioned_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          from_stage?: string | null
+          from_substage?: string | null
+          id?: string
+          master_record_id?: string
+          metadata?: Json | null
+          to_stage?: string
+          to_substage?: string | null
+          transition_reason?: string | null
+          transitioned_at?: string
+          transitioned_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_history_master_record_id_fkey"
+            columns: ["master_record_id"]
+            isOneToOne: false
+            referencedRelation: "master_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stage_substages: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          order_index: number | null
+          stage: string
+          substage_description: string | null
+          substage_key: string
+          substage_name: string
+          transition_criteria: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          stage: string
+          substage_description?: string | null
+          substage_key: string
+          substage_name: string
+          transition_criteria?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          order_index?: number | null
+          stage?: string
+          substage_description?: string | null
+          substage_key?: string
+          substage_name?: string
+          transition_criteria?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_applications: {
         Row: {
           acceptance_likelihood: number | null
@@ -2739,6 +3062,7 @@ export type Database = {
       }
       students: {
         Row: {
+          academic_progress: number | null
           acceptance_likelihood: number | null
           city: string | null
           country: string | null
@@ -2747,10 +3071,13 @@ export type Database = {
           email: string
           emergency_contact_name: string | null
           emergency_contact_phone: string | null
+          enrollment_date: string | null
           first_name: string
+          graduation_timeline: string | null
           id: string
           last_name: string
           lead_score: number | null
+          master_record_id: string | null
           phone: string | null
           program: string
           progress: number | null
@@ -2760,10 +3087,13 @@ export type Database = {
           stage: string
           state: string | null
           student_id: string
+          student_id_number: string | null
+          substage: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          academic_progress?: number | null
           acceptance_likelihood?: number | null
           city?: string | null
           country?: string | null
@@ -2772,10 +3102,13 @@ export type Database = {
           email: string
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
+          enrollment_date?: string | null
           first_name: string
+          graduation_timeline?: string | null
           id?: string
           last_name: string
           lead_score?: number | null
+          master_record_id?: string | null
           phone?: string | null
           program: string
           progress?: number | null
@@ -2785,10 +3118,13 @@ export type Database = {
           stage?: string
           state?: string | null
           student_id: string
+          student_id_number?: string | null
+          substage?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          academic_progress?: number | null
           acceptance_likelihood?: number | null
           city?: string | null
           country?: string | null
@@ -2797,10 +3133,13 @@ export type Database = {
           email?: string
           emergency_contact_name?: string | null
           emergency_contact_phone?: string | null
+          enrollment_date?: string | null
           first_name?: string
+          graduation_timeline?: string | null
           id?: string
           last_name?: string
           lead_score?: number | null
+          master_record_id?: string | null
           phone?: string | null
           program?: string
           progress?: number | null
@@ -2810,10 +3149,19 @@ export type Database = {
           stage?: string
           state?: string | null
           student_id?: string
+          student_id_number?: string | null
+          substage?: string | null
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "students_master_record_id_fkey"
+            columns: ["master_record_id"]
+            isOneToOne: false
+            referencedRelation: "master_records"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "students_recruiter_company_id_fkey"
             columns: ["recruiter_company_id"]

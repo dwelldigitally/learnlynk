@@ -36,7 +36,7 @@ export const navigationStructure: NavigationStructure = {
       name: "Leads & Marketing",
       icon: UserPlus,
       items: [
-        { name: "Lead Overview", href: "/admin/leads", icon: Users },
+        { name: "Lead Management", href: "/admin/leads", icon: Users },
         { name: "Workflow Hub", href: "/admin/leads/workflow", icon: Workflow },
         { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
@@ -58,7 +58,8 @@ export const navigationStructure: NavigationStructure = {
       name: "Students & Applications",
       icon: GraduationCap,
       items: [
-        { name: "Student Overview", href: "/admin/students", icon: GraduationCap },
+        { name: "Applicant Management", href: "/admin/applicants", icon: FileText },
+        { name: "Student Management", href: "/admin/students", icon: GraduationCap },
         { name: "Student Portal", href: "/admin/student-portal", icon: Settings },
         { name: "Applications", href: "/admin/applications", icon: FileText },
         { name: "Events", href: "/admin/events", icon: Calendar },
@@ -84,6 +85,7 @@ export const navigationStructure: NavigationStructure = {
       name: "Configuration",
       icon: Settings,
       items: [
+        { name: "Stage Configuration", href: "/admin/configuration", icon: Settings },
         { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
         { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },

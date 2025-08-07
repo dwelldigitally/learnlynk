@@ -82,10 +82,14 @@ export const navigationStructure: NavigationStructure = {
     },
     {
       id: "configuration",
-      name: "Configuration",
+      name: "Configuration", 
       icon: Settings,
       items: [
-        { name: "System Configuration", href: "/admin/configuration", icon: Settings }
+        { name: "Stages & Workflows", href: "/admin/configuration", icon: Settings },
+        { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
+        { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
+        { name: "Team & Routing", href: "/admin/configuration/routing", icon: Route },
+        { name: "Company Profile", href: "/admin/configuration/company", icon: Briefcase }
       ]
     },
     {

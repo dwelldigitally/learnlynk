@@ -24,7 +24,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
     const path = location.pathname;
     
     // Handle specific detail page patterns
-    if (path.startsWith('/admin/leads/')) {
+    if (path.startsWith('/admin/leads/') || path.startsWith('/admin/communication/')) {
       return 'leads-marketing';
     }
     if (path.startsWith('/admin/students/')) {

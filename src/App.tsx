@@ -22,6 +22,7 @@ import { WorkflowBuilderPage } from "./pages/WorkflowBuilderPage";
 import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import RecruiterSubmitApplication from "./pages/RecruiterSubmitApplication";
+import ApplicantManagementPage from "./pages/ApplicantManagementPage";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,8 @@ const App = () => {
               <Route path="/recruiter/documents" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
               <Route path="/recruiter/students" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
               
+              
+              <Route path="/admin/applicants" element={<ProtectedRoute element={<ApplicantManagementPage />} />} />
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

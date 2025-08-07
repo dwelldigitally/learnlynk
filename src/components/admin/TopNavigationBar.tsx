@@ -70,16 +70,13 @@ export function TopNavigationBar({
           {/* Logo */}
           <Link 
             to="/admin" 
-            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            className="flex items-center hover:opacity-80 transition-opacity"
           >
             <img 
               src="/lovable-uploads/84dcaa90-0808-4fe4-842d-8a1a6809cd52.png" 
               alt="WCC Logo" 
-              className={`${isMobile ? 'h-7' : 'h-8'} w-auto object-contain`}
+              className={`${isMobile ? 'h-10' : 'h-12'} w-auto object-contain`}
             />
-            <span className={`font-semibold ${isMobile ? 'text-base' : 'text-lg'} hidden sm:block text-white`}>
-              {isMobile ? 'WCC' : 'WCC Admin'}
-            </span>
           </Link>
 
           {/* Main Navigation - Hidden on mobile */}

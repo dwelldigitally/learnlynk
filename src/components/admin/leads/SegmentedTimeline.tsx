@@ -19,6 +19,60 @@ interface SegmentedTimelineProps {
 export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTimelineProps) {
   const [activeStage, setActiveStage] = useState<string>('all');
   
+  // Generate dummy activities for demo purposes
+  const dummyActivities = [
+    {
+      id: 'dummy-1',
+      type: 'communication' as const,
+      title: 'Email - Initial Inquiry Response',
+      description: 'Sent program information and scheduled consultation call',
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: MessageSquare,
+      badge: 'outbound',
+      stage: 'student' as const,
+    },
+    {
+      id: 'dummy-2',
+      type: 'task' as const,
+      title: 'Follow-up on Application',
+      description: 'Check application status and provide updates',
+      timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: CheckSquare,
+      badge: 'completed',
+      stage: 'applicant' as const,
+    },
+    {
+      id: 'dummy-3',
+      type: 'note' as const,
+      title: 'Note - Student Interest',
+      description: 'Student expressed strong interest in data science program. Has background in mathematics.',
+      timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: StickyNote,
+      badge: 'general',
+      stage: 'lead' as const,
+    },
+    {
+      id: 'dummy-4',
+      type: 'communication' as const,
+      title: 'Phone Call - Consultation',
+      description: 'Discussed program requirements and answered questions about curriculum',
+      timestamp: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: MessageSquare,
+      badge: 'inbound',
+      stage: 'lead' as const,
+    },
+    {
+      id: 'dummy-5',
+      type: 'task' as const,
+      title: 'Send Welcome Package',
+      description: 'Prepare and send enrollment materials',
+      timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      icon: CheckSquare,
+      badge: 'pending',
+      stage: 'student' as const,
+    },
+  ];
+
   // Combine all activities into timeline
   const allActivities = [
     ...communications.map(item => ({
@@ -51,6 +105,7 @@ export function SegmentedTimeline({ communications, tasks, notes }: SegmentedTim
       badge: item.note_type,
       stage: getActivityStage(item.created_at),
     })),
+    ...dummyActivities,
   ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   // Mock function to determine activity stage based on date

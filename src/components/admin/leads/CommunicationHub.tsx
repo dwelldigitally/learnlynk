@@ -9,7 +9,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
+import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft, Sparkles } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { Lead } from '@/types/lead';
 import { LeadCommunication, CommunicationFormData, CommunicationType, CommunicationDirection } from '@/types/leadEnhancements';
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
@@ -25,9 +26,10 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
   const [communications, setCommunications] = useState<LeadCommunication[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [showReplyBox, setShowReplyBox] = useState(true); // Always open by default
   const [replyContent, setReplyContent] = useState('');
   const [aiSuggestion, setAiSuggestion] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
   const { toast } = useToast();
 
   const [newCommunication, setNewCommunication] = useState<CommunicationFormData>({
@@ -89,6 +91,38 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
     if (!showReplyBox) {
       // Generate AI suggestion when reply box is opened
       setAiSuggestion("Hi " + lead.first_name + ", thank you for your interest in our programs. I'd be happy to discuss your questions and help you with the next steps in your application process.");
+    }
+  };
+
+  const generateAIDraft = async () => {
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-reply-ai', {
+        body: {
+          leadName: lead.first_name,
+          leadContext: `Lead interested in academic programs. Status: ${lead.status}`,
+          communicationHistory: communications.slice(0, 2).map(c => c.content).join('\n')
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.generatedReply) {
+        setReplyContent(data.generatedReply);
+        toast({
+          title: "AI Draft Generated",
+          description: "Review and edit the draft before sending"
+        });
+      }
+    } catch (error) {
+      console.error('Error generating AI draft:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate AI draft",
+        variant: "destructive"
+      });
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -301,13 +335,26 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
                 rows={3}
               />
               
-              <div className="flex justify-end gap-2">
-                <Button size="sm" variant="outline" onClick={() => setShowReplyBox(false)}>
-                  Cancel
+              <div className="flex justify-between items-center">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={generateAIDraft}
+                  disabled={aiLoading}
+                  className="gap-2"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {aiLoading ? 'Generating...' : 'Draft with AI'}
                 </Button>
-                <Button size="sm" onClick={sendReply} disabled={!replyContent.trim()}>
-                  Send Reply
-                </Button>
+                
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setShowReplyBox(false)}>
+                    Cancel
+                  </Button>
+                  <Button size="sm" onClick={sendReply} disabled={!replyContent.trim()}>
+                    Send Reply
+                  </Button>
+                </div>
               </div>
             </div>
           </div>

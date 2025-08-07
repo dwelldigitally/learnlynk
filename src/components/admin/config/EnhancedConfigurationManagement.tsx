@@ -226,9 +226,19 @@ const configurationSections: ConfigurationSection[] = [
 ];
 
 export const EnhancedConfigurationManagement = () => {
-  const [activeSection, setActiveSection] = useState('stages');
+  // Determine initial section based on URL
+  const getInitialSection = () => {
+    if (window.location.pathname.includes('/master-data')) {
+      return 'campuses'; // Default to campuses for master data
+    }
+    return 'stages';
+  };
+
+  const [activeSection, setActiveSection] = useState(getInitialSection());
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    window.location.pathname.includes('/master-data') ? 'Data & Database' : null
+  );
 
   // Get unique categories
   const categories = [...new Set(configurationSections.map(section => section.category))];

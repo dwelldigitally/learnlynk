@@ -9,7 +9,7 @@ import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { EnhancedLeadSidebar } from '@/components/admin/leads/EnhancedLeadSidebar';
 import { EnhancedRightSidebar } from '@/components/admin/leads/EnhancedRightSidebar';
-import { QuickActionBar } from '@/components/admin/leads/QuickActionBar';
+
 import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
 import { SegmentedTimeline } from '@/components/admin/leads/SegmentedTimeline';
@@ -124,21 +124,40 @@ export default function LeadDetailPage() {
         onToggleMobileMenu={() => {}} 
       />
       
-      {/* Header with back button and quick actions */}
-      <div className="border-b bg-card px-6 py-2">
-        <div className="flex items-center gap-4 mb-2">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Leads
-          </Button>
+      {/* Header with back button and lead info */}
+      <div className="border-b bg-card px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Leads
+            </Button>
+            <div>
+              <h1 className="text-xl font-bold">{lead.first_name} {lead.last_name}</h1>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>{lead.email}</span>
+                <span>•</span>
+                <span>Intake: September 2024</span>
+                <span>•</span>
+                <span>Payment: Full Payment Preferred</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <Badge className={getStatusColor(lead.status)}>
+              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+            </Badge>
+            <div className="text-sm text-muted-foreground">
+              Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
+            </div>
+          </div>
         </div>
       </div>
       
-      {/* Quick Action Bar */}
-      <QuickActionBar lead={lead} onUpdate={loadLead} />
 
       {/* Three-column layout */}
-      <div className="flex h-[calc(100vh-200px)]">
+      <div className="flex h-[calc(100vh-160px)]">
         {/* Left Sidebar - Enhanced Lead Details with AI Insights */}
         <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
         

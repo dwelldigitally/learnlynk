@@ -223,6 +223,93 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
         </div>
       </div>
 
+      {/* Assigned Advisor Section */}
+      <div className="p-6 border-b border-border">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <Users className="h-4 w-4 text-purple-500" />
+          Assigned Advisor
+        </h3>
+        <div className="space-y-3">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                SJ
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Sarah Johnson</span>
+              </div>
+              <p className="text-xs text-muted-foreground">AI selected based on specialization match</p>
+            </div>
+          </div>
+          
+          <Select defaultValue="advisor-1">
+            <SelectTrigger className="w-full h-8">
+              <SelectValue placeholder="Reassign" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="advisor-1">Sarah Johnson</SelectItem>
+              <SelectItem value="advisor-2">Michael Chen</SelectItem>
+              <SelectItem value="advisor-3">Emily Rodriguez</SelectItem>
+              <SelectItem value="advisor-4">David Thompson</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Quick Actions Section */}
+      <div className="p-6 border-b border-border">
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <MessageSquare className="h-4 w-4 text-green-500" />
+          Quick Actions
+        </h3>
+        <div className="space-y-3">
+          {/* Communication Buttons */}
+          <div className="flex flex-col gap-2">
+            {lead.phone && (
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Phone className="h-4 w-4 mr-2" />
+                Call {lead.phone}
+              </Button>
+            )}
+            
+            <Button variant="outline" size="sm" className="w-full justify-start">
+              <Mail className="h-4 w-4 mr-2" />
+              Email
+            </Button>
+            
+            <Button variant="outline" size="sm" className="w-full justify-start">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              SMS
+            </Button>
+            
+            <Button variant="outline" size="sm" className="w-full justify-start">
+              <Calendar className="h-4 w-4 mr-2" />
+              Schedule Meeting
+            </Button>
+          </div>
+          
+          {/* AI Recommended Actions */}
+          <div className="pt-2 border-t">
+            <p className="text-xs text-muted-foreground mb-2">AI Recommended:</p>
+            <div className="space-y-1">
+              <Button variant="ghost" size="sm" className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                Send follow-up email
+              </Button>
+              
+              <Button variant="ghost" size="sm" className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50">
+                Schedule consultation
+              </Button>
+              
+              <Button variant="ghost" size="sm" className="w-full justify-start text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+                Send program info
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* AI Insights */}
       <div className="p-6 border-b border-border">
         <h3 className="text-sm font-semibold mb-4 flex items-center gap-2">

@@ -20,6 +20,10 @@ import { UniversalBuilderPage } from "./pages/UniversalBuilderPage";
 import { FormBuilderPage } from "./pages/FormBuilderPage";
 import { WorkflowBuilderPage } from "./pages/WorkflowBuilderPage";
 import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
+import RecruiterDashboard from "./pages/RecruiterDashboard";
+import RecruiterSubmitApplication from "./pages/RecruiterSubmitApplication";
+import RecruiterManagement from "./components/admin/RecruiterManagement";
+import RecruiterApplicationsManagement from "./components/admin/RecruiterApplicationsManagement";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +63,15 @@ const App = () => {
               <Route path="/admin/builder/campaigns" element={<ProtectedRoute element={<CampaignBuilderPage />} />} />
               <Route path="/admin/builder/campaigns/:campaignId" element={<ProtectedRoute element={<CampaignBuilderPage />} />} />
               <Route path="/admin/builder/campaigns/:campaignId/edit" element={<ProtectedRoute element={<CampaignBuilderPage />} />} />
+              
+              {/* Recruiter specific routes */}
+              <Route path="/recruiter" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
+              <Route path="/recruiter/dashboard" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
+              <Route path="/recruiter/submit-application" element={<ProtectedRoute element={<RecruiterSubmitApplication />} />} />
+              
+              {/* Admin routes for recruiter management */}
+              <Route path="/admin/recruiters" element={<ProtectedRoute element={<RecruiterManagement />} />} />
+              <Route path="/admin/recruiter-applications" element={<ProtectedRoute element={<RecruiterApplicationsManagement />} />} />
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

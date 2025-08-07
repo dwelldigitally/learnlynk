@@ -24,7 +24,8 @@ import {
   Link,
   Bot,
   Brain,
-  Cog
+  Cog,
+  Building2
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -81,7 +82,9 @@ export const navigationStructure: NavigationStructure = {
         { name: "Workflows", href: "/admin/workflows", icon: Workflow },
         { name: "Requirements", href: "/admin/requirements", icon: Shield },
         { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
-        { name: "Team Management", href: "/admin/team", icon: UserCog }
+        { name: "Team Management", href: "/admin/team", icon: UserCog },
+        { name: "Recruiter Management", href: "/admin/recruiters", icon: Building2 },
+        { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileCheck }
       ]
     },
     {

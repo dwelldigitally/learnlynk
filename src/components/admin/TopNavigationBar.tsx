@@ -68,14 +68,17 @@ export function TopNavigationBar({
           </Button>
 
           {/* Logo */}
-          <div className="flex items-center space-x-2">
+          <Link 
+            to="/admin" 
+            className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+          >
             <div className={`${isMobile ? 'w-7 h-7' : 'w-8 h-8'} bg-white/20 rounded-lg flex items-center justify-center`}>
               <span className="text-white font-bold text-sm">W</span>
             </div>
             <span className={`font-semibold ${isMobile ? 'text-base' : 'text-lg'} hidden sm:block text-white`}>
               {isMobile ? 'WCC' : 'WCC Admin'}
             </span>
-          </div>
+          </Link>
 
           {/* Main Navigation - Hidden on mobile */}
           <nav className="hidden lg:flex items-center space-x-1">

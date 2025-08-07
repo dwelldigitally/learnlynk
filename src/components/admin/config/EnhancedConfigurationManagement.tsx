@@ -32,6 +32,7 @@ import { TeamsConfiguration } from './sections/TeamsConfiguration';
 import { NotificationFiltersConfiguration } from './sections/NotificationFiltersConfiguration';
 import { RoutingConfiguration } from './sections/RoutingConfiguration';
 import { CompanyProfileConfiguration } from './sections/CompanyProfileConfiguration';
+import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
 
 interface ConfigurationSection {
   id: string;
@@ -222,6 +223,15 @@ const configurationSections: ConfigurationSection[] = [
 
   // Integration
   {
+    id: 'external-integrations',
+    label: 'External Integrations',
+    icon: Zap,
+    description: 'Connect with external services and APIs',
+    category: 'Integration',
+    component: <EnhancedIntegrationHub />,
+    isNew: true
+  },
+  {
     id: 'intake-dates',
     label: 'Intake Dates',
     icon: Calendar,
@@ -240,7 +250,7 @@ const configurationSections: ConfigurationSection[] = [
   {
     id: 'automation',
     label: 'Automation',
-    icon: Zap,
+    icon: Workflow,
     description: 'Automated processes and triggers',
     category: 'Integration',
     component: <div className="p-6 text-center text-muted-foreground">Automation configuration coming soon...</div>

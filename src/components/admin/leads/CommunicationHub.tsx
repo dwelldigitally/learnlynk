@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,12 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft, Zap } from 'lucide-react';
-import { AIVideoIntegration } from './AIVideoIntegration';
-import { AITranscriptionPanel } from './AITranscriptionPanel';
-import { AIMeetingAnalysis } from './AIMeetingAnalysis';
-import { AIFollowUpGenerator } from './AIFollowUpGenerator';
+import { MessageSquare, Plus, Phone, Mail, MessageCircle, Calendar, Send, ArrowUpRight, ArrowDownLeft } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadCommunication, CommunicationFormData, CommunicationType, CommunicationDirection } from '@/types/leadEnhancements';
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
@@ -29,6 +25,9 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
   const [communications, setCommunications] = useState<LeadCommunication[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyContent, setReplyContent] = useState('');
+  const [aiSuggestion, setAiSuggestion] = useState('');
   const { toast } = useToast();
 
   const [newCommunication, setNewCommunication] = useState<CommunicationFormData>({
@@ -85,6 +84,49 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
     }
   };
 
+  const handleReply = () => {
+    setShowReplyBox(!showReplyBox);
+    if (!showReplyBox) {
+      // Generate AI suggestion when reply box is opened
+      setAiSuggestion("Hi " + lead.first_name + ", thank you for your interest in our programs. I'd be happy to discuss your questions and help you with the next steps in your application process.");
+    }
+  };
+
+  const useAISuggestion = () => {
+    setReplyContent(aiSuggestion);
+  };
+
+  const sendReply = async () => {
+    if (!replyContent.trim()) return;
+    
+    const replyData: CommunicationFormData = {
+      type: 'email',
+      direction: 'outbound',
+      content: replyContent,
+      subject: 'Re: Follow-up',
+      communication_date: new Date().toISOString().slice(0, 16)
+    };
+
+    try {
+      await LeadCommunicationService.createCommunication(lead.id, replyData);
+      setReplyContent('');
+      setShowReplyBox(false);
+      loadCommunications();
+      onUpdate();
+      toast({
+        title: "Success",
+        description: "Reply sent successfully"
+      });
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send reply",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getCommunicationIcon = (type: CommunicationType) => {
     switch (type) {
       case 'phone': return <Phone className="h-4 w-4" />;
@@ -133,110 +175,144 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
   }
 
   return (
-    <div className="space-y-6">
-      <Tabs defaultValue="communications" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="communications">Communications</TabsTrigger>
-          <TabsTrigger value="ai-features">
-            <Zap className="h-4 w-4 mr-2" />
-            AI Features
-          </TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="communications" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  Communication Hub
-                </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-1" />
-                Log Communication
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Log New Communication</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Type</Label>
-                    <Select value={newCommunication.type} onValueChange={(value: CommunicationType) => setNewCommunication({ ...newCommunication, type: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="phone">Phone Call</SelectItem>
-                        <SelectItem value="sms">SMS</SelectItem>
-                        <SelectItem value="meeting">Meeting</SelectItem>
-                        <SelectItem value="note">Note</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Direction</Label>
-                    <Select value={newCommunication.direction} onValueChange={(value: CommunicationDirection) => setNewCommunication({ ...newCommunication, direction: value })}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="outbound">Outbound</SelectItem>
-                        <SelectItem value="inbound">Inbound</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                {(newCommunication.type === 'email' || newCommunication.type === 'meeting') && (
-                  <div>
-                    <Label htmlFor="communication-subject">Subject</Label>
-                    <Input
-                      id="communication-subject"
-                      value={newCommunication.subject || ''}
-                      onChange={(e) => setNewCommunication({ ...newCommunication, subject: e.target.value })}
-                      placeholder="Subject/Title"
-                    />
-                  </div>
-                )}
-                
-                <div>
-                  <Label htmlFor="communication-content">Content/Notes</Label>
-                  <Textarea
-                    id="communication-content"
-                    value={newCommunication.content}
-                    onChange={(e) => setNewCommunication({ ...newCommunication, content: e.target.value })}
-                    placeholder="Enter communication details..."
-                    rows={4}
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="communication-date">Date & Time</Label>
-                  <Input
-                    id="communication-date"
-                    type="datetime-local"
-                    value={newCommunication.communication_date}
-                    onChange={(e) => setNewCommunication({ ...newCommunication, communication_date: e.target.value })}
-                  />
-                </div>
-                
-                <Button onClick={handleCreateCommunication} disabled={!newCommunication.content.trim()}>
-                  <Send className="h-4 w-4 mr-2" />
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Communication Hub
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={handleReply}>
+              <Send className="h-4 w-4 mr-1" />
+              Reply
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-1" />
                   Log Communication
                 </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Log New Communication</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Type</Label>
+                      <Select value={newCommunication.type} onValueChange={(value: CommunicationType) => setNewCommunication({ ...newCommunication, type: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="phone">Phone Call</SelectItem>
+                          <SelectItem value="sms">SMS</SelectItem>
+                          <SelectItem value="meeting">Meeting</SelectItem>
+                          <SelectItem value="note">Note</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Direction</Label>
+                      <Select value={newCommunication.direction} onValueChange={(value: CommunicationDirection) => setNewCommunication({ ...newCommunication, direction: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="outbound">Outbound</SelectItem>
+                          <SelectItem value="inbound">Inbound</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  {(newCommunication.type === 'email' || newCommunication.type === 'meeting') && (
+                    <div>
+                      <Label htmlFor="communication-subject">Subject</Label>
+                      <Input
+                        id="communication-subject"
+                        value={newCommunication.subject || ''}
+                        onChange={(e) => setNewCommunication({ ...newCommunication, subject: e.target.value })}
+                        placeholder="Subject/Title"
+                      />
+                    </div>
+                  )}
+                  
+                  <div>
+                    <Label htmlFor="communication-content">Content/Notes</Label>
+                    <Textarea
+                      id="communication-content"
+                      value={newCommunication.content}
+                      onChange={(e) => setNewCommunication({ ...newCommunication, content: e.target.value })}
+                      placeholder="Enter communication details..."
+                      rows={4}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="communication-date">Date & Time</Label>
+                    <Input
+                      id="communication-date"
+                      type="datetime-local"
+                      value={newCommunication.communication_date}
+                      onChange={(e) => setNewCommunication({ ...newCommunication, communication_date: e.target.value })}
+                    />
+                  </div>
+                  
+                  <Button onClick={handleCreateCommunication} disabled={!newCommunication.content.trim()}>
+                    <Send className="h-4 w-4 mr-2" />
+                    Log Communication
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* AI Follow-up Reply Box */}
+        {showReplyBox && (
+          <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium">Quick Reply</h4>
+                <Button size="sm" variant="ghost" onClick={() => setShowReplyBox(false)}>×</Button>
+              </div>
+              
+              {aiSuggestion && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-blue-700 font-medium">AI Suggestion</span>
+                    <Button size="sm" variant="outline" onClick={useAISuggestion}>
+                      Use This
+                    </Button>
+                  </div>
+                  <p className="text-blue-600">{aiSuggestion}</p>
+                </div>
+              )}
+              
+              <Textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder="Type your reply..."
+                rows={3}
+              />
+              
+              <div className="flex justify-end gap-2">
+                <Button size="sm" variant="outline" onClick={() => setShowReplyBox(false)}>
+                  Cancel
+                </Button>
+                <Button size="sm" onClick={sendReply} disabled={!replyContent.trim()}>
+                  Send Reply
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {communications.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <MessageSquare className="h-12 w-12 mx-auto mb-2 opacity-50" />
@@ -261,6 +337,12 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
                             {comm.direction}
                           </Badge>
                           {getStatusBadge(comm.status)}
+                          {/* Show AI Transcription badge for calls */}
+                          {comm.type === 'phone' && (
+                            <Badge variant="secondary" className="text-xs">
+                              AI Transcribed
+                            </Badge>
+                          )}
                         </div>
                         {comm.subject && (
                           <p className="text-sm font-medium">{comm.subject}</p>
@@ -271,6 +353,16 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground">{comm.content}</p>
+                    
+                    {/* Show AI Transcription for phone calls */}
+                    {comm.type === 'phone' && (
+                      <div className="mt-2 p-2 bg-purple-50 border border-purple-200 rounded text-xs">
+                        <span className="font-medium text-purple-700">AI Transcription:</span>
+                        <p className="text-purple-600 mt-1">
+                          "Hi {lead.first_name}, thanks for your interest in our MBA program. I understand you're looking for evening classes to accommodate your work schedule..."
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 {index < communications.length - 1 && <Separator className="my-2" />}
@@ -280,67 +372,5 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
         )}
       </CardContent>
     </Card>
-        </TabsContent>
-        
-        <TabsContent value="ai-features" className="mt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <AIVideoIntegration 
-              leadId={lead.id} 
-              onMeetingScheduled={(meetingData) => {
-                // Handle meeting scheduled
-                console.log('Meeting scheduled:', meetingData);
-                onUpdate();
-              }}
-            />
-            <AITranscriptionPanel 
-              leadId={lead.id}
-              onTranscriptUpdate={(transcript) => {
-                // Handle transcript updates
-                console.log('Transcript updated:', transcript);
-              }}
-            />
-            <AIMeetingAnalysis 
-              leadId={lead.id}
-            />
-            <AIFollowUpGenerator 
-              leadId={lead.id}
-              onActionCreated={(action) => {
-                // Handle action creation
-                console.log('Action created:', action);
-                onUpdate();
-              }}
-            />
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="analytics" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Communication Analytics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{communications.length}</div>
-                  <div className="text-sm text-muted-foreground">Total Communications</div>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
-                    {communications.filter(c => c.direction === 'inbound').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Inbound Responses</div>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {communications.filter(c => c.type === 'meeting').length}
-                  </div>
-                  <div className="text-sm text-muted-foreground">Meetings Held</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
   );
 }

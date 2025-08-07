@@ -19,6 +19,22 @@ export default function SalesRepDashboard() {
 
   return (
     <div className="min-h-screen bg-muted/30">
+      {/* Top Navigation Bar */}
+      <div className="bg-background border-b border-border">
+        <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
+          <div className={cn("flex gap-4", isMobile ? "flex-col" : "flex-col lg:flex-row lg:items-center lg:justify-between")}>
+            <div>
+              <h1 className={cn("font-bold text-foreground", isMobile ? "text-xl" : "text-2xl")}>
+                Sales Rep Dashboard
+              </h1>
+              <p className={cn("text-muted-foreground mt-1", isMobile ? "text-sm" : "")}>
+                Your personalized workspace for managing leads and performance
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <DailyHeader />
       
       <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>

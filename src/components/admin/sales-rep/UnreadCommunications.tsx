@@ -31,17 +31,16 @@ export function UnreadCommunications() {
 
   const loadUnreadCommunications = async () => {
     try {
-      // This would need to be implemented in the service to get unread communications
-      // For now, we'll use mock data
+      // Enhanced mock communications with more variety
       const mockCommunications: Communication[] = [
         {
           id: '1',
           lead_id: 'lead-1',
           type: 'email',
-          subject: 'Re: MBA Program Inquiry',
-          content: 'Thank you for the information. I have a few questions about the application process...',
+          subject: 'Re: MBA Program Inquiry - Application Deadline Question',
+          content: 'Hi! Thank you for the detailed information about the MBA program. I have a few urgent questions about the application deadline and required documents. When is the latest I can submit my application for the Spring intake? Also, do I need to submit GMAT scores immediately or can I send them later?',
           direction: 'inbound',
-          communication_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          communication_date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
           lead_name: 'Sarah Johnson',
           is_urgent: true
         },
@@ -50,20 +49,41 @@ export function UnreadCommunications() {
           lead_id: 'lead-2',
           type: 'sms',
           subject: undefined,
-          content: 'Hi, can we schedule a call to discuss the program fees?',
+          content: 'Hi, can we schedule a call to discuss the program fees and scholarship opportunities? I\'m very interested but need to understand the financial aspects better.',
           direction: 'inbound',
-          communication_date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+          communication_date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
           lead_name: 'Michael Chen'
         },
         {
           id: '3',
           lead_id: 'lead-3',
           type: 'email',
-          subject: 'Application Status Update',
-          content: 'I submitted my application last week and wanted to check on the status...',
+          subject: 'Application Status Update Request',
+          content: 'Hello! I submitted my application last week and wanted to check on the status. I\'m particularly anxious about the interview process timing as I need to plan my schedule accordingly.',
           direction: 'inbound',
-          communication_date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+          communication_date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
           lead_name: 'Emily Rodriguez'
+        },
+        {
+          id: '4',
+          lead_id: 'lead-4',
+          type: 'email',
+          subject: 'Program Comparison - MBA vs Executive MBA',
+          content: 'I\'ve been reviewing both the MBA and Executive MBA programs. Could you help me understand which would be better for someone with 8 years of work experience? I\'m looking for career advancement opportunities.',
+          direction: 'inbound',
+          communication_date: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+          lead_name: 'David Kim',
+          is_urgent: false
+        },
+        {
+          id: '5',
+          lead_id: 'lead-5',
+          type: 'sms',
+          subject: undefined,
+          content: 'Thank you for the brochure! The program looks amazing. Can we set up a campus visit next week?',
+          direction: 'inbound',
+          communication_date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+          lead_name: 'Lisa Wang'
         }
       ];
       

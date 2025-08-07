@@ -32,15 +32,15 @@ export function MyDayCalendar() {
 
   const loadTodaysEvents = async () => {
     try {
-      // Mock calendar events for today
+      // Enhanced mock calendar events for today
       const mockEvents: CalendarEvent[] = [
         {
           id: '1',
           title: 'Intake Meeting - Sarah Johnson',
           type: 'intake',
-          start_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(), // 2 hours from now
-          end_time: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
-          description: 'MBA program intake discussion',
+          start_time: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          description: 'MBA program intake discussion - high priority lead',
           lead_name: 'Sarah Johnson',
           is_virtual: true,
           meeting_link: 'https://zoom.us/j/123456789'
@@ -49,9 +49,9 @@ export function MyDayCalendar() {
           id: '2',
           title: 'Follow-up Call - Michael Chen',
           type: 'follow_up',
-          start_time: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
-          end_time: new Date(Date.now() + 4.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Discuss application requirements',
+          start_time: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 3.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Discuss Business Analytics program and answer technical questions',
           lead_name: 'Michael Chen',
           is_virtual: false
         },
@@ -59,12 +59,44 @@ export function MyDayCalendar() {
           id: '3',
           title: 'Program Demo - Tech Bootcamp',
           type: 'demo',
-          start_time: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(), // 6 hours from now
-          end_time: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString(),
-          description: 'Live demo of our coding bootcamp curriculum',
-          attendees: ['Emily Rodriguez', 'James Wilson'],
+          start_time: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+          description: 'Live demo of our coding bootcamp curriculum for prospective students',
+          attendees: ['Emily Rodriguez', 'James Wilson', 'Rachel Green'],
           is_virtual: true,
           meeting_link: 'https://zoom.us/j/987654321'
+        },
+        {
+          id: '4',
+          title: 'Team Standup',
+          type: 'meeting',
+          start_time: new Date(Date.now() + 6.5 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString(),
+          description: 'Daily sales team standup - review progress and blocked items',
+          attendees: ['Sales Team'],
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/teamstandup'
+        },
+        {
+          id: '5',
+          title: 'Decision Call - David Kim',
+          type: 'call',
+          start_time: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 8.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Executive MBA proposal review and decision discussion',
+          lead_name: 'David Kim',
+          is_virtual: false
+        },
+        {
+          id: '6',
+          title: 'Application Support - Lisa Wang',
+          type: 'meeting',
+          start_time: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 9.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Help with application submission and document requirements',
+          lead_name: 'Lisa Wang',
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/appsupport'
         }
       ];
       

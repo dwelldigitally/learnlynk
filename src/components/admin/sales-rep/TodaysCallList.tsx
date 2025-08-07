@@ -28,32 +28,131 @@ export function TodaysCallList() {
 
   const loadTodaysCallList = async () => {
     try {
-      // Get leads that need to be called today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      const filters = {
-        date_range: {
-          start: today,
-          end: tomorrow
+      // Enhanced mock call list with more realistic data
+      const mockCallItems: CallItem[] = [
+        {
+          id: 'call-1',
+          first_name: 'Sarah',
+          last_name: 'Johnson',
+          email: 'sarah.johnson@email.com',
+          phone: '+1 (555) 123-4567',
+          country: 'United States',
+          state: 'California',
+          city: 'San Francisco',
+          source: 'web' as const,
+          status: 'qualified' as const,
+          stage: 'QUALIFICATION' as const,
+          priority: 'high' as const,
+          lead_score: 87,
+          program_interest: ['MBA', 'Executive MBA'],
+          assigned_to: 'current-user',
+          tags: ['hot-lead', 'mba-interested'],
+          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+          call_type: 'scheduled' as const,
+          scheduled_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          call_notes: 'Follow up on MBA application requirements and scholarship opportunities',
+          next_follow_up_at: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'call-2',
+          first_name: 'Michael',
+          last_name: 'Chen',
+          email: 'michael.chen@email.com',
+          phone: '+1 (555) 234-5678',
+          country: 'United States',
+          state: 'New York',
+          city: 'New York',
+          source: 'referral' as const,
+          status: 'contacted' as const,
+          stage: 'NURTURING' as const,
+          priority: 'medium' as const,
+          lead_score: 72,
+          program_interest: ['Business Analytics', 'Data Science'],
+          assigned_to: 'current-user',
+          tags: ['callback-requested'],
+          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+          call_type: 'follow_up' as const,
+          scheduled_time: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+          call_notes: 'Discuss program comparison and career outcomes',
+          next_follow_up_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'call-3',
+          first_name: 'Emily',
+          last_name: 'Rodriguez',
+          email: 'emily.rodriguez@email.com',
+          phone: '+1 (555) 345-6789',
+          country: 'United States',
+          state: 'Texas',
+          city: 'Austin',
+          source: 'social_media' as const,
+          status: 'new' as const,
+          stage: 'NEW_INQUIRY' as const,
+          priority: 'urgent' as const,
+          lead_score: 65,
+          program_interest: ['Marketing Certificate', 'Digital Marketing'],
+          assigned_to: 'current-user',
+          tags: ['overdue'],
+          created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+          call_type: 'overdue' as const,
+          scheduled_time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          call_notes: 'OVERDUE: Initial consultation call - application deadline approaching',
+          next_follow_up_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'call-4',
+          first_name: 'David',
+          last_name: 'Kim',
+          email: 'david.kim@email.com',
+          phone: '+1 (555) 456-7890',
+          country: 'United States',
+          state: 'Washington',
+          city: 'Seattle',
+          source: 'email' as const,
+          status: 'nurturing' as const,
+          stage: 'PROPOSAL_SENT' as const,
+          priority: 'high' as const,
+          lead_score: 84,
+          program_interest: ['Executive MBA'],
+          assigned_to: 'current-user',
+          tags: ['decision-pending'],
+          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+          call_type: 'scheduled' as const,
+          scheduled_time: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+          call_notes: 'Decision call - proposal review and next steps',
+          next_follow_up_at: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'call-5',
+          first_name: 'Lisa',
+          last_name: 'Wang',
+          email: 'lisa.wang@email.com',
+          phone: '+1 (555) 567-8901',
+          country: 'Canada',
+          state: 'Ontario',
+          city: 'Toronto',
+          source: 'event' as const,
+          status: 'qualified' as const,
+          stage: 'APPLICATION_STARTED' as const,
+          priority: 'medium' as const,
+          lead_score: 78,
+          program_interest: ['Finance MBA', 'Investment Management'],
+          assigned_to: 'current-user',
+          tags: ['international', 'application-in-progress'],
+          created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString(),
+          call_type: 'follow_up' as const,
+          scheduled_time: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+          call_notes: 'Application support call - document submission guidance',
+          next_follow_up_at: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString()
         }
-      };
+      ];
       
-      const response = await LeadService.getLeads(filters, 1, 10);
-      
-      // Mock transformation to add call-specific data
-      const callItems: CallItem[] = response.leads.map(lead => ({
-        ...lead,
-        call_type: lead.next_follow_up_at ? 
-          (new Date(lead.next_follow_up_at) < new Date() ? 'overdue' : 'scheduled') : 
-          'follow_up',
-        scheduled_time: lead.next_follow_up_at,
-        call_notes: `Follow up on ${lead.program_interest.join(', ')} inquiry`
-      }));
-      
-      setCallList(callItems.filter(item => item.phone));
+      setCallList(mockCallItems);
     } catch (error) {
       console.error('Failed to load today\'s call list:', error);
     } finally {

@@ -22,16 +22,136 @@ export function NewlyAssignedLeads() {
 
   const loadNewlyAssignedLeads = async () => {
     try {
-      // Get leads assigned in the last 48 hours
-      const filters = {
-        date_range: {
-          start: new Date(Date.now() - 48 * 60 * 60 * 1000),
-          end: new Date()
+      // Enhanced mock data for newly assigned leads
+      const mockLeads: Lead[] = [
+        {
+          id: 'lead-1',
+          first_name: 'Sarah',
+          last_name: 'Johnson',
+          email: 'sarah.johnson@email.com',
+          phone: '+1 (555) 123-4567',
+          country: 'United States',
+          state: 'California',
+          city: 'San Francisco',
+          source: 'web',
+          source_details: 'MBA Program Landing Page',
+          status: 'new',
+          stage: 'NEW_INQUIRY',
+          priority: 'high',
+          lead_score: 87,
+          ai_score: 92,
+          program_interest: ['MBA', 'Executive MBA'],
+          assigned_to: 'current-user',
+          assigned_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+          assignment_method: 'ai_based',
+          tags: ['high-intent', 'quick-decision'],
+          notes: 'Expressed urgent interest in MBA program. Looking to start ASAP.',
+          created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'lead-2',
+          first_name: 'Michael',
+          last_name: 'Chen',
+          email: 'michael.chen@email.com',
+          phone: '+1 (555) 234-5678',
+          country: 'Canada',
+          state: 'Ontario',
+          city: 'Toronto',
+          source: 'referral',
+          source_details: 'Alumni referral from John Smith',
+          status: 'new',
+          stage: 'NEW_INQUIRY',
+          priority: 'medium',
+          lead_score: 72,
+          ai_score: 78,
+          program_interest: ['Business Analytics', 'Data Science Certificate'],
+          assigned_to: 'current-user',
+          assigned_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+          assignment_method: 'round_robin',
+          tags: ['referral', 'alumni-connection'],
+          notes: 'Referred by alumnus. Interested in data science programs.',
+          created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'lead-3',
+          first_name: 'Emily',
+          last_name: 'Rodriguez',
+          email: 'emily.rodriguez@email.com',
+          phone: '+1 (555) 345-6789',
+          country: 'United States',
+          state: 'Texas',
+          city: 'Austin',
+          source: 'social_media',
+          source_details: 'LinkedIn ad campaign',
+          status: 'new',
+          stage: 'NEW_INQUIRY',
+          priority: 'urgent',
+          lead_score: 65,
+          ai_score: 85,
+          program_interest: ['Digital Marketing', 'Marketing Certificate'],
+          assigned_to: 'current-user',
+          assigned_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+          assignment_method: 'manual',
+          tags: ['linkedin', 'marketing-focus'],
+          notes: 'High engagement on social media. Quick to respond.',
+          created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'lead-4',
+          first_name: 'David',
+          last_name: 'Kim',
+          email: 'david.kim@email.com',
+          phone: '+1 (555) 456-7890',
+          country: 'United States',
+          state: 'Washington',
+          city: 'Seattle',
+          source: 'email',
+          source_details: 'Newsletter signup',
+          status: 'new',
+          stage: 'NEW_INQUIRY',
+          priority: 'medium',
+          lead_score: 58,
+          ai_score: 71,
+          program_interest: ['Project Management', 'Agile Certification'],
+          assigned_to: 'current-user',
+          assigned_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+          assignment_method: 'geography',
+          tags: ['newsletter', 'project-management'],
+          notes: 'Subscribed to newsletter. Interested in PM certification.',
+          created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'lead-5',
+          first_name: 'Jennifer',
+          last_name: 'Wilson',
+          email: 'jennifer.wilson@email.com',
+          phone: '+1 (555) 567-8901',
+          country: 'United States',
+          state: 'Florida',
+          city: 'Miami',
+          source: 'event',
+          source_details: 'Virtual Information Session',
+          status: 'new',
+          stage: 'NEW_INQUIRY',
+          priority: 'high',
+          lead_score: 81,
+          ai_score: 88,
+          program_interest: ['Finance MBA', 'Investment Management'],
+          assigned_to: 'current-user',
+          assigned_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          assignment_method: 'ai_based',
+          tags: ['info-session', 'finance-focus', 'high-engagement'],
+          notes: 'Attended full info session. Asked detailed questions about finance track.',
+          created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
         }
-      };
+      ];
       
-      const response = await LeadService.getLeads(filters, 1, 5);
-      setLeads(response.leads.filter(lead => lead.assigned_to));
+      setLeads(mockLeads);
     } catch (error) {
       console.error('Failed to load newly assigned leads:', error);
     } finally {

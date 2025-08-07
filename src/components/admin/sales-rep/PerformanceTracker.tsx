@@ -47,33 +47,33 @@ export function PerformanceTracker() {
 
   const loadPerformanceMetrics = async () => {
     try {
-      // Mock performance data
+      // Enhanced mock performance data with realistic metrics
       const mockMetrics: PerformanceMetrics = {
         daily: {
-          calls_target: 20,
-          calls_made: 12,
-          emails_target: 15,
-          emails_sent: 8,
-          meetings_target: 3,
-          meetings_booked: 2
+          calls_target: 25,
+          calls_made: 18,
+          emails_target: 20,
+          emails_sent: 15,
+          meetings_target: 4,
+          meetings_booked: 3
         },
         weekly: {
-          leads_target: 25,
-          leads_converted: 18,
-          revenue_target: 50000,
-          revenue_generated: 42000
+          leads_target: 30,
+          leads_converted: 22,
+          revenue_target: 75000,
+          revenue_generated: 68500
         },
         monthly: {
-          conversion_rate: 24.5,
-          average_deal_size: 2800,
-          response_time_avg: 4.2
+          conversion_rate: 28.5,
+          average_deal_size: 3200,
+          response_time_avg: 3.8
         },
         team_comparison: {
-          my_rank: 3,
-          total_reps: 12,
+          my_rank: 2,
+          total_reps: 15,
           top_performer: 'Alex Rodriguez',
-          my_score: 87,
-          team_average: 73
+          my_score: 94,
+          team_average: 76
         }
       };
       

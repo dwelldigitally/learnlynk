@@ -31,7 +31,7 @@ export function ReenquiryStudents() {
 
   const loadReenquiryStudents = async () => {
     try {
-      // Mock data for re-enquiry students
+      // Enhanced mock data for re-enquiry students with more variety
       const mockStudents: ReenquiryStudent[] = [
         {
           id: '1',
@@ -40,10 +40,10 @@ export function ReenquiryStudents() {
           phone: '+1234567890',
           original_program: 'MBA',
           new_interest: 'Executive MBA',
-          last_activity: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 85,
+          last_activity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          engagement_score: 89,
           type: 'upsell_opportunity',
-          days_since_last_contact: 3
+          days_since_last_contact: 2
         },
         {
           id: '2',
@@ -52,21 +52,45 @@ export function ReenquiryStudents() {
           phone: '+1234567891',
           original_program: 'Marketing Certificate',
           new_interest: 'Digital Marketing Master',
-          last_activity: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 72,
+          last_activity: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          engagement_score: 76,
           type: 'program_change',
-          days_since_last_contact: 7
+          days_since_last_contact: 5
         },
         {
           id: '3',
           name: 'James Thompson',
           email: 'james.thompson@email.com',
           original_program: 'Business Analytics',
-          new_interest: 'Data Science',
-          last_activity: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+          new_interest: 'Data Science Master',
+          last_activity: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
           engagement_score: 68,
           type: 'dormant_reactivation',
-          days_since_last_contact: 14
+          days_since_last_contact: 12
+        },
+        {
+          id: '4',
+          name: 'Rachel Green',
+          email: 'rachel.green@email.com',
+          phone: '+1234567893',
+          original_program: 'Finance MBA',
+          new_interest: 'Investment Management Certificate',
+          last_activity: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          engagement_score: 82,
+          type: 'alumni_referral',
+          days_since_last_contact: 7
+        },
+        {
+          id: '5',
+          name: 'Alex Rodriguez',
+          email: 'alex.rodriguez@email.com',
+          phone: '+1234567894',
+          original_program: 'Project Management',
+          new_interest: 'Agile Master Certification',
+          last_activity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          engagement_score: 91,
+          type: 'upsell_opportunity',
+          days_since_last_contact: 1
         }
       ];
       

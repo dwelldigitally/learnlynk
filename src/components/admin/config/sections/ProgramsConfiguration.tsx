@@ -47,7 +47,14 @@ export const ProgramsConfiguration = () => {
         .order('name');
 
       if (error) throw error;
-      setPrograms(data || []);
+      // Type cast Json fields to proper types
+      const typedData = (data || []).map(item => ({
+        ...item,
+        entry_requirements: Array.isArray(item.entry_requirements) ? item.entry_requirements : [],
+        document_requirements: Array.isArray(item.document_requirements) ? item.document_requirements : [],
+        fee_structure: item.fee_structure || {},
+      }));
+      setPrograms(typedData);
     } catch (error) {
       console.error('Error fetching programs:', error);
       toast({
@@ -61,12 +68,35 @@ export const ProgramsConfiguration = () => {
   };
 
   const handleSave = async () => {
+    if (!formData.name?.trim()) {
+      toast({
+        title: "Error",
+        description: "Name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.code?.trim()) {
+      toast({
+        title: "Error",
+        description: "Code is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const programData = {
         ...formData,
+        name: formData.name.trim(),
+        code: formData.code.trim(),
+        entry_requirements: formData.entry_requirements || [],
+        document_requirements: formData.document_requirements || [],
+        fee_structure: formData.fee_structure || {},
         user_id: user.id
       };
 

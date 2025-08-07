@@ -54,12 +54,32 @@ export const MarketingSourcesConfiguration = () => {
   };
 
   const handleSave = async () => {
+    if (!formData.name?.trim()) {
+      toast({
+        title: "Error",
+        description: "Name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.category?.trim()) {
+      toast({
+        title: "Error", 
+        description: "Category is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const sourceData = {
         ...formData,
+        name: formData.name.trim(),
+        category: formData.category.trim(),
         user_id: user.id
       };
 

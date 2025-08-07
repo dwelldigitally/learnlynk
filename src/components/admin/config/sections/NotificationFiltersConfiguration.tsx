@@ -42,7 +42,13 @@ export const NotificationFiltersConfiguration = () => {
         .order('name', { ascending: true });
 
       if (error) throw error;
-      setFilters(data || []);
+      // Type cast Json fields to proper types
+      const typedData = (data || []).map(item => ({
+        ...item,
+        recipients: Array.isArray(item.recipients) ? item.recipients : [],
+        conditions: item.conditions || {},
+      }));
+      setFilters(typedData);
     } catch (error) {
       console.error('Error fetching notification filters:', error);
       toast({
@@ -56,12 +62,43 @@ export const NotificationFiltersConfiguration = () => {
   };
 
   const handleSave = async () => {
+    if (!formData.name?.trim()) {
+      toast({
+        title: "Error",
+        description: "Name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.type?.trim()) {
+      toast({
+        title: "Error",
+        description: "Type is required", 
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!formData.event_types || formData.event_types.length === 0) {
+      toast({
+        title: "Error",
+        description: "At least one event type is required",
+        variant: "destructive", 
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const filterData = {
         ...formData,
+        name: formData.name.trim(),
+        type: formData.type.trim(),
+        event_types: formData.event_types || [],
+        recipients: formData.recipients || [],
         user_id: user.id
       };
 

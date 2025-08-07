@@ -59,12 +59,23 @@ export const TeamsConfiguration = () => {
   };
 
   const handleSave = async () => {
+    if (!formData.name?.trim()) {
+      toast({
+        title: "Error",
+        description: "Name is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       const teamData = {
         ...formData,
+        name: formData.name.trim(),
+        type: formData.type || 'internal',
         user_id: user.id
       };
 

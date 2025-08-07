@@ -7,11 +7,12 @@ import { ArrowLeft, MessageSquare, FileText, Clock, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
-import { LeadSidebar } from '@/components/admin/leads/LeadSidebar';
-import { LeadRightSidebar } from '@/components/admin/leads/LeadRightSidebar';
+import { EnhancedLeadSidebar } from '@/components/admin/leads/EnhancedLeadSidebar';
+import { EnhancedRightSidebar } from '@/components/admin/leads/EnhancedRightSidebar';
+import { QuickActionBar } from '@/components/admin/leads/QuickActionBar';
 import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
-import { ActivityTimeline } from '@/components/admin/leads/ActivityTimeline';
+import { SegmentedTimeline } from '@/components/admin/leads/SegmentedTimeline';
 import { TasksAndNotes } from '@/components/admin/leads/TasksAndNotes';
 import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 
@@ -123,34 +124,23 @@ export default function LeadDetailPage() {
         onToggleMobileMenu={() => {}} 
       />
       
-      {/* Header with back button */}
-      <div className="border-b bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Leads
-            </Button>
-            <div>
-              <h1 className="text-xl font-bold">{lead.first_name} {lead.last_name}</h1>
-              <p className="text-sm text-muted-foreground">{lead.email}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Badge className={getStatusColor(lead.status)}>
-              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-            </Badge>
-            <div className="text-sm text-muted-foreground">
-              Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
-            </div>
-          </div>
+      {/* Header with back button and quick actions */}
+      <div className="border-b bg-card px-6 py-2">
+        <div className="flex items-center gap-4 mb-2">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Leads
+          </Button>
         </div>
       </div>
+      
+      {/* Quick Action Bar */}
+      <QuickActionBar lead={lead} onUpdate={loadLead} />
 
       {/* Three-column layout */}
-      <div className="flex h-[calc(100vh-140px)]">
-        {/* Left Sidebar - Lead Details */}
-        <LeadSidebar lead={lead} onUpdate={loadLead} />
+      <div className="flex h-[calc(100vh-200px)]">
+        {/* Left Sidebar - Enhanced Lead Details with AI Insights */}
+        <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
         
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
@@ -167,7 +157,7 @@ export default function LeadDetailPage() {
                 </TabsTrigger>
                 <TabsTrigger value="timeline" className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  Timeline
+                  Activity
                 </TabsTrigger>
                 <TabsTrigger value="tasks" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
@@ -185,7 +175,12 @@ export default function LeadDetailPage() {
                 </TabsContent>
 
                 <TabsContent value="timeline" className="h-full m-0">
-                  <ActivityTimeline lead={lead} />
+                  <SegmentedTimeline 
+                    leadId={lead.id}
+                    communications={[]}
+                    tasks={[]}
+                    notes={[]}
+                  />
                 </TabsContent>
 
                 <TabsContent value="tasks" className="h-full m-0">
@@ -196,8 +191,8 @@ export default function LeadDetailPage() {
           </div>
         </div>
         
-        {/* Right Sidebar - AI Insights */}
-        <LeadRightSidebar lead={lead} />
+        {/* Right Sidebar - Aircall History & Appointments */}
+        <EnhancedRightSidebar lead={lead} />
       </div>
     </div>
   );

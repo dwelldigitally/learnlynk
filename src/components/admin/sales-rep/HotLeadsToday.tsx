@@ -126,34 +126,41 @@ export function HotLeadsToday() {
   }
 
   return (
-    <Card>
+    <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Flame className="w-4 h-4 text-orange-500" />
+          <div className="p-1.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg">
+            <Flame className="w-4 h-4 text-white" />
+          </div>
           HOT Today
-          <Badge variant="destructive" className="ml-auto">{hotLeads.length}</Badge>
+          <Badge variant="destructive" className="ml-auto bg-red-100 text-red-700 border-red-300">
+            {hotLeads.length} 🔥
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {hotLeads.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <Flame className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <div className="p-3 bg-orange-100 rounded-full w-12 h-12 mx-auto mb-3">
+              <Flame className="w-6 h-6 text-orange-500 mx-auto mt-1.5" />
+            </div>
             <p className="text-sm">No hot leads today</p>
+            <p className="text-xs text-muted-foreground mt-1">Keep nurturing your pipeline</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {hotLeads.map((lead) => {
+            {hotLeads.slice(0, 3).map((lead) => {
               const heatLevel = getHeatLevel(lead.activity_score);
               
               return (
                 <div
                   key={lead.id}
-                  className="p-3 rounded-lg border border-orange-200 bg-orange-50/50 hover:bg-orange-100/50 transition-colors cursor-pointer"
+                  className="p-3 rounded-lg bg-white border border-orange-100 hover:bg-orange-50/50 transition-colors cursor-pointer shadow-sm"
                   onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
                 >
                   <div className="flex items-start gap-3">
-                    <Avatar className="w-8 h-8">
-                      <AvatarFallback className="text-xs">
+                    <Avatar className="w-10 h-10">
+                      <AvatarFallback className="text-sm bg-orange-100 text-orange-700">
                         {lead.first_name[0]}{lead.last_name[0]}
                       </AvatarFallback>
                     </Avatar>
@@ -164,51 +171,44 @@ export function HotLeadsToday() {
                           {lead.first_name} {lead.last_name}
                         </p>
                         <div className="flex items-center gap-1">
-                          <div className={cn("w-2 h-2 rounded-full", heatLevel.bgColor)}></div>
-                          <span className={cn("text-xs font-medium", heatLevel.color)}>
+                          <div className={cn("w-2 h-2 rounded-full animate-pulse", heatLevel.bgColor)}></div>
+                          <span className={cn("text-xs font-bold", heatLevel.color)}>
                             {lead.activity_score}°
                           </span>
                         </div>
                       </div>
                       
                       <div className="flex flex-wrap gap-1 mb-2">
-                        {lead.recent_activities.slice(0, 3).map((activity, index) => (
-                          <div key={index} className="flex items-center gap-1 text-xs bg-background/60 rounded px-1.5 py-0.5">
+                        {lead.recent_activities.slice(0, 2).map((activity, index) => (
+                          <div key={index} className="flex items-center gap-1 text-xs bg-orange-100 rounded px-1.5 py-0.5">
                             {getActivityIcon(activity.type)}
-                            <span>{activity.count} {getActivityLabel(activity.type)}</span>
+                            <span>{activity.count}</span>
                           </div>
                         ))}
                       </div>
                       
                       <div className="text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1 mb-1">
+                        <div className="flex items-center gap-1">
                           <TrendingUp className="w-3 h-3" />
                           <span>{lead.engagement_indicators[0] || 'High engagement'}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          <span>
-                            Last activity: {lead.recent_activities.length > 0 
-                              ? formatTimeAgo(lead.recent_activities[0].last_activity)
-                              : 'Recently'
-                            }
-                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex gap-1">
-                      <Button size="sm" variant="default" className="h-8 w-8 p-0 bg-orange-500 hover:bg-orange-600">
-                        <Phone className="w-3 h-3" />
-                      </Button>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                        <Mail className="w-3 h-3" />
-                      </Button>
-                    </div>
+                    <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md">
+                      <Phone className="w-3 h-3 mr-1" />
+                      Call Now
+                    </Button>
                   </div>
                 </div>
               );
             })}
+            
+            {hotLeads.length > 3 && (
+              <Button variant="ghost" size="sm" className="w-full mt-2 text-orange-600 hover:bg-orange-100">
+                View all {hotLeads.length} hot leads
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

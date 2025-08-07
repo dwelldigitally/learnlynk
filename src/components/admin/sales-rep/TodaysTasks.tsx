@@ -166,33 +166,42 @@ export function TodaysTasks() {
   }
 
   return (
-    <Card>
+    <Card className="h-fit bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <CheckSquare className="w-4 h-4" />
+          <div className="p-1.5 bg-green-500 rounded-lg">
+            <CheckSquare className="w-4 h-4 text-white" />
+          </div>
           Today's Tasks
           <div className="ml-auto flex items-center gap-2">
-            <Badge variant="secondary">{pendingTasks.length}</Badge>
-            <Badge variant="outline">{completedToday} done</Badge>
+            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
+              {pendingTasks.length}
+            </Badge>
+            <Badge variant="outline" className="border-green-300 text-green-700">
+              {completedToday} done
+            </Badge>
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {pendingTasks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <CheckSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">All tasks completed! 🎉</p>
+            <div className="p-3 bg-green-100 rounded-full w-12 h-12 mx-auto mb-3">
+              <CheckSquare className="w-6 h-6 text-green-500 mx-auto mt-1.5" />
+            </div>
+            <p className="text-sm font-medium text-green-700">All tasks completed! 🎉</p>
+            <p className="text-xs text-muted-foreground mt-1">Great job staying on top of things</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {pendingTasks.map((task) => (
+            {pendingTasks.slice(0, 4).map((task) => (
               <div
                 key={task.id}
                 className={cn(
-                  "p-3 rounded-lg border transition-colors",
+                  "p-3 rounded-lg border transition-colors bg-white shadow-sm",
                   isOverdue(task.due_date)
-                    ? "border-destructive/20 bg-destructive/5"
-                    : "border-border hover:bg-muted/50"
+                    ? "border-red-200 bg-red-50/50"
+                    : "border-green-100 hover:bg-green-50/50"
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -200,7 +209,7 @@ export function TodaysTasks() {
                     checked={false}
                     onCheckedChange={() => handleTaskComplete(task.id)}
                     disabled={completingTasks.has(task.id)}
-                    className="mt-0.5"
+                    className="mt-0.5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
                   />
 
                   <div className="flex-1 min-w-0">
@@ -217,7 +226,7 @@ export function TodaysTasks() {
                     </div>
                     
                     {task.description && (
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                      <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
                         {task.description}
                       </p>
                     )}
@@ -225,8 +234,8 @@ export function TodaysTasks() {
                     <div className="flex items-center gap-2 text-xs">
                       {isOverdue(task.due_date) ? (
                         <>
-                          <AlertTriangle className="w-3 h-3 text-destructive" />
-                          <span className="text-destructive font-medium">
+                          <AlertTriangle className="w-3 h-3 text-red-500" />
+                          <span className="text-red-600 font-medium">
                             {formatTime(task.due_date)}
                           </span>
                         </>
@@ -243,17 +252,23 @@ export function TodaysTasks() {
                 </div>
               </div>
             ))}
+            
+            {pendingTasks.length > 4 && (
+              <Button variant="ghost" size="sm" className="w-full text-green-600 hover:bg-green-100">
+                View all {pendingTasks.length} pending tasks
+              </Button>
+            )}
           </div>
         )}
 
         <Button 
           variant="outline" 
           size="sm" 
-          className="w-full mt-4"
+          className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-100"
           onClick={() => {/* Navigate to task creation */}}
         >
           <Plus className="w-3 h-3 mr-1" />
-          Add Task
+          Add New Task
         </Button>
       </CardContent>
     </Card>

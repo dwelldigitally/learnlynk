@@ -83,30 +83,37 @@ export function NewlyAssignedLeads() {
   }
 
   return (
-    <Card>
+    <Card className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <User className="w-4 h-4" />
+          <div className="p-1.5 bg-blue-500 rounded-lg">
+            <User className="w-4 h-4 text-white" />
+          </div>
           Newly Assigned Leads
-          <Badge variant="secondary" className="ml-auto">{leads.length}</Badge>
+          <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 border-blue-300">
+            {leads.length} new
+          </Badge>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {leads.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <User className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <div className="p-3 bg-blue-100 rounded-full w-12 h-12 mx-auto mb-3">
+              <User className="w-6 h-6 text-blue-500 mx-auto mt-1.5" />
+            </div>
             <p className="text-sm">No new assignments</p>
+            <p className="text-xs text-muted-foreground mt-1">Check back soon for new leads</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {leads.map((lead) => (
+            {leads.slice(0, 3).map((lead) => (
               <div
                 key={lead.id}
-                className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors cursor-pointer"
+                className="flex items-center gap-3 p-3 rounded-lg bg-white border border-blue-100 hover:bg-blue-50/50 transition-colors cursor-pointer shadow-sm"
                 onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
               >
-                <Avatar className="w-8 h-8">
-                  <AvatarFallback className="text-xs">
+                <Avatar className="w-10 h-10">
+                  <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
                     {lead.first_name[0]}{lead.last_name[0]}
                   </AvatarFallback>
                 </Avatar>
@@ -133,21 +140,27 @@ export function NewlyAssignedLeads() {
                   </div>
                   
                   <div className="flex items-center gap-1 mt-1">
-                    <Star className="w-3 h-3 text-warning" />
+                    <Star className="w-3 h-3 text-orange-500" />
                     <span className="text-xs font-medium">{lead.lead_score}/100</span>
                   </div>
                 </div>
 
                 <div className="flex gap-1">
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
                     <Phone className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
                     <Mail className="w-3 h-3" />
                   </Button>
                 </div>
               </div>
             ))}
+            
+            {leads.length > 3 && (
+              <Button variant="ghost" size="sm" className="w-full mt-2">
+                View all {leads.length} assigned leads
+              </Button>
+            )}
           </div>
         )}
       </CardContent>

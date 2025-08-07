@@ -1,0 +1,200 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+import { Mail, MessageSquare, Phone, Clock, AlertCircle, Reply } from 'lucide-react';
+import { LeadCommunicationService } from '@/services/leadCommunicationService';
+
+interface Communication {
+  id: string;
+  lead_id: string;
+  type: string;
+  subject?: string;
+  content: string;
+  direction: string;
+  communication_date: string;
+  lead_name?: string;
+  is_urgent?: boolean;
+}
+
+export function UnreadCommunications() {
+  const isMobile = useIsMobile();
+  const [communications, setCommunications] = useState<Communication[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadUnreadCommunications();
+  }, []);
+
+  const loadUnreadCommunications = async () => {
+    try {
+      // This would need to be implemented in the service to get unread communications
+      // For now, we'll use mock data
+      const mockCommunications: Communication[] = [
+        {
+          id: '1',
+          lead_id: 'lead-1',
+          type: 'email',
+          subject: 'Re: MBA Program Inquiry',
+          content: 'Thank you for the information. I have a few questions about the application process...',
+          direction: 'inbound',
+          communication_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          lead_name: 'Sarah Johnson',
+          is_urgent: true
+        },
+        {
+          id: '2',
+          lead_id: 'lead-2',
+          type: 'sms',
+          subject: undefined,
+          content: 'Hi, can we schedule a call to discuss the program fees?',
+          direction: 'inbound',
+          communication_date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+          lead_name: 'Michael Chen'
+        },
+        {
+          id: '3',
+          lead_id: 'lead-3',
+          type: 'email',
+          subject: 'Application Status Update',
+          content: 'I submitted my application last week and wanted to check on the status...',
+          direction: 'inbound',
+          communication_date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+          lead_name: 'Emily Rodriguez'
+        }
+      ];
+      
+      setCommunications(mockCommunications);
+    } catch (error) {
+      console.error('Failed to load unread communications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case 'email': return <Mail className="w-3 h-3" />;
+      case 'sms': return <MessageSquare className="w-3 h-3" />;
+      case 'call': return <Phone className="w-3 h-3" />;
+      default: return <Mail className="w-3 h-3" />;
+    }
+  };
+
+  const formatTimeAgo = (date: string) => {
+    const diff = Date.now() - new Date(date).getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    
+    if (hours < 1) return 'Just now';
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  };
+
+  const handleReply = (comm: Communication) => {
+    // Handle reply action
+    console.log('Reply to:', comm);
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Mail className="w-4 h-4" />
+            Unread Communications
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse bg-muted rounded-lg h-20"></div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Mail className="w-4 h-4" />
+          Unread Communications
+          <Badge variant="destructive" className="ml-auto">{communications.length}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {communications.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">All caught up!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {communications.map((comm) => (
+              <div
+                key={comm.id}
+                className={cn(
+                  "p-3 rounded-lg border transition-colors",
+                  comm.is_urgent 
+                    ? "border-destructive/20 bg-destructive/5" 
+                    : "border-border hover:bg-muted/50"
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback className="text-xs">
+                      {comm.lead_name?.split(' ').map(n => n[0]).join('') || 'UN'}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-medium text-sm truncate">
+                        {comm.lead_name || 'Unknown Contact'}
+                      </p>
+                      {comm.is_urgent && (
+                        <AlertCircle className="w-3 h-3 text-destructive" />
+                      )}
+                      <div className="flex items-center gap-1 ml-auto">
+                        {getTypeIcon(comm.type)}
+                        <Clock className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {formatTimeAgo(comm.communication_date)}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {comm.subject && (
+                      <p className="text-xs font-medium text-foreground mb-1 truncate">
+                        {comm.subject}
+                      </p>
+                    )}
+                    
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                      {comm.content}
+                    </p>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => handleReply(comm)}
+                    >
+                      <Reply className="w-3 h-3 mr-1" />
+                      Reply
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}

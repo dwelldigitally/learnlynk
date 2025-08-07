@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Play, GraduationCap, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, Play, GraduationCap, TrendingUp, Users, CheckCircle, Star, Sparkles } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 export const ModernHero: React.FC = () => {
@@ -87,7 +87,7 @@ export const ModernHero: React.FC = () => {
               size="lg"
               className="px-8 py-4 text-lg border-2 border-teal-500/30 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10 group"
             >
-              <PlayCircle className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+              <Play className="mr-2 w-5 h-5 group-hover:scale-110 transition-transform" />
               See How It Works
             </Button>
           </motion.div>
@@ -102,15 +102,6 @@ export const ModernHero: React.FC = () => {
             No credit card required • Setup in under 5 minutes
           </motion.div>
         </div>
-
-        {/* Modern Bento Grid */}
-        <motion.div
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1, duration: 0.8 }}
-        >
-          <BentoGrid />
-        </motion.div>
       </div>
     </section>
   );

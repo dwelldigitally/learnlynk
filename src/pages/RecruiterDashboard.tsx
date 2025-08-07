@@ -27,13 +27,17 @@ export default function RecruiterDashboard() {
   const loadDashboardData = async () => {
     try {
       setLoading(true);
+      
+      // Get recruiter profile (will fallback to dummy data)
       const recruiterProfile = await RecruiterService.getRecruiterProfile();
       
       if (!recruiterProfile) {
-        toast.error("Recruiter profile not found. Please contact your administrator.");
+        // This shouldn't happen since we have dummy data fallback
+        toast.error("Unable to load recruiter profile");
         return;
       }
 
+      // Get applications and stats (will fallback to dummy data if needed)
       const [applicationsData, statsData] = await Promise.all([
         RecruiterService.getRecruiterApplications(recruiterProfile.id),
         RecruiterService.getRecruiterStats(recruiterProfile.id),
@@ -43,7 +47,14 @@ export default function RecruiterDashboard() {
       setStats(statsData);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
-      toast.error("Failed to load dashboard data");
+      // Even if there's an error, let's load dummy data
+      const dummyApplications = RecruiterService.getDummyRecruiterApplications();
+      const dummyStats = RecruiterService.getDummyRecruiterStats();
+      
+      setApplications(dummyApplications.slice(0, 5));
+      setStats(dummyStats);
+      
+      toast.error("Using demo data - database connection failed");
     } finally {
       setLoading(false);
     }

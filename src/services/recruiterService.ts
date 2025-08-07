@@ -394,13 +394,13 @@ export class RecruiterService {
         company:recruiter_companies(*)
       `)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (error && error.code !== 'PGRST116') {
-      // Return dummy profile if no profile found
+    if (error || !data) {
+      // Return dummy profile if no profile found or error occurs
       return this.getDummyRecruiterProfile();
     }
-    return data as RecruiterUser | null;
+    return data as RecruiterUser;
   }
 
   // Get dummy recruiter profile for demo

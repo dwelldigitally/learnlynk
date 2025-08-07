@@ -158,29 +158,43 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                         open={isGroupExpanded || isSubItemActive} 
                         onOpenChange={() => toggleGroup(item.name)}
                       >
-                        <CollapsibleTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            className={`
-                              w-full flex items-center justify-between px-3 py-3 rounded-lg text-sm font-medium
+                        <div className="flex items-center">
+                          <NavLink
+                            to={item.href}
+                            onClick={onClose}
+                            className={() => `
+                              flex-1 flex items-center space-x-3 px-3 py-3 rounded-l-lg text-sm font-medium
                               transition-colors duration-200 min-h-[44px]
-                              ${isActive || isSubItemActive
+                              ${isActive
                                 ? 'bg-primary text-primary-foreground shadow-sm'
                                 : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                               }
                             `}
                           >
-                            <div className="flex items-center space-x-3">
-                              <item.icon className="w-4 h-4" />
-                              <span>{item.name}</span>
-                            </div>
-                            {(isGroupExpanded || isSubItemActive) ? (
-                              <ChevronDown className="w-4 h-4" />
-                            ) : (
-                              <ChevronRight className="w-4 h-4" />
-                            )}
-                          </Button>
-                        </CollapsibleTrigger>
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                          </NavLink>
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`
+                                px-2 py-3 rounded-r-lg min-h-[44px] border-l
+                                transition-colors duration-200
+                                ${isActive || isSubItemActive
+                                  ? 'bg-primary text-primary-foreground border-primary-foreground/20'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-muted border-border'
+                                }
+                              `}
+                            >
+                              {(isGroupExpanded || isSubItemActive) ? (
+                                <ChevronDown className="w-4 h-4" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                        </div>
                         
                         <CollapsibleContent className="ml-4 mt-1 space-y-1">
                           {item.subItems.map((subItem) => {

@@ -95,7 +95,7 @@ export default function RecruiterDashboard() {
             <Upload className="mr-2 h-4 w-4" />
             Upload Document
           </Button>
-          <Button onClick={() => navigate('/recruiter/submit')}>
+          <Button onClick={() => navigate('/recruiter/submit-application')}>
             <Plus className="mr-2 h-4 w-4" />
             Submit New Application
           </Button>
@@ -170,7 +170,7 @@ export default function RecruiterDashboard() {
             <Button 
               variant="outline" 
               className="h-24 flex-col gap-2"
-              onClick={() => navigate('/recruiter/submit')}
+              onClick={() => navigate('/recruiter/submit-application')}
             >
               <Plus className="h-6 w-6" />
               Submit New Application
@@ -211,7 +211,7 @@ export default function RecruiterDashboard() {
               <p className="mt-1 text-sm text-muted-foreground">
                 Get started by submitting your first student application.
               </p>
-              <Button className="mt-4" onClick={() => navigate('/recruiter/submit')}>
+              <Button className="mt-4" onClick={() => navigate('/recruiter/submit-application')}>
                 <Plus className="mr-2 h-4 w-4" />
                 Submit Application
               </Button>

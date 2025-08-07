@@ -66,6 +66,10 @@ const App = () => {
               <Route path="/recruiter" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
               <Route path="/recruiter/dashboard" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
               <Route path="/recruiter/submit-application" element={<ProtectedRoute element={<RecruiterSubmitApplication />} />} />
+              <Route path="/recruiter/applications" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
+              <Route path="/recruiter/applications/:id" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
+              <Route path="/recruiter/documents" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
+              <Route path="/recruiter/students" element={<ProtectedRoute element={<RecruiterDashboard />} />} />
               
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}

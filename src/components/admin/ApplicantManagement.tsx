@@ -10,7 +10,7 @@ import { ApplicantService } from "@/services/applicantService";
 import { Applicant, ApplicantSearchFilters } from "@/types/applicant";
 import { RefinedLeadTable } from "./RefinedLeadTable";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 export const ApplicantManagement = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -20,6 +20,7 @@ export const ApplicantManagement = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -119,14 +120,17 @@ export const ApplicantManagement = () => {
       key: 'name',
       label: 'Name',
       sortable: true,
-      render: (item: any) => (
-        <div>
-          <Link to={`/admin/applicants/detail/${item.id}`} className="font-medium hover:underline">
-            {item.master_records?.first_name} {item.master_records?.last_name}
-          </Link>
-          <div className="text-sm text-muted-foreground">{item.master_records?.email}</div>
-        </div>
-      )
+      render: (item: any) => {
+        if (!item) return null;
+        return (
+          <div>
+            <Link to={`/admin/applicants/detail/${item.id}`} className="font-medium hover:underline">
+              {item.master_records?.first_name} {item.master_records?.last_name}
+            </Link>
+            <div className="text-sm text-muted-foreground">{item.master_records?.email}</div>
+          </div>
+        );
+      }
     },
     {
       key: 'program',
@@ -136,78 +140,94 @@ export const ApplicantManagement = () => {
     {
       key: 'substage',
       label: 'Stage',
-      render: (item: Applicant) => (
-        <Badge variant={getSubstageBadgeVariant(item.substage)}>
-          {item.substage.replace('_', ' ').toUpperCase()}
-        </Badge>
-      )
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return (
+          <Badge variant={getSubstageBadgeVariant(item.substage)}>
+            {item.substage.replace('_', ' ').toUpperCase()}
+          </Badge>
+        );
+      }
     },
     {
       key: 'application_type',
       label: 'Type',
-      render: (item: Applicant) => (
-        <Badge variant="outline">
-          {item.application_type.replace('_', ' ').toUpperCase()}
-        </Badge>
-      )
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return (
+          <Badge variant="outline">
+            {item.application_type.replace('_', ' ').toUpperCase()}
+          </Badge>
+        );
+      }
     },
     {
       key: 'decision',
       label: 'Decision',
-      render: (item: Applicant) => (
-        item.decision ? (
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return item.decision ? (
           <Badge variant={getDecisionBadgeVariant(item.decision)}>
             {item.decision.toUpperCase()}
           </Badge>
         ) : (
           <Badge variant="outline">PENDING</Badge>
-        )
-      )
+        );
+      }
     },
     {
       key: 'payment_status',
       label: 'Payment',
-      render: (item: Applicant) => (
-        <Badge variant={getPaymentStatusBadgeVariant(item.payment_status)}>
-          {item.payment_status.toUpperCase()}
-        </Badge>
-      )
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return (
+          <Badge variant={getPaymentStatusBadgeVariant(item.payment_status)}>
+            {item.payment_status.toUpperCase()}
+          </Badge>
+        );
+      }
     },
     {
       key: 'created_at',
       label: 'Applied',
       sortable: true,
-      render: (item: Applicant) => new Date(item.created_at).toLocaleDateString()
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return new Date(item.created_at).toLocaleDateString();
+      }
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (item: Applicant) => (
-        <div className="flex space-x-2">
-          <Link to={`/admin/applicants/detail/${item.id}`}>
-            <Button size="sm" variant="ghost" className="h-8">View</Button>
-          </Link>
-          {item.decision === 'pending' && (
-            <>
-              <Button
-                size="sm"
-                onClick={() => handleApprove(item.id)}
-                className="h-8"
-              >
-                Approve
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleReject(item.id)}
-                className="h-8"
-              >
-                Reject
-              </Button>
-            </>
-          )}
-        </div>
-      )
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return (
+          <div className="flex space-x-2">
+            <Link to={`/admin/applicants/detail/${item.id}`}>
+              <Button size="sm" variant="ghost" className="h-8">View</Button>
+            </Link>
+            {item.decision === 'pending' && (
+              <>
+                <Button
+                  size="sm"
+                  onClick={() => handleApprove(item.id)}
+                  className="h-8"
+                >
+                  Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleReject(item.id)}
+                  className="h-8"
+                >
+                  Reject
+                </Button>
+              </>
+            )}
+          </div>
+        );
+      }
     }
   ];
 
@@ -236,7 +256,15 @@ export const ApplicantManagement = () => {
             Manage applications and admission decisions
           </p>
         </div>
-        <Button>
+        <Button onClick={async () => {
+          try {
+            const created = await ApplicantService.createSampleApplicant();
+            toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
+            navigate(`/admin/applicants/detail/${created.id}`);
+          } catch (e) {
+            toast({ title: "Error", description: "Failed to create sample applicant", variant: "destructive" });
+          }
+        }}>
           <Plus className="w-4 h-4 mr-2" />
           Add Applicant
         </Button>

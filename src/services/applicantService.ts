@@ -29,6 +29,35 @@ export class ApplicantService {
     return result as Applicant;
   }
 
+  static async createSampleApplicant(): Promise<Applicant> {
+    // Create a sample master record first
+    const master = await MasterRecordService.createMasterRecord({
+      first_name: 'Alex',
+      last_name: 'Johnson',
+      email: `alex.johnson.${Date.now()}@example.com`,
+      phone: '555-123-4567',
+      source: 'direct',
+      current_stage: 'lead'
+    });
+
+    // Create the applicant pointing to the master record
+    const applicant = await this.createApplicant({
+      master_record_id: master.id,
+      application_type: 'direct_enrollment' as any,
+      program: 'HCA',
+      payment_amount: 100,
+      priority: 'medium',
+      notes: 'Sample applicant auto-created for demo'
+    });
+
+    // Add a couple of submitted documents to better demo the UI
+    const updated = await this.updateApplicant(applicant.id, {
+      documents_submitted: ['ID_Document.pdf', 'Transcript.pdf'] as any
+    });
+
+    return updated;
+  }
+
   static async getApplicants(filters?: ApplicantSearchFilters, page = 1, limit = 50): Promise<{ applicants: Applicant[]; total: number }> {
     let query = supabase
       .from('applicants')

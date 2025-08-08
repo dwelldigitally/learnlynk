@@ -79,6 +79,19 @@ const ApplicantDetailPage: React.FC = () => {
     }
   };
 
+  const handleCreateSample = async () => {
+    try {
+      setSaving(true);
+      const created = await ApplicantService.createSampleApplicant();
+      toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
+      navigate(`/admin/applicants/detail/${created.id}`);
+    } catch (e) {
+      toast({ title: "Error", description: "Could not create sample applicant", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSubstageChange = async (value: string) => {
     if (!applicant) return;
     try {
@@ -160,7 +173,12 @@ const ApplicantDetailPage: React.FC = () => {
             <ArrowLeft className="h-4 w-4 mr-1" /> Back
           </Button>
           <Card>
-            <CardContent className="p-6">No applicant found.</CardContent>
+            <CardContent className="p-6 space-y-4">
+              <div>No applicant found.</div>
+              <div className="flex gap-2">
+                <Button onClick={handleCreateSample} disabled={saving}>Create sample applicant</Button>
+              </div>
+            </CardContent>
           </Card>
         </div>
       </ModernAdminLayout>

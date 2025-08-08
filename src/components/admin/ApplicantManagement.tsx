@@ -10,7 +10,7 @@ import { ApplicantService } from "@/services/applicantService";
 import { Applicant, ApplicantSearchFilters } from "@/types/applicant";
 import { RefinedLeadTable } from "./RefinedLeadTable";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
-
+import { Link } from "react-router-dom";
 export const ApplicantManagement = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -121,7 +121,9 @@ export const ApplicantManagement = () => {
       sortable: true,
       render: (item: any) => (
         <div>
-          <div className="font-medium">{item.master_records?.first_name} {item.master_records?.last_name}</div>
+          <Link to={`/admin/applicants/detail/${item.id}`} className="font-medium hover:underline">
+            {item.master_records?.first_name} {item.master_records?.last_name}
+          </Link>
           <div className="text-sm text-muted-foreground">{item.master_records?.email}</div>
         </div>
       )
@@ -182,6 +184,9 @@ export const ApplicantManagement = () => {
       label: 'Actions',
       render: (item: Applicant) => (
         <div className="flex space-x-2">
+          <Link to={`/admin/applicants/detail/${item.id}`}>
+            <Button size="sm" variant="ghost" className="h-8">View</Button>
+          </Link>
           {item.decision === 'pending' && (
             <>
               <Button

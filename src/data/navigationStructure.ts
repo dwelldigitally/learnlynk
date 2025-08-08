@@ -37,7 +37,7 @@ export const navigationStructure: NavigationStructure = {
       icon: UserPlus,
       items: [
         { name: "Lead Management", href: "/admin/leads", icon: Users },
-        { name: "Workflow Hub", href: "/admin/leads/workflow", icon: Workflow },
+        { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
         { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
         { 

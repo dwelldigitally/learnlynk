@@ -168,9 +168,10 @@ export const ApplicantManagement = () => {
       label: 'Decision',
       render: (item: Applicant) => {
         if (!item) return null;
-        return item.decision ? (
-          <Badge variant={getDecisionBadgeVariant(item.decision)}>
-            {item.decision.toUpperCase()}
+        const decision = item.decision || 'pending';
+        return decision !== 'pending' ? (
+          <Badge variant={getDecisionBadgeVariant(decision)}>
+            {decision.toUpperCase()}
           </Badge>
         ) : (
           <Badge variant="outline">PENDING</Badge>

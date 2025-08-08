@@ -1,4 +1,4 @@
-import { ApplicantSubstage } from './masterRecord';
+import { ApplicantSubstage, MasterRecord } from './masterRecord';
 
 export type ApplicationType = 'lead_conversion' | 'direct_enrollment' | 'external_recruiter';
 export type PaymentStatus = 'pending' | 'partial' | 'completed' | 'refunded';
@@ -9,6 +9,7 @@ export interface Applicant {
   id: string;
   master_record_id: string;
   user_id: string;
+  master_records?: MasterRecord;
   application_type: ApplicationType;
   substage: ApplicantSubstage;
   program: string;

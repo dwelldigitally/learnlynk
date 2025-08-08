@@ -142,9 +142,10 @@ export const ApplicantManagement = () => {
       label: 'Stage',
       render: (item: Applicant) => {
         if (!item) return null;
+        const stage = (item.substage || 'application_started') as string;
         return (
-          <Badge variant={getSubstageBadgeVariant(item.substage)}>
-            {item.substage.replace('_', ' ').toUpperCase()}
+          <Badge variant={getSubstageBadgeVariant(stage)}>
+            {stage.replace('_', ' ').toUpperCase()}
           </Badge>
         );
       }
@@ -154,9 +155,10 @@ export const ApplicantManagement = () => {
       label: 'Type',
       render: (item: Applicant) => {
         if (!item) return null;
+        const type = (item.application_type || 'direct_enrollment') as string;
         return (
           <Badge variant="outline">
-            {item.application_type.replace('_', ' ').toUpperCase()}
+            {type.replace('_', ' ').toUpperCase()}
           </Badge>
         );
       }
@@ -180,9 +182,10 @@ export const ApplicantManagement = () => {
       label: 'Payment',
       render: (item: Applicant) => {
         if (!item) return null;
+        const pay = (item.payment_status || 'pending') as string;
         return (
-          <Badge variant={getPaymentStatusBadgeVariant(item.payment_status)}>
-            {item.payment_status.toUpperCase()}
+          <Badge variant={getPaymentStatusBadgeVariant(pay)}>
+            {pay.toUpperCase()}
           </Badge>
         );
       }

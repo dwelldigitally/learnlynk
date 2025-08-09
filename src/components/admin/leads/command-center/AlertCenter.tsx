@@ -2,25 +2,15 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { 
-  AlertTriangle, 
-  Clock, 
-  DollarSign, 
-  UserX, 
-  Bell,
+  Clock,
   CheckCircle,
-  XCircle,
-  Brain,
-  Flag,
-  Mail,
-  Phone,
-  MessageSquare,
-  Calendar
+  Flag
 } from "lucide-react";
 
 export function AlertCenter() {
-  const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
+  // deprecated: was used in old tabbed layout
 
   const alerts = {
     critical: [
@@ -109,244 +99,232 @@ export function AlertCenter() {
       }
     ]
   };
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [query, setQuery] = useState<string>("");
 
-  const getSeverityColor = (type: string) => {
-    switch (type) {
-      case 'critical': return 'text-red-600 bg-red-50 border-red-200';
-      case 'slaViolations': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'unassigned': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-      case 'noFollowUp': return 'text-blue-600 bg-blue-50 border-blue-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+  const severityPriority: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+
+  const triageItems = [
+    ...alerts.critical.map((a) => ({
+      id: a.id,
+      category: "critical",
+      severity: "critical",
+      title: a.title,
+      description: a.description,
+      meta: a.timeAgo || "",
+      count: 1,
+    })),
+    ...alerts.slaViolations.map((a) => ({
+      id: a.id,
+      category: "sla",
+      severity: "high",
+      title: a.title,
+      description: a.description,
+      meta: `${a.leads || 0} leads • +${a.avgOverage}`,
+      count: a.leads || 0,
+    })),
+    ...alerts.unassigned.map((a) => ({
+      id: a.id,
+      category: "unassigned",
+      severity: "medium",
+      title: a.title,
+      description: a.description,
+      meta: `${a.count} leads`,
+      count: a.count,
+    })),
+    ...alerts.noFollowUp.map((a) => ({
+      id: a.id,
+      category: "followup",
+      severity: "low",
+      title: a.title,
+      description: a.description,
+      meta: `${a.count} leads`,
+      count: a.count,
+    })),
+  ];
+
+  const filtered = triageItems
+    .filter((i) => (severityFilter === "all" || i.severity === severityFilter) &&
+      (query === "" || i.title.toLowerCase().includes(query.toLowerCase()) || i.description.toLowerCase().includes(query.toLowerCase())))
+    .sort((a, b) => severityPriority[b.severity] - severityPriority[a.severity]);
+
+  const allSelected = filtered.length > 0 && filtered.every((i) => selectedIds.includes(i.id));
+  const toggleSelectAll = () => {
+    if (allSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !filtered.some((i) => i.id === id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...filtered.map((i) => i.id)])));
     }
   };
 
-  const getSeverityIcon = (type: string) => {
-    switch (type) {
-      case 'critical': return <AlertTriangle className="h-5 w-5" />;
-      case 'slaViolations': return <Clock className="h-5 w-5" />;
-      case 'unassigned': return <UserX className="h-5 w-5" />;
-      case 'noFollowUp': return <Bell className="h-5 w-5" />;
-      default: return <Flag className="h-5 w-5" />;
-    }
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
+  const resolveItems = (ids: string[]) => {
+    // Simulate resolve action
+    setSelectedIds((prev) => prev.filter((id) => !ids.includes(id)));
+    if (selectedItem && ids.includes(selectedItem.id)) setSelectedItem(null);
+  };
   return (
-    <div className="space-y-6">
-      {/* Alert Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-red-200 bg-red-50/50">
-          <CardContent className="flex items-center p-4">
-            <AlertTriangle className="h-6 w-6 text-red-600" />
-            <div className="ml-3">
-              <p className="text-xl font-bold text-red-900">{alerts.critical.length}</p>
-              <p className="text-xs text-red-700">Critical Issues</p>
+    <div className="space-y-4">
+      {/* Filter Bar */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search alerts"
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label="Search alerts"
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-orange-200 bg-orange-50/50">
-          <CardContent className="flex items-center p-4">
-            <Clock className="h-6 w-6 text-orange-600" />
-            <div className="ml-3">
-              <p className="text-xl font-bold text-orange-900">
-                {alerts.slaViolations.reduce((sum, alert) => sum + (alert.leads || 0), 0)}
-              </p>
-              <p className="text-xs text-orange-700">SLA Violations</p>
+            <div className="flex items-center gap-2">
+              <label htmlFor="severity" className="text-sm text-muted-foreground">Severity</label>
+              <select
+                id="severity"
+                value={severityFilter}
+                onChange={(e) => setSeverityFilter(e.target.value)}
+                className="h-10 rounded-md border border-input bg-background px-2 text-sm"
+              >
+                <option value="all">All</option>
+                <option value="critical">Critical</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
             </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-yellow-200 bg-yellow-50/50">
-          <CardContent className="flex items-center p-4">
-            <UserX className="h-6 w-6 text-yellow-600" />
-            <div className="ml-3">
-              <p className="text-xl font-bold text-yellow-900">
-                {alerts.unassigned.reduce((sum, alert) => sum + alert.count, 0)}
-              </p>
-              <p className="text-xs text-yellow-700">Unassigned</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-blue-200 bg-blue-50/50">
-          <CardContent className="flex items-center p-4">
-            <Bell className="h-6 w-6 text-blue-600" />
-            <div className="ml-3">
-              <p className="text-xl font-bold text-blue-900">
-                {alerts.noFollowUp.reduce((sum, alert) => sum + alert.count, 0)}
-              </p>
-              <p className="text-xs text-blue-700">No Follow-up</p>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Triage List */}
+        <div className="lg:col-span-2 space-y-3">
+          {/* Bulk actions */}
+          {selectedIds.length > 0 && (
+            <Card className="border-border">
+              <CardContent className="p-3 flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  {selectedIds.length} selected
+                </p>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => resolveItems(selectedIds)}>
+                    <CheckCircle className="h-4 w-4 mr-1" /> Resolve Selected
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Clock className="h-4 w-4 mr-1" /> Snooze
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Flag className="h-4 w-4 mr-1" /> Assign
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleSelectAll}
+                    aria-label="Select all"
+                  />
+                  <CardTitle className="text-base">Prioritized alert queue</CardTitle>
+                </div>
+                <CardDescription>
+                  {filtered.length} items
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="divide-y">
+                {filtered.map((item) => (
+                  <div key={item.id} className="flex items-center gap-3 p-4 hover:bg-accent/40">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(item.id)}
+                      onChange={() => toggleSelect(item.id)}
+                      aria-label={`Select ${item.title}`}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs capitalize">
+                          {item.severity}
+                        </Badge>
+                        <button className="text-left truncate font-medium" onClick={() => setSelectedItem(item)}>
+                          {item.title}
+                        </button>
+                      </div>
+                      <p className="text-sm text-muted-foreground truncate">{item.description}</p>
+                    </div>
+                    <div className="hidden sm:block text-sm text-muted-foreground mr-2">
+                      {item.meta}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={() => setSelectedItem(item)}>View</Button>
+                      <Button variant="outline" size="sm">Assign</Button>
+                      <Button variant="outline" size="sm">Snooze</Button>
+                      <Button variant="outline" size="sm" onClick={() => resolveItems([item.id])}>Resolve</Button>
+                    </div>
+                  </div>
+                ))}
+                {filtered.length === 0 && (
+                  <div className="p-6 text-center text-sm text-muted-foreground">No alerts match your filters.</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Details Panel */}
+        <div className="lg:col-span-1">
+          {selectedItem ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Flag className="h-4 w-4" />
+                  {selectedItem.title}
+                </CardTitle>
+                <CardDescription className="capitalize">Severity: {selectedItem.severity}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Description</p>
+                  <p className="text-sm">{selectedItem.description}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Meta</p>
+                  <p className="text-sm">{selectedItem.meta}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm">Assign</Button>
+                  <Button variant="outline" size="sm">Snooze</Button>
+                  <Button variant="outline" size="sm" onClick={() => resolveItems([selectedItem.id])}>
+                    <CheckCircle className="h-4 w-4 mr-1" /> Resolve
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card>
+              <CardContent className="p-6 text-sm text-muted-foreground">
+                Select an alert to see details and take action.
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
-
-      {/* Alert Categories */}
-      <Tabs defaultValue="critical" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="critical" className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Critical
-          </TabsTrigger>
-          <TabsTrigger value="sla" className="flex items-center gap-2">
-            <Clock className="h-4 w-4" />
-            SLA Violations
-          </TabsTrigger>
-          <TabsTrigger value="unassigned" className="flex items-center gap-2">
-            <UserX className="h-4 w-4" />
-            Unassigned
-          </TabsTrigger>
-          <TabsTrigger value="followup" className="flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            No Follow-up
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="critical" className="space-y-4">
-          {alerts.critical.map((alert) => (
-            <Card key={alert.id} className="border-red-200 bg-red-50/50">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-red-900 flex items-center gap-2">
-                    <AlertTriangle className="h-5 w-5" />
-                    {alert.title}
-                  </CardTitle>
-                  <Badge variant="destructive">Critical</Badge>
-                </div>
-                <CardDescription className="text-red-700">{alert.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-red-900">{alert.studentName}</p>
-                    <p className="text-xs text-red-700">{alert.program}</p>
-                    <p className="text-xs text-red-600">{alert.timeAgo}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {alert.actions.map((action, index) => (
-                      <Button key={index} size="sm" variant="outline" className="text-red-700 border-red-300">
-                        {action}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="sla" className="space-y-4">
-          {alerts.slaViolations.map((alert) => (
-            <Card key={alert.id} className="border-orange-200 bg-orange-50/50">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-orange-900 flex items-center gap-2">
-                    <Clock className="h-5 w-5" />
-                    {alert.title}
-                  </CardTitle>
-                  <Badge className="bg-orange-100 text-orange-800">{alert.leads} Leads</Badge>
-                </div>
-                <CardDescription className="text-orange-700">{alert.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-orange-900">
-                      Average Overage: {alert.avgOverage}
-                    </p>
-                    <p className="text-xs text-orange-700">Affecting {alert.leads} leads</p>
-                  </div>
-                  <div className="flex gap-2">
-                    {alert.actions.map((action, index) => (
-                      <Button key={index} size="sm" variant="outline" className="text-orange-700 border-orange-300">
-                        {action}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="unassigned" className="space-y-4">
-          {alerts.unassigned.map((alert) => (
-            <Card key={alert.id} className="border-yellow-200 bg-yellow-50/50">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-yellow-900 flex items-center gap-2">
-                    <UserX className="h-5 w-5" />
-                    {alert.title}
-                  </CardTitle>
-                  <Badge className="bg-yellow-100 text-yellow-800">{alert.count} Leads</Badge>
-                </div>
-                <CardDescription className="text-yellow-700">{alert.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-yellow-900">
-                      Total Value: {alert.totalValue || `${alert.count} leads`}
-                    </p>
-                    <p className="text-xs text-yellow-700">
-                      {alert.programs ? `Programs: ${alert.programs.join(', ')}` : 
-                       alert.countries ? `Countries: ${alert.countries.join(', ')}` : ''}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    {alert.actions.map((action, index) => (
-                      <Button key={index} size="sm" variant="outline" className="text-yellow-700 border-yellow-300">
-                        {action}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="followup" className="space-y-4">
-          {alerts.noFollowUp.map((alert) => (
-            <Card key={alert.id} className="border-blue-200 bg-blue-50/50">
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-blue-900 flex items-center gap-2">
-                    <Bell className="h-5 w-5" />
-                    {alert.title}
-                  </CardTitle>
-                  <div className="flex gap-2">
-                    <Badge className="bg-blue-100 text-blue-800">{alert.count} Leads</Badge>
-                    <Badge variant="outline" className="text-blue-700 border-blue-300">
-                      {alert.riskLevel} Risk
-                    </Badge>
-                  </div>
-                </div>
-                <CardDescription className="text-blue-700">{alert.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-blue-900">
-                      Avg Days Since Contact: {alert.avgDaysSince || 'N/A'}
-                    </p>
-                    <p className="text-xs text-blue-700">
-                      {alert.avgCompletion ? `Avg Completion: ${alert.avgCompletion}` : ''}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    {alert.actions.map((action, index) => (
-                      <Button key={index} size="sm" variant="outline" className="text-blue-700 border-blue-300">
-                        {action}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }

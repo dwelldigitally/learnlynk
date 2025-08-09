@@ -1,29 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
+
 import { 
-  Target, 
-  TrendingUp, 
-  AlertTriangle, 
-  Users, 
-  DollarSign,
+  Target,
+  AlertTriangle,
+  Users,
   Clock,
   CheckCircle,
-  XCircle,
   Zap,
   Flag,
   Award,
-  Calendar,
-  Phone,
-  Mail,
-  MessageSquare,
-  Brain,
   BarChart3,
-  Settings,
-  Filter
+  Settings
 } from "lucide-react";
 import { FlashReports } from "./command-center/FlashReports";
 import { AlertCenter } from "./command-center/AlertCenter";
@@ -31,7 +22,7 @@ import { TeamPerformance } from "./command-center/TeamPerformance";
 import { BenchmarkControls } from "./command-center/BenchmarkControls";
 
 export function SalesCommandCenter() {
-  const [activeTab, setActiveTab] = useState("flash-reports");
+  const [activeTab, setActiveTab] = useState("alert-center");
   const [criticalAlerts, setCriticalAlerts] = useState(12);
   const [teamUtilization, setTeamUtilization] = useState(78);
   
@@ -101,61 +92,32 @@ export function SalesCommandCenter() {
         </div>
       </div>
 
-      {/* Critical Status Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-red-200 bg-red-50/50">
-          <CardContent className="flex items-center p-4">
-            <AlertTriangle className="h-8 w-8 text-red-600" />
-            <div className="ml-3">
-              <p className="text-lg font-bold text-red-900">{criticalAlerts}</p>
-              <p className="text-xs text-red-700">Critical Alerts</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-blue-200 bg-blue-50/50">
-          <CardContent className="flex items-center p-4">
-            <DollarSign className="h-8 w-8 text-blue-600" />
-            <div className="ml-3">
-              <p className="text-lg font-bold text-blue-900">
-                ${(commandCenterStats.totalPipelineValue / 1000000).toFixed(1)}M
-              </p>
-              <p className="text-xs text-blue-700">Pipeline Value</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-green-200 bg-green-50/50">
-          <CardContent className="flex items-center p-4">
-            <TrendingUp className="h-8 w-8 text-green-600" />
-            <div className="ml-3">
-              <p className="text-lg font-bold text-green-900">{commandCenterStats.conversionRate}%</p>
-              <p className="text-xs text-green-700">Conversion Rate</p>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-purple-200 bg-purple-50/50">
-          <CardContent className="flex items-center p-4">
-            <Users className="h-8 w-8 text-purple-600" />
-            <div className="ml-3">
-              <p className="text-lg font-bold text-purple-900">{commandCenterStats.teamUtilization}%</p>
-              <p className="text-xs text-purple-700">Team Utilization</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Key Issue Chips */}
+      <div className="flex flex-wrap gap-2">
+        <Badge variant="outline" className="flex items-center gap-2">
+          <AlertTriangle className="h-4 w-4" />
+          {criticalAlerts} Critical
+        </Badge>
+        <Badge variant="outline" className="flex items-center gap-2">
+          <Clock className="h-4 w-4" />
+          {commandCenterStats.slaViolations} SLA breaches
+        </Badge>
+        <Badge variant="outline" className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          {commandCenterStats.unassignedLeads} Unassigned
+        </Badge>
       </div>
 
       {/* Main Command Center Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="alert-center" className="flex items-center gap-2">
+            <Flag className="h-4 w-4" />
+            Alert Triage
+          </TabsTrigger>
           <TabsTrigger value="flash-reports" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Flash Reports
-          </TabsTrigger>
-          <TabsTrigger value="alert-center" className="flex items-center gap-2">
-            <Flag className="h-4 w-4" />
-            Alert Center
           </TabsTrigger>
           <TabsTrigger value="team-performance" className="flex items-center gap-2">
             <Award className="h-4 w-4" />

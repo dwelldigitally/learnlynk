@@ -62,11 +62,13 @@ const Home: React.FC = () => {
       {/* Modern Navigation */}
       <ModernNavigation />
 
-      {/* Modern Hero Section */}
-      <ModernHero />
+      {/* Modern Hero Section with Aurora */}
+      <div className="aurora-hero">
+        <ModernHero />
+      </div>
 
-      {/* Animated Statistics Section */}
-      <AnimatedSection animation="fadeIn" className="py-16 px-6 bg-muted/30">
+      {/* Animated Statistics Section with Subtle Aurora */}
+      <AnimatedSection animation="fadeIn" className="py-16 px-6 bg-muted/30 aurora-subtle">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <motion.h2 
@@ -115,8 +117,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Interactive Features Section */}
-      <section className="py-20 px-6 bg-muted/30">
+      {/* Interactive Features Section with Subtle Aurora */}
+      <section className="py-20 px-6 bg-muted/30 aurora-subtle">
         <div className="container mx-auto">
           <AnimatedSection animation="fadeIn" className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -168,8 +170,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Animated Testimonials */}
-      <section className="py-20 px-6 bg-muted/30">
+      {/* Animated Testimonials with Warm Aurora */}
+      <section className="py-20 px-6 bg-muted/30 aurora-warm">
         <div className="container mx-auto">
           <AnimatedSection animation="fadeIn" className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-6">
@@ -225,8 +227,8 @@ const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Animated CTA Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-primary to-primary-glow">
+      {/* Animated CTA Section with Vibrant Aurora */}
+      <section className="py-20 px-6 bg-gradient-to-r from-primary to-primary-glow aurora-vibrant">
         <div className="container mx-auto">
           <AnimatedSection animation="scale">
             <Card className="text-center max-w-4xl mx-auto border-0 shadow-2xl bg-background">

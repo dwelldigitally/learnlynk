@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,8 +7,21 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Clock, User, DollarSign, FileX, CheckCircle, XCircle, MoreHorizontal, Search, Filter, Zap, Users, MessageSquare, TrendingUp, CreditCard, FileText } from "lucide-react";
 import { SegmentCard } from "./SegmentCard";
+import { SavedViewsManager } from "./SavedViewsManager";
+import { AlertDetailPanel } from "./AlertDetailPanel";
+import { useAIActions } from "@/hooks/useAIActions";
+import { useRealTimeAlerts } from "@/hooks/useRealTimeAlerts";
+import { useSavedViews } from "@/hooks/useSavedViews";
+import { useBulkActions } from "@/hooks/useBulkActions";
+import { useToast } from "@/hooks/use-toast";
 
 export function AlertCenter() {
+  const { toast } = useToast();
+  const { isProcessing, performAITriage, performAIAssignment, generateAIDraft } = useAIActions();
+  const { alerts: realTimeAlerts, isLoading: alertsLoading, resolveAlert, resolveMultipleAlerts } = useRealTimeAlerts();
+  const { currentView, applyView } = useSavedViews();
+  const { bulkResolve, bulkAssign, bulkSnooze, isProcessing: bulkProcessing } = useBulkActions();
+
   const alerts = {
     critical: [
       {
@@ -102,6 +115,16 @@ export function AlertCenter() {
   const [severityFilter, setSeverityFilter] = useState("all");
   const [segmentFilter, setSegmentFilter] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+
+  // Apply saved view on mount
+  useEffect(() => {
+    if (currentView) {
+      const filters = currentView.filters;
+      if (filters.severityFilter) setSeverityFilter(filters.severityFilter);
+      if (filters.segmentFilter !== undefined) setSegmentFilter(filters.segmentFilter);
+      if (filters.query) setQuery(filters.query);
+    }
+  }, [currentView]);
 
   // Segment data for overview cards
   const segments = {
@@ -232,17 +255,118 @@ export function AlertCenter() {
     );
   };
 
-  const resolveItems = (ids: string[]) => {
-    console.log("Resolving items:", ids);
-    setSelectedIds([]);
+  const resolveItems = async (ids: string[]) => {
+    try {
+      await bulkResolve(ids);
+      await resolveMultipleAlerts(ids);
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("Error resolving items:", error);
+    }
   };
 
-  const handleQuickAction = (itemId: string, action: string) => {
+  const snoozeItems = async (ids: string[]) => {
+    try {
+      await bulkSnooze(ids, "2 hours");
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("Error snoozing items:", error);
+    }
+  };
+
+  const assignItems = async (ids: string[]) => {
+    try {
+      await bulkAssign(ids, "auto-advisor");
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("Error assigning items:", error);
+    }
+  };
+
+  const handleQuickAction = async (itemId: string, action: string) => {
     console.log("Quick action:", action, "on item:", itemId);
+    
+    // Handle different quick actions
+    if (action === "Assign" || action === "Auto-assign") {
+      handleAIAssign([itemId]);
+    } else if (action === "View") {
+      setSelectedItem(triageItems.find(item => item.id === itemId));
+    } else if (action === "Message") {
+      handleAIDraftOutreach(itemId);
+    }
   };
 
   const handleSegmentViewAll = (segment: string) => {
     setSegmentFilter(segment);
+  };
+
+  // AI Action Handlers
+  const handleAITriage = async () => {
+    try {
+      const result = await performAITriage(filtered);
+      toast({
+        title: "AI Triage Complete",
+        description: result.summary
+      });
+    } catch (error) {
+      console.error("AI Triage failed:", error);
+    }
+  };
+
+  const handleAIAssign = async (leadIds?: string[]) => {
+    try {
+      const idsToAssign = leadIds || selectedIds;
+      if (idsToAssign.length === 0) {
+        toast({
+          title: "No Items Selected",
+          description: "Please select items to assign.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Mock available advisors - in real app, fetch from database
+      const availableAdvisors = ['advisor-1', 'advisor-2', 'advisor-3'];
+      const result = await performAIAssignment(idsToAssign, availableAdvisors);
+      
+      toast({
+        title: "AI Assignment Complete",
+        description: `Generated assignments for ${idsToAssign.length} item(s).`
+      });
+      setSelectedIds([]);
+    } catch (error) {
+      console.error("AI Assignment failed:", error);
+    }
+  };
+
+  const handleAIDraftOutreach = async (leadId?: string) => {
+    try {
+      const targetId = leadId || selectedIds[0];
+      if (!targetId) {
+        toast({
+          title: "No Lead Selected",
+          description: "Please select a lead to draft outreach.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const context = triageItems.find(item => item.id === targetId);
+      const result = await generateAIDraft(targetId, context);
+      
+      toast({
+        title: "AI Draft Generated",
+        description: "Generated personalized outreach content."
+      });
+    } catch (error) {
+      console.error("AI Draft failed:", error);
+    }
+  };
+
+  const handleApplyFilters = (filters: any) => {
+    if (filters.severityFilter !== undefined) setSeverityFilter(filters.severityFilter);
+    if (filters.segmentFilter !== undefined) setSegmentFilter(filters.segmentFilter);
+    if (filters.query !== undefined) setQuery(filters.query);
   };
 
   return (
@@ -284,22 +408,40 @@ export function AlertCenter() {
         
         {/* AI Quick Actions */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={handleAITriage}
+            disabled={isProcessing || filtered.length === 0}
+          >
             <Zap className="h-4 w-4" />
             AI Triage
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => handleAIAssign()}
+            disabled={isProcessing || selectedIds.length === 0}
+          >
             <Users className="h-4 w-4" />
             AI Assign
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2"
+            onClick={() => handleAIDraftOutreach()}
+            disabled={isProcessing || selectedIds.length === 0}
+          >
             <MessageSquare className="h-4 w-4" />
             AI Draft Outreach
           </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <Filter className="h-4 w-4" />
-            Saved Views
-          </Button>
+          <SavedViewsManager 
+            currentFilters={{ severityFilter, segmentFilter, query }}
+            onApplyFilters={handleApplyFilters}
+          />
         </div>
       </div>
 
@@ -363,15 +505,30 @@ export function AlertCenter() {
               {selectedIds.length} selected
             </p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => resolveItems(selectedIds)}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => resolveItems(selectedIds)}
+                disabled={isProcessing || bulkProcessing}
+              >
                 <CheckCircle className="h-4 w-4 mr-1" />
                 Resolve Selected
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => snoozeItems(selectedIds)}
+                disabled={isProcessing || bulkProcessing}
+              >
                 <Clock className="h-4 w-4 mr-1" />
                 Snooze
               </Button>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => assignItems(selectedIds)}
+                disabled={isProcessing || bulkProcessing}
+              >
                 <User className="h-4 w-4 mr-1" />
                 Assign
               </Button>
@@ -442,37 +599,11 @@ export function AlertCenter() {
         {/* Details Panel */}
         <div className="lg:col-span-1">
           {selectedItem ? (
-            <Card>
-              <div className="p-4 border-b">
-                <h3 className="font-semibold">{selectedItem.title}</h3>
-                <Badge variant={selectedItem.severity === "critical" ? "destructive" : "outline"} className="mt-2">
-                  {selectedItem.severity}
-                </Badge>
-              </div>
-              <CardContent className="p-4 space-y-4">
-                <div>
-                  <p className="text-sm font-medium mb-1">Description</p>
-                  <p className="text-sm text-muted-foreground">{selectedItem.description}</p>
-                </div>
-                {selectedItem.studentName && (
-                  <div>
-                    <p className="text-sm font-medium mb-1">Student</p>
-                    <p className="text-sm">{selectedItem.studentName}</p>
-                  </div>
-                )}
-                <div className="flex flex-col gap-2">
-                  <Button size="sm" onClick={() => resolveItems([selectedItem.id])}>
-                    Resolve Issue
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Assign to Team Member
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Schedule Follow-up
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <AlertDetailPanel
+              selectedItem={selectedItem}
+              onClose={() => setSelectedItem(null)}
+              onQuickAction={handleQuickAction}
+            />
           ) : (
             <Card>
               <CardContent className="p-8 text-center text-muted-foreground">

@@ -17,6 +17,7 @@ import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
 import { AIVideoModal } from './AIVideoModal';
+import { SequenceEnrollmentDialog } from './SequenceEnrollmentDialog';
 
 interface EnhancedLeadSidebarProps {
   lead: Lead;
@@ -298,7 +299,18 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
           </div>
           
           {/* AI Recommended Actions */}
-          <div className="pt-2 border-t">
+        <div className="pt-2 border-t">
+          <SequenceEnrollmentDialog
+            leadId={lead.id}
+            leadName={`${lead.first_name} ${lead.last_name}`}
+            trigger={
+              <Button variant="outline" size="sm" className="w-full gap-2">
+                <Mail className="h-4 w-4" />
+                Enroll in Sequence
+              </Button>
+            }
+          />
+          <div className="mt-3">
             <p className="text-xs text-muted-foreground mb-2">AI Recommended:</p>
             <div className="space-y-1">
               <Button variant="ghost" size="sm" className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50">
@@ -314,6 +326,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               </Button>
             </div>
           </div>
+        </div>
         </div>
       </div>
 

@@ -13,6 +13,7 @@ import ProgramSetupScreen from './steps/ProgramSetupScreen';
 import RequirementsSetupScreen from './steps/RequirementsSetupScreen';
 import FormBuilderScreen from './steps/FormBuilderScreen';
 import PaymentSetupScreen from './steps/PaymentSetupScreen';
+import IntegrationsSetupScreen from './steps/IntegrationsSetupScreen';
 import EventSetupScreen from './steps/EventSetupScreen';
 import TeamSetupScreen from './steps/TeamSetupScreen';
 import SystemTrainingScreen from './steps/SystemTrainingScreen';
@@ -25,6 +26,7 @@ interface OnboardingData {
   requirements: any[];
   forms: any[];
   paymentConfig: any;
+  integrations: any[];
   events: any[];
   team: any[];
   trainingProgress: any;
@@ -37,6 +39,7 @@ const ONBOARDING_STEPS = [
   { id: 'requirements', title: 'Requirements', description: 'Set up application requirements' },
   { id: 'forms', title: 'Lead Capture', description: 'Create application forms' },
   { id: 'payment', title: 'Payment Setup', description: 'Configure Stripe integration' },
+  { id: 'integrations', title: 'Integrations', description: 'Connect external services' },
   { id: 'events', title: 'Events (Optional)', description: 'Set up important events' },
   { id: 'team', title: 'Team Setup', description: 'Add team members' },
   { id: 'training', title: 'System Training', description: 'Learn how to use the system' },
@@ -54,6 +57,7 @@ const ComprehensiveOnboarding: React.FC = () => {
     requirements: [],
     forms: [],
     paymentConfig: {},
+    integrations: [],
     events: [],
     team: [],
     trainingProgress: {}
@@ -157,6 +161,8 @@ const ComprehensiveOnboarding: React.FC = () => {
         return <FormBuilderScreen {...stepProps} />;
       case 'payment':
         return <PaymentSetupScreen {...stepProps} />;
+      case 'integrations':
+        return <IntegrationsSetupScreen {...stepProps} />;
       case 'events':
         return <EventSetupScreen {...stepProps} />;
       case 'team':

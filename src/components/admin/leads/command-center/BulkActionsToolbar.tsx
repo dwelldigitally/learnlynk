@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -11,6 +12,10 @@ import {
 } from "lucide-react";
 import { useBulkActions } from "@/hooks/useBulkActions";
 import { useAIActions } from "@/hooks/useAIActions";
+import { AssignDialog } from "@/components/admin/bulk/dialogs/AssignDialog";
+import { AIAssignDialog } from "./dialogs/AIAssignDialog";
+import { SequenceDialog } from "./dialogs/SequenceDialog";
+import { useState } from "react";
 
 interface BulkActionsToolbarProps {
   selectedItems: string[];
@@ -27,22 +32,21 @@ export function BulkActionsToolbar({
 }: BulkActionsToolbarProps) {
   const { bulkAssign, bulkSnooze, bulkDelete, isProcessing } = useBulkActions();
   const { performAIAssignment, isProcessing: isAIProcessing } = useAIActions();
+  
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [showAIAssignDialog, setShowAIAssignDialog] = useState(false);
+  const [showSequenceDialog, setShowSequenceDialog] = useState(false);
 
-  const handleAssign = async () => {
-    // TODO: Open advisor selection dialog
-    await bulkAssign(selectedItems, "advisor-id");
-    onClearSelection();
+  const handleAssign = () => {
+    setShowAssignDialog(true);
   };
 
-  const handleAIAssign = async () => {
-    await performAIAssignment(selectedItems, ["advisor-1", "advisor-2"]);
-    onClearSelection();
+  const handleAIAssign = () => {
+    setShowAIAssignDialog(true);
   };
 
   const handleSequence = () => {
-    // TODO: Open sequence selection dialog
-    onSequenceEnroll?.(selectedItems, "sequence-id");
-    onClearSelection();
+    setShowSequenceDialog(true);
   };
 
   const handleSnooze = async () => {
@@ -55,71 +59,109 @@ export function BulkActionsToolbar({
     onClearSelection();
   };
 
+  const handleAssignSuccess = () => {
+    onClearSelection();
+    setShowAssignDialog(false);
+  };
+
+  const handleAIAssignSuccess = () => {
+    onClearSelection();
+    setShowAIAssignDialog(false);
+  };
+
+  const handleSequenceSuccess = () => {
+    onClearSelection();
+    setShowSequenceDialog(false);
+  };
+
   return (
-    <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="flex items-center gap-2 bg-background border rounded-lg shadow-lg p-3">
-        <Badge variant="secondary" className="mr-2">
-          {selectedItems.length} selected
-        </Badge>
-        
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleAssign}
-          disabled={isProcessing}
-        >
-          <UserPlus className="h-4 w-4 mr-1" />
-          Assign
-        </Button>
+    <>
+      <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="flex items-center gap-2 bg-background border rounded-lg shadow-lg p-3">
+          <Badge variant="secondary" className="mr-2">
+            {selectedItems.length} selected
+          </Badge>
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAssign}
+            disabled={isProcessing}
+          >
+            <UserPlus className="h-4 w-4 mr-1" />
+            Assign
+          </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleAIAssign}
-          disabled={isAIProcessing}
-        >
-          <Zap className="h-4 w-4 mr-1" />
-          AI Assign
-        </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAIAssign}
+            disabled={isAIProcessing}
+          >
+            <Zap className="h-4 w-4 mr-1" />
+            AI Assign
+          </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSequence}
-          disabled={isProcessing}
-        >
-          <AlertTriangle className="h-4 w-4 mr-1" />
-          Sequence
-        </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSequence}
+            disabled={isProcessing}
+          >
+            <AlertTriangle className="h-4 w-4 mr-1" />
+            Sequence
+          </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleSnooze}
-          disabled={isProcessing}
-        >
-          <Clock className="h-4 w-4 mr-1" />
-          Snooze
-        </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleSnooze}
+            disabled={isProcessing}
+          >
+            <Clock className="h-4 w-4 mr-1" />
+            Snooze
+          </Button>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDelete}
-          disabled={isProcessing}
-        >
-          <Trash2 className="h-4 w-4 mr-1" />
-          Delete
-        </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDelete}
+            disabled={isProcessing}
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Delete
+          </Button>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClearSelection}
-        >
-          <X className="h-4 w-4" />
-        </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearSelection}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
-    </div>
+
+      <AssignDialog
+        open={showAssignDialog}
+        onOpenChange={setShowAssignDialog}
+        onSuccess={handleAssignSuccess}
+        selectedLeadsCount={selectedItems.length}
+      />
+
+      <AIAssignDialog
+        open={showAIAssignDialog}
+        onOpenChange={setShowAIAssignDialog}
+        onSuccess={handleAIAssignSuccess}
+        selectedItems={selectedItems}
+      />
+
+      <SequenceDialog
+        open={showSequenceDialog}
+        onOpenChange={setShowSequenceDialog}
+        onSuccess={handleSequenceSuccess}
+        selectedItems={selectedItems}
+      />
+    </>
   );
 }

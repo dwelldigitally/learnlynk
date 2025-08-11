@@ -242,7 +242,7 @@ export const EnhancedConfigurationManagement = () => {
     if (path.includes('/company')) {
       return 'company-profile'; // Default to company profile
     }
-    return 'stages';
+    return 'lead-intelligence';
   };
 
   const [activeSection, setActiveSection] = useState(getInitialSection());

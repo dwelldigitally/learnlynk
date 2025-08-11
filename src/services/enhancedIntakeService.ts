@@ -217,6 +217,28 @@ class EnhancedIntakeService {
     }
   }
 
+  async updateIntakeStatus(intakeId: string, status: 'open' | 'closed'): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('intakes')
+        .update({ status })
+        .eq('id', intakeId);
+
+      if (error) {
+        console.error('Error updating intake status:', error);
+        throw error;
+      }
+
+      toast.success(`Intake ${status === 'open' ? 'opened' : 'closed'} successfully`);
+      return true;
+
+    } catch (error) {
+      console.error('Failed to update intake status:', error);
+      toast.error('Failed to update intake status');
+      return false;
+    }
+  }
+
   async getFilterOptions() {
     try {
       const { data: { user } } = await supabase.auth.getUser();

@@ -51,6 +51,31 @@ export interface OnboardingData {
     is_active?: boolean;
   }>;
   
+  // Data setup configuration
+  dataSetup?: {
+    dataChoice: 'sample' | 'manual' | 'fresh';
+    leads?: Array<{
+      name: string;
+      email: string;
+      phone: string;
+      program: string;
+      source: string;
+    }>;
+    students?: Array<{
+      name: string;
+      email: string;
+      studentId: string;
+      program: string;
+      stage: string;
+    }>;
+    applications?: Array<{
+      studentName: string;
+      email: string;
+      program: string;
+      status: string;
+    }>;
+  };
+  
   // Other onboarding data
   [key: string]: any;
 }
@@ -164,6 +189,95 @@ export class OnboardingService {
           if (teamError) {
             console.error('Error saving team:', teamError);
             errors.push(`Failed to save team ${team.name}: ${teamError.message}`);
+          }
+        }
+      }
+
+      // Handle data setup
+      if (onboardingData.dataSetup) {
+        const { dataChoice } = onboardingData.dataSetup;
+        
+        if (dataChoice === 'sample') {
+          // Assign demo data to user
+          try {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user?.email) {
+              const { error: demoError } = await supabase.rpc('assign_demo_data_to_user', {
+                target_email: user.email,
+                demo_enabled: true
+              });
+              
+              if (demoError) {
+                console.error('Error assigning demo data:', demoError);
+                errors.push('Failed to assign sample data');
+              }
+            }
+          } catch (demoError) {
+            console.error('Error in demo data assignment:', demoError);
+            errors.push('Failed to set up sample data');
+          }
+        } else if (dataChoice === 'manual') {
+          // Save manually entered data
+          const { leads, students, applications } = onboardingData.dataSetup;
+          
+          // Save leads
+          if (leads && leads.length > 0) {
+            for (const lead of leads) {
+              if (lead.name && lead.email) {
+                const sourceMap: { [key: string]: 'web' | 'social_media' | 'referral' | 'ads' | 'event' | 'email' | 'phone' | 'forms' } = {
+                  'Website': 'web',
+                  'Social Media': 'social_media',
+                  'Referral': 'referral',
+                  'Advertisement': 'ads',
+                  'Event': 'event'
+                };
+                
+                const leadData = {
+                  user_id: user.id,
+                  first_name: lead.name.split(' ')[0],
+                  last_name: lead.name.split(' ').slice(1).join(' ') || '',
+                  email: lead.email,
+                  phone: lead.phone,
+                  program_interest: [lead.program],
+                  source: sourceMap[lead.source] || 'web' as 'web',
+                  status: 'new' as 'new'
+                };
+
+                const { error: leadError } = await supabase
+                  .from('leads')
+                  .insert(leadData);
+
+                if (leadError) {
+                  console.error('Error saving lead:', leadError);
+                  errors.push(`Failed to save lead ${lead.name}`);
+                }
+              }
+            }
+          }
+
+          // Save applications
+          if (applications && applications.length > 0) {
+            for (const app of applications) {
+              if (app.studentName && app.email) {
+                const appData = {
+                  user_id: user.id,
+                  student_name: app.studentName,
+                  email: app.email,
+                  program: app.program,
+                  status: app.status,
+                  application_date: new Date().toISOString()
+                };
+
+                const { error: appError } = await supabase
+                  .from('applications')
+                  .insert(appData);
+
+                if (appError) {
+                  console.error('Error saving application:', appError);
+                  errors.push(`Failed to save application for ${app.studentName}`);
+                }
+              }
+            }
           }
         }
       }

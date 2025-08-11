@@ -16,6 +16,7 @@ import PaymentSetupScreen from './steps/PaymentSetupScreen';
 import IntegrationsSetupScreen from './steps/IntegrationsSetupScreen';
 import EventSetupScreen from './steps/EventSetupScreen';
 import TeamSetupScreen from './steps/TeamSetupScreen';
+import DataSetupScreen from './steps/DataSetupScreen';
 import SystemTrainingScreen from './steps/SystemTrainingScreen';
 import CompletionCelebrationScreen from './steps/CompletionCelebrationScreen';
 
@@ -29,6 +30,7 @@ interface OnboardingData {
   integrations: any[];
   events: any[];
   team: any[];
+  dataSetup: any;
   trainingProgress: any;
 }
 
@@ -42,6 +44,7 @@ const ONBOARDING_STEPS = [
   { id: 'integrations', title: 'Integrations', description: 'Connect external services' },
   { id: 'events', title: 'Events (Optional)', description: 'Set up important events' },
   { id: 'team', title: 'Team Setup', description: 'Add team members' },
+  { id: 'dataSetup', title: 'Initial Data', description: 'Set up your first data or samples' },
   { id: 'training', title: 'System Training', description: 'Learn how to use the system' },
   { id: 'completion', title: 'Welcome!', description: 'You are ready to go' }
 ];
@@ -60,6 +63,7 @@ const ComprehensiveOnboarding: React.FC = () => {
     integrations: [],
     events: [],
     team: [],
+    dataSetup: {},
     trainingProgress: {}
   });
   const [isStepComplete, setIsStepComplete] = useState<boolean[]>(new Array(ONBOARDING_STEPS.length).fill(false));
@@ -167,8 +171,10 @@ const ComprehensiveOnboarding: React.FC = () => {
         return <EventSetupScreen {...stepProps} />;
       case 'team':
         return <TeamSetupScreen {...stepProps} />;
+      case 'dataSetup':
+        return <DataSetupScreen {...stepProps} />;
       case 'training':
-        return <SystemTrainingScreen {...stepProps} />;
+        return <SystemTrainingScreen {...stepProps} dataSetup={onboardingData.dataSetup} />;
       case 'completion':
         return <CompletionCelebrationScreen {...stepProps} onboardingData={onboardingData} />;
       default:

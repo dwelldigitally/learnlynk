@@ -6,6 +6,7 @@ import { GraduationCap, Play, CheckCircle } from 'lucide-react';
 
 interface SystemTrainingScreenProps {
   data: any;
+  dataSetup?: any;
   onComplete: (data: any) => void;
   onNext: () => void;
   onSkip: () => void;
@@ -13,6 +14,7 @@ interface SystemTrainingScreenProps {
 
 const SystemTrainingScreen: React.FC<SystemTrainingScreenProps> = ({
   data,
+  dataSetup,
   onComplete,
   onNext,
   onSkip

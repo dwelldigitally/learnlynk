@@ -10,7 +10,8 @@ import {
   Building2, MapPin, TrendingUp, Phone, Mail, 
   FileText, ClipboardList, AlertTriangle, Calendar,
   CreditCard, Upload, Target, MessageSquare, Video,
-  Megaphone, GitBranch, Zap, Search, Brain, GraduationCap
+  Megaphone, GitBranch, Zap, Search, Brain, GraduationCap,
+  Route
 } from "lucide-react";
 
 // Import configuration components
@@ -34,6 +35,8 @@ import { RoutingConfiguration } from './sections/RoutingConfiguration';
 import { CompanyProfileConfiguration } from './sections/CompanyProfileConfiguration';
 import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
 import { LeadConfiguration } from './LeadConfiguration';
+import { LeadRoutingRulesConfiguration } from './LeadRoutingRulesConfiguration';
+import { LeadScoringConfiguration } from './LeadScoringConfiguration';
 
 interface ConfigurationSection {
   id: string;
@@ -52,9 +55,25 @@ const configurationSections: ConfigurationSection[] = [
     id: 'lead-intelligence',
     label: 'Intelligence & AI',
     icon: Brain,
-    description: 'Configure Agentic AI, routing rules, and scoring algorithms',
+    description: 'Configure Agentic AI and lead management settings',
     category: 'Leads',
     component: <LeadConfiguration />
+  },
+  {
+    id: 'routing-rules',
+    label: 'Routing Rules',
+    icon: Route,
+    description: 'Configure intelligent lead assignment and routing',
+    category: 'Leads',
+    component: <LeadRoutingRulesConfiguration />
+  },
+  {
+    id: 'lead-scoring',
+    label: 'Lead Scoring',
+    icon: Target,
+    description: 'Configure automatic lead scoring rules and algorithms',
+    category: 'Leads',
+    component: <LeadScoringConfiguration />
   },
   
   // Students Configuration  
@@ -188,10 +207,10 @@ const configurationSections: ConfigurationSection[] = [
     isNew: true
   },
   {
-    id: 'routing-rules',
-    label: 'Routing Rules',
+    id: 'team-routing-rules',
+    label: 'Team Routing Rules',
     icon: GitBranch,
-    description: 'Configure lead routing and team assignment rules',
+    description: 'Configure team-based lead routing and assignment rules',
     category: 'System',
     component: <RoutingConfiguration />,
     isNew: true
@@ -251,7 +270,7 @@ export const EnhancedConfigurationManagement = () => {
     const path = window.location.pathname;
     if (path.includes('/master-data')) return 'Data & Database';
     if (path.includes('/templates')) return 'Communication';
-    if (path.includes('/routing')) return 'Team Management';
+    if (path.includes('/routing')) return 'Leads';
     if (path.includes('/company')) return 'Company Settings';
     return null;
   });

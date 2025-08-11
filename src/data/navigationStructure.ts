@@ -39,8 +39,6 @@ export const navigationStructure: NavigationStructure = {
         { name: "Lead Management", href: "/admin/leads", icon: Users },
         { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
         { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
-        { name: "Routing Rules", href: "/admin/routing-rules", icon: Route },
-        { name: "Lead Scoring", href: "/admin/scoring", icon: Target },
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
         { 
           name: "Communication Hub", 

@@ -109,6 +109,148 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_agent_filter_rules: {
+        Row: {
+          agent_id: string
+          conditions: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          priority: number
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          conditions?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_agent_filter_rules_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_agent_tasks: {
+        Row: {
+          agent_id: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          performance_data: Json | null
+          priority: string
+          schedule_config: Json | null
+          task_type: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          performance_data?: Json | null
+          priority?: string
+          schedule_config?: Json | null
+          task_type: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          performance_data?: Json | null
+          priority?: string
+          schedule_config?: Json | null
+          task_type?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_agent_tasks_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "ai_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_agents: {
+        Row: {
+          configuration: Json
+          created_at: string
+          description: string | null
+          handoff_threshold: number
+          id: string
+          is_active: boolean
+          max_concurrent_leads: number
+          name: string
+          performance_metrics: Json | null
+          personality: string | null
+          response_style: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          configuration?: Json
+          created_at?: string
+          description?: string | null
+          handoff_threshold?: number
+          id?: string
+          is_active?: boolean
+          max_concurrent_leads?: number
+          name: string
+          performance_metrics?: Json | null
+          personality?: string | null
+          response_style?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          configuration?: Json
+          created_at?: string
+          description?: string | null
+          handoff_threshold?: number
+          id?: string
+          is_active?: boolean
+          max_concurrent_leads?: number
+          name?: string
+          performance_metrics?: Json | null
+          personality?: string | null
+          response_style?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_feature_analytics: {
         Row: {
           created_at: string

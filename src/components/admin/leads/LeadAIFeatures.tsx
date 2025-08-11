@@ -33,197 +33,154 @@ import {
   Activity,
   BarChart3,
   Calendar,
-  Brain
+  Brain,
+  RefreshCw,
+  Edit,
+  Search
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
-interface AgentConfig {
-  name: string;
-  description: string;
-  isActive: boolean;
-  personality: string;
-  responseStyle: 'professional' | 'friendly' | 'casual';
-  maxConcurrentLeads: number;
-  handoffThreshold: number;
-}
-
-interface FilterRule {
-  id: string;
-  name: string;
-  description: string;
-  conditions: {
-    field: string;
-    operator: string;
-    value: string;
-  }[];
-  isActive: boolean;
-}
-
-interface ExemptionRule {
-  id: string;
-  name: string;
-  criteria: string;
-  reason: string;
-  isActive: boolean;
-}
-
-interface TaskItem {
-  id: string;
-  title: string;
-  description: string;
-  isActive: boolean;
-  priority: 'high' | 'medium' | 'low';
-}
+import { useAIAgent } from "@/hooks/useAIAgent";
 
 export function LeadAIFeatures() {
   const { toast } = useToast();
   const [showCreateAgent, setShowCreateAgent] = useState(false);
+  const [newAgentName, setNewAgentName] = useState("");
+  const [newAgentDescription, setNewAgentDescription] = useState("");
+  const [newAgentResponseStyle, setNewAgentResponseStyle] = useState<'professional' | 'friendly' | 'casual'>('professional');
   
-  const [agentConfig, setAgentConfig] = useState<AgentConfig>({
-    name: "John",
-    description: "AI Admissions Agent specializing in program qualification and lead nurturing",
-    isActive: true,
-    personality: "professional and helpful",
-    responseStyle: 'professional',
-    maxConcurrentLeads: 45,
-    handoffThreshold: 75
-  });
+  const {
+    agents,
+    activeAgent,
+    filterRules,
+    tasks,
+    agentLeads,
+    performanceMetrics,
+    isLoading,
+    createAgent,
+    updateAgent,
+    toggleAgent,
+    createFilterRule,
+    updateFilterRule,
+    createTask,
+    toggleTask,
+    reassignLeadsToHumans,
+    loadAgents
+  } = useAIAgent();
 
-  const [filterRules, setFilterRules] = useState<FilterRule[]>([
-    {
-      id: '1',
-      name: 'Low Score Leads',
-      description: 'Target leads with scores below 40 for aggressive nurturing',
-      conditions: [
-        { field: 'lead_score', operator: 'less_than', value: '40' }
-      ],
-      isActive: true
-    },
-    {
-      id: '2', 
-      name: 'Aggressive Sales Intakes',
-      description: 'High-touch approach for competitive program intakes',
-      conditions: [
-        { field: 'intake_sales_approach', operator: 'equals', value: 'aggressive' }
-      ],
-      isActive: true
+  const handleCreateAgent = async () => {
+    if (!newAgentName.trim()) {
+      toast({
+        title: "Error",
+        description: "Agent name is required",
+        variant: "destructive"
+      });
+      return;
     }
-  ]);
 
-  const [exemptionRules, setExemptionRules] = useState<ExemptionRule[]>([
-    {
-      id: '1',
-      name: 'VIP Leads',
-      criteria: 'Lead score > 90 OR priority = urgent',
-      reason: 'High-value leads require immediate human attention',
-      isActive: true
+    try {
+      await createAgent({
+        name: newAgentName,
+        description: newAgentDescription,
+        response_style: newAgentResponseStyle,
+        max_concurrent_leads: 50,
+        handoff_threshold: 75,
+        configuration: {}
+      });
+      
+      setShowCreateAgent(false);
+      setNewAgentName("");
+      setNewAgentDescription("");
+      setNewAgentResponseStyle('professional');
+    } catch (error) {
+      // Error is handled in the hook
     }
-  ]);
-
-  const [automationSettings, setAutomationSettings] = useState({
-    emailFollowUp: true,
-    smsFollowUp: true,
-    callScheduling: true,
-    autoHandoff: true,
-    learningMode: false,
-    smartTiming: true
-  });
-
-  const [activeTasks, setActiveTasks] = useState<TaskItem[]>([
-    { id: '1', title: 'Initial Contact', description: 'Send welcome email to new leads', isActive: true, priority: 'high' },
-    { id: '2', title: 'Program Matching', description: 'Analyze lead profile and suggest matching programs', isActive: true, priority: 'high' },
-    { id: '3', title: 'Follow-up Sequences', description: 'Execute personalized follow-up campaigns', isActive: true, priority: 'medium' },
-    { id: '4', title: 'Qualification Scoring', description: 'Update lead scores based on interactions', isActive: true, priority: 'medium' },
-    { id: '5', title: 'Deadline Reminders', description: 'Send application deadline reminders', isActive: false, priority: 'low' }
-  ]);
-
-  const updateAgentConfig = (field: keyof AgentConfig, value: any) => {
-    setAgentConfig(prev => ({ ...prev, [field]: value }));
   };
 
-  const toggleFilterRule = (ruleId: string) => {
-    setFilterRules(prev => prev.map(rule => 
-      rule.id === ruleId ? { ...rule, isActive: !rule.isActive } : rule
-    ));
+  const handleToggleAgent = async (agentId: string, isActive: boolean) => {
+    await toggleAgent(agentId, isActive);
   };
 
-  const toggleExemptionRule = (ruleId: string) => {
-    setExemptionRules(prev => prev.map(rule => 
-      rule.id === ruleId ? { ...rule, isActive: !rule.isActive } : rule
-    ));
+  const handleUpdateAgentConfig = async (field: string, value: any) => {
+    if (!activeAgent) return;
+    
+    await updateAgent(activeAgent.id, { [field]: value });
   };
 
-  const toggleTask = (taskId: string) => {
-    setActiveTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, isActive: !task.isActive } : task
-    ));
-  };
-
-  const turnOffAI = () => {
-    updateAgentConfig('isActive', false);
-    toast({
-      title: "AI Agent Deactivated",
-      description: "John has been turned off. All active leads will be queued for human assignment."
-    });
-  };
-
-  const reassignLeads = () => {
-    toast({
-      title: "Reassignment Started",
-      description: "All 23 working leads are being reassigned to available human advisors."
-    });
-  };
+  if (isLoading) {
+    return (
+      <div className="p-6 pt-8 w-full max-w-none space-y-8">
+        <div className="flex items-center justify-center h-64">
+          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 pt-8 w-full max-w-none space-y-8">
       {/* Header with AI Agent Profile */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-6">
-          <div className={`relative p-4 rounded-2xl ${agentConfig.isActive ? 'bg-primary/10' : 'bg-muted'}`}>
-            <Bot className={`h-12 w-12 ${agentConfig.isActive ? 'text-primary' : 'text-muted-foreground'}`} />
-            {agentConfig.isActive && (
+          <div className={`relative p-4 rounded-2xl ${activeAgent?.is_active ? 'bg-primary/10' : 'bg-muted'}`}>
+            <Bot className={`h-12 w-12 ${activeAgent?.is_active ? 'text-primary' : 'text-muted-foreground'}`} />
+            {activeAgent?.is_active && (
               <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-background" />
             )}
           </div>
           <div className="space-y-2">
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{agentConfig.name}</h1>
-              <Badge variant={agentConfig.isActive ? "default" : "secondary"}>
-                {agentConfig.isActive ? 'Active' : 'Inactive'}
+              <h1 className="text-3xl font-bold">{activeAgent?.name || "No Active Agent"}</h1>
+              <Badge variant={activeAgent?.is_active ? "default" : "secondary"}>
+                {activeAgent?.is_active ? 'Active' : 'Inactive'}
               </Badge>
             </div>
             <p className="text-lg text-muted-foreground">
-              {agentConfig.description}
+              {activeAgent?.description || "No agent is currently active"}
             </p>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Target className="h-4 w-4" />
-                <span>23 leads assigned</span>
+            {activeAgent && performanceMetrics && (
+              <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1">
+                  <Target className="h-4 w-4" />
+                  <span>{performanceMetrics.active_leads_count} leads assigned</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Activity className="h-4 w-4" />
+                  <span>{performanceMetrics.success_rate}% success rate</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  <span>{performanceMetrics.average_response_time}h avg response time</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Activity className="h-4 w-4" />
-                <span>89% success rate</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                <span>2.3h avg response time</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {agentConfig.isActive ? (
-            <Button onClick={turnOffAI} variant="outline">
-              <Pause className="h-4 w-4 mr-2" />
-              Turn Off AI
+          {activeAgent ? (
+            <Button 
+              onClick={() => handleToggleAgent(activeAgent.id, !activeAgent.is_active)} 
+              variant="outline"
+            >
+              {activeAgent.is_active ? (
+                <>
+                  <Pause className="h-4 w-4 mr-2" />
+                  Turn Off AI
+                </>
+              ) : (
+                <>
+                  <Play className="h-4 w-4 mr-2" />
+                  Activate AI
+                </>
+              )}
             </Button>
           ) : (
-            <Button onClick={() => updateAgentConfig('isActive', true)}>
-              <Play className="h-4 w-4 mr-2" />
-              Activate AI
+            <Button disabled variant="outline">
+              <Pause className="h-4 w-4 mr-2" />
+              No Agent Available
             </Button>
           )}
+          
           <Dialog open={showCreateAgent} onOpenChange={setShowCreateAgent}>
             <DialogTrigger asChild>
               <Button>
@@ -241,20 +198,43 @@ export function LeadAIFeatures() {
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label htmlFor="newAgentName">Agent Name</Label>
-                  <Input id="newAgentName" placeholder="e.g., Sarah, MBA Specialist" />
+                  <Input 
+                    id="newAgentName" 
+                    placeholder="e.g., Sarah, MBA Specialist"
+                    value={newAgentName}
+                    onChange={(e) => setNewAgentName(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="newAgentDesc">Description</Label>
-                  <Textarea id="newAgentDesc" placeholder="Describe the agent's specialization..." />
+                  <Textarea 
+                    id="newAgentDesc" 
+                    placeholder="Describe the agent's specialization..."
+                    value={newAgentDescription}
+                    onChange={(e) => setNewAgentDescription(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="responseStyle">Response Style</Label>
+                  <Select 
+                    value={newAgentResponseStyle} 
+                    onValueChange={(value: 'professional' | 'friendly' | 'casual') => setNewAgentResponseStyle(value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="friendly">Friendly</SelectItem>
+                      <SelectItem value="casual">Casual</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex justify-end gap-2">
                   <Button variant="outline" onClick={() => setShowCreateAgent(false)}>
                     Cancel
                   </Button>
-                  <Button onClick={() => {
-                    setShowCreateAgent(false);
-                    toast({ title: "New Agent Created", description: "Your new AI agent is being configured." });
-                  }}>
+                  <Button onClick={handleCreateAgent}>
                     Create Agent
                   </Button>
                 </div>
@@ -271,14 +251,17 @@ export function LeadAIFeatures() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Active Leads</p>
-                <p className="text-2xl font-bold">23</p>
-                <p className="text-xs text-muted-foreground">of 45 max capacity</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.active_leads_count || 0}</p>
+                <p className="text-xs text-muted-foreground">of {activeAgent?.max_concurrent_leads || 0} max capacity</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-lg">
                 <Users className="h-5 w-5 text-primary" />
               </div>
             </div>
-            <Progress value={(23/45) * 100} className="mt-3" />
+            <Progress 
+              value={activeAgent ? ((performanceMetrics?.active_leads_count || 0) / activeAgent.max_concurrent_leads) * 100 : 0} 
+              className="mt-3" 
+            />
           </CardContent>
         </Card>
 
@@ -286,9 +269,9 @@ export function LeadAIFeatures() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Conversions Today</p>
-                <p className="text-2xl font-bold">7</p>
-                <p className="text-xs text-green-600">+12% from yesterday</p>
+                <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.conversion_rate.toFixed(1) || 0}%</p>
+                <p className="text-xs text-green-600">Total leads handled: {performanceMetrics?.total_leads_handled || 0}</p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
                 <CheckCircle className="h-5 w-5 text-green-600" />
@@ -302,7 +285,7 @@ export function LeadAIFeatures() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Handoffs Pending</p>
-                <p className="text-2xl font-bold">3</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.handoffs_count || 0}</p>
                 <p className="text-xs text-orange-600">Requires human attention</p>
               </div>
               <div className="p-3 bg-orange-100 rounded-lg">
@@ -321,7 +304,7 @@ export function LeadAIFeatures() {
             Lead Management Controls
           </CardTitle>
           <CardDescription>
-            Manage leads currently being handled by {agentConfig.name}
+            Manage leads currently being handled by {activeAgent?.name || "AI agent"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -329,10 +312,10 @@ export function LeadAIFeatures() {
             <div>
               <h4 className="font-medium">Current Filter Configuration</h4>
               <p className="text-sm text-muted-foreground">
-                {filterRules.filter(r => r.isActive).length} active filters applied
+                {filterRules.filter(r => r.is_active).length} active filters applied
               </p>
               <div className="flex gap-2 mt-2">
-                {filterRules.filter(r => r.isActive).map(rule => (
+                {filterRules.filter(r => r.is_active).map(rule => (
                   <Badge key={rule.id} variant="secondary">{rule.name}</Badge>
                 ))}
               </div>
@@ -346,10 +329,10 @@ export function LeadAIFeatures() {
             <div>
               <h4 className="font-medium">Bulk Actions</h4>
               <p className="text-sm text-muted-foreground">
-                Manage all 23 leads currently assigned to {agentConfig.name}
+                Manage all {agentLeads.length} leads currently assigned to {activeAgent?.name || "agent"}
               </p>
             </div>
-            <Button onClick={reassignLeads} variant="outline">
+            <Button onClick={reassignLeadsToHumans} variant="outline" disabled={agentLeads.length === 0}>
               <UserCheck className="h-4 w-4 mr-2" />
               Reassign All to Humans
             </Button>
@@ -367,7 +350,7 @@ export function LeadAIFeatures() {
                 Active Tasks
               </CardTitle>
               <CardDescription>
-                Tasks that {agentConfig.name} is currently executing
+                Tasks that {activeAgent?.name || "the AI agent"} is currently executing
               </CardDescription>
             </div>
             <Button variant="outline">
@@ -377,11 +360,11 @@ export function LeadAIFeatures() {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
-          {activeTasks.map((task) => (
+          {tasks.length > 0 ? tasks.map((task) => (
             <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${task.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
-                  <CheckCircle className={`h-4 w-4 ${task.isActive ? 'text-green-600' : 'text-gray-600'}`} />
+                <div className={`p-2 rounded-lg ${task.is_active ? 'bg-green-100' : 'bg-gray-100'}`}>
+                  <CheckCircle className={`h-4 w-4 ${task.is_active ? 'text-green-600' : 'text-gray-600'}`} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
@@ -394,11 +377,17 @@ export function LeadAIFeatures() {
                 </div>
               </div>
               <Switch
-                checked={task.isActive}
-                onCheckedChange={() => toggleTask(task.id)}
+                checked={task.is_active}
+                onCheckedChange={() => toggleTask(task.id, !task.is_active)}
               />
             </div>
-          ))}
+          )) : (
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No tasks configured for this agent</p>
+              <p className="text-sm">Click "Add Task" to create tasks</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -413,50 +402,63 @@ export function LeadAIFeatures() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="agentName">Agent Name</Label>
-              <Input
-                id="agentName"
-                value={agentConfig.name}
-                onChange={(e) => updateAgentConfig('name', e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="responseStyle">Response Style</Label>
-              <Select value={agentConfig.responseStyle} onValueChange={(value) => updateAgentConfig('responseStyle', value)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="friendly">Friendly</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {activeAgent ? (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="agentName">Agent Name</Label>
+                  <Input
+                    id="agentName"
+                    value={activeAgent.name}
+                    onChange={(e) => handleUpdateAgentConfig('name', e.target.value)}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="responseStyle">Response Style</Label>
+                  <Select 
+                    value={activeAgent.response_style} 
+                    onValueChange={(value) => handleUpdateAgentConfig('response_style', value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="professional">Professional</SelectItem>
+                      <SelectItem value="friendly">Friendly</SelectItem>
+                      <SelectItem value="casual">Casual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="maxLeads">Max Concurrent Leads</Label>
-                <Input
-                  id="maxLeads"
-                  type="number"
-                  value={agentConfig.maxConcurrentLeads}
-                  onChange={(e) => updateAgentConfig('maxConcurrentLeads', parseInt(e.target.value))}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="maxLeads">Max Concurrent Leads</Label>
+                    <Input
+                      id="maxLeads"
+                      type="number"
+                      value={activeAgent.max_concurrent_leads}
+                      onChange={(e) => handleUpdateAgentConfig('max_concurrent_leads', parseInt(e.target.value))}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="handoffThreshold">Handoff Threshold (%)</Label>
+                    <Input
+                      id="handoffThreshold"
+                      type="number"
+                      value={activeAgent.handoff_threshold}
+                      onChange={(e) => handleUpdateAgentConfig('handoff_threshold', parseInt(e.target.value))}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                <Bot className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                <p>No active agent</p>
+                <p className="text-sm">Create or activate an agent to configure settings</p>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="handoffThreshold">Handoff Threshold (%)</Label>
-                <Input
-                  id="handoffThreshold"
-                  type="number"
-                  value={agentConfig.handoffThreshold}
-                  onChange={(e) => updateAgentConfig('handoffThreshold', parseInt(e.target.value))}
-                />
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
@@ -469,26 +471,6 @@ export function LeadAIFeatures() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {[
-              { key: 'emailFollowUp', label: 'Email Follow-ups', icon: Mail },
-              { key: 'smsFollowUp', label: 'SMS Follow-ups', icon: MessageSquare },
-              { key: 'callScheduling', label: 'Call Scheduling', icon: Phone },
-              { key: 'autoHandoff', label: 'Auto Handoff', icon: Users },
-              { key: 'smartTiming', label: 'Smart Timing', icon: Clock }
-            ].map(({ key, label, icon: Icon }) => (
-              <div key={key} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{label}</span>
-                </div>
-                <Switch
-                  checked={automationSettings[key as keyof typeof automationSettings]}
-                  onCheckedChange={(checked) => 
-                    setAutomationSettings(prev => ({ ...prev, [key]: checked }))
-                  }
-                />
-              </div>
-            ))}
           </CardContent>
         </Card>
 
@@ -510,8 +492,8 @@ export function LeadAIFeatures() {
             {filterRules.map((rule) => (
               <div key={rule.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${rule.isActive ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    <Filter className={`h-4 w-4 ${rule.isActive ? 'text-green-600' : 'text-gray-600'}`} />
+                  <div className={`p-2 rounded-lg ${rule.is_active ? 'bg-green-100' : 'bg-gray-100'}`}>
+                    <Filter className={`h-4 w-4 ${rule.is_active ? 'text-green-600' : 'text-gray-600'}`} />
                   </div>
                   <div>
                     <span className="font-medium text-sm">{rule.name}</span>
@@ -519,8 +501,8 @@ export function LeadAIFeatures() {
                   </div>
                 </div>
                 <Switch
-                  checked={rule.isActive}
-                  onCheckedChange={() => toggleFilterRule(rule.id)}
+                  checked={rule.is_active}
+                  onCheckedChange={() => updateFilterRule(rule.id, { is_active: !rule.is_active })}
                 />
               </div>
             ))}
@@ -542,23 +524,12 @@ export function LeadAIFeatures() {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {exemptionRules.map((rule) => (
-              <div key={rule.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${rule.isActive ? 'bg-orange-100' : 'bg-gray-100'}`}>
-                    <Shield className={`h-4 w-4 ${rule.isActive ? 'text-orange-600' : 'text-gray-600'}`} />
-                  </div>
-                  <div>
-                    <span className="font-medium text-sm">{rule.name}</span>
-                    <p className="text-xs text-muted-foreground">{rule.reason}</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={rule.isActive}
-                  onCheckedChange={() => toggleExemptionRule(rule.id)}
-                />
-              </div>
-            ))}
+            {/* Exemption rules would be loaded from database in a similar way to filter rules */}
+            <div className="text-center py-8 text-muted-foreground">
+              <Shield className="h-8 w-8 mx-auto mb-2 opacity-50" />
+              <p>No exemption rules configured</p>
+              <p className="text-sm">Click "Add Exemption" to create exemption rules</p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -571,7 +542,7 @@ export function LeadAIFeatures() {
             Real-time Activity Monitor
           </CardTitle>
           <CardDescription>
-            Live updates from {agentConfig.name}'s current activities
+            Live updates from {activeAgent?.name || "the AI agent"}'s current activities
           </CardDescription>
         </CardHeader>
         <CardContent>

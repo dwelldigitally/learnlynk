@@ -202,7 +202,10 @@ export function EnhancedSegmentCard({
             variant="ghost" 
             size="sm" 
             className="w-full mt-4 text-xs hover:bg-primary/5"
-            onClick={() => setShowAllExpanded(true)}
+            onClick={() => {
+              console.log('View all button clicked');
+              setShowAllExpanded(true);
+            }}
           >
             View all {count} items
           </Button>

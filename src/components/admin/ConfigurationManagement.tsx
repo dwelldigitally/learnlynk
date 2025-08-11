@@ -2,5 +2,6 @@ import React from 'react';
 import { EnhancedConfigurationManagement } from './config/EnhancedConfigurationManagement';
 
 export const ConfigurationManagement = () => {
+  console.log('ConfigurationManagement rendering');
   return <EnhancedConfigurationManagement />;
 };

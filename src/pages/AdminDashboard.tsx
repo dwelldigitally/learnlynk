@@ -50,6 +50,8 @@ import SalesRepDashboard from "./SalesRepDashboard";
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
   
+  console.log('AdminDashboard rendering, pathname:', location.pathname);
+  
   const renderContent = () => {
     // Check for student detail route pattern
     if (location.pathname.startsWith("/admin/students/") && location.pathname !== "/admin/students") {

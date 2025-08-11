@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
-import { Users, Plus, Edit2, Trash2 } from 'lucide-react';
+import { Users, Plus, Edit2, Trash2, UserPlus } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { MasterTeam } from "@/types/masterData";
+import TeamMembersList from '@/components/team/TeamMembersList';
 
 interface TeamSetupScreenProps {
   data: any;
@@ -29,6 +30,7 @@ const TeamSetupScreen: React.FC<TeamSetupScreenProps> = ({
   const [teams, setTeams] = useState<MasterTeam[]>(data?.teams || []);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState<MasterTeam | null>(null);
+  const [selectedTeamForMembers, setSelectedTeamForMembers] = useState<string | null>(null);
   
   const [formData, setFormData] = useState<Partial<MasterTeam>>({
     name: '',
@@ -188,6 +190,14 @@ const TeamSetupScreen: React.FC<TeamSetupScreenProps> = ({
                     <Button
                       variant="ghost"
                       size="sm"
+                      onClick={() => setSelectedTeamForMembers(team.id!)}
+                      title="Manage team members"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleEdit(team)}
                     >
                       <Edit2 className="w-4 h-4" />
@@ -206,6 +216,14 @@ const TeamSetupScreen: React.FC<TeamSetupScreenProps> = ({
           )}
         </CardContent>
       </Card>
+
+      {/* Team Members Management */}
+      {selectedTeamForMembers && (
+        <TeamMembersList
+          teamId={selectedTeamForMembers}
+          teamName={teams.find(t => t.id === selectedTeamForMembers)?.name || 'Team'}
+        />
+      )}
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={onSkip}>

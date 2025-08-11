@@ -41,13 +41,11 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAIAgent } from "@/hooks/useAIAgent";
+import { AIAgentWizard } from "@/components/admin/wizard/AIAgentWizard";
 
 export function LeadAIFeatures() {
   const { toast } = useToast();
   const [showCreateAgent, setShowCreateAgent] = useState(false);
-  const [newAgentName, setNewAgentName] = useState("");
-  const [newAgentDescription, setNewAgentDescription] = useState("");
-  const [newAgentResponseStyle, setNewAgentResponseStyle] = useState<'professional' | 'friendly' | 'casual'>('professional');
   
   const {
     agents,
@@ -68,33 +66,9 @@ export function LeadAIFeatures() {
     loadAgents
   } = useAIAgent();
 
-  const handleCreateAgent = async () => {
-    if (!newAgentName.trim()) {
-      toast({
-        title: "Error",
-        description: "Agent name is required",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      await createAgent({
-        name: newAgentName,
-        description: newAgentDescription,
-        response_style: newAgentResponseStyle,
-        max_concurrent_leads: 50,
-        handoff_threshold: 75,
-        configuration: {}
-      });
-      
-      setShowCreateAgent(false);
-      setNewAgentName("");
-      setNewAgentDescription("");
-      setNewAgentResponseStyle('professional');
-    } catch (error) {
-      // Error is handled in the hook
-    }
+  const handleSaveAgent = async (agentData: any) => {
+    // Agent creation is handled within the wizard
+    await loadAgents(); // Refresh the agents list
   };
 
   const handleToggleAgent = async (agentId: string, isActive: boolean) => {
@@ -181,66 +155,10 @@ export function LeadAIFeatures() {
             </Button>
           )}
           
-          <Dialog open={showCreateAgent} onOpenChange={setShowCreateAgent}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create New Agent
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New AI Agent</DialogTitle>
-                <DialogDescription>
-                  Set up a new AI agent for specialized lead management
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="newAgentName">Agent Name</Label>
-                  <Input 
-                    id="newAgentName" 
-                    placeholder="e.g., Sarah, MBA Specialist"
-                    value={newAgentName}
-                    onChange={(e) => setNewAgentName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="newAgentDesc">Description</Label>
-                  <Textarea 
-                    id="newAgentDesc" 
-                    placeholder="Describe the agent's specialization..."
-                    value={newAgentDescription}
-                    onChange={(e) => setNewAgentDescription(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="responseStyle">Response Style</Label>
-                  <Select 
-                    value={newAgentResponseStyle} 
-                    onValueChange={(value: 'professional' | 'friendly' | 'casual') => setNewAgentResponseStyle(value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="friendly">Friendly</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={() => setShowCreateAgent(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateAgent}>
-                    Create Agent
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => setShowCreateAgent(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create New Agent
+          </Button>
         </div>
       </div>
 
@@ -569,6 +487,13 @@ export function LeadAIFeatures() {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Agent Wizard */}
+      <AIAgentWizard 
+        open={showCreateAgent}
+        onOpenChange={setShowCreateAgent}
+        onSave={handleSaveAgent}
+      />
     </div>
   );
 }

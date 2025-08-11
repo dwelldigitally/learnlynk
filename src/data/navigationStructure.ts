@@ -58,6 +58,7 @@ export const navigationStructure: NavigationStructure = {
       name: "Students & Applications",
       icon: GraduationCap,
       items: [
+        { name: "Registrar Command Center", href: "/admin/registrar/command-center", icon: Target },
         { name: "Applicant Management", href: "/admin/applicants", icon: FileText },
         { name: "Student Management", href: "/admin/students", icon: GraduationCap },
         { name: "Student Portal", href: "/admin/student-portal", icon: Settings },

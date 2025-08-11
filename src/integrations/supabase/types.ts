@@ -4136,6 +4136,72 @@ export type Database = {
           },
         ]
       }
+      tasks: {
+        Row: {
+          assigned_at: string | null
+          assigned_to: string | null
+          category: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          due_date: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          metadata: Json | null
+          notes: string | null
+          priority: string
+          reminder_at: string | null
+          status: string
+          tags: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          priority?: string
+          reminder_at?: string | null
+          status?: string
+          tags?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string | null
+          assigned_to?: string | null
+          category?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          priority?: string
+          reminder_at?: string | null
+          status?: string
+          tags?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       team_inbox_members: {
         Row: {
           added_at: string

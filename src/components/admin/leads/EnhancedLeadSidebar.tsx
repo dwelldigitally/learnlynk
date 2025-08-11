@@ -279,96 +279,6 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               />
             </div>
             <div>
-              <Label htmlFor="company">Company</Label>
-              <Input
-                type="text"
-                id="company"
-                name="company"
-                value={editedLead.company || ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="title">Title</Label>
-              <Input
-                type="text"
-                id="title"
-                name="title"
-                value={editedLead.title || ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="dateOfBirth">Date of Birth</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-[240px] justify-start text-left font-normal",
-                      !editedLead.date_of_birth && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {editedLead.date_of_birth ? (
-                      format(new Date(editedLead.date_of_birth), "PPP")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <DatePicker
-                    mode="single"
-                    selected={editedLead.date_of_birth ? new Date(editedLead.date_of_birth) : undefined}
-                    onSelect={handleDateChange}
-                    disabled={loading}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div>
-              <Label htmlFor="leadSource">Lead Source</Label>
-              <Input
-                type="text"
-                id="leadSource"
-                name="lead_source"
-                value={editedLead.lead_source || ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="industry">Industry</Label>
-              <Input
-                type="text"
-                id="industry"
-                name="industry"
-                value={editedLead.industry || ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="location">Location</Label>
-              <Input
-                type="text"
-                id="location"
-                name="location"
-                value={editedLead.location || ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
-              <Label htmlFor="website">Website</Label>
-              <Input
-                type="url"
-                id="website"
-                name="website"
-                value={editedLead.website || ''}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div>
               <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
@@ -376,6 +286,80 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
                 value={editedLead.notes || ''}
                 onChange={handleInputChange}
                 className="resize-none"
+              />
+            </div>
+            <div>
+              <Label htmlFor="program_interest">Program Interest</Label>
+              <Input
+                type="text"
+                id="program_interest"
+                name="program_interest"
+                value={editedLead.program_interest?.join(', ') || ''}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="created_at">Created Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] justify-start text-left font-normal",
+                      !editedLead.created_at && "text-muted-foreground"
+                    )}
+                    disabled
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {editedLead.created_at ? (
+                      format(new Date(editedLead.created_at), "PPP")
+                    ) : (
+                      <span>No date set</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+              </Popover>
+            </div>
+            <div>
+              <Label htmlFor="source">Lead Source</Label>
+              <Input
+                type="text"
+                id="source"
+                name="source"
+                value={editedLead.source || ''}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div>
+              <Label htmlFor="tags">Tags</Label>
+              <Input
+                type="text"
+                id="tags"
+                name="tags"
+                value={editedLead.tags?.join(', ') || ''}
+                onChange={handleInputChange}
+                placeholder="Enter tags separated by commas"
+              />
+            </div>
+            <div>
+              <Label htmlFor="city">Location</Label>
+              <Input
+                type="text"
+                id="city"
+                name="city"
+                value={[editedLead.city, editedLead.state, editedLead.country].filter(Boolean).join(', ') || ''}
+                onChange={handleInputChange}
+                placeholder="City, State, Country"
+              />
+            </div>
+            <div>
+              <Label htmlFor="source_details">Source Details</Label>
+              <Input
+                type="text"
+                id="source_details"
+                name="source_details"
+                value={editedLead.source_details || ''}
+                onChange={handleInputChange}
               />
             </div>
           </div>
@@ -391,28 +375,25 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               <span className="font-semibold">Phone:</span> {lead.phone || 'N/A'}
             </div>
             <div className="text-sm">
-              <span className="font-semibold">Company:</span> {lead.company || 'N/A'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Title:</span> {lead.title || 'N/A'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Date of Birth:</span> {lead.date_of_birth ? new Date(lead.date_of_birth).toLocaleDateString() : 'N/A'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Lead Source:</span> {lead.lead_source || 'N/A'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Industry:</span> {lead.industry || 'N/A'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Location:</span> {lead.location || 'N/A'}
-            </div>
-            <div className="text-sm">
-              <span className="font-semibold">Website:</span> {lead.website || 'N/A'}
-            </div>
-            <div className="text-sm">
               <span className="font-semibold">Notes:</span> {lead.notes || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Program Interest:</span> {lead.program_interest?.join(', ') || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Created Date:</span> {lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Lead Source:</span> {lead.source || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Tags:</span> {lead.tags?.join(', ') || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Location:</span> {[lead.city, lead.state, lead.country].filter(Boolean).join(', ') || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Source Details:</span> {lead.source_details || 'N/A'}
             </div>
           </div>
         )}

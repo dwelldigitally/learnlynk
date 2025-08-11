@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { ChevronDown, Search, Bell, User, Building2, Settings, LogOut, Menu, X } from "lucide-react";
+import { ChevronDown, Search, Bell, User, Building2, Settings, LogOut, Menu, X, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { navigationStructure } from "@/data/navigationStructure";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
+import { UniversalTaskModal } from "./UniversalTaskModal";
 
 interface TopNavigationBarProps {
   activeSection: string;
@@ -36,6 +37,7 @@ export function TopNavigationBar({
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const { signOut } = useAuth();
   const isMobile = useIsMobile();
@@ -179,6 +181,17 @@ export function TopNavigationBar({
             </div>
           )}
 
+          {/* Add Task Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setTaskModalOpen(true)}
+            className="text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            title="Create New Task"
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
+
           {/* Notifications */}
           <div className="relative">
             <AdminNotificationCentre unreadCount={unreadCount} />
@@ -246,6 +259,15 @@ export function TopNavigationBar({
           </div>
         </div>
       )}
+
+      {/* Universal Task Modal */}
+      <UniversalTaskModal
+        open={taskModalOpen}
+        onOpenChange={setTaskModalOpen}
+        onTaskCreated={() => {
+          toast.success("Task created successfully!");
+        }}
+      />
     </>
   );
 }

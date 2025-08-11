@@ -168,34 +168,37 @@ const ComprehensiveOnboarding: React.FC = () => {
 
   return (
     <div className="min-h-screen hero-gradient">
-      {/* Header with Progress */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-4">
-              <img 
-                src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
-                alt="Learnlynk Logo" 
-                className="h-8"
-              />
-              <div>
-                <h1 className="text-lg font-semibold text-foreground">Institution Setup</h1>
-                <p className="text-sm text-muted-foreground">
-                  Step {currentStep + 1} of {ONBOARDING_STEPS.length}: {currentStepData.title}
-                </p>
+      {/* Header with Progress - Full Width */}
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border w-full">
+        <div className="w-full px-6 py-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-4">
+                <img 
+                  src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
+                  alt="Learnlynk Logo" 
+                  className="h-8"
+                />
+                <div>
+                  <h1 className="text-lg font-semibold text-foreground">Institution Setup</h1>
+                  <p className="text-sm text-muted-foreground">
+                    Step {currentStep + 1} of {ONBOARDING_STEPS.length}: {currentStepData.title}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
+                <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
-              <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>
-            </div>
+            <Progress value={progress} className="w-full" />
           </div>
-          <Progress value={progress} className="w-full" />
         </div>
       </div>
 
-      {/* Step Indicator */}
+      {/* Main Content - Centered with Max Width */}
       <div className="max-w-4xl mx-auto px-6 py-6">
+        {/* Step Indicator */}
         <div className="flex items-center justify-between mb-8 overflow-x-auto">
           {ONBOARDING_STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center">
@@ -232,7 +235,7 @@ const ComprehensiveOnboarding: React.FC = () => {
           ))}
         </div>
 
-        {/* Main Content */}
+        {/* Main Content Card */}
         <GlassCard className="p-8">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-foreground mb-2">{currentStepData.title}</h2>

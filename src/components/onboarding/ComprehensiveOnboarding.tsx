@@ -110,6 +110,8 @@ const ComprehensiveOnboarding: React.FC = () => {
   const handleNext = () => {
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
+      // Scroll to top when moving to next step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       // Complete onboarding
       localStorage.removeItem('onboarding-progress');
@@ -125,6 +127,8 @@ const ComprehensiveOnboarding: React.FC = () => {
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      // Scroll to top when moving to previous step
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

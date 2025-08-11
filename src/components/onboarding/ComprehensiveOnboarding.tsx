@@ -4,8 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { GlassCard } from '@/components/modern/GlassCard';
-import { ArrowLeft, ArrowRight, CheckCircle, Plus } from 'lucide-react';
-import { UniversalTaskModal } from '@/components/admin/UniversalTaskModal';
+import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 
 // Step Components
 import CompanySetupScreen from './steps/CompanySetupScreen';
@@ -64,7 +63,6 @@ const ComprehensiveOnboarding: React.FC = () => {
     trainingProgress: {}
   });
   const [isStepComplete, setIsStepComplete] = useState<boolean[]>(new Array(ONBOARDING_STEPS.length).fill(false));
-  const [taskModalOpen, setTaskModalOpen] = useState(false);
 
   const currentStepData = ONBOARDING_STEPS[currentStep];
   const progress = ((currentStep) / (ONBOARDING_STEPS.length - 1)) * 100;
@@ -198,21 +196,9 @@ const ComprehensiveOnboarding: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setTaskModalOpen(true)}
-                  className="flex items-center space-x-2"
-                  title="Create New Task"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">Add Task</span>
-                </Button>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
-                  <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>
-                </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
+                <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>
               </div>
             </div>
             <Progress value={progress} className="w-full" />
@@ -304,17 +290,6 @@ const ComprehensiveOnboarding: React.FC = () => {
         </div>
       </div>
 
-      {/* Universal Task Modal */}
-      <UniversalTaskModal
-        open={taskModalOpen}
-        onOpenChange={setTaskModalOpen}
-        onTaskCreated={() => {
-          toast({
-            title: "Task created successfully!",
-            description: "Your task has been added to the system.",
-          });
-        }}
-      />
     </div>
   );
 };

@@ -161,18 +161,22 @@ export function SalesCommandCenter() {
 
       {/* Main Command Center Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="alert-center" className="flex items-center gap-2">
-            <Flag className="h-4 w-4" />
-            Alert Triage
+            <AlertTriangle className="h-4 w-4" />
+            Critical Issues
           </TabsTrigger>
           <TabsTrigger value="flash-reports" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
-            Flash Reports
+            Pipeline Analytics
           </TabsTrigger>
           <TabsTrigger value="team-performance" className="flex items-center gap-2">
             <Award className="h-4 w-4" />
-            Team Performance
+            Team Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="workflow-automation" className="flex items-center gap-2">
+            <Zap className="h-4 w-4" />
+            Automation Hub
           </TabsTrigger>
         </TabsList>
 
@@ -186,6 +190,28 @@ export function SalesCommandCenter() {
 
         <TabsContent value="team-performance" className="space-y-4">
           <TeamPerformance />
+        </TabsContent>
+
+        <TabsContent value="workflow-automation" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className="h-5 w-5" />
+                Workflow Automation
+              </CardTitle>
+              <CardDescription>
+                Automated sequences, lead routing, and task management
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Automation hub coming soon...</p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Manage lead sequences, auto-assignments, and workflow triggers
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

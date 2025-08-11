@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
 export function CampaignManagement() {
+  const navigate = useNavigate();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [analytics, setAnalytics] = useState({ totalCampaigns: 0, activeCampaigns: 0, totalExecutions: 0 });
   const [loading, setLoading] = useState(true);
@@ -176,33 +178,10 @@ export function CampaignManagement() {
             </DialogContent>
           </Dialog>
           
-          <Dialog open={showWorkflowBuilder} onOpenChange={setShowWorkflowBuilder}>
-            <DialogTrigger asChild>
-              <Button>
-                <GitBranch className="h-4 w-4 mr-2" />
-                Workflow Builder
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Step-by-Step Workflow Builder</DialogTitle>
-                <DialogDescription>
-                  Build multi-step campaigns with precise timing, conditions, and multiple channels
-                </DialogDescription>
-              </DialogHeader>
-              <WorkflowCampaignBuilder 
-                onCampaignCreated={(campaign) => {
-                  setCampaigns([campaign, ...campaigns]);
-                  setShowWorkflowBuilder(false);
-                  loadAnalytics();
-                  toast({
-                    title: "Success",
-                    description: "Workflow campaign created successfully",
-                  });
-                }}
-              />
-            </DialogContent>
-          </Dialog>
+          <Button onClick={() => navigate('/admin/builder/workflows')}>
+            <GitBranch className="h-4 w-4 mr-2" />
+            Workflow Builder
+          </Button>
         </div>
       </div>
 
@@ -271,7 +250,7 @@ export function CampaignManagement() {
                   Create with AI
                 </Button>
                 <Button 
-                  onClick={() => setShowWorkflowBuilder(true)}
+                  onClick={() => navigate('/admin/builder/workflows')}
                 >
                   <GitBranch className="h-4 w-4 mr-2" />
                   Workflow Builder

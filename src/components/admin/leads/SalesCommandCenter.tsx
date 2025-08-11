@@ -160,25 +160,51 @@ export function SalesCommandCenter() {
       </div>
 
       {/* Main Command Center Interface */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="alert-center" className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4" />
-            Critical Issues
-          </TabsTrigger>
-          <TabsTrigger value="flash-reports" className="flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Pipeline Analytics
-          </TabsTrigger>
-          <TabsTrigger value="team-performance" className="flex items-center gap-2">
-            <Award className="h-4 w-4" />
-            Team Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="workflow-automation" className="flex items-center gap-2">
-            <Zap className="h-4 w-4" />
-            Automation Hub
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <div className="bg-gradient-to-r from-slate-50 to-gray-50 p-1 rounded-xl border shadow-sm">
+          <TabsList className="grid w-full grid-cols-4 bg-transparent gap-1 h-auto p-1">
+            <TabsTrigger 
+              value="alert-center" 
+              className="flex flex-col items-center gap-2 py-4 px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:text-red-600 hover:bg-white/50 transition-all duration-200"
+            >
+              <AlertTriangle className="h-5 w-5" />
+              <div className="text-center">
+                <div className="font-semibold text-sm">Critical Issues</div>
+                <div className="text-xs text-muted-foreground">Urgent alerts</div>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="flash-reports" 
+              className="flex flex-col items-center gap-2 py-4 px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:text-blue-600 hover:bg-white/50 transition-all duration-200"
+            >
+              <BarChart3 className="h-5 w-5" />
+              <div className="text-center">
+                <div className="font-semibold text-sm">Pipeline Analytics</div>
+                <div className="text-xs text-muted-foreground">Real-time metrics</div>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="team-performance" 
+              className="flex flex-col items-center gap-2 py-4 px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:text-green-600 hover:bg-white/50 transition-all duration-200"
+            >
+              <Award className="h-5 w-5" />
+              <div className="text-center">
+                <div className="font-semibold text-sm">Team Dashboard</div>
+                <div className="text-xs text-muted-foreground">Performance tracking</div>
+              </div>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="workflow-automation" 
+              className="flex flex-col items-center gap-2 py-4 px-6 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:border data-[state=active]:text-purple-600 hover:bg-white/50 transition-all duration-200"
+            >
+              <Zap className="h-5 w-5" />
+              <div className="text-center">
+                <div className="font-semibold text-sm">Automation Hub</div>
+                <div className="text-xs text-muted-foreground">Workflow management</div>
+              </div>
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="flash-reports" className="space-y-4">
           <FlashReports />

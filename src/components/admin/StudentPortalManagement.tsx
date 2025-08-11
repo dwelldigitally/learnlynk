@@ -22,15 +22,18 @@ import {
   Bell,
   Send,
   Calendar,
-  Clock
+  Clock,
+  Monitor
 } from "lucide-react";
 import { usePortalContent, useContentMutations, usePortalMessages, useMessageMutations, usePortalConfig, useConfigMutations, useRealTimePortalUpdates } from "@/hooks/useStudentPortal";
 import { useConditionalStudents } from "@/hooks/useConditionalStudents";
 import { StudentPortalContent, StudentPortalMessage, StudentPortalConfig } from "@/services/studentPortalService";
+import { StudentPortalPreview } from "./StudentPortalPreview";
 
 export const StudentPortalManagement = () => {
   const [activeTab, setActiveTab] = useState("content");
   const [showContentDialog, setShowContentDialog] = useState(false);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [editingContent, setEditingContent] = useState<StudentPortalContent | null>(null);
   const [contentForm, setContentForm] = useState<{
     title: string;
@@ -196,14 +199,20 @@ export const StudentPortalManagement = () => {
             Manage student portal content, messages, and configuration
           </p>
         </div>
-        <Button onClick={handleCreateContent}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Content
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowPreviewDialog(true)}>
+            <Monitor className="mr-2 h-4 w-4" />
+            Preview Portal
+          </Button>
+          <Button onClick={handleCreateContent}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Content
+          </Button>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="content" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Content
@@ -219,6 +228,10 @@ export const StudentPortalManagement = () => {
           <TabsTrigger value="students" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Student Access
+          </TabsTrigger>
+          <TabsTrigger value="preview" className="flex items-center gap-2">
+            <Monitor className="h-4 w-4" />
+            Preview
           </TabsTrigger>
         </TabsList>
 
@@ -649,6 +662,78 @@ export const StudentPortalManagement = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="preview" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Portal Preview</CardTitle>
+              <CardDescription>
+                Preview how the student portal appears to students with current content and configuration
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center py-8">
+                <Monitor className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h4 className="text-lg font-medium mb-2">Student Portal Preview</h4>
+                <p className="text-muted-foreground mb-4">
+                  See how your portal looks to students with the current content and settings.
+                </p>
+                <Button onClick={() => setShowPreviewDialog(true)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Open Preview
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div className="p-4 border rounded-lg">
+                  <h5 className="font-medium mb-2">Current Configuration</h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Portal Title:</span>
+                      <span className="text-muted-foreground">
+                        {portalConfig?.portal_title || 'Student Portal'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Published Content:</span>
+                      <span className="text-muted-foreground">
+                        {portalContent.filter(c => c.is_published).length} items
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Active Messages:</span>
+                      <span className="text-muted-foreground">
+                        {portalMessages.length} messages
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4 border rounded-lg">
+                  <h5 className="font-medium mb-2">Enabled Features</h5>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.application_tracking ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span>Application Tracking</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.fee_payments ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span>Fee Payments</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.message_center ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span>Message Center</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.document_upload ? 'bg-green-500' : 'bg-gray-300'}`} />
+                      <span>Document Upload</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
 
       {/* Content Create/Edit Dialog */}
@@ -747,6 +832,12 @@ export const StudentPortalManagement = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Portal Preview Dialog */}
+      <StudentPortalPreview 
+        open={showPreviewDialog} 
+        onOpenChange={setShowPreviewDialog} 
+      />
     </div>
   );
 };

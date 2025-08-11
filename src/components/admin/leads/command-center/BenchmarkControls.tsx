@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -24,44 +24,100 @@ import {
   Phone,
   Mail
 } from "lucide-react";
+import { BenchmarkSettings, AlertSettings } from "@/hooks/useBenchmarkSettings";
 
-export function BenchmarkControls() {
+interface BenchmarkControlsProps {
+  initialSettings?: BenchmarkSettings;
+  initialAlertSettings?: AlertSettings;
+  onSave?: (settings: BenchmarkSettings, alertSettings: AlertSettings) => void;
+  onReset?: () => void;
+}
+
+export function BenchmarkControls({ 
+  initialSettings,
+  initialAlertSettings,
+  onSave,
+  onReset
+}: BenchmarkControlsProps = {}) {
   const [benchmarks, setBenchmarks] = useState({
     responseTime: {
-      firstResponse: 24, // hours
-      followUp: 72, // hours
+      firstResponse: initialSettings?.responseTime.slaTarget || 24, // hours
+      followUp: initialSettings?.responseTime.followUp || 72, // hours
       qualification: 7, // days
       enabled: true
     },
     conversion: {
-      leadToQualified: 15, // percentage
-      qualifiedToStudent: 25, // percentage
-      overallTarget: 12, // percentage
+      leadToQualified: initialSettings?.conversion.leadToDemo || 15, // percentage
+      qualifiedToStudent: initialSettings?.conversion.demoToEnrollment || 25, // percentage
+      overallTarget: initialSettings?.conversion.overallTarget || 12, // percentage
       enabled: true
     },
     activity: {
-      dailyContacts: 15,
-      weeklyFollowUps: 25,
-      monthlyConversions: 8,
+      dailyContacts: initialSettings?.activity.dailyContacts || 15,
+      weeklyFollowUps: initialSettings?.activity.weeklyFollowUps || 25,
+      monthlyConversions: initialSettings?.activity.monthlyReviews || 8,
       enabled: true
     },
     quality: {
-      minCallDuration: 10, // minutes
-      requiredFollowUps: 3,
-      documentationScore: 80, // percentage
+      minCallDuration: initialSettings?.quality.minCallDuration || 10, // minutes
+      requiredFollowUps: initialSettings?.quality.requiredTouchpoints || 3,
+      documentationScore: initialSettings?.quality.satisfactionTarget || 80, // percentage
       enabled: true
     }
   });
 
   const [alertSettings, setAlertSettings] = useState({
-    responseViolations: true,
-    conversionDrops: true,
-    qualityIssues: true,
-    teamUtilization: true,
+    responseViolations: initialAlertSettings?.slaViolations ?? true,
+    conversionDrops: initialAlertSettings?.lowConversion ?? true,
+    qualityIssues: initialAlertSettings?.qualityIssues ?? true,
+    teamUtilization: initialAlertSettings?.missedTargets ?? true,
     emailNotifications: true,
     slackIntegration: false,
     escalationRules: true
   });
+
+  useEffect(() => {
+    if (initialSettings) {
+      setBenchmarks({
+        responseTime: {
+          firstResponse: initialSettings.responseTime.slaTarget,
+          followUp: initialSettings.responseTime.followUp,
+          qualification: 7,
+          enabled: true
+        },
+        conversion: {
+          leadToQualified: initialSettings.conversion.leadToDemo,
+          qualifiedToStudent: initialSettings.conversion.demoToEnrollment,
+          overallTarget: initialSettings.conversion.overallTarget,
+          enabled: true
+        },
+        activity: {
+          dailyContacts: initialSettings.activity.dailyContacts,
+          weeklyFollowUps: initialSettings.activity.weeklyFollowUps,
+          monthlyConversions: initialSettings.activity.monthlyReviews,
+          enabled: true
+        },
+        quality: {
+          minCallDuration: initialSettings.quality.minCallDuration,
+          requiredFollowUps: initialSettings.quality.requiredTouchpoints,
+          documentationScore: initialSettings.quality.satisfactionTarget,
+          enabled: true
+        }
+      });
+    }
+  }, [initialSettings]);
+
+  useEffect(() => {
+    if (initialAlertSettings) {
+      setAlertSettings(prev => ({
+        ...prev,
+        responseViolations: initialAlertSettings.slaViolations,
+        conversionDrops: initialAlertSettings.lowConversion,
+        qualityIssues: initialAlertSettings.qualityIssues,
+        teamUtilization: initialAlertSettings.missedTargets,
+      }));
+    }
+  }, [initialAlertSettings]);
 
   const currentPerformance = {
     responseCompliance: 87,
@@ -108,6 +164,44 @@ export function BenchmarkControls() {
         enabled: true
       }
     });
+    onReset?.();
+  };
+
+  const handleSave = () => {
+    if (onSave) {
+      // Convert local state to the expected format
+      const settings: BenchmarkSettings = {
+        responseTime: {
+          initial: 2,
+          followUp: benchmarks.responseTime.followUp,
+          slaTarget: benchmarks.responseTime.firstResponse,
+        },
+        conversion: {
+          leadToDemo: benchmarks.conversion.leadToQualified,
+          demoToEnrollment: benchmarks.conversion.qualifiedToStudent,
+          overallTarget: benchmarks.conversion.overallTarget,
+        },
+        activity: {
+          dailyContacts: benchmarks.activity.dailyContacts,
+          weeklyFollowUps: benchmarks.activity.weeklyFollowUps,
+          monthlyReviews: benchmarks.activity.monthlyConversions,
+        },
+        quality: {
+          minCallDuration: benchmarks.quality.minCallDuration,
+          requiredTouchpoints: benchmarks.quality.requiredFollowUps,
+          satisfactionTarget: benchmarks.quality.documentationScore,
+        },
+      };
+
+      const alerts: AlertSettings = {
+        slaViolations: alertSettings.responseViolations,
+        lowConversion: alertSettings.conversionDrops,
+        qualityIssues: alertSettings.qualityIssues,
+        missedTargets: alertSettings.teamUtilization,
+      };
+
+      onSave(settings, alerts);
+    }
   };
 
   const getComplianceColor = (actual: number, target: number) => {
@@ -475,7 +569,7 @@ export function BenchmarkControls() {
             <Settings className="h-4 w-4 mr-2" />
             Advanced Settings
           </Button>
-          <Button>
+          <Button onClick={handleSave}>
             <Save className="h-4 w-4 mr-2" />
             Save Changes
           </Button>

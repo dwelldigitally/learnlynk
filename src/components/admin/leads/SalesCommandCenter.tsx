@@ -19,12 +19,15 @@ import {
 import { FlashReports } from "./command-center/FlashReports";
 import { AlertCenter } from "./command-center/AlertCenter";
 import { TeamPerformance } from "./command-center/TeamPerformance";
-import { BenchmarkControls } from "./command-center/BenchmarkControls";
+import { BenchmarkSettingsDialog } from "./command-center/BenchmarkSettingsDialog";
+import { useBenchmarkSettings } from "@/hooks/useBenchmarkSettings";
 
 export function SalesCommandCenter() {
   const [activeTab, setActiveTab] = useState("alert-center");
   const [criticalAlerts, setCriticalAlerts] = useState(12);
   const [teamUtilization, setTeamUtilization] = useState(78);
+  const [showBenchmarkDialog, setShowBenchmarkDialog] = useState(false);
+  const { settings } = useBenchmarkSettings();
   
   // Mock data for demo
   const commandCenterStats = {
@@ -85,7 +88,7 @@ export function SalesCommandCenter() {
             <CheckCircle className="h-3 w-3 mr-1" />
             System Operational
           </Badge>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowBenchmarkDialog(true)}>
             <Settings className="h-4 w-4 mr-2" />
             Configure
           </Button>
@@ -106,11 +109,24 @@ export function SalesCommandCenter() {
           <Users className="h-4 w-4" />
           {commandCenterStats.unassignedLeads} Unassigned
         </Badge>
+        {/* Current Targets */}
+        <Badge variant="secondary" className="flex items-center gap-2">
+          <Target className="h-4 w-4" />
+          SLA: {settings.responseTime.slaTarget}h
+        </Badge>
+        <Badge variant="secondary" className="flex items-center gap-2">
+          <BarChart3 className="h-4 w-4" />
+          Target: {settings.conversion.overallTarget}%
+        </Badge>
+        <Badge variant="secondary" className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          Daily: {settings.activity.dailyContacts}
+        </Badge>
       </div>
 
       {/* Main Command Center Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="alert-center" className="flex items-center gap-2">
             <Flag className="h-4 w-4" />
             Alert Triage
@@ -122,10 +138,6 @@ export function SalesCommandCenter() {
           <TabsTrigger value="team-performance" className="flex items-center gap-2">
             <Award className="h-4 w-4" />
             Team Performance
-          </TabsTrigger>
-          <TabsTrigger value="benchmarks" className="flex items-center gap-2">
-            <Target className="h-4 w-4" />
-            Benchmarks
           </TabsTrigger>
         </TabsList>
 
@@ -139,10 +151,6 @@ export function SalesCommandCenter() {
 
         <TabsContent value="team-performance" className="space-y-4">
           <TeamPerformance />
-        </TabsContent>
-
-        <TabsContent value="benchmarks" className="space-y-4">
-          <BenchmarkControls />
         </TabsContent>
       </Tabs>
 
@@ -180,6 +188,12 @@ export function SalesCommandCenter() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Benchmark Settings Dialog */}
+      <BenchmarkSettingsDialog 
+        open={showBenchmarkDialog} 
+        onOpenChange={setShowBenchmarkDialog} 
+      />
     </div>
   );
 }

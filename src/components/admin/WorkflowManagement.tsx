@@ -7,7 +7,6 @@ import { Plus, Play, Pause, Settings, BarChart, Database } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import WorkflowBuilder from "./workflow/WorkflowBuilder";
-import StageManagement from "./workflow/StageManagement";
 import { DummyWorkflowService } from "@/services/dummyWorkflowService";
 
 interface Workflow {
@@ -154,10 +153,8 @@ const WorkflowManagement: React.FC = () => {
       </div>
 
       <Tabs defaultValue="workflows" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-1">
           <TabsTrigger value="workflows">Active Workflows</TabsTrigger>
-          <TabsTrigger value="stages">Stage Management</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
         <TabsContent value="workflows" className="space-y-4">
@@ -259,25 +256,6 @@ const WorkflowManagement: React.FC = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="stages">
-          <StageManagement />
-        </TabsContent>
-
-        <TabsContent value="analytics">
-          <Card>
-            <CardHeader>
-              <CardTitle>Workflow Analytics</CardTitle>
-              <CardDescription>
-                Track workflow performance and execution metrics
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                Analytics dashboard coming soon
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   );

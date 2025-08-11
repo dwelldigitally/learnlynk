@@ -199,7 +199,7 @@ const ComprehensiveOnboarding: React.FC = () => {
       {/* Main Content - Centered with Max Width */}
       <div className="max-w-4xl mx-auto px-6 py-6">
         {/* Step Indicator */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-center mb-8">
           {ONBOARDING_STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center">
               <div className="flex flex-col items-center min-w-[120px]">

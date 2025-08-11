@@ -11,6 +11,7 @@ import { Applicant, ApplicantSearchFilters } from "@/types/applicant";
 import { RefinedLeadTable } from "./RefinedLeadTable";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 import { Link, useNavigate } from "react-router-dom";
+import { ApplicantStageTracker } from "./applicants/ApplicantStageTracker";
 export const ApplicantManagement = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,25 +20,48 @@ export const ApplicantManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [pageSize, setPageSize] = useState(50);
+  const [activeStage, setActiveStage] = useState('all');
+  const [selectedApplicantIds, setSelectedApplicantIds] = useState<string[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Stage statistics
+  const [stageStats, setStageStats] = useState([
+    { key: 'application_started', label: 'Started', count: 0, color: 'bg-blue-500' },
+    { key: 'documents_submitted', label: 'Documents', count: 0, color: 'bg-orange-500' },
+    { key: 'under_review', label: 'Review', count: 0, color: 'bg-purple-500' },
+    { key: 'decision_pending', label: 'Decision', count: 0, color: 'bg-yellow-500' },
+    { key: 'approved', label: 'Approved', count: 0, color: 'bg-green-500' },
+    { key: 'rejected', label: 'Rejected', count: 0, color: 'bg-red-500' }
+  ]);
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
   useEffect(() => {
     loadApplicants();
-  }, [currentPage, pageSize, filters]);
+  }, [currentPage, pageSize, filters, activeStage]);
 
   const loadApplicants = async () => {
     try {
       setLoading(true);
+      
+      // Add stage filter if not viewing all
+      const stageFilters = activeStage !== 'all' 
+        ? { ...filters, substage: [activeStage as any] }
+        : filters;
+      
       const { applicants: data, total } = await ApplicantService.getApplicants(
-        filters,
+        stageFilters,
         currentPage,
         pageSize
       );
       setApplicants(data);
       setTotalCount(total);
+      
+      // Update stage statistics
+      if (activeStage === 'all') {
+        updateStageStats(data);
+      }
     } catch (error) {
       console.error('Error loading applicants:', error);
       toast({
@@ -48,6 +72,33 @@ export const ApplicantManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const updateStageStats = (applicantData: Applicant[]) => {
+    const stageCounts = applicantData.reduce((acc, applicant) => {
+      acc[applicant.substage] = (acc[applicant.substage] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    setStageStats(prev => prev.map(stage => ({
+      ...stage,
+      count: stageCounts[stage.key] || 0
+    })));
+  };
+
+  const handleStageChange = (stage: string) => {
+    setActiveStage(stage);
+    setCurrentPage(1); // Reset to first page when changing stages
+  };
+
+  const handleAIAction = async (actionId: string, stageKey: string) => {
+    toast({
+      title: "AI Action Triggered",
+      description: `Executing ${actionId} for ${stageKey} stage`,
+    });
+    
+    // Here you would implement the actual AI action
+    console.log(`Executing AI action: ${actionId} for stage: ${stageKey}`);
   };
 
   const getSubstageBadgeVariant = (substage: string) => {
@@ -235,20 +286,6 @@ export const ApplicantManagement = () => {
     }
   ];
 
-  const stageStats = useMemo(() => {
-    const stats: Record<string, number> = {};
-    applicants.forEach(applicant => {
-      stats[applicant.substage] = (stats[applicant.substage] || 0) + 1;
-    });
-    return [
-      { key: 'all', label: 'All Applications', count: applicants.length, color: 'bg-blue-500' },
-      { key: 'application_started', label: 'Started', count: stats.application_started || 0, color: 'bg-yellow-500' },
-      { key: 'documents_submitted', label: 'Documents Submitted', count: stats.documents_submitted || 0, color: 'bg-orange-500' },
-      { key: 'under_review', label: 'Under Review', count: stats.under_review || 0, color: 'bg-purple-500' },
-      { key: 'decision_pending', label: 'Decision Pending', count: stats.decision_pending || 0, color: 'bg-red-500' },
-      { key: 'approved', label: 'Approved', count: stats.approved || 0, color: 'bg-green-500' },
-    ];
-  }, [applicants]);
 
   return (
     <div className="space-y-6">
@@ -273,6 +310,15 @@ export const ApplicantManagement = () => {
           Add Applicant
         </Button>
       </div>
+
+      {/* Application Pipeline */}
+      <ApplicantStageTracker
+        stages={stageStats}
+        activeStage={activeStage}
+        onStageChange={handleStageChange}
+        onAIAction={handleAIAction}
+        selectedApplicantsCount={selectedApplicantIds.length}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -356,6 +402,9 @@ export const ApplicantManagement = () => {
           onSort={() => {}}
           onFilter={() => {}}
           onRowClick={(applicant) => navigate(`/admin/applicants/detail/${applicant.id}`)}
+          selectedIds={selectedApplicantIds}
+          onSelectionChange={setSelectedApplicantIds}
+          selectable={true}
         />
       </ConditionalDataWrapper>
     </div>

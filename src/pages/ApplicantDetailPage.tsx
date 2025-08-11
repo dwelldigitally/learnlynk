@@ -27,6 +27,18 @@ const ApplicantDetailPage: React.FC = () => {
   const [notesDraft, setNotesDraft] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<typeof paymentStatuses[number]>("pending");
 
+  const getStageProgress = (substage: string) => {
+    const stageMap: Record<string, number> = {
+      'application_started': 20,
+      'documents_submitted': 40,
+      'under_review': 60,
+      'decision_pending': 80,
+      'approved': 100,
+      'rejected': 100,
+    };
+    return stageMap[substage] || 0;
+  };
+
   useEffect(() => {
     if (!applicantId) return;
     const load = async () => {
@@ -225,7 +237,27 @@ const ApplicantDetailPage: React.FC = () => {
                 <CardTitle>Application Progress</CardTitle>
               </CardHeader>
               <CardContent>
-                <ApplicantStageTracker substage={String(applicant.substage)} />
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Current Stage</span>
+                    <Badge variant="outline">
+                      {String(applicant.substage).replace(/_/g, ' ')}
+                    </Badge>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: `${getStageProgress(applicant.substage)}%`
+                      }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>Started</span>
+                    <span>In Progress</span>
+                    <span>Complete</span>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

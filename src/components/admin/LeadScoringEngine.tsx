@@ -56,7 +56,7 @@ export function LeadScoringEngine() {
         condition: rule.condition,
         value: rule.value,
         points: rule.points,
-        enabled: rule.is_enabled,
+        enabled: rule.enabled,
         order_index: rule.order_index
       }));
       
@@ -158,7 +158,7 @@ export function LeadScoringEngine() {
         condition: 'equals',
         value: '',
         points: 10,
-        is_enabled: true,
+        enabled: true,
         order_index: scoringRules.length
       };
 
@@ -195,7 +195,7 @@ export function LeadScoringEngine() {
           condition: updates.condition,
           value: updates.value,
           points: updates.points,
-          is_enabled: updates.enabled
+          enabled: updates.enabled
         })
         .eq('id', id);
 
@@ -235,7 +235,7 @@ export function LeadScoringEngine() {
         condition: rule.condition,
         value: rule.value,
         points: rule.points,
-        is_enabled: rule.enabled,
+        enabled: rule.enabled,
         order_index: rule.order_index || 0
       }));
 

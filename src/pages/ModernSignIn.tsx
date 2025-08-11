@@ -141,6 +141,7 @@ const ModernSignIn: React.FC = () => {
               </label>
               <button 
                 type="button"
+                onClick={() => navigate('/forgot-password')}
                 className="text-sm text-primary hover:text-primary-hover font-medium"
               >
                 Forgot password?

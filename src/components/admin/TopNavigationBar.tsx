@@ -19,6 +19,7 @@ import {
 import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
+import { DailyHeader } from "./sales-rep/DailyHeader";
 
 interface TopNavigationBarProps {
   activeSection: string;
@@ -51,6 +52,7 @@ export function TopNavigationBar({
   };
 
   const currentActiveSection = activeSection || getActiveSectionFromPath();
+  const isSalesRepDashboard = location.pathname === '/admin/sales-rep-dashboard';
 
   return (
     <>
@@ -246,6 +248,9 @@ export function TopNavigationBar({
           </div>
         </div>
       )}
+
+      {/* Sales Rep Daily Header - Only show on sales rep dashboard */}
+      {isSalesRepDashboard && <DailyHeader />}
     </>
   );
 }

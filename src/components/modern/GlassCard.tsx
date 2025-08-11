@@ -10,7 +10,7 @@ interface GlassCardProps {
 export const GlassCard: React.FC<GlassCardProps> = ({ 
   children, 
   className,
-  hover = true 
+  hover = false 
 }) => {
   return (
     <div 

@@ -21,12 +21,20 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
+import { QuickCommunicationModal } from "./QuickCommunicationModal";
+import { QuickTaskModal } from "./QuickTaskModal";
+import { QuickNoteModal } from "./QuickNoteModal";
+import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
 
 const AdminHome: React.FC = () => {
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
+  const [showCommunicationModal, setShowCommunicationModal] = useState(false);
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [showLookupModal, setShowLookupModal] = useState(false);
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -51,28 +59,28 @@ const AdminHome: React.FC = () => {
       description: "Find and view student information",
       icon: Users,
       color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
-      onClick: () => navigate("/admin/students")
+      onClick: () => setShowLookupModal(true)
     },
     {
       title: "Send Message",
       description: "Communicate with students or staff",
       icon: MessageSquare,
       color: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
-      onClick: () => navigate("/admin/communications")
+      onClick: () => setShowCommunicationModal(true)
     },
     {
       title: "Create Task",
       description: "Add a new task or reminder",
       icon: Plus,
       color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
-      onClick: () => navigate("/admin/workflow")
+      onClick: () => setShowTaskModal(true)
     },
     {
       title: "Add Note",
       description: "Quick note about a student or event",
       icon: StickyNote,
       color: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
-      onClick: () => navigate("/admin/students")
+      onClick: () => setShowNoteModal(true)
     },
     {
       title: "Recent Activity",
@@ -223,6 +231,24 @@ const AdminHome: React.FC = () => {
           </Collapsible>
         </Card>
       </div>
+      
+      {/* Modal Components */}
+      <QuickCommunicationModal 
+        open={showCommunicationModal} 
+        onOpenChange={setShowCommunicationModal} 
+      />
+      <QuickTaskModal 
+        open={showTaskModal} 
+        onOpenChange={setShowTaskModal} 
+      />
+      <QuickNoteModal 
+        open={showNoteModal} 
+        onOpenChange={setShowNoteModal} 
+      />
+      <QuickStudentLookupModal 
+        open={showLookupModal} 
+        onOpenChange={setShowLookupModal} 
+      />
     </div>
   );
 };

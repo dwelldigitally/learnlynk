@@ -42,6 +42,9 @@ import RecruiterManagement from "@/components/admin/RecruiterManagement";
 import RecruiterApplicationsManagement from "@/components/admin/RecruiterApplicationsManagement";
 import { RegistrarCommandCenter } from "@/components/admin/registrar/RegistrarCommandCenter";
 import { RegistrarAIFeatures } from "@/components/admin/registrar/RegistrarAIFeatures";
+import { OverviewDashboard } from "@/components/admin/OverviewDashboard";
+import { HelpCenter } from "@/components/admin/HelpCenter";
+import { PersonalAssignments } from "@/components/admin/PersonalAssignments";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -59,6 +62,12 @@ const AdminDashboard: React.FC = () => {
     switch (location.pathname) {
       case "/admin":
         return <AdminOverview />;
+      case "/admin/overview":
+        return <OverviewDashboard />;
+      case "/admin/help":
+        return <HelpCenter />;
+      case "/admin/assignments":
+        return <PersonalAssignments />;
       case "/admin/leads":
         return <LeadOverview />;
       case "/admin/leads/workflow":

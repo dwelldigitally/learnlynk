@@ -25,6 +25,8 @@ import { QuickCommunicationModal } from "./QuickCommunicationModal";
 import { QuickTaskModal } from "./QuickTaskModal";
 import { QuickNoteModal } from "./QuickNoteModal";
 import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
+import { OutlookCalendarWidget } from "./OutlookCalendarWidget";
+import { OutlookEmailWidget } from "./OutlookEmailWidget";
 
 const AdminHome: React.FC = () => {
   const { profile } = useProfile();
@@ -141,6 +143,12 @@ const AdminHome: React.FC = () => {
               className="pl-12 pr-12 py-6 text-lg bg-card border-2 border-border hover:border-primary/50 focus:border-primary transition-colors"
             />
           </div>
+        </div>
+
+        {/* Outlook Integrations */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <OutlookCalendarWidget />
+          <OutlookEmailWidget />
         </div>
 
         {/* Quick Actions Grid */}

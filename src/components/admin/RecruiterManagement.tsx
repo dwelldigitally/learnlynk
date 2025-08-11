@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Building2, Users, Plus, Search, Filter, Edit, Trash2, Eye } from 'lucide-react';
+import { Building2, Users, Plus, Search, Filter, Edit, Trash2, Eye, Settings } from 'lucide-react';
 import { RecruiterService } from '@/services/recruiterService';
 import { useToast } from '@/hooks/use-toast';
 import type { RecruiterCompany, RecruiterUser } from '@/types/recruiter';

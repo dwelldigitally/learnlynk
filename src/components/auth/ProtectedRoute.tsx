@@ -55,5 +55,10 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
     return <Navigate to="/admin" replace />;
   }
 
+  // If user is not admin and trying to access admin routes, redirect to home
+  if (!isAdmin && location.pathname.startsWith('/admin')) {
+    return <Navigate to="/" replace />;
+  }
+
   return <>{element}</>;
 };

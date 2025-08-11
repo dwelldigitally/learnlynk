@@ -174,6 +174,10 @@ export default function RecruiterManagement() {
             <Users className="w-4 h-4" />
             Users ({filteredUsers.length})
           </TabsTrigger>
+          <TabsTrigger value="portal" className="flex items-center gap-2">
+            <Eye className="w-4 h-4" />
+            Portal Management
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="companies">
@@ -290,6 +294,50 @@ export default function RecruiterManagement() {
               </Table>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="portal">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Portal Management</CardTitle>
+                <CardDescription>Configure and manage the recruiter portal</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button className="w-full" onClick={() => window.open('/admin/recruiter-portal-management', '_blank')}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Manage Portal Content
+                </Button>
+                <Button className="w-full" onClick={() => window.open('/admin/recruiter-portal-preview', '_blank')}>
+                  <Eye className="w-4 h-4 mr-2" />
+                  Preview Portal
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Stats</CardTitle>
+                <CardDescription>Portal overview and metrics</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Active Companies</span>
+                    <span className="font-medium">{filteredCompanies.filter(c => c.status === 'active').length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Total Users</span>
+                    <span className="font-medium">{filteredUsers.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-muted-foreground">Portal Status</span>
+                    <Badge variant="default">Active</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

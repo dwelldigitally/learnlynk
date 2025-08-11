@@ -3217,6 +3217,159 @@ export type Database = {
           },
         ]
       }
+      recruiter_portal_config: {
+        Row: {
+          access_control: Json
+          created_at: string
+          features: Json
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          notification_settings: Json
+          portal_title: string
+          primary_color: string | null
+          secondary_color: string | null
+          updated_at: string
+          user_id: string
+          welcome_message: string | null
+        }
+        Insert: {
+          access_control?: Json
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          notification_settings?: Json
+          portal_title?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string
+          user_id: string
+          welcome_message?: string | null
+        }
+        Update: {
+          access_control?: Json
+          created_at?: string
+          features?: Json
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          notification_settings?: Json
+          portal_title?: string
+          primary_color?: string | null
+          secondary_color?: string | null
+          updated_at?: string
+          user_id?: string
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      recruiter_portal_content: {
+        Row: {
+          attachment_urls: Json | null
+          content: string
+          content_type: string
+          created_at: string
+          expire_date: string | null
+          id: string
+          is_published: boolean
+          priority: string
+          publish_date: string | null
+          target_companies: Json | null
+          target_roles: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          attachment_urls?: Json | null
+          content: string
+          content_type?: string
+          created_at?: string
+          expire_date?: string | null
+          id?: string
+          is_published?: boolean
+          priority?: string
+          publish_date?: string | null
+          target_companies?: Json | null
+          target_roles?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          attachment_urls?: Json | null
+          content?: string
+          content_type?: string
+          created_at?: string
+          expire_date?: string | null
+          id?: string
+          is_published?: boolean
+          priority?: string
+          publish_date?: string | null
+          target_companies?: Json | null
+          target_roles?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      recruiter_portal_messages: {
+        Row: {
+          attachment_urls: Json | null
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          priority: string
+          read_at: string | null
+          read_by: string | null
+          recipient_companies: Json | null
+          recipient_type: string
+          recipient_users: Json | null
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attachment_urls?: Json | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          priority?: string
+          read_at?: string | null
+          read_by?: string | null
+          recipient_companies?: Json | null
+          recipient_type?: string
+          recipient_users?: Json | null
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attachment_urls?: Json | null
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          priority?: string
+          read_at?: string | null
+          read_by?: string | null
+          recipient_companies?: Json | null
+          recipient_type?: string
+          recipient_users?: Json | null
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recruiter_users: {
         Row: {
           company_id: string

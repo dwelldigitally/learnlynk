@@ -27,7 +27,7 @@ const ApplicantDetailPage: React.FC = () => {
   const [notesDraft, setNotesDraft] = useState("");
   const [paymentStatus, setPaymentStatus] = useState<typeof paymentStatuses[number]>("pending");
 
-  const getStageProgress = (substage: string) => {
+  const getStageProgress = (substage: string): number => {
     const stageMap: Record<string, number> = {
       'application_started': 20,
       'documents_submitted': 40,

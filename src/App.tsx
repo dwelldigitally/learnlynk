@@ -9,7 +9,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import Home from "./pages/Home";
 import ModernSignIn from "./pages/ModernSignIn";
 import ModernSignUp from "./pages/ModernSignUp";
-import ModernOnboarding from "./components/onboarding/ModernOnboarding";
+import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
@@ -41,7 +41,7 @@ const App = () => {
               <Route path="/" element={<Home />} />
               <Route path="/sign-in" element={<ModernSignIn />} />
               <Route path="/sign-up" element={<ModernSignUp />} />
-              <Route path="/onboarding" element={<ProtectedRoute element={<ModernOnboarding />} />} />
+              <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin" replace />} /> 
               
               {/* Specific admin routes first */}

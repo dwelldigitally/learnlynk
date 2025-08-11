@@ -13,7 +13,7 @@ import {
   Clock
 } from 'lucide-react';
 
-
+import { DailyHeader } from '@/components/admin/sales-rep/DailyHeader';
 import { NewlyAssignedLeads } from '@/components/admin/sales-rep/NewlyAssignedLeads';
 import { UnreadCommunications } from '@/components/admin/sales-rep/UnreadCommunications';
 import { TodaysCallList } from '@/components/admin/sales-rep/TodaysCallList';
@@ -31,6 +31,9 @@ export default function SalesRepDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Daily Header */}
+      <DailyHeader />
+      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         {/* Tab Navigation */}
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">

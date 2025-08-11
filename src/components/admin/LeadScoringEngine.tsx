@@ -98,7 +98,11 @@ export function LeadScoringEngine() {
         .from('lead_scoring_settings')
         .upsert({
           user_id: user.user.id,
-          auto_scoring_enabled: enabled
+          name: 'Default Settings',
+          auto_scoring_enabled: enabled,
+          is_active: true,
+          scoring_algorithm: 'weighted',
+          max_score: 100
         });
 
       if (error) throw error;

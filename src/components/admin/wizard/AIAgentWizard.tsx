@@ -382,6 +382,8 @@ export function AIAgentWizard({ open, onOpenChange, editingAgent, onSave }: AIAg
         test_leads_count: 5,
         performance_expectations: {}
       });
+      // Call the onSave callback to refresh the parent component
+      onSave(null);
     }
     onOpenChange(false);
   };
@@ -451,7 +453,7 @@ export function AIAgentWizard({ open, onOpenChange, editingAgent, onSave }: AIAg
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] overflow-hidden flex flex-col">
         {!isCompleted && (
           <DialogHeader className="border-b pb-4">
             <DialogTitle className="flex items-center gap-3">

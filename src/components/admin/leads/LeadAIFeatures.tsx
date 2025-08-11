@@ -69,6 +69,7 @@ export function LeadAIFeatures() {
   const handleSaveAgent = async (agentData: any) => {
     // Agent creation is handled within the wizard
     await loadAgents(); // Refresh the agents list
+    setShowCreateAgent(false); // Close the wizard
   };
 
   const handleToggleAgent = async (agentId: string, isActive: boolean) => {

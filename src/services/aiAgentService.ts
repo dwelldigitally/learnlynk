@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 export interface AIAgent {
@@ -176,10 +177,17 @@ export class AIAgentService {
   }
 
   // Create a filter rule
-  static async createFilterRule(ruleData: Partial<AIAgentFilterRule>): Promise<AIAgentFilterRule> {
+  static async createFilterRule(ruleData: Partial<AIAgentFilterRule> & { agent_id: string; name: string }): Promise<AIAgentFilterRule> {
     const { data, error } = await supabase
       .from('ai_agent_filter_rules')
-      .insert(ruleData)
+      .insert({
+        agent_id: ruleData.agent_id,
+        name: ruleData.name,
+        description: ruleData.description,
+        conditions: ruleData.conditions || [],
+        is_active: ruleData.is_active ?? true,
+        priority: ruleData.priority ?? 0
+      })
       .select()
       .single();
 
@@ -223,10 +231,19 @@ export class AIAgentService {
   }
 
   // Create a task
-  static async createTask(taskData: Partial<AIAgentTask>): Promise<AIAgentTask> {
+  static async createTask(taskData: Partial<AIAgentTask> & { agent_id: string; title: string; task_type: string }): Promise<AIAgentTask> {
     const { data, error } = await supabase
       .from('ai_agent_tasks')
-      .insert(taskData)
+      .insert({
+        agent_id: taskData.agent_id,
+        title: taskData.title,
+        task_type: taskData.task_type,
+        description: taskData.description,
+        priority: taskData.priority ?? 'medium',
+        is_active: taskData.is_active ?? true,
+        schedule_config: taskData.schedule_config || {},
+        performance_data: taskData.performance_data || {}
+      })
       .select()
       .single();
 

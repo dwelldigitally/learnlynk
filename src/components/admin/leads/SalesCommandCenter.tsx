@@ -95,6 +95,41 @@ export function SalesCommandCenter() {
         </div>
       </div>
 
+      {/* Immediate Actions Required - Moved to Top */}
+      <Card className="border-amber-200 bg-amber-50/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-900">
+            <Zap className="h-5 w-5" />
+            Immediate Actions Required
+          </CardTitle>
+          <CardDescription className="text-amber-700">
+            Items that need immediate attention to maintain performance
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {urgentItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    item.severity === 'critical' ? 'bg-red-500' :
+                    item.severity === 'high' ? 'bg-orange-500' : 'bg-yellow-500'
+                  }`} />
+                  <div>
+                    <p className="font-medium text-foreground">{item.title}</p>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
+                  <Badge variant="secondary" className="ml-2">{item.count}</Badge>
+                </div>
+                <Button size="sm" variant="outline">
+                  {item.action}
+                </Button>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Key Issue Chips */}
       <div className="flex flex-wrap gap-2">
         <Badge variant="outline" className="flex items-center gap-2">
@@ -153,41 +188,6 @@ export function SalesCommandCenter() {
           <TeamPerformance />
         </TabsContent>
       </Tabs>
-
-      {/* Quick Action Panel */}
-      <Card className="border-amber-200 bg-amber-50/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-amber-900">
-            <Zap className="h-5 w-5" />
-            Immediate Actions Required
-          </CardTitle>
-          <CardDescription className="text-amber-700">
-            Items that need immediate attention to maintain performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {urgentItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-3 bg-white rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    item.severity === 'critical' ? 'bg-red-500' :
-                    item.severity === 'high' ? 'bg-orange-500' : 'bg-yellow-500'
-                  }`} />
-                  <div>
-                    <p className="font-medium text-foreground">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                  <Badge variant="secondary" className="ml-2">{item.count}</Badge>
-                </div>
-                <Button size="sm" variant="outline">
-                  {item.action}
-                </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Benchmark Settings Dialog */}
       <BenchmarkSettingsDialog 

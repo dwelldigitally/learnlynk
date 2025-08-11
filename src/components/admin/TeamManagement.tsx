@@ -38,7 +38,7 @@ import {
 import TeamHierarchyVisualizer from "./team/TeamHierarchyVisualizer";
 import TeamPerformanceDashboard from "./team/TeamPerformanceDashboard";
 import AdvancedRoleBuilder from "./team/AdvancedRoleBuilder";
-import SchedulingManager from "./team/SchedulingManager";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import MemberDetailModal from "./modals/MemberDetailModal";
@@ -356,11 +356,10 @@ const TeamManagement: React.FC = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="hierarchy">Hierarchy</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
-          <TabsTrigger value="scheduling">Scheduling</TabsTrigger>
           <TabsTrigger value="roles">Role Builder</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
@@ -445,13 +444,6 @@ const TeamManagement: React.FC = () => {
                 <p className="text-sm text-muted-foreground">Track team productivity and KPIs</p>
               </CardContent>
             </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("scheduling")}>
-              <CardContent className="p-6 text-center">
-                <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium">Schedule Management</h3>
-                <p className="text-sm text-muted-foreground">Manage shifts and time off</p>
-              </CardContent>
-            </Card>
             <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("roles")}>
               <CardContent className="p-6 text-center">
                 <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
@@ -474,9 +466,6 @@ const TeamManagement: React.FC = () => {
           <TeamPerformanceDashboard />
         </TabsContent>
 
-        <TabsContent value="scheduling" className="space-y-4">
-          <SchedulingManager />
-        </TabsContent>
 
         <TabsContent value="roles" className="space-y-4">
           <AdvancedRoleBuilder />

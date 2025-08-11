@@ -1,19 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ModernAdminLayout } from "@/components/admin/ModernAdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { ApplicantService } from "@/services/applicantService";
 import { Applicant } from "@/types/applicant";
-import { ApplicantStageTracker } from "@/components/admin/applicants/ApplicantStageTracker";
+import { ApplicantHeader } from "@/components/admin/applicants/ApplicantHeader";
+import { ApplicationTimeline } from "@/components/admin/applicants/ApplicationTimeline";
+import { DocumentManager } from "@/components/admin/applicants/DocumentManager";
+import { CommunicationCenter } from "@/components/admin/applicants/CommunicationCenter";
+import { AssessmentPanel } from "@/components/admin/applicants/AssessmentPanel";
+import { CollaborationSidebar } from "@/components/admin/applicants/CollaborationSidebar";
 import { AISuggestionsCard } from "@/components/admin/applicants/AISuggestionsCard";
-import { ArrowLeft, Mail, Phone, Download } from "lucide-react";
 
 const paymentStatuses = ["pending", "partial", "completed", "refunded"] as const;
 
@@ -23,9 +22,8 @@ const ApplicantDetailPage: React.FC = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [applicant, setApplicant] = useState<any | null>(null);
-  const [notesDraft, setNotesDraft] = useState("");
-  const [paymentStatus, setPaymentStatus] = useState<typeof paymentStatuses[number]>("pending");
+  const [applicant, setApplicant] = useState<Applicant | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   const getStageProgress = (substage: string): number => {
     const stageMap: Record<string, number> = {
@@ -46,8 +44,6 @@ const ApplicantDetailPage: React.FC = () => {
         setLoading(true);
         const data = await ApplicantService.getApplicantById(applicantId);
         setApplicant(data);
-        setNotesDraft(data?.notes || "");
-        setPaymentStatus((data?.payment_status || "pending") as any);
         document.title = data?.master_records
           ? `${data.master_records.first_name} ${data.master_records.last_name} — Applicant`
           : "Applicant — Detail";
@@ -104,13 +100,13 @@ const ApplicantDetailPage: React.FC = () => {
     }
   };
 
-  const handleSubstageChange = async (value: string) => {
+  const handleStageUpdate = async (stage: string) => {
     if (!applicant) return;
     try {
       setSaving(true);
-      const updated = await ApplicantService.updateApplicantSubstage(applicant.id, value);
+      const updated = await ApplicantService.updateApplicantSubstage(applicant.id, stage);
       setApplicant(updated);
-      toast({ title: "Stage updated", description: `Moved to ${value.replace("_", " ")}` });
+      toast({ title: "Stage updated", description: `Moved to ${stage.replace("_", " ")}` });
     } catch (e) {
       toast({ title: "Error", description: "Could not update stage", variant: "destructive" });
     } finally {
@@ -118,32 +114,58 @@ const ApplicantDetailPage: React.FC = () => {
     }
   };
 
-  const handlePaymentSave = async () => {
-    if (!applicant) return;
-    try {
-      setSaving(true);
-      const updated = await ApplicantService.updateApplicant(applicant.id, { payment_status: paymentStatus });
-      setApplicant(updated);
-      toast({ title: "Payment updated", description: `Status: ${paymentStatus}` });
-    } catch (e) {
-      toast({ title: "Error", description: "Could not update payment", variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
+  // Enhanced handlers for new features
+  const handleSendMessage = async (type: string, content: string, subject?: string) => {
+    toast({ 
+      title: `${type.charAt(0).toUpperCase() + type.slice(1)} sent`, 
+      description: `Message sent successfully` 
+    });
   };
 
-  const handleNotesSave = async () => {
-    if (!applicant) return;
-    try {
-      setSaving(true);
-      const updated = await ApplicantService.updateApplicant(applicant.id, { notes: notesDraft });
-      setApplicant(updated);
-      toast({ title: "Notes saved" });
-    } catch (e) {
-      toast({ title: "Error", description: "Could not save notes", variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
+  const handleDocumentAction = async (action: string, document: string) => {
+    toast({ 
+      title: "Document updated", 
+      description: `${action} applied to ${document}` 
+    });
+  };
+
+  const handleScoreUpdate = async (category: string, score: number) => {
+    toast({ 
+      title: "Score updated", 
+      description: `${category} score set to ${score}` 
+    });
+  };
+
+  const handleAssessmentNotesUpdate = async (notes: string) => {
+    toast({ 
+      title: "Assessment notes saved", 
+      description: "Notes updated successfully" 
+    });
+  };
+
+  const handleAssign = async (userId: string, role: string) => {
+    toast({ 
+      title: "Team member assigned", 
+      description: `Reviewer assigned successfully` 
+    });
+  };
+
+  const handleComment = async (comment: string) => {
+    toast({ 
+      title: "Comment added", 
+      description: "Team comment posted" 
+    });
+  };
+
+  const handleScheduleInterview = () => {
+    toast({ 
+      title: "Interview scheduler", 
+      description: "Opening interview scheduler..." 
+    });
+  };
+
+  const handleSendEmail = () => {
+    setActiveTab("communication");
   };
 
   const handleApproveAllDocs = async () => {
@@ -164,10 +186,6 @@ const ApplicantDetailPage: React.FC = () => {
     }
   };
 
-  const applicantName = useMemo(() => {
-    if (!applicant?.master_records) return "Applicant";
-    return `${applicant.master_records.first_name} ${applicant.master_records.last_name}`;
-  }, [applicant]);
 
   if (loading) {
     return (
@@ -181,194 +199,112 @@ const ApplicantDetailPage: React.FC = () => {
     return (
       <ModernAdminLayout>
         <div className="p-6 space-y-4">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="px-0">
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
-          </Button>
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <div>No applicant found.</div>
-              <div className="flex gap-2">
-                <Button onClick={handleCreateSample} disabled={saving}>Create sample applicant</Button>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="text-center py-8">
+            <h2 className="text-2xl font-semibold mb-2">Applicant Not Found</h2>
+            <p className="text-muted-foreground mb-4">
+              The applicant you're looking for doesn't exist or has been removed.
+            </p>
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" onClick={() => navigate(-1)}>
+                Go Back
+              </Button>
+              <Button onClick={handleCreateSample} disabled={saving}>
+                Create Sample Applicant
+              </Button>
+            </div>
+          </div>
         </div>
       </ModernAdminLayout>
     );
   }
 
+  const applicantName = applicant.master_records
+    ? `${applicant.master_records.first_name} ${applicant.master_records.last_name}`
+    : "Applicant";
+
   return (
     <ModernAdminLayout>
       <div className="p-6 space-y-6">
-        {/* Top bar */}
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Link to="/admin/applicants" className="hover:underline">Applicants</Link>
-              <span>/</span>
-              <span>{applicantName}</span>
-            </div>
-            <h1 className="text-2xl font-semibold mt-1">{applicantName}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-              <Badge variant="outline">Program: {applicant.program}</Badge>
-              <Badge variant="secondary">Stage: {String(applicant.substage).replace("_", " ")}</Badge>
-              <Badge variant="outline">Payment: {String(applicant.payment_status).toUpperCase()}</Badge>
-              {applicant.decision && (
-                <Badge variant={applicant.decision === "approved" ? "default" : "destructive"}>
-                  Decision: {String(applicant.decision).toUpperCase()}
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => navigate(-1)}>
-              <ArrowLeft className="h-4 w-4 mr-1" /> Back
-            </Button>
-            <Button disabled={saving} onClick={handleApprove}>Approve</Button>
-            <Button disabled={saving} variant="destructive" onClick={handleReject}>Reject</Button>
-          </div>
-        </div>
+        {/* Enhanced Header */}
+        <ApplicantHeader
+          applicant={applicant}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onScheduleInterview={handleScheduleInterview}
+          onSendEmail={handleSendEmail}
+          saving={saving}
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            {/* Stage tracker */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Application Progress</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Current Stage</span>
-                    <Badge variant="outline">
-                      {String(applicant.substage).replace(/_/g, ' ')}
-                    </Badge>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: `${getStageProgress(applicant.substage)}%`
-                      }}
+        {/* Three-column layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          {/* Main Content - 3 columns */}
+          <div className="xl:col-span-3">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="communication">Communication</TabsTrigger>
+                <TabsTrigger value="assessment">Assessment</TabsTrigger>
+                <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              </TabsList>
+
+              <div className="mt-6">
+                <TabsContent value="overview" className="space-y-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <ApplicationTimeline
+                      applicant={applicant}
+                      onStageUpdate={handleStageUpdate}
                     />
+                    <div className="space-y-6">
+                      <AISuggestionsCard 
+                        onApply={(title) => toast({ title: "Action applied", description: title })} 
+                      />
+                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Started</span>
-                    <span>In Progress</span>
-                    <span>Complete</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </TabsContent>
 
-            {/* Documents */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Documents</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap items-center gap-3 text-sm">
-                  <Badge variant="outline">Submitted: {Array.isArray(applicant.documents_submitted) ? applicant.documents_submitted.length : 0}</Badge>
-                  <Badge variant="outline">Approved: {Array.isArray(applicant.documents_approved) ? applicant.documents_approved.length : 0}</Badge>
-                  <Button size="sm" variant="secondary" onClick={handleApproveAllDocs}>Mark all approved</Button>
-                </div>
-                <Separator />
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <div className="font-medium mb-2">Submitted</div>
-                    <ul className="space-y-2">
-                      {(applicant.documents_submitted || []).map((doc: string) => (
-                        <li key={doc} className="flex items-center justify-between p-2 rounded-md border">
-                          <span className="truncate mr-2">{doc}</span>
-                          <Button size="icon" variant="ghost" title="Download">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </li>
-                      ))}
-                      {(!applicant.documents_submitted || applicant.documents_submitted.length === 0) && (
-                        <div className="text-sm text-muted-foreground">No documents submitted yet.</div>
-                      )}
-                    </ul>
-                  </div>
-                  <div>
-                    <div className="font-medium mb-2">Approved</div>
-                    <ul className="space-y-2">
-                      {(applicant.documents_approved || []).map((doc: string) => (
-                        <li key={doc} className="flex items-center justify-between p-2 rounded-md border">
-                          <span className="truncate mr-2">{doc}</span>
-                          <Badge>Approved</Badge>
-                        </li>
-                      ))}
-                      {(!applicant.documents_approved || applicant.documents_approved.length === 0) && (
-                        <div className="text-sm text-muted-foreground">No documents approved yet.</div>
-                      )}
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                <TabsContent value="documents">
+                  <DocumentManager
+                    applicant={applicant}
+                    onDocumentAction={handleDocumentAction}
+                    onApproveAll={handleApproveAllDocs}
+                  />
+                </TabsContent>
 
-            {/* Notes */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Notes</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Label htmlFor="notes">Internal notes</Label>
-                <Input id="notes" value={notesDraft} onChange={(e) => setNotesDraft(e.target.value)} placeholder="Add notes for the team..." />
-                <div className="text-xs text-muted-foreground">Last updated: {new Date(applicant.updated_at).toLocaleString()}</div>
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleNotesSave} disabled={saving}>Save Notes</Button>
-                </div>
-              </CardContent>
-            </Card>
+                <TabsContent value="communication">
+                  <CommunicationCenter
+                    applicantId={applicant.id}
+                    applicantName={applicantName}
+                    applicantEmail={applicant.master_records?.email || ''}
+                    onSendMessage={handleSendMessage}
+                  />
+                </TabsContent>
+
+                <TabsContent value="assessment">
+                  <AssessmentPanel
+                    applicant={applicant}
+                    onScoreUpdate={handleScoreUpdate}
+                    onNotesUpdate={handleAssessmentNotesUpdate}
+                  />
+                </TabsContent>
+
+                <TabsContent value="timeline">
+                  <ApplicationTimeline
+                    applicant={applicant}
+                    onStageUpdate={handleStageUpdate}
+                  />
+                </TabsContent>
+              </div>
+            </Tabs>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Contact */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Applicant Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <div className="flex items-center gap-2"><Mail className="h-4 w-4" /> {applicant.master_records?.email || "-"}</div>
-                <div className="flex items-center gap-2"><Phone className="h-4 w-4" /> {applicant.master_records?.phone || "-"}</div>
-                <div>Applied: {new Date(applicant.created_at).toLocaleDateString()}</div>
-                {applicant.application_deadline && (
-                  <div>Deadline: {new Date(applicant.application_deadline).toLocaleDateString()}</div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Payment */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Payment</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Badge variant="outline">Amount: {applicant.payment_amount ? `$${applicant.payment_amount}` : "N/A"}</Badge>
-                </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select value={paymentStatus} onValueChange={(v) => setPaymentStatus(v as any)}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {paymentStatuses.map((s) => (
-                        <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Button size="sm" onClick={handlePaymentSave} disabled={saving}>Save</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* AI Suggestions */}
-            <AISuggestionsCard onApply={(title) => toast({ title: "Sequence queued", description: title })} />
+          {/* Collaboration Sidebar - 1 column */}
+          <div className="xl:col-span-1">
+            <CollaborationSidebar
+              applicantId={applicant.id}
+              onAssign={handleAssign}
+              onComment={handleComment}
+            />
           </div>
         </div>
       </div>

@@ -35,9 +35,6 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
     if (path.startsWith('/admin/students/')) {
       return 'students-applications';
     }
-    if (path.startsWith('/admin/applications/')) {
-      return 'students-applications';
-    }
     if (path.startsWith('/admin/programs/')) {
       return 'data-management';
     }

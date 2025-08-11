@@ -61,7 +61,7 @@ export const navigationStructure: NavigationStructure = {
         { name: "Applicant Management", href: "/admin/applicants", icon: FileText },
         { name: "Student Management", href: "/admin/students", icon: GraduationCap },
         { name: "Student Portal", href: "/admin/student-portal", icon: Settings },
-        { name: "Applications", href: "/admin/applications", icon: FileText },
+        
         { name: "Events", href: "/admin/events", icon: Calendar },
         { name: "Documents", href: "/admin/documents", icon: Upload }
       ]

@@ -75,13 +75,6 @@ const AdminHome: React.FC = () => {
       onClick: () => navigate("/admin/students")
     },
     {
-      title: "Check Applications",
-      description: "Review pending student applications",
-      icon: FileText,
-      color: "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20",
-      onClick: () => navigate("/admin/applications")
-    },
-    {
       title: "Recent Activity",
       description: "View latest system activity",
       icon: Activity,

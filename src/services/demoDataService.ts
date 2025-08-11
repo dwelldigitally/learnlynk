@@ -697,6 +697,448 @@ export class DemoDataService {
       }
     ];
   }
+
+  /**
+   * Get demo routing rules data
+   */
+  static getDemoRoutingRules() {
+    return [
+      {
+        id: 'route-demo-1',
+        name: 'High-Score Lead Priority Routing',
+        description: 'Route high-scoring leads (85+) to senior advisors automatically',
+        priority: 1,
+        is_active: true,
+        sources: ['web', 'email', 'social'],
+        condition_groups: [
+          {
+            id: 'cg-1',
+            operator: 'AND',
+            conditions: [
+              {
+                id: 'c-1',
+                type: 'score',
+                field: 'lead_score',
+                operator: 'greater_than',
+                value: 85,
+                label: 'Lead Score > 85'
+              }
+            ]
+          }
+        ],
+        assignment_config: {
+          method: 'round_robin',
+          teams: ['senior-advisors'],
+          workload_balance: true,
+          max_assignments_per_advisor: 10
+        },
+        schedule: {
+          enabled: true,
+          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+          start_time: '09:00',
+          end_time: '17:00',
+          timezone: 'America/New_York'
+        },
+        performance_config: {
+          track_analytics: true,
+          conversion_weight: 0.7,
+          response_time_weight: 0.3
+        }
+      },
+      {
+        id: 'route-demo-2',
+        name: 'Geographic Routing - West Coast',
+        description: 'Route all leads from California, Oregon, Washington to West Coast team',
+        priority: 2,
+        is_active: true,
+        sources: ['web', 'phone', 'referral'],
+        condition_groups: [
+          {
+            id: 'cg-2',
+            operator: 'OR',
+            conditions: [
+              {
+                id: 'c-2',
+                type: 'location',
+                field: 'state',
+                operator: 'in',
+                value: ['California', 'Oregon', 'Washington'],
+                label: 'West Coast States'
+              }
+            ]
+          }
+        ],
+        assignment_config: {
+          method: 'workload_balanced',
+          teams: ['west-coast-team'],
+          geographic_preference: true,
+          fallback_method: 'round_robin'
+        }
+      },
+      {
+        id: 'route-demo-3',
+        name: 'STEM Program Specialization',
+        description: 'Route Computer Science and Engineering leads to STEM specialists',
+        priority: 3,
+        is_active: true,
+        sources: ['web', 'email'],
+        condition_groups: [
+          {
+            id: 'cg-3',
+            operator: 'OR',
+            conditions: [
+              {
+                id: 'c-3',
+                type: 'program',
+                field: 'program_interest',
+                operator: 'contains',
+                value: 'Computer Science',
+                label: 'Computer Science Interest'
+              },
+              {
+                id: 'c-4',
+                type: 'program',
+                field: 'program_interest',
+                operator: 'contains',
+                value: 'Engineering',
+                label: 'Engineering Interest'
+              }
+            ]
+          }
+        ],
+        assignment_config: {
+          method: 'specialist_match',
+          advisors: ['stem-advisor-1', 'stem-advisor-2'],
+          specialization_weight: 0.8
+        }
+      },
+      {
+        id: 'route-demo-4',
+        name: 'After-Hours Routing',
+        description: 'Route after-hours leads to on-call team',
+        priority: 4,
+        is_active: true,
+        sources: ['web', 'chatbot'],
+        condition_groups: [
+          {
+            id: 'cg-4',
+            operator: 'OR',
+            conditions: [
+              {
+                id: 'c-5',
+                type: 'time',
+                field: 'created_time',
+                operator: 'between',
+                value: ['18:00', '09:00'],
+                label: 'After Business Hours'
+              }
+            ]
+          }
+        ],
+        assignment_config: {
+          method: 'round_robin',
+          teams: ['after-hours-team'],
+          max_assignments_per_advisor: 5
+        },
+        schedule: {
+          enabled: true,
+          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+          start_time: '18:00',
+          end_time: '09:00',
+          timezone: 'America/New_York'
+        }
+      },
+      {
+        id: 'route-demo-5',
+        name: 'VIP Source Routing',
+        description: 'Route leads from premium sources to senior team',
+        priority: 5,
+        is_active: true,
+        sources: ['referral', 'partner'],
+        condition_groups: [
+          {
+            id: 'cg-5',
+            operator: 'OR',
+            conditions: [
+              {
+                id: 'c-6',
+                type: 'source',
+                field: 'source',
+                operator: 'in',
+                value: ['referral', 'partner', 'event'],
+                label: 'Premium Sources'
+              }
+            ]
+          }
+        ],
+        assignment_config: {
+          method: 'priority_queue',
+          teams: ['senior-advisors'],
+          priority_boost: 10
+        }
+      }
+    ];
+  }
+
+  /**
+   * Get demo lead scoring rules data
+   */
+  static getDemoScoringRules() {
+    return [
+      {
+        id: 'score-demo-1',
+        name: 'Email Domain Quality',
+        description: 'Score based on email domain credibility',
+        category: 'contact_quality',
+        field_name: 'email',
+        scoring_logic: {
+          type: 'domain_analysis',
+          rules: [
+            { condition: 'ends_with', value: '.edu', points: 15 },
+            { condition: 'ends_with', value: '.gov', points: 12 },
+            { condition: 'contains', value: 'gmail|yahoo|outlook', points: 5 },
+            { condition: 'contains', value: 'company_domains', points: 10 }
+          ]
+        },
+        weight: 0.15,
+        is_active: true,
+        order_index: 1
+      },
+      {
+        id: 'score-demo-2',
+        name: 'Program Interest Value',
+        description: 'Score based on program selection and market demand',
+        category: 'program_fit',
+        field_name: 'program_interest',
+        scoring_logic: {
+          type: 'categorical',
+          rules: [
+            { condition: 'equals', value: 'Computer Science', points: 25 },
+            { condition: 'equals', value: 'Engineering', points: 23 },
+            { condition: 'equals', value: 'Business Administration', points: 18 },
+            { condition: 'equals', value: 'Health Care Assistant', points: 20 },
+            { condition: 'equals', value: 'Nursing', points: 22 }
+          ]
+        },
+        weight: 0.25,
+        is_active: true,
+        order_index: 2
+      },
+      {
+        id: 'score-demo-3',
+        name: 'Geographic Targeting',
+        description: 'Score based on target geographic markets',
+        category: 'demographics',
+        field_name: 'location',
+        scoring_logic: {
+          type: 'geographic',
+          rules: [
+            { condition: 'state_in', value: ['California', 'New York', 'Texas'], points: 15 },
+            { condition: 'country_equals', value: 'United States', points: 10 },
+            { condition: 'country_equals', value: 'Canada', points: 12 },
+            { condition: 'city_tier', value: 'major', points: 8 }
+          ]
+        },
+        weight: 0.12,
+        is_active: true,
+        order_index: 3
+      },
+      {
+        id: 'score-demo-4',
+        name: 'Lead Source Quality',
+        description: 'Score based on lead source performance history',
+        category: 'source_quality',
+        field_name: 'source',
+        scoring_logic: {
+          type: 'categorical',
+          rules: [
+            { condition: 'equals', value: 'referral', points: 20 },
+            { condition: 'equals', value: 'partner', points: 18 },
+            { condition: 'equals', value: 'web', points: 12 },
+            { condition: 'equals', value: 'social', points: 8 },
+            { condition: 'equals', value: 'phone', points: 15 }
+          ]
+        },
+        weight: 0.18,
+        is_active: true,
+        order_index: 4
+      },
+      {
+        id: 'score-demo-5',
+        name: 'Engagement Indicators',
+        description: 'Score based on initial engagement signals',
+        category: 'engagement',
+        field_name: 'engagement_score',
+        scoring_logic: {
+          type: 'numeric_range',
+          rules: [
+            { condition: 'range', value: [80, 100], points: 20 },
+            { condition: 'range', value: [60, 79], points: 15 },
+            { condition: 'range', value: [40, 59], points: 10 },
+            { condition: 'range', value: [20, 39], points: 5 },
+            { condition: 'range', value: [0, 19], points: 0 }
+          ]
+        },
+        weight: 0.20,
+        is_active: true,
+        order_index: 5
+      },
+      {
+        id: 'score-demo-6',
+        name: 'Response Time Penalty',
+        description: 'Negative scoring for delayed responses',
+        category: 'timing',
+        field_name: 'response_time_hours',
+        scoring_logic: {
+          type: 'penalty',
+          rules: [
+            { condition: 'greater_than', value: 24, points: -5 },
+            { condition: 'greater_than', value: 48, points: -10 },
+            { condition: 'greater_than', value: 72, points: -15 }
+          ]
+        },
+        weight: 0.10,
+        is_active: true,
+        order_index: 6
+      }
+    ];
+  }
+
+  /**
+   * Get demo routing templates data
+   */
+  static getDemoRoutingTemplates() {
+    return [
+      {
+        id: 'template-1',
+        name: 'Geographic Distribution',
+        description: 'Route leads based on geographic regions with timezone considerations',
+        category: 'geographic',
+        template_data: {
+          regions: [
+            { name: 'West Coast', states: ['CA', 'OR', 'WA'], team: 'west-team' },
+            { name: 'East Coast', states: ['NY', 'FL', 'MA'], team: 'east-team' },
+            { name: 'Central', states: ['TX', 'IL', 'OH'], team: 'central-team' }
+          ],
+          timezone_routing: true,
+          overflow_handling: 'round_robin'
+        },
+        is_system_template: true,
+        usage_count: 0
+      },
+      {
+        id: 'template-2',
+        name: 'Program Specialization',
+        description: 'Route leads to advisors specialized in their program of interest',
+        category: 'program',
+        template_data: {
+          specializations: [
+            { program: 'Computer Science', team: 'tech-team', advisors: ['tech-advisor-1', 'tech-advisor-2'] },
+            { program: 'Business', team: 'business-team', advisors: ['business-advisor-1'] },
+            { program: 'Healthcare', team: 'health-team', advisors: ['health-advisor-1', 'health-advisor-2'] }
+          ],
+          fallback_strategy: 'general_pool',
+          specialization_weight: 0.8
+        },
+        is_system_template: true,
+        usage_count: 0
+      },
+      {
+        id: 'template-3',
+        name: 'Lead Quality Tiering',
+        description: 'Route leads based on quality scores to appropriate advisor levels',
+        category: 'score',
+        template_data: {
+          score_tiers: [
+            { min_score: 80, max_score: 100, team: 'senior-advisors', priority: 'high' },
+            { min_score: 60, max_score: 79, team: 'standard-advisors', priority: 'medium' },
+            { min_score: 0, max_score: 59, team: 'junior-advisors', priority: 'low' }
+          ],
+          auto_escalation: true,
+          escalation_threshold: 85
+        },
+        is_system_template: true,
+        usage_count: 0
+      },
+      {
+        id: 'template-4',
+        name: 'Round Robin Distribution',
+        description: 'Evenly distribute leads across all available advisors',
+        category: 'hybrid',
+        template_data: {
+          distribution_method: 'round_robin',
+          workload_balancing: true,
+          max_daily_assignments: 15,
+          availability_check: true,
+          skip_unavailable: true
+        },
+        is_system_template: true,
+        usage_count: 0
+      }
+    ];
+  }
+
+  /**
+   * Get demo advisor teams data
+   */
+  static getDemoAdvisorTeams() {
+    return [
+      {
+        id: 'team-1',
+        name: 'Senior Advisors',
+        description: 'Experienced advisors for high-value and complex leads',
+        is_active: true,
+        max_daily_assignments: 50,
+        region: 'All Regions',
+        specializations: ['High-Value Leads', 'Complex Cases', 'VIP Clients']
+      },
+      {
+        id: 'team-2',
+        name: 'STEM Specialists',
+        description: 'Advisors specialized in Science, Technology, Engineering, and Math programs',
+        is_active: true,
+        max_daily_assignments: 40,
+        region: 'North America',
+        specializations: ['Computer Science', 'Engineering', 'Data Analytics', 'Information Technology']
+      },
+      {
+        id: 'team-3',
+        name: 'West Coast Team',
+        description: 'Advisors covering Pacific timezone and West Coast markets',
+        is_active: true,
+        max_daily_assignments: 35,
+        region: 'West Coast',
+        specializations: ['Geographic Coverage', 'Pacific Timezone', 'Tech Industry']
+      },
+      {
+        id: 'team-4',
+        name: 'After-Hours Team',
+        description: 'Night shift and weekend coverage team',
+        is_active: true,
+        max_daily_assignments: 25,
+        region: 'All Regions',
+        specializations: ['After Hours', 'Weekend Coverage', 'Emergency Response']
+      }
+    ];
+  }
+
+  /**
+   * Get demo scoring settings data
+   */
+  static getDemoScoringSettings() {
+    return {
+      auto_scoring_enabled: true,
+      scoring_algorithm: 'weighted',
+      min_score: 0,
+      max_score: 100,
+      default_score: 50,
+      recalculate_on_update: true,
+      score_decay_enabled: false,
+      score_decay_rate: 0.05,
+      ai_enhancement_enabled: true,
+      real_time_scoring: true
+    };
+  }
 }
 
 /**

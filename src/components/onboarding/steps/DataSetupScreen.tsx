@@ -153,14 +153,18 @@ const DataSetupScreen: React.FC<DataSetupScreenProps> = ({
                   Start with Sample Data (Recommended)
                 </Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Pre-populate your system with realistic sample data including leads, students, and applications. 
+                  Pre-populate your system with realistic sample data including leads, routing rules, scoring criteria, and team setup. 
                   Perfect for exploring features and training your team.
                 </p>
-                <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span>• 3 Sample Leads</span>
-                  <span>• 3 Sample Students</span>
-                  <span>• 3 Sample Applications</span>
+                <div className="grid grid-cols-2 gap-2 mt-2 text-xs text-muted-foreground">
+                  <span>• 15+ Sample Leads</span>
+                  <span>• 5 Routing Rules</span>
+                  <span>• 8 Sample Students</span>
+                  <span>• 6 Scoring Rules</span>
+                  <span>• 6 Sample Applications</span>
+                  <span>• 4 Advisor Teams</span>
                   <span>• Financial Records</span>
+                  <span>• 4 Routing Templates</span>
                 </div>
               </div>
             </div>

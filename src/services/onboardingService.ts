@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { DemoDataService } from "@/services/demoDataService";
 
 export interface OnboardingData {
   // Company/Institution data
@@ -198,18 +199,128 @@ export class OnboardingService {
         const { dataChoice } = onboardingData.dataSetup;
         
         if (dataChoice === 'sample') {
-          // Assign demo data to user
+          // Assign demo data to user and create routing/scoring rules
           try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user?.email) {
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (currentUser?.email) {
               const { error: demoError } = await supabase.rpc('assign_demo_data_to_user', {
-                target_email: user.email,
+                target_email: currentUser.email,
                 demo_enabled: true
               });
               
               if (demoError) {
                 console.error('Error assigning demo data:', demoError);
                 errors.push('Failed to assign sample data');
+              }
+
+              // Create demo routing rules
+              const demoRoutingRules = DemoDataService.getDemoRoutingRules();
+              for (const rule of demoRoutingRules) {
+                const { error: routingError } = await supabase
+                  .from('lead_routing_rules')
+                  .insert({
+                    name: rule.name,
+                    description: rule.description,
+                    priority: rule.priority,
+                    is_active: rule.is_active,
+                    conditions: rule.condition_groups,
+                    assignment_config: rule.assignment_config
+                  });
+                
+                if (routingError) {
+                  console.error('Error creating demo routing rule:', routingError);
+                  errors.push(`Failed to create routing rule: ${rule.name}`);
+                }
+              }
+
+              // Create demo scoring rules
+              const demoScoringRules = DemoDataService.getDemoScoringRules();
+              for (const rule of demoScoringRules) {
+                const { error: scoringError } = await supabase
+                  .from('lead_scoring_rules')
+                  .insert({
+                    user_id: currentUser.id,
+                    name: rule.name,
+                    description: rule.description,
+                    field: rule.field_name,
+                    condition: rule.scoring_logic.type,
+                    value: JSON.stringify(rule.scoring_logic.rules),
+                    points: 10, // Default points, will be calculated from rules
+                    enabled: rule.is_active,
+                    order_index: rule.order_index
+                  });
+                
+                if (scoringError) {
+                  console.error('Error creating demo scoring rule:', scoringError);
+                  errors.push(`Failed to create scoring rule: ${rule.name}`);
+                }
+              }
+
+              // Create demo scoring settings
+              const demoScoringSettings = DemoDataService.getDemoScoringSettings();
+              const { error: settingsError } = await supabase
+                .from('lead_scoring_settings')
+                .insert({
+                  user_id: currentUser.id,
+                  name: 'Default Scoring Configuration',
+                  description: 'Default lead scoring settings created during onboarding',
+                  is_active: true,
+                  scoring_algorithm: demoScoringSettings.scoring_algorithm,
+                  max_score: demoScoringSettings.max_score,
+                  auto_scoring_enabled: demoScoringSettings.auto_scoring_enabled,
+                  settings_data: {
+                    min_score: demoScoringSettings.min_score,
+                    default_score: demoScoringSettings.default_score,
+                    recalculate_on_update: demoScoringSettings.recalculate_on_update,
+                    ai_enhancement_enabled: demoScoringSettings.ai_enhancement_enabled,
+                    real_time_scoring: demoScoringSettings.real_time_scoring
+                  }
+                });
+              
+              if (settingsError) {
+                console.error('Error creating demo scoring settings:', settingsError);
+                errors.push('Failed to create scoring settings');
+              }
+
+              // Create demo routing templates
+              const demoTemplates = DemoDataService.getDemoRoutingTemplates();
+              for (const template of demoTemplates) {
+                const { error: templateError } = await supabase
+                  .from('routing_templates')
+                  .insert({
+                    user_id: currentUser.id,
+                    name: template.name,
+                    description: template.description,
+                    category: template.category,
+                    template_data: template.template_data,
+                    is_system_template: template.is_system_template,
+                    usage_count: template.usage_count
+                  });
+                
+                if (templateError) {
+                  console.error('Error creating demo routing template:', templateError);
+                  errors.push(`Failed to create template: ${template.name}`);
+                }
+              }
+
+              // Create demo advisor teams
+              const demoTeams = DemoDataService.getDemoAdvisorTeams();
+              for (const team of demoTeams) {
+                const { error: teamError } = await supabase
+                  .from('advisor_teams')
+                  .insert({
+                    name: team.name,
+                    description: team.description,
+                    is_active: team.is_active,
+                    max_daily_assignments: team.max_daily_assignments,
+                    region: team.region,
+                    specializations: team.specializations
+                  });
+                
+                if (teamError) {
+                  console.error('Error creating demo advisor team:', teamError);
+                  errors.push(`Failed to create team: ${team.name}`);
+                }
               }
             }
           } catch (demoError) {

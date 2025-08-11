@@ -28,8 +28,17 @@ import {
   Trash2,
   Mail,
   Phone,
-  Users
+  Users,
+  BarChart3,
+  Calendar,
+  Settings,
+  Target,
+  TrendingUp
 } from "lucide-react";
+import TeamHierarchyVisualizer from "./team/TeamHierarchyVisualizer";
+import TeamPerformanceDashboard from "./team/TeamPerformanceDashboard";
+import AdvancedRoleBuilder from "./team/AdvancedRoleBuilder";
+import SchedulingManager from "./team/SchedulingManager";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import MemberDetailModal from "./modals/MemberDetailModal";
@@ -77,6 +86,7 @@ const TeamManagement: React.FC = () => {
   const [selectedInvite, setSelectedInvite] = useState<PendingInvite | null>(null);
   const [deleteItem, setDeleteItem] = useState<{type: string, id: string, name: string} | null>(null);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [activeTab, setActiveTab] = useState("overview");
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -345,13 +355,132 @@ const TeamManagement: React.FC = () => {
         ))}
       </div>
 
-      <Tabs defaultValue="members" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="members">Team Members</TabsTrigger>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-8">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="hierarchy">Hierarchy</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="scheduling">Scheduling</TabsTrigger>
+          <TabsTrigger value="roles">Role Builder</TabsTrigger>
+          <TabsTrigger value="members">Members</TabsTrigger>
           <TabsTrigger value="departments">Departments</TabsTrigger>
-          <TabsTrigger value="permissions">Permissions</TabsTrigger>
-          <TabsTrigger value="invites">Pending Invites</TabsTrigger>
+          <TabsTrigger value="invites">Invites</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="overview" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="h-5 w-5" />
+                  <span>Team Performance Overview</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Overall Productivity</span>
+                    <span className="text-sm font-bold">92%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Team Satisfaction</span>
+                    <span className="text-sm font-bold">89%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Capacity Utilization</span>
+                    <span className="text-sm font-bold">78%</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium">Average Response Time</span>
+                    <span className="text-sm font-bold">1.2 hours</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="h-5 w-5" />
+                  <span>Active Goals</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium">Q1 Enrollment Target</span>
+                      <Badge>77%</Badge>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div className="bg-primary h-2 rounded-full" style={{ width: '77%' }}></div>
+                    </div>
+                  </div>
+                  <div className="p-3 border rounded-lg">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium">Lead Response Time</span>
+                      <Badge>89%</Badge>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div className="bg-primary h-2 rounded-full" style={{ width: '89%' }}></div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("hierarchy")}>
+              <CardContent className="p-6 text-center">
+                <Users className="h-8 w-8 text-primary mx-auto mb-2" />
+                <h3 className="font-medium">Team Hierarchy</h3>
+                <p className="text-sm text-muted-foreground">Visualize and manage team structure</p>
+              </CardContent>
+            </Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("performance")}>
+              <CardContent className="p-6 text-center">
+                <BarChart3 className="h-8 w-8 text-primary mx-auto mb-2" />
+                <h3 className="font-medium">Performance Analytics</h3>
+                <p className="text-sm text-muted-foreground">Track team productivity and KPIs</p>
+              </CardContent>
+            </Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("scheduling")}>
+              <CardContent className="p-6 text-center">
+                <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
+                <h3 className="font-medium">Schedule Management</h3>
+                <p className="text-sm text-muted-foreground">Manage shifts and time off</p>
+              </CardContent>
+            </Card>
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("roles")}>
+              <CardContent className="p-6 text-center">
+                <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
+                <h3 className="font-medium">Role Builder</h3>
+                <p className="text-sm text-muted-foreground">Create custom roles and permissions</p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="hierarchy" className="space-y-4">
+          <TeamHierarchyVisualizer
+            onEditNode={(node) => toast({ title: "Edit Node", description: `Editing ${node.name}` })}
+            onMoveNode={(nodeId, newParentId) => toast({ title: "Node Moved", description: "Team structure updated" })}
+            onAddNode={(parentId) => toast({ title: "Add Node", description: "Adding new team member" })}
+          />
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-4">
+          <TeamPerformanceDashboard />
+        </TabsContent>
+
+        <TabsContent value="scheduling" className="space-y-4">
+          <SchedulingManager />
+        </TabsContent>
+
+        <TabsContent value="roles" className="space-y-4">
+          <AdvancedRoleBuilder />
+        </TabsContent>
 
         <TabsContent value="members" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

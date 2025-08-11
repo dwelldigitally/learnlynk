@@ -267,7 +267,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
   ];
 
   return (
-    <div className="w-80 bg-card border-r border-border flex flex-col overflow-y-auto">
+    <div className="w-80 bg-card border-r border-border flex flex-col overflow-y-auto max-h-screen">
       {/* Contact Card */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">
@@ -675,11 +675,11 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
                   ? 'bg-green-50 border-green-200 shadow-sm' 
                   : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
               }`}>
-                <div className="p-4">
+                <div className="p-4 overflow-hidden">
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-sm font-semibold">{sequence.name}</h4>
+                        <h4 className="text-sm font-semibold truncate">{sequence.name}</h4>
                         <Badge 
                           variant={sequence.type === 'deadline-driven' ? 'destructive' : 'outline'} 
                           className="text-xs px-2 py-0"
@@ -690,25 +690,25 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
                           <CheckCircle className="h-4 w-4 text-green-600" />
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2">{sequence.description}</p>
+                      <p className="text-xs text-muted-foreground mb-2 break-words">{sequence.description}</p>
                       
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          <span>{sequence.duration}</span>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Clock className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.duration}</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          <span>{sequence.emails} emails</span>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Mail className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.emails} emails</span>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <TrendingUp className="h-3 w-3" />
-                          <span>{sequence.conversionRate}% conv.</span>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <TrendingUp className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.conversionRate}% conv.</span>
                         </div>
                       </div>
                     </div>
                     
-                    <div className="flex flex-col gap-2 ml-3">
+                    <div className="flex flex-col gap-2 ml-3 flex-shrink-0">
                       {isEnrolled ? (
                         <Button
                           size="sm"

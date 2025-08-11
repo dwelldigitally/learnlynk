@@ -1939,52 +1939,53 @@ export type Database = {
       }
       lead_scoring_rules: {
         Row: {
-          condition_type: string
-          condition_value: string
+          condition: string
           created_at: string
           description: string | null
-          field_name: string
+          enabled: boolean
+          field: string
           id: string
-          is_active: boolean
           name: string
-          priority: number | null
-          score_points: number
+          order_index: number | null
+          points: number
           updated_at: string
           user_id: string
+          value: string
         }
         Insert: {
-          condition_type: string
-          condition_value: string
+          condition: string
           created_at?: string
           description?: string | null
-          field_name: string
+          enabled?: boolean
+          field: string
           id?: string
-          is_active?: boolean
           name: string
-          priority?: number | null
-          score_points?: number
+          order_index?: number | null
+          points?: number
           updated_at?: string
           user_id: string
+          value: string
         }
         Update: {
-          condition_type?: string
-          condition_value?: string
+          condition?: string
           created_at?: string
           description?: string | null
-          field_name?: string
+          enabled?: boolean
+          field?: string
           id?: string
-          is_active?: boolean
           name?: string
-          priority?: number | null
-          score_points?: number
+          order_index?: number | null
+          points?: number
           updated_at?: string
           user_id?: string
+          value?: string
         }
         Relationships: []
       }
       lead_scoring_settings: {
         Row: {
           auto_qualification_threshold: number | null
+          auto_scoring_enabled: boolean
           created_at: string
           description: string | null
           id: string
@@ -1998,6 +1999,7 @@ export type Database = {
         }
         Insert: {
           auto_qualification_threshold?: number | null
+          auto_scoring_enabled?: boolean
           created_at?: string
           description?: string | null
           id?: string
@@ -2011,6 +2013,7 @@ export type Database = {
         }
         Update: {
           auto_qualification_threshold?: number | null
+          auto_scoring_enabled?: boolean
           created_at?: string
           description?: string | null
           id?: string

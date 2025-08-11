@@ -30,11 +30,20 @@ export function FlashReports() {
       revenueGrowth: 15.7,
       teamEfficiency: 94.2
     },
-    pipelineHealth: {
-      totalValue: 2840000,
-      weightedValue: 1420000,
-      closeProbability: 68,
-      staleLeads: 23
+    intakePipelineHealth: {
+      totalIntakes: 24,
+      activeIntakes: 18,
+      enrollmentRate: 78,
+      campusPerformance: {
+        downtown: { fillRate: 85, enrollments: 145 },
+        northCampus: { fillRate: 72, enrollments: 98 },
+        southCampus: { fillRate: 91, enrollments: 167 }
+      },
+      programPerformance: {
+        healthCare: { fillRate: 88, enrollments: 234 },
+        aviation: { fillRate: 76, enrollments: 89 },
+        hospitality: { fillRate: 82, enrollments: 87 }
+      }
     },
     complianceMetrics: {
       responseCompliance: 87,
@@ -183,35 +192,41 @@ export function FlashReports() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Target className="h-5 w-5" />
-              Pipeline Health
+              Intake Pipeline Performance
             </CardTitle>
+            <CardDescription>Campus, intake, and program-wise tracking</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Total Pipeline Value</span>
-              <span className="text-lg font-bold">
-                ${(flashData.pipelineHealth.totalValue / 1000000).toFixed(1)}M
-              </span>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Weighted Value</span>
-              <span className="text-lg font-bold text-green-600">
-                ${(flashData.pipelineHealth.weightedValue / 1000000).toFixed(1)}M
-              </span>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Total Intakes</span>
+                <span className="text-lg font-bold">{flashData.intakePipelineHealth.totalIntakes}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Active Intakes</span>
+                <span className="text-lg font-bold text-green-600">{flashData.intakePipelineHealth.activeIntakes}</span>
+              </div>
             </div>
             
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Close Probability</span>
-                <span className="text-sm font-bold">{flashData.pipelineHealth.closeProbability}%</span>
+                <span className="text-sm font-medium">Overall Enrollment Rate</span>
+                <span className="text-sm font-bold">{flashData.intakePipelineHealth.enrollmentRate}%</span>
               </div>
-              <Progress value={flashData.pipelineHealth.closeProbability} className="h-2" />
+              <Progress value={flashData.intakePipelineHealth.enrollmentRate} className="h-2" />
             </div>
             
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Stale Leads</span>
-              <Badge variant="destructive">{flashData.pipelineHealth.staleLeads}</Badge>
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold">Campus Performance</h4>
+              {Object.entries(flashData.intakePipelineHealth.campusPerformance).map(([campus, data]) => (
+                <div key={campus} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="capitalize">{campus.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <span>{data.fillRate}% • {data.enrollments} enrolled</span>
+                  </div>
+                  <Progress value={data.fillRate} className="h-1" />
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>

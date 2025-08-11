@@ -141,13 +141,17 @@ export function useAIAgent() {
   };
 
   // Create filter rule
-  const createFilterRule = async (ruleData: Partial<AIAgentFilterRule>) => {
+  const createFilterRule = async (ruleData: Partial<AIAgentFilterRule> & { name: string }) => {
     if (!activeAgent) return;
     
     try {
       const newRule = await AIAgentService.createFilterRule({
-        ...ruleData,
-        agent_id: activeAgent.id
+        agent_id: activeAgent.id,
+        name: ruleData.name,
+        description: ruleData.description,
+        conditions: ruleData.conditions,
+        is_active: ruleData.is_active,
+        priority: ruleData.priority
       });
       setFilterRules(prev => [...prev, newRule]);
       toast({
@@ -185,13 +189,19 @@ export function useAIAgent() {
   };
 
   // Create task
-  const createTask = async (taskData: Partial<AIAgentTask>) => {
+  const createTask = async (taskData: Partial<AIAgentTask> & { title: string; task_type: string }) => {
     if (!activeAgent) return;
     
     try {
       const newTask = await AIAgentService.createTask({
-        ...taskData,
-        agent_id: activeAgent.id
+        agent_id: activeAgent.id,
+        title: taskData.title,
+        task_type: taskData.task_type,
+        description: taskData.description,
+        priority: taskData.priority,
+        is_active: taskData.is_active,
+        schedule_config: taskData.schedule_config,
+        performance_data: taskData.performance_data
       });
       setTasks(prev => [...prev, newTask]);
       toast({

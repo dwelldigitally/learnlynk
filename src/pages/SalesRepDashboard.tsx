@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { 
   Calendar, 
   Users, 
@@ -29,236 +27,228 @@ import { PerformanceTracker } from '@/components/admin/sales-rep/PerformanceTrac
 import { AIActionCenter } from '@/components/admin/sales-rep/AIActionCenter';
 import { QuickActions } from '@/components/admin/sales-rep/QuickActions';
 import { AISequenceCard } from '@/components/admin/sales-rep/AISequenceCard';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function SalesRepDashboard() {
-  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState('today');
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-border bg-card">
-        <div className="px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                Sales Rep Dashboard
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Your personalized workspace for managing leads and performance
-              </p>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Customize
-              </Button>
-            </div>
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">
+            Sales Rep Dashboard
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            Your personalized workspace for managing leads and performance
+          </p>
+        </div>
+        
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm">
+            <Settings className="h-4 w-4 mr-2" />
+            Customize
+          </Button>
         </div>
       </div>
 
       {/* Daily Header */}
       <DailyHeader />
       
-      <div className="px-6 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          {/* Tab Navigation */}
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-            <TabsTrigger value="today" className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
-              <span>Today's Focus</span>
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="flex items-center space-x-2">
-              <Users className="h-4 w-4" />
-              <span>Leads & Calls</span>
-            </TabsTrigger>
-            <TabsTrigger value="performance" className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4" />
-              <span>Performance</span>
-            </TabsTrigger>
-            <TabsTrigger value="ai" className="flex items-center space-x-2">
-              <Bot className="h-4 w-4" />
-              <span>AI Tools</span>
-            </TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        {/* Tab Navigation */}
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+          <TabsTrigger value="today" className="flex items-center space-x-2">
+            <Clock className="h-4 w-4" />
+            <span>Today's Focus</span>
+          </TabsTrigger>
+          <TabsTrigger value="leads" className="flex items-center space-x-2">
+            <Users className="h-4 w-4" />
+            <span>Leads & Calls</span>
+          </TabsTrigger>
+          <TabsTrigger value="performance" className="flex items-center space-x-2">
+            <TrendingUp className="h-4 w-4" />
+            <span>Performance</span>
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center space-x-2">
+            <Bot className="h-4 w-4" />
+            <span>AI Tools</span>
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Tab Content */}
-          <TabsContent value="today" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column - Priority Items */}
-              <div className="lg:col-span-2 space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Target className="h-5 w-5 text-primary" />
-                      <span>New Assignments</span>
-                    </CardTitle>
-                    <CardDescription>
-                      Leads that need your immediate attention
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <NewlyAssignedLeads />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Calendar className="h-5 w-5 text-blue-600" />
-                      <span>My Schedule</span>
-                    </CardTitle>
-                    <CardDescription>
-                      Today's calendar and available time slots
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <MyDayCalendar />
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Right Column - Quick Info */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <CheckSquare className="h-5 w-5 text-green-600" />
-                      <span>Today's Tasks</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <TodaysTasks />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <MessageCircle className="h-5 w-5 text-orange-600" />
-                      <span>Communications</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <UnreadCommunications />
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <QuickActions />
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="leads" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Tab Content */}
+        <TabsContent value="today" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column - Priority Items */}
+            <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Users className="h-5 w-5 text-red-600" />
-                    <span>Hot Leads</span>
+                    <Target className="h-5 w-5 text-primary" />
+                    <span>New Assignments</span>
                   </CardTitle>
                   <CardDescription>
-                    High-priority leads requiring immediate action
+                    Leads that need your immediate attention
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <HotLeadsToday />
+                  <NewlyAssignedLeads />
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Phone className="h-5 w-5 text-blue-600" />
-                    <span>Call List</span>
+                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <span>My Schedule</span>
                   </CardTitle>
                   <CardDescription>
-                    Scheduled calls and follow-ups for today
+                    Today's calendar and available time slots
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <TodaysCallList />
-                </CardContent>
-              </Card>
-
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Users className="h-5 w-5 text-purple-600" />
-                    <span>Re-enquiry Students</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Students showing renewed interest
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ReenquiryStudents />
+                  <MyDayCalendar />
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
 
-          <TabsContent value="performance" className="space-y-6">
-            <div className="grid grid-cols-1 gap-6">
+            {/* Right Column - Quick Info */}
+            <div className="space-y-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-green-600" />
-                    <span>Performance Metrics</span>
+                    <CheckSquare className="h-5 w-5 text-green-600" />
+                    <span>Today's Tasks</span>
                   </CardTitle>
-                  <CardDescription>
-                    Track your sales performance and goals
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <PerformanceTracker />
+                  <TodaysTasks />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <MessageCircle className="h-5 w-5 text-orange-600" />
+                    <span>Communications</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <UnreadCommunications />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <QuickActions />
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
+          </div>
+        </TabsContent>
 
-          <TabsContent value="ai" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Bot className="h-5 w-5 text-purple-600" />
-                    <span>AI Action Center</span>
-                  </CardTitle>
-                  <CardDescription>
-                    AI-powered recommendations and automation
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <AIActionCenter />
-                </CardContent>
-              </Card>
+        <TabsContent value="leads" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-red-600" />
+                  <span>Hot Leads</span>
+                </CardTitle>
+                <CardDescription>
+                  High-priority leads requiring immediate action
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <HotLeadsToday />
+              </CardContent>
+            </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Bot className="h-5 w-5 text-blue-600" />
-                    <span>AI Sequences</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Automated follow-up sequences and workflows
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <AISequenceCard />
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Phone className="h-5 w-5 text-blue-600" />
+                  <span>Call List</span>
+                </CardTitle>
+                <CardDescription>
+                  Scheduled calls and follow-ups for today
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TodaysCallList />
+              </CardContent>
+            </Card>
+
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Users className="h-5 w-5 text-purple-600" />
+                  <span>Re-enquiry Students</span>
+                </CardTitle>
+                <CardDescription>
+                  Students showing renewed interest
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ReenquiryStudents />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-6">
+          <div className="grid grid-cols-1 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <TrendingUp className="h-5 w-5 text-green-600" />
+                  <span>Performance Metrics</span>
+                </CardTitle>
+                <CardDescription>
+                  Track your sales performance and goals
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PerformanceTracker />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="ai" className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Bot className="h-5 w-5 text-purple-600" />
+                  <span>AI Action Center</span>
+                </CardTitle>
+                <CardDescription>
+                  AI-powered recommendations and automation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AIActionCenter />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Bot className="h-5 w-5 text-blue-600" />
+                  <span>AI Sequences</span>
+                </CardTitle>
+                <CardDescription>
+                  Automated follow-up sequences and workflows
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <AISequenceCard />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

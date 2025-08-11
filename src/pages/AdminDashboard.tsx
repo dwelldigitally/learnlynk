@@ -45,6 +45,7 @@ import { RegistrarAIFeatures } from "@/components/admin/registrar/RegistrarAIFea
 import { OverviewDashboard } from "@/components/admin/OverviewDashboard";
 import { HelpCenter } from "@/components/admin/HelpCenter";
 import { PersonalAssignments } from "@/components/admin/PersonalAssignments";
+import SalesRepDashboard from "./SalesRepDashboard";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -68,6 +69,8 @@ const AdminDashboard: React.FC = () => {
         return <HelpCenter />;
       case "/admin/assignments":
         return <PersonalAssignments />;
+      case "/admin/sales-rep-dashboard":
+        return <SalesRepDashboard />;
       case "/admin/leads":
         return <LeadOverview />;
       case "/admin/leads/workflow":

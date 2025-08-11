@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle, Sparkles, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { OnboardingService } from '@/services/onboardingService';
 
 interface CompletionCelebrationScreenProps {
   data: any;
@@ -15,6 +17,50 @@ const CompletionCelebrationScreen: React.FC<CompletionCelebrationScreenProps> = 
   onboardingData,
   onNext
 }) => {
+  const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveErrors, setSaveErrors] = useState<string[]>([]);
+
+  const handleEnterDashboard = async () => {
+    setIsSaving(true);
+    setSaveErrors([]);
+
+    try {
+      // Save all onboarding data to the database
+      const { success, errors } = await OnboardingService.saveOnboardingData(onboardingData || {});
+      
+      if (success) {
+        // Clear onboarding data and mark as complete
+        await OnboardingService.clearOnboardingData();
+        
+        toast({
+          title: "Welcome to your dashboard!",
+          description: "Your onboarding data has been successfully saved.",
+        });
+        
+        onNext();
+      } else {
+        setSaveErrors(errors);
+        
+        toast({
+          title: "Some data couldn't be saved",
+          description: "You can continue to your dashboard, but some configurations may need to be set up again.",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
+      console.error('Error during completion:', error);
+      setSaveErrors([error instanceof Error ? error.message : 'Unknown error occurred']);
+      
+      toast({
+        title: "Error completing setup",
+        description: "There was an error saving your data. You can still access your dashboard.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -54,10 +100,37 @@ const CompletionCelebrationScreen: React.FC<CompletionCelebrationScreenProps> = 
         </CardContent>
       </Card>
 
+      {saveErrors.length > 0 && (
+        <Card className="border-destructive bg-destructive/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
+              <div>
+                <h4 className="font-medium text-destructive mb-2">Some issues occurred while saving your data:</h4>
+                <ul className="text-sm text-destructive/80 space-y-1">
+                  {saveErrors.map((error, index) => (
+                    <li key={index}>• {error}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="text-center">
-        <Button onClick={onNext} size="lg" className="bg-primary hover:bg-primary-hover">
-          Enter Your Dashboard
-          <ArrowRight className="w-5 h-5 ml-2" />
+        <Button onClick={handleEnterDashboard} size="lg" disabled={isSaving} className="bg-primary hover:bg-primary-hover">
+          {isSaving ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Saving Your Setup...
+            </>
+          ) : (
+            <>
+              Enter Your Dashboard
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </>
+          )}
         </Button>
       </div>
     </div>

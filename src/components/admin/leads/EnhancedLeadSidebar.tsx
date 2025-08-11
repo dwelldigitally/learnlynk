@@ -7,11 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   User, Mail, Phone, MapPin, Edit, Save, X, 
   Calendar, MessageSquare, Users, Target,
   Building, Clock, Star, Tag, Brain, TrendingUp,
-  AlertTriangle, CheckCircle, Pause, Activity, Video
+  AlertTriangle, CheckCircle, Pause, Activity, Video,
+  Zap, FileText, Send, BookOpen, Coffee, Gift,
+  ArrowRight, Sparkles, ThumbsUp, Eye
 } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
@@ -26,6 +30,8 @@ interface EnhancedLeadSidebarProps {
 
 export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [executingAction, setExecutingAction] = useState<string | null>(null);
+  const [completedActions, setCompletedActions] = useState<Set<string>>(new Set());
   const [editData, setEditData] = useState({
     first_name: lead.first_name,
     last_name: lead.last_name,
@@ -78,6 +84,69 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
     });
     setIsEditing(false);
   };
+
+  const executeAIAction = async (actionId: string, actionName: string) => {
+    setExecutingAction(actionId);
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setCompletedActions(prev => new Set([...prev, actionId]));
+      
+      toast({
+        title: "Action Completed",
+        description: `${actionName} has been executed successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: "Action Failed",
+        description: "Failed to execute the action. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setExecutingAction(null);
+    }
+  };
+
+  const aiRecommendations = [
+    {
+      id: 'follow-up-email',
+      title: 'Send Follow-up Email',
+      description: 'Personalized follow-up based on recent activity',
+      icon: Mail,
+      color: 'blue',
+      priority: 'high',
+      confidence: 92
+    },
+    {
+      id: 'schedule-consultation',
+      title: 'Schedule Consultation',
+      description: 'Free 30-min consultation call',
+      icon: Calendar,
+      color: 'green',
+      priority: 'medium',
+      confidence: 87
+    },
+    {
+      id: 'send-program-info',
+      title: 'Send Program Information',
+      description: 'Detailed brochure for interested programs',
+      icon: BookOpen,
+      color: 'purple',
+      priority: 'medium',
+      confidence: 78
+    },
+    {
+      id: 'offer-scholarship',
+      title: 'Offer Scholarship Info',
+      description: 'Early bird scholarship opportunities',
+      icon: Gift,
+      color: 'orange',
+      priority: 'low',
+      confidence: 65
+    }
+  ];
 
   const getStatusColor = (status: LeadStatus) => {
     switch (status) {
@@ -310,20 +379,138 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               </Button>
             }
           />
-          <div className="mt-3">
-            <p className="text-xs text-muted-foreground mb-2">AI Recommended:</p>
-            <div className="space-y-1">
-              <Button variant="ghost" size="sm" className="w-full justify-start text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                Send follow-up email
-              </Button>
-              
-              <Button variant="ghost" size="sm" className="w-full justify-start text-green-600 hover:text-green-700 hover:bg-green-50">
-                Schedule consultation
-              </Button>
-              
-              <Button variant="ghost" size="sm" className="w-full justify-start text-purple-600 hover:text-purple-700 hover:bg-purple-50">
-                Send program info
-              </Button>
+          <div className="mt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">AI Recommendations</p>
+                <p className="text-xs text-muted-foreground">Smart actions for this lead</p>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              {aiRecommendations.map((action) => {
+                const Icon = action.icon;
+                const isExecuting = executingAction === action.id;
+                const isCompleted = completedActions.has(action.id);
+                
+                return (
+                  <TooltipProvider key={action.id}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={`group relative p-3 rounded-lg border transition-all duration-200 hover:shadow-md ${
+                          isCompleted 
+                            ? 'bg-green-50 border-green-200' 
+                            : 'bg-white border-gray-200 hover:border-gray-300'
+                        }`}>
+                          <div className="flex items-start gap-3">
+                            <div className={`p-2 rounded-lg ${
+                              action.color === 'blue' ? 'bg-blue-100 text-blue-600' :
+                              action.color === 'green' ? 'bg-green-100 text-green-600' :
+                              action.color === 'purple' ? 'bg-purple-100 text-purple-600' :
+                              'bg-orange-100 text-orange-600'
+                            }`}>
+                              {isCompleted ? (
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                              ) : (
+                                <Icon className="h-4 w-4" />
+                              )}
+                            </div>
+                            
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium text-sm truncate">{action.title}</p>
+                                {action.priority === 'high' && (
+                                  <Badge variant="destructive" className="text-xs px-1.5 py-0">
+                                    High
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground mb-2">{action.description}</p>
+                              
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex items-center gap-1">
+                                    <Brain className="h-3 w-3 text-muted-foreground" />
+                                    <span className="text-xs text-muted-foreground">
+                                      {action.confidence}% confidence
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                <Button
+                                  size="sm"
+                                  variant={isCompleted ? "secondary" : "default"}
+                                  className={`h-7 px-3 text-xs ${
+                                    action.color === 'blue' && !isCompleted ? 'bg-blue-600 hover:bg-blue-700' :
+                                    action.color === 'green' && !isCompleted ? 'bg-green-600 hover:bg-green-700' :
+                                    action.color === 'purple' && !isCompleted ? 'bg-purple-600 hover:bg-purple-700' :
+                                    action.color === 'orange' && !isCompleted ? 'bg-orange-600 hover:bg-orange-700' : ''
+                                  }`}
+                                  onClick={() => !isCompleted && executeAIAction(action.id, action.title)}
+                                  disabled={isExecuting || isCompleted}
+                                >
+                                  {isExecuting ? (
+                                    <div className="flex items-center gap-1">
+                                      <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
+                                      <span>Running...</span>
+                                    </div>
+                                  ) : isCompleted ? (
+                                    <div className="flex items-center gap-1">
+                                      <CheckCircle className="h-3 w-3" />
+                                      <span>Done</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-1">
+                                      <Send className="h-3 w-3" />
+                                      <span>Execute</span>
+                                    </div>
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {/* Progress bar for high priority items */}
+                          {action.priority === 'high' && !isCompleted && (
+                            <div className="mt-2">
+                              <Progress value={action.confidence} className="h-1" />
+                            </div>
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="left" className="max-w-xs">
+                        <div className="space-y-1">
+                          <p className="font-medium">{action.title}</p>
+                          <p className="text-xs">{action.description}</p>
+                          <p className="text-xs text-muted-foreground">
+                            AI Confidence: {action.confidence}%
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+            </div>
+            
+            {/* Action Summary */}
+            <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground">
+                  {completedActions.size} of {aiRecommendations.length} actions completed
+                </span>
+                <div className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span className="text-muted-foreground">AI Monitoring</span>
+                </div>
+              </div>
+              <Progress 
+                value={(completedActions.size / aiRecommendations.length) * 100} 
+                className="mt-2 h-1" 
+              />
             </div>
           </div>
         </div>

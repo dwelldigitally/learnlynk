@@ -27,6 +27,8 @@ import RecruiterSubmitApplication from "./pages/RecruiterSubmitApplication";
 import ApplicantManagementPage from "./pages/ApplicantManagementPage";
 import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
+import LeadRoutingRulesPage from "./pages/LeadRoutingRulesPage";
+import LeadScoringPage from "./pages/LeadScoringPage";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +83,11 @@ const App = () => {
               
               <Route path="/admin/applicants" element={<ProtectedRoute element={<ApplicantManagementPage />} />} />
               <Route path="/admin/applicants/detail/:applicantId" element={<ProtectedRoute element={<ApplicantDetailPage />} />} />
+              
+              {/* Lead routing and scoring pages */}
+              <Route path="/admin/routing-rules" element={<ProtectedRoute element={<LeadRoutingRulesPage />} />} />
+              <Route path="/admin/scoring" element={<ProtectedRoute element={<LeadScoringPage />} />} />
+              
               {/* Sales rep dashboard is now handled by AdminDashboard */}
               
               {/* General admin routes - this handles all /admin/leads/* static routes */}

@@ -111,7 +111,7 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 xl:grid-cols-2 gap-6">
         {/* Basic Information */}
         <Card>
           <CardHeader>
@@ -339,7 +339,7 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="logoUrl" className="text-foreground font-medium">
                 Logo URL

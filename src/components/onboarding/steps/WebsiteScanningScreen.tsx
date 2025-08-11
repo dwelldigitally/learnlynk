@@ -250,7 +250,7 @@ const WebsiteScanningScreen: React.FC<WebsiteScanningScreenProps> = ({
           </div>
 
           {/* AI Features Info */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center text-base">
@@ -334,7 +334,7 @@ const WebsiteScanningScreen: React.FC<WebsiteScanningScreenProps> = ({
               <CardHeader>
                 <CardTitle>Institution Information</CardTitle>
               </CardHeader>
-              <CardContent className="grid md:grid-cols-2 gap-4">
+              <CardContent className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-muted-foreground">Institution Name</Label>
                   <p className="text-foreground">{scanResult.generalInfo.institutionName}</p>

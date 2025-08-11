@@ -121,7 +121,7 @@ const EventSetupScreen: React.FC<EventSetupScreenProps> = ({
       {events.length === 0 ? (
         <div className="grid md:grid-cols-2 gap-4">
           {EVENT_TEMPLATES.map((template, index) => (
-            <Card key={index} className="cursor-pointer hover:shadow-md transition-shadow">
+            <Card key={index} className="cursor-pointer transition-colors">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center">
                   <Calendar className="w-4 h-4 mr-2 text-primary" />

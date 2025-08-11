@@ -63,12 +63,30 @@ export function useAIAgent() {
   // Create a new agent
   const createAgent = async (agentData: Partial<AIAgent>) => {
     try {
-      const newAgent = await AIAgentService.createAgent(agentData);
+      // Check if there's already an active agent
+      const hasActiveAgent = agents.some(agent => agent.is_active);
+      
+      // If no active agent exists, make this one active
+      const shouldActivate = !hasActiveAgent;
+      
+      const newAgent = await AIAgentService.createAgent({
+        ...agentData,
+        is_active: shouldActivate
+      });
+      
       setAgents(prev => [newAgent, ...prev]);
+      
+      // If this is now the active agent, set it and load its data
+      if (shouldActivate) {
+        setActiveAgent(newAgent);
+        await loadAgentData(newAgent.id);
+      }
+      
       toast({
         title: "Agent Created",
-        description: `AI agent "${newAgent.name}" has been created successfully`
+        description: `AI agent "${newAgent.name}" has been created successfully${shouldActivate ? ' and activated' : ''}`
       });
+      
       return newAgent;
     } catch (error) {
       console.error('Error creating agent:', error);

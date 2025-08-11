@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -222,6 +223,21 @@ export function FlashReports() {
                 <div key={campus} className="space-y-1">
                   <div className="flex justify-between text-xs">
                     <span className="capitalize">{campus.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <span>{data.fillRate}% • {data.enrollments} enrolled</span>
+                  </div>
+                  <Progress value={data.fillRate} className="h-1" />
+                </div>
+              ))}
+            </div>
+            
+            <Separator />
+            
+            <div className="space-y-3">
+              <h4 className="text-sm font-semibold">Program Performance</h4>
+              {Object.entries(flashData.intakePipelineHealth.programPerformance).map(([program, data]) => (
+                <div key={program} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="capitalize">{program.replace(/([A-Z])/g, ' $1').trim()}</span>
                     <span>{data.fillRate}% • {data.enrollments} enrolled</span>
                   </div>
                   <Progress value={data.fillRate} className="h-1" />

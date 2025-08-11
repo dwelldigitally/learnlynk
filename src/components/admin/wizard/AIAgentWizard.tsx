@@ -383,7 +383,7 @@ export function AIAgentWizard({ open, onOpenChange, editingAgent, onSave }: AIAg
         performance_expectations: {}
       });
       // Call the onSave callback to refresh the parent component
-      onSave(null);
+      onSave({ reload: true });
     }
     onOpenChange(false);
   };

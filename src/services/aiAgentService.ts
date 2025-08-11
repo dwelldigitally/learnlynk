@@ -83,6 +83,14 @@ export class AIAgentService {
   static async createAgent(agentData: Partial<AIAgent>): Promise<AIAgent> {
     const { data: { user } } = await supabase.auth.getUser();
     
+    // If this agent should be active, deactivate all other agents first
+    if (agentData.is_active) {
+      await supabase
+        .from('ai_agents')
+        .update({ is_active: false })
+        .eq('user_id', user?.id);
+    }
+    
     const { data, error } = await supabase
       .from('ai_agents')
       .insert({

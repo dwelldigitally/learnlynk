@@ -60,6 +60,7 @@ export function EnhancedSegmentCard({
   } = useSegmentSelection();
 
   const [expandedItem, setExpandedItem] = useState<SegmentItem | null>(null);
+  const [showAllExpanded, setShowAllExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
   const getUrgencyColor = (urgency: string) => {
@@ -201,14 +202,14 @@ export function EnhancedSegmentCard({
             variant="ghost" 
             size="sm" 
             className="w-full mt-4 text-xs hover:bg-primary/5"
-            onClick={onViewAll}
+            onClick={() => setShowAllExpanded(true)}
           >
             View all {count} items
           </Button>
         </CardContent>
       </Card>
 
-      {/* Enhanced Expanded Dialog */}
+      {/* Enhanced Expanded Dialog for Single Item */}
       <Dialog open={!!expandedItem} onOpenChange={(open) => !open && setExpandedItem(null)}>
         <DialogContent className="max-w-4xl h-[80vh] p-0">
           <DialogHeader className="px-6 py-4 border-b">
@@ -279,6 +280,172 @@ export function EnhancedSegmentCard({
                   currentFilters={{}}
                   onFiltersChange={(filters) => console.log('Filters changed:', filters)}
                 />
+              </TabsContent>
+            </div>
+          </Tabs>
+        </DialogContent>
+      </Dialog>
+
+      {/* Enhanced Expanded Dialog for All Items */}
+      <Dialog open={showAllExpanded} onOpenChange={setShowAllExpanded}>
+        <DialogContent className="w-[95vw] max-w-[95vw] h-[95vh] max-h-[95vh] p-0">
+          <DialogHeader className="px-6 py-4 border-b">
+            <DialogTitle className="flex items-center gap-3">
+              <Icon className="h-5 w-5 text-primary" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-lg font-semibold">{title}</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {count} items
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground font-normal mt-1">
+                  Complete view of all {title.toLowerCase()}
+                </p>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+            <TabsList className="mx-6 mt-4 grid w-fit grid-cols-4">
+              <TabsTrigger value="details" className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                All Items
+              </TabsTrigger>
+              <TabsTrigger value="actions" className="flex items-center gap-2">
+                <Zap className="h-4 w-4" />
+                Bulk Actions
+              </TabsTrigger>
+              <TabsTrigger value="history" className="flex items-center gap-2">
+                <History className="h-4 w-4" />
+                Activity History
+              </TabsTrigger>
+              <TabsTrigger value="filters" className="flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Filters & Search
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="flex-1 overflow-hidden">
+              <TabsContent value="details" className="h-full m-0">
+                <div className="h-full overflow-auto p-6">
+                  <div className="space-y-3">
+                    {items.map((item) => (
+                      <div 
+                        key={item.id} 
+                        className={`flex items-center justify-between p-4 rounded-lg border transition-all duration-200 ${
+                          isSelected(item.id) 
+                            ? 'bg-primary/10 border-primary/30 shadow-sm' 
+                            : 'hover:bg-muted/50 hover:border-muted-foreground/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <Checkbox
+                            checked={isSelected(item.id)}
+                            onCheckedChange={() => toggleItem(item.id)}
+                            className="h-4 w-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-medium">{item.title}</p>
+                              <Badge variant={getUrgencyColor(item.urgency)} className="text-xs">
+                                {item.urgency}
+                              </Badge>
+                            </div>
+                            {item.subtitle && (
+                              <p className="text-sm text-muted-foreground mb-1">{item.subtitle}</p>
+                            )}
+                            {item.meta && (
+                              <p className="text-sm text-muted-foreground/80">{item.meta}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          {quickActions.map(({ icon: ActionIcon, action, label }) => (
+                            <Button
+                              key={action}
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 hover:bg-primary/10"
+                              onClick={() => onQuickAction?.(item.id, action)}
+                              title={label}
+                            >
+                              <ActionIcon className="h-4 w-4" />
+                            </Button>
+                          ))}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-primary/10"
+                            onClick={() => {
+                              handleExpandItem(item);
+                              setShowAllExpanded(false);
+                            }}
+                            title="View details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="actions" className="h-full m-0">
+                <div className="h-full overflow-auto p-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Bulk Actions</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Perform actions on selected items ({selectedItems.length} selected)
+                    </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      {quickActions.map(({ icon: ActionIcon, action, label }) => (
+                        <Button
+                          key={action}
+                          variant="outline"
+                          className="flex items-center gap-2 h-12"
+                          onClick={() => console.log('Bulk action:', action)}
+                          disabled={selectedItems.length === 0}
+                        >
+                          <ActionIcon className="h-4 w-4" />
+                          {label} Selected
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="history" className="h-full m-0">
+                <div className="h-full overflow-auto p-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Activity History</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Recent activity for {title.toLowerCase()}
+                    </p>
+                    <div className="text-center py-8 text-muted-foreground">
+                      <History className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>No recent activity</p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="filters" className="h-full m-0">
+                <div className="h-full overflow-auto p-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold">Filters & Search</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Filter and search {title.toLowerCase()}
+                    </p>
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Filter className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p>Advanced filters coming soon</p>
+                    </div>
+                  </div>
+                </div>
               </TabsContent>
             </div>
           </Tabs>

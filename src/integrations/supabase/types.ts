@@ -1937,6 +1937,93 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_scoring_rules: {
+        Row: {
+          condition_type: string
+          condition_value: string
+          created_at: string
+          description: string | null
+          field_name: string
+          id: string
+          is_active: boolean
+          name: string
+          priority: number | null
+          score_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          condition_type: string
+          condition_value: string
+          created_at?: string
+          description?: string | null
+          field_name: string
+          id?: string
+          is_active?: boolean
+          name: string
+          priority?: number | null
+          score_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          condition_type?: string
+          condition_value?: string
+          created_at?: string
+          description?: string | null
+          field_name?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          priority?: number | null
+          score_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      lead_scoring_settings: {
+        Row: {
+          auto_qualification_threshold: number | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_score: number
+          name: string
+          scoring_algorithm: string
+          settings_data: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_qualification_threshold?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_score?: number
+          name: string
+          scoring_algorithm?: string
+          settings_data?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_qualification_threshold?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_score?: number
+          name?: string
+          scoring_algorithm?: string
+          settings_data?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lead_tasks: {
         Row: {
           assigned_to: string | null

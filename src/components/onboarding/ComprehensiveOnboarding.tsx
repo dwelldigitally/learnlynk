@@ -113,6 +113,7 @@ const ComprehensiveOnboarding: React.FC = () => {
     } else {
       // Complete onboarding
       localStorage.removeItem('onboarding-progress');
+      localStorage.setItem('onboarding-completed', 'true');
       navigate('/admin');
       toast({
         title: "Welcome to Learnlynk!",

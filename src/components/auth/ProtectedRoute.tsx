@@ -1,5 +1,5 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface ProtectedRouteProps {
@@ -8,8 +8,29 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
 
-  if (loading) {
+  useEffect(() => {
+    if (user) {
+      // Check if user has completed onboarding
+      const checkOnboardingStatus = () => {
+        // Check for onboarding completion in localStorage
+        const onboardingCompleted = localStorage.getItem('onboarding-completed');
+        const userMetadata = user.user_metadata;
+        
+        // If user is admin role and hasn't completed onboarding, redirect to onboarding
+        const isAdmin = userMetadata?.user_role === 'admin';
+        const hasOnboardingData = onboardingCompleted === 'true';
+        
+        setHasCompletedOnboarding(hasOnboardingData || !isAdmin);
+      };
+
+      checkOnboardingStatus();
+    }
+  }, [user]);
+
+  if (loading || hasCompletedOnboarding === null) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -19,6 +40,19 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
 
   if (!user) {
     return <Navigate to="/sign-in" replace />;
+  }
+
+  // Check if user is admin and hasn't completed onboarding
+  const isAdmin = user.user_metadata?.user_role === 'admin';
+  const isOnOnboardingPage = location.pathname === '/onboarding';
+  
+  if (isAdmin && !hasCompletedOnboarding && !isOnOnboardingPage) {
+    return <Navigate to="/onboarding" replace />;
+  }
+
+  // If user completed onboarding but is still on onboarding page, redirect to admin
+  if (hasCompletedOnboarding && isOnOnboardingPage) {
+    return <Navigate to="/admin" replace />;
   }
 
   return <>{element}</>;

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { AssignmentMethod } from '@/types/lead';
 import { EnhancedRoutingRule } from '@/types/routing';
+import { supabase } from '@/integrations/supabase/client';
 import { RuleWizard } from './routing/RuleWizard';
 import { TeamManagement } from './routing/TeamManagement';
 import { AdvisorManagement } from './routing/AdvisorManagement';
@@ -22,97 +23,43 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  // Enhanced mock rules for demonstration
+  // Fetch rules from database
   useEffect(() => {
-    setRules([
-      {
-        id: 'rule-1',
-        name: 'High Priority Web Leads',
-        description: 'Route urgent web leads to top performers',
-        priority: 10,
-        is_active: true,
-        sources: ['web', 'forms'],
-        condition_groups: [
-          {
-            id: 'group-1',
-            operator: 'AND',
-            conditions: [
-              {
-                id: 'cond-1',
-                type: 'score',
-                field: 'priority',
-                operator: 'in',
-                value: ['urgent', 'high']
-              },
-              {
-                id: 'cond-2',
-                type: 'program',
-                field: 'program_interest',
-                operator: 'contains',
-                value: ['Health Care Assistant']
-              }
-            ]
-          }
-        ],
-        assignment_config: {
-          method: 'performance',
-          advisors: ['advisor-1', 'advisor-2'],
-          workload_balance: true,
-          max_assignments_per_advisor: 5
-        },
-        performance_config: {
-          track_analytics: true,
-          conversion_weight: 0.8,
-          response_time_weight: 0.2
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'rule-2',
-        name: 'Geographic Routing - Canada',
-        description: 'Route Canadian leads to local advisors',
-        priority: 5,
-        is_active: true,
-        sources: ['web', 'social_media', 'chatbot'],
-        condition_groups: [
-          {
-            id: 'group-2',
-            operator: 'AND',
-            conditions: [
-              {
-                id: 'cond-3',
-                type: 'location',
-                field: 'country',
-                operator: 'equals',
-                value: 'Canada'
-              }
-            ]
-          }
-        ],
-        assignment_config: {
-          method: 'geography',
-          teams: ['team-canada'],
-          geographic_preference: true,
-          fallback_method: 'round_robin'
-        },
-        schedule: {
-          enabled: true,
-          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          start_time: '09:00',
-          end_time: '17:00',
-          timezone: 'America/Toronto'
-        },
-        performance_config: {
-          track_analytics: true,
-          conversion_weight: 0.6,
-          response_time_weight: 0.4
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ]);
+    fetchRules();
   }, []);
+
+  const fetchRules = async () => {
+    try {
+      setLoading(true);
+      // Use any to bypass TypeScript errors until types are regenerated
+      const { data, error } = await (supabase as any)
+        .from('lead_routing_rules')
+        .select('*')
+        .order('priority', { ascending: false });
+
+      if (error) throw error;
+      
+      // Transform database format to component format
+      const transformedRules = (data || []).map((rule: any) => ({
+        ...rule,
+        sources: rule.sources || [],
+        condition_groups: rule.conditions || [],
+        schedule: rule.schedule || undefined,
+        performance_config: rule.performance_config || undefined
+      }));
+      
+      setRules(transformedRules);
+    } catch (error) {
+      console.error('Error fetching routing rules:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load routing rules',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSaveRule = async (ruleData: Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'>) => {
     try {
@@ -120,31 +67,46 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       
       if (editingRule) {
         // Update existing rule
-        const updatedRule = {
-          ...editingRule,
-          ...ruleData,
-          updated_at: new Date().toISOString()
-        };
-        setRules(prev => prev.map(rule => rule.id === editingRule.id ? updatedRule : rule));
+        const { error } = await (supabase as any)
+          .from('lead_routing_rules')
+          .update({
+            name: ruleData.name,
+            description: ruleData.description,
+            priority: ruleData.priority,
+            is_active: ruleData.is_active,
+            conditions: ruleData.condition_groups,
+            assignment_config: ruleData.assignment_config
+          })
+          .eq('id', editingRule.id);
+
+        if (error) throw error;
+        
         toast({
           title: 'Success',
           description: 'Routing rule updated successfully'
         });
       } else {
         // Create new rule
-        const newRule: EnhancedRoutingRule = {
-          id: `rule-${Date.now()}`,
-          ...ruleData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setRules(prev => [...prev, newRule]);
+        const { error } = await (supabase as any)
+          .from('lead_routing_rules')
+          .insert([{
+            name: ruleData.name,
+            description: ruleData.description,
+            priority: ruleData.priority,
+            is_active: ruleData.is_active,
+            conditions: ruleData.condition_groups,
+            assignment_config: ruleData.assignment_config
+          }]);
+
+        if (error) throw error;
+        
         toast({
           title: 'Success',
           description: 'Routing rule created successfully'
         });
       }
 
+      await fetchRules();
       setShowRuleWizard(false);
       setEditingRule(null);
       
@@ -152,6 +114,7 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
         onRuleCreated();
       }
     } catch (error) {
+      console.error('Error saving rule:', error);
       toast({
         title: 'Error',
         description: 'Failed to save routing rule',
@@ -169,12 +132,20 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
 
   const handleDelete = async (ruleId: string) => {
     try {
-      setRules(prev => prev.filter(rule => rule.id !== ruleId));
+      const { error } = await (supabase as any)
+        .from('lead_routing_rules')
+        .delete()
+        .eq('id', ruleId);
+
+      if (error) throw error;
+      
+      await fetchRules();
       toast({
         title: 'Success',
         description: 'Routing rule deleted successfully'
       });
     } catch (error) {
+      console.error('Error deleting rule:', error);
       toast({
         title: 'Error',
         description: 'Failed to delete routing rule',
@@ -185,18 +156,23 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
 
   const toggleRuleStatus = async (ruleId: string) => {
     try {
-      setRules(prev => prev.map(rule => 
-        rule.id === ruleId 
-          ? { ...rule, is_active: !rule.is_active, updated_at: new Date().toISOString() }
-          : rule
-      ));
-      
       const rule = rules.find(r => r.id === ruleId);
+      if (!rule) return;
+
+      const { error } = await (supabase as any)
+        .from('lead_routing_rules')
+        .update({ is_active: !rule.is_active })
+        .eq('id', ruleId);
+
+      if (error) throw error;
+      
+      await fetchRules();
       toast({
         title: 'Success',
-        description: `Rule ${rule?.is_active ? 'disabled' : 'enabled'} successfully`
+        description: `Rule ${rule.is_active ? 'disabled' : 'enabled'} successfully`
       });
     } catch (error) {
+      console.error('Error updating rule status:', error);
       toast({
         title: 'Error',
         description: 'Failed to update rule status',

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useToast } from '@/hooks/use-toast';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Plus, Trash2, Save, Target, GripVertical, Brain, Sparkles, RefreshCw } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ScoringRule {
   id: string;
@@ -19,53 +20,92 @@ interface ScoringRule {
   value: string;
   points: number;
   enabled: boolean;
+  order_index?: number;
 }
 
 export function LeadScoringEngine() {
-  const [scoringRules, setScoringRules] = useState<ScoringRule[]>([
-    {
-      id: 'rule-1',
-      name: 'High Priority Leads',
-      field: 'priority',
-      condition: 'equals',
-      value: 'urgent',
-      points: 25,
-      enabled: true
-    },
-    {
-      id: 'rule-2',
-      name: 'Healthcare Interest',
-      field: 'program_interest',
-      condition: 'contains',
-      value: 'Health Care Assistant',
-      points: 20,
-      enabled: true
-    },
-    {
-      id: 'rule-3',
-      name: 'Canadian Leads',
-      field: 'country',
-      condition: 'equals',
-      value: 'Canada',
-      points: 10,
-      enabled: true
-    },
-    {
-      id: 'rule-4',
-      name: 'Competitor Email Domain',
-      field: 'email',
-      condition: 'contains',
-      value: '@competitor.com',
-      points: -15,
-      enabled: true
-    }
-  ]);
-
+  const [scoringRules, setScoringRules] = useState<ScoringRule[]>([]);
   const [autoScoringEnabled, setAutoScoringEnabled] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showAiSuggestions, setShowAiSuggestions] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchScoringRules();
+    fetchScoringSettings();
+  }, []);
+
+  const fetchScoringRules = async () => {
+    try {
+      setLoading(true);
+      // Use any to bypass TypeScript errors until types are regenerated
+      const { data, error } = await (supabase as any)
+        .from('lead_scoring_rules')
+        .select('*')
+        .order('order_index', { ascending: true });
+
+      if (error) throw error;
+      
+      // Transform database format to component format
+      const transformedRules = (data || []).map((rule: any) => ({
+        id: rule.id,
+        name: rule.name,
+        field: rule.field,
+        condition: rule.condition,
+        value: rule.value,
+        points: rule.points,
+        enabled: rule.is_enabled,
+        order_index: rule.order_index
+      }));
+      
+      setScoringRules(transformedRules);
+    } catch (error) {
+      console.error('Error fetching scoring rules:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load scoring rules',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchScoringSettings = async () => {
+    try {
+      const { data, error } = await (supabase as any)
+        .from('lead_scoring_settings')
+        .select('auto_scoring_enabled')
+        .single();
+
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) {
+        setAutoScoringEnabled(data.auto_scoring_enabled);
+      }
+    } catch (error) {
+      console.error('Error fetching scoring settings:', error);
+    }
+  };
+
+  const saveScoringSettings = async (enabled: boolean) => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+
+      const { error } = await (supabase as any)
+        .from('lead_scoring_settings')
+        .upsert({
+          user_id: user.user.id,
+          auto_scoring_enabled: enabled
+        });
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error saving scoring settings:', error);
+    }
+  };
 
   const fieldOptions = [
     { value: 'priority', label: 'Lead Priority' },
@@ -89,46 +129,144 @@ export function LeadScoringEngine() {
     { value: 'ends_with', label: 'ends with' }
   ];
 
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = async (result: any) => {
     if (!result.destination) return;
 
     const items = Array.from(scoringRules);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    setScoringRules(items);
+    // Update order_index for all items
+    const updates = items.map((item, index) => ({
+      ...item,
+      order_index: index
+    }));
+
+    setScoringRules(updates);
+    await saveScoringRules(updates);
   };
 
-  const addRule = () => {
-    const newRule: ScoringRule = {
-      id: `rule-${Date.now()}`,
-      name: 'New Rule',
-      field: 'priority',
-      condition: 'equals',
-      value: '',
-      points: 10,
-      enabled: true
-    };
-    setScoringRules([...scoringRules, newRule]);
+  const addRule = async () => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) return;
+
+      const newRule = {
+        user_id: user.user.id,
+        name: 'New Rule',
+        field: 'priority',
+        condition: 'equals',
+        value: '',
+        points: 10,
+        is_enabled: true,
+        order_index: scoringRules.length
+      };
+
+      const { error } = await (supabase as any)
+        .from('lead_scoring_rules')
+        .insert([newRule]);
+
+      if (error) throw error;
+      await fetchScoringRules();
+    } catch (error) {
+      console.error('Error adding rule:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to add new rule',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const updateRule = (id: string, updates: Partial<ScoringRule>) => {
+  const updateRule = async (id: string, updates: Partial<ScoringRule>) => {
+    // Update local state immediately for responsiveness
     setScoringRules(rules =>
       rules.map(rule =>
         rule.id === id ? { ...rule, ...updates } : rule
       )
     );
+
+    try {
+      const { error } = await (supabase as any)
+        .from('lead_scoring_rules')
+        .update({
+          name: updates.name,
+          field: updates.field,
+          condition: updates.condition,
+          value: updates.value,
+          points: updates.points,
+          is_enabled: updates.enabled
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating rule:', error);
+      // Revert local state on error
+      await fetchScoringRules();
+    }
   };
 
-  const deleteRule = (id: string) => {
-    setScoringRules(rules => rules.filter(rule => rule.id !== id));
+  const deleteRule = async (id: string) => {
+    try {
+      const { error } = await (supabase as any)
+        .from('lead_scoring_rules')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchScoringRules();
+    } catch (error) {
+      console.error('Error deleting rule:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to delete rule',
+        variant: 'destructive'
+      });
+    }
   };
 
-  const saveRules = () => {
-    toast({
-      title: 'Success',
-      description: 'Scoring rules saved successfully'
-    });
+  const saveScoringRules = async (rules: ScoringRule[]) => {
+    try {
+      const updates = rules.map(rule => ({
+        id: rule.id,
+        name: rule.name,
+        field: rule.field,
+        condition: rule.condition,
+        value: rule.value,
+        points: rule.points,
+        is_enabled: rule.enabled,
+        order_index: rule.order_index || 0
+      }));
+
+      for (const update of updates) {
+        const { error } = await (supabase as any)
+          .from('lead_scoring_rules')
+          .update(update)
+          .eq('id', update.id);
+        
+        if (error) throw error;
+      }
+    } catch (error) {
+      console.error('Error saving rules:', error);
+      throw error;
+    }
+  };
+
+  const saveRules = async () => {
+    try {
+      await saveScoringRules(scoringRules);
+      toast({
+        title: 'Success',
+        description: 'Scoring rules saved successfully'
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save scoring rules',
+        variant: 'destructive'
+      });
+    }
   };
 
   const analyzeWithAI = async (type: 'suggestions' | 'revamp') => {
@@ -238,7 +376,10 @@ export function LeadScoringEngine() {
           <div className="flex items-center space-x-2">
             <Switch
               checked={autoScoringEnabled}
-              onCheckedChange={setAutoScoringEnabled}
+              onCheckedChange={(enabled) => {
+                setAutoScoringEnabled(enabled);
+                saveScoringSettings(enabled);
+              }}
             />
             <Label>Auto-scoring enabled</Label>
           </div>

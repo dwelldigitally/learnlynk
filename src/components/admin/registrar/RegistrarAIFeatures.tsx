@@ -168,15 +168,15 @@ export function RegistrarAIFeatures() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Active Applications</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.active_applications || 0}</p>
-                <p className="text-xs text-muted-foreground">of {registrarActiveAgent?.max_concurrent_applications || 50} max capacity</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.active_leads_count || 0}</p>
+                <p className="text-xs text-muted-foreground">of {registrarActiveAgent?.configuration?.max_concurrent_applications || registrarActiveAgent?.max_concurrent_leads || 50} max capacity</p>
               </div>
               <div className="p-3 bg-primary/10 rounded-lg">
                 <FileText className="h-5 w-5 text-primary" />
               </div>
             </div>
             <Progress 
-              value={registrarActiveAgent ? ((performanceMetrics?.active_applications || 0) / (registrarActiveAgent.max_concurrent_applications || 50)) * 100 : 0} 
+              value={registrarActiveAgent ? ((performanceMetrics?.active_leads_count || 0) / (registrarActiveAgent.configuration?.max_concurrent_applications || registrarActiveAgent.max_concurrent_leads || 50)) * 100 : 0} 
               className="mt-3" 
             />
           </CardContent>
@@ -187,8 +187,8 @@ export function RegistrarAIFeatures() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Processing Rate</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.processing_rate || 85}%</p>
-                <p className="text-xs text-green-600">Applications processed today: {performanceMetrics?.processed_today || 12}</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.success_rate || 85}%</p>
+                <p className="text-xs text-green-600">Applications processed: {performanceMetrics?.total_leads_handled || 12}</p>
               </div>
               <div className="p-3 bg-green-100 rounded-lg">
                 <CheckCircle className="h-5 w-5 text-green-600" />
@@ -202,7 +202,7 @@ export function RegistrarAIFeatures() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Documents Pending</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.pending_documents || 8}</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.handoffs_count || 8}</p>
                 <p className="text-xs text-orange-600">Requires verification</p>
               </div>
               <div className="p-3 bg-orange-100 rounded-lg">
@@ -217,7 +217,7 @@ export function RegistrarAIFeatures() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Enrollment Rate</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.enrollment_rate || 78}%</p>
+                <p className="text-2xl font-bold">{performanceMetrics?.conversion_rate || 78}%</p>
                 <p className="text-xs text-blue-600">This semester</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-lg">
@@ -406,7 +406,7 @@ export function RegistrarAIFeatures() {
                 <div className="space-y-2">
                   <Label htmlFor="processingStyle">Processing Style</Label>
                   <Select 
-                    value={registrarActiveAgent.processing_style || 'thorough'} 
+                    value={registrarActiveAgent.configuration?.processing_style || registrarActiveAgent.response_style || 'thorough'} 
                     onValueChange={(value) => handleUpdateAgentConfig('processing_style', value)}
                   >
                     <SelectTrigger>
@@ -426,7 +426,7 @@ export function RegistrarAIFeatures() {
                     <Input
                       id="maxApplications"
                       type="number"
-                      value={registrarActiveAgent.max_concurrent_applications || 50}
+                      value={registrarActiveAgent.configuration?.max_concurrent_applications || registrarActiveAgent.max_concurrent_leads || 50}
                       onChange={(e) => handleUpdateAgentConfig('max_concurrent_applications', parseInt(e.target.value))}
                     />
                   </div>
@@ -436,7 +436,7 @@ export function RegistrarAIFeatures() {
                     <Input
                       id="reviewThreshold"
                       type="number"
-                      value={registrarActiveAgent.review_threshold || 85}
+                      value={registrarActiveAgent.configuration?.review_threshold || registrarActiveAgent.handoff_threshold || 85}
                       onChange={(e) => handleUpdateAgentConfig('review_threshold', parseInt(e.target.value))}
                     />
                   </div>

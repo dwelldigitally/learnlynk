@@ -286,12 +286,15 @@ export function RegistrarAIAgentWizard({ open, onOpenChange, editingAgent, onSav
       const agentPayload = {
         name: agentData.name,
         description: agentData.description,
-        department: 'registrar', // Ensure this is set for registrar agents
-        processing_style: agentData.processing_style,
-        max_concurrent_applications: agentData.max_concurrent_applications,
-        review_threshold: agentData.review_threshold,
+        response_style: agentData.processing_style || 'professional',
+        max_concurrent_leads: agentData.max_concurrent_applications,
+        handoff_threshold: agentData.review_threshold,
         personality: agentData.personality,
         configuration: {
+          department: 'registrar',
+          processing_style: agentData.processing_style,
+          max_concurrent_applications: agentData.max_concurrent_applications,
+          review_threshold: agentData.review_threshold,
           working_hours: {
             start: agentData.working_hours_start,
             end: agentData.working_hours_end,
@@ -397,9 +400,66 @@ export function RegistrarAIAgentWizard({ open, onOpenChange, editingAgent, onSav
 
   const renderStepContent = () => {
     if (isCompleted) {
+      // Convert RegistrarAIAgentData to AIAgentData format for CongratulationsStep
+      const personalityMapping = {
+        'detail-oriented': 'professional',
+        'student-focused': 'empathetic',
+        'compliance-focused': 'professional',
+        'efficient': 'professional',
+        'custom': 'custom'
+      } as const;
+
+      const responseStyleMapping = {
+        'thorough': 'professional',
+        'efficient': 'casual',
+        'strict': 'professional'
+      } as const;
+
+      const communicationToneMapping = {
+        'formal': 'formal',
+        'professional': 'conversational',
+        'friendly': 'warm'
+      } as const;
+
+      const adaptedAgentData = {
+        name: agentData.name,
+        description: agentData.description,
+        avatar: agentData.avatar,
+        personality: personalityMapping[agentData.personality] || 'professional',
+        customPersonality: agentData.customPersonality,
+        response_style: responseStyleMapping[agentData.processing_style] || 'professional',
+        communication_tone: communicationToneMapping[agentData.communication_tone] || 'conversational',
+        max_concurrent_leads: agentData.max_concurrent_applications,
+        handoff_threshold: agentData.review_threshold,
+        working_hours_start: agentData.working_hours_start,
+        working_hours_end: agentData.working_hours_end,
+        timezone: agentData.timezone,
+        response_time_target: agentData.processing_time_target,
+        escalation_conditions: agentData.escalation_conditions,
+        specializations: agentData.program_specializations,
+        lead_sources: agentData.application_sources,
+        priority_criteria: agentData.priority_criteria,
+        geographic_preferences: agentData.geographic_preferences,
+        program_preferences: [],
+        auto_follow_up: agentData.auto_document_verification,
+        follow_up_intervals: agentData.document_processing_intervals,
+        task_templates: agentData.automation_templates,
+        sequence_preferences: [],
+        notification_settings: agentData.notification_settings,
+        conversation_flows: {},
+        integration_settings: agentData.integration_settings,
+        reporting_preferences: agentData.reporting_preferences,
+        security_settings: {},
+        compliance_requirements: agentData.compliance_requirements,
+        activation_mode: agentData.activation_mode,
+        activation_date: agentData.activation_date,
+        test_leads_count: agentData.test_applications_count,
+        performance_expectations: agentData.performance_expectations
+      };
+
       return (
         <CongratulationsStep 
-          agentData={agentData}
+          agentData={adaptedAgentData}
           agentId={createdAgentId}
           onClose={handleClose}
         />

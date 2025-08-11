@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
 import { 
   Calendar, 
   Users, 
@@ -11,8 +10,7 @@ import {
   MessageCircle,
   Phone,
   Target,
-  Clock,
-  Settings
+  Clock
 } from 'lucide-react';
 
 import { DailyHeader } from '@/components/admin/sales-rep/DailyHeader';
@@ -33,25 +31,6 @@ export default function SalesRepDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Sales Rep Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Your personalized workspace for managing leads and performance
-          </p>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
-            <Settings className="h-4 w-4 mr-2" />
-            Customize
-          </Button>
-        </div>
-      </div>
-
       {/* Daily Header */}
       <DailyHeader />
       

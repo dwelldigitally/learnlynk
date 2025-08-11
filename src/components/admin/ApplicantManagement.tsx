@@ -355,6 +355,7 @@ export const ApplicantManagement = () => {
           onSearch={(term) => setSearchTerm(term)}
           onSort={() => {}}
           onFilter={() => {}}
+          onRowClick={(applicant) => navigate(`/admin/applicants/detail/${applicant.id}`)}
         />
       </ConditionalDataWrapper>
     </div>

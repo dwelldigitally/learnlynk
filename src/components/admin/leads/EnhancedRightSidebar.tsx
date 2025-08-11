@@ -3,7 +3,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
   Phone, Clock, Calendar, Users, 
-  Video, CheckCircle, XCircle, Timer
+  Video, CheckCircle, XCircle, Timer,
+  Mail, TrendingUp, Zap, PlayCircle,
+  PauseCircle, StopCircle
 } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { SmartAdvisorMatch } from './SmartAdvisorMatch';
@@ -63,6 +65,43 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
     }
   ];
 
+  // AI Sequences data
+  const aiSequences = [
+    {
+      id: '1',
+      name: 'MBA Welcome Series',
+      description: 'Comprehensive introduction to MBA programs and requirements',
+      type: 'nurture',
+      status: 'active',
+      duration: '14 days',
+      emails: 5,
+      conversionRate: 18,
+      enrolled: false
+    },
+    {
+      id: '2',
+      name: 'Application Deadline Reminder',
+      description: 'Urgent reminders for approaching application deadlines',
+      type: 'deadline-driven',
+      status: 'active',
+      duration: '7 days',
+      emails: 3,
+      conversionRate: 45,
+      enrolled: true
+    },
+    {
+      id: '3',
+      name: 'Financial Aid Information',
+      description: 'Complete guide to scholarships and financial assistance',
+      type: 'educational',
+      status: 'draft',
+      duration: '10 days',
+      emails: 4,
+      conversionRate: 22,
+      enrolled: false
+    }
+  ];
+
   const getCallStatusIcon = (status: string) => {
     switch (status) {
       case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
@@ -78,6 +117,11 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
       case 'cancelled': return <XCircle className="h-4 w-4 text-red-500" />;
       default: return <Timer className="h-4 w-4 text-yellow-500" />;
     }
+  };
+
+  const handleSequenceAction = (sequenceId: string, action: 'enroll' | 'pause' | 'stop') => {
+    console.log(`${action} sequence ${sequenceId}`);
+    // Implementation would go here
   };
 
   return (
@@ -154,6 +198,111 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
         <Button variant="outline" size="sm" className="w-full mt-3">
           <Calendar className="h-4 w-4 mr-2" />
           Schedule Meeting
+        </Button>
+      </div>
+
+      {/* AI Sequences Section */}
+      <div className="p-4 border-b border-border">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold">AI Sequences</h3>
+          </div>
+          <Badge variant="secondary" className="text-xs">
+            {aiSequences.filter(s => s.enrolled).length} Active
+          </Badge>
+        </div>
+        
+        <p className="text-sm text-muted-foreground mb-4">
+          Automated email sequences powered by AI to nurture and convert leads
+        </p>
+
+        <div className="space-y-3">
+          {aiSequences.map((sequence) => {
+            const isEnrolled = sequence.enrolled;
+            
+            return (
+              <div key={sequence.id} className={`rounded-lg border transition-all duration-200 ${
+                isEnrolled 
+                  ? 'bg-green-50 border-green-200 shadow-sm' 
+                  : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
+              }`}>
+                <div className="p-3 overflow-hidden">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-sm font-semibold truncate">{sequence.name}</h4>
+                        <Badge 
+                          variant={sequence.type === 'deadline-driven' ? 'destructive' : 'outline'} 
+                          className="text-xs px-2 py-0"
+                        >
+                          {sequence.type}
+                        </Badge>
+                        {isEnrolled && (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2 break-words">{sequence.description}</p>
+                      
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Clock className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Mail className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.emails} emails</span>
+                        </div>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <TrendingUp className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.conversionRate}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {isEnrolled ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 h-7 text-xs"
+                          onClick={() => handleSequenceAction(sequence.id, 'pause')}
+                        >
+                          <PauseCircle className="h-3 w-3 mr-1" />
+                          Pause
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 h-7 text-xs"
+                          onClick={() => handleSequenceAction(sequence.id, 'stop')}
+                        >
+                          <StopCircle className="h-3 w-3 mr-1" />
+                          Stop
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => handleSequenceAction(sequence.id, 'enroll')}
+                      >
+                        <PlayCircle className="h-3 w-3 mr-1" />
+                        Enroll Lead
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <Button variant="outline" size="sm" className="w-full mt-3">
+          <Zap className="h-4 w-4 mr-2" />
+          Manage Sequences
         </Button>
       </div>
 

@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { TeamMemberCard } from "./TeamMemberCard";
 import { 
   TrendingUp, 
   Users, 
@@ -9,7 +10,8 @@ import {
   CheckCircle2, 
   Clock, 
   Target,
-  Activity
+  Activity,
+  UserCheck
 } from "lucide-react";
 
 export function OverviewDashboard() {
@@ -34,6 +36,58 @@ export function OverviewDashboard() {
     { title: "Follow up on overdue payments", count: 3, priority: "urgent" },
     { title: "Prepare for intake meeting", count: 1, priority: "medium" },
     { title: "Update student records", count: 12, priority: "low" }
+  ];
+
+  const teamMembers = [
+    {
+      id: "1",
+      name: "Sarah Johnson",
+      role: "Senior Sales Rep",
+      avatar: "/api/placeholder/40/40",
+      status: "online" as const,
+      metrics: {
+        leadsToday: 8,
+        callsToday: 12,
+        conversionRate: 23.5,
+        trend: "up" as const
+      }
+    },
+    {
+      id: "2", 
+      name: "Mike Chen",
+      role: "Sales Representative",
+      status: "busy" as const,
+      metrics: {
+        leadsToday: 5,
+        callsToday: 8,
+        conversionRate: 18.2,
+        trend: "stable" as const
+      }
+    },
+    {
+      id: "3",
+      name: "Emily Rodriguez", 
+      role: "Sales Representative",
+      status: "online" as const,
+      metrics: {
+        leadsToday: 6,
+        callsToday: 10,
+        conversionRate: 21.8,
+        trend: "up" as const
+      }
+    },
+    {
+      id: "4",
+      name: "David Park",
+      role: "Junior Sales Rep",
+      status: "away" as const, 
+      metrics: {
+        leadsToday: 3,
+        callsToday: 5,
+        conversionRate: 15.4,
+        trend: "down" as const
+      }
+    }
   ];
 
   return (
@@ -104,8 +158,25 @@ export function OverviewDashboard() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Urgent Tasks */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Team Members - Full width on mobile, 2/3 on desktop */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <UserCheck className="h-5 w-5" />
+              <span>Sales Team Status</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {teamMembers.map((member) => (
+                <TeamMemberCard key={member.id} member={member} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Urgent Tasks - Right column */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -129,16 +200,18 @@ export function OverviewDashboard() {
             ))}
           </CardContent>
         </Card>
+      </div>
 
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Activity className="h-5 w-5" />
-              <span>Recent Activity</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+      {/* Recent Activity - Full width row below */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Activity className="h-5 w-5" />
+            <span>Recent Activity</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {recentActivity.map((activity, index) => (
               <div key={index} className="flex items-start space-x-3 p-3 border rounded-lg">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -158,9 +231,9 @@ export function OverviewDashboard() {
                 </div>
               </div>
             ))}
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

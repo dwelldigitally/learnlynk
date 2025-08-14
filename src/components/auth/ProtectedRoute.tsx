@@ -19,8 +19,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
         const onboardingCompleted = localStorage.getItem('onboarding-completed');
         const userMetadata = user.user_metadata;
         
-        // If user is admin role and hasn't completed onboarding, redirect to onboarding
-        const isAdmin = userMetadata?.user_role === 'admin';
+        // For OAuth users, assume they should have admin access and onboarding
+        const isOAuthUser = user.app_metadata?.providers?.includes('google') || user.app_metadata?.providers?.includes('azure');
+        const isAdmin = userMetadata?.user_role === 'admin' || isOAuthUser;
         const hasOnboardingData = onboardingCompleted === 'true';
         
         setHasCompletedOnboarding(hasOnboardingData || !isAdmin);

@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Mail, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export const EmailVerificationScreen: React.FC = () => {
-  const { user, resendConfirmation, refreshUser, signOut } = useAuth();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [isResending, setIsResending] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -17,13 +19,22 @@ export const EmailVerificationScreen: React.FC = () => {
     
     setIsResending(true);
     try {
-      const { error } = await resendConfirmation(user.email);
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: user.email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`
+        }
+      });
+      
       if (error) {
-        toast.error('Failed to resend verification email');
+        console.error('Resend error:', error);
+        toast.error('Failed to resend verification email: ' + error.message);
       } else {
         toast.success('Verification email sent! Please check your inbox.');
       }
     } catch (error) {
+      console.error('Resend catch error:', error);
       toast.error('An error occurred while sending the email');
     } finally {
       setIsResending(false);
@@ -33,9 +44,22 @@ export const EmailVerificationScreen: React.FC = () => {
   const handleCheckVerification = async () => {
     setIsRefreshing(true);
     try {
-      await refreshUser();
-      toast.success('Checking verification status...');
+      // Get fresh session to check if email is verified
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        throw error;
+      }
+      
+      if (session?.user?.email_confirmed_at) {
+        toast.success('Email verified successfully!');
+        // Redirect to onboarding after verification
+        navigate('/onboarding');
+      } else {
+        toast.error('Email not verified yet. Please check your email and click the verification link.');
+      }
     } catch (error) {
+      console.error('Check verification error:', error);
       toast.error('Failed to check verification status');
     } finally {
       setIsRefreshing(false);
@@ -44,6 +68,7 @@ export const EmailVerificationScreen: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut();
+    navigate('/sign-up');
   };
 
   return (

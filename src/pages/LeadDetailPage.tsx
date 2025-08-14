@@ -32,11 +32,6 @@ export default function LeadDetailPage() {
 
   useEffect(() => {
     if (leadId) {
-      // Check if leadId is a valid UUID, if not redirect to leads overview
-      if (!isValidUUID(leadId)) {
-        navigate('/admin/leads', { replace: true });
-        return;
-      }
       loadLead();
     }
   }, [leadId, navigate]);

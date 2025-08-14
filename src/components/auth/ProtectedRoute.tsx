@@ -42,6 +42,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
     return <Navigate to="/sign-in" replace />;
   }
 
+  // Check if user email is verified
+  if (!user.email_confirmed_at) {
+    return <Navigate to="/verify-email" replace />;
+  }
+
   // Check if user is admin and hasn't completed onboarding
   const isAdmin = user.user_metadata?.user_role === 'admin';
   const isOnOnboardingPage = location.pathname === '/onboarding';

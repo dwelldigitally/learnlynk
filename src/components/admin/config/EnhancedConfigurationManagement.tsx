@@ -336,7 +336,7 @@ export const EnhancedConfigurationManagement = () => {
         </div>
 
         {/* Configuration List */}
-        <ScrollArea className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-4 space-y-2">
             {categories.map(category => {
               const categoryItems = filteredSections.filter(section => section.category === category);
@@ -389,37 +389,35 @@ export const EnhancedConfigurationManagement = () => {
               );
             })}
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="p-6">
-            {activeConfig && (
-              <>
-                {/* Header */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <activeConfig.icon className="w-6 h-6" />
-                    <h1 className="text-3xl font-bold">{activeConfig.label}</h1>
-                    {activeConfig.isNew && (
-                      <Badge variant="secondary">New</Badge>
-                    )}
-                  </div>
-                  <p className="text-muted-foreground text-lg">
-                    {activeConfig.description}
-                  </p>
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6">
+          {activeConfig && (
+            <>
+              {/* Header */}
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-2">
+                  <activeConfig.icon className="w-6 h-6" />
+                  <h1 className="text-3xl font-bold">{activeConfig.label}</h1>
+                  {activeConfig.isNew && (
+                    <Badge variant="secondary">New</Badge>
+                  )}
                 </div>
+                <p className="text-muted-foreground text-lg">
+                  {activeConfig.description}
+                </p>
+              </div>
 
-                {/* Content */}
-                <div className="space-y-6">
-                  {activeConfig.component}
-                </div>
-              </>
-            )}
-          </div>
-        </ScrollArea>
+              {/* Content */}
+              <div className="space-y-6">
+                {activeConfig.component}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

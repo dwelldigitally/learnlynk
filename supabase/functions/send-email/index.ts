@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     )
 
     const { data, error } = await resend.emails.send({
-      from: 'Learnlynk <noreply@frasermarketing.ca>', // Use your domain once verified
+      from: 'Learnlynk <noreply@winflow.ca>', // Using your verified domain
       to: [to],
       subject,
       html,

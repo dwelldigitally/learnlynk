@@ -13,6 +13,7 @@ import { StudentApplication } from '@/components/admin/students/StudentApplicati
 import { StudentDocuments } from '@/components/admin/students/StudentDocuments';
 import { StudentCommunications } from '@/components/admin/students/StudentCommunications';
 import { StudentTimeline } from '@/components/admin/students/StudentTimeline';
+import { useConditionalStudents } from '@/hooks/useConditionalStudents';
 
 export default function StudentDetailPage() {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ export default function StudentDetailPage() {
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Use conditional students hook for demo data access
+  const { data: demoStudents } = useConditionalStudents();
 
   // UUID validation function
   const isValidUUID = (uuid: string): boolean => {
@@ -30,14 +34,9 @@ export default function StudentDetailPage() {
 
   useEffect(() => {
     if (studentId) {
-      // Check if studentId is a valid UUID, if not redirect to students overview
-      if (!isValidUUID(studentId)) {
-        navigate('/admin/students', { replace: true });
-        return;
-      }
       loadStudent();
     }
-  }, [studentId, navigate]);
+  }, [studentId, demoStudents, navigate]);
 
   const loadStudent = async () => {
     if (!studentId) {
@@ -49,35 +48,81 @@ export default function StudentDetailPage() {
     
     try {
       setLoading(true);
-      // For now, create mock student data
-      // TODO: Replace with actual API call
-      const mockStudent = {
-        id: studentId,
-        firstName: 'Emma',
-        lastName: 'Johnson',
-        email: 'emma.johnson@email.com',
-        studentId: 'STU-2024-001',
-        program: 'Computer Science',
-        stage: 'DOCUMENT_APPROVAL',
-        progress: 75,
-        phone: '+1 (555) 123-4567',
-        country: 'Canada',
-        city: 'Toronto',
-        risk_level: 'low',
-        acceptanceLikelihood: 85,
-        gpa: 3.8,
-        testScores: { SAT: 1450, TOEFL: 105 },
-        applicationDate: '2024-01-15',
-        expectedStartDate: '2024-09-01',
-        advisor: {
-          name: 'Dr. Sarah Wilson',
-          email: 'sarah.wilson@university.edu',
-          phone: '+1 (555) 987-6543'
-        }
-      };
       
-      setStudent(mockStudent);
-      console.log('✅ Student set successfully');
+      // First check if it's demo data (simple IDs like "s1", "s2")
+      if (demoStudents && !isValidUUID(studentId)) {
+        const foundDemoStudent = demoStudents.find((s: any) => s.id === studentId);
+        if (foundDemoStudent) {
+          // Convert demo student format to expected format
+          const convertedStudent = {
+            id: foundDemoStudent.id,
+            firstName: foundDemoStudent.first_name,
+            lastName: foundDemoStudent.last_name,
+            email: foundDemoStudent.email,
+            studentId: foundDemoStudent.student_id,
+            program: foundDemoStudent.program,
+            stage: foundDemoStudent.stage,
+            progress: foundDemoStudent.progress,
+            phone: foundDemoStudent.phone,
+            country: foundDemoStudent.country,
+            city: foundDemoStudent.city,
+            state: foundDemoStudent.state,
+            risk_level: foundDemoStudent.risk_level,
+            acceptanceLikelihood: foundDemoStudent.acceptance_likelihood,
+            leadScore: foundDemoStudent.lead_score,
+            gpa: 3.8,
+            testScores: { SAT: 1450, TOEFL: 105 },
+            applicationDate: '2024-01-15',
+            expectedStartDate: '2024-09-01',
+            advisor: {
+              name: 'Dr. Sarah Wilson',
+              email: 'sarah.wilson@university.edu',
+              phone: '+1 (555) 987-6543'
+            }
+          };
+          setStudent(convertedStudent);
+          console.log('✅ Demo student loaded successfully');
+          return;
+        }
+      }
+      
+      // If it's a UUID format, try to load real student data
+      if (isValidUUID(studentId)) {
+        // TODO: Replace with actual API call for real students
+        // For now, create mock student data for UUID-based IDs
+        const mockStudent = {
+          id: studentId,
+          firstName: 'Emma',
+          lastName: 'Johnson',
+          email: 'emma.johnson@email.com',
+          studentId: 'STU-2024-001',
+          program: 'Computer Science',
+          stage: 'DOCUMENT_APPROVAL',
+          progress: 75,
+          phone: '+1 (555) 123-4567',
+          country: 'Canada',
+          city: 'Toronto',
+          risk_level: 'low',
+          acceptanceLikelihood: 85,
+          gpa: 3.8,
+          testScores: { SAT: 1450, TOEFL: 105 },
+          applicationDate: '2024-01-15',
+          expectedStartDate: '2024-09-01',
+          advisor: {
+            name: 'Dr. Sarah Wilson',
+            email: 'sarah.wilson@university.edu',
+            phone: '+1 (555) 987-6543'
+          }
+        };
+        
+        setStudent(mockStudent);
+        console.log('✅ Real student mock data loaded successfully');
+        return;
+      }
+      
+      // If we get here, student was not found
+      throw new Error('Student not found');
+      
     } catch (error) {
       console.log('❌ Error loading student:', error);
       toast({

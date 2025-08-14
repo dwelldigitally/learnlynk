@@ -4,7 +4,7 @@ import LeadDetailPage from './LeadDetailPage';
 import ModernAdminLayout from "@/components/admin/ModernAdminLayout";
 import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
-import StudentDetail from "@/components/admin/StudentDetail";
+import StudentDetailPage from "@/pages/StudentDetailPage";
 import ProgramManagement from "@/components/admin/ProgramManagement";
 import WorkflowManagement from "@/components/admin/WorkflowManagement";
 import EnhancedDocumentManagement from "@/components/admin/EnhancedDocumentManagement";
@@ -53,11 +53,10 @@ const AdminDashboard: React.FC = () => {
   console.log('AdminDashboard rendering, pathname:', location.pathname);
   
   const renderContent = () => {
-    // Check for student detail route pattern
+    // Check for student detail route pattern - use new StudentDetailPage
     if (location.pathname.startsWith("/admin/students/") && location.pathname !== "/admin/students") {
-      // Extract student ID from the pathname
-      const studentId = location.pathname.split("/admin/students/")[1];
-      return <StudentDetail studentId={studentId} />;
+      // Extract student ID from the pathname and render StudentDetailPage directly (no layout wrapper)
+      return <StudentDetailPage />;
     }
     
     // Lead detail routes are handled separately to avoid layout wrapper

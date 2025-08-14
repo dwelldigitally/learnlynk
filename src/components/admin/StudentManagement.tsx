@@ -492,7 +492,7 @@ export default function StudentManagement() {
                     handleFilterChange(key as keyof StudentFilters, value as string);
                   });
                 }}
-                onRowClick={(student) => navigate(`/admin/students/${student.id}`)}
+                onRowClick={(student) => navigate(`/admin/students/detail/${student.id}`)}
               />
             </div>
           </div>

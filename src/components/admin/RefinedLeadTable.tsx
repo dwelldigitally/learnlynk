@@ -482,8 +482,21 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
               placeholder="Search leads by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-11 bg-background border-border/50 focus:border-accent focus:ring-accent/20"
+              className="pl-11 pr-20 h-11 bg-background border-border/50 focus:border-accent focus:ring-accent/20"
             />
+            {/* Search Actions */}
+            {searchQuery && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery('')}
+                  className="h-7 w-7 p-0 hover:bg-muted"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -501,6 +514,19 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
             </Button>
           ))}
 
+          {/* Bulk Actions Trigger */}
+          {selectedIds.length > 0 && (
+            <Button
+              variant="default"
+              size="sm"
+              className="h-11 px-4 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Actions ({selectedIds.length})
+            </Button>
+          )}
+
+          {/* Advanced Filter Toggle */}
           {filterable && filterOptions.length > 0 && (
             <Button
               variant={showFilters ? "default" : "outline"}

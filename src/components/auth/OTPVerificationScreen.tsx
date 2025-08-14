@@ -39,10 +39,15 @@ export const OTPVerificationScreen: React.FC = () => {
     
     setIsResending(true);
     try {
-      const { data, error } = await supabase.functions.invoke('send-otp', {
+      // Generate OTP
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      const { data, error } = await supabase.functions.invoke('send-email', {
         body: { 
-          email: user.email,
-          name: user.user_metadata?.full_name || user.user_metadata?.name 
+          to: user.email,
+          subject: "Verify Your Email - Learnlynk",
+          otp: otp,
+          name: user.user_metadata?.full_name || user.user_metadata?.first_name
         }
       });
 

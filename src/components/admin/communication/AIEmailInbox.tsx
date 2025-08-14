@@ -22,6 +22,8 @@ import {
 import { generateDummyEmails, getHighPriorityEmails, getUnreadEmails } from '@/services/dummyEmailService';
 import { EmailImportDialog } from './EmailImportDialog';
 import { EmailService } from '@/services/emailService';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export function AIEmailInbox() {
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
@@ -29,6 +31,8 @@ export function AIEmailInbox() {
   const [filterCategory, setFilterCategory] = useState<string>('all');
   const [realEmails, setRealEmails] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [processingAction, setProcessingAction] = useState<string | null>(null);
+  const { toast } = useToast();
   
   const dummyEmails = generateDummyEmails();
   const allEmails = [...realEmails, ...dummyEmails];
@@ -97,6 +101,135 @@ export function AIEmailInbox() {
       case 'complaint': return <AlertCircle className="h-4 w-4" />;
       case 'follow_up': return <CheckCircle2 className="h-4 w-4" />;
       default: return <Mail className="h-4 w-4" />;
+    }
+  };
+
+  const handleEmailAction = async (action: string, emailData: any) => {
+    if (!emailData) return;
+    
+    setProcessingAction(action);
+    try {
+      switch (action) {
+        case 'reply':
+          await handleReply(emailData);
+          break;
+        case 'forward':
+          await handleForward(emailData);
+          break;
+        case 'archive':
+          await handleArchive(emailData);
+          break;
+        case 'generate_ai':
+          await handleGenerateAIResponse(emailData);
+          break;
+      }
+    } catch (error) {
+      console.error(`Error with ${action}:`, error);
+      toast({
+        title: "Action Failed",
+        description: `Failed to ${action} email. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingAction(null);
+    }
+  };
+
+  const handleReply = async (emailData: any) => {
+    try {
+      // Mark email as read
+      await EmailService.updateEmailReadStatus(emailData.id, true);
+      
+      // Create AI draft for reply
+      const draft = await EmailService.createAIDraft(emailData.id, {
+        responseType: 'reply',
+        lead: emailData.lead_match,
+        programInterest: emailData.lead_match?.program_interest || []
+      });
+      
+      toast({
+        title: "Reply Draft Created",
+        description: "AI-generated reply draft has been created and is ready for review.",
+      });
+      
+      // Refresh emails to show updated read status
+      loadRealEmails();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleForward = async (emailData: any) => {
+    try {
+      const draft = await EmailService.createAIDraft(emailData.id, {
+        responseType: 'forward',
+        lead: emailData.lead_match,
+        programInterest: emailData.lead_match?.program_interest || []
+      });
+      
+      toast({
+        title: "Forward Draft Created",
+        description: "Email forward draft has been created.",
+      });
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleArchive = async (emailData: any) => {
+    try {
+      await EmailService.updateEmailStatus(emailData.id, 'resolved');
+      
+      toast({
+        title: "Email Archived",
+        description: "Email has been archived successfully.",
+      });
+      
+      // Refresh emails to show updated status
+      loadRealEmails();
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const handleGenerateAIResponse = async (emailData: any) => {
+    try {
+      // Call the edge function to generate AI response
+      const { data, error } = await supabase.functions.invoke('generate-reply-ai', {
+        body: {
+          leadName: emailData.lead_match?.name || emailData.from_name,
+          leadContext: {
+            email: emailData.from_email,
+            programInterest: emailData.lead_match?.program_interest || [],
+            subject: emailData.subject
+          },
+          communicationHistory: [
+            {
+              type: 'email',
+              content: emailData.body_content,
+              date: emailData.received_datetime,
+              direction: 'inbound'
+            }
+          ]
+        }
+      });
+
+      if (error) throw error;
+
+      // Create draft with AI-generated content
+      const draft = await EmailService.createAIDraft(emailData.id, {
+        responseType: 'reply',
+        lead: emailData.lead_match,
+        programInterest: emailData.lead_match?.program_interest || []
+      });
+
+      toast({
+        title: "AI Response Generated",
+        description: "AI has generated a personalized response based on the email content and lead context.",
+      });
+      
+    } catch (error) {
+      throw error;
     }
   };
 
@@ -302,12 +435,33 @@ export function AIEmailInbox() {
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2 pt-4 border-t">
-                  <Button>Reply</Button>
-                  <Button variant="outline">Forward</Button>
-                  <Button variant="outline">Archive</Button>
-                  <Button variant="outline">
+                  <Button 
+                    onClick={() => handleEmailAction('reply', selectedEmailData)}
+                    disabled={processingAction === 'reply'}
+                  >
+                    {processingAction === 'reply' ? 'Creating Reply...' : 'Reply'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleEmailAction('forward', selectedEmailData)}
+                    disabled={processingAction === 'forward'}
+                  >
+                    {processingAction === 'forward' ? 'Creating Forward...' : 'Forward'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleEmailAction('archive', selectedEmailData)}
+                    disabled={processingAction === 'archive'}
+                  >
+                    {processingAction === 'archive' ? 'Archiving...' : 'Archive'}
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => handleEmailAction('generate_ai', selectedEmailData)}
+                    disabled={processingAction === 'generate_ai'}
+                  >
                     <Brain className="h-4 w-4 mr-2" />
-                    Generate AI Response
+                    {processingAction === 'generate_ai' ? 'Generating...' : 'Generate AI Response'}
                   </Button>
                 </div>
               </CardContent>

@@ -161,6 +161,17 @@ export class LeadService {
 
   // Update a lead
   static async updateLead(id: string, updates: Partial<Lead>): Promise<Lead> {
+    // Check if this is a demo lead
+    if (id.startsWith('demo-')) {
+      // For demo leads, just return the updated demo data
+      const demoLeads = DemoDataService.getDemoLeads();
+      const demoLead = demoLeads.find(lead => lead.id === id);
+      if (!demoLead) {
+        throw new Error('Demo lead not found');
+      }
+      return { ...demoLead, ...updates } as Lead;
+    }
+
     const { data, error } = await supabase
       .from('leads')
       .update(updates)

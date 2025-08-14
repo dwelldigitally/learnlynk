@@ -59,7 +59,11 @@ const AdminDashboard: React.FC = () => {
       return <StudentDetailPage />;
     }
     
-    // Lead detail routes are handled separately to avoid layout wrapper
+    // Check for lead detail route pattern - use LeadDetailPage
+    if (location.pathname.startsWith("/admin/leads/detail/")) {
+      // Extract lead ID from the pathname and render LeadDetailPage directly (no layout wrapper)
+      return <LeadDetailPage />;
+    }
     
     switch (location.pathname) {
       case "/admin":

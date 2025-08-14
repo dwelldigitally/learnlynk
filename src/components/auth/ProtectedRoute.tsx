@@ -30,7 +30,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
     }
   }, [user]);
 
-  if (loading || hasCompletedOnboarding === null) {
+  // Show loading only when auth is loading
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-primary">Loading...</div>
@@ -42,9 +43,18 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
     return <Navigate to="/sign-in" replace />;
   }
 
-  // Check if user email is verified
+  // Check if user email is verified FIRST - before any other logic
   if (!user.email_confirmed_at) {
     return <Navigate to="/verify-email" replace />;
+  }
+
+  // Now check onboarding status only if we have a verified user
+  if (hasCompletedOnboarding === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-primary">Loading...</div>
+      </div>
+    );
   }
 
   // Check if user is admin and hasn't completed onboarding

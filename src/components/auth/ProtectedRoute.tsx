@@ -44,8 +44,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   }
 
   // Check if user email is verified FIRST - before any other logic
-  if (!user.email_confirmed_at) {
-    return <Navigate to="/verify-email" replace />;
+  if (!user.email_confirmed_at && !user.user_metadata?.email_verified) {
+    return <Navigate to="/verify-otp" replace />;
   }
 
   // Now check onboarding status only if we have a verified user

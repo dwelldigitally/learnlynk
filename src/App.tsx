@@ -13,6 +13,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
+import { OTPVerificationScreen } from "./components/auth/OTPVerificationScreen";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
@@ -45,6 +46,7 @@ const App = () => {
               <Route path="/sign-in" element={<ModernSignIn />} />
               <Route path="/sign-up" element={<ModernSignUp />} />
               <Route path="/verify-email" element={<EmailVerificationScreen />} />
+              <Route path="/verify-otp" element={<OTPVerificationScreen />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />

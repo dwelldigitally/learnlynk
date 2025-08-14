@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resend = new Resend(Deno.env.get("RESEND_API_KEY") || Deno.env.get("RESEND"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,18 +15,37 @@ interface SendOTPRequest {
 }
 
 const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log("Send OTP function called, method:", req.method);
+  console.log("RESEND_API_KEY configured:", !!Deno.env.get("RESEND_API_KEY"));
+
   try {
+    // Check if RESEND_API_KEY is configured
+    const resendApiKey = Deno.env.get("RESEND_API_KEY") || Deno.env.get("RESEND");
+    console.log("Checking RESEND_API_KEY:", !!Deno.env.get("RESEND_API_KEY"));
+    console.log("Checking RESEND:", !!Deno.env.get("RESEND"));
+    
+    if (!resendApiKey) {
+      console.error("Neither RESEND_API_KEY nor RESEND environment variable found");
+      return new Response(
+        JSON.stringify({ error: "Email service not configured - no API key found" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
     const { email, name }: SendOTPRequest = await req.json();
+    console.log("Attempting to send OTP to:", email);
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Store OTP in a simple way (in production, you'd want to use database)
-    // For now, we'll return it in the response for testing
+    console.log("Generated OTP:", otp);
     
     const emailResponse = await resend.emails.send({
       from: "Learnlynk <onboarding@resend.dev>", // Using Resend's verified domain

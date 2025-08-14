@@ -4,20 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Users, MapPin, Clock } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { enhancedIntakeService } from '@/services/enhancedIntakeService';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { useConditionalIntakes } from '@/hooks/useConditionalIntakes';
+import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 
 export const SimpleIntakeManager: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: intakes = [], isLoading } = useQuery({
-    queryKey: ['simple-intakes'],
-    queryFn: () => enhancedIntakeService.getIntakesWithProgramData(),
-    refetchInterval: 30000,
-  });
+  const { 
+    data: intakes = [], 
+    isLoading, 
+    showEmptyState, 
+    hasDemoAccess, 
+    hasRealData 
+  } = useConditionalIntakes();
 
   const toggleStatusMutation = useMutation({
     mutationFn: async ({ intakeId, newStatus }: { intakeId: string; newStatus: 'open' | 'closed' }) => {
@@ -83,119 +87,117 @@ export const SimpleIntakeManager: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold">Intake Management</h2>
-        <p className="text-muted-foreground">
-          Open and close program intakes for enrollment
-        </p>
-      </div>
+    <ConditionalDataWrapper
+      isLoading={isLoading}
+      showEmptyState={showEmptyState}
+      hasDemoAccess={hasDemoAccess}
+      hasRealData={hasRealData}
+      emptyTitle="No Intakes Found"
+      emptyDescription="No program intakes have been configured yet. Create program intakes to manage enrollment."
+      loadingRows={6}
+    >
+      <div className="space-y-6">
+        {/* Header */}
+        <div>
+          <h2 className="text-2xl font-bold">Intake Management</h2>
+          <p className="text-muted-foreground">
+            Open and close program intakes for enrollment
+          </p>
+        </div>
 
-      {/* Intake Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {intakes.map((intake) => (
-          <Card key={intake.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <div className="min-w-0 flex-1">
-                  <CardTitle className="text-lg font-semibold truncate">
-                    {intake.program_name}
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {intake.name}
-                  </p>
+        {/* Intake Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {intakes.map((intake) => (
+            <Card key={intake.id} className="hover:shadow-md transition-shadow">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div className="min-w-0 flex-1">
+                    <CardTitle className="text-lg font-semibold truncate">
+                      {intake.program_name}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {intake.name}
+                    </p>
+                  </div>
+                  <Badge variant={getStatusBadgeVariant(intake.status)} className="ml-2">
+                    {intake.status}
+                  </Badge>
                 </div>
-                <Badge variant={getStatusBadgeVariant(intake.status)} className="ml-2">
-                  {intake.status}
-                </Badge>
-              </div>
-            </CardHeader>
+              </CardHeader>
 
-            <CardContent className="space-y-4">
-              {/* Intake Details */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Starts {formatDate(intake.start_date)}</span>
-                </div>
-                
-                {intake.application_deadline && (
+              <CardContent className="space-y-4">
+                {/* Intake Details */}
+                <div className="space-y-2">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    <span>Deadline {formatDate(intake.application_deadline)}</span>
+                    <Calendar className="h-4 w-4" />
+                    <span>Starts {formatDate(intake.start_date)}</span>
+                  </div>
+                  
+                  {intake.application_deadline && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>Deadline {formatDate(intake.application_deadline)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    <span>
+                      {intake.enrolled_count || 0}/{intake.capacity} enrolled
+                    </span>
+                  </div>
+
+                  {intake.campus && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4" />
+                      <span>{intake.campus}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Status Toggle */}
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div>
+                    <p className="font-medium text-sm">
+                      {intake.status === 'open' ? 'Accepting Applications' : 'Closed for Applications'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {intake.status === 'open' 
+                        ? 'Students can submit applications' 
+                        : 'No new applications accepted'
+                      }
+                    </p>
+                  </div>
+                  <Switch
+                    checked={intake.status === 'open'}
+                    onCheckedChange={() => handleStatusToggle(intake.id, intake.status)}
+                    disabled={toggleStatusMutation.isPending || intake.status === 'full'}
+                  />
+                </div>
+
+                {/* Capacity Warning */}
+                {intake.status === 'open' && intake.capacity_percentage > 90 && (
+                  <div className="p-2 bg-warning/10 border border-warning/20 rounded text-sm">
+                    <p className="font-medium text-warning">Nearly Full</p>
+                    <p className="text-xs text-muted-foreground">
+                      Consider closing intake soon
+                    </p>
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4" />
-                  <span>
-                    {intake.enrolled_count || 0}/{intake.capacity} enrolled
-                  </span>
-                </div>
-
-                {intake.campus && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>{intake.campus}</span>
+                {intake.status === 'full' && (
+                  <div className="p-2 bg-destructive/10 border border-destructive/20 rounded text-sm">
+                    <p className="font-medium text-destructive">Capacity Reached</p>
+                    <p className="text-xs text-muted-foreground">
+                      Automatically closed due to full enrollment
+                    </p>
                   </div>
                 )}
-              </div>
-
-              {/* Status Toggle */}
-              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                <div>
-                  <p className="font-medium text-sm">
-                    {intake.status === 'open' ? 'Accepting Applications' : 'Closed for Applications'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {intake.status === 'open' 
-                      ? 'Students can submit applications' 
-                      : 'No new applications accepted'
-                    }
-                  </p>
-                </div>
-                <Switch
-                  checked={intake.status === 'open'}
-                  onCheckedChange={() => handleStatusToggle(intake.id, intake.status)}
-                  disabled={toggleStatusMutation.isPending || intake.status === 'full'}
-                />
-              </div>
-
-              {/* Capacity Warning */}
-              {intake.status === 'open' && intake.capacity_percentage > 90 && (
-                <div className="p-2 bg-warning/10 border border-warning/20 rounded text-sm">
-                  <p className="font-medium text-warning">Nearly Full</p>
-                  <p className="text-xs text-muted-foreground">
-                    Consider closing intake soon
-                  </p>
-                </div>
-              )}
-
-              {intake.status === 'full' && (
-                <div className="p-2 bg-destructive/10 border border-destructive/20 rounded text-sm">
-                  <p className="font-medium text-destructive">Capacity Reached</p>
-                  <p className="text-xs text-muted-foreground">
-                    Automatically closed due to full enrollment
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
-
-      {intakes.length === 0 && !isLoading && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Intakes Found</h3>
-            <p className="text-muted-foreground text-center">
-              No program intakes have been configured yet. Create program intakes to manage enrollment.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+    </ConditionalDataWrapper>
   );
 };

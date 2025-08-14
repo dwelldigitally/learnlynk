@@ -21,8 +21,10 @@ import {
   Search
 } from "lucide-react";
 import { useRegistrarAIAgent } from "@/hooks/useRegistrarAIAgent";
+import { useNavigate } from "react-router-dom";
 
 export function RegistrarIntelligence() {
+  const navigate = useNavigate();
   const {
     activeAgent,
     performanceMetrics,
@@ -101,7 +103,7 @@ export function RegistrarIntelligence() {
             </p>
           </div>
         </div>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => navigate('/admin/registrar/ai-features')}>
           <Settings className="h-4 w-4 mr-2" />
           Configure Agent
         </Button>

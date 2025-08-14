@@ -88,6 +88,8 @@ const AdminDashboard: React.FC = () => {
         return <RegistrarCommandCenter />;
       case "/admin/registrar/intelligence":
         return <RegistrarIntelligence />;
+      case "/admin/registrar/ai-features":
+        return <RegistrarAIFeatures />;
       case "/admin/leads/ai":
         return <LeadAIFeatures />;
       case "/admin/leads/forms":

@@ -35,10 +35,61 @@ interface EnhancedLeadSidebarProps {
   onUpdate: () => void;
 }
 
+// Data sources for dropdowns
+const availablePrograms = [
+  'Computer Science',
+  'Business Administration', 
+  'Engineering',
+  'Psychology',
+  'Nursing',
+  'Culinary Arts',
+  'Medical Assistant',
+  'Information Technology',
+  'Marketing',
+  'Healthcare Administration'
+];
+
+const leadSources = [
+  'web',
+  'referral',
+  'social_media',
+  'email_campaign',
+  'phone_call',
+  'walk_in',
+  'partner',
+  'advertisement',
+  'direct_mail',
+  'event'
+];
+
+const intakeDates = [
+  'March 2025',
+  'June 2025', 
+  'September 2025',
+  'December 2025',
+  'March 2026',
+  'June 2026'
+];
+
+const paymentPlanOptions = [
+  'Full Payment Upfront',
+  '12 Monthly Payments',
+  '24 Monthly Payments',
+  'Bi-weekly Payments',
+  'Custom Payment Plan',
+  'Financial Aid'
+];
+
+// Extended lead interface for additional fields
+interface ExtendedLead extends Lead {
+  program_intake?: string;
+  payment_plan?: string;
+}
+
 export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps) {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
-  const [editedLead, setEditedLead] = useState<Lead>(lead);
+  const [editedLead, setEditedLead] = useState<ExtendedLead>(lead);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -290,13 +341,26 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
             </div>
             <div>
               <Label htmlFor="program_interest">Program Interest</Label>
-              <Input
-                type="text"
-                id="program_interest"
-                name="program_interest"
-                value={editedLead.program_interest?.join(', ') || ''}
-                onChange={handleInputChange}
-              />
+              <Select 
+                value={editedLead.program_interest?.[0] || ''} 
+                onValueChange={(value) => {
+                  setEditedLead(prev => ({
+                    ...prev,
+                    program_interest: value ? [value] : []
+                  }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select program of interest" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  {availablePrograms.map((program) => (
+                    <SelectItem key={program} value={program}>
+                      {program}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="created_at">Created Date</Label>
@@ -322,13 +386,72 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
             </div>
             <div>
               <Label htmlFor="source">Lead Source</Label>
-              <Input
-                type="text"
-                id="source"
-                name="source"
-                value={editedLead.source || ''}
-                onChange={handleInputChange}
-              />
+              <Select 
+                value={editedLead.source || ''} 
+                onValueChange={(value) => {
+                  setEditedLead(prev => ({
+                    ...prev,
+                    source: value as any
+                  }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select lead source" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  {leadSources.map((source) => (
+                    <SelectItem key={source} value={source}>
+                      {source.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="program_intake">Program Intake</Label>
+              <Select 
+                value={(editedLead as ExtendedLead).program_intake || ''} 
+                onValueChange={(value) => {
+                  setEditedLead(prev => ({
+                    ...prev,
+                    program_intake: value
+                  }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select intake date" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  {intakeDates.map((intake) => (
+                    <SelectItem key={intake} value={intake}>
+                      {intake}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="payment_plan">Payment Plan Preference</Label>
+              <Select 
+                value={(editedLead as ExtendedLead).payment_plan || ''} 
+                onValueChange={(value) => {
+                  setEditedLead(prev => ({
+                    ...prev,
+                    payment_plan: value
+                  }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment plan" />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  {paymentPlanOptions.map((plan) => (
+                    <SelectItem key={plan} value={plan}>
+                      {plan}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="tags">Tags</Label>
@@ -379,6 +502,12 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
             </div>
             <div className="text-sm">
               <span className="font-semibold">Program Interest:</span> {lead.program_interest?.join(', ') || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Program Intake:</span> {(lead as any).program_intake || 'N/A'}
+            </div>
+            <div className="text-sm">
+              <span className="font-semibold">Payment Plan:</span> {(lead as any).payment_plan || 'N/A'}
             </div>
             <div className="text-sm">
               <span className="font-semibold">Created Date:</span> {lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'N/A'}

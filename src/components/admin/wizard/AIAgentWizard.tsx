@@ -87,43 +87,29 @@ interface AIAgentWizardProps {
 const WIZARD_STEPS = [
   {
     id: 'identity',
-    title: 'Agent Identity & Personality',
-    description: 'Define your AI agent\'s name, appearance, and personality traits',
+    title: 'Basic Info',
+    description: 'Define your AI agent\'s name and description',
     icon: Bot,
     color: 'text-blue-600'
   },
   {
     id: 'configuration',
-    title: 'Core Configuration',
-    description: 'Set capacity limits, working hours, and handoff preferences',
+    title: 'Core Settings',
+    description: 'Set capacity and key specializations',
     icon: Settings,
     color: 'text-green-600'
   },
   {
-    id: 'filtering',
-    title: 'Lead Filtering & Assignment',
-    description: 'Configure which leads your agent will handle',
-    icon: Users,
-    color: 'text-purple-600'
-  },
-  {
     id: 'automation',
-    title: 'Tasks & Automation',
-    description: 'Set up automated workflows and task management',
+    title: 'Automation',
+    description: 'Configure automated workflows',
     icon: Zap,
     color: 'text-orange-600'
   },
   {
-    id: 'advanced',
-    title: 'Advanced Settings',
-    description: 'Configure integrations, security, and conversation flows',
-    icon: Brain,
-    color: 'text-indigo-600'
-  },
-  {
     id: 'review',
-    title: 'Review & Activation',
-    description: 'Review your configuration and activate your AI agent',
+    title: 'Review & Activate',
+    description: 'Review and launch your AI agent',
     icon: Trophy,
     color: 'text-emerald-600'
   }
@@ -233,14 +219,10 @@ export function AIAgentWizard({ open, onOpenChange, editingAgent, onSave }: AIAg
       case 0: // Identity
         return agentData.name.trim().length > 0 && agentData.description.trim().length > 0;
       case 1: // Configuration
-        return agentData.max_concurrent_leads > 0 && agentData.handoff_threshold > 0;
-      case 2: // Filtering
-        return agentData.specializations.length > 0;
-      case 3: // Automation
+        return agentData.max_concurrent_leads > 0 && agentData.specializations.length > 0;
+      case 2: // Automation
         return true; // Optional configurations
-      case 4: // Advanced
-        return true; // Optional configurations
-      case 5: // Review
+      case 3: // Review
         return true; // Review step
       default:
         return true;
@@ -259,12 +241,26 @@ export function AIAgentWizard({ open, onOpenChange, editingAgent, onSave }: AIAg
 
     if (currentStep < WIZARD_STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
+      // Scroll to top of dialog content
+      setTimeout(() => {
+        const dialogContent = document.querySelector('[role="dialog"] .overflow-y-auto');
+        if (dialogContent) {
+          dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
+      // Scroll to top of dialog content
+      setTimeout(() => {
+        const dialogContent = document.querySelector('[role="dialog"] .overflow-y-auto');
+        if (dialogContent) {
+          dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -416,26 +412,12 @@ export function AIAgentWizard({ open, onOpenChange, editingAgent, onSave }: AIAg
         );
       case 2:
         return (
-          <FilterRulesStep 
-            data={agentData} 
-            updateData={updateAgentData} 
-          />
-        );
-      case 3:
-        return (
           <TasksAutomationStep 
             data={agentData} 
             updateData={updateAgentData} 
           />
         );
-      case 4:
-        return (
-          <AdvancedSettingsStep 
-            data={agentData} 
-            updateData={updateAgentData} 
-          />
-        );
-      case 5:
+      case 3:
         return (
           <ReviewActivationStep 
             data={agentData} 

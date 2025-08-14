@@ -86,43 +86,29 @@ interface RegistrarAIAgentWizardProps {
 const REGISTRAR_WIZARD_STEPS = [
   {
     id: 'identity',
-    title: 'Registrar Agent Identity',
-    description: 'Define your registrar AI agent\'s name, personality, and processing style',
+    title: 'Basic Info',
+    description: 'Define your registrar AI agent\'s name and description',
     icon: Bot,
     color: 'text-blue-600'
   },
   {
     id: 'configuration',
-    title: 'Processing Configuration',
-    description: 'Set application capacity, processing times, and review thresholds',
+    title: 'Core Settings',
+    description: 'Set capacity and program specializations',
     icon: Settings,
     color: 'text-green-600'
   },
   {
-    id: 'filtering',
-    title: 'Application Filtering',
-    description: 'Configure which applications and programs your agent will handle',
-    icon: Users,
-    color: 'text-purple-600'
-  },
-  {
     id: 'automation',
-    title: 'Document & Task Automation',
-    description: 'Set up automated document processing and task workflows',
+    title: 'Automation',
+    description: 'Configure document processing automation',
     icon: Zap,
     color: 'text-orange-600'
   },
   {
-    id: 'advanced',
-    title: 'Compliance & Integration',
-    description: 'Configure compliance monitoring, integrations, and audit settings',
-    icon: Brain,
-    color: 'text-indigo-600'
-  },
-  {
     id: 'review',
-    title: 'Review & Activation',
-    description: 'Review your configuration and activate your registrar AI agent',
+    title: 'Review & Activate',
+    description: 'Review and launch your registrar AI agent',
     icon: Trophy,
     color: 'text-emerald-600'
   }
@@ -234,14 +220,10 @@ export function RegistrarAIAgentWizard({ open, onOpenChange, editingAgent, onSav
       case 0: // Identity
         return agentData.name.trim().length > 0 && agentData.description.trim().length > 0;
       case 1: // Configuration
-        return agentData.max_concurrent_applications > 0 && agentData.review_threshold > 0;
-      case 2: // Filtering
-        return agentData.program_specializations.length > 0;
-      case 3: // Automation
+        return agentData.max_concurrent_applications > 0 && agentData.program_specializations.length > 0;
+      case 2: // Automation
         return true; // Optional configurations
-      case 4: // Advanced
-        return true; // Optional configurations
-      case 5: // Review
+      case 3: // Review
         return true; // Review step
       default:
         return true;
@@ -260,12 +242,26 @@ export function RegistrarAIAgentWizard({ open, onOpenChange, editingAgent, onSav
 
     if (currentStep < REGISTRAR_WIZARD_STEPS.length - 1) {
       setCurrentStep(prev => prev + 1);
+      // Scroll to top of dialog content
+      setTimeout(() => {
+        const dialogContent = document.querySelector('[role="dialog"] .overflow-y-auto');
+        if (dialogContent) {
+          dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
+      // Scroll to top of dialog content
+      setTimeout(() => {
+        const dialogContent = document.querySelector('[role="dialog"] .overflow-y-auto');
+        if (dialogContent) {
+          dialogContent.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
     }
   };
 
@@ -483,26 +479,12 @@ export function RegistrarAIAgentWizard({ open, onOpenChange, editingAgent, onSav
         );
       case 2:
         return (
-          <RegistrarFilterRulesStep 
-            data={agentData} 
-            updateData={updateAgentData} 
-          />
-        );
-      case 3:
-        return (
           <RegistrarTasksAutomationStep 
             data={agentData} 
             updateData={updateAgentData} 
           />
         );
-      case 4:
-        return (
-          <RegistrarAdvancedSettingsStep 
-            data={agentData} 
-            updateData={updateAgentData} 
-          />
-        );
-      case 5:
+      case 3:
         return (
           <RegistrarReviewActivationStep 
             data={agentData} 

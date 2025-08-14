@@ -322,6 +322,33 @@ export class OnboardingService {
                   errors.push(`Failed to create team: ${team.name}`);
                 }
               }
+
+              // Create demo applications
+              const demoApplications = DemoDataService.getDemoApplications();
+              for (const app of demoApplications) {
+                const appData = {
+                  user_id: currentUser.id,
+                  student_name: app.studentName,
+                  email: app.email,
+                  phone: app.phone,
+                  program: app.program,
+                  status: app.status,
+                  priority: app.priority,
+                  progress: app.progress,
+                  advisor_assigned: app.advisorAssigned,
+                  application_date: app.applicationDate.toISOString(),
+                  documents_submitted: app.documentsSubmitted ? [`document_${app.documentsSubmitted}`] : []
+                };
+
+                const { error: appError } = await supabase
+                  .from('applications')
+                  .insert(appData);
+
+                if (appError) {
+                  console.error('Error creating demo application:', appError);
+                  errors.push(`Failed to create application for ${app.studentName}: ${appError.message}`);
+                }
+              }
             }
           } catch (demoError) {
             console.error('Error in demo data assignment:', demoError);

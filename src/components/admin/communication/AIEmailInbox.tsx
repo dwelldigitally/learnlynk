@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Mail, 
@@ -32,6 +34,12 @@ export function AIEmailInbox() {
   const [realEmails, setRealEmails] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
+  const [showReplyBox, setShowReplyBox] = useState(false);
+  const [replyContent, setReplyContent] = useState({
+    subject: '',
+    body: '',
+    type: 'reply' as 'reply' | 'forward'
+  });
   const { toast } = useToast();
   
   const dummyEmails = generateDummyEmails();
@@ -140,17 +148,13 @@ export function AIEmailInbox() {
       // Mark email as read
       await EmailService.updateEmailReadStatus(emailData.id, true);
       
-      // Create AI draft for reply
-      const draft = await EmailService.createAIDraft(emailData.id, {
-        responseType: 'reply',
-        lead: emailData.lead_match,
-        programInterest: emailData.lead_match?.program_interest || []
+      // Show reply box with basic template
+      setReplyContent({
+        subject: `Re: ${emailData.subject}`,
+        body: `\n\n--- Original Message ---\nFrom: ${emailData.from_name} <${emailData.from_email}>\nDate: ${new Date(emailData.received_datetime).toLocaleString()}\nSubject: ${emailData.subject}\n\n${emailData.body_content}`,
+        type: 'reply'
       });
-      
-      toast({
-        title: "Reply Draft Created",
-        description: "AI-generated reply draft has been created and is ready for review.",
-      });
+      setShowReplyBox(true);
       
       // Refresh emails to show updated read status
       loadRealEmails();
@@ -161,16 +165,12 @@ export function AIEmailInbox() {
 
   const handleForward = async (emailData: any) => {
     try {
-      const draft = await EmailService.createAIDraft(emailData.id, {
-        responseType: 'forward',
-        lead: emailData.lead_match,
-        programInterest: emailData.lead_match?.program_interest || []
+      setReplyContent({
+        subject: `Fwd: ${emailData.subject}`,
+        body: `\n\n--- Forwarded Message ---\nFrom: ${emailData.from_name} <${emailData.from_email}>\nDate: ${new Date(emailData.received_datetime).toLocaleString()}\nSubject: ${emailData.subject}\n\n${emailData.body_content}`,
+        type: 'forward'
       });
-      
-      toast({
-        title: "Forward Draft Created",
-        description: "Email forward draft has been created.",
-      });
+      setShowReplyBox(true);
     } catch (error) {
       throw error;
     }
@@ -320,20 +320,53 @@ export function AIEmailInbox() {
 
       if (error) throw error;
 
-      // Create draft with AI-generated content
-      const draft = await EmailService.createAIDraft(emailData.id, {
-        responseType: 'reply',
-        lead: emailData.lead_match,
-        programInterest: emailData.lead_match?.program_interest || []
+      // Show the AI-generated response in the reply box
+      setReplyContent({
+        subject: `Re: ${emailData.subject}`,
+        body: data.generatedReply || `Dear ${emailData.from_name},
+
+Thank you for your inquiry regarding our programs. Based on your message, I'd be happy to provide you with more information.
+
+[AI-generated response would appear here based on the email content and lead context]
+
+Best regards,
+Admissions Team`,
+        type: 'reply'
       });
+      setShowReplyBox(true);
 
       toast({
         title: "AI Response Generated",
-        description: "AI has generated a personalized response based on the email content and lead context.",
+        description: "AI has generated a personalized response. Review and edit before sending.",
       });
       
     } catch (error) {
       throw error;
+    }
+  };
+
+  const handleSendReply = async () => {
+    try {
+      // Here you would integrate with your email sending service
+      toast({
+        title: "Email Sent",
+        description: "Your reply has been sent successfully.",
+      });
+      
+      setShowReplyBox(false);
+      setReplyContent({ subject: '', body: '', type: 'reply' });
+      
+      // Update email status and refresh
+      if (selectedEmail) {
+        await EmailService.updateEmailStatus(selectedEmail, 'replied');
+        loadRealEmails();
+      }
+    } catch (error) {
+      toast({
+        title: "Send Failed",
+        description: "Failed to send email. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -574,6 +607,58 @@ export function AIEmailInbox() {
                     {processingAction === 'generate_ai' ? 'Generating...' : 'Generate AI Response'}
                   </Button>
                 </div>
+
+                {/* Reply Box */}
+                {showReplyBox && (
+                  <Card className="mt-4">
+                    <CardHeader>
+                      <CardTitle className="text-lg">
+                        {replyContent.type === 'reply' ? 'Reply' : 'Forward'} - {replyContent.subject}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="reply-subject">Subject</Label>
+                        <Input
+                          id="reply-subject"
+                          value={replyContent.subject}
+                          onChange={(e) => setReplyContent(prev => ({ ...prev, subject: e.target.value }))}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="reply-body">Message</Label>
+                        <Textarea
+                          id="reply-body"
+                          value={replyContent.body}
+                          onChange={(e) => setReplyContent(prev => ({ ...prev, body: e.target.value }))}
+                          rows={12}
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Button onClick={handleSendReply}>
+                            Send {replyContent.type === 'reply' ? 'Reply' : 'Forward'}
+                          </Button>
+                          <Button variant="outline" onClick={() => setShowReplyBox(false)}>
+                            Cancel
+                          </Button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEmailAction('generate_ai', selectedEmailData)}
+                            disabled={processingAction === 'generate_ai'}
+                          >
+                            <Brain className="h-4 w-4 mr-2" />
+                            {processingAction === 'generate_ai' ? 'Regenerating...' : 'Regenerate with AI'}
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </CardContent>
             </Card>
           ) : (

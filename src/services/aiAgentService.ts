@@ -13,6 +13,8 @@ export interface AIAgent {
   handoff_threshold: number;
   configuration: Record<string, any>;
   performance_metrics: Record<string, any>;
+  agent_type?: string;
+  agent_category?: string;
   created_at: string;
   updated_at: string;
 }
@@ -54,11 +56,16 @@ export interface AgentPerformanceMetrics {
 
 export class AIAgentService {
   // Get all agents for the current user
-  static async getAgents(): Promise<AIAgent[]> {
-    const { data, error } = await supabase
+  static async getAgents(agentType?: string): Promise<AIAgent[]> {
+    let query = supabase
       .from('ai_agents')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*');
+    
+    if (agentType) {
+      query = query.eq('agent_type', agentType);
+    }
+    
+    const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) throw error;
     return (data || []) as AIAgent[];
@@ -103,7 +110,9 @@ export class AIAgentService {
         max_concurrent_leads: agentData.max_concurrent_leads || 50,
         handoff_threshold: agentData.handoff_threshold || 75,
         configuration: agentData.configuration || {},
-        performance_metrics: agentData.performance_metrics || {}
+        performance_metrics: agentData.performance_metrics || {},
+        agent_type: agentData.agent_type || 'lead',
+        agent_category: agentData.agent_category || 'lead'
       })
       .select()
       .single();

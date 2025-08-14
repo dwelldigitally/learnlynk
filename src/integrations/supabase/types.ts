@@ -205,6 +205,8 @@ export type Database = {
       }
       ai_agents: {
         Row: {
+          agent_category: string | null
+          agent_type: string | null
           configuration: Json
           created_at: string
           description: string | null
@@ -220,6 +222,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          agent_category?: string | null
+          agent_type?: string | null
           configuration?: Json
           created_at?: string
           description?: string | null
@@ -235,6 +239,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          agent_category?: string | null
+          agent_type?: string | null
           configuration?: Json
           created_at?: string
           description?: string | null

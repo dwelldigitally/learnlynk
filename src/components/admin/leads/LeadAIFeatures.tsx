@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useAIAgent } from "@/hooks/useAIAgent";
+import { useLeadAIAgent } from "@/hooks/useLeadAIAgent";
 import { AIAgentWizard } from "@/components/admin/wizard/AIAgentWizard";
 
 export function LeadAIFeatures() {
@@ -64,7 +64,7 @@ export function LeadAIFeatures() {
     toggleTask,
     reassignLeadsToHumans,
     loadAgents
-  } = useAIAgent();
+  } = useLeadAIAgent();
 
   const handleSaveAgent = async (agentData: any) => {
     // Agent creation is handled within the wizard

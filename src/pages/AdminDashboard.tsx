@@ -42,6 +42,7 @@ import RecruiterManagement from "@/components/admin/RecruiterManagement";
 import RecruiterApplicationsManagement from "@/components/admin/RecruiterApplicationsManagement";
 import { RegistrarCommandCenter } from "@/components/admin/registrar/RegistrarCommandCenter";
 import { RegistrarAIFeatures } from "@/components/admin/registrar/RegistrarAIFeatures";
+import { RegistrarIntelligence } from "@/components/admin/registrar/RegistrarIntelligence";
 import { OverviewDashboard } from "@/components/admin/OverviewDashboard";
 import { HelpCenter } from "@/components/admin/HelpCenter";
 import { PersonalAssignments } from "@/components/admin/PersonalAssignments";
@@ -86,7 +87,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/registrar/command-center":
         return <RegistrarCommandCenter />;
       case "/admin/registrar/intelligence":
-        return <RegistrarAIFeatures />;
+        return <RegistrarIntelligence />;
       case "/admin/leads/ai":
         return <LeadAIFeatures />;
       case "/admin/leads/forms":

@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog } from "@/components/ui/dialog";
-import { useAIAgent } from "@/hooks/useAIAgent";
+import { useRegistrarAIAgent } from "@/hooks/useRegistrarAIAgent";
 import { RegistrarAIAgentWizard } from "./wizard/RegistrarAIAgentWizard";
 
 export function RegistrarAIFeatures() {
@@ -50,15 +50,15 @@ export function RegistrarAIFeatures() {
     activeAgent,
     filterRules,
     tasks,
-    agentLeads,
+    agentApplications,
     performanceMetrics,
     isLoading,
     createAgent,
     updateAgent,
     toggleAgent,
-    reassignLeadsToHumans,
+    reassignApplicationsToHumans,
     loadAgents
-  } = useAIAgent();
+  } = useRegistrarAIAgent();
 
   // Filter for registrar-specific agents (assuming all agents for now)
   const registrarAgents = agents;

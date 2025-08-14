@@ -373,4 +373,86 @@ export class LeadService {
       throw new Error(`Failed to delete lead: ${error.message}`);
     }
   }
+
+  // AI Agent Management Methods
+  static async assignLeadToAIAgent(leadId: string, agentId: string): Promise<Lead> {
+    const { data, error } = await supabase
+      .from('leads')
+      .update({
+        ai_agent_id: agentId,
+        ai_managed: true,
+        assigned_at: new Date().toISOString()
+      } as any)
+      .eq('id', leadId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to assign lead to AI agent: ${error.message}`);
+    }
+
+    // Log the AI assignment activity
+    await this.createActivity(leadId, {
+      activity_type: 'ai_assignment',
+      activity_description: `Lead assigned to AI agent`,
+      activity_data: {
+        ai_agent_id: agentId,
+        assignment_timestamp: new Date().toISOString()
+      }
+    });
+
+    return data as Lead;
+  }
+
+  static async removeAIAgentFromLead(leadId: string): Promise<Lead> {
+    const { data, error } = await supabase
+      .from('leads')
+      .update({
+        ai_agent_id: null,
+        ai_managed: false
+      } as any)
+      .eq('id', leadId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to remove AI agent from lead: ${error.message}`);
+    }
+
+    // Log the AI removal activity
+    await this.createActivity(leadId, {
+      activity_type: 'ai_removal',
+      activity_description: `AI agent removed from lead - human takeover`,
+      activity_data: {
+        takeover_timestamp: new Date().toISOString()
+      }
+    });
+
+    return data as Lead;
+  }
+
+  static async getAIManagedLeads(agentId?: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
+    const query = supabase
+      .from('leads')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('ai_managed', true);
+
+    const { data, error } = agentId 
+      ? await query.eq('ai_agent_id', agentId)
+      : await query;
+
+    if (error) {
+      console.error('Error fetching AI managed leads:', error);
+      return [];
+    }
+
+    return data || [];
+  }
 }

@@ -15,6 +15,9 @@ export interface LeadCommunication {
   status: CommunicationStatus;
   scheduled_for?: string;
   metadata?: Record<string, any>;
+  // AI-related fields
+  is_ai_generated?: boolean;
+  ai_agent_id?: string;
   created_at: string;
   updated_at: string;
 }

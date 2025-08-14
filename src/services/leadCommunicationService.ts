@@ -31,7 +31,9 @@ export class LeadCommunicationService {
 
   static async createCommunication(
     leadId: string, 
-    communicationData: CommunicationFormData
+    communicationData: CommunicationFormData,
+    isAIGenerated: boolean = false,
+    aiAgentId?: string
   ): Promise<LeadCommunication> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -43,6 +45,8 @@ export class LeadCommunicationService {
         user_id: user.id,
         ...communicationData,
         communication_date: communicationData.communication_date || new Date().toISOString(),
+        is_ai_generated: isAIGenerated,
+        ai_agent_id: aiAgentId
       })
       .select()
       .single();
@@ -114,5 +118,62 @@ export class LeadCommunicationService {
     ).length;
 
     return { total, by_type, recent_count };
+  }
+
+  // AI Communication Methods
+  static async createAICommunication(
+    leadId: string,
+    agentId: string,
+    communicationData: any
+  ) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+      .from('lead_communications')
+      .insert({
+        lead_id: leadId,
+        user_id: user.id,
+        ...communicationData,
+        is_ai_generated: true,
+        ai_agent_id: agentId
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error('Failed to create AI communication');
+    return data;
+  }
+
+  static async getAICommunications(leadId: string) {
+    const { data, error } = await supabase
+      .from('lead_communications')
+      .select('*')
+      .eq('lead_id', leadId)
+      .eq('is_ai_generated', true)
+      .order('communication_date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching AI communications:', error);
+      return [];
+    }
+
+    return data;
+  }
+
+  static async getHumanCommunications(leadId: string) {
+    const { data, error } = await supabase
+      .from('lead_communications')
+      .select('*')
+      .eq('lead_id', leadId)
+      .eq('is_ai_generated', false)
+      .order('communication_date', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching human communications:', error);
+      return [];
+    }
+
+    return data;
   }
 }

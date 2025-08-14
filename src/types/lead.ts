@@ -80,8 +80,12 @@ export interface Lead {
   referrer_url?: string;
   ip_address?: string;
   user_agent?: string;
+  // AI Agent fields
+  ai_agent_id?: string;
+  ai_managed?: boolean;
   created_at: string;
   updated_at: string;
+  user_id?: string;
 }
 
 export interface LeadActivity {

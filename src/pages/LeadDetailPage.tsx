@@ -9,6 +9,7 @@ import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { EnhancedLeadSidebar } from '@/components/admin/leads/EnhancedLeadSidebar';
 import { EnhancedRightSidebar } from '@/components/admin/leads/EnhancedRightSidebar';
+import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
 
 import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
@@ -75,6 +76,25 @@ export default function LeadDetailPage() {
     }
   };
 
+  const handleAITakeover = async () => {
+    if (!lead?.id) return;
+    
+    try {
+      await LeadService.removeAIAgentFromLead(lead.id);
+      await loadLead(); // Reload to get updated data
+      toast({
+        title: "AI Takeover Successful",
+        description: "You have taken over this lead from the AI agent."
+      });
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to take over from AI agent.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const getStatusColor = (status: LeadStatus) => {
     switch (status) {
       case 'new': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
@@ -127,22 +147,23 @@ export default function LeadDetailPage() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Leads
             </Button>
-            <div>
-              <h1 className="text-xl font-bold">{lead.first_name} {lead.last_name}</h1>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span>{lead.email}</span>
-                <span>•</span>
-                <span>Intake: September 2024</span>
-                <span>•</span>
-                <span>Payment: Full Payment Preferred</span>
-              </div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold">
+                {lead.first_name} {lead.last_name}
+              </h1>
+              <Badge className={getStatusColor(lead.status)}>
+                {lead.status}
+              </Badge>
+              <AgenticAIIndicator 
+                isAIManaged={lead.ai_managed || false}
+                aiStatus={lead.ai_managed ? 'active' : undefined}
+                onHumanTakeover={handleAITakeover}
+                className="ml-2"
+              />
             </div>
           </div>
           
           <div className="flex items-center gap-4">
-            <Badge className={getStatusColor(lead.status)}>
-              {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
-            </Badge>
             <div className="text-sm text-muted-foreground">
               Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
             </div>

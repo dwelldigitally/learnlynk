@@ -288,7 +288,7 @@ export class OnboardingService {
                 const { error: templateError } = await supabase
                   .from('routing_templates')
                   .insert({
-                    user_id: currentUser.id,
+                    created_by: currentUser.id,
                     name: template.name,
                     description: template.description,
                     category: template.category,

@@ -39,24 +39,28 @@ export function AIEmailInbox() {
     setLoading(true);
     try {
       const { emails } = await EmailService.getEmails({}, 1, 20);
-      setRealEmails(emails.map(email => ({
-        id: email.id,
-        from_name: email.from_name || 'Unknown',
-        from_email: email.from_email,
-        subject: email.subject || 'No Subject',
-        body_content: email.body_content || '',
-        body_preview: email.body_preview || '',
-        received_datetime: email.received_datetime,
-        is_read: email.is_read,
-        ai_priority_score: email.ai_priority_score || 0,
-        category: email.ai_suggested_actions?.[0]?.type || 'inquiry',
-        ai_suggested_actions: email.ai_suggested_actions || [],
-        lead_match: email.lead_id ? {
-          name: 'Unknown Lead',
-          program_interest: [],
-          score: email.ai_lead_match_confidence || 0
-        } : null
-      })));
+      setRealEmails(emails.map(email => {
+        // Extract lead information from the joined data
+        const leadData = (email as any).lead;
+        return {
+          id: email.id,
+          from_name: email.from_name || 'Unknown',
+          from_email: email.from_email,
+          subject: email.subject || 'No Subject',
+          body_content: email.body_content || '',
+          body_preview: email.body_preview || '',
+          received_datetime: email.received_datetime,
+          is_read: email.is_read,
+          ai_priority_score: email.ai_priority_score || 0,
+          category: email.ai_suggested_actions?.[0]?.type || 'inquiry',
+          ai_suggested_actions: email.ai_suggested_actions || [],
+          lead_match: leadData ? {
+            name: `${leadData.first_name || ''} ${leadData.last_name || ''}`.trim() || 'Unknown Lead',
+            program_interest: leadData.program_interest || [],
+            score: email.ai_lead_match_confidence || 0
+          } : null
+        };
+      }));
     } catch (error) {
       console.error('Error loading emails:', error);
     } finally {

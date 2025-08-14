@@ -192,6 +192,110 @@ export function AIEmailInbox() {
     }
   };
 
+  const handleExecuteSuggestedAction = async (action: any, emailData: any) => {
+    setProcessingAction(`suggested_${action.type}`);
+    try {
+      switch (action.type) {
+        case 'send_program_info':
+        case 'send_program_brochure':
+          await executeSendProgramInfo(emailData, action);
+          break;
+        case 'schedule_consultation':
+          await executeScheduleConsultation(emailData, action);
+          break;
+        case 'respond':
+          await executeRespondAction(emailData, action);
+          break;
+        case 'forward':
+          await executeForwardAction(emailData, action);
+          break;
+        case 'assign_advisor':
+          await executeAssignAdvisor(emailData, action);
+          break;
+        default:
+          await executeGenericAction(emailData, action);
+      }
+      
+      toast({
+        title: "Action Executed",
+        description: `Successfully executed: ${action.description}`,
+      });
+      
+      // Refresh emails to show any status changes
+      loadRealEmails();
+    } catch (error) {
+      console.error(`Error executing action ${action.type}:`, error);
+      toast({
+        title: "Action Failed",
+        description: `Failed to execute: ${action.description}`,
+        variant: "destructive",
+      });
+    } finally {
+      setProcessingAction(null);
+    }
+  };
+
+  const executeSendProgramInfo = async (emailData: any, action: any) => {
+    // Create communication record
+    if (emailData.lead_match) {
+      await supabase.functions.invoke('generate-reply-ai', {
+        body: {
+          leadName: emailData.lead_match.name,
+          leadContext: {
+            email: emailData.from_email,
+            programInterest: emailData.lead_match.program_interest,
+            actionType: 'send_program_info'
+          },
+          communicationHistory: []
+        }
+      });
+    }
+    
+    // Update email status
+    await EmailService.updateEmailStatus(emailData.id, 'in_progress');
+  };
+
+  const executeScheduleConsultation = async (emailData: any, action: any) => {
+    // Generate consultation scheduling email
+    if (emailData.lead_match) {
+      await supabase.functions.invoke('generate-reply-ai', {
+        body: {
+          leadName: emailData.lead_match.name,
+          leadContext: {
+            email: emailData.from_email,
+            programInterest: emailData.lead_match.program_interest,
+            actionType: 'schedule_consultation'
+          },
+          communicationHistory: []
+        }
+      });
+    }
+    
+    await EmailService.updateEmailStatus(emailData.id, 'in_progress');
+  };
+
+  const executeRespondAction = async (emailData: any, action: any) => {
+    await handleReply(emailData);
+  };
+
+  const executeForwardAction = async (emailData: any, action: any) => {
+    await handleForward(emailData);
+  };
+
+  const executeAssignAdvisor = async (emailData: any, action: any) => {
+    // For now, just assign to current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && emailData.lead_match) {
+      await EmailService.assignEmail(emailData.id, user.id);
+    }
+  };
+
+  const executeGenericAction = async (emailData: any, action: any) => {
+    // Log the action execution
+    console.log('Executing generic action:', action.type, 'for email:', emailData.id);
+    await EmailService.updateEmailStatus(emailData.id, 'in_progress');
+  };
+
   const handleGenerateAIResponse = async (emailData: any) => {
     try {
       // Call the edge function to generate AI response
@@ -424,7 +528,13 @@ export function AIEmailInbox() {
                               <Badge variant="outline">
                                 {action.confidence}% confidence
                               </Badge>
-                              <Button size="sm">Execute</Button>
+                              <Button 
+                                size="sm"
+                                onClick={() => handleExecuteSuggestedAction(action, selectedEmailData)}
+                                disabled={processingAction === `suggested_${action.type}`}
+                              >
+                                {processingAction === `suggested_${action.type}` ? 'Executing...' : 'Execute'}
+                              </Button>
                             </div>
                           </div>
                         ))}

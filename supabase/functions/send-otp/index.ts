@@ -29,7 +29,7 @@ const handler = async (req: Request): Promise<Response> => {
     // For now, we'll return it in the response for testing
     
     const emailResponse = await resend.emails.send({
-      from: "EduCRM <noreply@resend.dev>",
+      from: "Learnlynk <onboarding@resend.dev>", // Using Resend's verified domain
       to: [email],
       subject: "Verify Your Email - EduCRM",
       html: `

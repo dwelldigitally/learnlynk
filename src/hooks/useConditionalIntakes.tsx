@@ -1,5 +1,5 @@
 import { useConditionalData } from './useConditionalData';
-import { enhancedIntakeService } from '@/services/enhancedIntakeService';
+import { enhancedIntakeService, EnhancedIntake } from '@/services/enhancedIntakeService';
 import { DemoDataService } from '@/services/demoDataService';
 
 /**
@@ -8,7 +8,7 @@ import { DemoDataService } from '@/services/demoDataService';
 export function useConditionalIntakes() {
   return useConditionalData(
     ['intakes'],
-    () => [], // No demo intakes for now
+    () => DemoDataService.getDemoIntakes() as EnhancedIntake[],
     () => enhancedIntakeService.getIntakesWithProgramData()
   );
 }

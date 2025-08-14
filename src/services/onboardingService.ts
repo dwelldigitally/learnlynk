@@ -349,6 +349,66 @@ export class OnboardingService {
                   errors.push(`Failed to create application for ${app.studentName}: ${appError.message}`);
                 }
               }
+
+              // Create demo intakes
+              const demoIntakes = DemoDataService.getDemoIntakes();
+              for (const intake of demoIntakes) {
+                // Find or create matching program for this intake
+                const { data: existingProgram } = await supabase
+                  .from('programs')
+                  .select('id')
+                  .eq('user_id', currentUser.id)
+                  .eq('name', intake.program_name)
+                  .single();
+
+                let programId = existingProgram?.id;
+
+                // If program doesn't exist, create it
+                if (!programId) {
+                  const { data: newProgram, error: programError } = await supabase
+                    .from('programs')
+                    .insert({
+                      user_id: currentUser.id,
+                      name: intake.program_name,
+                      type: intake.program_type,
+                      description: `Demo program for ${intake.program_name}`,
+                      duration: '1 year',
+                      enrollment_status: 'open'
+                    })
+                    .select('id')
+                    .single();
+
+                  if (programError) {
+                    console.error('Error creating demo program:', programError);
+                    errors.push(`Failed to create program: ${intake.program_name}`);
+                    continue;
+                  }
+                  programId = newProgram.id;
+                }
+
+                const intakeData = {
+                  user_id: currentUser.id,
+                  program_id: programId,
+                  name: intake.name,
+                  start_date: intake.start_date,
+                  application_deadline: intake.application_deadline,
+                  capacity: intake.capacity,
+                  study_mode: intake.study_mode,
+                  delivery_method: intake.delivery_method,
+                  campus: intake.campus,
+                  status: intake.status,
+                  sales_approach: intake.sales_approach
+                };
+
+                const { error: intakeError } = await supabase
+                  .from('intakes')
+                  .insert(intakeData);
+
+                if (intakeError) {
+                  console.error('Error creating demo intake:', intakeError);
+                  errors.push(`Failed to create intake: ${intake.name}`);
+                }
+              }
             }
           } catch (demoError) {
             console.error('Error in demo data assignment:', demoError);

@@ -11,19 +11,16 @@ import { useToast } from '@/hooks/use-toast';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { Plus, Trash2, Save, Target, GripVertical, Brain, Sparkles, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { RuleTypeDisplay } from './scoring/RuleTypeComponents';
-import { RuleGrouping, RuleGroupCard, getRuleGroupProps } from './scoring/RuleGrouping';
 
 interface ScoringRule {
   id: string;
   name: string;
   field: string;
   condition: string;
-  value: string | any[];
+  value: string;
   points: number;
   enabled: boolean;
   order_index?: number;
-  description?: string;
 }
 
 export function LeadScoringEngine() {
@@ -60,8 +57,7 @@ export function LeadScoringEngine() {
         value: rule.value,
         points: rule.points,
         enabled: rule.enabled,
-        order_index: rule.order_index,
-        description: rule.description
+        order_index: rule.order_index
       }));
       
       setScoringRules(transformedRules);
@@ -349,38 +345,17 @@ export function LeadScoringEngine() {
     });
   };
 
-  const calculateRulePoints = (rule: ScoringRule): number => {
-    // For complex rules with JSON value structures, calculate total from conditions
-    if (typeof rule.value === 'string' && rule.value.startsWith('[')) {
-      try {
-        const conditions = JSON.parse(rule.value);
-        if (Array.isArray(conditions)) {
-          return conditions.reduce((sum, cond) => sum + (cond.points || 0), 0);
-        }
-      } catch {
-        // Fallback to rule points
-      }
-    }
-    return rule.points;
-  };
-
   const totalPossiblePoints = scoringRules
     .filter(rule => rule.enabled)
-    .reduce((sum, rule) => sum + calculateRulePoints(rule), 0);
+    .reduce((sum, rule) => sum + rule.points, 0);
 
   const positivePoints = scoringRules
-    .filter(rule => rule.enabled)
-    .reduce((sum, rule) => {
-      const points = calculateRulePoints(rule);
-      return points > 0 ? sum + points : sum;
-    }, 0);
+    .filter(rule => rule.enabled && rule.points > 0)
+    .reduce((sum, rule) => sum + rule.points, 0);
 
   const negativePoints = Math.abs(scoringRules
-    .filter(rule => rule.enabled)
-    .reduce((sum, rule) => {
-      const points = calculateRulePoints(rule);
-      return points < 0 ? sum + points : sum;
-    }, 0));
+    .filter(rule => rule.enabled && rule.points < 0)
+    .reduce((sum, rule) => sum + rule.points, 0));
 
   const getRuleTypeColor = (points: number) => {
     if (points > 0) return 'text-green-600';
@@ -487,78 +462,157 @@ export function LeadScoringEngine() {
         </Card>
       </div>
 
-      {/* Enhanced Scoring Rules Display */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      {/* Scoring Rules with Drag & Drop */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Active Scoring Rules</h2>
-            <p className="text-muted-foreground">
-              Sophisticated rules for accurate lead qualification and prioritization
+            <CardTitle>Scoring Rules</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Drag to reorder • Use positive points for good indicators • Use negative points for disqualifiers
             </p>
           </div>
           <Button onClick={addRule} size="sm">
             <Plus className="h-4 w-4 mr-2" />
-            Add Simple Rule
+            Add Rule
           </Button>
-        </div>
-
-        <RuleGrouping rules={scoringRules}>
-          {(groupedRules) => (
-            <div className="space-y-6">
-              {Object.entries(groupedRules).map(([groupType, rules]) => {
-                const groupProps = getRuleGroupProps(groupType);
-                return (
-                  <RuleGroupCard
-                    key={groupType}
-                    title={groupType}
-                    rules={rules}
-                    icon={groupProps.icon}
-                    colorClass={groupProps.colorClass}
-                  >
-                    <div className="space-y-4">
-                      {rules.map((rule) => (
-                        <div key={rule.id} className="relative">
-                          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-                            <Switch
-                              checked={rule.enabled}
-                              onCheckedChange={(enabled) => updateRule(rule.id, { enabled })}
-                            />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => deleteRule(rule.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+        </CardHeader>
+        <CardContent>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="scoring-rules">
+              {(provided) => (
+                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
+                  {scoringRules.map((rule, index) => (
+                    <Draggable key={rule.id} draggableId={rule.id} index={index}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`p-4 border rounded-lg space-y-4 transition-shadow ${
+                            snapshot.isDragging ? 'shadow-lg bg-background' : ''
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div
+                                {...provided.dragHandleProps}
+                                className="cursor-grab active:cursor-grabbing"
+                              >
+                                <GripVertical className="h-5 w-5 text-muted-foreground" />
+                              </div>
+                              <Switch
+                                checked={rule.enabled}
+                                onCheckedChange={(enabled) => updateRule(rule.id, { enabled })}
+                              />
+                              <Input
+                                value={rule.name}
+                                onChange={(e) => updateRule(rule.id, { name: e.target.value })}
+                                className="font-medium"
+                                placeholder="Rule name"
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {getRuleTypeBadge(rule.points)}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteRule(rule.id)}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
-                          <RuleTypeDisplay rule={rule} />
-                        </div>
-                      ))}
-                    </div>
-                  </RuleGroupCard>
-                );
-              })}
 
-              {scoringRules.length === 0 && (
-                <Card>
-                  <CardContent className="text-center py-12">
-                    <Target className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No scoring rules configured</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Add sophisticated scoring rules to automatically qualify and prioritize your leads
-                    </p>
-                    <Button onClick={addRule}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create Your First Rule
-                    </Button>
-                  </CardContent>
-                </Card>
+                          <div className="grid grid-cols-12 gap-4 items-center">
+                            <div className="col-span-3">
+                              <Label className="text-sm">Field</Label>
+                              <Select
+                                value={rule.field}
+                                onValueChange={(value) => updateRule(rule.id, { field: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {fieldOptions.map(option => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="col-span-3">
+                              <Label className="text-sm">Condition</Label>
+                              <Select
+                                value={rule.condition}
+                                onValueChange={(value) => updateRule(rule.id, { condition: value })}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {conditionOptions.map(option => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      {option.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+
+                            <div className="col-span-4">
+                              <Label className="text-sm">Value</Label>
+                              <Input
+                                value={rule.value}
+                                onChange={(e) => updateRule(rule.id, { value: e.target.value })}
+                                placeholder="Enter value to match"
+                              />
+                            </div>
+
+                            <div className="col-span-2">
+                              <Label className="text-sm">Points</Label>
+                              <Input
+                                type="number"
+                                value={rule.points}
+                                onChange={(e) => updateRule(rule.id, { points: parseInt(e.target.value) || 0 })}
+                                min="-100"
+                                max="100"
+                                className={getRuleTypeColor(rule.points)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Rule Preview */}
+                          <div className="bg-muted/50 p-3 rounded text-sm">
+                            <span className="font-medium">Rule: </span>
+                            When <span className="font-medium">{fieldOptions.find(f => f.value === rule.field)?.label}</span> 
+                            {' '}<span className="font-medium">{conditionOptions.find(c => c.value === rule.condition)?.label}</span>
+                            {' '}<span className="font-medium">"{rule.value}"</span>
+                            {' '}→ <span className={`font-medium ${getRuleTypeColor(rule.points)}`}>
+                              {rule.points > 0 ? '+' : ''}{rule.points} points
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+
+                  {scoringRules.length === 0 && (
+                    <div className="text-center py-8">
+                      <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">No scoring rules configured yet.</p>
+                      <p className="text-sm text-muted-foreground">Add your first rule to start scoring leads automatically.</p>
+                    </div>
+                  )}
+                </div>
               )}
-            </div>
-          )}
-        </RuleGrouping>
-      </div>
+            </Droppable>
+          </DragDropContext>
+        </CardContent>
+      </Card>
 
       {/* Enhanced Tips */}
       <Card>

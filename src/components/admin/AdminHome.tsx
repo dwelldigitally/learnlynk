@@ -85,13 +85,6 @@ const AdminHome: React.FC = () => {
       onClick: () => setShowNoteModal(true)
     },
     {
-      title: "Recent Activity",
-      description: "View latest system activity",
-      icon: Activity,
-      color: "bg-pink-500/10 text-pink-600 hover:bg-pink-500/20",
-      onClick: () => navigate("/admin/overview")
-    },
-    {
       title: "Help Center",
       description: "Get help and browse documentation",
       icon: HelpCircle,

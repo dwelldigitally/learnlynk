@@ -96,8 +96,8 @@ const ModernSignUp: React.FC = () => {
       if (error) {
         setError(error.message);
       } else {
-        // Redirect to OTP verification after successful signup
-        navigate('/verify-otp');
+        // Redirect to email verification page after successful signup
+        navigate('/verify-email');
       }
     } catch (err) {
       setError('Failed to create account. Please try again.');

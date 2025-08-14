@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Your Email - Learnlynk</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .email-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .email-title {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .email-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 16px;
+            margin: 12px 0 0 0;
+            font-weight: 400;
+        }
+        
+        .email-body {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .greeting {
+            font-size: 20px;
+            color: #2d3748;
+            margin: 0 0 24px 0;
+            font-weight: 600;
+        }
+        
+        .message {
+            font-size: 16px;
+            color: #4a5568;
+            line-height: 1.6;
+            margin: 0 0 32px 0;
+        }
+        
+        .verify-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+            padding: 16px 32px;
+            border-radius: 12px;
+            margin: 0 0 32px 0;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .verify-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+        
+        .alternative-text {
+            font-size: 14px;
+            color: #718096;
+            margin: 24px 0;
+            line-height: 1.5;
+        }
+        
+        .link-text {
+            font-size: 13px;
+            color: #4a5568;
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            word-break: break-all;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            margin: 16px 0;
+        }
+        
+        .security-notice {
+            background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
+            border: 1px solid #fc8181;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 32px 0;
+            text-align: left;
+        }
+        
+        .security-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #c53030;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-icon {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+        
+        .security-text {
+            font-size: 14px;
+            color: #9b2c2c;
+            margin: 0;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            background: #f8fafc;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .footer-text {
+            font-size: 14px;
+            color: #718096;
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+        
+        .company-info {
+            font-size: 12px;
+            color: #a0aec0;
+            margin: 0;
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, #e2e8f0 50%, transparent 100%);
+            margin: 32px 0;
+        }
+        
+        @media only screen and (max-width: 600px) {
+            .email-container {
+                margin: 20px 16px;
+                border-radius: 12px;
+            }
+            
+            .email-body {
+                padding: 30px 20px;
+            }
+            
+            .email-title {
+                font-size: 24px;
+            }
+            
+            .greeting {
+                font-size: 18px;
+            }
+            
+            .verify-button {
+                font-size: 16px;
+                padding: 14px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <div class="logo">L</div>
+            <h1 class="email-title">Welcome to Learnlynk!</h1>
+            <p class="email-subtitle">Verify your email to get started</p>
+        </div>
+        
+        <!-- Body -->
+        <div class="email-body">
+            <h2 class="greeting">Hello there! 👋</h2>
+            
+            <p class="message">
+                Thank you for joining Learnlynk! We're excited to have you on board. 
+                To complete your registration and secure your account, please verify your email address by clicking the button below.
+            </p>
+            
+            <a href="{{ .ConfirmationURL }}" class="verify-button">
+                ✨ Verify Email Address
+            </a>
+            
+            <div class="divider"></div>
+            
+            <p class="alternative-text">
+                <strong>Can't click the button?</strong><br>
+                Copy and paste this link into your browser:
+            </p>
+            
+            <div class="link-text">{{ .ConfirmationURL }}</div>
+            
+            <div class="security-notice">
+                <h3 class="security-title">
+                    <span class="security-icon">🔒</span>
+                    Important Security Notice
+                </h3>
+                <p class="security-text">
+                    This verification link will expire in <strong>24 hours</strong> for your security. 
+                    If you didn't create an account with Learnlynk, please ignore this email.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p class="footer-text">
+                <strong>Need help?</strong> Contact our support team at 
+                <a href="mailto:support@learnlynk.com" style="color: #667eea;">support@learnlynk.com</a>
+            </p>
+            
+            <p class="company-info">
+                © 2024 Learnlynk. All rights reserved.<br>
+                This is an automated email, please do not reply directly to this message.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

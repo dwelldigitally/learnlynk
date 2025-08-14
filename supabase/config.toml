@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.aircall-api]
 verify_jwt = true
+
+[functions.process-demo-email]
+verify_jwt = true

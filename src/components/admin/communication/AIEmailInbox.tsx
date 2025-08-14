@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,15 +20,53 @@ import {
   Zap
 } from 'lucide-react';
 import { generateDummyEmails, getHighPriorityEmails, getUnreadEmails } from '@/services/dummyEmailService';
+import { EmailImportDialog } from './EmailImportDialog';
+import { EmailService } from '@/services/emailService';
 
 export function AIEmailInbox() {
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [realEmails, setRealEmails] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   
-  const allEmails = generateDummyEmails();
+  const dummyEmails = generateDummyEmails();
+  const allEmails = [...realEmails, ...dummyEmails];
   const highPriorityEmails = getHighPriorityEmails();
   const unreadEmails = getUnreadEmails();
+
+  const loadRealEmails = async () => {
+    setLoading(true);
+    try {
+      const { emails } = await EmailService.getEmails({}, 1, 20);
+      setRealEmails(emails.map(email => ({
+        id: email.id,
+        from_name: email.from_name || 'Unknown',
+        from_email: email.from_email,
+        subject: email.subject || 'No Subject',
+        body_content: email.body_content || '',
+        body_preview: email.body_preview || '',
+        received_datetime: email.received_datetime,
+        is_read: email.is_read,
+        ai_priority_score: email.ai_priority_score || 0,
+        category: email.ai_suggested_actions?.[0]?.type || 'inquiry',
+        ai_suggested_actions: email.ai_suggested_actions || [],
+        lead_match: email.lead_id ? {
+          name: 'Unknown Lead',
+          program_interest: [],
+          score: email.ai_lead_match_confidence || 0
+        } : null
+      })));
+    } catch (error) {
+      console.error('Error loading emails:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRealEmails();
+  }, []);
 
   const filteredEmails = allEmails.filter(email => {
     const matchesSearch = email.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -60,6 +98,12 @@ export function AIEmailInbox() {
 
    return (
     <div className="space-y-4">
+      {/* Header with Import Button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">AI Email Management</h2>
+        <EmailImportDialog onEmailImported={loadRealEmails} />
+      </div>
+
       {/* Search and Filter */}
       <div className="flex items-center gap-4">
         <div className="relative flex-1">

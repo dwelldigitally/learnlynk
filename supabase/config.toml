@@ -1,5 +1,8 @@
 project_id = "rpxygdaimdiarjpfmswl"
 
+[functions.send-otp]
+verify_jwt = false
+
 [functions.ai-lead-scoring]
 verify_jwt = false
 

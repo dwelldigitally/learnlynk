@@ -110,10 +110,10 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
           )}
 
           {/* Main Content Area */}
-          <main className={`flex-1 w-full min-h-screen bg-background/50 transition-all duration-300 ${
+          <main className={`flex-1 w-full bg-background/50 transition-all duration-300 ${
             isMobile ? 'p-3' : 'p-6'
           }`}>
-            <div className="h-full max-w-full overflow-x-hidden">
+            <div className="max-w-full overflow-x-hidden">
               {children || <Outlet />}
             </div>
           </main>

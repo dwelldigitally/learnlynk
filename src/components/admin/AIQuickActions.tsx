@@ -255,6 +255,7 @@ export function AIQuickActions() {
             variant="ghost"
             size="sm"
             className="w-full text-xs text-muted-foreground hover:text-primary"
+            onClick={() => window.location.href = '/admin/ai-features'}
           >
             <Zap className="h-3 w-3 mr-2" />
             View All AI Features

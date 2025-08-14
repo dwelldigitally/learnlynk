@@ -65,8 +65,8 @@ export function StudentDetail({ studentId }: StudentDetailProps) {
     paginatedCount: paginatedStudents?.data?.length
   });
 
-  // Try to find student in either dataset
-  const allStudents = paginatedStudents?.data || students;
+  // Try to find student in either dataset - prioritize students over paginatedStudents
+  const allStudents = students?.length ? students : (paginatedStudents?.data || []);
   const student = allStudents?.find((s: any) => s.id === studentId);
   const studentFinancials = financials?.filter((f: any) => 
     f.student_name === `${student?.first_name} ${student?.last_name}`

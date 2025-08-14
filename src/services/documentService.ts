@@ -159,10 +159,13 @@ export function useDocuments() {
  * React hook to get documents for a specific student
  */
 export function useStudentDocuments(studentId: string) {
+  // Check if studentId is a valid UUID format (for real data) vs demo data (like "s1", "s2")
+  const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(studentId);
+  
   return useQuery({
     queryKey: ['documents', 'student', studentId],
     queryFn: () => DocumentService.getStudentDocuments(studentId),
-    enabled: !!studentId,
+    enabled: !!studentId && isValidUUID,
     staleTime: 5 * 60 * 1000,
   });
 }

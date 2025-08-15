@@ -37,6 +37,8 @@ import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
 import { LeadConfiguration } from './LeadConfiguration';
 import { LeadRoutingRulesConfiguration } from './LeadRoutingRulesConfiguration';
 import { LeadScoringConfiguration } from './LeadScoringConfiguration';
+import { StudentManagementConfiguration } from './StudentManagementConfiguration';
+import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
 
 interface ConfigurationSection {
   id: string;
@@ -83,7 +85,7 @@ const configurationSections: ConfigurationSection[] = [
     icon: GraduationCap,
     description: 'Configure student lifecycle and management settings',
     category: 'Students',
-    component: <div className="p-8 text-center text-muted-foreground">Student configuration coming soon</div>
+    component: <StudentManagementConfiguration />
   },
   
   // Applicants Configuration
@@ -93,7 +95,7 @@ const configurationSections: ConfigurationSection[] = [
     icon: FileText,
     description: 'Configure application process and requirements',
     category: 'Applicants',
-    component: <div className="p-8 text-center text-muted-foreground">Applicant configuration coming soon</div>
+    component: <ApplicantManagementConfiguration />
   },
 
   // System - Data & Database

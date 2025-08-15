@@ -7,6 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { ExternalLink, Shield, Zap, CheckCircle, ArrowRight, Copy } from 'lucide-react';
 import hubspotService from '@/services/hubspotService';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HubSpotOAuthHandlerProps {
   onConnectionSuccess?: () => void;
@@ -17,57 +18,63 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
   const [showInstructions, setShowInstructions] = useState(false);
   const { toast } = useToast();
 
-  // HubSpot OAuth configuration
-  const HUBSPOT_OAUTH_URL = `https://app.hubspot.com/oauth/authorize`;
-  const CLIENT_ID = 'your-hubspot-client-id'; // This should be configured
-  const REDIRECT_URI = `${window.location.origin}/admin/integrations/hubspot/callback`;
-  const SCOPES = [
-    'contacts',
-    'content',
-    'reports',
-    'social',
-    'automation',
-    'timeline',
-    'business-intelligence',
-    'forms',
-    'files',
-    'hubdb',
-    'integration-sync',
-    'tickets',
-    'e-commerce',
-    'accounting',
-    'sales-email-read',
-    'crm.objects.contacts.read',
-    'crm.objects.contacts.write',
-    'crm.objects.companies.read',
-    'crm.objects.companies.write',
-    'crm.objects.deals.read',
-    'crm.objects.deals.write',
-    'crm.objects.owners.read'
-  ].join(' ');
-
-  const handleOAuthInstall = () => {
+  const handleOAuthInstall = async () => {
     setIsConnecting(true);
-    const authUrl = `${HUBSPOT_OAUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_type=code`;
     
-    // Open HubSpot OAuth in new window
-    const popup = window.open(authUrl, 'hubspot-oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
-    
-    // Listen for popup to close or receive message
-    const checkClosed = setInterval(() => {
-      if (popup?.closed) {
-        clearInterval(checkClosed);
+    try {
+      // Get OAuth configuration from edge function
+      const { data, error } = await supabase.functions.invoke('hubspot-oauth', {
+        body: {}
+      });
+
+      if (error) {
+        console.error('Error getting HubSpot OAuth config:', error);
+        toast({
+          title: "Connection Error",
+          description: "Failed to get HubSpot OAuth configuration",
+          variant: "destructive"
+        });
         setIsConnecting(false);
-        // Check if connection was successful by testing the service
-        if (hubspotService.isConnected()) {
-          toast({
-            title: "HubSpot Connected",
-            description: "Successfully connected to HubSpot via OAuth",
-          });
-          onConnectionSuccess?.();
-        }
+        return;
       }
-    }, 1000);
+
+      if (!data?.authUrl) {
+        toast({
+          title: "Configuration Error", 
+          description: "HubSpot OAuth not properly configured",
+          variant: "destructive"
+        });
+        setIsConnecting(false);
+        return;
+      }
+
+      // Open HubSpot OAuth in new window
+      const popup = window.open(data.authUrl, 'hubspot-oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
+      
+      // Listen for popup to close or receive message
+      const checkClosed = setInterval(() => {
+        if (popup?.closed) {
+          clearInterval(checkClosed);
+          setIsConnecting(false);
+          // Check if connection was successful by testing the service
+          if (hubspotService.isConnected()) {
+            toast({
+              title: "HubSpot Connected",
+              description: "Successfully connected to HubSpot via OAuth",
+            });
+            onConnectionSuccess?.();
+          }
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('OAuth initiation error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate HubSpot connection",
+        variant: "destructive"
+      });
+      setIsConnecting(false);
+    }
   };
 
   const handleManualApiKey = () => {

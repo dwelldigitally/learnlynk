@@ -25,10 +25,12 @@ const PropertyImportScreen: React.FC = () => {
     companies: 0,
     deals: 0,
     activities: 0,
+    owners: 0,
   });
 
   const [selectedProperties, setSelectedProperties] = useState({
     contact: true,
+    owners: true,
     company: true,
     deals: true,
     activities: true,
@@ -101,7 +103,7 @@ const PropertyImportScreen: React.FC = () => {
       setImportComplete(true);
       
       toast.success("Data imported successfully", {
-        description: `Imported ${stats.contacts} contacts, ${stats.companies} companies, ${stats.deals} deals, and ${stats.activities} activities.`
+        description: `Imported ${stats.contacts} contacts, ${stats.owners} owners, ${stats.companies} companies, ${stats.deals} deals, and ${stats.activities} activities.`
       });
     } catch (error) {
       console.error("Error importing data:", error);
@@ -150,10 +152,14 @@ const PropertyImportScreen: React.FC = () => {
                 Import Complete
               </h3>
               
-              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div className="bg-white p-3 rounded-lg text-center border border-gray-100">
                   <div className="text-2xl font-bold text-blue-600">{importStats.contacts}</div>
                   <div className="text-sm text-gray-500">Contacts</div>
+                </div>
+                <div className="bg-white p-3 rounded-lg text-center border border-gray-100">
+                  <div className="text-2xl font-bold text-cyan-600">{importStats.owners}</div>
+                  <div className="text-sm text-gray-500">Owners</div>
                 </div>
                 <div className="bg-white p-3 rounded-lg text-center border border-gray-100">
                   <div className="text-2xl font-bold text-green-600">{importStats.companies}</div>
@@ -222,6 +228,22 @@ const PropertyImportScreen: React.FC = () => {
                 </div>
                 <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                   Required
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                <Checkbox 
+                  id="owners" 
+                  checked={selectedProperties.owners}
+                  onCheckedChange={() => handlePropertyChange('owners')}
+                  disabled={isImporting}
+                />
+                <div className="flex-1">
+                  <Label htmlFor="owners" className="font-medium">Contact Owners</Label>
+                  <p className="text-sm text-saas-gray-medium">HubSpot users for lead routing</p>
+                </div>
+                <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                  Recommended
                 </div>
               </div>
               

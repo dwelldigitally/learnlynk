@@ -19,6 +19,8 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
+import { HubSpotOwnerManagement } from "@/components/admin/integrations/HubSpotOwnerManagement";
+import { HubSpotIntegrationStatus } from "@/components/admin/integrations/HubSpotIntegrationStatus";
 
 export const IntegrationHub = () => {
   const [showApiKeys, setShowApiKeys] = useState<{ [key: string]: boolean }>({});
@@ -222,6 +224,8 @@ export const IntegrationHub = () => {
         </TabsList>
 
         <TabsContent value="crm" className="space-y-4">
+          <HubSpotIntegrationStatus />
+          <HubSpotOwnerManagement />
           {crmIntegrations.map(integration => (
             <IntegrationCard key={integration.id} integration={integration} />
           ))}

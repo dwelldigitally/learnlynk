@@ -35,11 +35,23 @@ export interface HubSpotCompany {
   updatedAt: string;
 }
 
+export interface HubSpotOwner {
+  id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface HubSpotImportStats {
   contacts: number;
   companies: number;
   deals: number;
   activities: number;
+  owners: number;
 }
 
 class HubSpotService {
@@ -48,6 +60,7 @@ class HubSpotService {
   private contactProperties: HubSpotProperty[] = [];
   private dealProperties: HubSpotProperty[] = [];
   private companyProperties: HubSpotProperty[] = [];
+  private owners: HubSpotOwner[] = [];
 
   setApiKey(key: string) {
     this.apiKey = key;
@@ -186,7 +199,8 @@ class HubSpotService {
       contacts: 0,
       companies: 0,
       deals: 0,
-      activities: 0
+      activities: 0,
+      owners: 0
     };
 
     try {
@@ -222,12 +236,94 @@ class HubSpotService {
         // Simulate fetching activities
         stats.activities = Math.floor(Math.random() * 500) + 100;
       }
+
+      if (selectedObjects.includes('owners')) {
+        // Fetch actual owners from HubSpot
+        const owners = await this.fetchOwners();
+        stats.owners = owners.length;
+      }
       
       return stats;
     } catch (error) {
       console.error("Failed to import data from HubSpot:", error);
       toast.error("Failed to import data from HubSpot");
       return stats;
+    }
+  }
+
+  async fetchOwners(): Promise<HubSpotOwner[]> {
+    if (!this.apiKey) {
+      throw new Error("Not authenticated with HubSpot");
+    }
+
+    try {
+      const response = await fetch(`${HUBSPOT_API_BASE}/owners`, {
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch HubSpot owners");
+      }
+
+      const data = await response.json();
+      this.owners = data.results.map((owner: any) => ({
+        id: owner.id,
+        email: owner.email,
+        firstName: owner.firstName,
+        lastName: owner.lastName,
+        fullName: `${owner.firstName || ''} ${owner.lastName || ''}`.trim(),
+        active: owner.archived === false,
+        createdAt: owner.createdAt,
+        updatedAt: owner.updatedAt
+      }));
+      
+      return this.owners;
+    } catch (error) {
+      console.error("Failed to fetch HubSpot owners:", error);
+      toast.error("Failed to fetch HubSpot owners");
+      return [];
+    }
+  }
+
+  async fetchContactsWithOwners(limit: number = 100): Promise<HubSpotContact[]> {
+    if (!this.apiKey) {
+      throw new Error("Not authenticated with HubSpot");
+    }
+
+    try {
+      const properties = [
+        'email', 'firstname', 'lastname', 'phone', 'company', 
+        'hubspot_owner_id', 'createdate', 'lastmodifieddate'
+      ];
+      
+      const response = await fetch(
+        `${HUBSPOT_API_BASE}/objects/contacts?limit=${limit}&properties=${properties.join(',')}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch contacts with owners");
+      }
+
+      const data = await response.json();
+      return data.results.map((contact: any) => ({
+        id: contact.id,
+        properties: contact.properties,
+        createdAt: contact.properties.createdate,
+        updatedAt: contact.properties.lastmodifieddate
+      }));
+    } catch (error) {
+      console.error("Failed to fetch contacts with owners:", error);
+      toast.error("Failed to fetch contacts with owners");
+      return [];
     }
   }
 
@@ -257,6 +353,10 @@ class HubSpotService {
 
   getCompanyProperties(): HubSpotProperty[] {
     return this.companyProperties;
+  }
+
+  getOwners(): HubSpotOwner[] {
+    return this.owners;
   }
 }
 

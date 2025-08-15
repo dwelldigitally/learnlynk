@@ -1727,6 +1727,87 @@ export type Database = {
         }
         Relationships: []
       }
+      hubspot_contacts: {
+        Row: {
+          company: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          hubspot_contact_id: string
+          hubspot_owner_id: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          properties: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          hubspot_contact_id: string
+          hubspot_owner_id?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          properties?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          hubspot_contact_id?: string
+          hubspot_owner_id?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          properties?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hubspot_owners: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          email: string
+          first_name: string | null
+          hubspot_owner_id: string
+          id: string
+          last_name: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          email: string
+          first_name?: string | null
+          hubspot_owner_id: string
+          id?: string
+          last_name?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          email?: string
+          first_name?: string | null
+          hubspot_owner_id?: string
+          id?: string
+          last_name?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       intakes: {
         Row: {
           application_deadline: string | null
@@ -2937,6 +3018,36 @@ export type Database = {
           updated_at?: string
           user_id?: string
           working_hours?: Json | null
+        }
+        Relationships: []
+      }
+      owner_advisor_mappings: {
+        Row: {
+          advisor_id: string | null
+          created_at: string
+          hubspot_owner_id: string
+          id: string
+          is_active: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          advisor_id?: string | null
+          created_at?: string
+          hubspot_owner_id: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          advisor_id?: string | null
+          created_at?: string
+          hubspot_owner_id?: string
+          id?: string
+          is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

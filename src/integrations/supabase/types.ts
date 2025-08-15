@@ -1808,6 +1808,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hubspot_settings: {
+        Row: {
+          access_token_encrypted: string
+          connection_status: string
+          created_at: string
+          expires_at: string
+          hub_id: string | null
+          id: string
+          is_active: boolean
+          last_sync_at: string | null
+          refresh_token_encrypted: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted: string
+          connection_status?: string
+          created_at?: string
+          expires_at: string
+          hub_id?: string | null
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          refresh_token_encrypted?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string
+          connection_status?: string
+          created_at?: string
+          expires_at?: string
+          hub_id?: string | null
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          refresh_token_encrypted?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       intakes: {
         Row: {
           application_deadline: string | null

@@ -28,6 +28,7 @@ import RecruiterSubmitApplication from "./pages/RecruiterSubmitApplication";
 import ApplicantManagementPage from "./pages/ApplicantManagementPage";
 import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
+import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -48,7 +49,10 @@ const App = () => {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
-              <Route path="/dashboard" element={<Navigate to="/admin" replace />} /> 
+              <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
+              
+              {/* HubSpot OAuth callback route - matches what HubSpot sends */}
+              <Route path="/hubspot/oauth/callback" element={<HubSpotOAuthCallback />} />
               
               {/* Specific admin routes first */}
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />

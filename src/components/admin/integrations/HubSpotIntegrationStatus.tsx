@@ -152,12 +152,14 @@ export function HubSpotIntegrationStatus() {
             <p className="text-muted-foreground mb-4">
               Connect to HubSpot to start importing owners and contacts for lead routing
             </p>
-            <Button asChild>
-              <a href="/admin/configuration">
-                <Settings className="w-4 h-4 mr-2" />
-                Configure HubSpot Integration
-              </a>
-            </Button>
+            <div className="flex gap-2">
+              <Button asChild>
+                <a href="/admin/configuration">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Configure Integration
+                </a>
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>

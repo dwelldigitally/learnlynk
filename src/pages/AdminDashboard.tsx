@@ -39,6 +39,7 @@ import { IntegrationHub } from "@/components/admin/database/IntegrationHub";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
 import AIEmailManagementPage from "./AIEmailManagementPage";
+import { HubSpotOAuthCallback } from "@/pages/HubSpotOAuthCallback";
 import RecruiterManagement from "@/components/admin/RecruiterManagement";
 import RecruiterApplicationsManagement from "@/components/admin/RecruiterApplicationsManagement";
 import { RegistrarCommandCenter } from "@/components/admin/registrar/RegistrarCommandCenter";
@@ -147,6 +148,8 @@ const AdminDashboard: React.FC = () => {
         return <ConfigurationManagement />;
       case "/admin/database/integrations":
         return <IntegrationHub />;
+      case "/admin/integrations/hubspot/callback":
+        return <HubSpotOAuthCallback />;
       case "/admin/demo-data":
         return <DemoDataManagement />;
       case "/admin/profile":

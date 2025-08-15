@@ -151,7 +151,8 @@ export const EnhancedIntegrationHub = () => {
       fields: [
         { key: 'api_key', label: 'API Key', type: 'password', required: true },
         { key: 'portal_id', label: 'Portal ID', type: 'text', required: true }
-      ]
+      ],
+      documentation: 'https://developers.hubspot.com/docs/api/overview'
     },
     {
       id: 'quickbooks',
@@ -364,7 +365,128 @@ export const EnhancedIntegrationHub = () => {
     }
   };
 
+  const HubSpotCard = ({ integration }: { integration: Integration }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    const handleInstallApp = () => {
+      const hubspotAuthUrl = `https://app.hubspot.com/oauth/authorize?client_id=your-client-id&redirect_uri=${encodeURIComponent(window.location.origin + '/admin/integrations/hubspot/callback')}&scope=contacts%20content%20reports&response_type=code`;
+      window.open(hubspotAuthUrl, 'hubspot-oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
+    };
+
+    return (
+      <Card key={integration.id} className="relative">
+        {integration.isPopular && (
+          <Badge className="absolute -top-2 -right-2 z-10" variant="default">
+            Popular
+          </Badge>
+        )}
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <integration.icon className="h-8 w-8 text-primary" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-lg">{integration.name}</CardTitle>
+                </div>
+                <CardDescription>{integration.description}</CardDescription>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              {getStatusBadge(integration.status)}
+              <Switch 
+                checked={integration.status === 'connected'} 
+                onCheckedChange={() => setIsExpanded(!isExpanded)}
+              />
+            </div>
+          </div>
+        </CardHeader>
+        
+        {(isExpanded || integration.status === 'connected') && (
+          <CardContent className="space-y-4">
+            {integration.status === 'connected' && integration.lastSync && (
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>
+                  Last synchronized: {integration.lastSync}
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {/* HubSpot-specific connection options */}
+            <div className="space-y-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Install as Private App</h4>
+                    <p className="text-sm text-muted-foreground">Recommended: OAuth connection with automatic setup</p>
+                  </div>
+                  <Button onClick={handleInstallApp} className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Install App
+                  </Button>
+                </div>
+                
+                <div className="text-center text-sm text-muted-foreground">or</div>
+                
+                <div className="p-3 border rounded-lg space-y-3">
+                  <h4 className="font-medium">Manual API Key Setup</h4>
+                  <div className="grid gap-4">
+                    {integration.fields.map((field) => (
+                      <div key={field.key}>
+                        <Label htmlFor={`${integration.id}-${field.key}`}>
+                          {field.label}
+                          {field.required && <span className="text-destructive ml-1">*</span>}
+                        </Label>
+                        <div className="flex space-x-2">
+                          <Input
+                            id={`${integration.id}-${field.key}`}
+                            type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'}
+                            placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+                            className="flex-1"
+                          />
+                          {field.type === 'password' && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}
+                            >
+                              {showApiKeys[`${integration.id}-${field.key}`] ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex space-x-2 pt-4">
+              <Button className="flex-1">
+                {integration.status === 'connected' ? 'Update' : 'Connect'}
+              </Button>
+              <Button variant="outline">Test Connection</Button>
+              {integration.status === 'connected' && (
+                <Button variant="destructive">Disconnect</Button>
+              )}
+            </div>
+          </CardContent>
+        )}
+      </Card>
+    );
+  };
+
   const IntegrationCard = ({ integration }: { integration: Integration }) => {
+    // Use special HubSpot card for HubSpot integration
+    if (integration.id === 'hubspot') {
+      return <HubSpotCard integration={integration} />;
+    }
+
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (

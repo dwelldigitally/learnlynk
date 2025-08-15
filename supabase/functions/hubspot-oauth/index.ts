@@ -163,9 +163,17 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('HubSpot OAuth error:', error)
+    console.error('HubSpot OAuth error details:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    })
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: 'Internal server error', 
+        details: error.message,
+        timestamp: new Date().toISOString()
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

@@ -46,6 +46,8 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
 
       if (!response.ok) {
         console.error('Response not ok:', response.status, response.statusText);
+        const errorText = await response.text();
+        console.error('Error response body:', errorText);
         toast({
           title: "Connection Error",
           description: `Failed to get HubSpot OAuth configuration (${response.status})`,

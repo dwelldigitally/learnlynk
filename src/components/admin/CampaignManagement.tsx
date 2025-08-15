@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye, Workflow, GitBranch } from 'lucide-react';
 import { NaturalLanguageCampaignBuilder } from './database/NaturalLanguageCampaignBuilder';
-import { WorkflowCampaignBuilder } from './WorkflowCampaignBuilder';
+import { UniversalBuilder } from '@/components/universal-builder/UniversalBuilder';
 import { CampaignService, type Campaign } from '@/services/campaignService';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -21,7 +21,7 @@ export function CampaignManagement() {
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-  const [showWorkflowBuilder, setShowWorkflowBuilder] = useState(false);
+  
   const { toast } = useToast();
 
   useEffect(() => {
@@ -178,9 +178,9 @@ export function CampaignManagement() {
             </DialogContent>
           </Dialog>
           
-          <Button onClick={() => navigate('/admin/builder/workflows')}>
+          <Button onClick={() => navigate('/admin/builder/campaigns')}>
             <GitBranch className="h-4 w-4 mr-2" />
-            Workflow Builder
+            Campaign Builder
           </Button>
         </div>
       </div>
@@ -250,10 +250,10 @@ export function CampaignManagement() {
                   Create with AI
                 </Button>
                 <Button 
-                  onClick={() => navigate('/admin/builder/workflows')}
+                  onClick={() => navigate('/admin/builder/campaigns')}
                 >
                   <GitBranch className="h-4 w-4 mr-2" />
-                  Workflow Builder
+                  Campaign Builder
                 </Button>
                 <Button 
                   variant="secondary"

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { GlassCard } from '@/components/modern/GlassCard';
 import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 // Step Components
 import CompanySetupScreen from './steps/CompanySetupScreen';
@@ -202,9 +203,12 @@ const ComprehensiveOnboarding: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
-                <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>
+              <div className="flex items-center space-x-6">
+                <div className="text-right">
+                  <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
+                  <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>
+                </div>
+                <UserMenu />
               </div>
             </div>
             <Progress value={progress} className="w-full" />

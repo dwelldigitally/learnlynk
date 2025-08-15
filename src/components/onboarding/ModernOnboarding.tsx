@@ -14,6 +14,7 @@ import {
   BarChart3,
   Zap
 } from 'lucide-react';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 const ModernOnboarding: React.FC = () => {
   const navigate = useNavigate();
@@ -270,12 +271,18 @@ const ModernOnboarding: React.FC = () => {
       <div className="w-full max-w-2xl animate-fade-up">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-2 mb-6">
-            <img 
-              src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
-              alt="Learnlynk Logo" 
-              className="h-10"
-            />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1" />
+            <div className="flex items-center space-x-2">
+              <img 
+                src="/lovable-uploads/48c3582c-ccc2-44ba-a7b2-4baa993dc1d8.png" 
+                alt="Learnlynk Logo" 
+                className="h-10"
+              />
+            </div>
+            <div className="flex-1 flex justify-end">
+              <UserMenu />
+            </div>
           </div>
           <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
             <span>Step {currentStep} of {totalSteps}</span>

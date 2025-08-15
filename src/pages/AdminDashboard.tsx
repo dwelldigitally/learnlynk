@@ -35,6 +35,7 @@ import { DocumentTemplatesManagement } from "@/components/admin/DocumentTemplate
 import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { CompanySettings } from "@/components/admin/CompanySettings";
 import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
+import { IntegrationHub } from "@/components/admin/database/IntegrationHub";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
 import AIEmailManagementPage from "./AIEmailManagementPage";
@@ -144,6 +145,8 @@ const AdminDashboard: React.FC = () => {
         // Redirect old database route to configuration
         window.history.replaceState(null, '', '/admin/configuration');
         return <ConfigurationManagement />;
+      case "/admin/database/integrations":
+        return <IntegrationHub />;
       case "/admin/demo-data":
         return <DemoDataManagement />;
       case "/admin/profile":

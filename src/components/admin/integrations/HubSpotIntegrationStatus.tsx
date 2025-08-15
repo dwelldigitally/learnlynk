@@ -153,7 +153,7 @@ export function HubSpotIntegrationStatus() {
               Connect to HubSpot to start importing owners and contacts for lead routing
             </p>
             <Button asChild>
-              <a href="/admin/database/integrations">
+              <a href="/admin/configuration">
                 <Settings className="w-4 h-4 mr-2" />
                 Configure HubSpot Integration
               </a>

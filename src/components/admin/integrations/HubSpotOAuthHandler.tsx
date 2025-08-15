@@ -22,21 +22,23 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
     setIsConnecting(true);
     
     try {
-      // Get OAuth configuration from edge function
-      const { data, error } = await supabase.functions.invoke('hubspot-oauth');
+      // Get OAuth configuration from edge function using GET request
+      const response = await fetch(`https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/hubspot-oauth`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweHlnZGFpbWRpYXJqcGZtc3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTY1MDcsImV4cCI6MjA2OTQ5MjUwN30.sR7gSV1I9CCtibU6sdk5FRH6r5m9Y1ZGrQ6ivRhNEcM`,
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweHlnZGFpbWRpYXJqcGZtc3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTY1MDcsImV4cCI6MjA2OTQ5MjUwN30.sR7gSV1I9CCtibU6sdk5FRH6r5m9Y1ZGrQ6ivRhNEcM',
+        },
+      });
 
-      if (error) {
-        console.error('Error getting HubSpot OAuth config:', error);
-        toast({
-          title: "Connection Error",
-          description: "Failed to get HubSpot OAuth configuration",
-          variant: "destructive"
-        });
-        setIsConnecting(false);
-        return;
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      const data = await response.json();
+
       if (!data?.authUrl) {
+        console.error('No authUrl in response:', data);
         toast({
           title: "Configuration Error", 
           description: "HubSpot OAuth not properly configured",

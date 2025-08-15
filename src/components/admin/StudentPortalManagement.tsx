@@ -200,7 +200,10 @@ export const StudentPortalManagement = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowPreviewDialog(true)}>
+          <Button variant="outline" onClick={() => {
+            console.log('Preview button clicked, setting showPreviewDialog to true');
+            setShowPreviewDialog(true);
+          }}>
             <Monitor className="mr-2 h-4 w-4" />
             Preview Portal
           </Button>
@@ -880,7 +883,10 @@ export const StudentPortalManagement = () => {
               <Button onClick={handleSaveConfig} className="flex-1">
                 Save All Settings
               </Button>
-              <Button variant="outline" onClick={() => setShowPreviewDialog(true)}>
+              <Button variant="outline" onClick={() => {
+                console.log('Preview Changes button clicked, setting showPreviewDialog to true');
+                setShowPreviewDialog(true);
+              }}>
                 Preview Changes
               </Button>
             </div>
@@ -939,7 +945,10 @@ export const StudentPortalManagement = () => {
                 <p className="text-muted-foreground mb-4">
                   See how your portal looks to students with the current content and settings.
                 </p>
-                <Button onClick={() => setShowPreviewDialog(true)}>
+                <Button onClick={() => {
+                  console.log('Open Preview button clicked, setting showPreviewDialog to true');
+                  setShowPreviewDialog(true);
+                }}>
                   <Eye className="mr-2 h-4 w-4" />
                   Open Preview
                 </Button>
@@ -1097,7 +1106,10 @@ export const StudentPortalManagement = () => {
       {/* Portal Preview Dialog */}
       <StudentPortalPreview 
         open={showPreviewDialog} 
-        onOpenChange={setShowPreviewDialog} 
+        onOpenChange={(open) => {
+          console.log('StudentPortalPreview onOpenChange called with:', open);
+          setShowPreviewDialog(open);
+        }} 
       />
     </div>
   );

@@ -14,3 +14,6 @@ verify_jwt = true
 
 [functions.process-demo-email]
 verify_jwt = true
+
+[functions.hubspot-oauth]
+verify_jwt = true

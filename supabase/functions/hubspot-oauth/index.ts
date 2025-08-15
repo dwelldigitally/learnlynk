@@ -33,8 +33,12 @@ serve(async (req) => {
     if (req.method === 'GET') {
       // Return HubSpot OAuth configuration
       const clientId = Deno.env.get('HUBSPOT_CLIENT_ID')
+      const clientSecret = Deno.env.get('HUBSPOT_CLIENT_SECRET')
       
-      console.log('HUBSPOT_CLIENT_ID check:', clientId ? 'EXISTS' : 'MISSING')
+      console.log('Environment variables check:', {
+        clientId: clientId ? 'EXISTS' : 'MISSING',
+        clientSecret: clientSecret ? 'EXISTS' : 'MISSING'
+      })
       
       if (!clientId) {
         console.error('HubSpot CLIENT_ID is missing from environment variables')

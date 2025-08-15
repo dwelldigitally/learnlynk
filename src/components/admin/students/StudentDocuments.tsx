@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   FileText, 
   Upload, 
@@ -16,7 +17,11 @@ import {
   Filter,
   MoreHorizontal,
   Trash2,
-  Edit
+  Edit,
+  User,
+  GraduationCap,
+  Calendar,
+  Star
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -27,6 +32,7 @@ interface StudentDocumentsProps {
 
 export function StudentDocuments({ student, onUpdate }: StudentDocumentsProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDocument, setSelectedDocument] = useState<any>(null);
 
   const documents = [
     {
@@ -135,6 +141,204 @@ export function StudentDocuments({ student, onUpdate }: StudentDocumentsProps) {
     doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     doc.type.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const DocumentPreview = ({ document }: { document: any }) => {
+    const [activePreviewTab, setActivePreviewTab] = useState('document');
+    
+    // Mock data for document preview
+    const mockOcrText = `Student Name: ${student?.first_name} ${student?.last_name}
+Document Type: ${document.type}
+Upload Date: ${document.uploadDate}
+Status: ${document.status}
+Version: ${document.version}
+
+This is a sample OCR text extraction for ${document.name}. 
+In a real implementation, this would contain the actual 
+extracted text from the document using OCR technology.
+
+The document appears to be a ${document.type} with 
+the following characteristics:
+- File size: ${document.size}
+- Uploaded by: ${document.uploadedBy}
+- Current status: ${document.status}`;
+
+    return (
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            {document.name} - {student?.first_name} {student?.last_name}
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Document Preview */}
+          <div className="lg:col-span-2 space-y-4">
+            <Tabs value={activePreviewTab} onValueChange={setActivePreviewTab}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="document">Document</TabsTrigger>
+                <TabsTrigger value="ocr">OCR Text</TabsTrigger>
+                <TabsTrigger value="info">Information</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="document" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Document Preview</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-muted h-96 flex items-center justify-center rounded-lg">
+                      <div className="text-center">
+                        <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                        <p className="text-muted-foreground">Document preview would appear here</p>
+                        <p className="text-sm text-muted-foreground mt-2">{document.type} • {document.size}</p>
+                        <Button variant="outline" className="mt-4">
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Document
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="ocr" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      OCR Extracted Text 
+                      <Badge variant="secondary">
+                        95% confidence
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-muted p-4 rounded-lg">
+                      <pre className="whitespace-pre-wrap text-sm">
+                        {mockOcrText}
+                      </pre>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="info" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Document Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-medium text-muted-foreground">Document Name</p>
+                        <p>{document.name}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-muted-foreground">Document Type</p>
+                        <p>{document.type}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-muted-foreground">File Size</p>
+                        <p>{document.size}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-muted-foreground">Upload Date</p>
+                        <p>{new Date(document.uploadDate).toLocaleDateString()}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-muted-foreground">Uploaded By</p>
+                        <p>{document.uploadedBy}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-muted-foreground">Version</p>
+                        <p>v{document.version}</p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-muted-foreground">Status</p>
+                        {getStatusBadge(document.status)}
+                      </div>
+                      {document.reviewer && (
+                        <div>
+                          <p className="font-medium text-muted-foreground">Reviewed By</p>
+                          <p>{document.reviewer}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+
+          {/* Document Actions & Details */}
+          <div className="space-y-4">
+            {/* Student Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Student Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="font-medium">{student?.first_name} {student?.last_name}</p>
+                    <p className="text-xs text-muted-foreground">{student?.email}</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm">{student?.program || 'Program not specified'}</p>
+                    <p className="text-xs text-muted-foreground">{student?.stage || 'Stage not specified'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm">Uploaded: {new Date(document.uploadDate).toLocaleDateString()}</p>
+                    {document.reviewDate && (
+                      <p className="text-xs text-muted-foreground">Reviewed: {new Date(document.reviewDate).toLocaleDateString()}</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Document Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <Button variant="outline" className="w-full justify-start">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Document
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Information
+                </Button>
+                {document.status === 'pending' && (
+                  <>
+                    <Button variant="default" className="w-full justify-start">
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Approve Document
+                    </Button>
+                    <Button variant="destructive" className="w-full justify-start">
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Reject Document
+                    </Button>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </DialogContent>
+    );
+  };
+
 
   return (
     <div className="space-y-6 p-6">
@@ -225,9 +429,16 @@ export function StudentDocuments({ student, onUpdate }: StudentDocumentsProps) {
                           {getStatusBadge(document.status)}
                           
                           <div className="flex gap-1">
-                            <Button variant="outline" size="sm">
-                              <Eye className="h-3 w-3" />
-                            </Button>
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <Button variant="outline" size="sm" onClick={() => setSelectedDocument(document)}>
+                                  <Eye className="h-3 w-3" />
+                                </Button>
+                              </DialogTrigger>
+                              {selectedDocument && (
+                                <DocumentPreview document={selectedDocument} />
+                              )}
+                            </Dialog>
                             <Button variant="outline" size="sm">
                               <Download className="h-3 w-3" />
                             </Button>

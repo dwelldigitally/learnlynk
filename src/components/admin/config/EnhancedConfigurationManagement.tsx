@@ -208,15 +208,6 @@ const configurationSections: ConfigurationSection[] = [
     component: <TeamsConfiguration />,
     isNew: true
   },
-  {
-    id: 'team-routing-rules',
-    label: 'Team Routing Rules',
-    icon: GitBranch,
-    description: 'Configure team-based lead routing and assignment rules',
-    category: 'System',
-    component: <RoutingConfiguration />,
-    isNew: true
-  },
 
   // System - Company & Integrations
   {

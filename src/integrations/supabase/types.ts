@@ -1451,6 +1451,45 @@ export type Database = {
           },
         ]
       }
+      email_sequences: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_days: number
+          email_count: number
+          id: string
+          name: string
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          email_count?: number
+          id?: string
+          name: string
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          email_count?: number
+          id?: string
+          name?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       emails: {
         Row: {
           ai_lead_match_confidence: number | null
@@ -2191,6 +2230,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lead_sequence_enrollments: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          enrolled_at: string
+          id: string
+          lead_id: string
+          paused_at: string | null
+          sequence_id: string
+          status: string
+          stopped_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          enrolled_at?: string
+          id?: string
+          lead_id: string
+          paused_at?: string | null
+          sequence_id: string
+          status?: string
+          stopped_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          enrolled_at?: string
+          id?: string
+          lead_id?: string
+          paused_at?: string | null
+          sequence_id?: string
+          status?: string
+          stopped_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_sequence_enrollments_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "email_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_tasks: {
         Row: {

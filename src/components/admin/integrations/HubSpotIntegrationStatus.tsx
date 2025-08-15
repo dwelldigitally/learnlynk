@@ -31,6 +31,28 @@ export function HubSpotIntegrationStatus() {
   const checkConnectionStatus = async () => {
     setIsLoading(true);
     try {
+      // First check for OAuth connection
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: oauthConnection } = await supabase
+          .from('hubspot_connections')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (oauthConnection) {
+          const expiresAt = new Date(oauthConnection.expires_at);
+          const now = new Date();
+          
+          if (expiresAt > now) {
+            setIsConnected(true);
+            setIsLoading(false);
+            return;
+          }
+        }
+      }
+
+      // Fallback to API key connection
       const connected = await hubspotService.testConnection();
       setIsConnected(connected);
     } catch (error) {

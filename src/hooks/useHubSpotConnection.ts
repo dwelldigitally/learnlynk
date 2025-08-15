@@ -67,10 +67,12 @@ export const useHubSpotConnection = () => {
         hasOAuthConnection: !!hasOAuthConnection
       });
       
-      const connected = !!(hasApiKey || hasOAuthConnection);
+      const connected = !!hasApiKey;
       setIsConnected(connected);
       
-      if (!connected) {
+      if (connected) {
+        setConnectionData({ type: 'api_key', apiKey: hasApiKey });
+      } else {
         setConnectionData(null);
       }
       

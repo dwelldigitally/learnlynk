@@ -3143,6 +3143,7 @@ export type Database = {
           notification_email: boolean | null
           notification_in_app: boolean | null
           notification_sms: boolean | null
+          onboarding_completed_at: string | null
           phone: string | null
           theme_preference: string | null
           timezone: string | null
@@ -3163,6 +3164,7 @@ export type Database = {
           notification_email?: boolean | null
           notification_in_app?: boolean | null
           notification_sms?: boolean | null
+          onboarding_completed_at?: string | null
           phone?: string | null
           theme_preference?: string | null
           timezone?: string | null
@@ -3183,6 +3185,7 @@ export type Database = {
           notification_email?: boolean | null
           notification_in_app?: boolean | null
           notification_sms?: boolean | null
+          onboarding_completed_at?: string | null
           phone?: string | null
           theme_preference?: string | null
           timezone?: string | null

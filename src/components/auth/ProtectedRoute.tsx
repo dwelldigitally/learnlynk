@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ProtectedRouteProps {
   element: React.ReactNode;
@@ -14,17 +15,39 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   useEffect(() => {
     if (user) {
       // Check if user has completed onboarding
-      const checkOnboardingStatus = () => {
-        // Check for onboarding completion in localStorage
-        const onboardingCompleted = localStorage.getItem('onboarding-completed');
-        const userMetadata = user.user_metadata;
-        
-        // For OAuth users, assume they should have admin access and onboarding
-        const isOAuthUser = user.app_metadata?.providers?.includes('google') || user.app_metadata?.providers?.includes('azure');
-        const isAdmin = userMetadata?.user_role === 'admin' || isOAuthUser;
-        const hasOnboardingData = onboardingCompleted === 'true';
-        
-        setHasCompletedOnboarding(hasOnboardingData || !isAdmin);
+      const checkOnboardingStatus = async () => {
+        try {
+          // First check database for persistent onboarding completion
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('onboarding_completed_at')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (profile?.onboarding_completed_at) {
+            // User has completed onboarding in database
+            setHasCompletedOnboarding(true);
+            // Sync with localStorage for future performance
+            localStorage.setItem('onboarding-completed', 'true');
+            return;
+          }
+
+          // Fallback to localStorage if database doesn't have the info
+          const onboardingCompleted = localStorage.getItem('onboarding-completed');
+          const userMetadata = user.user_metadata;
+          
+          // For OAuth users, assume they should have admin access and onboarding
+          const isOAuthUser = user.app_metadata?.providers?.includes('google') || user.app_metadata?.providers?.includes('azure');
+          const isAdmin = userMetadata?.user_role === 'admin' || isOAuthUser;
+          const hasOnboardingData = onboardingCompleted === 'true';
+          
+          setHasCompletedOnboarding(hasOnboardingData || !isAdmin);
+        } catch (error) {
+          console.error('Error checking onboarding status:', error);
+          // Fallback to localStorage on error
+          const onboardingCompleted = localStorage.getItem('onboarding-completed');
+          setHasCompletedOnboarding(onboardingCompleted === 'true');
+        }
       };
 
       checkOnboardingStatus();

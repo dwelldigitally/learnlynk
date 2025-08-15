@@ -511,9 +511,23 @@ export class OnboardingService {
 
   static async markOnboardingComplete(): Promise<void> {
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Update database with completion timestamp
+        await supabase
+          .from('profiles')
+          .update({ onboarding_completed_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      }
+      
+      // Also update localStorage for immediate UX
       localStorage.setItem('onboarding-completed', 'true');
     } catch (error) {
       console.error('Error marking onboarding complete:', error);
+      // Still update localStorage as fallback
+      localStorage.setItem('onboarding-completed', 'true');
     }
   }
 }

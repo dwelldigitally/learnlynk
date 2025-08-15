@@ -62,12 +62,76 @@ export function ReportsManagement() {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* PTIRU Reports */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Reports</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              PTIRU Data Witness
+            </CardTitle>
             <CardDescription>
-              Generate commonly used reports instantly
+              One-click reports for PTIRU compliance and data reporting
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="outline" className="w-full justify-start">
+              <Download className="h-4 w-4 mr-2" />
+              Student Data Report
+              <span className="ml-auto text-xs text-muted-foreground">CSV</span>
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <Download className="h-4 w-4 mr-2" />
+              Program Application Report
+              <span className="ml-auto text-xs text-muted-foreground">PDF</span>
+            </Button>
+            <div className="pt-2 text-xs text-muted-foreground">
+              <p>• Institution ID & Student ID tracking</p>
+              <p>• Location + Program enrollment data</p>
+              <p>• Intake models & max enrollment</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* DQAB Reports */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-secondary" />
+              DQAB Reporting
+            </CardTitle>
+            <CardDescription>
+              Institutional reporting for DQAB compliance requirements
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button variant="outline" className="w-full justify-start">
+              <Download className="h-4 w-4 mr-2" />
+              Institutional Report
+              <span className="ml-auto text-xs text-muted-foreground">PDF</span>
+            </Button>
+            <Button variant="outline" className="w-full justify-start">
+              <Download className="h-4 w-4 mr-2" />
+              Compliance Summary
+              <span className="ml-auto text-xs text-muted-foreground">Excel</span>
+            </Button>
+            <div className="pt-2 text-xs text-muted-foreground">
+              <p>• Mission & program credentials</p>
+              <p>• Location & delivery mode</p>
+              <p>• Academic structure & timeline</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Access Reports */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-accent" />
+              Quick Reports
+            </CardTitle>
+            <CardDescription>
+              Frequently used reports for daily operations
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -89,18 +153,75 @@ export function ReportsManagement() {
             </Button>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Detailed Report Configuration */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>PTIRU Configuration</CardTitle>
+            <CardDescription>
+              Configure required fields for PTIRU reports
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="space-y-2">
+                <div className="font-medium">Required Fields:</div>
+                <div className="text-muted-foreground space-y-1">
+                  <div>• Institution ID</div>
+                  <div>• Student ID (both tabs)</div>
+                  <div>• Location + Program</div>
+                  <div>• Enrollment data</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Optional Fields:</div>
+                <div className="text-muted-foreground space-y-1">
+                  <div>• Delete flags</div>
+                  <div>• Intake models</div>
+                  <div>• Max enrollment</div>
+                  <div>• Facilities list</div>
+                </div>
+              </div>
+            </div>
+            <Button className="w-full">
+              Configure PTIRU Settings
+            </Button>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Recent Reports</CardTitle>
+            <CardTitle>DQAB Configuration</CardTitle>
             <CardDescription>
-              Your most recently generated reports
+              Configure institutional reporting requirements
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              Recent reports list will be implemented here
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="space-y-2">
+                <div className="font-medium">Institutional Data:</div>
+                <div className="text-muted-foreground space-y-1">
+                  <div>• Mission statement</div>
+                  <div>• Program credentials</div>
+                  <div>• Location details</div>
+                  <div>• Delivery mode</div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="font-medium">Compliance:</div>
+                <div className="text-muted-foreground space-y-1">
+                  <div>• Academic structure</div>
+                  <div>• Timeline requirements</div>
+                  <div>• Organization reviews</div>
+                  <div>• University use policies</div>
+                </div>
+              </div>
             </div>
+            <Button className="w-full">
+              Configure DQAB Settings
+            </Button>
           </CardContent>
         </Card>
       </div>

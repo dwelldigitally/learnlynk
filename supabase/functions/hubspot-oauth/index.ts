@@ -48,7 +48,7 @@ serve(async (req) => {
         )
       }
 
-      const redirectUri = `${req.headers.get('origin')}/admin/integrations/hubspot/callback`
+      const redirectUri = `${req.headers.get('origin')}/hubspot/oauth/callback`
       const scopes = [
         'crm.objects.line_items.read',
         'crm.schemas.deals.read',
@@ -96,7 +96,7 @@ serve(async (req) => {
 
       const clientId = Deno.env.get('HUBSPOT_CLIENT_ID')
       const clientSecret = Deno.env.get('HUBSPOT_CLIENT_SECRET')
-      const redirectUri = `${req.headers.get('origin')}/admin/integrations/hubspot/callback`
+      const redirectUri = `${req.headers.get('origin')}/hubspot/oauth/callback`
 
       if (!clientId || !clientSecret) {
         return new Response(
@@ -131,16 +131,17 @@ serve(async (req) => {
 
       // Store the tokens securely in the database
       const { error: insertError } = await supabaseClient
-        .from('hubspot_settings')
+        .from('hubspot_connections')
         .upsert({
           user_id: user.id,
-          access_token_encrypted: tokenData.access_token,
-          refresh_token_encrypted: tokenData.refresh_token,
+          access_token: tokenData.access_token,
+          refresh_token: tokenData.refresh_token,
           expires_at: new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString(),
-          hub_id: tokenData.hub_id,
-          connection_status: 'connected',
-          last_sync_at: new Date().toISOString(),
-          is_active: true
+          hub_id: tokenData.hub_id.toString(),
+          scopes: tokenData.scope ? tokenData.scope.split(' ') : [],
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'user_id'
         })
 
       if (insertError) {

@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import hubspotService from '@/services/hubspotService';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export const HubSpotOAuthCallback = () => {
   const location = useLocation();
@@ -29,11 +30,26 @@ export const HubSpotOAuthCallback = () => {
           throw new Error('No authorization code received');
         }
 
-        // Here you would normally exchange the code for an access token
-        // For now, we'll simulate a successful connection
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+        // Get the current session for proper authentication
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !session) {
+          throw new Error('Not authenticated');
+        }
 
-        // Store the connection (this would normally involve the access token)
+        // Exchange the code for an access token
+        const response = await supabase.functions.invoke('hubspot-oauth', {
+          body: { code },
+        });
+
+        if (response.error) {
+          throw new Error(response.error.message || 'Failed to connect to HubSpot');
+        }
+
+        const data = response.data;
+        console.log('HubSpot OAuth success:', data);
+
+        // Store the connection status
         localStorage.setItem('hubspot_oauth_connected', 'true');
         
         setStatus('success');

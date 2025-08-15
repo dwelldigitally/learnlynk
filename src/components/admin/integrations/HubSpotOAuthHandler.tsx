@@ -8,6 +8,7 @@ import { ExternalLink, Shield, Zap, CheckCircle, ArrowRight, Copy } from 'lucide
 import hubspotService from '@/services/hubspotService';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useHubSpotConnection } from '@/hooks/useHubSpotConnection';
 
 interface HubSpotOAuthHandlerProps {
   onConnectionSuccess?: () => void;
@@ -17,6 +18,7 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
   const [isConnecting, setIsConnecting] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
   const { toast } = useToast();
+  const { refreshConnection } = useHubSpotConnection();
 
   const handleOAuthInstall = async () => {
     setIsConnecting(true);
@@ -73,19 +75,42 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
       // Open HubSpot OAuth in new window
       const popup = window.open(data.authUrl, 'hubspot-oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
       
-      // Listen for popup to close or receive message
+      // Listen for messages from popup
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) {
+          return;
+        }
+
+        if (event.data.type === 'hubspot-oauth-success') {
+          popup?.close();
+          setIsConnecting(false);
+          toast({
+            title: "HubSpot Connected",
+            description: "Successfully connected to HubSpot via OAuth",
+          });
+          refreshConnection();
+          onConnectionSuccess?.();
+          window.removeEventListener('message', handleMessage);
+        } else if (event.data.type === 'hubspot-oauth-error') {
+          popup?.close();
+          setIsConnecting(false);
+          toast({
+            title: "Connection Failed",
+            description: event.data.error || "Failed to connect to HubSpot",
+            variant: "destructive"
+          });
+          window.removeEventListener('message', handleMessage);
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+
+      // Fallback: Check if popup is closed manually
       const checkClosed = setInterval(() => {
         if (popup?.closed) {
           clearInterval(checkClosed);
           setIsConnecting(false);
-          // Check if connection was successful by testing the service
-          if (hubspotService.isConnected()) {
-            toast({
-              title: "HubSpot Connected",
-              description: "Successfully connected to HubSpot via OAuth",
-            });
-            onConnectionSuccess?.();
-          }
+          window.removeEventListener('message', handleMessage);
         }
       }, 1000);
     } catch (error) {

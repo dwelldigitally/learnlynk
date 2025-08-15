@@ -1,9 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Download, Calendar, TrendingUp } from 'lucide-react';
+import { Plus, FileText, Download, Calendar, TrendingUp, Loader2 } from 'lucide-react';
+import { ReportService } from '@/services/reportService';
+import { useToast } from '@/hooks/use-toast';
 
 export function ReportsManagement() {
+  const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleDownloadReport = async (reportType: string, generator: () => Promise<void>) => {
+    setIsGenerating(reportType);
+    
+    try {
+      await generator();
+      toast({
+        title: "Report Generated",
+        description: `${reportType} has been downloaded successfully.`,
+      });
+    } catch (error) {
+      console.error(`Error generating ${reportType}:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to generate ${reportType}. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(null);
+    }
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -75,13 +101,31 @@ export function ReportsManagement() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              <Download className="h-4 w-4 mr-2" />
+            <Button 
+              variant="outline" 
+              className="w-full justify-start" 
+              onClick={() => handleDownloadReport('PTIRU Student Data Report', ReportService.generatePTIRUStudentReport)}
+              disabled={isGenerating === 'PTIRU Student Data Report'}
+            >
+              {isGenerating === 'PTIRU Student Data Report' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
               Student Data Report
               <span className="ml-auto text-xs text-muted-foreground">CSV</span>
             </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Download className="h-4 w-4 mr-2" />
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => handleDownloadReport('PTIRU Program Application Report', ReportService.generatePTIRUProgramReport)}
+              disabled={isGenerating === 'PTIRU Program Application Report'}
+            >
+              {isGenerating === 'PTIRU Program Application Report' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
               Program Application Report
               <span className="ml-auto text-xs text-muted-foreground">PDF</span>
             </Button>
@@ -105,13 +149,31 @@ export function ReportsManagement() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full justify-start">
-              <Download className="h-4 w-4 mr-2" />
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => handleDownloadReport('DQAB Institutional Report', ReportService.generateDQABInstitutionalReport)}
+              disabled={isGenerating === 'DQAB Institutional Report'}
+            >
+              {isGenerating === 'DQAB Institutional Report' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
               Institutional Report
               <span className="ml-auto text-xs text-muted-foreground">PDF</span>
             </Button>
-            <Button variant="outline" className="w-full justify-start">
-              <Download className="h-4 w-4 mr-2" />
+            <Button 
+              variant="outline" 
+              className="w-full justify-start"
+              onClick={() => handleDownloadReport('DQAB Compliance Summary', ReportService.generateDQABComplianceReport)}
+              disabled={isGenerating === 'DQAB Compliance Summary'}
+            >
+              {isGenerating === 'DQAB Compliance Summary' ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 mr-2" />
+              )}
               Compliance Summary
               <span className="ml-auto text-xs text-muted-foreground">Excel</span>
             </Button>

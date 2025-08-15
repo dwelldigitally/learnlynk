@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProfileService } from '@/services/profileService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,10 +21,56 @@ import crmDashboard from '@/assets/crm-dashboard.jpg';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { user, loading } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 500], [1, 0.3]);
   const heroScale = useTransform(scrollY, [0, 500], [1, 1.1]);
+
+  // Handle admin user redirects
+  useEffect(() => {
+    if (!loading && user && !redirecting) {
+      const handleAdminRedirect = async () => {
+        try {
+          setRedirecting(true);
+          
+          // Check if user is admin (OAuth users are automatically admin)
+          const isOAuthUser = user.app_metadata?.providers?.includes('google') || 
+                             user.app_metadata?.providers?.includes('azure');
+          const isAdmin = user.user_metadata?.user_role === 'admin' || isOAuthUser;
+          
+          if (isAdmin) {
+            // Check onboarding status
+            const { completed } = await ProfileService.hasCompletedOnboarding(user.id);
+            
+            if (completed) {
+              // Redirect to admin dashboard
+              navigate('/admin', { replace: true });
+            } else {
+              // Redirect to onboarding
+              navigate('/onboarding', { replace: true });
+            }
+          }
+        } catch (error) {
+          console.error('Error checking user status:', error);
+        } finally {
+          setRedirecting(false);
+        }
+      };
+
+      handleAdminRedirect();
+    }
+  }, [user, loading, navigate, redirecting]);
+
+  // Show loading state while checking authentication
+  if (loading || redirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-primary">Loading...</div>
+      </div>
+    );
+  }
 
   const testimonials = [
     {

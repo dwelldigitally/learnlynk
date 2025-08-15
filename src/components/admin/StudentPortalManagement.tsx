@@ -482,148 +482,409 @@ export const StudentPortalManagement = () => {
         </TabsContent>
 
         <TabsContent value="config" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Portal Configuration</CardTitle>
-              <CardDescription>
-                Configure portal settings and appearance
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoadingConfig ? (
-                <div className="text-center py-8">Loading configuration...</div>
-              ) : (
-                <div className="grid gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-medium">General Settings</h4>
-                    <div className="grid gap-4">
+          <div className="grid gap-6">
+            {/* General Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>General Settings</CardTitle>
+                <CardDescription>
+                  Configure basic portal settings and appearance
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {isLoadingConfig ? (
+                  <div className="text-center py-8">Loading configuration...</div>
+                ) : (
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="portal-title">Portal Title</Label>
+                      <Input 
+                        id="portal-title"
+                        placeholder="Enter portal title"
+                        value={configForm.portal_title}
+                        onChange={(e) => setConfigForm({ ...configForm, portal_title: e.target.value })}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="welcome-message">Welcome Message</Label>
+                      <Textarea 
+                        id="welcome-message"
+                        placeholder="Enter welcome message for students"
+                        value={configForm.welcome_message}
+                        onChange={(e) => setConfigForm({ ...configForm, welcome_message: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="portal-title">Portal Title</Label>
-                        <Input 
-                          id="portal-title"
-                          value={configForm.portal_title}
-                          onChange={(e) => setConfigForm({ ...configForm, portal_title: e.target.value })}
-                        />
+                        <Label>Portal Theme</Label>
+                        <Select defaultValue="default">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select theme" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="default">Default</SelectItem>
+                            <SelectItem value="blue">Blue Theme</SelectItem>
+                            <SelectItem value="green">Green Theme</SelectItem>
+                            <SelectItem value="purple">Purple Theme</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="welcome-message">Welcome Message</Label>
-                        <Textarea 
-                          id="welcome-message"
-                          value={configForm.welcome_message}
-                          onChange={(e) => setConfigForm({ ...configForm, welcome_message: e.target.value })}
-                          rows={3}
-                        />
+                        <Label>Language</Label>
+                        <Select defaultValue="en">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select language" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="en">English</SelectItem>
+                            <SelectItem value="es">Spanish</SelectItem>
+                            <SelectItem value="fr">French</SelectItem>
+                            <SelectItem value="pt">Portuguese</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                   </div>
+                )}
+              </CardContent>
+            </Card>
 
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Feature Toggles</h4>
-                    <div className="grid gap-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="app-tracking">Application Tracking</Label>
-                          <p className="text-xs text-muted-foreground">Allow students to track their applications</p>
-                        </div>
-                        <Switch
-                          id="app-tracking"
-                          checked={configForm.features.application_tracking}
-                          onCheckedChange={(checked) => 
-                            setConfigForm({ 
-                              ...configForm, 
-                              features: { ...configForm.features, application_tracking: checked }
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="fee-payments">Fee Payments</Label>
-                          <p className="text-xs text-muted-foreground">Enable fee payment functionality</p>
-                        </div>
-                        <Switch
-                          id="fee-payments"
-                          checked={configForm.features.fee_payments}
-                          onCheckedChange={(checked) => 
-                            setConfigForm({ 
-                              ...configForm, 
-                              features: { ...configForm.features, fee_payments: checked }
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="message-center">Message Center</Label>
-                          <p className="text-xs text-muted-foreground">Enable student message center</p>
-                        </div>
-                        <Switch
-                          id="message-center"
-                          checked={configForm.features.message_center}
-                          onCheckedChange={(checked) => 
-                            setConfigForm({ 
-                              ...configForm, 
-                              features: { ...configForm.features, message_center: checked }
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="document-upload">Document Upload</Label>
-                          <p className="text-xs text-muted-foreground">Allow students to upload documents</p>
-                        </div>
-                        <Switch
-                          id="document-upload"
-                          checked={configForm.features.document_upload}
-                          onCheckedChange={(checked) => 
-                            setConfigForm({ 
-                              ...configForm, 
-                              features: { ...configForm.features, document_upload: checked }
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="advisor-contact">Advisor Contact</Label>
-                          <p className="text-xs text-muted-foreground">Enable advisor contact features</p>
-                        </div>
-                        <Switch
-                          id="advisor-contact"
-                          checked={configForm.features.advisor_contact}
-                          onCheckedChange={(checked) => 
-                            setConfigForm({ 
-                              ...configForm, 
-                              features: { ...configForm.features, advisor_contact: checked }
-                            })
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label htmlFor="event-registration">Event Registration</Label>
-                          <p className="text-xs text-muted-foreground">Allow students to register for events</p>
-                        </div>
-                        <Switch
-                          id="event-registration"
-                          checked={configForm.features.event_registration}
-                          onCheckedChange={(checked) => 
-                            setConfigForm({ 
-                              ...configForm, 
-                              features: { ...configForm.features, event_registration: checked }
-                            })
-                          }
-                        />
-                      </div>
+            {/* Feature Toggles */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Feature Management</CardTitle>
+                <CardDescription>
+                  Enable or disable specific portal features for students
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="app-tracking">Application Tracking</Label>
+                      <p className="text-xs text-muted-foreground">Allow students to track their applications and progress</p>
                     </div>
+                    <Switch
+                      id="app-tracking"
+                      checked={configForm.features.application_tracking}
+                      onCheckedChange={(checked) => 
+                        setConfigForm({ 
+                          ...configForm, 
+                          features: { ...configForm.features, application_tracking: checked }
+                        })
+                      }
+                    />
                   </div>
-
-                  <Button onClick={handleSaveConfig}>Save Configuration</Button>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="fee-payments">Fee Payments</Label>
+                      <p className="text-xs text-muted-foreground">Enable online fee payment functionality</p>
+                    </div>
+                    <Switch
+                      id="fee-payments"
+                      checked={configForm.features.fee_payments}
+                      onCheckedChange={(checked) => 
+                        setConfigForm({ 
+                          ...configForm, 
+                          features: { ...configForm.features, fee_payments: checked }
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="message-center">Message Center</Label>
+                      <p className="text-xs text-muted-foreground">Enable student message center and notifications</p>
+                    </div>
+                    <Switch
+                      id="message-center"
+                      checked={configForm.features.message_center}
+                      onCheckedChange={(checked) => 
+                        setConfigForm({ 
+                          ...configForm, 
+                          features: { ...configForm.features, message_center: checked }
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="document-upload">Document Upload</Label>
+                      <p className="text-xs text-muted-foreground">Allow students to upload required documents</p>
+                    </div>
+                    <Switch
+                      id="document-upload"
+                      checked={configForm.features.document_upload}
+                      onCheckedChange={(checked) => 
+                        setConfigForm({ 
+                          ...configForm, 
+                          features: { ...configForm.features, document_upload: checked }
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="advisor-contact">Advisor Contact</Label>
+                      <p className="text-xs text-muted-foreground">Enable advisor contact and scheduling features</p>
+                    </div>
+                    <Switch
+                      id="advisor-contact"
+                      checked={configForm.features.advisor_contact}
+                      onCheckedChange={(checked) => 
+                        setConfigForm({ 
+                          ...configForm, 
+                          features: { ...configForm.features, advisor_contact: checked }
+                        })
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="event-registration">Event Registration</Label>
+                      <p className="text-xs text-muted-foreground">Allow students to register for events and webinars</p>
+                    </div>
+                    <Switch
+                      id="event-registration"
+                      checked={configForm.features.event_registration}
+                      onCheckedChange={(checked) => 
+                        setConfigForm({ 
+                          ...configForm, 
+                          features: { ...configForm.features, event_registration: checked }
+                        })
+                      }
+                    />
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+
+            {/* Security & Access Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Security & Access</CardTitle>
+                <CardDescription>
+                  Configure security settings and access controls
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Two-Factor Authentication</Label>
+                      <p className="text-xs text-muted-foreground">Require 2FA for student accounts</p>
+                    </div>
+                    <Switch defaultChecked={false} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Password Requirements</Label>
+                      <p className="text-xs text-muted-foreground">Enforce strong password policies</p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Session Timeout</Label>
+                      <p className="text-xs text-muted-foreground">Auto-logout after inactivity</p>
+                    </div>
+                    <Select defaultValue="30">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="15">15 minutes</SelectItem>
+                        <SelectItem value="30">30 minutes</SelectItem>
+                        <SelectItem value="60">1 hour</SelectItem>
+                        <SelectItem value="120">2 hours</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Data Retention Period</Label>
+                      <p className="text-xs text-muted-foreground">How long to keep student data</p>
+                    </div>
+                    <Select defaultValue="7">
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1">1 year</SelectItem>
+                        <SelectItem value="3">3 years</SelectItem>
+                        <SelectItem value="5">5 years</SelectItem>
+                        <SelectItem value="7">7 years</SelectItem>
+                        <SelectItem value="10">10 years</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Notification Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Notification Settings</CardTitle>
+                <CardDescription>
+                  Configure how and when students receive notifications
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Email Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Send notifications via email</p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>SMS Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Send notifications via SMS</p>
+                    </div>
+                    <Switch defaultChecked={false} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Push Notifications</Label>
+                      <p className="text-xs text-muted-foreground">Send browser push notifications</p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Notification Frequency</Label>
+                    <Select defaultValue="immediate">
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="immediate">Immediate</SelectItem>
+                        <SelectItem value="hourly">Hourly Digest</SelectItem>
+                        <SelectItem value="daily">Daily Digest</SelectItem>
+                        <SelectItem value="weekly">Weekly Summary</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Quiet Hours</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input type="time" defaultValue="22:00" placeholder="Start time" />
+                      <Input type="time" defaultValue="08:00" placeholder="End time" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">No notifications will be sent during these hours</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Customization Options */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Portal Customization</CardTitle>
+                <CardDescription>
+                  Customize the look and feel of the student portal
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <Label>Institution Logo</Label>
+                    <div className="flex items-center gap-2">
+                      <Input type="file" accept="image/*" className="flex-1" />
+                      <Button variant="outline" size="sm">Upload</Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Recommended size: 200x80px</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Favicon</Label>
+                    <div className="flex items-center gap-2">
+                      <Input type="file" accept="image/*" className="flex-1" />
+                      <Button variant="outline" size="sm">Upload</Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Recommended size: 32x32px</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Custom CSS</Label>
+                    <Textarea 
+                      placeholder="Add custom CSS to further customize the portal appearance"
+                      rows={4}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Dark Mode Support</Label>
+                      <p className="text-xs text-muted-foreground">Allow students to switch to dark mode</p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Integration Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Integration Settings</CardTitle>
+                <CardDescription>
+                  Configure third-party service integrations
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Google Calendar Integration</Label>
+                      <p className="text-xs text-muted-foreground">Sync events with Google Calendar</p>
+                    </div>
+                    <Switch defaultChecked={false} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Microsoft Teams Integration</Label>
+                      <p className="text-xs text-muted-foreground">Enable Teams meeting links</p>
+                    </div>
+                    <Switch defaultChecked={false} />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Payment Gateway</Label>
+                      <p className="text-xs text-muted-foreground">Enable online payments</p>
+                    </div>
+                    <Select defaultValue="none">
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="stripe">Stripe</SelectItem>
+                        <SelectItem value="paypal">PayPal</SelectItem>
+                        <SelectItem value="square">Square</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Analytics Tracking</Label>
+                      <p className="text-xs text-muted-foreground">Track student portal usage</p>
+                    </div>
+                    <Switch defaultChecked={true} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="flex gap-2">
+              <Button onClick={handleSaveConfig} className="flex-1">
+                Save All Settings
+              </Button>
+              <Button variant="outline" onClick={() => setShowPreviewDialog(true)}>
+                Preview Changes
+              </Button>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="students" className="space-y-6">

@@ -22,17 +22,37 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
     setIsConnecting(true);
     
     try {
+      // Get current user session for authentication
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in to connect HubSpot",
+          variant: "destructive"
+        });
+        setIsConnecting(false);
+        return;
+      }
+
       // Get OAuth configuration from edge function using GET request
       const response = await fetch(`https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/hubspot-oauth`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweHlnZGFpbWRpYXJqcGZtc3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTY1MDcsImV4cCI6MjA2OTQ5MjUwN30.sR7gSV1I9CCtibU6sdk5FRH6r5m9Y1ZGrQ6ivRhNEcM`,
+          'Authorization': `Bearer ${sessionData.session.access_token}`,
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweHlnZGFpbWRpYXJqcGZtc3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTY1MDcsImV4cCI6MjA2OTQ5MjUwN30.sR7gSV1I9CCtibU6sdk5FRH6r5m9Y1ZGrQ6ivRhNEcM',
         },
       });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        console.error('Response not ok:', response.status, response.statusText);
+        toast({
+          title: "Connection Error",
+          description: `Failed to get HubSpot OAuth configuration (${response.status})`,
+          variant: "destructive"
+        });
+        setIsConnecting(false);
+        return;
       }
 
       const data = await response.json();

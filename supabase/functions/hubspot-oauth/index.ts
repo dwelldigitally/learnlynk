@@ -63,9 +63,10 @@ serve(async (req) => {
 
     console.log('✅ User authenticated:', user.id)
 
-    // Add test endpoint
-    if (req.method === 'GET' && new URL(req.url).pathname.endsWith('/test')) {
-      console.log('🧪 Test endpoint called')
+    // Add test endpoint for both GET and POST
+    const url = new URL(req.url);
+    if (url.pathname.endsWith('/test')) {
+      console.log('🧪 Test endpoint called');
       return new Response(
         JSON.stringify({ 
           status: 'ok', 

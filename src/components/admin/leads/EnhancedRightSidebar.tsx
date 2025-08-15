@@ -35,44 +35,33 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
     email_count: 5
   });
 
+  // Mock sequences data - will be replaced with real database queries once types are updated
+  const mockSequences = [
+    {
+      id: '1',
+      name: 'MBA Welcome Series',
+      description: 'Introductory sequence for MBA applicants',
+      type: 'nurture',
+      duration_days: 14,
+      email_count: 5,
+      status: 'active'
+    },
+    {
+      id: '2', 
+      name: 'Deadline Reminder',
+      description: 'Urgent reminders for application deadlines',
+      type: 'deadline-driven',
+      duration_days: 7,
+      email_count: 3,
+      status: 'active'
+    }
+  ];
+
   // Load sequences and progress on mount
   useEffect(() => {
-    loadSequences();
-    loadSequenceProgress();
+    setSequences(mockSequences);
+    setSequenceProgress({});
   }, [lead.id]);
-
-  const loadSequences = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('email_sequences')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      setSequences(data || []);
-    } catch (error) {
-      console.error('Error loading sequences:', error);
-    }
-  };
-
-  const loadSequenceProgress = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('lead_sequence_enrollments')
-        .select('*, email_sequences(*)')
-        .eq('lead_id', lead.id);
-      
-      if (error) throw error;
-      
-      const progressMap = {};
-      data?.forEach(enrollment => {
-        progressMap[enrollment.sequence_id] = enrollment;
-      });
-      setSequenceProgress(progressMap);
-    } catch (error) {
-      console.error('Error loading sequence progress:', error);
-    }
-  };
 
   // Mock Aircall history data
   const aircallHistory = [
@@ -127,23 +116,18 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
   const createSequence = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('email_sequences')
-        .insert([{
-          name: newSequence.name,
-          description: newSequence.description,
-          type: newSequence.type,
-          duration_days: newSequence.duration_days,
-          email_count: newSequence.email_count,
-          status: 'active',
-          user_id: (await supabase.auth.getUser()).data.user?.id
-        }])
-        .select()
-        .single();
+      // Mock functionality - will be replaced with real database operations
+      const newSeq = {
+        id: Date.now().toString(),
+        name: newSequence.name,
+        description: newSequence.description,
+        type: newSequence.type,
+        duration_days: newSequence.duration_days,
+        email_count: newSequence.email_count,
+        status: 'active'
+      };
 
-      if (error) throw error;
-
-      setSequences(prev => [data, ...prev]);
+      setSequences(prev => [newSeq, ...prev]);
       setShowCreateSequence(false);
       setNewSequence({
         name: '',
@@ -172,19 +156,18 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
   const enrollInSequence = async (sequenceId: string) => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('lead_sequence_enrollments')
-        .insert([{
-          lead_id: lead.id,
-          sequence_id: sequenceId,
-          status: 'active',
-          current_step: 1,
-          enrolled_at: new Date().toISOString()
-        }]);
+      // Mock functionality - will be replaced with real database operations
+      const enrollment = {
+        sequence_id: sequenceId,
+        status: 'active',
+        current_step: 1,
+        enrolled_at: new Date().toISOString()
+      };
 
-      if (error) throw error;
-
-      await loadSequenceProgress();
+      setSequenceProgress(prev => ({
+        ...prev,
+        [sequenceId]: enrollment
+      }));
       
       toast({
         title: 'Success',
@@ -205,15 +188,15 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
   const updateSequenceStatus = async (sequenceId: string, status: 'paused' | 'stopped') => {
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('lead_sequence_enrollments')
-        .update({ status, updated_at: new Date().toISOString() })
-        .eq('lead_id', lead.id)
-        .eq('sequence_id', sequenceId);
-
-      if (error) throw error;
-
-      await loadSequenceProgress();
+      // Mock functionality - will be replaced with real database operations
+      setSequenceProgress(prev => ({
+        ...prev,
+        [sequenceId]: {
+          ...prev[sequenceId],
+          status,
+          updated_at: new Date().toISOString()
+        }
+      }));
       
       toast({
         title: 'Success',

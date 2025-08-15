@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { HubSpotOwnerManagement } from "@/components/admin/integrations/HubSpotOwnerManagement";
 import { HubSpotIntegrationStatus } from "@/components/admin/integrations/HubSpotIntegrationStatus";
+import { HubSpotOAuthHandler } from "@/components/admin/integrations/HubSpotOAuthHandler";
 
 export const IntegrationHub = () => {
   const [showApiKeys, setShowApiKeys] = useState<{ [key: string]: boolean }>({});
@@ -225,6 +226,7 @@ export const IntegrationHub = () => {
 
         <TabsContent value="crm" className="space-y-4">
           <HubSpotIntegrationStatus />
+          <HubSpotOAuthHandler onConnectionSuccess={() => window.location.reload()} />
           <HubSpotOwnerManagement />
           {crmIntegrations.map(integration => (
             <IntegrationCard key={integration.id} integration={integration} />

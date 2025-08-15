@@ -1,68 +1,20 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Phone, Clock, Calendar, Users, 
   Video, CheckCircle, XCircle, Timer,
   Mail, TrendingUp, Zap, PlayCircle,
-  PauseCircle, StopCircle, Plus, Eye,
-  BarChart3, Target, Settings
+  PauseCircle, StopCircle
 } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { SmartAdvisorMatch } from './SmartAdvisorMatch';
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 
 interface EnhancedRightSidebarProps {
   lead: Lead;
 }
 
 export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
-  const { toast } = useToast();
-  const [sequences, setSequences] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showCreateSequence, setShowCreateSequence] = useState(false);
-  const [sequenceProgress, setSequenceProgress] = useState<Record<string, any>>({});
-  const [newSequence, setNewSequence] = useState({
-    name: '',
-    description: '',
-    type: 'nurture',
-    duration_days: 14,
-    email_count: 5
-  });
-
-  // Mock sequences data - will be replaced with real database queries once types are updated
-  const mockSequences = [
-    {
-      id: '1',
-      name: 'MBA Welcome Series',
-      description: 'Introductory sequence for MBA applicants',
-      type: 'nurture',
-      duration_days: 14,
-      email_count: 5,
-      status: 'active'
-    },
-    {
-      id: '2', 
-      name: 'Deadline Reminder',
-      description: 'Urgent reminders for application deadlines',
-      type: 'deadline-driven',
-      duration_days: 7,
-      email_count: 3,
-      status: 'active'
-    }
-  ];
-
-  // Load sequences and progress on mount
-  useEffect(() => {
-    setSequences(mockSequences);
-    setSequenceProgress({});
-  }, [lead.id]);
-
   // Mock Aircall history data
   const aircallHistory = [
     {
@@ -113,106 +65,42 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
     }
   ];
 
-  const createSequence = async () => {
-    setLoading(true);
-    try {
-      // Mock functionality - will be replaced with real database operations
-      const newSeq = {
-        id: Date.now().toString(),
-        name: newSequence.name,
-        description: newSequence.description,
-        type: newSequence.type,
-        duration_days: newSequence.duration_days,
-        email_count: newSequence.email_count,
-        status: 'active'
-      };
-
-      setSequences(prev => [newSeq, ...prev]);
-      setShowCreateSequence(false);
-      setNewSequence({
-        name: '',
-        description: '',
-        type: 'nurture',
-        duration_days: 14,
-        email_count: 5
-      });
-      
-      toast({
-        title: 'Success',
-        description: 'Email sequence created successfully!'
-      });
-    } catch (error) {
-      console.error('Error creating sequence:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to create sequence',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
+  // AI Sequences data
+  const aiSequences = [
+    {
+      id: '1',
+      name: 'MBA Welcome Series',
+      description: 'Comprehensive introduction to MBA programs and requirements',
+      type: 'nurture',
+      status: 'active',
+      duration: '14 days',
+      emails: 5,
+      conversionRate: 18,
+      enrolled: false
+    },
+    {
+      id: '2',
+      name: 'Application Deadline Reminder',
+      description: 'Urgent reminders for approaching application deadlines',
+      type: 'deadline-driven',
+      status: 'active',
+      duration: '7 days',
+      emails: 3,
+      conversionRate: 45,
+      enrolled: true
+    },
+    {
+      id: '3',
+      name: 'Financial Aid Information',
+      description: 'Complete guide to scholarships and financial assistance',
+      type: 'educational',
+      status: 'draft',
+      duration: '10 days',
+      emails: 4,
+      conversionRate: 22,
+      enrolled: false
     }
-  };
-
-  const enrollInSequence = async (sequenceId: string) => {
-    setLoading(true);
-    try {
-      // Mock functionality - will be replaced with real database operations
-      const enrollment = {
-        sequence_id: sequenceId,
-        status: 'active',
-        current_step: 1,
-        enrolled_at: new Date().toISOString()
-      };
-
-      setSequenceProgress(prev => ({
-        ...prev,
-        [sequenceId]: enrollment
-      }));
-      
-      toast({
-        title: 'Success',
-        description: 'Lead enrolled in sequence successfully!'
-      });
-    } catch (error) {
-      console.error('Error enrolling in sequence:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to enroll in sequence',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateSequenceStatus = async (sequenceId: string, status: 'paused' | 'stopped') => {
-    setLoading(true);
-    try {
-      // Mock functionality - will be replaced with real database operations
-      setSequenceProgress(prev => ({
-        ...prev,
-        [sequenceId]: {
-          ...prev[sequenceId],
-          status,
-          updated_at: new Date().toISOString()
-        }
-      }));
-      
-      toast({
-        title: 'Success',
-        description: `Sequence ${status} successfully!`
-      });
-    } catch (error) {
-      console.error('Error updating sequence status:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update sequence status',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  ];
 
   const getCallStatusIcon = (status: string) => {
     switch (status) {
@@ -232,17 +120,8 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
   };
 
   const handleSequenceAction = (sequenceId: string, action: 'enroll' | 'pause' | 'stop') => {
-    switch (action) {
-      case 'enroll':
-        enrollInSequence(sequenceId);
-        break;
-      case 'pause':
-        updateSequenceStatus(sequenceId, 'paused');
-        break;
-      case 'stop':
-        updateSequenceStatus(sequenceId, 'stopped');
-        break;
-    }
+    console.log(`${action} sequence ${sequenceId}`);
+    // Implementation would go here
   };
 
   return (
@@ -329,62 +208,9 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
             <Zap className="h-5 w-5 text-primary" />
             <h3 className="text-lg font-semibold">AI Sequences</h3>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">
-              {Object.values(sequenceProgress).filter(p => p.status === 'active').length} Active
-            </Badge>
-            <Dialog open={showCreateSequence} onOpenChange={setShowCreateSequence}>
-              <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="h-6 w-6 p-0">
-                  <Plus className="h-3 w-3" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Create New Email Sequence</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Name</label>
-                    <Input
-                      value={newSequence.name}
-                      onChange={(e) => setNewSequence(prev => ({ ...prev, name: e.target.value }))}
-                      placeholder="e.g., MBA Welcome Series"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Description</label>
-                    <Textarea
-                      value={newSequence.description}
-                      onChange={(e) => setNewSequence(prev => ({ ...prev, description: e.target.value }))}
-                      placeholder="Describe the sequence purpose and content"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium">Duration (days)</label>
-                      <Input
-                        type="number"
-                        value={newSequence.duration_days}
-                        onChange={(e) => setNewSequence(prev => ({ ...prev, duration_days: parseInt(e.target.value) }))}
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Email Count</label>
-                      <Input
-                        type="number"
-                        value={newSequence.email_count}
-                        onChange={(e) => setNewSequence(prev => ({ ...prev, email_count: parseInt(e.target.value) }))}
-                      />
-                    </div>
-                  </div>
-                  <Button onClick={createSequence} disabled={loading} className="w-full">
-                    {loading ? 'Creating...' : 'Create Sequence'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <Badge variant="secondary" className="text-xs">
+            {aiSequences.filter(s => s.enrolled).length} Active
+          </Badge>
         </div>
         
         <p className="text-sm text-muted-foreground mb-4">
@@ -392,151 +218,92 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
         </p>
 
         <div className="space-y-3">
-          {sequences.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
-              <Mail className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No sequences available</p>
-              <p className="text-xs">Create your first sequence to get started</p>
-            </div>
-          ) : (
-            sequences.map((sequence) => {
-              const enrollment = sequenceProgress[sequence.id];
-              const isEnrolled = enrollment && enrollment.status === 'active';
-              const isPaused = enrollment && enrollment.status === 'paused';
-              
-              return (
-                <div key={sequence.id} className={`rounded-lg border transition-all duration-200 ${
-                  isEnrolled 
-                    ? 'bg-green-50 border-green-200 shadow-sm' 
-                    : isPaused
-                    ? 'bg-yellow-50 border-yellow-200 shadow-sm'
-                    : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                }`}>
-                  <div className="p-3 overflow-hidden">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="text-sm font-semibold truncate">{sequence.name}</h4>
-                          <Badge 
-                            variant={sequence.type === 'deadline-driven' ? 'destructive' : 'outline'} 
-                            className="text-xs px-2 py-0"
-                          >
-                            {sequence.type}
-                          </Badge>
-                          {isEnrolled && <CheckCircle className="h-4 w-4 text-green-600" />}
-                          {isPaused && <PauseCircle className="h-4 w-4 text-yellow-600" />}
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2 break-words">{sequence.description}</p>
-                        
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1 min-w-0">
-                            <Clock className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{sequence.duration_days} days</span>
-                          </div>
-                          <div className="flex items-center gap-1 min-w-0">
-                            <Mail className="h-3 w-3 flex-shrink-0" />
-                            <span className="truncate">{sequence.email_count} emails</span>
-                          </div>
-                          {enrollment && (
-                            <div className="flex items-center gap-1 min-w-0">
-                              <Target className="h-3 w-3 flex-shrink-0" />
-                              <span className="truncate">Step {enrollment.current_step}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {enrollment && (
-                          <div className="mt-2">
-                            <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                              <span>Progress</span>
-                              <span>{Math.round((enrollment.current_step / sequence.email_count) * 100)}%</span>
-                            </div>
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div 
-                                className="bg-primary h-1.5 rounded-full transition-all duration-300" 
-                                style={{ width: `${(enrollment.current_step / sequence.email_count) * 100}%` }}
-                              />
-                            </div>
-                          </div>
+          {aiSequences.map((sequence) => {
+            const isEnrolled = sequence.enrolled;
+            
+            return (
+              <div key={sequence.id} className={`rounded-lg border transition-all duration-200 ${
+                isEnrolled 
+                  ? 'bg-green-50 border-green-200 shadow-sm' 
+                  : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
+              }`}>
+                <div className="p-3 overflow-hidden">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="text-sm font-semibold truncate">{sequence.name}</h4>
+                        <Badge 
+                          variant={sequence.type === 'deadline-driven' ? 'destructive' : 'outline'} 
+                          className="text-xs px-2 py-0"
+                        >
+                          {sequence.type}
+                        </Badge>
+                        {isEnrolled && (
+                          <CheckCircle className="h-4 w-4 text-green-600" />
                         )}
                       </div>
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      {isEnrolled ? (
-                        <>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 h-7 text-xs"
-                            onClick={() => handleSequenceAction(sequence.id, 'pause')}
-                            disabled={loading}
-                          >
-                            <PauseCircle className="h-3 w-3 mr-1" />
-                            Pause
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 h-7 text-xs"
-                            onClick={() => handleSequenceAction(sequence.id, 'stop')}
-                            disabled={loading}
-                          >
-                            <StopCircle className="h-3 w-3 mr-1" />
-                            Stop
-                          </Button>
-                        </>
-                      ) : isPaused ? (
-                        <>
-                          <Button
-                            size="sm"
-                            className="flex-1 h-7 text-xs"
-                            onClick={() => handleSequenceAction(sequence.id, 'enroll')}
-                            disabled={loading}
-                          >
-                            <PlayCircle className="h-3 w-3 mr-1" />
-                            Resume
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 h-7 text-xs"
-                            onClick={() => handleSequenceAction(sequence.id, 'stop')}
-                            disabled={loading}
-                          >
-                            <StopCircle className="h-3 w-3 mr-1" />
-                            Stop
-                          </Button>
-                        </>
-                      ) : (
-                        <Button
-                          size="sm"
-                          className="flex-1 h-7 text-xs"
-                          onClick={() => handleSequenceAction(sequence.id, 'enroll')}
-                          disabled={loading}
-                        >
-                          <PlayCircle className="h-3 w-3 mr-1" />
-                          Enroll Lead
-                        </Button>
-                      )}
+                      <p className="text-xs text-muted-foreground mb-2 break-words">{sequence.description}</p>
+                      
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Clock className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.duration}</span>
+                        </div>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <Mail className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.emails} emails</span>
+                        </div>
+                        <div className="flex items-center gap-1 min-w-0">
+                          <TrendingUp className="h-3 w-3 flex-shrink-0" />
+                          <span className="truncate">{sequence.conversionRate}%</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
+                  
+                  <div className="flex gap-2">
+                    {isEnrolled ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 h-7 text-xs"
+                          onClick={() => handleSequenceAction(sequence.id, 'pause')}
+                        >
+                          <PauseCircle className="h-3 w-3 mr-1" />
+                          Pause
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1 h-7 text-xs"
+                          onClick={() => handleSequenceAction(sequence.id, 'stop')}
+                        >
+                          <StopCircle className="h-3 w-3 mr-1" />
+                          Stop
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => handleSequenceAction(sequence.id, 'enroll')}
+                      >
+                        <PlayCircle className="h-3 w-3 mr-1" />
+                        Enroll Lead
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              );
-            })
-          )}
+              </div>
+            );
+          })}
         </div>
 
-        <div className="flex gap-2 mt-3">
-          <Button variant="outline" size="sm" className="flex-1">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Analytics
-          </Button>
-          <Button variant="outline" size="sm" className="flex-1">
-            <Settings className="h-4 w-4 mr-2" />
-            Manage
-          </Button>
-        </div>
+        <Button variant="outline" size="sm" className="w-full mt-3">
+          <Zap className="h-4 w-4 mr-2" />
+          Manage Sequences
+        </Button>
       </div>
 
       {/* Smart Advisor Match */}

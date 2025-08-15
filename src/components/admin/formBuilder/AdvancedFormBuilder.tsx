@@ -154,6 +154,21 @@ export function AdvancedFormBuilder({ formId, onSave, onCancel }: AdvancedFormBu
       placeholder: `Enter ${fieldType}`
     };
 
+    // If adding to grid, update the layout
+    if (rowId && columnIndex !== undefined) {
+      setFormLayout(prev => ({
+        ...prev,
+        rows: prev.rows.map(row => {
+          if (row.id === rowId) {
+            const newFields = [...row.fields];
+            newFields[columnIndex] = newField;
+            return { ...row, fields: newFields };
+          }
+          return row;
+        })
+      }));
+    }
+
     const updatedForm = {
       ...selectedForm,
       fields: [...selectedForm.fields, newField]
@@ -237,7 +252,7 @@ export function AdvancedFormBuilder({ formId, onSave, onCancel }: AdvancedFormBu
         onFormCreate={handleFormCreate}
         onFormDelete={handleFormDelete}
         onFormDuplicate={handleFormDuplicate}
-        onFieldAdd={(fieldType: FormFieldType, insertIndex?: number, rowId?: string) => handleFieldAdd(fieldType, rowId, insertIndex)}
+        onFieldAdd={(fieldType: FormFieldType, columnIndex?: number, rowId?: string) => handleFieldAdd(fieldType, rowId, columnIndex)}
         onFieldUpdate={handleFieldUpdate}
         onFieldDelete={handleFieldDelete}
       >

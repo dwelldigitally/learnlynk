@@ -37,10 +37,10 @@ const DropZone = ({
           ref={provided.innerRef}
           {...provided.droppableProps}
           className={cn(
-            "min-h-24 border-2 border-dashed rounded-lg transition-all p-4",
+            "min-h-24 border-2 border-dashed rounded-lg transition-all p-4 bg-background",
             snapshot.isDraggingOver 
-              ? "border-primary bg-primary/5 border-solid" 
-              : "border-muted-foreground/30 hover:border-primary/50",
+              ? "border-primary bg-primary/10 border-solid shadow-lg" 
+              : "border-muted-foreground/30 hover:border-primary/50 hover:bg-muted/20",
             isEmpty ? "flex items-center justify-center" : ""
           )}
         >

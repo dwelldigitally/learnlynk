@@ -83,6 +83,7 @@ export function FormBuilderLayout({
   );
 
   const handleDragEnd = (result: any) => {
+    console.log('Drag end result:', result);
     if (!result.destination) return;
     
     const { source, destination } = result;
@@ -91,6 +92,7 @@ export function FormBuilderLayout({
     if (source.droppableId === 'field-palette' && destination.droppableId.includes('-')) {
       const fieldType = fieldTypes[source.index];
       const [rowId, columnIndex] = destination.droppableId.split('-');
+      console.log('Adding field to grid:', { fieldType: fieldType.type, rowId, columnIndex });
       if (onFieldAdd && typeof onFieldAdd === 'function') {
         onFieldAdd(fieldType.type, parseInt(columnIndex), rowId);
       }
@@ -98,6 +100,7 @@ export function FormBuilderLayout({
     // Adding field from palette to form (list mode)
     else if (source.droppableId === 'field-palette' && destination.droppableId === 'form-fields') {
       const fieldType = fieldTypes[source.index];
+      console.log('Adding field to form list:', fieldType.type);
       onFieldAdd(fieldType.type);
     }
   };

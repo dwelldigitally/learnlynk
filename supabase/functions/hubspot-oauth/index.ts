@@ -34,9 +34,12 @@ serve(async (req) => {
       // Return HubSpot OAuth configuration
       const clientId = Deno.env.get('HUBSPOT_CLIENT_ID')
       
+      console.log('HUBSPOT_CLIENT_ID check:', clientId ? 'EXISTS' : 'MISSING')
+      
       if (!clientId) {
+        console.error('HubSpot CLIENT_ID is missing from environment variables')
         return new Response(
-          JSON.stringify({ error: 'HubSpot OAuth not configured' }),
+          JSON.stringify({ error: 'HubSpot OAuth not configured', details: 'CLIENT_ID missing' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }

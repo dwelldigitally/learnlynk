@@ -23,9 +23,7 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
     
     try {
       // Get OAuth configuration from edge function
-      const { data, error } = await supabase.functions.invoke('hubspot-oauth', {
-        body: {}
-      });
+      const { data, error } = await supabase.functions.invoke('hubspot-oauth');
 
       if (error) {
         console.error('Error getting HubSpot OAuth config:', error);

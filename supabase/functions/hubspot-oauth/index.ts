@@ -4,45 +4,94 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Cache-Control': 'no-cache, no-store, must-revalidate',
 }
 
 serve(async (req) => {
+  console.log(`🚀 HubSpot OAuth Function - ${req.method} request started at:`, new Date().toISOString())
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('✅ CORS preflight request handled')
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     // Create Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')
+    
+    console.log('🔧 Environment check:', {
+      hasSupabaseUrl: !!supabaseUrl,
+      hasAnonKey: !!supabaseAnonKey,
+      authHeader: !!req.headers.get('Authorization')
+    })
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Missing Supabase environment variables')
+      return new Response(
+        JSON.stringify({ error: 'Server configuration error' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+      supabaseUrl,
+      supabaseAnonKey,
+      { global: { headers: { Authorization: req.headers.get('Authorization') || '' } } }
     )
 
     // Get the authenticated user
+    console.log('🔐 Checking user authentication...')
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
     
-    if (authError || !user) {
+    if (authError) {
+      console.error('❌ Auth error:', authError)
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Authentication failed', details: authError.message }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+    
+    if (!user) {
+      console.error('❌ No user found')
+      return new Response(
+        JSON.stringify({ error: 'User not authenticated' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    console.log('✅ User authenticated:', user.id)
+
+    // Add test endpoint
+    if (req.method === 'GET' && new URL(req.url).pathname.endsWith('/test')) {
+      console.log('🧪 Test endpoint called')
+      return new Response(
+        JSON.stringify({ 
+          status: 'ok', 
+          user: user.id,
+          timestamp: new Date().toISOString(),
+          message: 'HubSpot OAuth function is working'
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     if (req.method === 'GET') {
+      console.log('📋 Getting HubSpot OAuth configuration...')
+      
       // Return HubSpot OAuth configuration
       const clientId = Deno.env.get('HUBSPOT_CLIENT_ID')
       const clientSecret = Deno.env.get('HUBSPOT_CLIENT_SECRET')
       
-      console.log('Environment variables check:', {
+      console.log('🔍 Environment variables check:', {
         clientId: clientId ? 'EXISTS' : 'MISSING',
         clientSecret: clientSecret ? 'EXISTS' : 'MISSING',
         timestamp: new Date().toISOString()
       })
       
       if (!clientId) {
-        console.error('HubSpot CLIENT_ID is missing from environment variables')
+        console.error('❌ HubSpot CLIENT_ID is missing from environment variables')
         return new Response(
           JSON.stringify({ error: 'HubSpot OAuth not configured', details: 'CLIENT_ID missing' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -73,6 +122,8 @@ serve(async (req) => {
 
       const authUrl = `https://app.hubspot.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`
 
+      console.log('✅ OAuth configuration generated successfully')
+      
       return new Response(
         JSON.stringify({ 
           authUrl,
@@ -85,27 +136,46 @@ serve(async (req) => {
     }
 
     if (req.method === 'POST') {
+      console.log('🔄 Handling OAuth token exchange...')
+      
       // Handle OAuth token exchange
-      const { code } = await req.json()
+      let requestBody
+      try {
+        requestBody = await req.json()
+      } catch (error) {
+        console.error('❌ Failed to parse request body:', error)
+        return new Response(
+          JSON.stringify({ error: 'Invalid request body' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const { code } = requestBody
       
       if (!code) {
+        console.error('❌ Authorization code missing')
         return new Response(
           JSON.stringify({ error: 'Authorization code required' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
+      console.log('📝 Authorization code received, length:', code.length)
+
       const clientId = Deno.env.get('HUBSPOT_CLIENT_ID')
       const clientSecret = Deno.env.get('HUBSPOT_CLIENT_SECRET')
       const redirectUri = `${req.headers.get('origin')}/hubspot/oauth/callback`
 
       if (!clientId || !clientSecret) {
+        console.error('❌ HubSpot OAuth credentials not configured')
         return new Response(
           JSON.stringify({ error: 'HubSpot OAuth credentials not configured' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
+      console.log('🔄 Exchanging code for access token...')
+      
       // Exchange code for access token
       const tokenResponse = await fetch('https://api.hubapi.com/oauth/v1/token', {
         method: 'POST',
@@ -123,35 +193,62 @@ serve(async (req) => {
 
       const tokenData = await tokenResponse.json()
 
+      console.log('📊 Token exchange response:', {
+        status: tokenResponse.status,
+        ok: tokenResponse.ok,
+        hasAccessToken: !!tokenData.access_token,
+        hasRefreshToken: !!tokenData.refresh_token,
+        expiresIn: tokenData.expires_in,
+        hubId: tokenData.hub_id
+      })
+
       if (!tokenResponse.ok) {
+        console.error('❌ Token exchange failed:', tokenData)
         return new Response(
           JSON.stringify({ error: 'Failed to exchange code for token', details: tokenData }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
+      console.log('💾 Storing tokens in database...')
+      
       // Store the tokens securely in the database
+      const connectionData = {
+        user_id: user.id,
+        access_token: tokenData.access_token,
+        refresh_token: tokenData.refresh_token,
+        expires_at: new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString(),
+        hub_id: tokenData.hub_id.toString(),
+        scopes: tokenData.scope ? tokenData.scope.split(' ') : [],
+        updated_at: new Date().toISOString()
+      }
+
+      console.log('📝 Connection data to store:', {
+        user_id: connectionData.user_id,
+        hub_id: connectionData.hub_id,
+        expires_at: connectionData.expires_at,
+        scopesCount: connectionData.scopes.length
+      })
+
       const { error: insertError } = await supabaseClient
         .from('hubspot_connections')
-        .upsert({
-          user_id: user.id,
-          access_token: tokenData.access_token,
-          refresh_token: tokenData.refresh_token,
-          expires_at: new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString(),
-          hub_id: tokenData.hub_id.toString(),
-          scopes: tokenData.scope ? tokenData.scope.split(' ') : [],
-          updated_at: new Date().toISOString()
-        }, {
+        .upsert(connectionData, {
           onConflict: 'user_id'
         })
 
       if (insertError) {
-        console.error('Error storing HubSpot tokens:', insertError)
+        console.error('❌ Error storing HubSpot tokens:', insertError)
         return new Response(
-          JSON.stringify({ error: 'Failed to store connection' }),
+          JSON.stringify({ 
+            error: 'Failed to store connection', 
+            details: insertError.message,
+            code: insertError.code
+          }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
+
+      console.log('✅ HubSpot connection stored successfully')
 
       return new Response(
         JSON.stringify({ 
@@ -169,10 +266,11 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('HubSpot OAuth error details:', {
+    console.error('❌ HubSpot OAuth error details:', {
       message: error.message,
       stack: error.stack,
-      name: error.name
+      name: error.name,
+      timestamp: new Date().toISOString()
     })
     return new Response(
       JSON.stringify({ 

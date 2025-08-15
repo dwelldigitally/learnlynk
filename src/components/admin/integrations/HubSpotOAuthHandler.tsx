@@ -20,106 +20,177 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
   const { toast } = useToast();
   const { refreshConnection } = useHubSpotConnection();
 
-  const handleOAuthInstall = async () => {
-    setIsConnecting(true);
-    
+  // Test edge function connectivity
+  const testConnection = async () => {
     try {
-      // Get current user session for authentication
-      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      console.log('🧪 Testing edge function connectivity...');
+      const { data, error } = await supabase.functions.invoke('hubspot-oauth/test');
       
-      if (sessionError || !sessionData.session) {
+      if (error) {
+        console.error('❌ Edge function test failed:', error);
+        return false;
+      }
+      
+      console.log('✅ Edge function test successful:', data);
+      return true;
+    } catch (error) {
+      console.error('❌ Edge function test error:', error);
+      return false;
+    }
+  };
+
+  const handleOAuthInstall = async () => {
+    try {
+      setIsConnecting(true);
+      console.log('🚀 Starting HubSpot OAuth flow...');
+
+      // First test the edge function
+      const isConnected = await testConnection();
+      if (!isConnected) {
         toast({
-          title: "Authentication Error",
-          description: "Please log in to connect HubSpot",
-          variant: "destructive"
+          title: "Connection Error",
+          description: "Unable to connect to HubSpot service. Please try again.",
+          variant: "destructive",
         });
-        setIsConnecting(false);
         return;
       }
 
-      // Get OAuth configuration from edge function
-      const response = await supabase.functions.invoke('hubspot-oauth', {
+      // Get OAuth configuration from our edge function
+      console.log('📋 Getting OAuth configuration...');
+      const { data, error } = await supabase.functions.invoke('hubspot-oauth', {
         method: 'GET'
       });
 
-      console.log('Function response:', response);
+      console.log('📊 OAuth config response:', { data, error });
       
-      if (response.error) {
-        console.error('HubSpot OAuth config error:', response.error);
+      if (error) {
+        console.error('❌ Error getting OAuth config:', error);
         toast({
           title: "Configuration Error",
-          description: response.error.message || "Failed to get HubSpot OAuth configuration",
-          variant: "destructive"
+          description: `Failed to get HubSpot OAuth configuration: ${error.message}`,
+          variant: "destructive",
         });
-        setIsConnecting(false);
         return;
       }
-
-      const data = response.data;
 
       if (!data?.authUrl) {
-        console.error('No authUrl in response:', data);
+        console.error('❌ No auth URL received:', data);
         toast({
           title: "Configuration Error", 
-          description: "HubSpot OAuth not properly configured",
-          variant: "destructive"
+          description: "Invalid OAuth configuration received.",
+          variant: "destructive",
         });
-        setIsConnecting(false);
         return;
       }
 
-      // Open HubSpot OAuth in new window
-      const popup = window.open(data.authUrl, 'hubspot-oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
-      
-      // Listen for messages from popup
-      const handleMessage = (event: MessageEvent) => {
-        if (event.origin !== window.location.origin) {
-          return;
-        }
+      console.log('✅ OAuth URL generated successfully');
 
-        if (event.data.type === 'hubspot-oauth-success') {
-          popup?.close();
-          setIsConnecting(false);
+      // Open HubSpot OAuth in a popup
+      const popup = window.open(
+        data.authUrl,
+        'hubspot-oauth',
+        'width=600,height=700,scrollbars=yes,resizable=yes'
+      );
+
+      if (!popup) {
+        toast({
+          title: "Popup Blocked",
+          description: "Please allow popups for this site and try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Listen for the OAuth callback
+      const handleMessage = async (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) return;
+        
+        if (event.data.type === 'HUBSPOT_OAUTH_SUCCESS') {
+          console.log('✅ OAuth success message received:', event.data);
+          
+          try {
+            console.log('🔄 Exchanging authorization code for tokens...');
+            
+            // Exchange the authorization code for tokens
+            const { data: tokenData, error: tokenError } = await supabase.functions.invoke('hubspot-oauth', {
+              method: 'POST',
+              body: { code: event.data.code }
+            });
+
+            console.log('📊 Token exchange response:', { tokenData, tokenError });
+
+            if (tokenError) {
+              console.error('❌ Token exchange error:', tokenError);
+              toast({
+                title: "Authentication Failed",
+                description: `Failed to complete authentication: ${tokenError.message}`,
+                variant: "destructive",
+              });
+              return;
+            }
+
+            if (!tokenData?.success) {
+              console.error('❌ Token exchange failed:', tokenData);
+              toast({
+                title: "Authentication Failed",
+                description: "Failed to complete the authentication process.",
+                variant: "destructive",
+              });
+              return;
+            }
+
+            console.log('✅ Token exchange successful');
+            
+            toast({
+              title: "Connected Successfully",
+              description: "Your HubSpot account has been connected successfully!",
+            });
+
+            // Refresh the connection status
+            onConnectionSuccess?.();
+            refreshConnection();
+            
+          } catch (err) {
+            console.error('❌ Error during token exchange:', err);
+            toast({
+              title: "Connection Failed",
+              description: "Failed to complete the connection process.",
+              variant: "destructive",
+            });
+          } finally {
+            popup.close();
+            window.removeEventListener('message', handleMessage);
+          }
+        } else if (event.data.type === 'HUBSPOT_OAUTH_ERROR') {
+          console.error('❌ OAuth error:', event.data.error);
           toast({
-            title: "HubSpot Connected",
-            description: "Successfully connected to HubSpot via OAuth",
+            title: "Authentication Failed",
+            description: event.data.error || "Authentication was cancelled or failed.",
+            variant: "destructive",
           });
-          refreshConnection();
-          onConnectionSuccess?.();
-          window.removeEventListener('message', handleMessage);
-        } else if (event.data.type === 'hubspot-oauth-error') {
-          popup?.close();
-          setIsConnecting(false);
-          toast({
-            title: "Connection Failed",
-            description: event.data.error || "Failed to connect to HubSpot",
-            variant: "destructive"
-          });
+          popup.close();
           window.removeEventListener('message', handleMessage);
         }
       };
 
       window.addEventListener('message', handleMessage);
 
-      // Fallback: Check if popup is closed manually
+      // Check if popup was closed manually
       const checkClosed = setInterval(() => {
-        if (popup?.closed) {
+        if (popup.closed) {
           clearInterval(checkClosed);
-          setIsConnecting(false);
           window.removeEventListener('message', handleMessage);
+          console.log('🚪 OAuth popup was closed');
         }
       }, 1000);
     } catch (error) {
-      console.error('HubSpot OAuth error details:', {
-        error: error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      console.error('❌ OAuth flow error:', error);
       toast({
         title: "Connection Failed",
-        description: error instanceof Error ? error.message : 'Unknown error occurred',
-        variant: "destructive"
+        description: "An unexpected error occurred during authentication.",
+        variant: "destructive",
       });
+    } finally {
       setIsConnecting(false);
     }
   };

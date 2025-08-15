@@ -22,6 +22,7 @@ import {
 import { HubSpotOwnerManagement } from "@/components/admin/integrations/HubSpotOwnerManagement";
 import { HubSpotIntegrationStatus } from "@/components/admin/integrations/HubSpotIntegrationStatus";
 import { HubSpotOAuthHandler } from "@/components/admin/integrations/HubSpotOAuthHandler";
+import { HubSpotConnectionTest } from "@/components/admin/integrations/HubSpotConnectionTest";
 
 export const IntegrationHub = () => {
   const [showApiKeys, setShowApiKeys] = useState<{ [key: string]: boolean }>({});
@@ -225,6 +226,7 @@ export const IntegrationHub = () => {
         </TabsList>
 
         <TabsContent value="crm" className="space-y-4">
+          <HubSpotConnectionTest />
           <HubSpotIntegrationStatus />
           <HubSpotOAuthHandler onConnectionSuccess={() => window.location.reload()} />
           <HubSpotOwnerManagement />

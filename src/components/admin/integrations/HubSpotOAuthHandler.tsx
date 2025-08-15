@@ -42,6 +42,8 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
         method: 'GET'
       });
 
+      console.log('Function response:', response);
+      
       if (response.error) {
         console.error('HubSpot OAuth config error:', response.error);
         toast({
@@ -108,10 +110,14 @@ export const HubSpotOAuthHandler: React.FC<HubSpotOAuthHandlerProps> = ({ onConn
         }
       }, 1000);
     } catch (error) {
-      console.error('OAuth initiation error:', error);
+      console.error('HubSpot OAuth error details:', {
+        error: error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       toast({
-        title: "Error",
-        description: "Failed to initiate HubSpot connection",
+        title: "Connection Failed",
+        description: error instanceof Error ? error.message : 'Unknown error occurred',
         variant: "destructive"
       });
       setIsConnecting(false);

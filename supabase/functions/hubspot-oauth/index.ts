@@ -99,7 +99,7 @@ serve(async (req) => {
         )
       }
 
-      const redirectUri = 'https://id-preview--effa936e-da4f-49df-b4e9-293871d5adb4.lovable.app/hubspot/oauth/callback'
+      const redirectUri = 'https://effa936e-da4f-49df-b4e9-293871d5adb4.lovableproject.com/hubspot/oauth/callback'
       const scopes = [
         'crm.objects.line_items.read',
         'crm.schemas.deals.read',
@@ -165,7 +165,7 @@ serve(async (req) => {
 
       const clientId = Deno.env.get('HUBSPOT_CLIENT_ID')
       const clientSecret = Deno.env.get('HUBSPOT_CLIENT_SECRET')
-      const redirectUri = 'https://id-preview--effa936e-da4f-49df-b4e9-293871d5adb4.lovable.app/hubspot/oauth/callback'
+      const redirectUri = 'https://effa936e-da4f-49df-b4e9-293871d5adb4.lovableproject.com/hubspot/oauth/callback'
 
       if (!clientId || !clientSecret) {
         console.error('❌ HubSpot OAuth credentials not configured')

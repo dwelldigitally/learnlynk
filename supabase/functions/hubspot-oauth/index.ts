@@ -37,7 +37,8 @@ serve(async (req) => {
       
       console.log('Environment variables check:', {
         clientId: clientId ? 'EXISTS' : 'MISSING',
-        clientSecret: clientSecret ? 'EXISTS' : 'MISSING'
+        clientSecret: clientSecret ? 'EXISTS' : 'MISSING',
+        timestamp: new Date().toISOString()
       })
       
       if (!clientId) {

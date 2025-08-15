@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
 import { DynamicSidebar } from './DynamicSidebar';
-import { AircallWidgetWrapper } from './leads/AircallWidgetProvider';
+
 import { navigationStructure } from '@/data/navigationStructure';
 import { useIsMobile, useViewport } from '@/hooks/use-mobile';
 
@@ -81,8 +81,7 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const isConfigurationPage = location.pathname.startsWith('/admin/configuration');
 
   return (
-    <AircallWidgetWrapper>
-      <div className="min-h-screen bg-background flex flex-col w-full">
+    <div className="min-h-screen bg-background flex flex-col w-full">
         {/* Top Navigation Bar */}
         <TopNavigationBar
           activeSection={currentActiveSection}
@@ -119,7 +118,6 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
           </main>
         </div>
       </div>
-    </AircallWidgetWrapper>
   );
 }
 

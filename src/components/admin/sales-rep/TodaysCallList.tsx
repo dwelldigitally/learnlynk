@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useAircallWidget } from '@/hooks/useAircallWidget';
+
 import { cn } from '@/lib/utils';
 import { Phone, Clock, AlertTriangle, Star, PhoneCall, User } from 'lucide-react';
 import { Lead } from '@/types/lead';
@@ -18,7 +18,7 @@ interface CallItem extends Lead {
 
 export function TodaysCallList() {
   const isMobile = useIsMobile();
-  const { makeCall, isWidgetReady } = useAircallWidget();
+  
   const [callList, setCallList] = useState<CallItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -161,10 +161,8 @@ export function TodaysCallList() {
   };
 
   const handleCall = (lead: CallItem) => {
-    if (lead.phone && isWidgetReady) {
-      makeCall(lead.phone);
-    } else {
-      // Fallback: open phone dialer
+    if (lead.phone) {
+      // Open phone dialer
       window.open(`tel:${lead.phone}`);
     }
   };

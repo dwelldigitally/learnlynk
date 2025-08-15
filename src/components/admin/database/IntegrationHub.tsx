@@ -74,18 +74,6 @@ export const IntegrationHub = () => {
       ]
     },
     {
-      id: 'aircall',
-      name: 'Aircall',
-      description: 'VoIP phone system integration',
-      icon: Phone,
-      status: 'disconnected',
-      lastSync: 'Never',
-      fields: [
-        { key: 'api_id', label: 'API ID', type: 'text' },
-        { key: 'api_token', label: 'API Token', type: 'password' }
-      ]
-    },
-    {
       id: 'stripe',
       name: 'Stripe Payments',
       description: 'Process online payments securely',
@@ -200,7 +188,7 @@ export const IntegrationHub = () => {
   );
 
   const crmIntegrations = integrations.filter(i => ['microsoft', 'hubspot'].includes(i.id));
-  const communicationIntegrations = integrations.filter(i => ['twilio', 'aircall', 'sendgrid'].includes(i.id));
+  const communicationIntegrations = integrations.filter(i => ['twilio', 'sendgrid'].includes(i.id));
   const paymentIntegrations = integrations.filter(i => ['stripe'].includes(i.id));
 
   return (

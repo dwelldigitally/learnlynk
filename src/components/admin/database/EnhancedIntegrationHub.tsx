@@ -196,20 +196,6 @@ export const EnhancedIntegrationHub = () => {
       ]
     },
     {
-      id: 'aircall',
-      name: 'Aircall',
-      description: 'VoIP phone system integration',
-      icon: Phone,
-      status: 'connected',
-      lastSync: '30 minutes ago',
-      category: 'communication',
-      isPopular: true,
-      fields: [
-        { key: 'api_id', label: 'API ID', type: 'text', required: true },
-        { key: 'api_token', label: 'API Token', type: 'password', required: true }
-      ]
-    },
-    {
       id: 'calendly',
       name: 'Calendly',
       description: 'Appointment scheduling and booking',

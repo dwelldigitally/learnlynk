@@ -46,28 +46,16 @@ serve(async (req) => {
 
       const redirectUri = `${req.headers.get('origin')}/admin/integrations/hubspot/callback`
       const scopes = [
-        'contacts',
-        'content', 
-        'reports',
-        'social',
-        'automation',
-        'timeline',
-        'business-intelligence',
-        'forms',
-        'files',
-        'hubdb',
-        'integration-sync',
-        'tickets',
-        'e-commerce',
-        'accounting',
-        'sales-email-read',
         'crm.objects.contacts.read',
         'crm.objects.contacts.write',
         'crm.objects.companies.read',
         'crm.objects.companies.write',
         'crm.objects.deals.read',
         'crm.objects.deals.write',
-        'crm.objects.owners.read'
+        'crm.objects.owners.read',
+        'crm.schemas.contacts.read',
+        'crm.schemas.companies.read',
+        'crm.schemas.deals.read'
       ].join(' ')
 
       const authUrl = `https://app.hubspot.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`

@@ -57,7 +57,8 @@ export function useLeadAIAgent() {
       const newAgent = await AIAgentService.createAgent({
         ...agentData,
         agent_type: 'lead',
-        agent_category: 'lead'
+        agent_category: 'lead',
+        is_active: true // Set as active by default after creation
       });
       await loadAgents();
       return newAgent;

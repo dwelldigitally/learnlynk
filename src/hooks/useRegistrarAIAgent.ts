@@ -57,7 +57,8 @@ export function useRegistrarAIAgent() {
       const newAgent = await AIAgentService.createAgent({
         ...agentData,
         agent_type: 'registrar',
-        agent_category: 'registrar'
+        agent_category: 'registrar',
+        is_active: true // Set as active by default after creation
       });
       await loadAgents();
       return newAgent;

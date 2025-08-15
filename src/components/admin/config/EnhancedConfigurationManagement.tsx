@@ -39,6 +39,7 @@ import { LeadRoutingRulesConfiguration } from './LeadRoutingRulesConfiguration';
 import { LeadScoringConfiguration } from './LeadScoringConfiguration';
 import { StudentManagementConfiguration } from './StudentManagementConfiguration';
 import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
+import { ApplicantAIAgentConfiguration } from './ApplicantAIAgentConfiguration';
 
 interface ConfigurationSection {
   id: string;
@@ -96,6 +97,14 @@ const configurationSections: ConfigurationSection[] = [
     description: 'Configure application process and requirements',
     category: 'Applicants',
     component: <ApplicantManagementConfiguration />
+  },
+  {
+    id: 'applicant-ai-intelligence',
+    label: 'Registrar AI Intelligence',
+    icon: Brain,
+    description: 'Configure AI-powered application processing',
+    category: 'Applicants',
+    component: <ApplicantAIAgentConfiguration />
   },
 
   // System - Data & Database

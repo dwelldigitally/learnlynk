@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AgenticAIConfiguration } from "./AgenticAIConfiguration";
+import { LeadAIAgentConfiguration } from "./LeadAIAgentConfiguration";
 import { LeadStatusConfiguration } from "./LeadStatusConfiguration";
 import { Bot, Settings } from "lucide-react";
 
@@ -30,7 +30,7 @@ export function LeadConfiguration() {
         </TabsList>
 
         <TabsContent value="intelligence">
-          <AgenticAIConfiguration />
+          <LeadAIAgentConfiguration />
         </TabsContent>
 
         <TabsContent value="statuses">

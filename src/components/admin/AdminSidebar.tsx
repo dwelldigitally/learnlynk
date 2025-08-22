@@ -96,29 +96,29 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border">
+    <Sidebar collapsible="icon" className="border-r border-border h-[calc(100vh-4rem)] mt-16">
       <SidebarHeader>
-        <div className="flex items-center justify-between p-2">
-          <div className="flex items-center space-x-2">
-            <currentSection.icon className="w-5 h-5 text-primary flex-shrink-0" />
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center space-x-3">
+            <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" />
             {!isCollapsed && (
               <h2 className="font-semibold text-lg truncate">
                 {currentSection.name}
               </h2>
             )}
           </div>
-          <SidebarTrigger />
+          <SidebarTrigger className="ml-2" />
         </div>
         
         {/* Search within section */}
         {!isCollapsed && (
-          <div className="relative p-2">
-            <Search className="absolute left-5 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <div className="relative p-4 pt-0">
+            <Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <SidebarInput
               placeholder={`Search ${currentSection.name.toLowerCase()}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8"
+              className="pl-10 h-10"
             />
           </div>
         )}
@@ -151,15 +151,15 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                           {isCollapsed ? (
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <SidebarMenuButton
-                                  asChild
-                                  isActive={isActive}
-                                  className="w-full justify-center"
-                                >
-                                  <NavLink to={item.href}>
-                                    <item.icon className="w-4 h-4" />
-                                  </NavLink>
-                                </SidebarMenuButton>
+                                 <SidebarMenuButton
+                                   asChild
+                                   isActive={isActive}
+                                   className="w-full justify-center h-12"
+                                 >
+                                   <NavLink to={item.href}>
+                                     <item.icon className="w-6 h-6" />
+                                   </NavLink>
+                                 </SidebarMenuButton>
                               </TooltipTrigger>
                               <TooltipContent side="right">
                                 {item.name}
@@ -167,16 +167,16 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                             </Tooltip>
                           ) : (
                             <>
-                              <SidebarMenuButton
-                                asChild
-                                isActive={isActive}
-                                className="flex-1"
-                              >
-                                <NavLink to={item.href} className="flex items-center space-x-3">
-                                  <item.icon className="w-4 h-4" />
-                                  <span>{item.name}</span>
-                                </NavLink>
-                              </SidebarMenuButton>
+                               <SidebarMenuButton
+                                 asChild
+                                 isActive={isActive}
+                                 className="flex-1 h-12"
+                               >
+                                 <NavLink to={item.href} className="flex items-center space-x-4">
+                                   <item.icon className="w-5 h-5" />
+                                   <span>{item.name}</span>
+                                 </NavLink>
+                               </SidebarMenuButton>
                               <CollapsibleTrigger asChild>
                                 <Button
                                   variant="ghost"
@@ -223,15 +223,15 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                       isCollapsed ? (
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <SidebarMenuButton
-                              asChild
-                              isActive={isActive}
-                              className="w-full justify-center"
-                            >
-                              <NavLink to={item.href}>
-                                <item.icon className="w-4 h-4" />
-                              </NavLink>
-                            </SidebarMenuButton>
+                             <SidebarMenuButton
+                               asChild
+                               isActive={isActive}
+                               className="w-full justify-center h-12"
+                             >
+                               <NavLink to={item.href}>
+                                 <item.icon className="w-6 h-6" />
+                               </NavLink>
+                             </SidebarMenuButton>
                           </TooltipTrigger>
                           <TooltipContent side="right">
                             <div className="flex flex-col">
@@ -245,13 +245,14 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                           </TooltipContent>
                         </Tooltip>
                       ) : (
-                        <SidebarMenuButton
-                          asChild
-                          isActive={isActive}
-                        >
-                          <NavLink to={item.href} className="flex items-center space-x-3">
-                            <item.icon className="w-4 h-4" />
-                            <span>{item.name}</span>
+                         <SidebarMenuButton
+                           asChild
+                           isActive={isActive}
+                           className="h-12"
+                         >
+                           <NavLink to={item.href} className="flex items-center space-x-4">
+                             <item.icon className="w-5 h-5" />
+                             <span>{item.name}</span>
                             {item.count && (
                               <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                                 {item.count}

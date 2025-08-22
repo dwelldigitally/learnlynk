@@ -20,17 +20,16 @@ import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
 import { UniversalTaskModal } from "./UniversalTaskModal";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface TopNavigationBarProps {
   activeSection: string;
   onSectionChange: (sectionId: string) => void;
-  onToggleMobileMenu: () => void;
 }
 
 export function TopNavigationBar({ 
   activeSection, 
-  onSectionChange,
-  onToggleMobileMenu 
+  onSectionChange
 }: TopNavigationBarProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -57,17 +56,10 @@ export function TopNavigationBar({
   return (
     <>
       <div className={`${isMobile ? 'h-16' : 'h-20'} bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-3 sm:px-4 lg:px-6 sticky top-0 z-50 mb-6`}>
-        {/* Left side - Logo + Main Navigation */}
+        {/* Left side - Logo + Sidebar Trigger + Main Navigation */}
         <div className="flex items-center space-x-4 sm:space-x-8">
-          {/* Mobile menu button */}
-          <Button
-            variant="ghost"
-            size={isMobile ? "sm" : "default"}
-            onClick={onToggleMobileMenu}
-            className="lg:hidden text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
+          {/* Sidebar Toggle */}
+          <SidebarTrigger className="text-white hover:bg-white/10 h-8 w-8" />
 
           {/* Logo */}
           <Link 

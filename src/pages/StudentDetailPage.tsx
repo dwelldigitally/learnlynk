@@ -177,7 +177,6 @@ export default function StudentDetailPage() {
       <TopNavigationBar 
         activeSection="students" 
         onSectionChange={() => {}} 
-        onToggleMobileMenu={() => {}} 
       />
       
       {/* Header with back button */}

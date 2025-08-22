@@ -136,7 +136,6 @@ export default function LeadDetailPage() {
       <TopNavigationBar 
         activeSection="leads" 
         onSectionChange={() => {}} 
-        onToggleMobileMenu={() => {}} 
       />
       
       {/* Header with back button and lead info */}

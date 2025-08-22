@@ -70,30 +70,29 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen bg-background flex w-full">
-        {/* Admin Sidebar - Hide on home page and configuration pages */}
-        {!isHomePage && !isConfigurationPage && (
-          <AdminSidebar activeSection={currentActiveSection} />
-        )}
+      <div className="min-h-screen bg-background flex flex-col w-full">
+        {/* Top Navigation Bar - Full Width */}
+        <TopNavigationBar
+          activeSection={currentActiveSection}
+          onSectionChange={handleSectionChange}
+        />
 
-        
-        {/* Main Content Area */}
-        <SidebarInset>
-          <div className="flex flex-col min-h-screen">
-            {/* Top Navigation Bar */}
-            <TopNavigationBar
-              activeSection={currentActiveSection}
-              onSectionChange={handleSectionChange}
-            />
+        {/* Main Layout: Sidebar + Content */}
+        <div className="flex flex-1 w-full">
+          {/* Admin Sidebar - Hide on home page and configuration pages */}
+          {!isHomePage && !isConfigurationPage && (
+            <AdminSidebar activeSection={currentActiveSection} />
+          )}
 
-            {/* Main Content */}
+          {/* Main Content Area */}
+          <SidebarInset>
             <main className="flex-1 w-full p-6">
               <div className="max-w-full overflow-x-hidden">
                 {children || <Outlet />}
               </div>
             </main>
-          </div>
-        </SidebarInset>
+          </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );

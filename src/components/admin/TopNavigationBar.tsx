@@ -20,7 +20,6 @@ import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
 import { UniversalTaskModal } from "./UniversalTaskModal";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 interface TopNavigationBarProps {
   activeSection: string;
@@ -56,10 +55,8 @@ export function TopNavigationBar({
   return (
     <>
       <div className={`${isMobile ? 'h-16' : 'h-20'} bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-3 sm:px-4 lg:px-6 sticky top-0 z-50 mb-6`}>
-        {/* Left side - Logo + Sidebar Trigger + Main Navigation */}
+        {/* Left side - Logo + Main Navigation */}
         <div className="flex items-center space-x-4 sm:space-x-8">
-          {/* Sidebar Toggle */}
-          <SidebarTrigger className="text-white hover:bg-white/10 h-8 w-8" />
 
           {/* Logo */}
           <Link 

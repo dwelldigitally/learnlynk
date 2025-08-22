@@ -17,6 +17,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -96,14 +97,17 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
-      <SidebarHeader className="border-b border-border">
-        <div className="flex items-center space-x-2 p-2">
-          <currentSection.icon className="w-5 h-5 text-primary flex-shrink-0" />
-          {!isCollapsed && (
-            <h2 className="font-semibold text-lg truncate">
-              {currentSection.name}
-            </h2>
-          )}
+      <SidebarHeader>
+        <div className="flex items-center justify-between p-2">
+          <div className="flex items-center space-x-2">
+            <currentSection.icon className="w-5 h-5 text-primary flex-shrink-0" />
+            {!isCollapsed && (
+              <h2 className="font-semibold text-lg truncate">
+                {currentSection.name}
+              </h2>
+            )}
+          </div>
+          <SidebarTrigger />
         </div>
         
         {/* Search within section */}

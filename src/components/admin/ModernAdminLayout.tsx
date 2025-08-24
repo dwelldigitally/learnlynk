@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
 import { AdminSidebar } from './AdminSidebar';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+
 
 import { navigationStructure } from '@/data/navigationStructure';
 import { useIsMobile, useViewport } from '@/hooks/use-mobile';
@@ -69,32 +69,32 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const isConfigurationPage = location.pathname.startsWith('/admin/configuration');
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen bg-background flex flex-col w-full">
-        {/* Top Navigation Bar - Full Width */}
-        <TopNavigationBar
-          activeSection={currentActiveSection}
-          onSectionChange={handleSectionChange}
-        />
+    <div className="min-h-screen bg-background flex flex-col w-full">
+      {/* Top Navigation Bar - Full Width */}
+      <TopNavigationBar
+        activeSection={currentActiveSection}
+        onSectionChange={handleSectionChange}
+      />
 
-        {/* Main Layout: Sidebar + Content */}
-        <div className="flex flex-1 w-full">
-          {/* Admin Sidebar - Hide on home page and configuration pages */}
-          {!isHomePage && !isConfigurationPage && (
+      {/* Main Layout: Sidebar + Content */}
+      <div className="flex flex-1 w-full">
+        {/* Admin Sidebar - Hide on home page and configuration pages */}
+        {!isHomePage && !isConfigurationPage && (
+          <div className="flex-shrink-0">
             <AdminSidebar activeSection={currentActiveSection} />
-          )}
-
-          {/* Main Content Area */}
-          <div className={`flex-1 ${!isHomePage && !isConfigurationPage ? 'ml-0' : ''}`}>
-            <main className="w-full p-6">
-              <div className="max-w-full overflow-x-hidden">
-                {children || <Outlet />}
-              </div>
-            </main>
           </div>
+        )}
+
+        {/* Main Content Area */}
+        <div className="flex-1 min-w-0">
+          <main className="w-full p-6">
+            <div className="max-w-full overflow-x-hidden">
+              {children || <Outlet />}
+            </div>
+          </main>
         </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }
 

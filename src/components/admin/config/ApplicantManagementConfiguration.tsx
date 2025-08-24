@@ -159,16 +159,6 @@ export const ApplicantManagementConfiguration: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <UserCheck className="h-6 w-6 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">Applicant Management Configuration</h1>
-          <p className="text-muted-foreground">
-            Configure application processes, document requirements, payment settings, and decision criteria.
-          </p>
-        </div>
-      </div>
-
       <Tabs defaultValue="process" className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="process" className="flex items-center gap-2">

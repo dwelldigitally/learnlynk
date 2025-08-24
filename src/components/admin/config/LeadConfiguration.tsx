@@ -10,13 +10,6 @@ export function LeadConfiguration() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Lead Configuration</h2>
-        <p className="text-muted-foreground">
-          Configure AI intelligence and lead management settings
-        </p>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="intelligence" className="flex items-center gap-2">

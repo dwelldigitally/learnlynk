@@ -142,16 +142,6 @@ export const StudentManagementConfiguration: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <GraduationCap className="h-6 w-6 text-primary" />
-        <div>
-          <h1 className="text-2xl font-bold">Student Management Configuration</h1>
-          <p className="text-muted-foreground">
-            Configure student lifecycle, academic settings, and communication preferences.
-          </p>
-        </div>
-      </div>
-
       <Tabs defaultValue="lifecycle" className="space-y-4">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="lifecycle" className="flex items-center gap-2">

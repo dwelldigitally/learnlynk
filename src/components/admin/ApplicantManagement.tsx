@@ -58,6 +58,12 @@ export const ApplicantManagement = () => {
       setApplicants(data);
       setTotalCount(total);
       
+      // Debug: Log the first applicant to see the data structure
+      if (data.length > 0) {
+        console.log('First applicant data:', data[0]);
+        console.log('Master records:', data[0]?.master_records);
+      }
+      
       // Update stage statistics
       if (activeStage === 'all') {
         updateStageStats(data);

@@ -85,8 +85,8 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
           )}
 
           {/* Main Content Area */}
-          <SidebarInset>
-            <main className="flex-1 w-full p-6">
+          <SidebarInset className="flex-1">
+            <main className="w-full p-6">
               <div className="max-w-full overflow-x-hidden">
                 {children || <Outlet />}
               </div>

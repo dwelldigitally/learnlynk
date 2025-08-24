@@ -88,9 +88,21 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
         isCollapsed ? "w-14" : "w-80"
       )}
     >
+      {/* Collapse Button */}
+      <div className="flex justify-end p-2 border-b border-border">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="h-8 w-8"
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+
       {/* Header */}
       <div className="border-b border-border">
-        <div className="flex items-center justify-between p-4">
+        <div className="flex items-center p-4">
           <div className="flex items-center space-x-3">
             <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" />
             {!isCollapsed && (
@@ -99,14 +111,6 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
               </h2>
             )}
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
         </div>
         
         {/* Search within section */}

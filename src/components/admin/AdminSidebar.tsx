@@ -84,7 +84,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   return (
     <div 
       className={cn(
-        "border-r border-border h-[calc(100vh-4rem)] mt-16 bg-card flex flex-col transition-all duration-300",
+        "border-r border-border h-[calc(100vh-4rem)] bg-card flex flex-col transition-all duration-300",
         isCollapsed ? "w-14" : "w-80"
       )}
     >

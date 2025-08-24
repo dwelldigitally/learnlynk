@@ -173,12 +173,18 @@ export const ApplicantManagement = () => {
       sortable: true,
       render: (item: any) => {
         if (!item) return null;
+        
+        // Handle different possible data structures
+        const firstName = item.master_records?.first_name || item.first_name || 'N/A';
+        const lastName = item.master_records?.last_name || item.last_name || '';
+        const email = item.master_records?.email || item.email || 'No email';
+        
         return (
           <div>
             <Link to={`/admin/applicants/detail/${item.id}`} className="font-medium hover:underline">
-              {item.master_records?.first_name} {item.master_records?.last_name}
+              {firstName} {lastName}
             </Link>
-            <div className="text-sm text-muted-foreground">{item.master_records?.email}</div>
+            <div className="text-sm text-muted-foreground">{email}</div>
           </div>
         );
       }

@@ -96,7 +96,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border h-[calc(100vh-4rem)] mt-16">
+    <Sidebar collapsible="icon" className="border-r border-border h-[calc(100vh-4rem)] mt-16 w-80" style={{ width: isCollapsed ? '3.5rem' : '20rem' }}>
       <SidebarHeader>
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center space-x-3">

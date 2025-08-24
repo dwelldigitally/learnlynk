@@ -1,5 +1,5 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { Search, ChevronRight, ChevronDown } from "lucide-react";
+import { Search, ChevronRight, ChevronDown, Menu } from "lucide-react";
 import { useState } from "react";
 import { navigationStructure } from "@/data/navigationStructure";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -34,8 +32,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
-  const { state: sidebarState } = useSidebar();
-  const isCollapsed = sidebarState === "collapsed";
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const getActiveSectionFromPath = () => {
     const path = location.pathname;
@@ -107,7 +104,14 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
               </h2>
             )}
           </div>
-          <SidebarTrigger className="ml-2" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="h-8 w-8"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
         </div>
         
         {/* Search within section */}

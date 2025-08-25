@@ -63,8 +63,8 @@ class EnrollmentSeedService {
     ];
 
     const actions = [
-      'Call now', 'Re-engage sequence', 'Call + doc email', 'Document follow-up',
-      'Priority callback', 'Application assistance', 'Transcript reminder', 'Intent confirmation'
+      'Call Student', 'Send Email', 'Schedule Meeting', 'Send Reminder',
+      'Call Student', 'Send Email', 'Call Student', 'Send Reminder'
     ];
 
     return students.map((name, index) => {

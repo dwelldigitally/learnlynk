@@ -13,6 +13,7 @@ import { YieldBandFilter } from './YieldBandFilter';
 import { ActionFilters } from './ActionFilters';
 import { BulkActionsToolbar } from './BulkActionsToolbar';
 import { BulkActionDialog } from './BulkActionDialog';
+import { enrollmentSeedService } from '@/services/enrollmentSeedService';
 
 interface ActionQueueItem {
   id: string;
@@ -80,9 +81,23 @@ export function EnrollmentCommandCenter() {
 
   const loadActionQueue = async () => {
     try {
+      // First check if we need to seed data
+      const { data: existingData } = await supabase
+        .from('action_queue')
+        .select('id')
+        .eq('user_id', user?.id)
+        .limit(1);
+
+      // If no data exists, seed it first
+      if (!existingData || existingData.length === 0) {
+        console.log('No action queue data found, seeding...');
+        await enrollmentSeedService.seedActionQueue();
+      }
+
       const { data, error } = await supabase
         .from('action_queue')
         .select('*')
+        .eq('user_id', user?.id)
         .order('yield_score', { ascending: false });
 
       if (error) throw error;

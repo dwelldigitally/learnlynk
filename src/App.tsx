@@ -92,7 +92,7 @@ const App = () => {
               
               {/* Sales rep dashboard is now handled by AdminDashboard */}
               
-              {/* General admin routes - this handles all /admin/leads/* static routes */}
+              {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               
               {/* Student Portal Routes */}

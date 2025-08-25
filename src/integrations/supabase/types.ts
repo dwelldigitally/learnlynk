@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_queue: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          priority_band: string
+          program: string
+          reason_codes: Json
+          sla_due_at: string | null
+          status: string
+          student_id: string | null
+          student_name: string
+          suggested_action: string
+          updated_at: string
+          user_id: string
+          yield_band: string
+          yield_score: number
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          priority_band?: string
+          program: string
+          reason_codes?: Json
+          sla_due_at?: string | null
+          status?: string
+          student_id?: string | null
+          student_name: string
+          suggested_action: string
+          updated_at?: string
+          user_id: string
+          yield_band?: string
+          yield_score?: number
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          priority_band?: string
+          program?: string
+          reason_codes?: Json
+          sla_due_at?: string | null
+          status?: string
+          student_id?: string | null
+          student_name?: string
+          suggested_action?: string
+          updated_at?: string
+          user_id?: string
+          yield_band?: string
+          yield_score?: number
+        }
+        Relationships: []
+      }
       advisor_performance: {
         Row: {
           advisor_id: string
@@ -3188,6 +3245,42 @@ export type Database = {
         }
         Relationships: []
       }
+      outcome_metrics: {
+        Row: {
+          after_value: number | null
+          attribution_source: string | null
+          before_value: number | null
+          created_at: string
+          id: string
+          metric_name: string
+          time_period: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          after_value?: number | null
+          attribution_source?: string | null
+          before_value?: number | null
+          created_at?: string
+          id?: string
+          metric_name: string
+          time_period?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          after_value?: number | null
+          attribution_source?: string | null
+          before_value?: number | null
+          created_at?: string
+          id?: string
+          metric_name?: string
+          time_period?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       owner_advisor_mappings: {
         Row: {
           advisor_id: string | null
@@ -3213,6 +3306,39 @@ export type Database = {
           hubspot_owner_id?: string
           id?: string
           is_active?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      policy_configurations: {
+        Row: {
+          created_at: string
+          enabled: boolean | null
+          expected_lift: number | null
+          id: string
+          policy_name: string
+          settings: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean | null
+          expected_lift?: number | null
+          id?: string
+          policy_name: string
+          settings?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean | null
+          expected_lift?: number | null
+          id?: string
+          policy_name?: string
+          settings?: Json | null
           updated_at?: string
           user_id?: string
         }
@@ -3979,6 +4105,48 @@ export type Database = {
           student_name?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      signals: {
+        Row: {
+          created_at: string
+          form_submitted_at: string | null
+          id: string
+          intent_signals: Json | null
+          last_email_open_at: string | null
+          pageviews_7d: number | null
+          student_id: string
+          updated_at: string
+          user_id: string
+          webinar_attended: boolean | null
+          yield_score: number | null
+        }
+        Insert: {
+          created_at?: string
+          form_submitted_at?: string | null
+          id?: string
+          intent_signals?: Json | null
+          last_email_open_at?: string | null
+          pageviews_7d?: number | null
+          student_id: string
+          updated_at?: string
+          user_id: string
+          webinar_attended?: boolean | null
+          yield_score?: number | null
+        }
+        Update: {
+          created_at?: string
+          form_submitted_at?: string | null
+          id?: string
+          intent_signals?: Json | null
+          last_email_open_at?: string | null
+          pageviews_7d?: number | null
+          student_id?: string
+          updated_at?: string
+          user_id?: string
+          webinar_attended?: boolean | null
+          yield_score?: number | null
         }
         Relationships: []
       }
@@ -4759,6 +4927,48 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      waste_radar: {
+        Row: {
+          created_at: string
+          duplicate_flag: boolean | null
+          id: string
+          last_meaningful_contact: string | null
+          student_id: string
+          student_name: string
+          touch_count: number | null
+          unresponsive_30d: boolean | null
+          updated_at: string
+          user_id: string
+          wrong_intake: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          duplicate_flag?: boolean | null
+          id?: string
+          last_meaningful_contact?: string | null
+          student_id: string
+          student_name: string
+          touch_count?: number | null
+          unresponsive_30d?: boolean | null
+          updated_at?: string
+          user_id: string
+          wrong_intake?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          duplicate_flag?: boolean | null
+          id?: string
+          last_meaningful_contact?: string | null
+          student_id?: string
+          student_name?: string
+          touch_count?: number | null
+          unresponsive_30d?: boolean | null
+          updated_at?: string
+          user_id?: string
+          wrong_intake?: boolean | null
         }
         Relationships: []
       }

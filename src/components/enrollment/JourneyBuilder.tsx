@@ -432,6 +432,21 @@ export function JourneyBuilder() {
         <TabsContent value="preview" className="mt-6">
           {renderJourneyPreview()}
         </TabsContent>
+        
+        <TabsContent value="configure-plays" className="mt-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold">Journey-Play Configuration</h3>
+            <p className="text-muted-foreground">
+              Configure which plays can run during each journey stage (available after journey creation)
+            </p>
+            <div className="mt-4 p-4 border rounded-lg bg-muted/50">
+              <p className="text-sm">
+                Play configuration will be available after creating the journey. 
+                You'll be able to map specific plays to journey stages and set timing rules.
+              </p>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

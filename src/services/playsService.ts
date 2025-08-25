@@ -41,7 +41,43 @@ export class PlaysService {
   }
 
   static async generateActionsForPlay(play: Play): Promise<number> {
-    // Mock lead data for demo - in real implementation, query actual leads/students
+    // Try journey-aware generation first for any students in journeys
+    const journeyAwareCount = await this.generateJourneyAwareActions(play);
+    
+    // Fallback to standard generation for non-journey students
+    const standardCount = await this.generateStandardActions(play);
+    
+    return journeyAwareCount + standardCount;
+  }
+
+  private static async generateJourneyAwareActions(play: Play): Promise<number> {
+    // Import here to avoid circular dependency
+    const { JourneyOrchestrator } = await import('./journeyOrchestrator');
+    
+    // Get all students with journey progress
+    const { data: journeyStudents, error } = await supabase
+      .from('student_journey_progress')
+      .select('student_id')
+      .eq('user_id', play.user_id!)
+      .eq('stage_status', 'active');
+
+    if (error) throw error;
+
+    let totalActions = 0;
+    
+    for (const student of journeyStudents || []) {
+      const result = await JourneyOrchestrator.generateJourneyAwareActions(
+        play.id, 
+        student.student_id
+      );
+      totalActions += result.actionsGenerated;
+    }
+
+    return totalActions;
+  }
+
+  private static async generateStandardActions(play: Play): Promise<number> {
+    // Mock lead data for demo - students not in journeys
     const mockLeads = [
       { id: '1', name: 'Sarah Johnson', program: 'Business Administration', stage: 'inquiry', lastContact: '2024-01-20' },
       { id: '2', name: 'Mike Chen', program: 'Healthcare Assistant', stage: 'application', lastContact: '2024-01-18' },

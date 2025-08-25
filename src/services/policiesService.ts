@@ -42,6 +42,19 @@ export class PoliciesService {
     const policies = await this.getPolicies();
     const activePolicies = policies.filter(p => p.is_active);
 
+    // Check journey-aware policies first if journey context is provided
+    if (studentData?.journeyId && studentData?.journeyStage) {
+      const journeyCheck = await this.checkJourneyPolicies(
+        actionType, 
+        studentData,
+        activePolicies
+      );
+      if (!journeyCheck.allowed) {
+        return journeyCheck;
+      }
+    }
+
+    // Standard policy checks
     for (const policy of activePolicies) {
       const config = policy.configuration as Record<string, any>;
 
@@ -61,9 +74,9 @@ export class PoliciesService {
 
         case 'message_pacing':
           if (config.enabled) {
-            // In real implementation, check recent message history
-            // For demo, randomly enforce pacing
-            if (Math.random() < 0.2) {
+            // Enhanced with journey context
+            const paceLimit = this.getJourneyAwarePaceLimit(config, studentData);
+            if (Math.random() < paceLimit) {
               return { allowed: false, reason: 'Too many recent messages' };
             }
           }
@@ -80,6 +93,69 @@ export class PoliciesService {
     }
 
     return { allowed: true };
+  }
+
+  private static async checkJourneyPolicies(
+    actionType: string,
+    studentData: any,
+    activePolicies: any[]
+  ): Promise<{ allowed: boolean; reason?: string }> {
+    // Import here to avoid circular dependency
+    const { JourneyOrchestrator } = await import('./journeyOrchestrator');
+    
+    // Get journey-specific policy overrides
+    const policyOverrides = await JourneyOrchestrator.getJourneyPolicyOverrides(
+      studentData.journeyId,
+      studentData.journeyStage
+    );
+
+    for (const override of policyOverrides) {
+      const config = override.override_config as Record<string, any>;
+
+      if (config.policy_type === 'stage_communication_rules') {
+        // Stage-specific communication restrictions
+        if (config.blocked_channels?.includes(actionType)) {
+          return { 
+            allowed: false, 
+            reason: `${actionType} not allowed in ${studentData.journeyStage} stage` 
+          };
+        }
+      }
+
+      if (config.policy_type === 'stage_timing_rules') {
+        // Enhanced timing rules based on journey progression
+        const stageAge = this.getStageAge(studentData);
+        if (config.min_stage_age_hours && stageAge < config.min_stage_age_hours) {
+          return { 
+            allowed: false, 
+            reason: `Must wait ${config.min_stage_age_hours}h in current stage` 
+          };
+        }
+      }
+    }
+
+    return { allowed: true };
+  }
+
+  private static getJourneyAwarePaceLimit(config: any, studentData: any): number {
+    // Adjust pacing based on journey urgency
+    let basePace = 0.2; // 20% chance of triggering pace limit
+    
+    if (studentData?.journeyStage === 'enrollment') {
+      basePace = 0.1; // More lenient for enrollment stage
+    } else if (studentData?.journeyStage === 'application') {
+      basePace = 0.3; // Stricter for application stage
+    }
+    
+    return basePace;
+  }
+
+  private static getStageAge(studentData: any): number {
+    if (!studentData?.stageStartedAt) return 999; // Very old if unknown
+    
+    const stageStart = new Date(studentData.stageStartedAt).getTime();
+    const now = Date.now();
+    return (now - stageStart) / (1000 * 60 * 60); // Hours
   }
 
   static async getPolicyPreview(): Promise<string> {

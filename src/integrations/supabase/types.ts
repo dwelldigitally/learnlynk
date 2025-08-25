@@ -2369,6 +2369,87 @@ export type Database = {
           },
         ]
       }
+      journey_play_mappings: {
+        Row: {
+          conditions: Json | null
+          created_at: string
+          id: string
+          is_enabled: boolean
+          journey_id: string
+          play_id: string
+          priority_override: number | null
+          stage_id: string
+          timing_override: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          conditions?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          journey_id: string
+          play_id: string
+          priority_override?: number | null
+          stage_id: string
+          timing_override?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          conditions?: Json | null
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          journey_id?: string
+          play_id?: string
+          priority_override?: number | null
+          stage_id?: string
+          timing_override?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journey_policy_overrides: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          journey_id: string
+          override_config: Json
+          policy_id: string
+          priority: number
+          stage_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          journey_id: string
+          override_config?: Json
+          policy_id: string
+          priority?: number
+          stage_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          journey_id?: string
+          override_config?: Json
+          policy_id?: string
+          priority?: number
+          stage_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       journey_requirements: {
         Row: {
           created_at: string
@@ -5125,6 +5206,54 @@ export type Database = {
           type?: string
           updated_at?: string
           uploaded_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      student_journey_progress: {
+        Row: {
+          created_at: string
+          current_stage_id: string | null
+          current_substage: string | null
+          id: string
+          journey_id: string
+          metadata: Json | null
+          requirements_completed: Json | null
+          stage_completed_at: string | null
+          stage_started_at: string | null
+          stage_status: string
+          student_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_stage_id?: string | null
+          current_substage?: string | null
+          id?: string
+          journey_id: string
+          metadata?: Json | null
+          requirements_completed?: Json | null
+          stage_completed_at?: string | null
+          stage_started_at?: string | null
+          stage_status?: string
+          student_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_stage_id?: string | null
+          current_substage?: string | null
+          id?: string
+          journey_id?: string
+          metadata?: Json | null
+          requirements_completed?: Json | null
+          stage_completed_at?: string | null
+          stage_started_at?: string | null
+          stage_status?: string
+          student_id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

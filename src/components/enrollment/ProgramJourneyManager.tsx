@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { usePrograms } from '@/services/programService';
 import { useAcademicJourneys, useCreateJourneyFromTemplate } from '@/services/academicJourneyService';
 import { JourneyBuilder } from './JourneyBuilder';
+import { JourneyPlayMapper } from '@/components/admin/JourneyPlayMapper';
 import { BookOpen, Plus, Settings, Eye, ArrowRight, Users, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,6 +15,8 @@ export function ProgramJourneyManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterProgram, setFilterProgram] = useState('all');
   const [showJourneyBuilder, setShowJourneyBuilder] = useState(false);
+  const [showPlayMapper, setShowPlayMapper] = useState(false);
+  const [selectedJourney, setSelectedJourney] = useState<any>(null);
   
   const { toast } = useToast();
   const { data: programs } = usePrograms();
@@ -40,6 +43,35 @@ export function ProgramJourneyManager() {
   const getJourneyStatusColor = (isActive: boolean) => {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
   };
+
+  if (showPlayMapper && selectedJourney) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setShowPlayMapper(false);
+              setSelectedJourney(null);
+            }}
+          >
+            ← Back to Journeys
+          </Button>
+          <div>
+            <h2 className="text-xl font-semibold">{selectedJourney.name}</h2>
+            <p className="text-muted-foreground">Configure plays for this journey</p>
+          </div>
+        </div>
+        
+        <JourneyPlayMapper 
+          journey={selectedJourney}
+          onMappingsChanged={() => {
+            // Optionally refresh data
+          }}
+        />
+      </div>
+    );
+  }
 
   if (showJourneyBuilder) {
     return (
@@ -154,9 +186,17 @@ export function ProgramJourneyManager() {
                   </div>
 
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => {
+                        setSelectedJourney(journey);
+                        setShowPlayMapper(true);
+                      }}
+                    >
                       <Settings className="h-4 w-4 mr-1" />
-                      Configure
+                      Configure Plays
                     </Button>
                     <Button variant="outline" size="sm" className="flex-1">
                       <Eye className="h-4 w-4 mr-1" />

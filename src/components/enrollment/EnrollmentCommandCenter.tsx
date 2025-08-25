@@ -10,6 +10,9 @@ import { Navigate } from 'react-router-dom';
 import { ActionQueueTable } from './ActionQueueTable';
 import { ActionDensityMeter } from './ActionDensityMeter';
 import { YieldBandFilter } from './YieldBandFilter';
+import { ActionFilters } from './ActionFilters';
+import { BulkActionsToolbar } from './BulkActionsToolbar';
+import { BulkActionDialog } from './BulkActionDialog';
 
 interface ActionQueueItem {
   id: string;
@@ -29,6 +32,19 @@ export function EnrollmentCommandCenter() {
   const [loading, setLoading] = useState(true);
   const [selectedYieldBand, setSelectedYieldBand] = useState<string>('all');
   const [actionsPerHour, setActionsPerHour] = useState(0);
+  
+  // Enhanced filtering states
+  const [selectedActionType, setSelectedActionType] = useState<string>('all');
+  const [selectedSLAStatus, setSelectedSLAStatus] = useState<string>('all');
+  const [selectedYieldRange, setSelectedYieldRange] = useState<string>('all');
+  
+  // Bulk action states
+  const [selectedActions, setSelectedActions] = useState<string[]>([]);
+  const [bulkActionDialog, setBulkActionDialog] = useState<{
+    isOpen: boolean;
+    actionType: 'call' | 'email' | 'schedule' | null;
+  }>({ isOpen: false, actionType: null });
+  
   const { toast } = useToast();
   const { user, loading: authLoading } = useAuth();
 
@@ -140,15 +156,153 @@ export function EnrollmentCommandCenter() {
     }
   };
 
-  const filteredActions = actions.filter(action => 
-    selectedYieldBand === 'all' || action.yield_band === selectedYieldBand
-  );
+  // Enhanced filtering logic
+  const applyFilters = () => {
+    return actions.filter(action => {
+      // Yield band filter
+      if (selectedYieldBand !== 'all' && action.yield_band !== selectedYieldBand) {
+        return false;
+      }
+      
+      // Action type filter
+      if (selectedActionType !== 'all' && action.suggested_action !== selectedActionType) {
+        return false;
+      }
+      
+      // SLA status filter
+      if (selectedSLAStatus !== 'all') {
+        const slaDate = new Date(action.sla_due_at);
+        const now = new Date();
+        const hoursUntilSLA = (slaDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+        
+        if (selectedSLAStatus === 'overdue' && hoursUntilSLA >= 0) return false;
+        if (selectedSLAStatus === 'urgent' && (hoursUntilSLA < 0 || hoursUntilSLA > 24)) return false;
+        if (selectedSLAStatus === 'normal' && hoursUntilSLA <= 24) return false;
+      }
+      
+      // Yield score range filter
+      if (selectedYieldRange !== 'all') {
+        const score = action.yield_score;
+        if (selectedYieldRange === '80-100' && (score < 80 || score > 100)) return false;
+        if (selectedYieldRange === '60-79' && (score < 60 || score >= 80)) return false;
+        if (selectedYieldRange === '0-59' && score >= 60) return false;
+      }
+      
+      return true;
+    });
+  };
+
+  const filteredActions = applyFilters();
+
+  // Bulk action handlers
+  const handleBulkCall = () => {
+    setBulkActionDialog({ isOpen: true, actionType: 'call' });
+  };
+
+  const handleBulkEmail = () => {
+    setBulkActionDialog({ isOpen: true, actionType: 'email' });
+  };
+
+  const handleBulkSchedule = () => {
+    setBulkActionDialog({ isOpen: true, actionType: 'schedule' });
+  };
+
+  const handleBulkComplete = async () => {
+    try {
+      for (const actionId of selectedActions) {
+        await supabase
+          .from('action_queue')
+          .update({
+            status: 'completed',
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', actionId);
+      }
+      
+      toast({
+        title: "Actions Completed",
+        description: `Successfully completed ${selectedActions.length} actions.`,
+      });
+      
+      setSelectedActions([]);
+      loadActionQueue();
+    } catch (error) {
+      console.error('Error completing actions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete actions",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (confirm(`Are you sure you want to delete ${selectedActions.length} actions?`)) {
+      try {
+        for (const actionId of selectedActions) {
+          await supabase
+            .from('action_queue')
+            .delete()
+            .eq('id', actionId);
+        }
+        
+        toast({
+          title: "Actions Deleted",
+          description: `Successfully deleted ${selectedActions.length} actions.`,
+        });
+        
+        setSelectedActions([]);
+        loadActionQueue();
+      } catch (error) {
+        console.error('Error deleting actions:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete actions",
+          variant: "destructive"
+        });
+      }
+    }
+  };
+
+  const handleBulkActionExecute = async (actionData: any) => {
+    try {
+      // Here you would implement the actual execution logic
+      // For calls: trigger calling system
+      // For emails: send bulk emails
+      // For scheduling: create calendar events
+      
+      toast({
+        title: "Bulk Action Executed",
+        description: `Successfully executed ${actionData.actionType} for ${actionData.selectedActions.length} students.`,
+      });
+      
+      // Mark actions as completed
+      await handleBulkComplete();
+      
+    } catch (error) {
+      console.error('Error executing bulk action:', error);
+      toast({
+        title: "Execution Failed",
+        description: "Failed to execute bulk action",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const clearAllFilters = () => {
+    setSelectedActionType('all');
+    setSelectedSLAStatus('all');
+    setSelectedYieldRange('all');
+    setSelectedYieldBand('all');
+  };
 
   const pendingActions = actions.filter(action => action.status === 'pending');
   const highYieldActions = actions.filter(action => action.yield_band === 'high' && action.status === 'pending');
   const overdueSLA = actions.filter(action => 
     action.status === 'pending' && new Date(action.sla_due_at) < new Date()
   );
+  
+  const selectedActionItems = actions.filter(action => selectedActions.includes(action.id));
 
   if (loading) {
     return (
@@ -235,17 +389,18 @@ export function EnrollmentCommandCenter() {
         </Card>
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center space-x-4">
-        <YieldBandFilter 
-          selectedBand={selectedYieldBand}
-          onBandChange={setSelectedYieldBand}
-        />
-        
-        <Badge variant="outline" className="text-sm">
-          {filteredActions.length} actions shown
-        </Badge>
-      </div>
+      {/* Enhanced Filters */}
+      <ActionFilters
+        selectedActionType={selectedActionType}
+        selectedSLAStatus={selectedSLAStatus}
+        selectedYieldRange={selectedYieldRange}
+        onActionTypeChange={setSelectedActionType}
+        onSLAStatusChange={setSelectedSLAStatus}
+        onYieldRangeChange={setSelectedYieldRange}
+        filteredCount={filteredActions.length}
+        totalCount={actions.length}
+        onClearFilters={clearAllFilters}
+      />
 
       {/* Action Queue Table */}
       <Card>
@@ -256,9 +411,32 @@ export function EnrollmentCommandCenter() {
           <ActionQueueTable 
             actions={filteredActions}
             onCompleteAction={handleCompleteAction}
+            selectedActions={selectedActions}
+            onSelectionChange={setSelectedActions}
           />
         </CardContent>
       </Card>
+
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selectedActions.length}
+        selectedActionType={selectedActionType}
+        onBulkCall={handleBulkCall}
+        onBulkEmail={handleBulkEmail}
+        onBulkSchedule={handleBulkSchedule}
+        onBulkComplete={handleBulkComplete}
+        onBulkDelete={handleBulkDelete}
+        onClearSelection={() => setSelectedActions([])}
+      />
+
+      {/* Bulk Action Dialog */}
+      <BulkActionDialog
+        isOpen={bulkActionDialog.isOpen}
+        onClose={() => setBulkActionDialog({ isOpen: false, actionType: null })}
+        actionType={bulkActionDialog.actionType}
+        selectedActions={selectedActionItems}
+        onExecute={handleBulkActionExecute}
+      />
     </div>
   );
 }

@@ -35,19 +35,6 @@ import type { NavigationStructure } from "@/types/navigation";
 export const navigationStructure: NavigationStructure = {
   sections: [
     {
-      id: "enrollment-optimization",
-      name: "Enrollment Optimization",
-      icon: Target,
-      items: [
-        { name: "Today", href: "/admin/enrollment/today", icon: Clock },
-        { name: "Speed Policy", href: "/admin/enrollment/speed-policy", icon: Zap },
-        { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
-        { name: "Waste Radar", href: "/admin/enrollment/waste-radar", icon: AlertTriangle },
-        { name: "Outcomes 30/60/90", href: "/admin/enrollment/outcomes", icon: BarChart3 },
-        { name: "Integrations", href: "/admin/enrollment/integrations", icon: Link }
-      ]
-    },
-    {
       id: "leads-marketing",
       name: "Leads & Marketing",
       icon: UserPlus,
@@ -62,6 +49,19 @@ export const navigationStructure: NavigationStructure = {
           icon: MessageSquare,
           subItems: [
             { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail }
+          ]
+        },
+        { 
+          name: "Enrollment Optimization", 
+          href: "/admin/enrollment/today", 
+          icon: Target,
+          subItems: [
+            { name: "Today", href: "/admin/enrollment/today", icon: Clock },
+            { name: "Speed Policy", href: "/admin/enrollment/speed-policy", icon: Zap },
+            { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
+            { name: "Waste Radar", href: "/admin/enrollment/waste-radar", icon: AlertTriangle },
+            { name: "Outcomes 30/60/90", href: "/admin/enrollment/outcomes", icon: BarChart3 },
+            { name: "Integrations", href: "/admin/enrollment/integrations", icon: Link }
           ]
         },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },

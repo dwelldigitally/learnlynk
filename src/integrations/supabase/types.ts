@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_journeys: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          name: string
+          program_id: string | null
+          template_id: string | null
+          updated_at: string
+          user_id: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          name: string
+          program_id?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          name?: string
+          program_id?: string | null
+          template_id?: string | null
+          updated_at?: string
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "academic_journeys_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "master_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "academic_journeys_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       action_execution_logs: {
         Row: {
           action_id: string
@@ -2262,6 +2319,233 @@ export type Database = {
           study_mode?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      journey_channel_rules: {
+        Row: {
+          channel_type: string
+          conditions: Json | null
+          created_at: string
+          frequency_limits: Json | null
+          id: string
+          is_allowed: boolean
+          priority_threshold: string
+          stage_id: string
+          time_restrictions: Json | null
+          updated_at: string
+        }
+        Insert: {
+          channel_type: string
+          conditions?: Json | null
+          created_at?: string
+          frequency_limits?: Json | null
+          id?: string
+          is_allowed?: boolean
+          priority_threshold?: string
+          stage_id: string
+          time_restrictions?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          channel_type?: string
+          conditions?: Json | null
+          created_at?: string
+          frequency_limits?: Json | null
+          id?: string
+          is_allowed?: boolean
+          priority_threshold?: string
+          stage_id?: string
+          time_restrictions?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_channel_rules_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_requirements: {
+        Row: {
+          created_at: string
+          description: string | null
+          document_template_id: string | null
+          id: string
+          is_mandatory: boolean
+          name: string
+          order_index: number
+          reminder_schedule: Json | null
+          requirement_type: string
+          special_instructions: string | null
+          stage_id: string
+          updated_at: string
+          validation_rules: Json | null
+          verification_method: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          document_template_id?: string | null
+          id?: string
+          is_mandatory?: boolean
+          name: string
+          order_index?: number
+          reminder_schedule?: Json | null
+          requirement_type: string
+          special_instructions?: string | null
+          stage_id: string
+          updated_at?: string
+          validation_rules?: Json | null
+          verification_method?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          document_template_id?: string | null
+          id?: string
+          is_mandatory?: boolean
+          name?: string
+          order_index?: number
+          reminder_schedule?: Json | null
+          requirement_type?: string
+          special_instructions?: string | null
+          stage_id?: string
+          updated_at?: string
+          validation_rules?: Json | null
+          verification_method?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_requirements_document_template_id_fkey"
+            columns: ["document_template_id"]
+            isOneToOne: false
+            referencedRelation: "document_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_requirements_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_stages: {
+        Row: {
+          completion_criteria: Json | null
+          created_at: string
+          description: string | null
+          escalation_rules: Json | null
+          id: string
+          is_parallel: boolean
+          is_required: boolean
+          journey_id: string
+          name: string
+          order_index: number
+          parent_stage_id: string | null
+          stage_type: string
+          status: string
+          timing_config: Json
+          updated_at: string
+        }
+        Insert: {
+          completion_criteria?: Json | null
+          created_at?: string
+          description?: string | null
+          escalation_rules?: Json | null
+          id?: string
+          is_parallel?: boolean
+          is_required?: boolean
+          journey_id: string
+          name: string
+          order_index: number
+          parent_stage_id?: string | null
+          stage_type?: string
+          status?: string
+          timing_config?: Json
+          updated_at?: string
+        }
+        Update: {
+          completion_criteria?: Json | null
+          created_at?: string
+          description?: string | null
+          escalation_rules?: Json | null
+          id?: string
+          is_parallel?: boolean
+          is_required?: boolean
+          journey_id?: string
+          name?: string
+          order_index?: number
+          parent_stage_id?: string | null
+          stage_type?: string
+          status?: string
+          timing_config?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_stages_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "academic_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_stages_parent_stage_id_fkey"
+            columns: ["parent_stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journey_templates: {
+        Row: {
+          category: string
+          complexity_level: string
+          created_at: string
+          description: string | null
+          estimated_duration_days: number | null
+          id: string
+          is_system_template: boolean
+          name: string
+          program_type: string | null
+          template_data: Json
+          updated_at: string
+          usage_count: number | null
+        }
+        Insert: {
+          category?: string
+          complexity_level?: string
+          created_at?: string
+          description?: string | null
+          estimated_duration_days?: number | null
+          id?: string
+          is_system_template?: boolean
+          name: string
+          program_type?: string | null
+          template_data?: Json
+          updated_at?: string
+          usage_count?: number | null
+        }
+        Update: {
+          category?: string
+          complexity_level?: string
+          created_at?: string
+          description?: string | null
+          estimated_duration_days?: number | null
+          id?: string
+          is_system_template?: boolean
+          name?: string
+          program_type?: string | null
+          template_data?: Json
+          updated_at?: string
+          usage_count?: number | null
         }
         Relationships: []
       }

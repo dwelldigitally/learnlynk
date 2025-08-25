@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { enrollmentSeedService } from '@/services/enrollmentSeedService';
+import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,20 +23,32 @@ export function DataInitializer({ children }: DataInitializerProps) {
           return;
         }
 
-        // Check if data already exists for this user to avoid re-seeding
+        // Check if Phase 1 demo data already exists
         const { data: existingActions } = await supabase
-          .from('action_queue')
+          .from('student_actions')
           .select('id')
           .eq('user_id', user.id)
           .limit(1);
 
-        if (!existingActions || existingActions.length === 0) {
-          console.log('Initializing enrollment optimization data...');
+        const { data: existingPlays } = await supabase
+          .from('plays')
+          .select('id')
+          .eq('user_id', user.id)
+          .limit(1);
+
+        if ((!existingActions || existingActions.length === 0) && 
+            (!existingPlays || existingPlays.length === 0)) {
+          console.log('Initializing Phase 1: Database Foundation & Demo Data...');
+          
+          // Seed Phase 1 comprehensive demo data
+          await enrollmentDemoSeedService.seedAllDemoData();
+          
+          // Also seed legacy data for compatibility
           await enrollmentSeedService.seedAll();
           
           toast({
-            title: "Data Initialized",
-            description: "Enrollment optimization data has been loaded successfully",
+            title: "Phase 1 Complete",
+            description: "Starter plays, policies, and student actions have been loaded",
           });
         }
         

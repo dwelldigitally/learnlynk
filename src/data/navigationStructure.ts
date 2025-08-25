@@ -110,7 +110,8 @@ export const navigationStructure: NavigationStructure = {
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
         { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
         { name: "Team & Routing", href: "/admin/configuration/routing", icon: Route },
-        { name: "Company Profile", href: "/admin/configuration/company", icon: Briefcase }
+        { name: "Company Profile", href: "/admin/configuration/company", icon: Briefcase },
+        { name: "AI Intelligence Center", href: "/admin/ai-intelligence", icon: Brain }
       ]
     },
     {

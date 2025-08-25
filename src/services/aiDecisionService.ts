@@ -33,18 +33,40 @@ export class AIDecisionService {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data || []).map(row => ({
+      ...row,
+      reasoning: row.reasoning as Record<string, any>,
+      contributing_factors: row.contributing_factors as Record<string, any>,
+      alternative_actions: row.alternative_actions as Record<string, any>[]
+    }));
   }
 
   static async createDecisionLog(decision: Partial<AIDecisionLog>): Promise<AIDecisionLog> {
+    const insertData = {
+      decision_type: decision.decision_type || 'default',
+      recommended_action: decision.recommended_action || 'No Action',
+      confidence_score: decision.confidence_score || 0.5,
+      reasoning: decision.reasoning || {},
+      contributing_factors: decision.contributing_factors || {},
+      alternative_actions: decision.alternative_actions,
+      executed: decision.executed || false,
+      student_id: decision.student_id,
+      created_by: decision.created_by
+    };
+
     const { data, error } = await supabase
       .from('ai_decision_logs')
-      .insert(decision)
+      .insert(insertData)
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      reasoning: data.reasoning as Record<string, any>,
+      contributing_factors: data.contributing_factors as Record<string, any>,
+      alternative_actions: data.alternative_actions as Record<string, any>[]
+    };
   }
 
   static async updateDecisionExecution(id: string, executed: boolean, result?: string): Promise<void> {
@@ -68,7 +90,11 @@ export class AIDecisionService {
       .order('version', { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    return (data || []).map(row => ({
+      ...row,
+      configuration_data: row.configuration_data as Record<string, any>,
+      performance_metrics: row.performance_metrics as Record<string, any>
+    }));
   }
 
   static async getActiveConfiguration(): Promise<AILogicConfiguration | null> {
@@ -79,7 +105,11 @@ export class AIDecisionService {
       .single();
     
     if (error && error.code !== 'PGRST116') throw error;
-    return data;
+    return data ? {
+      ...data,
+      configuration_data: data.configuration_data as Record<string, any>,
+      performance_metrics: data.performance_metrics as Record<string, any>
+    } : null;
   }
 
   static async createConfiguration(config: Partial<AILogicConfiguration>): Promise<AILogicConfiguration> {
@@ -92,15 +122,23 @@ export class AIDecisionService {
     const { data, error } = await supabase
       .from('ai_logic_configurations')
       .insert({
-        ...config,
+        name: config.name || 'New Configuration',
+        description: config.description,
+        configuration_data: config.configuration_data || {},
         is_active: true,
-        version: 1
+        version: 1,
+        natural_language_prompt: config.natural_language_prompt,
+        performance_metrics: config.performance_metrics
       })
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      configuration_data: data.configuration_data as Record<string, any>,
+      performance_metrics: data.performance_metrics as Record<string, any>
+    };
   }
 
   static async updateConfiguration(id: string, updates: Partial<AILogicConfiguration>): Promise<void> {
@@ -139,18 +177,36 @@ export class AIDecisionService {
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data || [];
+    return (data || []).map(row => ({
+      ...row,
+      scenario_data: row.scenario_data as Record<string, any>,
+      expected_outcome: row.expected_outcome as Record<string, any>,
+      actual_outcome: row.actual_outcome as Record<string, any>,
+      test_status: row.test_status as 'pending' | 'running' | 'completed' | 'failed'
+    }));
   }
 
   static async createScenarioTest(test: Partial<AIScenarioTest>): Promise<AIScenarioTest> {
     const { data, error } = await supabase
       .from('ai_scenario_tests')
-      .insert(test)
+      .insert({
+        name: test.name || 'New Test',
+        description: test.description,
+        scenario_data: test.scenario_data || {},
+        expected_outcome: test.expected_outcome,
+        test_status: test.test_status || 'pending'
+      })
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      scenario_data: data.scenario_data as Record<string, any>,
+      expected_outcome: data.expected_outcome as Record<string, any>,
+      actual_outcome: data.actual_outcome as Record<string, any>,
+      test_status: data.test_status as 'pending' | 'running' | 'completed' | 'failed'
+    };
   }
 
   static async runScenarioTest(testId: string): Promise<AIScenarioTest> {
@@ -188,7 +244,13 @@ export class AIDecisionService {
       .single();
 
     if (error) throw error;
-    return data;
+    return {
+      ...data,
+      scenario_data: data.scenario_data as Record<string, any>,
+      expected_outcome: data.expected_outcome as Record<string, any>,
+      actual_outcome: data.actual_outcome as Record<string, any>,
+      test_status: data.test_status as 'pending' | 'running' | 'completed' | 'failed'
+    };
   }
 
   // Performance Baselines
@@ -205,9 +267,18 @@ export class AIDecisionService {
   }
 
   static async createPerformanceBaseline(baseline: Partial<AIPerformanceBaseline>): Promise<AIPerformanceBaseline> {
+    const insertData = {
+      configuration_id: baseline.configuration_id,
+      metric_name: baseline.metric_name || 'default_metric',
+      metric_value: baseline.metric_value || 0,
+      baseline_period_start: baseline.baseline_period_start || new Date().toISOString(),
+      baseline_period_end: baseline.baseline_period_end || new Date().toISOString(),
+      sample_size: baseline.sample_size
+    };
+
     const { data, error } = await supabase
       .from('ai_performance_baselines')
-      .insert(baseline)
+      .insert(insertData)
       .select()
       .single();
     
@@ -226,7 +297,13 @@ export class AIDecisionService {
     if (error) throw error;
 
     // Generate detailed explanation based on decision data
-    return this.generateDecisionExplanation(decision);
+    const typedDecision: AIDecisionLog = {
+      ...decision,
+      reasoning: decision.reasoning as Record<string, any>,
+      contributing_factors: decision.contributing_factors as Record<string, any>,
+      alternative_actions: decision.alternative_actions as Record<string, any>[]
+    };
+    return this.generateDecisionExplanation(typedDecision);
   }
 
   // Private helper methods

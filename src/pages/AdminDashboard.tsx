@@ -59,6 +59,7 @@ import { IntegrationsDashboard } from "@/components/enrollment/IntegrationsDashb
 import { StudentProgressTracker } from "@/components/enrollment/StudentProgressTracker";
 import { EnrollmentPipelineAnalytics } from "@/components/enrollment/EnrollmentPipelineAnalytics";
 import { EnrollmentAutomationRules } from "@/components/enrollment/EnrollmentAutomationRules";
+import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -197,6 +198,8 @@ const AdminDashboard: React.FC = () => {
         return <EnrollmentPipelineAnalytics />;
       case "/admin/enrollment/automation-rules":
         return <EnrollmentAutomationRules />;
+      case "/admin/ai-intelligence":
+        return <AIIntelligenceDashboard />;
       default:
         return <AdminOverview />;
     }

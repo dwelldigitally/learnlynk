@@ -50,6 +50,12 @@ import { HelpCenter } from "@/components/admin/HelpCenter";
 import { PersonalAssignments } from "@/components/admin/PersonalAssignments";
 import SalesRepDashboard from "./SalesRepDashboard";
 import { AIFeaturesPage } from "./AIFeaturesPage";
+import { EnrollmentCommandCenter } from "@/components/enrollment/EnrollmentCommandCenter";
+import { SpeedToLeadPolicy } from "@/components/enrollment/SpeedToLeadPolicy";
+import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrator";
+import { WasteRadarDashboard } from "@/components/enrollment/WasteRadarDashboard";
+import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
+import { IntegrationsDashboard } from "@/components/enrollment/IntegrationsDashboard";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -170,6 +176,18 @@ const AdminDashboard: React.FC = () => {
         return <RecruiterManagement />;
       case "/admin/recruiter-applications":
         return <RecruiterApplicationsManagement />;
+      case "/admin/enrollment/today":
+        return <EnrollmentCommandCenter />;
+      case "/admin/enrollment/speed-policy":
+        return <SpeedToLeadPolicy />;
+      case "/admin/enrollment/playbooks":
+        return <PlaybookOrchestrator />;
+      case "/admin/enrollment/waste-radar":
+        return <WasteRadarDashboard />;
+      case "/admin/enrollment/outcomes":
+        return <OutcomesDashboard />;
+      case "/admin/enrollment/integrations":
+        return <IntegrationsDashboard />;
       default:
         return <AdminOverview />;
     }

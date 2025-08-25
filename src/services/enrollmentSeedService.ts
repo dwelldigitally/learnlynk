@@ -330,6 +330,17 @@ class EnrollmentSeedService {
       throw error;
     }
   }
+
+  async initializeAllData() {
+    return this.seedAll();
+  }
+
+  // Initialize data on service creation
+  static async initialize() {
+    const service = new EnrollmentSeedService();
+    await service.initializeAllData();
+    return service;
+  }
 }
 
 export const enrollmentSeedService = new EnrollmentSeedService();

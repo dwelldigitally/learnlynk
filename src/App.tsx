@@ -29,6 +29,7 @@ import ApplicantManagementPage from "./pages/ApplicantManagementPage";
 import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
+import { DataInitializer } from "./components/enrollment/DataInitializer";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +42,8 @@ const App = () => {
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Routes>
+            <DataInitializer>
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/sign-in" element={<ModernSignIn />} />
               <Route path="/sign-up" element={<ModernSignUp />} />
@@ -109,7 +111,8 @@ const App = () => {
               <Route path="/student/campus-life" element={<ProtectedRoute element={<StudentPortal />} />} />
               
               <Route path="*" element={<NotFound />} />
-            </Routes>
+              </Routes>
+            </DataInitializer>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

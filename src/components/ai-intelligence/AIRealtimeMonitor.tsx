@@ -10,7 +10,8 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Timer
+  Timer,
+  BarChart3
 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 
@@ -291,7 +292,7 @@ export function AIRealtimeMonitor() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5" />
+              <BarChart3 className="h-5 w-5" />
               <span>Confidence Distribution</span>
             </CardTitle>
           </CardHeader>

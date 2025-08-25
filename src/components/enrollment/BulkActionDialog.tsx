@@ -93,16 +93,20 @@ export function BulkActionDialog({
       setActionData(prev => ({
         ...prev,
         template: templateId,
-        subject: actionType === 'email' ? `Re: Your ${selectedActions[0]?.program} Application` : '',
+        subject: actionType === 'email' ? `Re: Your ${selectedActions[0]?.program || 'Program'} Application` : '',
         content: (template as any).content || (template as any).script || ''
       }));
     }
   };
 
-  const getPreviewContent = (student: ActionQueueItem) => {
+  const getPreviewContent = (student: ActionQueueItem | undefined) => {
+    if (!student || !actionData.content) {
+      return 'Select a template and ensure students are selected to see preview';
+    }
+    
     return actionData.content
-      .replace(/{student_name}/g, student.student_name)
-      .replace(/{program}/g, student.program);
+      .replace(/{student_name}/g, student.student_name || 'Student')
+      .replace(/{program}/g, student.program || 'Program');
   };
 
   const handleExecute = () => {
@@ -237,9 +241,11 @@ export function BulkActionDialog({
 
             <ScrollArea className="h-[500px]">
               <div className="p-4 space-y-4">
-                {showPreview && actionData.content && (
+                {showPreview && actionData.content && selectedActions.length > 0 && (
                   <div className="bg-muted/50 p-3 rounded border">
-                    <h4 className="font-medium text-sm mb-2">Preview for {selectedActions[0]?.student_name}:</h4>
+                    <h4 className="font-medium text-sm mb-2">
+                      Preview for {selectedActions[0]?.student_name || 'Selected Student'}:
+                    </h4>
                     {actionType === 'email' && actionData.subject && (
                       <p className="text-sm font-medium mb-1">Subject: {actionData.subject}</p>
                     )}
@@ -278,25 +284,29 @@ export function BulkActionDialog({
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-border">
-          <div className="text-sm text-muted-foreground">
-            This will {actionType} {selectedActions.length} student{selectedActions.length !== 1 ? 's' : ''}
+          <div className="flex items-center justify-between pt-4 border-t border-border">
+            <div className="text-sm text-muted-foreground">
+              {selectedActions.length > 0 ? (
+                <>This will {actionType} {selectedActions.length} student{selectedActions.length !== 1 ? 's' : ''}</>
+              ) : (
+                <>No students selected</>
+              )}
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleExecute}
+                disabled={!actionData.content || selectedActions.length === 0}
+                className="flex items-center space-x-1"
+              >
+                <Send className="h-4 w-4" />
+                <span>Execute {config.title}</span>
+              </Button>
+            </div>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleExecute}
-              disabled={!actionData.content}
-              className="flex items-center space-x-1"
-            >
-              <Send className="h-4 w-4" />
-              <span>Execute {config.title}</span>
-            </Button>
-          </div>
-        </div>
       </DialogContent>
     </Dialog>
   );

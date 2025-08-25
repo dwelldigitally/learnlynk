@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { BookOpen, Plus, Edit, Check } from 'lucide-react';
+import { BookOpen, Plus, Edit, Check, ArrowRight } from 'lucide-react';
 import ProgramWizard from '@/components/admin/ProgramWizard';
 
 interface ProgramSetupScreenProps {

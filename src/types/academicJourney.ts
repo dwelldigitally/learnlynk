@@ -189,11 +189,12 @@ export interface ChannelRuleTemplate {
 
 // Wizard State Management
 export interface JourneyWizardState {
-  step: number;
-  journey: Partial<AcademicJourney>;
-  stages: Partial<JourneyStage>[];
-  selectedTemplate?: JourneyTemplate;
-  validation_errors: Record<string, string[]>;
+  name: string;
+  description: string;
+  selectedTemplate: JourneyTemplate | null;
+  programId: string | null;
+  customStages: RequirementTemplate[];
+  metadata: Record<string, any>;
 }
 
 // Pre-built Journey Templates

@@ -28,6 +28,7 @@ import { ProgramService } from "@/services/programService";
 import BasicInfoStep from "./wizard/BasicInfoStep";
 import RequirementsStep from "./wizard/RequirementsStep";
 import DocumentsStep from "./wizard/DocumentsStep";
+import { ProgramJourneyStep } from "./ProgramJourneyStep";
 import FeeStructureStep from "./wizard/FeeStructureStep";
 import IntakeQuestionsStep from "./wizard/IntakeQuestionsStep";
 import IntakeDatesStep from "./wizard/IntakeDatesStep";
@@ -44,6 +45,7 @@ const STEPS = [
   { id: 'basic', title: 'Basic Information', description: 'Program name, description, and basic details' },
   { id: 'requirements', title: 'Entry Requirements', description: 'Academic and other admission criteria' },
   { id: 'documents', title: 'Required Documents', description: 'Document requirements and specifications' },
+  { id: 'journey', title: 'Academic Journey', description: 'Student journey and workflow configuration' },
   { id: 'fees', title: 'Fee Structure', description: 'Tuition, payment plans, and scholarships' },
   { id: 'questions', title: 'Custom Questions', description: 'Application form customization' },
   { id: 'intakes', title: 'Intake Dates', description: 'Schedule and capacity management' },
@@ -277,12 +279,14 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
       case 2:
         return <DocumentsStep {...stepProps} />;
       case 3:
-        return <FeeStructureStep {...stepProps} />;
+        return <ProgramJourneyStep {...stepProps} />;
       case 4:
-        return <IntakeQuestionsStep {...stepProps} />;
+        return <FeeStructureStep {...stepProps} />;
       case 5:
-        return <IntakeDatesStep {...stepProps} />;
+        return <IntakeQuestionsStep {...stepProps} />;
       case 6:
+        return <IntakeDatesStep {...stepProps} />;
+      case 7:
         return <PreviewStep {...stepProps} onSave={handleSave} />;
       default:
         return null;

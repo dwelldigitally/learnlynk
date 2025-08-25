@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,74 +6,71 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useJourneyTemplates, useCreateJourneyFromTemplate } from '@/services/academicJourneyService';
-import { usePrograms } from '@/services/programService';
-import { JourneyTemplate } from '@/types/academicJourney';
-import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye, Plus } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useJourneyTemplates } from '@/services/academicJourneyService';
+import { JourneyTemplate, JourneyWizardState } from '@/types/academicJourney';
+import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye } from 'lucide-react';
 
-export function JourneyBuilder() {
-  const [activeTab, setActiveTab] = useState<'templates' | 'builder' | 'preview'>('templates');
+interface ProgramJourneyStepProps {
+  data: any;
+  onDataChange: (data: any) => void;
+  onNext: () => void;
+  onPrevious: () => void;
+}
+
+const onUpdate = (onDataChange: (data: any) => void) => onDataChange;
+
+export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepProps) {
   const [selectedTemplate, setSelectedTemplate] = useState<JourneyTemplate | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<any>(null);
-  const [journeyName, setJourneyName] = useState('');
-  const [journeyDescription, setJourneyDescription] = useState('');
+  const [journeyData, setJourneyData] = useState<JourneyWizardState>({
+    name: data.journeyName || '',
+    description: data.journeyDescription || '',
+    selectedTemplate: null,
+    programId: null,
+    customStages: [],
+    metadata: {}
+  });
+  const [activeTab, setActiveTab] = useState<'templates' | 'configure' | 'preview'>('templates');
 
-  const { toast } = useToast();
   const { data: templates, isLoading } = useJourneyTemplates();
-  const { data: programs } = usePrograms();
-  const createJourneyMutation = useCreateJourneyFromTemplate();
+
+  useEffect(() => {
+    if (data.selectedJourneyTemplate) {
+      const template = templates?.find(t => t.id === data.selectedJourneyTemplate);
+      if (template) {
+        setSelectedTemplate(template);
+        setActiveTab('configure');
+      }
+    }
+  }, [data.selectedJourneyTemplate, templates]);
 
   const handleTemplateSelect = (template: JourneyTemplate) => {
     setSelectedTemplate(template);
-    setJourneyName(template.name);
-    setJourneyDescription(template.description || '');
-    setActiveTab('builder');
+    setJourneyData(prev => ({
+      ...prev,
+      selectedTemplate: template,
+      name: template.name,
+      description: template.description || ''
+    }));
+    setActiveTab('configure');
+    
+    onDataChange({
+      ...data,
+      selectedJourneyTemplate: template.id,
+      journeyName: template.name,
+      journeyDescription: template.description,
+      journeyComplexity: template.complexity_level,
+      journeyEstimatedDuration: template.estimated_duration_days
+    });
   };
 
-  const handleCreateFromTemplate = async () => {
-    if (!selectedTemplate || !selectedProgram) {
-      toast({
-        title: "Missing Information",
-        description: "Please select both a template and program before creating the journey.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    try {
-      const journeyData = {
-        name: journeyName || selectedTemplate.name,
-        description: journeyDescription || selectedTemplate.description || '',
-        programId: selectedProgram.id,
-        templateId: selectedTemplate.id,
-        program_id: selectedProgram.id,
-        template_id: selectedTemplate.id
-      };
-
-      await createJourneyMutation.mutateAsync(journeyData);
-      
-      toast({
-        title: "Journey Created",
-        description: `Academic journey "${journeyData.name}" has been created successfully.`,
-      });
-      
-      // Reset form
-      setActiveTab('templates');
-      setSelectedTemplate(null);
-      setSelectedProgram(null);
-      setJourneyName('');
-      setJourneyDescription('');
-    } catch (error) {
-      console.error('Error creating journey:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create journey. Please try again.",
-        variant: "destructive"
-      });
-    }
+  const handleJourneyUpdate = (field: string, value: any) => {
+    setJourneyData(prev => ({ ...prev, [field]: value }));
+    onDataChange({
+      ...data,
+      [`journey${field.charAt(0).toUpperCase() + field.slice(1)}`]: value
+    });
   };
 
   const getComplexityColor = (complexity: string) => {
@@ -134,7 +131,7 @@ export function JourneyBuilder() {
         <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-semibold mb-2">Choose a Journey Template</h3>
         <p className="text-muted-foreground">
-          Select a pre-built academic journey template to get started quickly
+          Select a pre-built academic journey template that matches your program structure
         </p>
       </div>
 
@@ -168,13 +165,13 @@ export function JourneyBuilder() {
     </div>
   );
 
-  const renderJourneyBuilder = () => (
+  const renderJourneyConfiguration = () => (
     <div className="space-y-6">
       <div className="text-center">
         <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Configure Journey</h3>
+        <h3 className="text-lg font-semibold mb-2">Configure Your Journey</h3>
         <p className="text-muted-foreground">
-          Set up your academic journey based on the selected template
+          Customize the journey details for your program
         </p>
       </div>
 
@@ -186,10 +183,8 @@ export function JourneyBuilder() {
           <CardContent>
             <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
               <div>
-                <h4 className="font-medium mb-2">{selectedTemplate.name}</h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {selectedTemplate.description}
-                </p>
+                <h4 className="font-medium">{selectedTemplate.name}</h4>
+                <p className="text-sm text-muted-foreground">{selectedTemplate.description}</p>
               </div>
               <div className="flex gap-2">
                 <Badge className={getComplexityColor(selectedTemplate.complexity_level)}>
@@ -209,8 +204,8 @@ export function JourneyBuilder() {
             <Input
               id="journeyName"
               placeholder="e.g., Computer Science Application Journey"
-              value={journeyName}
-              onChange={(e) => setJourneyName(e.target.value)}
+              value={journeyData.name}
+              onChange={(e) => handleJourneyUpdate('name', e.target.value)}
             />
           </div>
           
@@ -218,82 +213,46 @@ export function JourneyBuilder() {
             <Label htmlFor="journeyDescription">Description</Label>
             <Textarea
               id="journeyDescription"
-              placeholder="Describe the academic journey..."
-              value={journeyDescription}
-              onChange={(e) => setJourneyDescription(e.target.value)}
+              placeholder="Describe the academic journey for this program..."
+              value={journeyData.description}
+              onChange={(e) => handleJourneyUpdate('description', e.target.value)}
               rows={4}
             />
-          </div>
-
-          <div>
-            <Label htmlFor="programSelect">Select Program</Label>
-            <Select 
-              value={selectedProgram?.id || ''} 
-              onValueChange={(value) => {
-                const program = programs?.find(p => p.id === value);
-                setSelectedProgram(program);
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Choose a program..." />
-              </SelectTrigger>
-              <SelectContent>
-                {programs?.map(program => (
-                  <SelectItem key={program.id} value={program.id}>
-                    {program.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Journey Preview</CardTitle>
+            <CardTitle className="text-base">Journey Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Name:</span>
-              <span className="text-sm font-medium">{journeyName || 'Not specified'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Program:</span>
-              <span className="text-sm font-medium">{selectedProgram?.name || 'Not selected'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Template:</span>
-              <span className="text-sm font-medium">{selectedTemplate?.name || 'None'}</span>
-            </div>
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Complexity:</span>
               <Badge className={getComplexityColor(selectedTemplate?.complexity_level || 'medium')}>
                 {selectedTemplate?.complexity_level || 'Medium'}
               </Badge>
             </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Category:</span>
+              <span className="text-sm font-medium">{selectedTemplate?.category || 'General'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-sm text-muted-foreground">Est. Duration:</span>
+              <span className="text-sm font-medium">
+                {selectedTemplate?.estimated_duration_days || 'TBD'} days
+              </span>
+            </div>
+            {selectedTemplate?.template_data && (
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Stages:</span>
+                <span className="text-sm font-medium">
+                  {Array.isArray(selectedTemplate.template_data.stages) ? 
+                    selectedTemplate.template_data.stages.length : 'Multiple'}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
-      </div>
-
-      <div className="flex justify-between items-center pt-4">
-        <Button variant="outline" onClick={() => setActiveTab('templates')}>
-          <ArrowRight className="h-4 w-4 mr-1 rotate-180" />
-          Back to Templates
-        </Button>
-        
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setActiveTab('preview')}>
-            <Eye className="h-4 w-4 mr-1" />
-            Preview
-          </Button>
-          <Button 
-            onClick={handleCreateFromTemplate}
-            disabled={!selectedTemplate || !selectedProgram || createJourneyMutation.isPending}
-          >
-            {createJourneyMutation.isPending ? 'Creating...' : 'Create Journey'}
-            <ArrowRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
       </div>
     </div>
   );
@@ -304,7 +263,7 @@ export function JourneyBuilder() {
         <Eye className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h3 className="text-lg font-semibold mb-2">Journey Preview</h3>
         <p className="text-muted-foreground">
-          Review your configured academic journey before creating
+          Review your configured academic journey
         </p>
       </div>
 
@@ -313,10 +272,10 @@ export function JourneyBuilder() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
-              {journeyName || selectedTemplate.name}
+              {journeyData.name || selectedTemplate.name}
             </CardTitle>
             <p className="text-muted-foreground">
-              {journeyDescription || selectedTemplate.description}
+              {journeyData.description || selectedTemplate.description}
             </p>
           </CardHeader>
           <CardContent>
@@ -343,9 +302,9 @@ export function JourneyBuilder() {
                 </div>
                 <div>
                   <div className="text-2xl font-bold text-primary">
-                    {selectedProgram?.name.split(' ').slice(0, 2).join(' ') || 'Program'}
+                    {selectedTemplate.category}
                   </div>
-                  <div className="text-sm text-muted-foreground">Program</div>
+                  <div className="text-sm text-muted-foreground">Category</div>
                 </div>
               </div>
 
@@ -387,52 +346,60 @@ export function JourneyBuilder() {
           </CardContent>
         </Card>
       )}
-
-      <div className="flex justify-between items-center pt-4">
-        <Button variant="outline" onClick={() => setActiveTab('builder')}>
-          <ArrowRight className="h-4 w-4 mr-1 rotate-180" />
-          Back to Builder
-        </Button>
-        
-        <Button 
-          onClick={handleCreateFromTemplate}
-          disabled={!selectedTemplate || !selectedProgram || createJourneyMutation.isPending}
-        >
-          {createJourneyMutation.isPending ? 'Creating...' : 'Create Journey'}
-          <ArrowRight className="h-4 w-4 ml-1" />
-        </Button>
-      </div>
     </div>
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold">Academic Journey Builder</h2>
-        <p className="text-muted-foreground mt-2">
-          Create structured academic journeys for your programs using pre-built templates
-        </p>
+    <div className="space-y-6">
+      <div className="flex border-b">
+        <button
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === 'templates' 
+              ? 'border-b-2 border-primary text-primary' 
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+          onClick={() => setActiveTab('templates')}
+        >
+          Templates
+        </button>
+        <button
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === 'configure' 
+              ? 'border-b-2 border-primary text-primary' 
+              : 'text-muted-foreground hover:text-foreground'
+          } ${!selectedTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => selectedTemplate && setActiveTab('configure')}
+          disabled={!selectedTemplate}
+        >
+          Configure
+        </button>
+        <button
+          className={`px-4 py-2 font-medium text-sm transition-colors ${
+            activeTab === 'preview' 
+              ? 'border-b-2 border-primary text-primary' 
+              : 'text-muted-foreground hover:text-foreground'
+          } ${!selectedTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => selectedTemplate && setActiveTab('preview')}
+          disabled={!selectedTemplate}
+        >
+          Preview
+        </button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="builder" disabled={!selectedTemplate}>Builder</TabsTrigger>
-          <TabsTrigger value="preview" disabled={!selectedTemplate}>Preview</TabsTrigger>
-        </TabsList>
+      <div className="min-h-[400px]">
+        {activeTab === 'templates' && renderTemplatesList()}
+        {activeTab === 'configure' && renderJourneyConfiguration()}
+        {activeTab === 'preview' && renderJourneyPreview()}
+      </div>
 
-        <TabsContent value="templates" className="mt-6">
-          {renderTemplatesList()}
-        </TabsContent>
-
-        <TabsContent value="builder" className="mt-6">
-          {renderJourneyBuilder()}
-        </TabsContent>
-
-        <TabsContent value="preview" className="mt-6">
-          {renderJourneyPreview()}
-        </TabsContent>
-      </Tabs>
+      {selectedTemplate && (
+        <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <CheckCircle className="h-5 w-5 text-green-600" />
+          <span className="text-sm text-green-800">
+            Journey template configured successfully. Continue to complete your program setup.
+          </span>
+        </div>
+      )}
     </div>
   );
 }

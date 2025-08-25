@@ -9,6 +9,13 @@ import {
 } from '@/types/aiDecisionIntelligence';
 
 export class AIDecisionService {
+  private static handleAuthError(error: any): void {
+    if (error?.code === 'PGRST301' || error?.message?.includes('JWT expired')) {
+      throw new Error('Authentication expired. Please refresh the page and log in again.');
+    }
+    throw error;
+  }
+
   // AI Decision Logs
   static async getDecisionLogs(filters?: {
     decision_type?: string;
@@ -16,29 +23,34 @@ export class AIDecisionService {
     date_to?: string;
     student_id?: string;
   }): Promise<AIDecisionLog[]> {
-    let query = supabase.from('ai_decision_logs').select('*').order('created_at', { ascending: false });
-    
-    if (filters?.decision_type) {
-      query = query.eq('decision_type', filters.decision_type);
-    }
-    if (filters?.student_id) {
-      query = query.eq('student_id', filters.student_id);
-    }
-    if (filters?.date_from) {
-      query = query.gte('created_at', filters.date_from);
-    }
-    if (filters?.date_to) {
-      query = query.lte('created_at', filters.date_to);
-    }
+    try {
+      let query = supabase.from('ai_decision_logs').select('*').order('created_at', { ascending: false });
+      
+      if (filters?.decision_type) {
+        query = query.eq('decision_type', filters.decision_type);
+      }
+      if (filters?.student_id) {
+        query = query.eq('student_id', filters.student_id);
+      }
+      if (filters?.date_from) {
+        query = query.gte('created_at', filters.date_from);
+      }
+      if (filters?.date_to) {
+        query = query.lte('created_at', filters.date_to);
+      }
 
-    const { data, error } = await query;
-    if (error) throw error;
-    return (data || []).map(row => ({
-      ...row,
-      reasoning: row.reasoning as Record<string, any>,
-      contributing_factors: row.contributing_factors as Record<string, any>,
-      alternative_actions: row.alternative_actions as Record<string, any>[]
-    }));
+      const { data, error } = await query;
+      if (error) this.handleAuthError(error);
+      return (data || []).map(row => ({
+        ...row,
+        reasoning: row.reasoning as Record<string, any>,
+        contributing_factors: row.contributing_factors as Record<string, any>,
+        alternative_actions: row.alternative_actions as Record<string, any>[]
+      }));
+    } catch (error) {
+      this.handleAuthError(error);
+      return [];
+    }
   }
 
   static async createDecisionLog(decision: Partial<AIDecisionLog>): Promise<AIDecisionLog> {
@@ -84,32 +96,42 @@ export class AIDecisionService {
 
   // AI Logic Configurations
   static async getConfigurations(): Promise<AILogicConfiguration[]> {
-    const { data, error } = await supabase
-      .from('ai_logic_configurations')
-      .select('*')
-      .order('version', { ascending: false });
-    
-    if (error) throw error;
-    return (data || []).map(row => ({
-      ...row,
-      configuration_data: row.configuration_data as Record<string, any>,
-      performance_metrics: row.performance_metrics as Record<string, any>
-    }));
+    try {
+      const { data, error } = await supabase
+        .from('ai_logic_configurations')
+        .select('*')
+        .order('version', { ascending: false });
+      
+      if (error) this.handleAuthError(error);
+      return (data || []).map(row => ({
+        ...row,
+        configuration_data: row.configuration_data as Record<string, any>,
+        performance_metrics: row.performance_metrics as Record<string, any>
+      }));
+    } catch (error) {
+      this.handleAuthError(error);
+      return [];
+    }
   }
 
   static async getActiveConfiguration(): Promise<AILogicConfiguration | null> {
-    const { data, error } = await supabase
-      .from('ai_logic_configurations')
-      .select('*')
-      .eq('is_active', true)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') throw error;
-    return data ? {
-      ...data,
-      configuration_data: data.configuration_data as Record<string, any>,
-      performance_metrics: data.performance_metrics as Record<string, any>
-    } : null;
+    try {
+      const { data, error } = await supabase
+        .from('ai_logic_configurations')
+        .select('*')
+        .eq('is_active', true)
+        .single();
+      
+      if (error && error.code !== 'PGRST116') this.handleAuthError(error);
+      return data ? {
+        ...data,
+        configuration_data: data.configuration_data as Record<string, any>,
+        performance_metrics: data.performance_metrics as Record<string, any>
+      } : null;
+    } catch (error) {
+      this.handleAuthError(error);
+      return null;
+    }
   }
 
   static async createConfiguration(config: Partial<AILogicConfiguration>): Promise<AILogicConfiguration> {

@@ -5,9 +5,15 @@ import { Brain, MessageSquare, TestTube, BarChart3, Settings, TrendingUp } from 
 import { AIDecisionExplainer } from './AIDecisionExplainer';
 import { AILogicModifier } from './AILogicModifier';
 import { AIScenarioTester } from './AIScenarioTester';
+import { AIInitializer } from './AIInitializer';
 
 export function AIIntelligenceDashboard() {
   const [activeTab, setActiveTab] = useState('explainer');
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  if (!isInitialized) {
+    return <AIInitializer onInitialized={() => setIsInitialized(true)} />;
+  }
 
   return (
     <div className="p-6 space-y-6">

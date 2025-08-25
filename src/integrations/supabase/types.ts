@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      action_execution_logs: {
+        Row: {
+          action_id: string
+          created_at: string
+          execution_data: Json | null
+          execution_result: string
+          id: string
+          outcome_achieved: boolean | null
+          play_id: string | null
+          response_time_minutes: number | null
+        }
+        Insert: {
+          action_id: string
+          created_at?: string
+          execution_data?: Json | null
+          execution_result: string
+          id?: string
+          outcome_achieved?: boolean | null
+          play_id?: string | null
+          response_time_minutes?: number | null
+        }
+        Update: {
+          action_id?: string
+          created_at?: string
+          execution_data?: Json | null
+          execution_result?: string
+          id?: string
+          outcome_achieved?: boolean | null
+          play_id?: string | null
+          response_time_minutes?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "action_execution_logs_action_id_fkey"
+            columns: ["action_id"]
+            isOneToOne: false
+            referencedRelation: "student_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "action_execution_logs_play_id_fkey"
+            columns: ["play_id"]
+            isOneToOne: false
+            referencedRelation: "plays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       action_queue: {
         Row: {
           completed_at: string | null
@@ -3495,6 +3543,126 @@ export type Database = {
         }
         Relationships: []
       }
+      play_program_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          play_id: string
+          program_configuration_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          play_id: string
+          program_configuration_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          play_id?: string
+          program_configuration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "play_program_assignments_play_id_fkey"
+            columns: ["play_id"]
+            isOneToOne: false
+            referencedRelation: "plays"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "play_program_assignments_program_configuration_id_fkey"
+            columns: ["program_configuration_id"]
+            isOneToOne: false
+            referencedRelation: "program_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plays: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          estimated_impact: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          play_type: string | null
+          target_stage: string | null
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          estimated_impact?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          play_type?: string | null
+          target_stage?: string | null
+          trigger_config: Json
+          trigger_type: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          estimated_impact?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          play_type?: string | null
+          target_stage?: string | null
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      policies: {
+        Row: {
+          configuration: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          policy_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          configuration?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          policy_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          configuration?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          policy_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       policy_configurations: {
         Row: {
           created_at: string
@@ -3589,6 +3757,39 @@ export type Database = {
           theme_preference?: string | null
           timezone?: string | null
           title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      program_configurations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          program_id: string | null
+          program_name: string
+          settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          program_id?: string | null
+          program_name: string
+          settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          program_id?: string | null
+          program_name?: string
+          settings?: Json
           updated_at?: string
           user_id?: string
         }
@@ -4426,6 +4627,68 @@ export type Database = {
         }
         Relationships: []
       }
+      student_actions: {
+        Row: {
+          action_type: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          instruction: string
+          metadata: Json | null
+          play_id: string | null
+          priority: number
+          reason_chips: string[] | null
+          scheduled_at: string | null
+          status: string
+          student_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          instruction: string
+          metadata?: Json | null
+          play_id?: string | null
+          priority?: number
+          reason_chips?: string[] | null
+          scheduled_at?: string | null
+          status?: string
+          student_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          instruction?: string
+          metadata?: Json | null
+          play_id?: string | null
+          priority?: number
+          reason_chips?: string[] | null
+          scheduled_at?: string | null
+          status?: string
+          student_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_actions_play_id_fkey"
+            columns: ["play_id"]
+            isOneToOne: false
+            referencedRelation: "plays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_applications: {
         Row: {
           acceptance_likelihood: number | null
@@ -5186,7 +5449,7 @@ export type Database = {
             foreignKeyName: "workflow_actions_workflow_id_fkey"
             columns: ["workflow_id"]
             isOneToOne: false
-            referencedRelation: "workflows"
+            referencedRelation: "plays"
             referencedColumns: ["id"]
           },
         ]
@@ -5224,46 +5487,10 @@ export type Database = {
             foreignKeyName: "workflow_executions_workflow_id_fkey"
             columns: ["workflow_id"]
             isOneToOne: false
-            referencedRelation: "workflows"
+            referencedRelation: "plays"
             referencedColumns: ["id"]
           },
         ]
-      }
-      workflows: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          is_active: boolean | null
-          name: string
-          trigger_config: Json
-          trigger_type: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          name: string
-          trigger_config: Json
-          trigger_type: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_active?: boolean | null
-          name?: string
-          trigger_config?: Json
-          trigger_type?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
       }
     }
     Views: {

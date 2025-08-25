@@ -31,10 +31,10 @@ const WorkflowManagement: React.FC = () => {
 
   const fetchWorkflows = async () => {
     try {
-      const { data, error } = await supabase
-        .from('workflows')
-        .select('*')
-        .order('created_at', { ascending: false });
+    const { data, error } = await supabase
+      .from('plays')
+      .select('*')
+      .order('created_at', { ascending: false });
 
       if (error) throw error;
       setWorkflows(data || []);
@@ -52,10 +52,10 @@ const WorkflowManagement: React.FC = () => {
 
   const toggleWorkflow = async (workflow: Workflow) => {
     try {
-      const { error } = await supabase
-        .from('workflows')
-        .update({ is_active: !workflow.is_active })
-        .eq('id', workflow.id);
+    const { error } = await supabase
+      .from('plays')
+      .update({ is_active: !workflow.is_active })
+      .eq('id', workflow.id);
 
       if (error) throw error;
       

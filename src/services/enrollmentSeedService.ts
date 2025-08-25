@@ -68,9 +68,30 @@ class EnrollmentSeedService {
     ];
 
     return students.map((name, index) => {
-      const yieldScore = Math.random() * 100;
+      // Ensure good distribution of yield scores for filtering
+      let yieldScore: number;
+      if (index < 6) {
+        yieldScore = 80 + Math.random() * 20; // High yield (80-100)
+      } else if (index < 12) {
+        yieldScore = 60 + Math.random() * 20; // Medium yield (60-79)
+      } else {
+        yieldScore = 20 + Math.random() * 40; // Low yield (20-59)
+      }
+      
       const yieldBand: 'high' | 'medium' | 'low' = yieldScore > 70 ? 'high' : yieldScore > 40 ? 'medium' : 'low';
-      const slaHours = Math.floor(Math.random() * 48) + 1;
+      
+      // Create a mix of SLA statuses: some overdue, some due soon, some future
+      let slaDate: Date;
+      if (index < 4) {
+        // Overdue (1-24 hours ago)
+        slaDate = new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000);
+      } else if (index < 8) {
+        // Due soon (next 6 hours)
+        slaDate = new Date(Date.now() + Math.random() * 6 * 60 * 60 * 1000);
+      } else {
+        // Future (6-48 hours ahead)
+        slaDate = new Date(Date.now() + (6 + Math.random() * 42) * 60 * 60 * 1000);
+      }
       
       return {
         student_name: name,
@@ -79,7 +100,7 @@ class EnrollmentSeedService {
         yield_band: yieldBand,
         reason_codes: reasonCodes[index % reasonCodes.length],
         suggested_action: actions[index % actions.length],
-        sla_due_at: new Date(Date.now() + slaHours * 60 * 60 * 1000).toISOString(),
+        sla_due_at: slaDate.toISOString(),
         status: 'pending' as const
       };
     }).sort((a, b) => (b.yield_score || 0) - (a.yield_score || 0));

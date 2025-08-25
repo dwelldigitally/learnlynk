@@ -92,6 +92,11 @@ export function EnrollmentCommandCenter() {
       if (!existingData || existingData.length === 0) {
         console.log('No action queue data found, seeding...');
         await enrollmentSeedService.seedActionQueue();
+        
+        toast({
+          title: "Data Loaded",
+          description: "Sample enrollment data has been generated",
+        });
       }
 
       const { data, error } = await supabase
@@ -109,6 +114,10 @@ export function EnrollmentCommandCenter() {
           JSON.parse(action.reason_codes) : 
           action.reason_codes || []
       }));
+      
+      console.log('Loaded actions:', processedActions.length);
+      console.log('Action types:', [...new Set(processedActions.map(a => a.suggested_action))]);
+      console.log('Yield bands:', [...new Set(processedActions.map(a => a.yield_band))]);
       
       setActions(processedActions);
     } catch (error) {

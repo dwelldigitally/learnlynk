@@ -144,6 +144,7 @@ export function ActionFilters({
           onClick={() => {
             onActionTypeChange('Call Student');
             onSLAStatusChange('all');
+            onYieldRangeChange('all');
           }}
           className="h-8"
         >
@@ -156,6 +157,7 @@ export function ActionFilters({
           onClick={() => {
             onActionTypeChange('Send Email');
             onSLAStatusChange('all');
+            onYieldRangeChange('all');
           }}
           className="h-8"
         >
@@ -166,8 +168,9 @@ export function ActionFilters({
           variant="outline"
           size="sm"
           onClick={() => {
-            onSLAStatusChange('overdue');
             onActionTypeChange('all');
+            onSLAStatusChange('overdue');
+            onYieldRangeChange('all');
           }}
           className="h-8"
         >
@@ -178,8 +181,9 @@ export function ActionFilters({
           variant="outline"
           size="sm"
           onClick={() => {
-            onYieldRangeChange('80-100');
             onActionTypeChange('all');
+            onSLAStatusChange('all');
+            onYieldRangeChange('80-100');
           }}
           className="h-8"
         >

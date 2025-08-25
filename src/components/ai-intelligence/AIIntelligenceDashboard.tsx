@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, MessageSquare, TestTube, BarChart3, Settings, TrendingUp } from 'lucide-react';
+import { 
+  Brain, 
+  MessageSquare, 
+  TestTube, 
+  BarChart3, 
+  Settings, 
+  TrendingUp, 
+  Monitor, 
+  AlertTriangle,
+  Zap,
+  Target
+} from 'lucide-react';
 import { AIDecisionExplainer } from './AIDecisionExplainer';
 import { AILogicModifier } from './AILogicModifier';
 import { AIScenarioTester } from './AIScenarioTester';
 import { AIInitializer } from './AIInitializer';
+import { AIRealtimeMonitor } from './AIRealtimeMonitor';
+import { AIAnalyticsDashboard } from './AIAnalyticsDashboard';
+import { AIModelManager } from './AIModelManager';
+import { AIAlertCenter } from './AIAlertCenter';
 
 export function AIIntelligenceDashboard() {
-  const [activeTab, setActiveTab] = useState('explainer');
+  const [activeTab, setActiveTab] = useState('monitor');
   const [isInitialized, setIsInitialized] = useState(false);
 
   if (!isInitialized) {
@@ -31,56 +46,56 @@ export function AIIntelligenceDashboard() {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <BarChart3 className="h-4 w-4 text-blue-600" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <BarChart3 className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <div className="text-2xl font-bold">247</div>
+                <div className="text-2xl font-bold text-primary">247</div>
                 <div className="text-sm text-muted-foreground">Decisions Today</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <TrendingUp className="h-4 w-4 text-green-600" />
+              <div className="p-2 bg-success/10 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-success" />
               </div>
               <div>
-                <div className="text-2xl font-bold">87%</div>
+                <div className="text-2xl font-bold text-success">87.5%</div>
                 <div className="text-sm text-muted-foreground">Success Rate</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Brain className="h-4 w-4 text-purple-600" />
+              <div className="p-2 bg-accent/10 rounded-lg">
+                <Target className="h-4 w-4 text-accent" />
               </div>
               <div>
-                <div className="text-2xl font-bold">0.82</div>
+                <div className="text-2xl font-bold text-accent">0.89</div>
                 <div className="text-sm text-muted-foreground">Avg Confidence</div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="pt-6">
             <div className="flex items-center space-x-2">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <TestTube className="h-4 w-4 text-orange-600" />
+              <div className="p-2 bg-warning/10 rounded-lg">
+                <TestTube className="h-4 w-4 text-warning" />
               </div>
               <div>
-                <div className="text-2xl font-bold">12</div>
+                <div className="text-2xl font-bold text-warning">156</div>
                 <div className="text-sm text-muted-foreground">Tests Run</div>
               </div>
             </div>
@@ -90,20 +105,52 @@ export function AIIntelligenceDashboard() {
 
       {/* Main Dashboard Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="explainer" className="flex items-center space-x-2">
+        <TabsList className="grid w-full grid-cols-7 h-auto">
+          <TabsTrigger value="monitor" className="flex items-center space-x-2 flex-col py-3">
+            <Monitor className="h-4 w-4" />
+            <span className="text-xs">Real-time Monitor</span>
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center space-x-2 flex-col py-3">
+            <BarChart3 className="h-4 w-4" />
+            <span className="text-xs">Analytics</span>
+          </TabsTrigger>
+          <TabsTrigger value="models" className="flex items-center space-x-2 flex-col py-3">
+            <Zap className="h-4 w-4" />
+            <span className="text-xs">Model Manager</span>
+          </TabsTrigger>
+          <TabsTrigger value="alerts" className="flex items-center space-x-2 flex-col py-3">
+            <AlertTriangle className="h-4 w-4" />
+            <span className="text-xs">Alert Center</span>
+          </TabsTrigger>
+          <TabsTrigger value="explainer" className="flex items-center space-x-2 flex-col py-3">
             <Brain className="h-4 w-4" />
-            <span>Decision Explainer</span>
+            <span className="text-xs">Decision Explainer</span>
           </TabsTrigger>
-          <TabsTrigger value="modifier" className="flex items-center space-x-2">
+          <TabsTrigger value="modifier" className="flex items-center space-x-2 flex-col py-3">
             <MessageSquare className="h-4 w-4" />
-            <span>Logic Modifier</span>
+            <span className="text-xs">Logic Modifier</span>
           </TabsTrigger>
-          <TabsTrigger value="tester" className="flex items-center space-x-2">
+          <TabsTrigger value="tester" className="flex items-center space-x-2 flex-col py-3">
             <TestTube className="h-4 w-4" />
-            <span>Scenario Tester</span>
+            <span className="text-xs">Scenario Tester</span>
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="monitor" className="mt-6">
+          <AIRealtimeMonitor />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-6">
+          <AIAnalyticsDashboard />
+        </TabsContent>
+
+        <TabsContent value="models" className="mt-6">
+          <AIModelManager />
+        </TabsContent>
+
+        <TabsContent value="alerts" className="mt-6">
+          <AIAlertCenter />
+        </TabsContent>
 
         <TabsContent value="explainer" className="mt-6">
           <AIDecisionExplainer showRecentDecisions={true} />

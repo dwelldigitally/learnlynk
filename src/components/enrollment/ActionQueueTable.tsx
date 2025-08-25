@@ -104,7 +104,7 @@ export function ActionQueueTable({ actions, onCompleteAction, selectedActions, o
   return (
     <div className="space-y-2">
       {/* Table Header */}
-      <div className="grid grid-cols-13 gap-4 p-4 border-b border-border font-medium text-sm text-muted-foreground">
+      <div className="grid grid-cols-12 gap-4 p-4 border-b border-border font-medium text-sm text-muted-foreground">
         <div className="col-span-1 flex items-center">
           <Checkbox
             checked={allPendingSelected}
@@ -112,7 +112,6 @@ export function ActionQueueTable({ actions, onCompleteAction, selectedActions, o
             disabled={pendingActions.length === 0}
           />
         </div>
-        <div className="col-span-1"></div>
         <div className="col-span-2">Student</div>
         <div className="col-span-2">Program</div>
         <div className="col-span-1">Yield Band</div>
@@ -129,16 +128,13 @@ export function ActionQueueTable({ actions, onCompleteAction, selectedActions, o
         return (
           <div key={action.id} className="border border-border rounded-lg">
             {/* Main Row */}
-            <div className="grid grid-cols-13 gap-4 p-4 items-center hover:bg-muted/50 transition-colors">
-              <div className="col-span-1">
+            <div className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-muted/50 transition-colors">
+              <div className="col-span-1 flex items-center space-x-2">
                 <Checkbox
                   checked={selectedActions.includes(action.id)}
                   onCheckedChange={(checked) => handleSelectAction(action.id, checked as boolean)}
                   disabled={action.status === 'completed'}
                 />
-              </div>
-              
-              <div className="col-span-1">
                 <Button
                   variant="ghost"
                   size="sm"

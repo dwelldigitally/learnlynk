@@ -59,6 +59,7 @@ import { IntegrationsDashboard } from "@/components/enrollment/IntegrationsDashb
 import { StudentProgressTracker } from "@/components/enrollment/StudentProgressTracker";
 import { EnrollmentPipelineAnalytics } from "@/components/enrollment/EnrollmentPipelineAnalytics";
 import { EnrollmentAutomationRules } from "@/components/enrollment/EnrollmentAutomationRules";
+import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 
 const AdminDashboard: React.FC = () => {
@@ -186,6 +187,8 @@ const AdminDashboard: React.FC = () => {
         return <SpeedToLeadPolicy />;
       case "/admin/enrollment/playbooks":
         return <PlaybookOrchestrator />;
+      case "/admin/enrollment/program-journeys":
+        return <ProgramJourneyManager />;
       case "/admin/enrollment/waste-radar":
         return <WasteRadarDashboard />;
       case "/admin/enrollment/outcomes":

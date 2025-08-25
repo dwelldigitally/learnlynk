@@ -119,13 +119,16 @@ export function BulkActionDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden" aria-describedby="bulk-action-description">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <IconComponent className={`h-5 w-5 ${config.color}`} />
             <span>{config.title}</span>
             <Badge variant="secondary">{selectedActions.length} students</Badge>
           </DialogTitle>
+          <div id="bulk-action-description" className="text-sm text-muted-foreground">
+            Configure and execute bulk actions for selected students
+          </div>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">

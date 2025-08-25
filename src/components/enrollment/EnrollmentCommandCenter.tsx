@@ -81,23 +81,27 @@ export function EnrollmentCommandCenter() {
 
   const loadActionQueue = async () => {
     try {
-      // First check if we need to seed data
+      // Clear existing data and reseed with updated action types
       const { data: existingData } = await supabase
         .from('action_queue')
         .select('id')
-        .eq('user_id', user?.id)
-        .limit(1);
+        .eq('user_id', user?.id);
 
-      // If no data exists, seed it first
-      if (!existingData || existingData.length === 0) {
-        console.log('No action queue data found, seeding...');
-        await enrollmentSeedService.seedActionQueue();
-        
-        toast({
-          title: "Data Loaded",
-          description: "Sample enrollment data has been generated",
-        });
+      if (existingData && existingData.length > 0) {
+        console.log('Clearing existing action queue data...');
+        await supabase
+          .from('action_queue')
+          .delete()
+          .eq('user_id', user?.id);
       }
+
+      console.log('Seeding fresh action queue data...');
+      await enrollmentSeedService.seedActionQueue();
+        
+      toast({
+        title: "Data Refreshed",
+        description: "Action queue data has been updated with proper filtering support",
+      });
 
       const { data, error } = await supabase
         .from('action_queue')

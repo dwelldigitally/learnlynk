@@ -8,6 +8,38 @@ import {
   DecisionFactorBreakdown
 } from '@/types/aiDecisionIntelligence';
 
+// Helper function for executing operations with auth retry
+const executeWithAuth = async <T>(operation: () => Promise<T>): Promise<T> => {
+  try {
+    return await operation();
+  } catch (error: any) {
+    const isAuthError = error?.code === 'PGRST301' || 
+                       error?.message?.includes('JWT expired') ||
+                       error?.message?.includes('invalid JWT');
+
+    if (isAuthError) {
+      // Try to refresh the session
+      const { data: { session }, error: refreshError } = await supabase.auth.refreshSession();
+      
+      if (refreshError || !session) {
+        throw new Error('Your session has expired. Please refresh the page and log in again.');
+      }
+      
+      // Retry the operation with the new session
+      try {
+        return await operation();
+      } catch (retryError: any) {
+        if (retryError?.code === 'PGRST301' || retryError?.message?.includes('JWT expired')) {
+          throw new Error('Your session has expired. Please refresh the page and log in again.');
+        }
+        throw retryError;
+      }
+    }
+    
+    throw error;
+  }
+};
+
 export class AIDecisionService {
   private static handleAuthError(error: any): void {
     if (error?.code === 'PGRST301' || error?.message?.includes('JWT expired')) {
@@ -23,7 +55,7 @@ export class AIDecisionService {
     date_to?: string;
     student_id?: string;
   }): Promise<AIDecisionLog[]> {
-    try {
+    return executeWithAuth(async () => {
       let query = supabase.from('ai_decision_logs').select('*').order('created_at', { ascending: false });
       
       if (filters?.decision_type) {
@@ -40,17 +72,15 @@ export class AIDecisionService {
       }
 
       const { data, error } = await query;
-      if (error) this.handleAuthError(error);
+      if (error) throw error;
+      
       return (data || []).map(row => ({
         ...row,
         reasoning: row.reasoning as Record<string, any>,
         contributing_factors: row.contributing_factors as Record<string, any>,
         alternative_actions: row.alternative_actions as Record<string, any>[]
       }));
-    } catch (error) {
-      this.handleAuthError(error);
-      return [];
-    }
+    });
   }
 
   static async createDecisionLog(decision: Partial<AIDecisionLog>): Promise<AIDecisionLog> {
@@ -96,22 +126,20 @@ export class AIDecisionService {
 
   // AI Logic Configurations
   static async getConfigurations(): Promise<AILogicConfiguration[]> {
-    try {
+    return executeWithAuth(async () => {
       const { data, error } = await supabase
         .from('ai_logic_configurations')
         .select('*')
         .order('version', { ascending: false });
       
-      if (error) this.handleAuthError(error);
+      if (error) throw error;
+      
       return (data || []).map(row => ({
         ...row,
         configuration_data: row.configuration_data as Record<string, any>,
         performance_metrics: row.performance_metrics as Record<string, any>
       }));
-    } catch (error) {
-      this.handleAuthError(error);
-      return [];
-    }
+    });
   }
 
   static async getActiveConfiguration(): Promise<AILogicConfiguration | null> {

@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isTokenValid: boolean;
   signUp: (email: string, password: string, metadata?: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
@@ -15,6 +16,7 @@ interface AuthContextType {
   updatePassword: (password: string) => Promise<{ error: any }>;
   resendConfirmation: (email: string) => Promise<{ error: any }>;
   refreshUser: () => Promise<void>;
+  refreshSession: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,9 +34,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isTokenValid, setIsTokenValid] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
+    let refreshTimer: NodeJS.Timeout;
+
+    // Check token validity
+    const checkTokenValidity = (session: Session | null) => {
+      if (!session?.access_token) {
+        setIsTokenValid(false);
+        return false;
+      }
+
+      try {
+        const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+        const expirationTime = payload.exp * 1000;
+        const currentTime = Date.now();
+        const timeUntilExpiry = expirationTime - currentTime;
+        
+        // Token is invalid if it expires within the next 5 minutes
+        const isValid = timeUntilExpiry > 5 * 60 * 1000;
+        setIsTokenValid(isValid);
+        
+        // Set up refresh timer if token is still valid but expiring soon
+        if (isValid && timeUntilExpiry < 15 * 60 * 1000) {
+          refreshTimer = setTimeout(() => {
+            refreshSession();
+          }, Math.max(0, timeUntilExpiry - 60 * 1000)); // Refresh 1 minute before expiry
+        }
+        
+        return isValid;
+      } catch (error) {
+        console.error('Error parsing token:', error);
+        setIsTokenValid(false);
+        return false;
+      }
+    };
 
     // Get initial session immediately
     const getInitialSession = async () => {
@@ -43,11 +79,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isMounted) {
           setSession(session);
           setUser(session?.user ?? null);
+          checkTokenValidity(session);
           setLoading(false);
         }
       } catch (error) {
         console.error('Error getting session:', error);
         if (isMounted) {
+          setIsTokenValid(false);
           setLoading(false);
         }
       }
@@ -61,6 +99,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (isMounted) {
           setSession(session);
           setUser(session?.user ?? null);
+          checkTokenValidity(session);
           setLoading(false);
           
           // Handle profile creation for OAuth users
@@ -73,12 +112,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
             }, 0);
           }
+
+          // Clear session data on sign out
+          if (event === 'SIGNED_OUT') {
+            setIsTokenValid(false);
+            if (refreshTimer) clearTimeout(refreshTimer);
+          }
         }
       }
     );
 
     return () => {
       isMounted = false;
+      if (refreshTimer) clearTimeout(refreshTimer);
       subscription.unsubscribe();
     };
   }, []);
@@ -158,16 +204,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (!error && session) {
         setSession(session);
         setUser(session.user);
+        setIsTokenValid(true);
       }
     } catch (error) {
       console.error('Error refreshing user:', error);
+      setIsTokenValid(false);
     }
+  };
+
+  const refreshSession = async (): Promise<boolean> => {
+    try {
+      const { data: { session }, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      
+      if (session) {
+        setSession(session);
+        setUser(session.user);
+        setIsTokenValid(true);
+        return true;
+      }
+    } catch (error) {
+      console.error('Error refreshing session:', error);
+      setIsTokenValid(false);
+      // If refresh fails, sign out to clear invalid state
+      await supabase.auth.signOut();
+    }
+    return false;
   };
 
   const value = {
     user,
     session,
     loading,
+    isTokenValid,
     signUp,
     signIn,
     signOut,
@@ -176,6 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updatePassword,
     resendConfirmation,
     refreshUser,
+    refreshSession,
   };
 
   return (

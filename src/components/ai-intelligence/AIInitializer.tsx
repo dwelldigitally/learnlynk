@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Database, AlertCircle } from 'lucide-react';
+import { Loader2, Database, AlertCircle, RefreshCw } from 'lucide-react';
 import { AIIntelligenceTestData } from '@/utils/aiIntelligenceTestData';
 import { AIDecisionService } from '@/services/aiDecisionService';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface AIInitializerProps {
   onInitialized: () => void;
@@ -15,26 +16,54 @@ export function AIInitializer({ onInitialized }: AIInitializerProps) {
   const [isInitializing, setIsInitializing] = useState(false);
   const [hasData, setHasData] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
   const { toast } = useToast();
+  const { refreshSession, isTokenValid } = useAuth();
 
   useEffect(() => {
     checkExistingData();
   }, []);
 
-  const checkExistingData = async () => {
+  const checkExistingData = async (skipErrorHandling = false) => {
     try {
       const configs = await AIDecisionService.getConfigurations();
       setHasData(configs.length > 0);
+      setError(null); // Clear any previous errors on success
       if (configs.length > 0) {
         onInitialized();
       }
     } catch (err: any) {
-      if (err.message.includes('Authentication expired')) {
-        setError('Your session has expired. Please refresh the page and log in again.');
-      } else {
-        setError('Failed to check existing data');
+      if (!skipErrorHandling) {
+        if (err.message.includes('Authentication expired') || err.message.includes('session has expired')) {
+          setError('Your session has expired. Please try refreshing your session below.');
+        } else {
+          setError('Failed to check existing data');
+        }
+        console.error('Error checking AI data:', err);
       }
-      console.error('Error checking AI data:', err);
+    }
+  };
+
+  const handleRetryWithRefresh = async () => {
+    setIsRetrying(true);
+    setError(null);
+    
+    try {
+      const refreshSuccess = await refreshSession();
+      if (refreshSuccess) {
+        await checkExistingData(true);
+        toast({
+          title: "Session Refreshed",
+          description: "Successfully refreshed your session",
+        });
+      } else {
+        setError('Failed to refresh session. Please reload the page.');
+      }
+    } catch (err: any) {
+      setError('Failed to refresh session. Please reload the page.');
+      console.error('Error refreshing session:', err);
+    } finally {
+      setIsRetrying(false);
     }
   };
 
@@ -82,12 +111,32 @@ export function AIInitializer({ onInitialized }: AIInitializerProps) {
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-            <Button 
-              onClick={() => window.location.reload()} 
-              className="w-full"
-            >
-              Refresh Page
-            </Button>
+            <div className="space-y-2">
+              <Button 
+                onClick={handleRetryWithRefresh}
+                disabled={isRetrying}
+                className="w-full"
+                variant="outline"
+              >
+                {isRetrying ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Refreshing Session...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Refresh Session
+                  </>
+                )}
+              </Button>
+              <Button 
+                onClick={() => window.location.reload()} 
+                className="w-full"
+              >
+                Reload Page
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

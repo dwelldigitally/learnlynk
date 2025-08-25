@@ -56,6 +56,9 @@ import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrat
 import { WasteRadarDashboard } from "@/components/enrollment/WasteRadarDashboard";
 import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
 import { IntegrationsDashboard } from "@/components/enrollment/IntegrationsDashboard";
+import { StudentProgressTracker } from "@/components/enrollment/StudentProgressTracker";
+import { EnrollmentPipelineAnalytics } from "@/components/enrollment/EnrollmentPipelineAnalytics";
+import { EnrollmentAutomationRules } from "@/components/enrollment/EnrollmentAutomationRules";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -188,6 +191,12 @@ const AdminDashboard: React.FC = () => {
         return <OutcomesDashboard />;
       case "/admin/enrollment/integrations":
         return <IntegrationsDashboard />;
+      case "/admin/enrollment/student-progress":
+        return <StudentProgressTracker />;
+      case "/admin/enrollment/pipeline-analytics":
+        return <EnrollmentPipelineAnalytics />;
+      case "/admin/enrollment/automation-rules":
+        return <EnrollmentAutomationRules />;
       default:
         return <AdminOverview />;
     }

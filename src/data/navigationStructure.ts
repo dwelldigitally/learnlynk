@@ -61,7 +61,10 @@ export const navigationStructure: NavigationStructure = {
             { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
             { name: "Waste Radar", href: "/admin/enrollment/waste-radar", icon: AlertTriangle },
             { name: "Outcomes 30/60/90", href: "/admin/enrollment/outcomes", icon: BarChart3 },
-            { name: "Integrations", href: "/admin/enrollment/integrations", icon: Link }
+            { name: "Integrations", href: "/admin/enrollment/integrations", icon: Link },
+            { name: "Student Progress", href: "/admin/enrollment/student-progress", icon: Users },
+            { name: "Pipeline Analytics", href: "/admin/enrollment/pipeline-analytics", icon: TrendingUp },
+            { name: "Automation Rules", href: "/admin/enrollment/automation-rules", icon: Zap }
           ]
         },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },

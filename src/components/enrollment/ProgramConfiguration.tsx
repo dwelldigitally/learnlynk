@@ -12,6 +12,7 @@ import { GraduationCap, Settings, Plus, Clock, FileText, Users } from 'lucide-re
 
 interface ProgramConfig {
   id: string;
+  user_id: string;
   program_name: string;
   settings: {
     stall_days?: number;
@@ -21,6 +22,8 @@ interface ProgramConfig {
     response_time_target?: number;
   };
   is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export function ProgramConfiguration() {
@@ -42,7 +45,10 @@ export function ProgramConfiguration() {
         .order('created_at');
 
       if (error) throw error;
-      setPrograms(data || []);
+      setPrograms((data || []).map(d => ({
+        ...d,
+        settings: typeof d.settings === 'string' ? JSON.parse(d.settings) : d.settings
+      })));
     } catch (error) {
       console.error('Error loading programs:', error);
       toast({
@@ -63,6 +69,7 @@ export function ProgramConfiguration() {
         .from('program_configurations')
         .insert({
           program_name: newProgramName,
+          user_id: (await supabase.auth.getUser()).data.user?.id,
           settings: {
             stall_days: 7,
             requires_interview: false,
@@ -77,7 +84,10 @@ export function ProgramConfiguration() {
 
       if (error) throw error;
 
-      setPrograms([...programs, data]);
+      setPrograms([...programs, {
+        ...data,
+        settings: typeof data.settings === 'string' ? JSON.parse(data.settings) : data.settings
+      }]);
       setNewProgramName('');
       setShowAddProgram(false);
       
@@ -106,7 +116,10 @@ export function ProgramConfiguration() {
 
       if (error) throw error;
 
-      setPrograms(programs.map(p => p.id === programId ? data : p));
+      setPrograms(programs.map(p => p.id === programId ? {
+        ...data,
+        settings: typeof data.settings === 'string' ? JSON.parse(data.settings) : data.settings
+      } : p));
     } catch (error) {
       console.error('Error updating program:', error);
       toast({

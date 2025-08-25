@@ -152,7 +152,7 @@ const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({ workflow, onClose }) 
       if (workflow) {
         // Update existing workflow
         const { error } = await supabase
-          .from('workflows')
+          .from('plays')
           .update(workflowData)
           .eq('id', workflow.id);
 
@@ -160,7 +160,7 @@ const WorkflowBuilder: React.FC<WorkflowBuilderProps> = ({ workflow, onClose }) 
       } else {
         // Create new workflow
         const { data, error } = await supabase
-          .from('workflows')
+          .from('plays')
           .insert(workflowData)
           .select()
           .single();

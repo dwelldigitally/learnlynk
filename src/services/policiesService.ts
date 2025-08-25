@@ -71,7 +71,7 @@ export class PoliciesService {
 
         case 'stop_triggers':
           if (config.enabled && studentData?.hasDeposit) {
-            if (actionType === 'email' && actionType !== 'onboarding') {
+            if (actionType === 'email') {
               return { allowed: false, reason: 'Marketing stopped after deposit' };
             }
           }

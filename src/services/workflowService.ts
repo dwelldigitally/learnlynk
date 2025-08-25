@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 
-type DbWorkflow = Database['public']['Tables']['workflows']['Row'];
+type DbWorkflow = Database['public']['Tables']['plays']['Row'];
 type DbWorkflowAction = Database['public']['Tables']['workflow_actions']['Row'];
 type DbWorkflowExecution = Database['public']['Tables']['workflow_executions']['Row'];
 
@@ -9,13 +9,13 @@ export interface Workflow extends DbWorkflow {}
 export interface WorkflowAction extends DbWorkflowAction {}
 export interface WorkflowExecution extends DbWorkflowExecution {}
 
-export type WorkflowInsert = Database['public']['Tables']['workflows']['Insert'];
+export type WorkflowInsert = Database['public']['Tables']['plays']['Insert'];
 export type WorkflowActionInsert = Database['public']['Tables']['workflow_actions']['Insert'];
 
 export class WorkflowService {
   static async getWorkflows(): Promise<Workflow[]> {
     const { data, error } = await supabase
-      .from('workflows')
+      .from('plays')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -25,7 +25,7 @@ export class WorkflowService {
 
   static async createWorkflow(workflowData: WorkflowInsert): Promise<Workflow> {
     const { data, error } = await supabase
-      .from('workflows')
+      .from('plays')
       .insert(workflowData)
       .select()
       .single();
@@ -36,7 +36,7 @@ export class WorkflowService {
 
   static async updateWorkflow(id: string, updates: Partial<Workflow>): Promise<Workflow> {
     const { data, error } = await supabase
-      .from('workflows')
+      .from('plays')
       .update(updates)
       .eq('id', id)
       .select()
@@ -48,7 +48,7 @@ export class WorkflowService {
 
   static async deleteWorkflow(id: string): Promise<void> {
     const { error } = await supabase
-      .from('workflows')
+      .from('plays')
       .delete()
       .eq('id', id);
 
@@ -79,7 +79,7 @@ export class WorkflowService {
 
   static async getWorkflowAnalytics() {
     const { data: workflows, error } = await supabase
-      .from('workflows')
+      .from('plays')
       .select(`
         *,
         workflow_executions(count)

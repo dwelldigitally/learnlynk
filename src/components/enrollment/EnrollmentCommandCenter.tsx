@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Clock, TrendingUp, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 import { ActionQueueTable } from './ActionQueueTable';
 import { ActionDensityMeter } from './ActionDensityMeter';
 import { YieldBandFilter } from './YieldBandFilter';
@@ -28,8 +30,17 @@ export function EnrollmentCommandCenter() {
   const [selectedYieldBand, setSelectedYieldBand] = useState<string>('all');
   const [actionsPerHour, setActionsPerHour] = useState(0);
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+
+  // Redirect to sign-in if not authenticated
+  if (!authLoading && !user) {
+    return <Navigate to="/sign-in" replace />;
+  }
 
   useEffect(() => {
+    // Only load data if user is authenticated
+    if (!user) return;
+    
     loadActionQueue();
     calculateActionsPerHour();
     
@@ -49,7 +60,7 @@ export function EnrollmentCommandCenter() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [user]);
 
   const loadActionQueue = async () => {
     try {

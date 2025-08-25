@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { enrollmentSeedService } from '@/services/enrollmentSeedService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface DataInitializerProps {
   children: React.ReactNode;
@@ -10,10 +11,17 @@ interface DataInitializerProps {
 export function DataInitializer({ children }: DataInitializerProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
     const initializeData = async () => {
       try {
+        // Only seed data if user is authenticated
+        if (!user) {
+          setIsInitialized(true);
+          return;
+        }
+
         // Check if data already exists to avoid re-seeding
         const { data: existingActions } = await supabase
           .from('action_queue')
@@ -43,15 +51,20 @@ export function DataInitializer({ children }: DataInitializerProps) {
       }
     };
 
-    initializeData();
-  }, [toast]);
+    // Don't initialize until auth loading is complete
+    if (!authLoading) {
+      initializeData();
+    }
+  }, [user, authLoading, toast]);
 
-  if (!isInitialized) {
+  if (authLoading || !isInitialized) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-          <p className="text-sm text-muted-foreground">Initializing enrollment optimization data...</p>
+          <p className="text-sm text-muted-foreground">
+            {authLoading ? 'Loading...' : 'Initializing enrollment optimization data...'}
+          </p>
         </div>
       </div>
     );

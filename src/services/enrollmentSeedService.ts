@@ -1,5 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 
+// Generate proper UUID
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
+
 export interface ActionQueueItem {
   id: string;
   student_name: string;
@@ -82,7 +87,7 @@ class EnrollmentSeedService {
 
   private generateMockSignals(): Partial<SignalData>[] {
     return Array.from({ length: 20 }, (_, index) => ({
-      student_id: `student_${index + 1}`,
+      student_id: generateUUID(),
       webinar_attended: Math.random() > 0.6,
       form_submitted_at: Math.random() > 0.5 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() : undefined,
       last_email_open_at: Math.random() > 0.3 ? new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000).toISOString() : undefined,
@@ -118,7 +123,7 @@ class EnrollmentSeedService {
         .insert(
           mockData.map(item => ({
             user_id: user.id,
-            student_id: `student_${Math.random().toString(36).substr(2, 9)}`,
+            student_id: generateUUID(),
             student_name: item.student_name!,
             program: item.program!,
             yield_score: item.yield_score!,
@@ -181,7 +186,7 @@ class EnrollmentSeedService {
         .insert(
           mockData.map(item => ({
             user_id: user.id,
-            student_id: `student_${Math.random().toString(36).substr(2, 9)}`,
+            student_id: generateUUID(),
             student_name: item.student_name!,
             unresponsive_30d: item.unresponsive_30d!,
             wrong_intake: item.wrong_intake!,

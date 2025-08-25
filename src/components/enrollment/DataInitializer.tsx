@@ -22,10 +22,11 @@ export function DataInitializer({ children }: DataInitializerProps) {
           return;
         }
 
-        // Check if data already exists to avoid re-seeding
+        // Check if data already exists for this user to avoid re-seeding
         const { data: existingActions } = await supabase
           .from('action_queue')
           .select('id')
+          .eq('user_id', user.id)
           .limit(1);
 
         if (!existingActions || existingActions.length === 0) {

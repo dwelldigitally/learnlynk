@@ -314,6 +314,54 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_decision_logs: {
+        Row: {
+          alternative_actions: Json | null
+          confidence_score: number
+          contributing_factors: Json
+          created_at: string
+          created_by: string | null
+          decision_type: string
+          executed: boolean | null
+          execution_result: string | null
+          id: string
+          reasoning: Json
+          recommended_action: string
+          student_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          alternative_actions?: Json | null
+          confidence_score: number
+          contributing_factors: Json
+          created_at?: string
+          created_by?: string | null
+          decision_type: string
+          executed?: boolean | null
+          execution_result?: string | null
+          id?: string
+          reasoning: Json
+          recommended_action: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alternative_actions?: Json | null
+          confidence_score?: number
+          contributing_factors?: Json
+          created_at?: string
+          created_by?: string | null
+          decision_type?: string
+          executed?: boolean | null
+          execution_result?: string | null
+          id?: string
+          reasoning?: Json
+          recommended_action?: string
+          student_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_feature_analytics: {
         Row: {
           created_at: string
@@ -379,6 +427,142 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      ai_logic_configurations: {
+        Row: {
+          configuration_data: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          natural_language_prompt: string | null
+          performance_metrics: Json | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          configuration_data: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          natural_language_prompt?: string | null
+          performance_metrics?: Json | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          configuration_data?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          natural_language_prompt?: string | null
+          performance_metrics?: Json | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ai_performance_baselines: {
+        Row: {
+          baseline_period_end: string
+          baseline_period_start: string
+          configuration_id: string | null
+          created_at: string
+          id: string
+          metric_name: string
+          metric_value: number
+          sample_size: number | null
+        }
+        Insert: {
+          baseline_period_end: string
+          baseline_period_start: string
+          configuration_id?: string | null
+          created_at?: string
+          id?: string
+          metric_name: string
+          metric_value: number
+          sample_size?: number | null
+        }
+        Update: {
+          baseline_period_end?: string
+          baseline_period_start?: string
+          configuration_id?: string | null
+          created_at?: string
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          sample_size?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_performance_baselines_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "ai_logic_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_scenario_tests: {
+        Row: {
+          actual_outcome: Json | null
+          configuration_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          execution_time_ms: number | null
+          expected_outcome: Json | null
+          id: string
+          name: string
+          scenario_data: Json
+          test_status: string | null
+          updated_at: string
+        }
+        Insert: {
+          actual_outcome?: Json | null
+          configuration_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          execution_time_ms?: number | null
+          expected_outcome?: Json | null
+          id?: string
+          name: string
+          scenario_data: Json
+          test_status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          actual_outcome?: Json | null
+          configuration_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          execution_time_ms?: number | null
+          expected_outcome?: Json | null
+          id?: string
+          name?: string
+          scenario_data?: Json
+          test_status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_scenario_tests_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "ai_logic_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       aircall_call_activities: {
         Row: {

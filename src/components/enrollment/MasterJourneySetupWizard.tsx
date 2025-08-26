@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, Users, Globe, ArrowRight, BookOpen, Settings, Loader2, FileText, Clock, Phone, Video } from 'lucide-react';
 import { MasterJourneyService } from '@/services/masterJourneyService';
 import { MasterJourneyTemplateEditor } from './MasterJourneyTemplateEditor';
+import { JourneyTemplate } from '@/types/academicJourney';
 import { toast } from 'sonner';
 
 interface MasterJourneySetupWizardProps {
@@ -18,6 +19,7 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
   const [step, setStep] = useState<'check' | 'setup' | 'configure' | 'complete'>('check');
   const [showTemplateEditor, setShowTemplateEditor] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<'domestic' | 'international' | null>(null);
+  const [currentTemplate, setCurrentTemplate] = useState<JourneyTemplate | null>(null);
 
   useEffect(() => {
     checkMasterTemplates();
@@ -58,20 +60,40 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
     setStep('configure');
   };
 
-  const handleTemplateEdit = (templateType: 'domestic' | 'international') => {
-    setEditingTemplate(templateType);
-    setShowTemplateEditor(true);
-  };
-
-  const handleTemplateSave = async (templateData: any) => {
+  const handleTemplateEdit = async (templateType: 'domestic' | 'international') => {
     try {
       setIsLoading(true);
-      // Create the template with enhanced data
-      await MasterJourneyService.createMasterTemplates();
+      const template = await MasterJourneyService.getMasterTemplate(templateType);
+      setCurrentTemplate(template);
+      setEditingTemplate(templateType);
+      setShowTemplateEditor(true);
+    } catch (error) {
+      console.error('Error loading template:', error);
+      toast.error("Failed to load template for editing");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleTemplateSave = async (templateData: JourneyTemplate) => {
+    try {
+      setIsLoading(true);
+      
+      if (!editingTemplate) return;
+      
+      if (currentTemplate) {
+        // Update existing template
+        await MasterJourneyService.updateMasterTemplate(editingTemplate, templateData);
+      } else {
+        // This shouldn't happen in edit mode, but handle it gracefully
+        console.warn('No existing template found, this should not happen in edit mode');
+      }
+      
       setShowTemplateEditor(false);
       setEditingTemplate(null);
+      setCurrentTemplate(null);
       setStep('complete');
-      toast.success(`${editingTemplate} template configured successfully!`);
+      toast.success(`${editingTemplate} template saved successfully!`);
     } catch (error) {
       console.error('Error saving template:', error);
       toast.error('Failed to save template. Please try again.');
@@ -101,13 +123,16 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
     );
   }
 
-  if (showTemplateEditor) {
+  if (showTemplateEditor && editingTemplate) {
     return (
       <MasterJourneyTemplateEditor
+        template={currentTemplate}
+        studentType={editingTemplate}
         onSave={handleTemplateSave}
         onCancel={() => {
           setShowTemplateEditor(false);
           setEditingTemplate(null);
+          setCurrentTemplate(null);
         }}
       />
     );

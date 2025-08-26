@@ -33,6 +33,57 @@ export class MasterJourneyService {
   }
 
   /**
+   * Get a specific master template by student type
+   */
+  static async getMasterTemplate(studentType: 'domestic' | 'international'): Promise<JourneyTemplate | null> {
+    const { data, error } = await supabase
+      .from('journey_templates')
+      .select('*')
+      .eq('is_master_template', true)
+      .eq('student_type', studentType)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching master template:', error);
+      throw error;
+    }
+
+    return data as unknown as JourneyTemplate | null;
+  }
+
+  /**
+   * Update an existing master template
+   */
+  static async updateMasterTemplate(
+    studentType: 'domestic' | 'international',
+    templateData: Partial<JourneyTemplate>
+  ): Promise<JourneyTemplate> {
+    const updateData = {
+      name: templateData.name,
+      description: templateData.description,
+      category: templateData.category,
+      complexity_level: templateData.complexity_level,
+      template_data: templateData.template_data as any,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('journey_templates')
+      .update(updateData)
+      .eq('is_master_template', true)
+      .eq('student_type', studentType)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating master template:', error);
+      throw error;
+    }
+
+    return data as unknown as JourneyTemplate;
+  }
+
+  /**
    * Create master journey templates if they don't exist
    */
   static async createMasterTemplates(): Promise<void> {

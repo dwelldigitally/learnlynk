@@ -13,8 +13,9 @@ import { JourneyTemplate, JourneyStageTemplate } from '@/types/academicJourney';
 import { toast } from 'sonner';
 
 interface MasterJourneyTemplateEditorProps {
-  template?: JourneyTemplate;
-  onSave: (template: Partial<JourneyTemplate>) => Promise<void>;
+  template?: JourneyTemplate | null;
+  studentType: 'domestic' | 'international';
+  onSave: (template: JourneyTemplate) => Promise<void>;
   onCancel: () => void;
 }
 
@@ -31,15 +32,22 @@ const STAGE_TYPES = [
 
 export function MasterJourneyTemplateEditor({
   template,
+  studentType,
   onSave,
   onCancel
 }: MasterJourneyTemplateEditorProps) {
-  const [templateData, setTemplateData] = useState<Partial<JourneyTemplate>>({
-    name: template?.name || '',
-    description: template?.description || '',
+  const [templateData, setTemplateData] = useState<JourneyTemplate>({
+    id: template?.id || '',
+    name: template?.name || `${studentType.charAt(0).toUpperCase() + studentType.slice(1)} Master Journey Template`,
+    description: template?.description || `Master journey template for ${studentType} students`,
     category: template?.category || 'enrollment',
-    student_type: template?.student_type || 'domestic',
+    student_type: studentType,
     complexity_level: template?.complexity_level || 'medium',
+    is_master_template: true,
+    is_system_template: template?.is_system_template || false,
+    usage_count: template?.usage_count || 0,
+    created_at: template?.created_at || new Date().toISOString(),
+    updated_at: new Date().toISOString(),
     template_data: template?.template_data || {
       stages: [],
       default_timings: {
@@ -119,7 +127,7 @@ export function MasterJourneyTemplateEditor({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">
-            {template ? 'Edit Master Journey Template' : 'Create Master Journey Template'}
+            {studentType.charAt(0).toUpperCase() + studentType.slice(1)} Journey Template Editor
           </h2>
           <p className="text-muted-foreground">
             Configure the stages and requirements for your academic journey template

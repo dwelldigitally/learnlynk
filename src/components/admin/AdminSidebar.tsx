@@ -304,9 +304,6 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
         {/* Quick Actions */}
         {!isCollapsed && (
           <div className="mt-4 p-4 border-t border-border">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-3">
-              Quick Actions
-            </h3>
             <div className="space-y-2">
               {currentSection.id === 'contacts' && (
                 <>

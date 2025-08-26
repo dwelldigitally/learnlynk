@@ -149,7 +149,12 @@ export class PlaysService {
           yield_score: item.yield_score,
           yield_band: item.yield_band,
           program: item.program,
-          trigger_play: play.name
+          trigger_play: play.name,
+          play_id: play.id,
+          play_name: play.name,
+          play_category: play.play_type,
+          generation_source: 'standard-plays',
+          student_name: item.student_name || 'Student'
         }
       });
     }

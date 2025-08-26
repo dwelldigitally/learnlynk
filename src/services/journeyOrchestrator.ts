@@ -306,9 +306,15 @@ export class JourneyOrchestrator {
       scheduled_at: this.calculateContextualTiming(timingOverride),
       metadata: {
         journey_id: progress.journey_id,
+        journey_name: journey?.name,
         stage_id: progress.current_stage_id,
         stage_name: currentStage?.name,
-        journey_context: true
+        play_id: play.id,
+        play_name: play.name,
+        play_category: play.play_type,
+        generation_source: 'journey-orchestrator',
+        journey_context: true,
+        student_name: progress.student_id // Will be enriched with actual name
       }
     }];
 

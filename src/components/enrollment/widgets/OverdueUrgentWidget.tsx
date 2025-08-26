@@ -12,6 +12,13 @@ interface StudentAction {
   metadata: {
     student_name?: string;
     program?: string;
+    // Journey/Play Traceability
+    journey_name?: string;
+    stage_name?: string;
+    play_name?: string;
+    play_category?: string;
+    generation_source?: string;
+    journey_context?: boolean;
   };
 }
 

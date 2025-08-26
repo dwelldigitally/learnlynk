@@ -41,6 +41,16 @@ interface StudentAction {
     };
     play_source?: string;
     revenue_potential?: number;
+    // Journey/Play Traceability
+    journey_id?: string;
+    journey_name?: string;
+    stage_id?: string;
+    stage_name?: string;
+    play_id?: string;
+    play_name?: string;
+    play_category?: string;
+    generation_source?: 'journey-orchestrator' | 'standard-plays' | 'manual' | 'policy-trigger';
+    journey_context?: boolean;
   };
 }
 
@@ -172,9 +182,11 @@ export function EnhancedTodayCommandCentre() {
       (urgencyFilter === 'today' && new Date(action.scheduled_at).toDateString() === new Date().toDateString()) ||
       (urgencyFilter === 'urgent' && action.priority === 1);
     
-    const matchesStage = stageFilter === 'all' || action.metadata?.conversion_stage === stageFilter;
+    const matchesStage = stageFilter === 'all' || 
+      action.metadata?.conversion_stage === stageFilter ||
+      (stageFilter === 'journey' && action.metadata?.journey_context);
     
-    const matchesType = typeFilter === 'all' || action.action_type === typeFilter;
+    const matchesType = typeFilter === 'all' || action.metadata?.generation_source === typeFilter;
     
     return matchesSearch && matchesYield && matchesUrgency && matchesStage && matchesType;
   });
@@ -330,6 +342,19 @@ export function EnhancedTodayCommandCentre() {
                 <SelectItem value="lead">Lead</SelectItem>
                 <SelectItem value="applicant">Applicant</SelectItem>
                 <SelectItem value="enrolled">Enrolled</SelectItem>
+                <SelectItem value="journey">Journey Active</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue placeholder="Source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Sources</SelectItem>
+                <SelectItem value="journey-orchestrator">Journey</SelectItem>
+                <SelectItem value="standard-plays">Standard</SelectItem>
+                <SelectItem value="manual">Manual</SelectItem>
               </SelectContent>
             </Select>
             

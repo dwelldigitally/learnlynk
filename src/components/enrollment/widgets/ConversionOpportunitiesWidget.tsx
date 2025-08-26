@@ -16,6 +16,13 @@ interface StudentAction {
     yield_score?: number;
     conversion_stage?: 'lead' | 'applicant' | 'enrolled';
     revenue_potential?: number;
+    // Journey/Play Traceability
+    journey_name?: string;
+    stage_name?: string;
+    play_name?: string;
+    play_category?: string;
+    generation_source?: string;
+    journey_context?: boolean;
   };
 }
 
@@ -123,6 +130,22 @@ export function ConversionOpportunitiesWidget({ actions, onCompleteAction }: Con
                     <p className="text-xs text-muted-foreground mb-1 line-clamp-2">
                       {action.instruction}
                     </p>
+                    
+                    {/* Journey/Play Context */}
+                    {(action.metadata?.play_name || action.metadata?.journey_context) && (
+                      <div className="flex flex-wrap items-center gap-1 mb-1">
+                        {action.metadata?.journey_context && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            🎯 {action.metadata.stage_name || 'Journey'}
+                          </Badge>
+                        )}
+                        {action.metadata?.play_name && (
+                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                            ⚡ {action.metadata.play_name}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                     
                     <div className="flex items-center justify-between text-xs">
                       <div className="flex items-center space-x-2 text-muted-foreground">

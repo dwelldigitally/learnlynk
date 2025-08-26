@@ -16,6 +16,13 @@ interface StudentAction {
     contact_info?: {
       phone?: string;
     };
+    // Journey/Play Traceability
+    journey_name?: string;
+    stage_name?: string;
+    play_name?: string;
+    play_category?: string;
+    generation_source?: string;
+    journey_context?: boolean;
   };
 }
 
@@ -102,6 +109,22 @@ export function CallsToMakeWidget({ actions, onCompleteAction }: CallsToMakeWidg
                     <p className="text-xs text-muted-foreground mb-1 line-clamp-1">
                       {action.instruction}
                     </p>
+                    
+                    {/* Journey/Play Context */}
+                    {(action.metadata?.play_name || action.metadata?.journey_context) && (
+                      <div className="flex flex-wrap items-center gap-1 mb-1">
+                        {action.metadata?.journey_context && (
+                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+                            🎯 {action.metadata.stage_name || 'Journey'}
+                          </Badge>
+                        )}
+                        {action.metadata?.play_name && (
+                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+                            ⚡ {action.metadata.play_name}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                     
                     <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />

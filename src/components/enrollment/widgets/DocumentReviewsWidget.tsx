@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { FileText, Clock, CheckSquare, AlertCircle } from 'lucide-react';
 
 interface StudentAction {
@@ -19,18 +20,46 @@ interface StudentAction {
 interface DocumentReviewsWidgetProps {
   actions: StudentAction[];
   onCompleteAction: (actionId: string) => void;
+  selectedItems?: string[];
+  onToggleItem?: (itemId: string) => void;
+  onToggleAll?: (itemIds: string[]) => void;
+  showBulkActions?: boolean;
 }
 
-export function DocumentReviewsWidget({ actions, onCompleteAction }: DocumentReviewsWidgetProps) {
+export function DocumentReviewsWidget({ 
+  actions, 
+  onCompleteAction, 
+  selectedItems = [], 
+  onToggleItem, 
+  onToggleAll, 
+  showBulkActions = false 
+}: DocumentReviewsWidgetProps) {
   const isOverdue = (scheduledAt: string) => new Date(scheduledAt) < new Date();
+  const actionIds = actions.map(action => action.id);
+  const isAllSelected = actionIds.length > 0 && actionIds.every(id => selectedItems.includes(id));
+  const isPartiallySelected = selectedItems.length > 0 && selectedItems.length < actionIds.length && actionIds.some(id => selectedItems.includes(id));
 
   return (
     <Card className="border-purple-200 bg-purple-50/30">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center space-x-2 text-purple-700">
-            <FileText className="h-4 w-4" />
-            <span>📋 Document Reviews</span>
+          <div className="flex items-center space-x-2">
+            {showBulkActions && onToggleAll && (
+              <Checkbox
+                checked={isAllSelected}
+                ref={(el) => {
+                  if (el && 'indeterminate' in el) {
+                    (el as any).indeterminate = isPartiallySelected;
+                  }
+                }}
+                onCheckedChange={() => onToggleAll(actionIds)}
+                className="mr-2"
+              />
+            )}
+            <div className="flex items-center space-x-2 text-purple-700">
+              <FileText className="h-4 w-4" />
+              <span>📋 Document Reviews</span>
+            </div>
           </div>
           <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">
             {actions.length}
@@ -48,16 +77,24 @@ export function DocumentReviewsWidget({ actions, onCompleteAction }: DocumentRev
             const overdue = isOverdue(action.scheduled_at);
             
             return (
-              <div 
+               <div 
                 key={action.id}
-                className={`p-3 rounded-lg border ${
+                className={`p-3 rounded-lg border transition-all duration-200 hover:shadow-md ${
                   overdue 
                     ? 'bg-red-100 border-red-300' 
                     : 'bg-white border-purple-200'
-                }`}
+                } ${selectedItems.includes(action.id) ? 'ring-2 ring-primary shadow-lg' : ''}`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                    {showBulkActions && onToggleItem && (
+                      <Checkbox
+                        checked={selectedItems.includes(action.id)}
+                        onCheckedChange={() => onToggleItem(action.id)}
+                        className="mt-0.5"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <span className="font-medium text-sm truncate">
                         {action.metadata?.student_name || 'Student'}
@@ -90,6 +127,7 @@ export function DocumentReviewsWidget({ actions, onCompleteAction }: DocumentRev
                         }
                       </span>
                       <span>• {action.metadata?.program || 'Unknown Program'}</span>
+                    </div>
                     </div>
                   </div>
                   

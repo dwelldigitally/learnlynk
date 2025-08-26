@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AlertTriangle, Clock, Zap, Phone, Mail, FileText } from 'lucide-react';
 
 interface StudentAction {
@@ -25,9 +26,20 @@ interface StudentAction {
 interface OverdueUrgentWidgetProps {
   actions: StudentAction[];
   onCompleteAction: (actionId: string) => void;
+  selectedItems?: string[];
+  onToggleItem?: (itemId: string) => void;
+  onToggleAll?: (itemIds: string[]) => void;
+  showBulkActions?: boolean;
 }
 
-export function OverdueUrgentWidget({ actions, onCompleteAction }: OverdueUrgentWidgetProps) {
+export function OverdueUrgentWidget({ 
+  actions, 
+  onCompleteAction, 
+  selectedItems = [], 
+  onToggleItem, 
+  onToggleAll, 
+  showBulkActions = false 
+}: OverdueUrgentWidgetProps) {
   const isOverdue = (scheduledAt: string) => new Date(scheduledAt) < new Date();
   
   // Sort by most urgent first (overdue, then urgent priority)
@@ -40,6 +52,10 @@ export function OverdueUrgentWidget({ actions, onCompleteAction }: OverdueUrgent
     if (a.priority !== b.priority) return a.priority - b.priority;
     return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
   });
+
+  const actionIds = actions.map(action => action.id);
+  const isAllSelected = actionIds.length > 0 && actionIds.every(id => selectedItems.includes(id));
+  const isPartiallySelected = selectedItems.length > 0 && selectedItems.length < actionIds.length && actionIds.some(id => selectedItems.includes(id));
 
   const getActionIcon = (actionType: string) => {
     switch (actionType) {
@@ -54,9 +70,23 @@ export function OverdueUrgentWidget({ actions, onCompleteAction }: OverdueUrgent
     <Card className="border-red-300 bg-red-50/50">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center space-x-2 text-red-700">
-            <AlertTriangle className="h-4 w-4" />
-            <span>⚡ Overdue/Urgent</span>
+          <div className="flex items-center space-x-2">
+            {showBulkActions && onToggleAll && (
+              <Checkbox
+                checked={isAllSelected}
+                ref={(el) => {
+                  if (el && 'indeterminate' in el) {
+                    (el as any).indeterminate = isPartiallySelected;
+                  }
+                }}
+                onCheckedChange={() => onToggleAll(actionIds)}
+                className="mr-2"
+              />
+            )}
+            <div className="flex items-center space-x-2 text-red-700">
+              <AlertTriangle className="h-4 w-4" />
+              <span>⚡ Overdue/Urgent</span>
+            </div>
           </div>
           <Badge variant="destructive" className="bg-red-200 text-red-800 border-red-300">
             {actions.length}
@@ -80,10 +110,20 @@ export function OverdueUrgentWidget({ actions, onCompleteAction }: OverdueUrgent
             return (
               <div 
                 key={action.id}
-                className="p-3 rounded-lg border bg-red-100 border-red-300"
+                className={`p-3 rounded-lg border bg-red-100 border-red-300 transition-all duration-200 hover:shadow-md ${
+                  selectedItems.includes(action.id) ? 'ring-2 ring-primary shadow-lg' : ''
+                }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                    {showBulkActions && onToggleItem && (
+                      <Checkbox
+                        checked={selectedItems.includes(action.id)}
+                        onCheckedChange={() => onToggleItem(action.id)}
+                        className="mt-0.5"
+                      />
+                    )}
+                    <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2 mb-1">
                       <div className="flex items-center space-x-1">
                         {getActionIcon(action.action_type)}
@@ -117,6 +157,7 @@ export function OverdueUrgentWidget({ actions, onCompleteAction }: OverdueUrgent
                           <span>Due: {new Date(action.scheduled_at).toLocaleString()}</span>
                         </>
                       )}
+                    </div>
                     </div>
                   </div>
                   

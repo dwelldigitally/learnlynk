@@ -403,6 +403,10 @@ export function EnhancedTodayCommandCentre() {
         <HotProspectsWidget 
           actions={categorizedActions.hotProspects}
           onCompleteAction={handleCompleteAction}
+          selectedItems={hotProspectsSelection.selectedItems}
+          onToggleItem={hotProspectsSelection.toggleItem}
+          onToggleAll={hotProspectsSelection.toggleAll}
+          showBulkActions={true}
         />
         
         <CallsToMakeWidget 
@@ -417,21 +421,37 @@ export function EnhancedTodayCommandCentre() {
         <CommunicationsWidget 
           actions={categorizedActions.communications}
           onCompleteAction={handleCompleteAction}
+          selectedItems={communicationsSelection.selectedItems}
+          onToggleItem={communicationsSelection.toggleItem}
+          onToggleAll={communicationsSelection.toggleAll}
+          showBulkActions={true}
         />
         
         <DocumentReviewsWidget 
           actions={categorizedActions.documentReviews}
           onCompleteAction={handleCompleteAction}
+          selectedItems={documentReviewsSelection.selectedItems}
+          onToggleItem={documentReviewsSelection.toggleItem}
+          onToggleAll={documentReviewsSelection.toggleAll}
+          showBulkActions={true}
         />
         
         <OverdueUrgentWidget 
           actions={categorizedActions.overdueUrgent}
           onCompleteAction={handleCompleteAction}
+          selectedItems={overdueUrgentSelection.selectedItems}
+          onToggleItem={overdueUrgentSelection.toggleItem}
+          onToggleAll={overdueUrgentSelection.toggleAll}
+          showBulkActions={true}
         />
         
         <ConversionOpportunitiesWidget 
           actions={categorizedActions.conversionOps}
           onCompleteAction={handleCompleteAction}
+          selectedItems={conversionOpsSelection.selectedItems}
+          onToggleItem={conversionOpsSelection.toggleItem}
+          onToggleAll={conversionOpsSelection.toggleAll}
+          showBulkActions={true}
         />
       </div>
 

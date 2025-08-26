@@ -502,12 +502,38 @@ class EnrollmentDemoSeedService {
   }
 
   /**
+   * Validate authentication and token before operations
+   */
+  private async validateAuth() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user) {
+      throw new Error('User not authenticated');
+    }
+    
+    // Check if token is still valid
+    try {
+      const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+      const expirationTime = payload.exp * 1000;
+      const currentTime = Date.now();
+      
+      if (expirationTime <= currentTime) {
+        throw new Error('JWT expired - token validation failed');
+      }
+    } catch (error) {
+      console.error('🔒 Token validation failed:', error);
+      throw new Error('Invalid JWT token');
+    }
+    
+    return session.user;
+  }
+
+  /**
    * Seed plays table with the 5 starter plays
    */
   async seedPlays() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      console.log('🎭 EnrollmentDemoSeedService: Seeding plays...');
+      const user = await this.validateAuth();
 
       const plays = this.generateStarterPlays();
       
@@ -527,11 +553,17 @@ class EnrollmentDemoSeedService {
         )
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('🎭 Database error seeding plays:', error);
+        throw error;
+      }
       console.log('✅ Successfully seeded starter plays');
       return data;
     } catch (error) {
       console.error('❌ Error seeding plays:', error);
+      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
+        throw new Error('Authentication failed during plays seeding - please refresh session');
+      }
       throw error;
     }
   }
@@ -541,8 +573,8 @@ class EnrollmentDemoSeedService {
    */
   async seedPolicies() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      console.log('📋 EnrollmentDemoSeedService: Seeding policies...');
+      const user = await this.validateAuth();
 
       const policies = this.generateDefaultPolicies();
       
@@ -559,11 +591,17 @@ class EnrollmentDemoSeedService {
         )
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('📋 Database error seeding policies:', error);
+        throw error;
+      }
       console.log('✅ Successfully seeded default policies');
       return data;
     } catch (error) {
       console.error('❌ Error seeding policies:', error);
+      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
+        throw new Error('Authentication failed during policies seeding - please refresh session');
+      }
       throw error;
     }
   }
@@ -573,8 +611,8 @@ class EnrollmentDemoSeedService {
    */
   async seedStudentActions() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      console.log('👥 EnrollmentDemoSeedService: Seeding student actions...');
+      const user = await this.validateAuth();
 
       const actions = this.generateStudentActions();
       
@@ -602,11 +640,17 @@ class EnrollmentDemoSeedService {
         )
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('👥 Database error seeding student actions:', error);
+        throw error;
+      }
       console.log('✅ Successfully seeded student actions');
       return data;
     } catch (error) {
       console.error('❌ Error seeding student actions:', error);
+      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
+        throw new Error('Authentication failed during student actions seeding - please refresh session');
+      }
       throw error;
     }
   }
@@ -629,8 +673,8 @@ class EnrollmentDemoSeedService {
    */
   async seedProgramConfigurations() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      console.log('🎓 EnrollmentDemoSeedService: Seeding program configurations...');
+      const user = await this.validateAuth();
 
       const programs = this.generateProgramConfigurations();
       
@@ -646,11 +690,17 @@ class EnrollmentDemoSeedService {
         )
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('🎓 Database error seeding program configurations:', error);
+        throw error;
+      }
       console.log('✅ Successfully seeded program configurations');
       return data;
     } catch (error) {
       console.error('❌ Error seeding program configurations:', error);
+      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
+        throw new Error('Authentication failed during program configurations seeding - please refresh session');
+      }
       throw error;
     }
   }
@@ -660,8 +710,8 @@ class EnrollmentDemoSeedService {
    */
   async clearExistingData() {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('User not authenticated');
+      console.log('🧹 EnrollmentDemoSeedService: Clearing existing data...');
+      const user = await this.validateAuth();
 
       await Promise.all([
         supabase.from('student_actions').delete().eq('user_id', user.id),
@@ -673,6 +723,9 @@ class EnrollmentDemoSeedService {
       console.log('✅ Cleared existing demo data');
     } catch (error) {
       console.error('❌ Error clearing existing data:', error);
+      if (error.message?.includes('JWT') || error.message?.includes('expired')) {
+        throw new Error('Authentication failed during data clearing - please refresh session');
+      }
       throw error;
     }
   }
@@ -684,16 +737,36 @@ class EnrollmentDemoSeedService {
     try {
       console.log('🚀 Starting Phase 1: Database Foundation & Demo Data seeding...');
       
+      // Validate auth before starting the seeding process
+      await this.validateAuth();
+      
       // Clear existing data first
       await this.clearExistingData();
       
-      // Seed all components
-      await Promise.all([
+      // Seed all components with enhanced error handling
+      console.log('🌱 Seeding all demo data components...');
+      const seedResults = await Promise.allSettled([
         this.seedPlays(),
         this.seedPolicies(),
         this.seedStudentActions(),
         this.seedProgramConfigurations()
       ]);
+
+      // Check for any failed seeds
+      const failedSeeds = seedResults.filter(result => result.status === 'rejected');
+      if (failedSeeds.length > 0) {
+        console.error('⚠️ Some seed operations failed:', failedSeeds);
+        const authErrors = failedSeeds.some(seed => 
+          seed.status === 'rejected' && 
+          (seed.reason?.message?.includes('JWT') || seed.reason?.message?.includes('expired'))
+        );
+        
+        if (authErrors) {
+          throw new Error('Authentication failed during seeding - session may have expired');
+        }
+        
+        throw new Error(`${failedSeeds.length} seed operations failed`);
+      }
 
       console.log('🎉 Phase 1 seeding completed successfully!');
       return true;

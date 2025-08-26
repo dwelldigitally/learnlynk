@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { enrollmentSeedService } from '@/services/enrollmentSeedService';
 import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuthRetry } from '@/hooks/useAuthRetry';
 
 interface DataInitializerProps {
   children: React.ReactNode;
@@ -11,65 +12,137 @@ interface DataInitializerProps {
 
 export function DataInitializer({ children }: DataInitializerProps) {
   const [isInitialized, setIsInitialized] = useState(false);
+  const [initializationError, setInitializationError] = useState<string | null>(null);
+  const initializationAttempted = useRef(false);
   const { toast } = useToast();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, isTokenValid, refreshSession } = useAuth();
+  const { executeWithRetry } = useAuthRetry();
 
   useEffect(() => {
     const initializeData = async () => {
+      // Prevent multiple initialization attempts
+      if (initializationAttempted.current) {
+        console.log('📊 DataInitializer: Skipping - already attempted');
+        return;
+      }
+
+      console.log('📊 DataInitializer: Starting initialization check', {
+        user: !!user,
+        authLoading,
+        isTokenValid,
+        userId: user?.id
+      });
+
       try {
-        // Only seed data if user is authenticated
-        if (!user) {
+        // Only seed data if user is authenticated AND token is valid
+        if (!user || !isTokenValid) {
+          console.log('📊 DataInitializer: No authenticated user or invalid token, skipping initialization');
           setIsInitialized(true);
           return;
         }
 
-        // Check if Phase 1 demo data already exists
-        const { data: existingActions } = await supabase
-          .from('student_actions')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1);
+        initializationAttempted.current = true;
+        console.log('📊 DataInitializer: User authenticated, checking existing data...');
 
-        const { data: existingPlays } = await supabase
-          .from('plays')
-          .select('id')
-          .eq('user_id', user.id)
-          .limit(1);
+        // Use auth retry wrapper for all database operations
+        const checkExistingData = async () => {
+          const [existingActionsResponse, existingPlaysResponse] = await Promise.all([
+            supabase
+              .from('student_actions')
+              .select('id')
+              .eq('user_id', user.id)
+              .limit(1),
+            supabase
+              .from('plays')
+              .select('id')
+              .eq('user_id', user.id)
+              .limit(1)
+          ]);
 
-        if ((!existingActions || existingActions.length === 0) && 
-            (!existingPlays || existingPlays.length === 0)) {
-          console.log('Initializing Phase 1: Database Foundation & Demo Data...');
+          return {
+            existingActions: existingActionsResponse.data,
+            existingPlays: existingPlaysResponse.data,
+            hasError: existingActionsResponse.error || existingPlaysResponse.error
+          };
+        };
+
+        const { existingActions, existingPlays, hasError } = await executeWithRetry(checkExistingData);
+
+        if (hasError) {
+          throw new Error('Failed to check existing data after retry attempts');
+        }
+
+        const hasExistingData = (existingActions && existingActions.length > 0) || 
+                              (existingPlays && existingPlays.length > 0);
+
+        if (!hasExistingData) {
+          console.log('📊 DataInitializer: No existing data found, seeding demo data...');
           
-          // Seed Phase 1 comprehensive demo data
-          await enrollmentDemoSeedService.seedAllDemoData();
+          // Seed data with auth retry protection
+          const seedData = async () => {
+            await enrollmentDemoSeedService.seedAllDemoData();
+            await enrollmentSeedService.seedAll();
+          };
+
+          await executeWithRetry(seedData);
           
-          // Also seed legacy data for compatibility
-          await enrollmentSeedService.seedAll();
-          
+          console.log('📊 DataInitializer: Demo data seeded successfully');
           toast({
-            title: "Phase 1 Complete",
-            description: "Starter plays, policies, and student actions have been loaded",
+            title: "Demo Data Loaded",
+            description: "Starter plays, policies, and student actions are ready",
           });
+        } else {
+          console.log('📊 DataInitializer: Existing data found, skipping seed');
         }
         
         setIsInitialized(true);
-      } catch (error) {
-        console.error('Error initializing data:', error);
+        setInitializationError(null);
+      } catch (error: any) {
+        console.error('📊 DataInitializer: Initialization failed:', error);
+        
+        const errorMessage = error?.message?.includes('JWT expired') || error?.message?.includes('invalid JWT')
+          ? 'Authentication session expired. Please refresh the page.'
+          : 'Failed to initialize demo data. Some features may not be available.';
+        
+        setInitializationError(errorMessage);
         setIsInitialized(true); // Still show the app even if seeding fails
         
         toast({
-          title: "Initialization Warning",
-          description: "Some demo data may not be available",
+          title: "Initialization Error",
+          description: errorMessage,
           variant: "destructive"
         });
       }
     };
 
-    // Don't initialize until auth loading is complete
-    if (!authLoading) {
+    // Only initialize when auth is ready AND we have a valid token
+    if (!authLoading && !initializationAttempted.current) {
       initializeData();
     }
-  }, [user, authLoading, toast]);
+  }, [user, authLoading, isTokenValid, toast, executeWithRetry]);
+
+  // Handle token refresh when needed
+  const handleRetryInitialization = async () => {
+    console.log('📊 DataInitializer: Retrying initialization...');
+    setInitializationError(null);
+    initializationAttempted.current = false;
+    setIsInitialized(false);
+    
+    try {
+      const refreshSuccess = await refreshSession();
+      if (!refreshSuccess) {
+        throw new Error('Failed to refresh session');
+      }
+      // The useEffect will trigger initialization again
+    } catch (error) {
+      console.error('📊 DataInitializer: Failed to refresh session:', error);
+      toast({
+        title: "Session Refresh Failed",
+        description: "Please refresh the page to continue",
+        variant: "destructive"
+      });
+    }
+  };
 
   if (authLoading || !isInitialized) {
     return (
@@ -77,8 +150,19 @@ export function DataInitializer({ children }: DataInitializerProps) {
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
           <p className="text-sm text-muted-foreground">
-            {authLoading ? 'Loading...' : 'Initializing enrollment optimization data...'}
+            {authLoading ? 'Authenticating...' : initializationError ? 'Initialization failed' : 'Initializing enrollment optimization data...'}
           </p>
+          {initializationError && (
+            <div className="space-y-2">
+              <p className="text-sm text-destructive">{initializationError}</p>
+              <button 
+                onClick={handleRetryInitialization}
+                className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+              >
+                Retry Initialization
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );

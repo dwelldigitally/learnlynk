@@ -97,7 +97,11 @@ export function EnhancedTodayCommandCentre() {
   const loadActions = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      console.log('📊 Loading actions - User:', !!user, user?.id);
+      if (!user) {
+        console.log('❌ No user authenticated');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('student_actions')
@@ -107,6 +111,7 @@ export function EnhancedTodayCommandCentre() {
         .order('priority', { ascending: true })
         .order('scheduled_at', { ascending: true });
 
+      console.log('📊 Supabase query result:', { data: data?.length, error });
       if (error) throw error;
       
       const transformedActions = (data || []).map(action => ({
@@ -220,6 +225,13 @@ export function EnhancedTodayCommandCentre() {
       a.reason_chips?.some(chip => chip.includes('deposit') || chip.includes('decision'))
     )
   };
+
+  // Debug logging for categorized actions
+  console.log('📊 Categorized actions:', {
+    total: filteredActions.length,
+    calls: categorizedActions.calls.length,
+    callsData: categorizedActions.calls.map(a => ({ id: a.id, type: a.action_type, student: a.metadata?.student_name }))
+  });
 
   if (loading) {
     return (

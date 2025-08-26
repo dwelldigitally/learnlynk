@@ -47,6 +47,15 @@ export function CallsToMakeWidget({
   onToggleAll,
   showBulkActions = true  // Default to true to enable bulk actions
 }: CallsToMakeWidgetProps) {
+  // Debug logging
+  console.log('📞 CallsToMakeWidget rendered:', {
+    actionsCount: actions.length,
+    selectedItemsCount: selectedItems.length,
+    showBulkActions,
+    hasToggleItem: !!onToggleItem,
+    hasToggleAll: !!onToggleAll,
+    actions: actions.map(a => ({ id: a.id, type: a.action_type, student: a.metadata?.student_name }))
+  });
   const [bulkActionType, setBulkActionType] = useState<'call' | 'email' | null>(null);
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   

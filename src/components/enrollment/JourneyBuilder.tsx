@@ -3,6 +3,7 @@ import { UniversalBuilder } from '@/components/universal-builder/UniversalBuilde
 import { BuilderConfig } from '@/types/universalBuilder';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { AcademicJourneyService } from '@/services/academicJourneyService';
 interface JourneyBuilderProps {
   onBack: () => void;
 }
@@ -20,13 +21,41 @@ export function JourneyBuilder({
   };
   const handleSave = async (config: BuilderConfig) => {
     try {
-      // Here you would save the journey configuration to your backend
-      console.log('Saving journey config:', config);
+      // Create the academic journey in the database
+      const journey = await AcademicJourneyService.createAcademicJourney({
+        name: config.name,
+        description: config.description,
+        is_active: true,
+        version: 1,
+        metadata: { builder_config: config }
+      });
+
+      // Create journey stages for each element in the config
+      for (let i = 0; i < config.elements.length; i++) {
+        const element = config.elements[i];
+        await AcademicJourneyService.createJourneyStage({
+          journey_id: journey.id,
+          name: element.title || `Step ${i + 1}`,
+          description: element.config?.description || '',
+          stage_type: element.config?.stage_type || 'custom',
+          order_index: i,
+          is_required: element.config?.is_required || true,
+          is_parallel: false,
+          status: 'active',
+          timing_config: {
+            stall_threshold_days: element.config?.stall_threshold_days || 7,
+            expected_duration_days: element.config?.expected_duration_days || 3
+          },
+          completion_criteria: element.config?.completion_criteria || {},
+          escalation_rules: element.config?.escalation_rules || {}
+        });
+      }
+
       toast.success('Journey saved successfully!');
-      // You can integrate with your existing academic journey service here
+      onBack(); // Return to journey list
     } catch (error) {
       console.error('Error saving journey:', error);
-      toast.error('Failed to save journey');
+      toast.error('Failed to save journey. Please try again.');
     }
   };
   const handleCancel = () => {

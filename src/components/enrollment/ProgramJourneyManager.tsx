@@ -8,7 +8,7 @@ import { usePrograms } from '@/services/programService';
 import { useAcademicJourneys, useCreateJourneyFromTemplate } from '@/services/academicJourneyService';
 import { JourneyBuilder } from './JourneyBuilder';
 import { JourneyPlayMapper } from '@/components/admin/JourneyPlayMapper';
-import { BookOpen, Plus, Settings, Eye, ArrowRight, Users, Clock } from 'lucide-react';
+import { BookOpen, Plus, Settings, Eye, ArrowRight, Users, Clock, ArrowLeft, Package } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function ProgramJourneyManager() {
@@ -17,6 +17,7 @@ export function ProgramJourneyManager() {
   const [showJourneyBuilder, setShowJourneyBuilder] = useState(false);
   const [showPlayMapper, setShowPlayMapper] = useState(false);
   const [selectedJourney, setSelectedJourney] = useState<any>(null);
+  const [selectedJourneyPreview, setSelectedJourneyPreview] = useState<any>(null);
   
   const { toast } = useToast();
   const { data: programs } = usePrograms();
@@ -61,6 +62,10 @@ export function ProgramJourneyManager() {
     return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
   };
 
+  const handlePreviewJourney = (journey: any) => {
+    setSelectedJourneyPreview(journey);
+  };
+
   if (showPlayMapper && selectedJourney) {
     return (
       <div className="space-y-6">
@@ -86,6 +91,63 @@ export function ProgramJourneyManager() {
             // Optionally refresh data
           }}
         />
+      </div>
+    );
+  }
+
+  if (selectedJourneyPreview) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Journey Preview: {selectedJourneyPreview.name}</h1>
+            <p className="text-muted-foreground">{selectedJourneyPreview.description}</p>
+          </div>
+          <Button variant="outline" onClick={() => setSelectedJourneyPreview(null)}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Journeys
+          </Button>
+        </div>
+
+        <div className="grid gap-4">
+          {selectedJourneyPreview.stages && selectedJourneyPreview.stages.length > 0 ? (
+            selectedJourneyPreview.stages
+              .sort((a: any, b: any) => a.order_index - b.order_index)
+              .map((stage: any, index: number) => (
+                <Card key={stage.id} className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-sm font-semibold">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold">{stage.name}</h3>
+                        <Badge variant="outline" className="capitalize">
+                          {stage.stage_type.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{stage.description}</p>
+                      <div className="flex gap-4 text-xs text-muted-foreground">
+                        <span>Duration: {stage.timing_config?.expected_duration_days || 'N/A'} days</span>
+                        <span>Required: {stage.is_required ? 'Yes' : 'No'}</span>
+                        <span>Status: {stage.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))
+          ) : (
+            <Card className="p-12 text-center">
+              <div className="space-y-3">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                  <Package className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold">No Steps Configured</h3>
+                <p className="text-muted-foreground">This journey doesn't have any steps configured yet.</p>
+              </div>
+            </Card>
+          )}
+        </div>
       </div>
     );
   }
@@ -193,6 +255,11 @@ export function ProgramJourneyManager() {
                   </div>
                   
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Settings className="h-4 w-4" />
+                    <span>{journey.stages?.length || 0} steps configured</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="h-4 w-4" />
                     <span>Version {journey.version}</span>
                   </div>
@@ -215,9 +282,14 @@ export function ProgramJourneyManager() {
                       <Settings className="h-4 w-4 mr-1" />
                       Configure Plays
                     </Button>
-                    <Button variant="outline" size="sm" className="flex-1">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handlePreviewJourney(journey)}
+                    >
                       <Eye className="h-4 w-4 mr-1" />
-                      Preview
+                      Preview ({journey.stages?.length || 0})
                     </Button>
                   </div>
                 </div>

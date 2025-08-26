@@ -14,6 +14,8 @@ import { CanvasArea } from './CanvasArea';
 import { PropertyPanel } from './PropertyPanel';
 import { ActionsSidebar } from './ActionsSidebar';
 import { PreviewPanel } from './PreviewPanel';
+import { JourneyElementPalette } from '@/components/journey-builder/JourneyElementPalette';
+import { JourneyPropertyPanel } from '@/components/journey-builder/JourneyPropertyPanel';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { 
@@ -220,10 +222,7 @@ function UniversalBuilderContent({
                 <>
                   {/* Left Sidebar - Journey Element Palette */}
                   <div className="w-80 space-y-4">
-                    {React.createElement(
-                      require('@/components/journey-builder/JourneyElementPalette').JourneyElementPalette,
-                      { onAddElement: handleAddElement }
-                    )}
+                    <JourneyElementPalette onAddElement={handleAddElement} />
                   </div>
 
                   {/* Center - Sequential Journey Canvas */}
@@ -237,9 +236,7 @@ function UniversalBuilderContent({
 
                   {/* Right Sidebar - Journey Property Panel */}
                   <div className="w-80 space-y-4">
-                    {React.createElement(
-                      require('@/components/journey-builder/JourneyPropertyPanel').JourneyPropertyPanel
-                    )}
+                    <JourneyPropertyPanel />
                   </div>
                 </>
               )}

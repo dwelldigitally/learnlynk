@@ -180,6 +180,8 @@ function getDefaultElementType(builderType: string): string {
       return 'trigger';
     case 'campaign':
       return 'email';
+    case 'journey':
+      return 'phone-interview';
     default:
       return 'text';
   }

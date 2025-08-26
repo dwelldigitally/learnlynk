@@ -33,6 +33,7 @@ export function ElementPalette({ onAddElement }: ElementPaletteProps) {
           {state.config.type === 'form' && 'Form Fields'}
           {state.config.type === 'workflow' && 'Workflow Elements'}
           {state.config.type === 'campaign' && 'Campaign Steps'}
+          {state.config.type === 'journey' && 'Journey Steps'}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">

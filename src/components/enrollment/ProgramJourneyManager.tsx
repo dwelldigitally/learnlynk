@@ -88,7 +88,7 @@ export function ProgramJourneyManager() {
             Back to Manager
           </Button>
         </div>
-        <JourneyBuilder />
+        <JourneyBuilder onBack={() => setShowJourneyBuilder(false)} />
       </div>
     );
   }

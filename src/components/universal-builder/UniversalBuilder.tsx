@@ -141,6 +141,8 @@ function UniversalBuilderContent({
         return 'Workflow Builder';
       case 'campaign':
         return 'Campaign Builder';
+      case 'journey':
+        return 'Journey Builder';
       default:
         return 'Universal Builder';
     }
@@ -213,30 +215,77 @@ function UniversalBuilderContent({
 
           <TabsContent value="build" className="flex-1 flex overflow-hidden m-0">
             <div className="flex-1 flex gap-4 p-4">
-              {/* Left Sidebar - Element Palette (only for forms) */}
-              {state.config.type === 'form' && (
-                <div className="w-64 flex-shrink-0">
-                  <ElementPalette onAddElement={handleAddElement} />
-                </div>
+              {/* Journey Builder Layout */}
+              {state.config.type === 'journey' && (
+                <>
+                  {/* Left Sidebar - Journey Element Palette */}
+                  <div className="w-80 space-y-4">
+                    {React.createElement(
+                      require('@/components/journey-builder/JourneyElementPalette').JourneyElementPalette,
+                      { onAddElement: handleAddElement }
+                    )}
+                  </div>
+
+                  {/* Center - Sequential Journey Canvas */}
+                  <div className="flex-1 overflow-auto">
+                    {state.isPreviewMode ? (
+                      <PreviewPanel />
+                    ) : (
+                      <CanvasArea onAddElement={handleAddElement} />
+                    )}
+                  </div>
+
+                  {/* Right Sidebar - Journey Property Panel */}
+                  <div className="w-80 space-y-4">
+                    {React.createElement(
+                      require('@/components/journey-builder/JourneyPropertyPanel').JourneyPropertyPanel
+                    )}
+                  </div>
+                </>
               )}
 
-              {/* Center - Canvas */}
-              <div className={`flex-1 overflow-auto ${state.config.type === 'form' ? '' : 'max-w-4xl mx-auto'}`}>
-                {state.isPreviewMode ? (
-                  <PreviewPanel />
-                ) : (
-                  <CanvasArea onAddElement={handleAddElement} />
-                )}
-              </div>
+              {/* Form Builder Layout */}
+              {state.config.type === 'form' && (
+                <>
+                  {/* Left Sidebar - Element Palette */}
+                  <div className="w-64 flex-shrink-0">
+                    <ElementPalette onAddElement={handleAddElement} />
+                  </div>
 
-              {/* Right Sidebar - Properties or Actions */}
-              <div className="w-80 flex-shrink-0">
-                {state.config.type === 'form' ? (
-                  <PropertyPanel />
-                ) : (
-                  <ActionsSidebar onAddElement={handleAddElement} />
-                )}
-              </div>
+                  {/* Center - Canvas */}
+                  <div className="flex-1 overflow-auto">
+                    {state.isPreviewMode ? (
+                      <PreviewPanel />
+                    ) : (
+                      <CanvasArea onAddElement={handleAddElement} />
+                    )}
+                  </div>
+
+                  {/* Right Sidebar - Properties */}
+                  <div className="w-80 flex-shrink-0">
+                    <PropertyPanel />
+                  </div>
+                </>
+              )}
+
+              {/* Workflow/Campaign Builder Layout */}
+              {(state.config.type === 'workflow' || state.config.type === 'campaign') && (
+                <>
+                  {/* Center - Canvas */}
+                  <div className="flex-1 overflow-auto max-w-4xl mx-auto">
+                    {state.isPreviewMode ? (
+                      <PreviewPanel />
+                    ) : (
+                      <CanvasArea onAddElement={handleAddElement} />
+                    )}
+                  </div>
+
+                  {/* Right Sidebar - Actions */}
+                  <div className="w-80 flex-shrink-0">
+                    <ActionsSidebar onAddElement={handleAddElement} />
+                  </div>
+                </>
+              )}
             </div>
           </TabsContent>
 
@@ -287,6 +336,7 @@ function UniversalBuilderContent({
                       <SelectItem value="form">Form</SelectItem>
                       <SelectItem value="workflow">Workflow</SelectItem>
                       <SelectItem value="campaign">Campaign</SelectItem>
+                      <SelectItem value="journey">Journey</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

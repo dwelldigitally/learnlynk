@@ -21,6 +21,12 @@ export function CanvasArea({ onAddElement }: CanvasAreaProps) {
     return <FlowCanvas onAddElement={onAddElement} />;
   }
 
+  // Use SequentialJourneyCanvas for journeys
+  if (state.config.type === 'journey') {
+    const { SequentialJourneyCanvas } = require('@/components/journey-builder/SequentialJourneyCanvas');
+    return <SequentialJourneyCanvas onAddElement={onAddElement} />;
+  }
+
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 

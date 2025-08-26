@@ -1,4 +1,4 @@
-export type BuilderType = 'form' | 'workflow' | 'campaign';
+export type BuilderType = 'form' | 'workflow' | 'campaign' | 'journey';
 
 export interface BaseElement {
   id: string;
@@ -39,7 +39,23 @@ export interface CampaignElement extends BaseElement {
   splitPercentage?: number;
 }
 
-export type UniversalElement = FormElement | WorkflowElement | CampaignElement;
+export interface JourneyElement extends BaseElement {
+  elementType: 'journey';
+  type: 'phone-interview' | 'video-interview' | 'in-person-interview' | 'document-upload' | 'verification' | 
+        'typing-test' | 'aptitude-test' | 'skills-assessment' | 'application-review' | 'committee-review' | 
+        'notification' | 'reminder';
+  duration?: number;
+  instructions?: string;
+  required?: boolean;
+  schedulingRequired?: boolean;
+  documentType?: string;
+  verificationType?: string;
+  testType?: string;
+  reviewType?: string;
+  notificationType?: string;
+}
+
+export type UniversalElement = FormElement | WorkflowElement | CampaignElement | JourneyElement;
 
 export interface BuilderConfig {
   id?: string;

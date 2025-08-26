@@ -21,13 +21,12 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
-// Temporarily comment out problematic imports
-// import { QuickCommunicationModal } from "./QuickCommunicationModal";
-// import { QuickTaskModal } from "./QuickTaskModal";
-// import { QuickNoteModal } from "./QuickNoteModal";
-// import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
-// import { OutlookCalendarWidget } from "./OutlookCalendarWidget";
-// import { OutlookEmailWidget } from "./OutlookEmailWidget";
+import { QuickCommunicationModal } from "./QuickCommunicationModal";
+import { QuickTaskModal } from "./QuickTaskModal";
+import { QuickNoteModal } from "./QuickNoteModal";
+import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
+import { OutlookCalendarWidget } from "./OutlookCalendarWidget";
+import { OutlookEmailWidget } from "./OutlookEmailWidget";
 
 const AdminHome: React.FC = () => {
   const { profile } = useProfile();
@@ -62,28 +61,28 @@ const AdminHome: React.FC = () => {
       description: "Find and view student information",
       icon: Users,
       color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
-      onClick: () => console.log('Student lookup coming soon') // setShowLookupModal(true)
+      onClick: () => setShowLookupModal(true)
     },
     {
       title: "Send Message",
       description: "Communicate with students or staff",
       icon: MessageSquare,
       color: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
-      onClick: () => console.log('Communication modal coming soon') // setShowCommunicationModal(true)
+      onClick: () => setShowCommunicationModal(true)
     },
     {
       title: "Create Task",
       description: "Add a new task or reminder",
       icon: Plus,
       color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
-      onClick: () => console.log('Task modal coming soon') // setShowTaskModal(true)
+      onClick: () => setShowTaskModal(true)
     },
     {
       title: "Add Note",
       description: "Quick note about a student or event",
       icon: StickyNote,
       color: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
-      onClick: () => console.log('Note modal coming soon') // setShowNoteModal(true)
+      onClick: () => setShowNoteModal(true)
     },
     {
       title: "Help Center",
@@ -139,20 +138,10 @@ const AdminHome: React.FC = () => {
           </div>
         </div>
 
-        {/* Outlook Integrations - Temporarily disabled to fix loading issue */}
+        {/* Outlook Integrations */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <Calendar className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Outlook Calendar integration coming soon</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6 text-center">
-              <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">Outlook Email integration coming soon</p>
-            </CardContent>
-          </Card>
+          <OutlookCalendarWidget />
+          <OutlookEmailWidget />
         </div>
 
         {/* Quick Actions Grid */}
@@ -244,8 +233,7 @@ const AdminHome: React.FC = () => {
         </Card>
       </div>
       
-      {/* Modal Components - Temporarily disabled */}
-      {/*
+      {/* Modal Components */}
       <QuickCommunicationModal 
         open={showCommunicationModal} 
         onOpenChange={setShowCommunicationModal} 
@@ -262,7 +250,6 @@ const AdminHome: React.FC = () => {
         open={showLookupModal} 
         onOpenChange={setShowLookupModal} 
       />
-      */}
     </div>
   );
 };

@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Mail, MessageSquare, Send, Clock } from 'lucide-react';
+import { Mail, MessageSquare, Send, Clock, Phone } from 'lucide-react';
 
 interface StudentAction {
   id: string;
@@ -64,8 +64,31 @@ export function CommunicationsWidget({
   };
 
   const handleStudentClick = (studentName: string, studentId?: string) => {
-    // Navigate to student details page
-    console.log('Navigate to student:', studentName, studentId);
+    // Navigate to student details page - would need router integration
+    window.open(`/admin/students/${studentId || 'unknown'}`, '_blank');
+  };
+
+  const handleQuickAction = (action: StudentAction, actionType: 'email' | 'sms' | 'call') => {
+    const contact = action.metadata?.contact_info;
+    switch (actionType) {
+      case 'email':
+        if (contact?.email) {
+          window.open(`mailto:${contact.email}?subject=Re: ${action.instruction}`, '_blank');
+        }
+        break;
+      case 'sms':
+        if (contact?.phone) {
+          window.open(`sms:${contact.phone}`, '_blank');
+        }
+        break;
+      case 'call':
+        if (contact?.phone) {
+          window.open(`tel:${contact.phone}`, '_blank');
+        }
+        break;
+    }
+    // Mark action as completed
+    onCompleteAction(action.id);
   };
 
   const getActionLabel = (actionType: string) => {
@@ -109,9 +132,10 @@ export function CommunicationsWidget({
       </CardHeader>
       <CardContent className="space-y-3">
         {actions.length === 0 ? (
-          <div className="text-center py-4 text-muted-foreground">
+          <div className="text-center py-6 text-muted-foreground">
             <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No messages to send</p>
+            <p className="text-sm font-medium mb-1">No communications pending</p>
+            <p className="text-xs">Email and SMS actions will appear here when available</p>
           </div>
         ) : (
           actions.slice(0, 4).map((action) => {
@@ -120,11 +144,11 @@ export function CommunicationsWidget({
             return (
               <div 
                 key={action.id}
-                className={`p-3 rounded-lg border transition-colors ${
+                className={`p-3 rounded-lg border transition-all duration-200 hover:shadow-md ${
                   overdue 
-                    ? 'bg-destructive/10 border-destructive/30' 
-                    : 'bg-background border-border'
-                } ${selectedItems.includes(action.id) ? 'ring-2 ring-primary' : ''}`}
+                    ? 'bg-destructive/10 border-destructive/30 hover:bg-destructive/15' 
+                    : 'bg-background border-border hover:bg-accent/50'
+                } ${selectedItems.includes(action.id) ? 'ring-2 ring-primary shadow-lg' : ''}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-start space-x-3 flex-1 min-w-0">
@@ -204,14 +228,51 @@ export function CommunicationsWidget({
                     </div>
                   </div>
                   
-                  <Button
-                    size="sm"
-                    variant={overdue ? "destructive" : "outline"}
-                    className="ml-2 h-6 px-2 text-xs"
-                    onClick={() => onCompleteAction(action.id)}
-                  >
-                    Send
-                  </Button>
+                  <div className="flex items-center space-x-1">
+                    {/* Quick Action Buttons */}
+                    {action.metadata?.contact_info?.email && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 hover:bg-primary/10"
+                        onClick={() => handleQuickAction(action, 'email')}
+                        title="Send Email"
+                      >
+                        <Mail className="h-3 w-3" />
+                      </Button>
+                    )}
+                    {action.metadata?.contact_info?.phone && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-primary/10"
+                          onClick={() => handleQuickAction(action, 'call')}
+                          title="Call"
+                        >
+                          <Phone className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 w-6 p-0 hover:bg-primary/10"
+                          onClick={() => handleQuickAction(action, 'sms')}
+                          title="Send SMS"
+                        >
+                          <MessageSquare className="h-3 w-3" />
+                        </Button>
+                      </>
+                    )}
+                    
+                    <Button
+                      size="sm"
+                      variant={overdue ? "destructive" : "outline"}
+                      className="ml-2 h-6 px-2 text-xs hover:scale-105 transition-transform"
+                      onClick={() => onCompleteAction(action.id)}
+                    >
+                      Send
+                    </Button>
+                  </div>
                 </div>
               </div>
             );

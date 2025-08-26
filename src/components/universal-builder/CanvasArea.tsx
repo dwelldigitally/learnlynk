@@ -7,6 +7,7 @@ import { useBuilder } from '@/contexts/BuilderContext';
 import { UniversalElement } from '@/types/universalBuilder';
 import { ElementRenderer } from './ElementRenderer';
 import { FlowCanvas } from './FlowCanvas';
+import { SequentialJourneyCanvas } from '@/components/journey-builder/SequentialJourneyCanvas';
 import { Plus, Trash2, Copy } from 'lucide-react';
 
 interface CanvasAreaProps {
@@ -23,7 +24,6 @@ export function CanvasArea({ onAddElement }: CanvasAreaProps) {
 
   // Use SequentialJourneyCanvas for journeys
   if (state.config.type === 'journey') {
-    const { SequentialJourneyCanvas } = require('@/components/journey-builder/SequentialJourneyCanvas');
     return <SequentialJourneyCanvas onAddElement={onAddElement} />;
   }
 

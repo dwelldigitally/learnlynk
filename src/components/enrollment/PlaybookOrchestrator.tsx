@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Workflow, MessageSquare, Phone, FileText, CheckCircle, Settings, Shield } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Workflow, MessageSquare, Phone, FileText, CheckCircle, Settings, Shield, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { PlaybookCard } from './PlaybookCard';
 import { PolicyConfigurationService, type PolicyConfig } from '@/services/policyConfigurationService';
+import { PlaybookWizard, type PlaybookData } from './wizard/PlaybookWizard';
 
 interface PlaybookMeta {
   id: string;
@@ -22,6 +24,7 @@ export function PlaybookOrchestrator() {
   const [playbooks, setPlaybooks] = useState<PolicyConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
+  const [showWizard, setShowWizard] = useState(false);
   const { toast } = useToast();
 
   const playbookMeta: Record<string, PlaybookMeta> = {
@@ -188,6 +191,10 @@ export function PlaybookOrchestrator() {
             <Workflow className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium text-foreground">Auto-Orchestration</span>
           </div>
+          <Button onClick={() => setShowWizard(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Create Custom Playbook
+          </Button>
         </div>
       </div>
 
@@ -413,6 +420,38 @@ export function PlaybookOrchestrator() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Playbook Wizard */}
+      {showWizard && (
+        <PlaybookWizard
+          onClose={() => setShowWizard(false)}
+          onSave={async (playbookData: PlaybookData) => {
+            try {
+              await PolicyConfigurationService.upsertConfiguration(`custom-${Date.now()}`, {
+                enabled: playbookData.isActive,
+                settings: { 
+                  playbook_type: 'custom',
+                  playbook_data: JSON.parse(JSON.stringify(playbookData))
+                } as any,
+                expected_lift: playbookData.expectedMetrics.estimatedActions
+              });
+              
+              toast({
+                title: "Custom Playbook Created",
+                description: `${playbookData.name} has been created successfully`,
+              });
+              
+              loadPlaybookConfigurations();
+            } catch (error) {
+              toast({
+                title: "Error",
+                description: "Failed to create custom playbook",
+                variant: "destructive"
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

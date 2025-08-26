@@ -53,7 +53,7 @@ import { AIFeaturesPage } from "./AIFeaturesPage";
 import { EnrollmentCommandCenter } from "@/components/enrollment/EnrollmentCommandCenter";
 import { UnifiedPoliciesConfiguration } from "@/components/enrollment/UnifiedPoliciesConfiguration";
 import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrator";
-import { WasteRadarDashboard } from "@/components/enrollment/WasteRadarDashboard";
+
 import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
@@ -188,8 +188,6 @@ const AdminDashboard: React.FC = () => {
         return <PlaybookOrchestrator />;
       case "/admin/enrollment/program-journeys":
         return <ProgramJourneyManager />;
-      case "/admin/enrollment/waste-radar":
-        return <WasteRadarDashboard />;
       case "/admin/enrollment/outcomes":
         return <OutcomesDashboard />;
       case "/admin/ai-intelligence":

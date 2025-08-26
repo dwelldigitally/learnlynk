@@ -60,7 +60,6 @@ export const navigationStructure: NavigationStructure = {
             { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
             { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
             { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
-            { name: "Waste Radar", href: "/admin/enrollment/waste-radar", icon: AlertTriangle },
             { name: "Outcomes 30/60/90", href: "/admin/enrollment/outcomes", icon: BarChart3 }
           ]
         },

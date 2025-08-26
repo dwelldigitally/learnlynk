@@ -57,7 +57,7 @@ export function EnrollmentNotifications() {
           title: 'Document Chase Required',
           message: '12 applicants missing critical documents',
           timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
-          actionUrl: '/admin/enrollment/waste-radar',
+          actionUrl: '/admin/enrollment/today',
           isRead: false
         },
         {

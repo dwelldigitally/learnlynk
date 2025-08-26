@@ -23,6 +23,23 @@ export function ProgramJourneyManager() {
   const { data: journeys, isLoading } = useAcademicJourneys();
   const createJourneyMutation = useCreateJourneyFromTemplate();
 
+  // Auto-seed dummy data on first load
+  React.useEffect(() => {
+    const seedData = async () => {
+      if (!isLoading && (!journeys || journeys.length === 0)) {
+        try {
+          const { ProgramJourneySeeder } = await import('@/services/programJourneySeeder');
+          await ProgramJourneySeeder.seedDummyJourneys();
+          // Optionally refresh the data here by calling a refetch if your hook supports it
+        } catch (error) {
+          console.error('Failed to seed dummy data:', error);
+        }
+      }
+    };
+    
+    seedData();
+  }, [isLoading, journeys]);
+
   const filteredJourneys = journeys?.filter(journey => {
     const matchesSearch = journey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          journey.description?.toLowerCase().includes(searchTerm.toLowerCase());

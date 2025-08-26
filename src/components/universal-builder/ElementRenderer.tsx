@@ -8,8 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { UniversalElement, FormElement, WorkflowElement, CampaignElement } from '@/types/universalBuilder';
-import { Mail, Clock, MessageSquare, Phone, Eye, Send, Filter, TestTube } from 'lucide-react';
+import { UniversalElement, FormElement, WorkflowElement, CampaignElement, JourneyElement } from '@/types/universalBuilder';
+import { Mail, Clock, MessageSquare, Phone, Eye, Send, Filter, TestTube, Users, FileText, GraduationCap, CheckCircle, AlertCircle, Calendar } from 'lucide-react';
 
 interface ElementRendererProps {
   element: UniversalElement;
@@ -29,6 +29,10 @@ export function ElementRenderer({ element, isPreview = false, formData = {}, onF
   
   if (element.elementType === 'campaign') {
     return <CampaignElementRenderer element={element as CampaignElement} isPreview={isPreview} />;
+  }
+
+  if (element.elementType === 'journey') {
+    return <JourneyElementRenderer element={element as JourneyElement} isPreview={isPreview} />;
   }
 
   return <div className="text-muted-foreground text-sm">Unknown element type</div>;
@@ -291,6 +295,125 @@ function CampaignElementRenderer({ element, isPreview }: {
             {element.waitTime && (
               <div className="text-xs text-muted-foreground mt-1">
                 ⏱️ {element.waitTime.value} {element.waitTime.unit}
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function JourneyElementRenderer({ element, isPreview }: {
+  element: JourneyElement;
+  isPreview: boolean;
+}) {
+  const getIcon = () => {
+    switch (element.type) {
+      case 'phone-interview':
+        return Phone;
+      case 'video-interview':
+        return Users;
+      case 'in-person-interview':
+        return Calendar;
+      case 'document-upload':
+        return FileText;
+      case 'verification':
+        return CheckCircle;
+      case 'typing-test':
+      case 'skills-assessment':
+      case 'aptitude-test':
+        return TestTube;
+      case 'application-review':
+      case 'committee-review':
+        return GraduationCap;
+      case 'notification':
+      case 'reminder':
+        return Mail;
+      default:
+        return FileText;
+    }
+  };
+
+  const Icon = getIcon();
+
+  const getStepDescription = () => {
+    switch (element.type) {
+      case 'phone-interview':
+        return 'Conduct phone screening interview';
+      case 'video-interview':
+        return 'Video call assessment';
+      case 'in-person-interview':
+        return 'Face-to-face interview session';
+      case 'document-upload':
+        return 'Required document upload';
+      case 'verification':
+        return 'Verification process';
+      case 'typing-test':
+        return 'Typing speed and accuracy test';
+      case 'skills-assessment':
+        return 'Technical skills assessment';
+      case 'aptitude-test':
+        return 'General aptitude evaluation';
+      case 'application-review':
+        return 'Application review process';
+      case 'committee-review':
+        return 'Committee evaluation';
+      case 'notification':
+        return 'Automated notification';
+      case 'reminder':
+        return 'Reminder message';
+      default:
+        return element.description || 'Journey step';
+    }
+  };
+
+  if (!isPreview) {
+    return (
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          <Badge variant="outline" className="text-xs">
+            {element.type}
+          </Badge>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {getStepDescription()}
+        </div>
+        {element.duration && (
+          <div className="text-xs text-muted-foreground">
+            Duration: {element.duration} minutes
+          </div>
+        )}
+        {element.instructions && (
+          <div className="text-xs text-muted-foreground">
+            Instructions: {element.instructions}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Card className="border-dashed border-primary/30">
+      <CardContent className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+            <Icon className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1">
+            <div className="font-medium text-sm">{element.title}</div>
+            <div className="text-xs text-muted-foreground">
+              {getStepDescription()}
+            </div>
+            {element.duration && (
+              <div className="text-xs text-muted-foreground mt-1">
+                ⏱️ {element.duration} minutes
+              </div>
+            )}
+            {element.instructions && (
+              <div className="text-xs text-muted-foreground mt-1">
+                📋 {element.instructions}
               </div>
             )}
           </div>

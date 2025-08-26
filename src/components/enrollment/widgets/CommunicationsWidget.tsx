@@ -3,6 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Mail, MessageSquare, Send, Clock, Phone } from 'lucide-react';
+import { StudentProfileModal } from '../StudentProfileModal';
+import { EnhancedBulkActionDialog } from '../EnhancedBulkActionDialog';
+import { useState } from 'react';
 
 interface StudentAction {
   id: string;
@@ -35,6 +38,7 @@ interface CommunicationsWidgetProps {
   onToggleItem?: (itemId: string) => void;
   onToggleAll?: (itemIds: string[]) => void;
   showBulkActions?: boolean;
+  onBulkAction?: (actions: StudentAction[], actionType: 'email' | 'call' | 'sms' | 'meeting') => void;
 }
 
 export function CommunicationsWidget({ 
@@ -43,8 +47,12 @@ export function CommunicationsWidget({
   selectedItems = [],
   onToggleItem,
   onToggleAll,
-  showBulkActions = false
+  showBulkActions = false,
+  onBulkAction
 }: CommunicationsWidgetProps) {
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [bulkActionType, setBulkActionType] = useState<'email' | 'call' | 'sms' | 'meeting'>('email');
   const isOverdue = (scheduledAt: string) => new Date(scheduledAt) < new Date();
   
   const getActionIcon = (actionType: string) => {
@@ -64,8 +72,7 @@ export function CommunicationsWidget({
   };
 
   const handleStudentClick = (studentName: string, studentId?: string) => {
-    // Navigate to student details page - would need router integration
-    window.open(`/admin/students/${studentId || 'unknown'}`, '_blank');
+    setSelectedStudentId(studentId || 'unknown');
   };
 
   const handleQuickAction = (action: StudentAction, actionType: 'email' | 'sms' | 'call') => {
@@ -99,9 +106,22 @@ export function CommunicationsWidget({
     }
   };
 
+  const handleBulkAction = (actionType: 'email' | 'call' | 'sms' | 'meeting') => {
+    setBulkActionType(actionType);
+    setShowBulkDialog(true);
+  };
+
+  const handleBulkExecute = (actionsToExecute: StudentAction[], customMessage?: string) => {
+    if (onBulkAction) {
+      onBulkAction(actionsToExecute, bulkActionType);
+    }
+    setShowBulkDialog(false);
+  };
+
   const actionIds = actions.map(action => action.id);
   const isAllSelected = actionIds.length > 0 && actionIds.every(id => selectedItems.includes(id));
   const isPartiallySelected = selectedItems.length > 0 && selectedItems.length < actionIds.length && actionIds.some(id => selectedItems.includes(id));
+  const selectedActions = actions.filter(action => selectedItems.includes(action.id));
 
   return (
     <Card className="border-border bg-muted/30">
@@ -286,7 +306,50 @@ export function CommunicationsWidget({
             </Button>
           </div>
         )}
+
+        {/* Bulk Actions */}
+        {showBulkActions && selectedItems.length > 0 && (
+          <div className="mt-4 p-3 bg-muted/50 rounded-lg border-t">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">{selectedItems.length} actions selected</span>
+              <div className="flex items-center space-x-2">
+                <Button size="sm" onClick={() => handleBulkAction('email')}>
+                  <Mail className="h-3 w-3 mr-1" />
+                  Bulk Email
+                </Button>
+                <Button size="sm" onClick={() => handleBulkAction('call')}>
+                  <Phone className="h-3 w-3 mr-1" />
+                  Bulk Call
+                </Button>
+                <Button size="sm" onClick={() => handleBulkAction('sms')}>
+                  <MessageSquare className="h-3 w-3 mr-1" />
+                  Bulk SMS
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
+
+      {/* Student Profile Modal */}
+      <StudentProfileModal
+        studentId={selectedStudentId}
+        isOpen={!!selectedStudentId}
+        onClose={() => setSelectedStudentId(null)}
+        onQuickAction={(action, studentId) => {
+          console.log('Quick action:', action, 'for student:', studentId);
+          // Handle quick actions from student profile
+        }}
+      />
+
+      {/* Enhanced Bulk Action Dialog */}
+      <EnhancedBulkActionDialog
+        isOpen={showBulkDialog}
+        onClose={() => setShowBulkDialog(false)}
+        selectedActions={selectedActions}
+        actionType={bulkActionType}
+        onExecute={handleBulkExecute}
+      />
     </Card>
   );
 }

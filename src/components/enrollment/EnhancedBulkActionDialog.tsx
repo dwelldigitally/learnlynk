@@ -1,29 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Phone, 
-  Mail, 
-  Calendar, 
-  X, 
-  User, 
-  Brain, 
-  BookOpen,
-  Sparkles,
-  Eye,
-  Send
-} from 'lucide-react';
-
-import { StudentHistoryPanel } from './StudentHistoryPanel';
-import { PlaybookAuditTrail } from './PlaybookAuditTrail';
-import { AIRecommendationsPanel } from './AIRecommendationsPanel';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Bot, Mail, Phone, MessageSquare, Calendar, Star, Clock, Play, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface StudentAction {
   id: string;
@@ -35,491 +19,404 @@ interface StudentAction {
     student_name?: string;
     program?: string;
     yield_score?: number;
+    yield_band?: string;
     contact_info?: {
       email?: string;
       phone?: string;
     };
-    // Journey/Play Traceability
     journey_name?: string;
     stage_name?: string;
     play_name?: string;
-    play_category?: string;
     generation_source?: string;
     journey_context?: boolean;
   };
 }
 
+interface AIRecommendation {
+  student_id: string;
+  student_name: string;
+  confidence: number;
+  success_probability: number;
+  reasoning: string;
+  personalized_message?: string;
+  best_timing?: string;
+  risk_factors?: string[];
+  historical_performance?: {
+    similar_leads: number;
+    success_rate: number;
+    avg_response_time: string;
+  };
+}
+
+interface BulkActionSummary {
+  total_leads: number;
+  high_confidence: number;
+  medium_confidence: number;
+  low_confidence: number;
+  avg_success_rate: number;
+  estimated_completion_time: string;
+  recommended_action_type: string;
+}
+
 interface EnhancedBulkActionDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  actionType: 'call' | 'email' | 'sms' | 'meeting';
-  selectedStudents: StudentAction[];
-  onExecute: (config: any) => void;
+  selectedActions: StudentAction[];
+  actionType: 'email' | 'call' | 'sms' | 'meeting';
+  onExecute: (actions: StudentAction[], customMessage?: string) => void;
 }
-
-// Mock data generators
-const generateStudentHistory = (studentId: string) => [
-  {
-    id: '1',
-    type: 'communication' as const,
-    timestamp: '2024-08-20T10:00:00Z',
-    title: 'Welcome Email Sent',
-    description: 'Automated welcome email delivered successfully',
-    outcome: 'success' as const,
-  },
-  {
-    id: '2',
-    type: 'action' as const,
-    timestamp: '2024-08-22T14:30:00Z',
-    title: 'Follow-up Call Scheduled',
-    description: 'Scheduled follow-up call for program discussion',
-    outcome: 'pending' as const,
-  },
-  {
-    id: '3',
-    type: 'journey_transition' as const,
-    timestamp: '2024-08-23T09:15:00Z',
-    title: 'Moved to Consideration Stage',
-    description: 'Student progressed in enrollment journey',
-    outcome: 'success' as const,
-  },
-];
-
-const generatePlaybookExecutions = (actionId: string) => [
-  {
-    id: '1',
-    playbook_name: 'High-Yield Prospect Nurturing',
-    journey_name: 'MBA Enrollment Journey',
-    stage_name: 'Interest Confirmation',
-    started_at: '2024-08-20T08:00:00Z',
-    status: 'active' as const,
-    success_rate: 85,
-    steps: [
-      {
-        id: '1',
-        name: 'Send Welcome Email',
-        type: 'action' as const,
-        status: 'completed' as const,
-        timestamp: '2024-08-20T08:05:00Z',
-        outcome: 'Email delivered successfully',
-      },
-      {
-        id: '2',
-        name: 'Wait 2 Days',
-        type: 'delay' as const,
-        status: 'completed' as const,
-        timestamp: '2024-08-22T08:05:00Z',
-      },
-      {
-        id: '3',
-        name: 'Schedule Follow-up Call',
-        type: 'action' as const,
-        status: 'current' as const,
-        timestamp: '2024-08-22T08:10:00Z',
-      },
-      {
-        id: '4',
-        name: 'Check Response',
-        type: 'condition' as const,
-        status: 'pending' as const,
-      },
-    ],
-    performance_metrics: {
-      avg_response_time: 4.2,
-      completion_rate: 78,
-      conversion_impact: 23,
-    },
-  },
-];
-
-const generateAIRecommendations = (actionType: string) => [
-  {
-    id: '1',
-    type: 'message' as const,
-    title: 'Personalized Opening Script',
-    description: 'AI-generated opening based on student\'s program interest and engagement history',
-    confidence_score: 92,
-    reasoning: 'Based on this student\'s high yield score and previous interactions with program materials, a consultative approach focusing on career outcomes will be most effective.',
-    suggested_content: `Hi [Student Name], I noticed you've been exploring our [Program] materials extensively. Based on your background in [Previous Experience], I'd love to discuss how this program can accelerate your career goals. Are you available for a quick 15-minute call this week?`,
-    success_probability: 78,
-    estimated_impact: 'high' as const,
-  },
-  {
-    id: '2',
-    type: 'timing' as const,
-    title: 'Optimal Contact Time',
-    description: 'Best time to reach this student based on their activity patterns',
-    confidence_score: 87,
-    reasoning: 'Student typically engages with emails between 2-4 PM on weekdays and shows higher response rates on Tuesday-Thursday.',
-    optimal_timing: 'Tuesday-Thursday, 2:00-4:00 PM EST',
-    success_probability: 65,
-    estimated_impact: 'medium' as const,
-  },
-  {
-    id: '3',
-    type: 'alternative_action' as const,
-    title: 'Alternative Approach',
-    description: 'Consider a different action type for better results',
-    confidence_score: 73,
-    reasoning: 'This student has not responded to previous calls but has high email engagement. Consider starting with email.',
-    success_probability: 82,
-    estimated_impact: 'high' as const,
-  },
-];
 
 export function EnhancedBulkActionDialog({
   isOpen,
   onClose,
+  selectedActions,
   actionType,
-  selectedStudents,
   onExecute
 }: EnhancedBulkActionDialogProps) {
-  const [actionData, setActionData] = useState({
-    subject: '',
-    content: '',
-    template: '',
-    notes: '',
-    scheduledDate: '',
-    scheduledTime: '',
-  });
+  const [loading, setLoading] = useState(true);
+  const [aiRecommendations, setAIRecommendations] = useState<AIRecommendation[]>([]);
+  const [bulkSummary, setBulkSummary] = useState<BulkActionSummary | null>(null);
+  const [customMessage, setCustomMessage] = useState('');
+  const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const [selectedStudentIndex, setSelectedStudentIndex] = useState(0);
-  const [activeTab, setActiveTab] = useState('config');
+  useEffect(() => {
+    if (isOpen && selectedActions.length > 0) {
+      setSelectedLeads(selectedActions.map(action => action.id));
+      generateAIRecommendations();
+    }
+  }, [isOpen, selectedActions]);
 
-  const getActionConfig = () => {
-    switch (actionType) {
-      case 'call':
-        return {
-          title: 'Bulk Call Campaign',
-          icon: Phone,
-          templates: [
-            { id: 'intro', name: 'Introduction Call', content: 'Hi [Name], I wanted to reach out to discuss your interest in our [Program] program...' },
-            { id: 'follow_up', name: 'Follow-up Call', content: 'Hi [Name], following up on your application for [Program]...' },
-          ],
-        };
-      case 'email':
-        return {
-          title: 'Bulk Email Campaign',
-          icon: Mail,
-          templates: [
-            { id: 'welcome', name: 'Welcome Email', content: 'Welcome to [Program]! We\'re excited to help you achieve your goals...' },
-            { id: 'reminder', name: 'Application Reminder', content: 'Don\'t forget to complete your application for [Program]...' },
-          ],
-        };
-      case 'meeting':
-        return {
-          title: 'Bulk Meeting Scheduling',
-          icon: Calendar,
-          templates: [
-            { id: 'consultation', name: 'Program Consultation', content: 'Schedule a consultation to discuss how [Program] can help you...' },
-          ],
-        };
-      default:
-        return { title: 'Bulk Action', icon: User, templates: [] };
+  const generateAIRecommendations = async () => {
+    setLoading(true);
+    try {
+      // Mock AI analysis - replace with actual API call
+      const mockRecommendations: AIRecommendation[] = selectedActions.map((action, index) => ({
+        student_id: action.id,
+        student_name: action.metadata?.student_name || 'Student',
+        confidence: Math.floor(75 + Math.random() * 20), // 75-95%
+        success_probability: Math.floor(60 + Math.random() * 30), // 60-90%
+        reasoning: getPersonalizedReasoning(action),
+        personalized_message: getPersonalizedMessage(action, actionType),
+        best_timing: getBestTiming(action),
+        risk_factors: getRiskFactors(action),
+        historical_performance: {
+          similar_leads: Math.floor(50 + Math.random() * 200),
+          success_rate: Math.floor(65 + Math.random() * 25),
+          avg_response_time: `${Math.floor(2 + Math.random() * 12)}h`
+        }
+      }));
+
+      const summary: BulkActionSummary = {
+        total_leads: selectedActions.length,
+        high_confidence: mockRecommendations.filter(r => r.confidence >= 85).length,
+        medium_confidence: mockRecommendations.filter(r => r.confidence >= 70 && r.confidence < 85).length,
+        low_confidence: mockRecommendations.filter(r => r.confidence < 70).length,
+        avg_success_rate: Math.round(mockRecommendations.reduce((acc, r) => acc + r.success_probability, 0) / mockRecommendations.length),
+        estimated_completion_time: calculateCompletionTime(selectedActions.length, actionType),
+        recommended_action_type: actionType
+      };
+
+      setAIRecommendations(mockRecommendations);
+      setBulkSummary(summary);
+    } catch (error) {
+      console.error('Error generating AI recommendations:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const config = getActionConfig();
-  const selectedStudent = selectedStudents[selectedStudentIndex];
+  const getPersonalizedReasoning = (action: StudentAction): string => {
+    const reasons = [
+      `${action.metadata?.student_name} has shown high engagement with ${action.metadata?.program} program materials.`,
+      `Student has a ${action.metadata?.yield_score}% yield score, indicating strong conversion potential.`,
+      `Previous communications from ${action.metadata?.journey_name} journey showed positive response patterns.`,
+      `Optimal timing based on student's interaction history and preferences.`
+    ];
+    return reasons[Math.floor(Math.random() * reasons.length)];
+  };
 
-  // Mock data for selected student
-  const studentProfile = selectedStudent ? {
-    id: selectedStudent.id,
-    name: selectedStudent.metadata?.student_name || 'Student',
-    email: selectedStudent.metadata?.contact_info?.email || 'student@example.com',
-    phone: selectedStudent.metadata?.contact_info?.phone,
-    program: selectedStudent.metadata?.program || 'Unknown Program',
-    yield_score: selectedStudent.metadata?.yield_score || 0,
-    revenue_potential: 25000,
-    current_stage: 'Interest Confirmation',
-    journey_name: selectedStudent.metadata?.journey_name,
-    last_contact: '3 days ago',
-    total_interactions: 8,
-    conversion_probability: 67,
-  } : null;
+  const getPersonalizedMessage = (action: StudentAction, type: string): string => {
+    const messages: Record<string, string[]> = {
+      email: [
+        `Hi ${action.metadata?.student_name}, I wanted to follow up on your interest in our ${action.metadata?.program} program...`,
+        `Hello ${action.metadata?.student_name}, I have some exciting updates about the ${action.metadata?.program} curriculum...`,
+        `Dear ${action.metadata?.student_name}, I'd love to discuss how our ${action.metadata?.program} aligns with your career goals...`
+      ],
+      call: [
+        `Script: Warm greeting, mention their interest in ${action.metadata?.program}, ask about their timeline...`,
+        `Talking points: Discuss program benefits, address any concerns, schedule next steps...`,
+        `Approach: Friendly consultation about ${action.metadata?.program} fit and career outcomes...`
+      ],
+      sms: [
+        `Hi ${action.metadata?.student_name}! Quick update on your ${action.metadata?.program} application. Can we chat? - [Your Name]`,
+        `Hello! I have some great news about ${action.metadata?.program}. When's a good time to call? - [Your Name]`,
+        `Hi ${action.metadata?.student_name}, following up on ${action.metadata?.program}. Free for a quick call today? - [Your Name]`
+      ]
+    };
+    const typeMessages = messages[type] || messages.email;
+    return typeMessages[Math.floor(Math.random() * typeMessages.length)];
+  };
 
-  const studentHistory = selectedStudent ? generateStudentHistory(selectedStudent.id) : [];
-  const playbookExecutions = selectedStudent ? generatePlaybookExecutions(selectedStudent.id) : [];
-  const aiRecommendations = generateAIRecommendations(actionType);
+  const getBestTiming = (action: StudentAction): string => {
+    const timings = [
+      'Today 2-4 PM (based on their timezone)',
+      'Tomorrow morning 10-11 AM',
+      'This evening 6-8 PM (their preferred time)',
+      'Within next 2 hours (high engagement window)'
+    ];
+    return timings[Math.floor(Math.random() * timings.length)];
+  };
 
-  const studentContexts = selectedStudents.map(student => ({
-    id: student.id,
-    name: student.metadata?.student_name || 'Student',
-    yield_score: student.metadata?.yield_score || 0,
-    last_interaction: '2 days ago',
-    engagement_level: 'high' as const,
-    preferred_channel: 'email' as const,
-    timezone: 'EST',
-    response_patterns: {
-      best_time: '2:00 PM',
-      avg_response_time: 4.2,
-      preferred_day: 'Tuesday',
-    },
-  }));
+  const getRiskFactors = (action: StudentAction): string[] => {
+    const allRisks = [
+      'No recent engagement (>7 days)',
+      'Multiple unanswered attempts',
+      'Low email open rate',
+      'Timezone mismatch',
+      'Weekend timing'
+    ];
+    return allRisks.slice(0, Math.floor(Math.random() * 3));
+  };
+
+  const calculateCompletionTime = (count: number, type: string): string => {
+    const timePerAction = { email: 2, sms: 1, call: 15, meeting: 5 };
+    const minutes = count * (timePerAction[type as keyof typeof timePerAction] || 5);
+    if (minutes < 60) return `${minutes} minutes`;
+    return `${Math.round(minutes / 60)} hours`;
+  };
+
+  const toggleLead = (leadId: string) => {
+    setSelectedLeads(prev => 
+      prev.includes(leadId) 
+        ? prev.filter(id => id !== leadId)
+        : [...prev, leadId]
+    );
+  };
+
+  const toggleAllLeads = () => {
+    const allIds = aiRecommendations.map(r => r.student_id);
+    setSelectedLeads(prev => 
+      prev.length === allIds.length ? [] : allIds
+    );
+  };
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 85) return 'text-green-600';
+    if (confidence >= 70) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getActionIcon = () => {
+    switch (actionType) {
+      case 'email': return <Mail className="h-4 w-4" />;
+      case 'call': return <Phone className="h-4 w-4" />;
+      case 'sms': return <MessageSquare className="h-4 w-4" />;
+      case 'meeting': return <Calendar className="h-4 w-4" />;
+      default: return <Mail className="h-4 w-4" />;
+    }
+  };
 
   const handleExecute = () => {
-    onExecute({
-      actionType,
-      students: selectedStudents,
-      config: actionData,
-    });
-    onClose();
-  };
-
-  const handleApplyRecommendation = (recommendationId: string, content?: string) => {
-    if (content) {
-      setActionData(prev => ({ ...prev, content }));
-    }
+    const actionsToExecute = selectedActions.filter(action => selectedLeads.includes(action.id));
+    onExecute(actionsToExecute, customMessage);
   };
 
   if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-full h-[90vh] flex flex-col">
-        <DialogHeader className="flex-shrink-0">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+        <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <config.icon className="h-5 w-5" />
-            <span>{config.title}</span>
-            <Badge variant="secondary">{selectedStudents.length} students</Badge>
+            {getActionIcon()}
+            <span>Bulk {actionType.charAt(0).toUpperCase() + actionType.slice(1)} - AI Enhanced</span>
+            <Badge variant="secondary">{selectedActions.length} students</Badge>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex-1 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <TabsList className="grid w-full grid-cols-4 flex-shrink-0">
-              <TabsTrigger value="config" className="flex items-center space-x-2">
-                <Send className="h-4 w-4" />
-                <span>Configuration</span>
-              </TabsTrigger>
-              <TabsTrigger value="ai" className="flex items-center space-x-2">
-                <Brain className="h-4 w-4" />
-                <span>AI Insights</span>
-              </TabsTrigger>
-              <TabsTrigger value="history" className="flex items-center space-x-2">
-                <User className="h-4 w-4" />
-                <span>Student History</span>
-              </TabsTrigger>
-              <TabsTrigger value="audit" className="flex items-center space-x-2">
-                <BookOpen className="h-4 w-4" />
-                <span>Audit Trail</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <div className="flex-1 overflow-hidden">
-              <TabsContent value="config" className="h-full">
-                <div className="grid grid-cols-2 gap-6 h-full">
-                  {/* Configuration Panel */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Template</Label>
-                      <Select onValueChange={(value) => {
-                        const template = config.templates.find(t => t.id === value);
-                        if (template) {
-                          setActionData(prev => ({ 
-                            ...prev, 
-                            template: template.name,
-                            content: template.content 
-                          }));
-                        }
-                      }}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Choose a template" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {config.templates.map(template => (
-                            <SelectItem key={template.id} value={template.id}>
-                              {template.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {actionType === 'email' && (
-                      <div className="space-y-2">
-                        <Label>Subject Line</Label>
-                        <Input
-                          value={actionData.subject}
-                          onChange={(e) => setActionData(prev => ({ ...prev, subject: e.target.value }))}
-                          placeholder="Enter email subject"
-                        />
-                      </div>
-                    )}
-
-                    {actionType === 'meeting' && (
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label>Date</Label>
-                          <Input
-                            type="date"
-                            value={actionData.scheduledDate}
-                            onChange={(e) => setActionData(prev => ({ ...prev, scheduledDate: e.target.value }))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label>Time</Label>
-                          <Input
-                            type="time"
-                            value={actionData.scheduledTime}
-                            onChange={(e) => setActionData(prev => ({ ...prev, scheduledTime: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="space-y-2">
-                      <Label>Content/Script</Label>
-                      <Textarea
-                        value={actionData.content}
-                        onChange={(e) => setActionData(prev => ({ ...prev, content: e.target.value }))}
-                        placeholder={`Enter your ${actionType} content here...`}
-                        className="h-32"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Notes</Label>
-                      <Textarea
-                        value={actionData.notes}
-                        onChange={(e) => setActionData(prev => ({ ...prev, notes: e.target.value }))}
-                        placeholder="Add any additional notes..."
-                        className="h-20"
-                      />
-                    </div>
+        {loading ? (
+          <div className="flex items-center justify-center h-96">
+            <div className="text-center space-y-4">
+              <Bot className="h-12 w-12 mx-auto animate-pulse text-primary" />
+              <p>AI is analyzing your students and generating personalized recommendations...</p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* Summary Cards */}
+            {bulkSummary && (
+              <div className="grid grid-cols-4 gap-4">
+                <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <span className="text-sm font-medium">High Confidence</span>
                   </div>
-
-                  {/* Preview Panel */}
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Eye className="h-4 w-4" />
-                        <span className="font-medium">Preview</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Label className="text-sm">Student:</Label>
-                        <Select value={selectedStudentIndex.toString()} onValueChange={(value) => setSelectedStudentIndex(parseInt(value))}>
-                          <SelectTrigger className="w-48">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedStudents.map((student, index) => (
-                              <SelectItem key={student.id} value={index.toString()}>
-                                {student.metadata?.student_name || `Student ${index + 1}`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-
-                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                      <div className="text-sm font-medium">Preview for {selectedStudent?.metadata?.student_name || 'Student'}</div>
-                      {actionType === 'email' && actionData.subject && (
-                        <div>
-                          <div className="text-xs text-muted-foreground">Subject:</div>
-                          <div className="text-sm font-medium">{actionData.subject}</div>
-                        </div>
-                      )}
-                      <div>
-                        <div className="text-xs text-muted-foreground">Content:</div>
-                        <div className="text-sm whitespace-pre-wrap">
-                          {actionData.content || 'No content yet...'}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="text-sm font-medium">Affected Students ({selectedStudents.length})</div>
-                      <ScrollArea className="h-48 border rounded">
-                        <div className="p-3 space-y-2">
-                          {selectedStudents.map((student, index) => (
-                            <div key={student.id} className="flex items-center justify-between p-2 bg-background rounded">
-                              <div>
-                                <div className="font-medium text-sm">{student.metadata?.student_name || `Student ${index + 1}`}</div>
-                                <div className="text-xs text-muted-foreground">{student.metadata?.program}</div>
-                              </div>
-                              <Badge variant="outline" className="text-xs">
-                                {student.metadata?.yield_score || 0}% yield
-                              </Badge>
-                            </div>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                    </div>
-                  </div>
+                  <p className="text-2xl font-bold text-green-600">{bulkSummary.high_confidence}</p>
                 </div>
-              </TabsContent>
+                <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-4 w-4 text-yellow-600" />
+                    <span className="text-sm font-medium">Medium Confidence</span>
+                  </div>
+                  <p className="text-2xl font-bold text-yellow-600">{bulkSummary.medium_confidence}</p>
+                </div>
+                <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Avg Success Rate</span>
+                  </div>
+                  <p className="text-2xl font-bold text-primary">{bulkSummary.avg_success_rate}%</p>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg border">
+                  <div className="flex items-center space-x-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Est. Time</span>
+                  </div>
+                  <p className="text-2xl font-bold">{bulkSummary.estimated_completion_time}</p>
+                </div>
+              </div>
+            )}
 
-              <TabsContent value="ai" className="h-full">
-                <AIRecommendationsPanel
-                  recommendations={aiRecommendations}
-                  students={studentContexts}
-                  selectedActionType={actionType}
-                  onApplyRecommendation={handleApplyRecommendation}
-                />
-              </TabsContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="students">Student Analysis</TabsTrigger>
+                <TabsTrigger value="customize">Customize & Execute</TabsTrigger>
+              </TabsList>
 
-              <TabsContent value="history" className="h-full">
-                <div className="grid grid-cols-3 gap-6 h-full">
-                  <div className="col-span-2">
-                    {studentProfile && (
-                      <StudentHistoryPanel
-                        student={studentProfile}
-                        history={studentHistory}
-                      />
-                    )}
+              <TabsContent value="overview" className="space-y-4">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <h3 className="font-medium mb-3">Action Summary</h3>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="font-medium">Total Students:</span> {bulkSummary?.total_leads}</p>
+                      <p><span className="font-medium">Action Type:</span> {actionType}</p>
+                      <p><span className="font-medium">Success Rate:</span> {bulkSummary?.avg_success_rate}%</p>
+                      <p><span className="font-medium">Completion Time:</span> {bulkSummary?.estimated_completion_time}</p>
+                    </div>
                   </div>
                   <div>
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-sm">Select Student</Label>
-                        <Select value={selectedStudentIndex.toString()} onValueChange={(value) => setSelectedStudentIndex(parseInt(value))}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {selectedStudents.map((student, index) => (
-                              <SelectItem key={student.id} value={index.toString()}>
-                                {student.metadata?.student_name || `Student ${index + 1}`}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    <h3 className="font-medium mb-3">Confidence Distribution</h3>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-green-500 rounded"></div>
+                        <span className="text-sm">High Confidence ({bulkSummary?.high_confidence})</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                        <span className="text-sm">Medium Confidence ({bulkSummary?.medium_confidence})</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-3 h-3 bg-red-500 rounded"></div>
+                        <span className="text-sm">Low Confidence ({bulkSummary?.low_confidence})</span>
                       </div>
                     </div>
                   </div>
                 </div>
               </TabsContent>
 
-              <TabsContent value="audit" className="h-full">
-                <PlaybookAuditTrail
-                  executions={playbookExecutions}
-                  currentActionId={selectedStudent?.id}
-                />
-              </TabsContent>
-            </div>
-          </Tabs>
-        </div>
+              <TabsContent value="students" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-medium">Individual Student Analysis</h3>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={selectedLeads.length === aiRecommendations.length}
+                      onCheckedChange={toggleAllLeads}
+                    />
+                    <span className="text-sm">Select All</span>
+                  </div>
+                </div>
+                <ScrollArea className="h-[400px]">
+                  <div className="space-y-3 pr-4">
+                    {aiRecommendations.map((rec) => (
+                      <div key={rec.student_id} className={`p-4 border rounded-lg ${selectedLeads.includes(rec.student_id) ? 'ring-2 ring-primary' : ''}`}>
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center space-x-3">
+                            <Checkbox
+                              checked={selectedLeads.includes(rec.student_id)}
+                              onCheckedChange={() => toggleLead(rec.student_id)}
+                            />
+                            <div>
+                              <h4 className="font-medium">{rec.student_name}</h4>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Badge variant="outline" className={getConfidenceColor(rec.confidence)}>
+                                  {rec.confidence}% confidence
+                                </Badge>
+                                <Badge variant="outline">
+                                  <Star className="h-2 w-2 mr-1" />
+                                  {rec.success_probability}% success
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-2">{rec.reasoning}</p>
+                        
+                        {rec.best_timing && (
+                          <p className="text-xs text-green-600 mb-1">
+                            <Clock className="h-3 w-3 inline mr-1" />
+                            Best timing: {rec.best_timing}
+                          </p>
+                        )}
+                        
+                        {rec.risk_factors && rec.risk_factors.length > 0 && (
+                          <div className="text-xs text-red-600">
+                            <AlertCircle className="h-3 w-3 inline mr-1" />
+                            Risks: {rec.risk_factors.join(', ')}
+                          </div>
+                        )}
 
-        <div className="flex justify-between items-center pt-4 border-t flex-shrink-0">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <div className="flex space-x-2">
-            <Button variant="outline" onClick={() => setActiveTab('ai')}>
-              <Sparkles className="h-4 w-4 mr-2" />
-              Get AI Suggestions
-            </Button>
-            <Button 
-              onClick={handleExecute}
-              disabled={!actionData.content}
-              className="min-w-32"
-            >
-              Execute {actionType} for {selectedStudents.length} students
-            </Button>
+                        {rec.historical_performance && (
+                          <div className="text-xs text-muted-foreground mt-2">
+                            Historical: {rec.historical_performance.similar_leads} similar leads, {rec.historical_performance.success_rate}% success rate, avg response: {rec.historical_performance.avg_response_time}
+                          </div>
+                        )}
+
+                        {rec.personalized_message && (
+                          <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                            <span className="font-medium">Suggested approach:</span>
+                            <p className="mt-1">{rec.personalized_message}</p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+
+              <TabsContent value="customize" className="space-y-4">
+                <div>
+                  <h3 className="font-medium mb-2">Custom Message (Optional)</h3>
+                  <Textarea
+                    placeholder={`Add a custom message for this ${actionType} campaign...`}
+                    value={customMessage}
+                    onChange={(e) => setCustomMessage(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                  <div>
+                    <p className="font-medium">Ready to execute {actionType} for {selectedLeads.length} students</p>
+                    <p className="text-sm text-muted-foreground">
+                      Estimated completion: {bulkSummary?.estimated_completion_time}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Button variant="outline" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleExecute} disabled={selectedLeads.length === 0}>
+                      Execute {actionType.charAt(0).toUpperCase() + actionType.slice(1)}
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   );

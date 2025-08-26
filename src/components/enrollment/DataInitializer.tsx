@@ -41,7 +41,7 @@ export function DataInitializer({ children }: DataInitializerProps) {
           return;
         }
 
-        // If token is invalid, try to refresh first
+        // If token is invalid, try to refresh first with enhanced retry
         if (!isTokenValid) {
           console.log('📊 DataInitializer: Token invalid, attempting refresh...');
           const refreshSuccess = await refreshSession();
@@ -50,8 +50,17 @@ export function DataInitializer({ children }: DataInitializerProps) {
             setIsInitialized(true);
             return;
           }
-          // Wait a moment for the new token to be available
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Wait longer for the new token to propagate
+          console.log('📊 DataInitializer: Waiting for token propagation...');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          // Verify token is now valid
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session?.access_token) {
+            console.log('📊 DataInitializer: Session not available after refresh, skipping');
+            setIsInitialized(true);
+            return;
+          }
         }
 
         initializationAttempted.current = true;

@@ -502,29 +502,57 @@ class EnrollmentDemoSeedService {
   }
 
   /**
-   * Validate authentication and token before operations
+   * Validate authentication and token before operations with retry capability
    */
-  private async validateAuth() {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session?.user) {
-      throw new Error('User not authenticated');
-    }
+  private async validateAuth(retryCount = 0): Promise<any> {
+    const maxRetries = 2;
     
-    // Check if token is still valid
     try {
-      const payload = JSON.parse(atob(session.access_token.split('.')[1]));
-      const expirationTime = payload.exp * 1000;
-      const currentTime = Date.now();
-      
-      if (expirationTime <= currentTime) {
-        throw new Error('JWT expired - token validation failed');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) {
+        throw new Error('User not authenticated');
       }
+      
+      // Check if token is still valid
+      try {
+        const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+        const expirationTime = payload.exp * 1000;
+        const currentTime = Date.now();
+        
+        if (expirationTime <= currentTime) {
+          throw new Error('JWT expired - token validation failed');
+        }
+      } catch (error) {
+        console.error('🔒 Token validation failed:', error);
+        throw new Error('Invalid JWT token');
+      }
+      
+      return session.user;
     } catch (error) {
-      console.error('🔒 Token validation failed:', error);
-      throw new Error('Invalid JWT token');
+      // If JWT expired and we haven't exceeded retries, try to refresh
+      if ((error.message?.includes('JWT') || error.message?.includes('expired')) && retryCount < maxRetries) {
+        console.log(`🔄 Auth validation failed, attempting refresh ${retryCount + 1}/${maxRetries}`);
+        
+        try {
+          const { data, error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError || !data.session) {
+            throw new Error('Session refresh failed');
+          }
+          
+          // Wait for token to propagate
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Retry validation
+          return this.validateAuth(retryCount + 1);
+        } catch (refreshError) {
+          console.error('🔒 Session refresh failed:', refreshError);
+          throw new Error('Authentication failed - session could not be refreshed');
+        }
+      }
+      
+      console.error('🔒 Final auth validation failed:', error);
+      throw error;
     }
-    
-    return session.user;
   }
 
   /**
@@ -731,49 +759,61 @@ class EnrollmentDemoSeedService {
   }
 
   /**
-   * Seed all demo data for Phase 1
+   * Seed all demo data for Phase 1 with enhanced error handling
    */
   async seedAllDemoData() {
-    try {
-      console.log('🚀 Starting Phase 1: Database Foundation & Demo Data seeding...');
-      
-      // Validate auth before starting the seeding process
-      await this.validateAuth();
-      
-      // Clear existing data first
-      await this.clearExistingData();
-      
-      // Seed all components with enhanced error handling
-      console.log('🌱 Seeding all demo data components...');
-      const seedResults = await Promise.allSettled([
-        this.seedPlays(),
-        this.seedPolicies(),
-        this.seedStudentActions(),
-        this.seedProgramConfigurations()
-      ]);
-
-      // Check for any failed seeds
-      const failedSeeds = seedResults.filter(result => result.status === 'rejected');
-      if (failedSeeds.length > 0) {
-        console.error('⚠️ Some seed operations failed:', failedSeeds);
-        const authErrors = failedSeeds.some(seed => 
-          seed.status === 'rejected' && 
-          (seed.reason?.message?.includes('JWT') || seed.reason?.message?.includes('expired'))
-        );
+    const maxRetries = 3;
+    let lastError: any;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🚀 Starting Phase 1 seeding attempt ${attempt}/${maxRetries}...`);
         
-        if (authErrors) {
-          throw new Error('Authentication failed during seeding - session may have expired');
+        // Validate auth with refresh capability before starting
+        await this.validateAuth();
+        
+        // Clear existing data first
+        await this.clearExistingData();
+        
+        // Add a brief pause to ensure data is cleared
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Seed all components sequentially to avoid overwhelming the database
+        console.log('🌱 Seeding demo data components...');
+        
+        await this.seedPlays();
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        await this.seedPolicies();
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        await this.seedStudentActions();
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        await this.seedProgramConfigurations();
+
+        console.log('🎉 Phase 1 seeding completed successfully!');
+        return true;
+        
+      } catch (error) {
+        lastError = error;
+        console.error(`💥 Phase 1 seeding attempt ${attempt} failed:`, error);
+        
+        // If it's an auth error, wait longer between retries
+        if (error.message?.includes('JWT') || error.message?.includes('expired') || 
+            error.message?.includes('Authentication failed')) {
+          console.log(`🔄 Auth error detected, waiting before retry...`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+        } else if (attempt < maxRetries) {
+          // For other errors, shorter wait
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
         }
-        
-        throw new Error(`${failedSeeds.length} seed operations failed`);
       }
-
-      console.log('🎉 Phase 1 seeding completed successfully!');
-      return true;
-    } catch (error) {
-      console.error('💥 Phase 1 seeding failed:', error);
-      throw error;
     }
+    
+    // If all attempts failed, throw the last error
+    console.error('💥 All seeding attempts failed');
+    throw lastError || new Error('Failed to seed demo data after multiple attempts');
   }
 }
 

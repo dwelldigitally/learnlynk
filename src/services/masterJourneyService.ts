@@ -270,7 +270,7 @@ export class MasterJourneyService {
         .single();
 
       if (programJourney?.journey_templates) {
-        return programJourney.journey_templates as JourneyTemplate;
+        return programJourney.journey_templates as unknown as JourneyTemplate;
       }
     }
 
@@ -282,7 +282,7 @@ export class MasterJourneyService {
       .eq('student_type', studentType)
       .single();
 
-    return masterTemplate as unknown as JourneyTemplate;
+    return masterTemplate as unknown as JourneyTemplate | null;
   }
 
   /**

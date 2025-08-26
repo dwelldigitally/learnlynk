@@ -31,7 +31,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Initial Inquiry',
               description: 'Student expresses interest in the program',
-              stage_type: 'inquiry',
+              stage_type: 'lead_capture',
               order_index: 0,
               timing_config: {
                 stall_threshold_days: 2,
@@ -64,7 +64,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Application Started',
               description: 'Student begins formal application process',
-              stage_type: 'application',
+              stage_type: 'application_start',
               order_index: 1,
               timing_config: {
                 stall_threshold_days: 7,
@@ -142,7 +142,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Evaluation',
               description: 'Application review and assessment',
-              stage_type: 'evaluation',
+              stage_type: 'prerequisites',
               order_index: 3,
               timing_config: {
                 stall_threshold_days: 5,
@@ -169,7 +169,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Offer Extended',
               description: 'Admission decision communicated to student',
-              stage_type: 'offer',
+              stage_type: 'admission_decision',
               order_index: 4,
               timing_config: {
                 stall_threshold_days: 14,
@@ -202,7 +202,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Deposit & Enrollment',
               description: 'Enrollment confirmation and deposit collection',
-              stage_type: 'deposit',
+              stage_type: 'deposit_payment',
               order_index: 5,
               timing_config: {
                 stall_threshold_days: 7,
@@ -229,7 +229,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Pre-Enrollment',
               description: 'Orientation and preparation for program start',
-              stage_type: 'onboarding',
+              stage_type: 'enrollment_complete',
               order_index: 6,
               timing_config: {
                 stall_threshold_days: 14,
@@ -288,7 +288,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Initial Inquiry',
               description: 'Student expresses interest in healthcare program',
-              stage_type: 'inquiry',
+              stage_type: 'lead_capture',
               order_index: 0,
               timing_config: {
                 stall_threshold_days: 1,
@@ -327,7 +327,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Application Submitted',
               description: 'Formal application with preliminary screening',
-              stage_type: 'application',
+              stage_type: 'application_start',
               order_index: 1,
               timing_config: {
                 stall_threshold_days: 5,
@@ -483,7 +483,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Final Evaluation',
               description: 'Comprehensive application review and decision',
-              stage_type: 'evaluation',
+              stage_type: 'prerequisites',
               order_index: 4,
               timing_config: {
                 stall_threshold_days: 3,
@@ -510,7 +510,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Conditional Offer',
               description: 'Offer extended with specific conditions',
-              stage_type: 'offer',
+              stage_type: 'admission_decision',
               order_index: 5,
               timing_config: {
                 stall_threshold_days: 10,
@@ -552,7 +552,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Enrollment Confirmation',
               description: 'Final enrollment and deposit processing',
-              stage_type: 'deposit',
+              stage_type: 'deposit_payment',
               order_index: 6,
               timing_config: {
                 stall_threshold_days: 5,
@@ -585,7 +585,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Pre-Program Preparation',
               description: 'Orientation, uniform ordering, and final preparations',
-              stage_type: 'onboarding',
+              stage_type: 'enrollment_complete',
               order_index: 7,
               timing_config: {
                 stall_threshold_days: 10,
@@ -662,7 +662,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Express Inquiry',
               description: 'Fast-track inquiry and initial qualification',
-              stage_type: 'inquiry',
+              stage_type: 'lead_capture',
               order_index: 0,
               timing_config: {
                 stall_threshold_days: 1,
@@ -737,7 +737,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Quick Review',
               description: 'Expedited application review',
-              stage_type: 'evaluation',
+              stage_type: 'prerequisites',
               order_index: 2,
               timing_config: {
                 stall_threshold_days: 1,
@@ -764,7 +764,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Immediate Enrollment',
               description: 'Same-day offer and enrollment',
-              stage_type: 'offer',
+              stage_type: 'admission_decision',
               order_index: 3,
               timing_config: {
                 stall_threshold_days: 3,
@@ -797,7 +797,7 @@ export class JourneyTemplateSeeder {
             {
               name: 'Program Start',
               description: 'Immediate program commencement',
-              stage_type: 'onboarding',
+              stage_type: 'enrollment_complete',
               order_index: 4,
               timing_config: {
                 stall_threshold_days: 3,

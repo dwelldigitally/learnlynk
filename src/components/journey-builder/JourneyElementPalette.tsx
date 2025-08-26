@@ -64,8 +64,8 @@ export function JourneyElementPalette({ onAddElement }: JourneyElementPalettePro
   }, {} as Record<string, typeof journeyElementTypes>);
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="text-lg font-semibold">Journey Steps</CardTitle>
         <div className="relative">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -77,9 +77,9 @@ export function JourneyElementPalette({ onAddElement }: JourneyElementPalettePro
           />
         </div>
       </CardHeader>
-      <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <div className="p-4 space-y-6">
+      <CardContent className="p-0 flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-6 pb-8">
             {Object.entries(groupedElements).map(([category, elements]) => (
               <div key={category} className="space-y-3">
                 <div className="flex items-center gap-2">

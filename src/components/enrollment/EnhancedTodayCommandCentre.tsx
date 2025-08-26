@@ -96,10 +96,12 @@ export function EnhancedTodayCommandCentre() {
 
   const loadActions = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      console.log('📊 Loading actions - User:', !!user, user?.id);
-      if (!user) {
-        console.log('❌ No user authenticated');
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      console.log('📊 Loading actions - User:', !!user, user?.id, userError);
+      
+      if (userError || !user) {
+        console.log('❌ User authentication failed, refreshing session');
+        await supabase.auth.refreshSession();
         return;
       }
 

@@ -19,14 +19,21 @@ interface AdminSidebarProps {
 export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    // Auto-expand enrollment optimization if we're on an enrollment page
+    const initialExpanded = new Set<string>();
+    if (location.pathname.startsWith('/admin/enrollment/')) {
+      initialExpanded.add('Enrollment Optimization');
+    }
+    return initialExpanded;
+  });
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const getActiveSectionFromPath = () => {
     const path = location.pathname;
     
     // Handle specific detail page patterns
-    if (path.startsWith('/admin/leads/') || path.startsWith('/admin/communication/')) {
+    if (path.startsWith('/admin/leads/') || path.startsWith('/admin/communication/') || path.startsWith('/admin/enrollment/')) {
       return 'leads-marketing';
     }
     if (path.startsWith('/admin/students/')) {

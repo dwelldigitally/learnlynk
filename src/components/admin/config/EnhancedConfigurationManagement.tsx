@@ -40,6 +40,7 @@ import { LeadScoringConfiguration } from './LeadScoringConfiguration';
 import { StudentManagementConfiguration } from './StudentManagementConfiguration';
 import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
 import { ApplicantAIAgentConfiguration } from './ApplicantAIAgentConfiguration';
+import { EnrollmentPipelineAnalytics } from '@/components/enrollment/EnrollmentPipelineAnalytics';
 
 interface ConfigurationSection {
   id: string;
@@ -244,6 +245,14 @@ const configurationSections: ConfigurationSection[] = [
     description: 'Automated processes and triggers',
     category: 'System',
     component: <div className="p-6 text-center text-muted-foreground">Automation configuration coming soon...</div>
+  },
+  {
+    id: 'pipeline-analytics',
+    label: 'Pipeline Analytics',
+    icon: TrendingUp,
+    description: 'Enrollment funnel analysis and conversion tracking',
+    category: 'Analytics',
+    component: <EnrollmentPipelineAnalytics />
   }
 ];
 

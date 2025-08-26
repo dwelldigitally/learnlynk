@@ -57,16 +57,11 @@ export const navigationStructure: NavigationStructure = {
           icon: Target,
           subItems: [
             { name: "Today", href: "/admin/enrollment/today", icon: Clock },
-            { name: "Speed Policy", href: "/admin/enrollment/speed-policy", icon: Zap },
             { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
             { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
             { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
             { name: "Waste Radar", href: "/admin/enrollment/waste-radar", icon: AlertTriangle },
-            { name: "Outcomes 30/60/90", href: "/admin/enrollment/outcomes", icon: BarChart3 },
-            { name: "Integrations", href: "/admin/enrollment/integrations", icon: Link },
-            { name: "Student Progress", href: "/admin/enrollment/student-progress", icon: Users },
-            { name: "Pipeline Analytics", href: "/admin/enrollment/pipeline-analytics", icon: TrendingUp },
-            { name: "Automation Rules", href: "/admin/enrollment/automation-rules", icon: Zap }
+            { name: "Outcomes 30/60/90", href: "/admin/enrollment/outcomes", icon: BarChart3 }
           ]
         },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },

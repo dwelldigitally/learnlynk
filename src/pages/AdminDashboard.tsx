@@ -55,10 +55,6 @@ import { UnifiedPoliciesConfiguration } from "@/components/enrollment/UnifiedPol
 import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrator";
 import { WasteRadarDashboard } from "@/components/enrollment/WasteRadarDashboard";
 import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
-import { IntegrationsDashboard } from "@/components/enrollment/IntegrationsDashboard";
-import { StudentProgressTracker } from "@/components/enrollment/StudentProgressTracker";
-import { EnrollmentPipelineAnalytics } from "@/components/enrollment/EnrollmentPipelineAnalytics";
-import { EnrollmentAutomationRules } from "@/components/enrollment/EnrollmentAutomationRules";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 
@@ -195,14 +191,6 @@ const AdminDashboard: React.FC = () => {
         return <WasteRadarDashboard />;
       case "/admin/enrollment/outcomes":
         return <OutcomesDashboard />;
-      case "/admin/enrollment/integrations":
-        return <IntegrationsDashboard />;
-      case "/admin/enrollment/student-progress":
-        return <StudentProgressTracker />;
-      case "/admin/enrollment/pipeline-analytics":
-        return <EnrollmentPipelineAnalytics />;
-      case "/admin/enrollment/automation-rules":
-        return <EnrollmentAutomationRules />;
       case "/admin/ai-intelligence":
         return <AIIntelligenceDashboard />;
       default:

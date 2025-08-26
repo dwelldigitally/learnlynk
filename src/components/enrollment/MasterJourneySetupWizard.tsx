@@ -27,6 +27,7 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
 
   const checkMasterTemplates = async () => {
     try {
+      setIsLoading(true);
       const exists = await MasterJourneyService.checkMasterTemplatesExist();
       setHasMasterTemplates(exists);
       
@@ -35,9 +36,19 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
       } else {
         setStep('setup');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking master templates:', error);
+      
+      // Handle specific authentication errors
+      if (error?.code === 'PGRST301' || error?.message?.includes('JWT expired')) {
+        toast.error('Your session has expired. Please refresh the page and sign in again.');
+      } else {
+        toast.error('Failed to check master templates. Please try again.');
+      }
+      
       setStep('setup');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -64,12 +75,24 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
     try {
       setIsLoading(true);
       const template = await MasterJourneyService.getMasterTemplate(templateType);
+      
+      if (!template) {
+        toast.error(`No ${templateType} template found. Please create default templates first.`);
+        return;
+      }
+      
       setCurrentTemplate(template);
       setEditingTemplate(templateType);
       setShowTemplateEditor(true);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading template:', error);
-      toast.error("Failed to load template for editing");
+      
+      // Handle specific authentication errors
+      if (error?.code === 'PGRST301' || error?.message?.includes('JWT expired')) {
+        toast.error('Your session has expired. Please refresh the page and sign in again.');
+      } else {
+        toast.error(`Failed to load ${templateType} template for editing. Please try again.`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -173,9 +196,18 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
                 </div>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configure Stages
+                <Button variant="outline" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configure Stages
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
@@ -193,9 +225,18 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
                 </div>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" className="w-full">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Configure Stages
+                <Button variant="outline" className="w-full" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    <>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configure Stages
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>

@@ -1,54 +1,61 @@
 import { supabase } from '@/integrations/supabase/client';
 import { JourneyTemplate, StudentJourneyInstance, JourneyStageProgress } from '@/types/academicJourney';
+import { supabaseWrapper } from '@/services/supabaseWrapper';
 
 export class MasterJourneyService {
   /**
    * Check if master journey templates exist for the current user
    */
   static async checkMasterTemplatesExist(): Promise<boolean> {
-    const { data } = await supabase
-      .from('journey_templates')
-      .select('id')
-      .eq('is_master_template', true)
-      .limit(1);
+    return await supabaseWrapper.withRetry(async () => {
+      const { data } = await supabase
+        .from('journey_templates')
+        .select('id')
+        .eq('is_master_template', true)
+        .limit(1);
 
-    return !!(data && data.length > 0);
+      return !!(data && data.length > 0);
+    });
   }
 
   /**
    * Get master journey templates (domestic and international)
    */
   static async getMasterTemplates(): Promise<JourneyTemplate[]> {
-    const { data, error } = await supabase
-      .from('journey_templates')
-      .select('*')
-      .eq('is_master_template', true)
-      .order('student_type');
+    return await supabaseWrapper.withRetry(async () => {
+      const { data, error } = await supabase
+        .from('journey_templates')
+        .select('*')
+        .eq('is_master_template', true)
+        .order('student_type');
 
-    if (error) {
-      throw error;
-    }
+      if (error) {
+        throw error;
+      }
 
-    return (data || []) as unknown as JourneyTemplate[];
+      return (data || []) as unknown as JourneyTemplate[];
+    });
   }
 
   /**
    * Get a specific master template by student type
    */
   static async getMasterTemplate(studentType: 'domestic' | 'international'): Promise<JourneyTemplate | null> {
-    const { data, error } = await supabase
-      .from('journey_templates')
-      .select('*')
-      .eq('is_master_template', true)
-      .eq('student_type', studentType)
-      .maybeSingle();
+    return await supabaseWrapper.withRetry(async () => {
+      const { data, error } = await supabase
+        .from('journey_templates')
+        .select('*')
+        .eq('is_master_template', true)
+        .eq('student_type', studentType)
+        .maybeSingle();
 
-    if (error) {
-      console.error('Error fetching master template:', error);
-      throw error;
-    }
+      if (error) {
+        console.error('Error fetching master template:', error);
+        throw error;
+      }
 
-    return data as unknown as JourneyTemplate | null;
+      return data as unknown as JourneyTemplate | null;
+    });
   }
 
   /**
@@ -58,29 +65,31 @@ export class MasterJourneyService {
     studentType: 'domestic' | 'international',
     templateData: Partial<JourneyTemplate>
   ): Promise<JourneyTemplate> {
-    const updateData = {
-      name: templateData.name,
-      description: templateData.description,
-      category: templateData.category,
-      complexity_level: templateData.complexity_level,
-      template_data: templateData.template_data as any,
-      updated_at: new Date().toISOString()
-    };
+    return await supabaseWrapper.withRetry(async () => {
+      const updateData = {
+        name: templateData.name,
+        description: templateData.description,
+        category: templateData.category,
+        complexity_level: templateData.complexity_level,
+        template_data: templateData.template_data as any,
+        updated_at: new Date().toISOString()
+      };
 
-    const { data, error } = await supabase
-      .from('journey_templates')
-      .update(updateData)
-      .eq('is_master_template', true)
-      .eq('student_type', studentType)
-      .select()
-      .single();
+      const { data, error } = await supabase
+        .from('journey_templates')
+        .update(updateData)
+        .eq('is_master_template', true)
+        .eq('student_type', studentType)
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error updating master template:', error);
-      throw error;
-    }
+      if (error) {
+        console.error('Error updating master template:', error);
+        throw error;
+      }
 
-    return data as unknown as JourneyTemplate;
+      return data as unknown as JourneyTemplate;
+    });
   }
 
   /**

@@ -115,10 +115,16 @@ export function ProgramJourneyManager() {
             Design and manage student enrollment journeys from inquiry to enrollment
           </p>
         </div>
-        <Button onClick={handleCreateJourney} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Journey
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowMasterSetup(true)}>
+            <Settings className="h-4 w-4 mr-2" />
+            Edit Master Templates
+          </Button>
+          <Button onClick={handleCreateJourney} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Create Journey
+          </Button>
+        </div>
       </div>
 
       {/* Search and Filters */}

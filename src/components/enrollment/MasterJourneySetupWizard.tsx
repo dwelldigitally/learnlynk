@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, Users, Globe, ArrowRight, BookOpen } from 'lucide-react';
+import { CheckCircle, Users, Globe, ArrowRight, BookOpen, Settings, Loader2, FileText, Clock, Phone, Video } from 'lucide-react';
 import { MasterJourneyService } from '@/services/masterJourneyService';
+import { MasterJourneyTemplateEditor } from './MasterJourneyTemplateEditor';
 import { toast } from 'sonner';
 
 interface MasterJourneySetupWizardProps {
@@ -14,7 +15,9 @@ interface MasterJourneySetupWizardProps {
 export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySetupWizardProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMasterTemplates, setHasMasterTemplates] = useState(false);
-  const [step, setStep] = useState<'check' | 'setup' | 'complete'>('check');
+  const [step, setStep] = useState<'check' | 'setup' | 'configure' | 'complete'>('check');
+  const [showTemplateEditor, setShowTemplateEditor] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<'domestic' | 'international' | null>(null);
 
   useEffect(() => {
     checkMasterTemplates();
@@ -51,6 +54,32 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
     }
   };
 
+  const handleConfigureTemplates = () => {
+    setStep('configure');
+  };
+
+  const handleTemplateEdit = (templateType: 'domestic' | 'international') => {
+    setEditingTemplate(templateType);
+    setShowTemplateEditor(true);
+  };
+
+  const handleTemplateSave = async (templateData: any) => {
+    try {
+      setIsLoading(true);
+      // Create the template with enhanced data
+      await MasterJourneyService.createMasterTemplates();
+      setShowTemplateEditor(false);
+      setEditingTemplate(null);
+      setStep('complete');
+      toast.success(`${editingTemplate} template configured successfully!`);
+    } catch (error) {
+      console.error('Error saving template:', error);
+      toast.error('Failed to save template. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (step === 'check') {
     return (
       <Card className="w-full max-w-2xl mx-auto">
@@ -66,6 +95,94 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
         <CardContent>
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (showTemplateEditor) {
+    return (
+      <MasterJourneyTemplateEditor
+        onSave={handleTemplateSave}
+        onCancel={() => {
+          setShowTemplateEditor(false);
+          setEditingTemplate(null);
+        }}
+      />
+    );
+  }
+
+  if (step === 'configure') {
+    return (
+      <Card className="max-w-4xl mx-auto">
+        <CardHeader className="text-center">
+          <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <Settings className="h-6 w-6 text-primary" />
+          </div>
+          <CardTitle className="text-2xl">Configure Journey Templates</CardTitle>
+          <CardDescription className="text-lg">
+            Customize your master journey templates with specific stages and requirements.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
+          <Alert>
+            <Settings className="h-4 w-4" />
+            <AlertDescription>
+              Configure each template with the specific stages, timings, and requirements that match your institution's enrollment process.
+            </AlertDescription>
+          </Alert>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleTemplateEdit('domestic')}>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Users className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Configure Domestic Template</CardTitle>
+                    <CardDescription>Set up journey for domestic students</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configure Stages
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleTemplateEdit('international')}>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Globe className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Configure International Template</CardTitle>
+                    <CardDescription>Set up journey for international students</CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configure Stages
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="flex justify-center gap-4 pt-6">
+            <Button variant="outline" onClick={() => setStep('setup')}>
+              Back
+            </Button>
+            <Button onClick={createMasterTemplates}>
+              Use Default Templates
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -180,22 +297,31 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
           >
             Skip For Now
           </Button>
-          <Button 
-            onClick={createMasterTemplates}
-            disabled={isLoading}
-            className="flex items-center gap-2"
-          >
-            {isLoading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Creating Templates...
-              </>
-            ) : (
-              <>
-                Create Master Templates <ArrowRight className="h-4 w-4" />
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={handleConfigureTemplates}
+              disabled={isLoading}
+            >
+              Configure Templates
+            </Button>
+            <Button 
+              onClick={createMasterTemplates}
+              disabled={isLoading}
+              className="flex items-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Creating Templates...
+                </>
+              ) : (
+                <>
+                  Use Default Templates <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -52,6 +52,7 @@ import SalesRepDashboard from "./SalesRepDashboard";
 import { AIFeaturesPage } from "./AIFeaturesPage";
 import { EnrollmentCommandCenter } from "@/components/enrollment/EnrollmentCommandCenter";
 import { SpeedToLeadPolicy } from "@/components/enrollment/SpeedToLeadPolicy";
+import { PoliciesConfiguration } from "@/components/enrollment/PoliciesConfiguration";
 import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrator";
 import { WasteRadarDashboard } from "@/components/enrollment/WasteRadarDashboard";
 import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
@@ -185,6 +186,8 @@ const AdminDashboard: React.FC = () => {
         return <EnrollmentCommandCenter />;
       case "/admin/enrollment/speed-policy":
         return <SpeedToLeadPolicy />;
+      case "/admin/enrollment/policies":
+        return <PoliciesConfiguration />;
       case "/admin/enrollment/playbooks":
         return <PlaybookOrchestrator />;
       case "/admin/enrollment/program-journeys":

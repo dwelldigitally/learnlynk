@@ -58,6 +58,7 @@ export const navigationStructure: NavigationStructure = {
           subItems: [
             { name: "Today", href: "/admin/enrollment/today", icon: Clock },
             { name: "Speed Policy", href: "/admin/enrollment/speed-policy", icon: Zap },
+            { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
             { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
             { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
             { name: "Waste Radar", href: "/admin/enrollment/waste-radar", icon: AlertTriangle },

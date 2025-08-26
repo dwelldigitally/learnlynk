@@ -603,6 +603,38 @@ export function UnifiedPoliciesConfiguration() {
           </Card>
         </div>
       </div>
+
+      {/* Policy Wizard */}
+      {showPolicyWizard && (
+        <PolicyWizard
+          onClose={() => setShowPolicyWizard(false)}
+          onSave={async (policyData: PolicyData) => {
+            try {
+              await policyService.upsertConfiguration(policyData.name, {
+                policy_name: policyData.name,
+                description: policyData.description,
+                policy_type: policyData.policyType,
+                is_active: policyData.isActive,
+                settings: policyData.settings,
+                priority: policyData.priority,
+                category: policyData.category
+              });
+              await loadConfigurations();
+              toast({
+                title: "Policy Created",
+                description: `${policyData.name} has been created successfully.`,
+              });
+            } catch (error) {
+              console.error('Error creating policy:', error);
+              toast({
+                title: "Error",
+                description: "Failed to create policy. Please try again.",
+                variant: "destructive",
+              });
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

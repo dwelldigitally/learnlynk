@@ -57,6 +57,7 @@ import { WasteRadarDashboard } from "@/components/enrollment/WasteRadarDashboard
 import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
+import { EnhancedTodayCommandCentre } from "@/components/enrollment/EnhancedTodayCommandCentre";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -178,7 +179,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/recruiter-applications":
         return <RecruiterApplicationsManagement />;
       case "/admin/enrollment/today":
-        return <EnrollmentCommandCenter />;
+        return <EnhancedTodayCommandCentre />;
       case "/admin/enrollment/speed-policy":
         return <UnifiedPoliciesConfiguration />;
       case "/admin/enrollment/policies":

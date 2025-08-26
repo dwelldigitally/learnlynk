@@ -8,6 +8,7 @@ import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle }
 import { usePrograms } from '@/services/programService';
 import { useAcademicJourneys } from '@/services/academicJourneyService';
 import { JourneyBuilder } from './JourneyBuilder';
+import { JourneyEditor } from './JourneyEditor';
 import { MasterJourneySetupWizard } from './MasterJourneySetupWizard';
 import { AcademicJourney } from '@/types/academicJourney';
 import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService';
@@ -19,6 +20,7 @@ export function ProgramJourneyManager() {
   const [selectedProgram, setSelectedProgram] = useState<string>('all');
   const [showJourneyBuilder, setShowJourneyBuilder] = useState(false);
   const [showMasterSetup, setShowMasterSetup] = useState(false);
+  const [editingJourneyId, setEditingJourneyId] = useState<string | null>(null);
 
   const { data: programs, isLoading: programsLoading, error: programsError } = usePrograms();
   const { data: journeys, isLoading: journeysLoading, error: journeysError, refetch: refetchJourneys } = useAcademicJourneys();
@@ -92,6 +94,16 @@ export function ProgramJourneyManager() {
       <MasterJourneySetupWizard 
         onComplete={handleMasterSetupComplete}
         onSkip={handleMasterSetupSkip}
+      />
+    );
+  }
+
+  // Show Journey Editor if editing is active
+  if (editingJourneyId) {
+    return (
+      <JourneyEditor 
+        journeyId={editingJourneyId}
+        onBack={() => setEditingJourneyId(null)}
       />
     );
   }
@@ -219,7 +231,7 @@ export function ProgramJourneyManager() {
                     variant="outline" 
                     size="sm" 
                     className="flex-1"
-                    onClick={() => toast('Journey editing coming soon!')}
+                    onClick={() => setEditingJourneyId(journey.id)}
                   >
                     <Settings className="h-4 w-4 mr-1" />
                     Edit Journey

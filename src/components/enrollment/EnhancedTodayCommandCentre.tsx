@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useSegmentSelection } from '@/hooks/useSegmentSelection';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Phone, Mail, FileText, CheckCircle, Clock, User, GraduationCap, 
@@ -77,6 +78,14 @@ export function EnhancedTodayCommandCentre() {
   const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
   const [stageFilter, setStageFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  
+  // Bulk selection for each widget type
+  const callsSelection = useSegmentSelection();
+  const communicationsSelection = useSegmentSelection();
+  const hotProspectsSelection = useSegmentSelection();
+  const documentReviewsSelection = useSegmentSelection();
+  const overdueUrgentSelection = useSegmentSelection();
+  const conversionOpsSelection = useSegmentSelection();
   
   const { toast } = useToast();
 
@@ -385,6 +394,10 @@ export function EnhancedTodayCommandCentre() {
         <CallsToMakeWidget 
           actions={categorizedActions.calls}
           onCompleteAction={handleCompleteAction}
+          selectedItems={callsSelection.selectedItems}
+          onToggleItem={callsSelection.toggleItem}
+          onToggleAll={callsSelection.toggleAll}
+          showBulkActions={true}
         />
         
         <CommunicationsWidget 

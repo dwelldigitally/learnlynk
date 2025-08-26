@@ -221,7 +221,7 @@ function UniversalBuilderContent({
               {state.config.type === 'journey' && (
                 <>
                   {/* Left Sidebar - Journey Element Palette */}
-                  <div className="w-80 space-y-4">
+                  <div className="w-80 flex flex-col h-full">
                     <JourneyElementPalette onAddElement={handleAddElement} />
                   </div>
 

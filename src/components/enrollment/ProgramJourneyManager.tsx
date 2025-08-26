@@ -21,8 +21,13 @@ export function ProgramJourneyManager() {
   
   const { toast } = useToast();
   const { data: programs } = usePrograms();
-  const { data: journeys, isLoading } = useAcademicJourneys();
+  const { data: journeys, isLoading, error } = useAcademicJourneys();
   const createJourneyMutation = useCreateJourneyFromTemplate();
+
+  // Debug logging
+  console.log('ProgramJourneyManager - journeys data:', journeys);
+  console.log('ProgramJourneyManager - loading:', isLoading);
+  console.log('ProgramJourneyManager - error:', error);
 
   // Auto-seed dummy data on first load
   React.useEffect(() => {
@@ -47,6 +52,11 @@ export function ProgramJourneyManager() {
     const matchesProgram = filterProgram === 'all' || journey.program_id === filterProgram;
     return matchesSearch && matchesProgram;
   }) || [];
+
+  // Add error handling to prevent blank screen
+  if (error) {
+    console.error('Error loading academic journeys:', error);
+  }
 
   const handleCreateJourney = () => {
     setShowJourneyBuilder(true);
@@ -110,8 +120,8 @@ export function ProgramJourneyManager() {
         </div>
 
         <div className="grid gap-4">
-          {selectedJourneyPreview.stages && selectedJourneyPreview.stages.length > 0 ? (
-            selectedJourneyPreview.stages
+          {selectedJourneyPreview.journey_stages && selectedJourneyPreview.journey_stages.length > 0 ? (
+            selectedJourneyPreview.journey_stages
               .sort((a: any, b: any) => a.order_index - b.order_index)
               .map((stage: any, index: number) => (
                 <Card key={stage.id} className="p-6">
@@ -256,7 +266,7 @@ export function ProgramJourneyManager() {
                   
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Settings className="h-4 w-4" />
-                    <span>{journey.stages?.length || 0} steps configured</span>
+                    <span>{(journey as any).journey_stages?.length || 0} steps configured</span>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -289,7 +299,7 @@ export function ProgramJourneyManager() {
                       onClick={() => handlePreviewJourney(journey)}
                     >
                       <Eye className="h-4 w-4 mr-1" />
-                      Preview ({journey.stages?.length || 0})
+                      Preview ({(journey as any).journey_stages?.length || 0})
                     </Button>
                   </div>
                 </div>

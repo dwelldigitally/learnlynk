@@ -324,63 +324,6 @@ export function PlaybookOrchestrator() {
         })}
       </div>
 
-      {/* Navigation Hints */}
-      <Card className="border-blue-200 bg-blue-50/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Workflow className="h-5 w-5 text-blue-600" />
-            How Playbooks, Policies & Automation Rules Work Together
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <Workflow className="h-6 w-6 text-blue-600" />
-              </div>
-              <h4 className="font-medium text-foreground mb-2">Playbooks (This Page)</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Manager-friendly business recipes. Simple on/off switches for enrollment sequences.
-              </p>
-              <Badge variant="default" className="text-xs">You Are Here</Badge>
-            </div>
-            
-            <div className="text-center">
-              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <MessageSquare className="h-6 w-6 text-orange-600" />
-              </div>
-              <h4 className="font-medium text-foreground mb-2">Policies</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Safety rules that all playbooks must follow (quiet hours, pacing, stop triggers).
-              </p>
-              <a href="/admin/enrollment/policies" className="text-sm text-blue-600 hover:underline">
-                Configure Policies →
-              </a>
-            </div>
-            
-            <div className="text-center">
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <CheckCircle className="h-6 w-6 text-purple-600" />
-              </div>
-              <h4 className="font-medium text-foreground mb-2">Automation Rules</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Technical/advanced interface for custom triggers and complex conditions.
-              </p>
-              <a href="/admin/enrollment/automation-rules" className="text-sm text-blue-600 hover:underline">
-                Advanced Rules →
-              </a>
-            </div>
-          </div>
-          
-          <div className="mt-6 p-4 bg-background border rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Recommended flow:</strong> Start with Playbooks for 80% of needs. Configure Policies to set guardrails. 
-              Use Automation Rules only for complex scenarios that don't fit standard playbook templates.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Implementation Notes */}
       <Card>
         <CardHeader>

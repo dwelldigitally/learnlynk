@@ -407,33 +407,30 @@ export function EnhancedBulkActionDialog({
       is_paused: false
     });
 
-    // Simulate execution
-    for (let i = 0; i < selectedPreviews.length; i++) {
-      if (executionProgress?.is_paused) break;
+    try {
+      // Execute the actual bulk action using the parent component's onExecute function
+      const actionsToExecute = selectedActions.filter(action => selectedLeads.includes(action.id));
       
-      const preview = selectedPreviews[i];
+      // Update previews to show "sending" status
       setStudentPreviews(prev => 
         prev.map(p => 
-          p.student_id === preview.student_id 
+          selectedLeads.includes(p.student_id) 
             ? { ...p, status: 'sending' }
             : p
         )
       );
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+      // Call the actual execution function from parent component
+      await onExecute(actionsToExecute, customMessage);
 
-      // Simulate success/failure (90% success rate)
-      const success = Math.random() > 0.1;
-      
+      // Update all selected previews to "sent" status
       setStudentPreviews(prev => 
         prev.map(p => 
-          p.student_id === preview.student_id 
+          selectedLeads.includes(p.student_id) 
             ? { 
                 ...p, 
-                status: success ? 'sent' : 'failed',
-                execution_time: new Date().toLocaleTimeString(),
-                error_message: success ? undefined : 'Failed to send - retry available'
+                status: 'sent',
+                execution_time: new Date().toLocaleTimeString()
               }
             : p
         )
@@ -441,8 +438,31 @@ export function EnhancedBulkActionDialog({
 
       setExecutionProgress(prev => prev ? {
         ...prev,
-        completed: prev.completed + (success ? 1 : 0),
-        failed: prev.failed + (success ? 0 : 1)
+        completed: selectedPreviews.length,
+        failed: 0
+      } : null);
+
+    } catch (error) {
+      console.error('Bulk action execution failed:', error);
+      
+      // Update failed previews
+      setStudentPreviews(prev => 
+        prev.map(p => 
+          selectedLeads.includes(p.student_id) 
+            ? { 
+                ...p, 
+                status: 'failed',
+                execution_time: new Date().toLocaleTimeString(),
+                error_message: error instanceof Error ? error.message : 'Execution failed'
+              }
+            : p
+        )
+      );
+
+      setExecutionProgress(prev => prev ? {
+        ...prev,
+        completed: 0,
+        failed: selectedPreviews.length
       } : null);
     }
 
@@ -471,10 +491,6 @@ export function EnhancedBulkActionDialog({
     // Implement retry logic
   };
 
-  const handleExecute = () => {
-    const actionsToExecute = selectedActions.filter(action => selectedLeads.includes(action.id));
-    onExecute(actionsToExecute, customMessage);
-  };
 
   if (!isOpen) return null;
 
@@ -1004,7 +1020,7 @@ export function EnhancedBulkActionDialog({
                     <Button variant="outline" onClick={onClose}>
                       Close
                     </Button>
-                    <Button onClick={() => handleExecute()}>
+                    <Button onClick={onClose}>
                       View Full Report
                     </Button>
                   </div>

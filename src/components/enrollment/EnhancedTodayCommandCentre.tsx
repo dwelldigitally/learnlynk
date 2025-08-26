@@ -198,7 +198,7 @@ export function EnhancedTodayCommandCentre() {
     ),
     calls: filteredActions.filter(a => a.action_type === 'call'),
     communications: filteredActions.filter(a => 
-      ['email', 'sms', 'message'].includes(a.action_type)
+      ['email', 'sms'].includes(a.action_type)
     ),
     documentReviews: filteredActions.filter(a => 
       ['review', 'document', 'application'].includes(a.action_type)

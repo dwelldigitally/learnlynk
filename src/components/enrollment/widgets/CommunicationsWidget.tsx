@@ -55,6 +55,19 @@ export function CommunicationsWidget({
     }
   };
 
+  const handleContactClick = (contactInfo: string, type: 'email' | 'phone') => {
+    if (type === 'email') {
+      window.open(`mailto:${contactInfo}`, '_blank');
+    } else {
+      window.open(`tel:${contactInfo}`, '_blank');
+    }
+  };
+
+  const handleStudentClick = (studentName: string, studentId?: string) => {
+    // Navigate to student details page
+    console.log('Navigate to student:', studentName, studentId);
+  };
+
   const getActionLabel = (actionType: string) => {
     switch (actionType) {
       case 'email': return 'Email';
@@ -127,9 +140,12 @@ export function CommunicationsWidget({
                       <div className="flex items-center space-x-2 mb-1">
                         <div className="flex items-center space-x-1">
                           {getActionIcon(action.action_type)}
-                          <span className="font-medium text-sm truncate">
+                          <button
+                            onClick={() => handleStudentClick(action.metadata?.student_name || 'Student')}
+                            className="font-medium text-sm truncate text-foreground hover:text-primary transition-colors cursor-pointer"
+                          >
                             {action.metadata?.student_name || 'Student'}
-                          </span>
+                          </button>
                         </div>
                         
                         <Badge variant="outline" className="text-xs">
@@ -168,15 +184,21 @@ export function CommunicationsWidget({
                         <span>{action.metadata?.program || 'Unknown Program'}</span>
                         
                         {action.action_type === 'email' && action.metadata?.contact_info?.email && (
-                          <span className="truncate">
+                          <button
+                            onClick={() => handleContactClick(action.metadata.contact_info.email, 'email')}
+                            className="truncate text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                          >
                             • {action.metadata.contact_info.email}
-                          </span>
+                          </button>
                         )}
                         
                         {action.action_type === 'sms' && action.metadata?.contact_info?.phone && (
-                          <span className="truncate">
+                          <button
+                            onClick={() => handleContactClick(action.metadata.contact_info.phone, 'phone')}
+                            className="truncate text-primary hover:text-primary/80 transition-colors cursor-pointer"
+                          >
                             • {action.metadata.contact_info.phone}
-                          </span>
+                          </button>
                         )}
                       </div>
                     </div>

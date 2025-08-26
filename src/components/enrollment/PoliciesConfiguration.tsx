@@ -6,11 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { PoliciesService, type Policy } from '@/services/policiesService';
+import { PolicyConfigurationService, type PolicyConfig } from '@/services/policyConfigurationService';
 import { Shield, Clock, MessageSquare, StopCircle, Settings } from 'lucide-react';
 
 export function PoliciesConfiguration() {
-  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [policies, setPolicies] = useState<PolicyConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [preview, setPreview] = useState('');
   const { toast } = useToast();
@@ -25,7 +25,9 @@ export function PoliciesConfiguration() {
 
   const loadPolicies = async () => {
     try {
-      const data = await PoliciesService.getPolicies();
+      // Seed default policies first
+      await PolicyConfigurationService.seedDefaultPolicies();
+      const data = await PolicyConfigurationService.getPolicies();
       setPolicies(data);
     } catch (error) {
       console.error('Error loading policies:', error);
@@ -41,7 +43,7 @@ export function PoliciesConfiguration() {
 
   const updatePreview = async () => {
     try {
-      const previewText = await PoliciesService.getPolicyPreview();
+      const previewText = await PolicyConfigurationService.getPolicyPreview();
       setPreview(previewText);
     } catch (error) {
       console.error('Error updating preview:', error);
@@ -50,12 +52,12 @@ export function PoliciesConfiguration() {
 
   const handleTogglePolicy = async (policyId: string, isActive: boolean) => {
     try {
-      const updatedPolicy = await PoliciesService.togglePolicy(policyId, isActive);
+      const updatedPolicy = await PolicyConfigurationService.toggleEnabled(policyId, isActive);
       setPolicies(policies.map(p => p.id === policyId ? updatedPolicy : p));
       
       toast({
         title: isActive ? "Policy enabled" : "Policy disabled",
-        description: `${updatedPolicy.name} has been ${isActive ? 'enabled' : 'disabled'}`,
+        description: `${updatedPolicy.policy_name} has been ${isActive ? 'enabled' : 'disabled'}`,
       });
     } catch (error) {
       console.error('Error toggling policy:', error);
@@ -71,13 +73,13 @@ export function PoliciesConfiguration() {
     const policy = policies.find(p => p.id === policyId);
     if (!policy) return;
 
-    const newConfiguration = {
-      ...policy.configuration as Record<string, any>,
+    const newSettings = {
+      ...policy.settings as Record<string, any>,
       [key]: value
     };
 
     try {
-      const updatedPolicy = await PoliciesService.updatePolicyConfiguration(policyId, newConfiguration);
+      const updatedPolicy = await PolicyConfigurationService.updateSettings(policyId, newSettings);
       setPolicies(policies.map(p => p.id === policyId ? updatedPolicy : p));
     } catch (error) {
       console.error('Error updating configuration:', error);
@@ -98,10 +100,10 @@ export function PoliciesConfiguration() {
     }
   };
 
-  const renderPolicyConfiguration = (policy: Policy) => {
-    const config = policy.configuration as Record<string, any>;
+  const renderPolicyConfiguration = (policy: PolicyConfig) => {
+    const config = policy.settings as Record<string, any>;
 
-    switch (policy.policy_type) {
+    switch (policy.policy_name) {
       case 'quiet_hours':
         return (
           <div className="space-y-4">
@@ -217,7 +219,7 @@ export function PoliciesConfiguration() {
     );
   }
 
-  const activePolicies = policies.filter(p => p.is_active);
+  const activePolicies = policies.filter(p => p.enabled);
 
   return (
     <div className="space-y-6">
@@ -255,29 +257,33 @@ export function PoliciesConfiguration() {
       {/* Policies List */}
       <div className="grid gap-6">
         {policies.map((policy) => (
-          <Card key={policy.id} className={policy.is_active ? "border-primary" : ""}>
+          <Card key={policy.id} className={policy.enabled ? "border-primary" : ""}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className={`p-2 rounded-lg ${
-                    policy.is_active ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                    policy.enabled ? 'bg-primary text-primary-foreground' : 'bg-muted'
                   }`}>
-                    {getPolicyIcon(policy.policy_type)}
+                    {getPolicyIcon(policy.policy_name)}
                   </div>
                   <div>
-                    <CardTitle className="text-lg">{policy.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">{policy.description}</p>
+                    <CardTitle className="text-lg">{policy.policy_name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {policy.policy_name === 'quiet_hours' && 'Queue communications during quiet hours'}
+                      {policy.policy_name === 'message_pacing' && 'Limit the frequency of messages sent to students'}
+                      {policy.policy_name === 'stop_triggers' && 'Stop marketing communications based on student actions'}
+                    </p>
                   </div>
                 </div>
                 
                 <Switch
-                  checked={policy.is_active}
+                  checked={policy.enabled}
                   onCheckedChange={(checked) => handleTogglePolicy(policy.id, checked)}
                 />
               </div>
             </CardHeader>
             
-            {policy.is_active && (
+            {policy.enabled && (
               <CardContent>
                 {renderPolicyConfiguration(policy)}
               </CardContent>

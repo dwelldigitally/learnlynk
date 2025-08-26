@@ -3,26 +3,39 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Workflow, MessageSquare, Phone, FileText, CheckCircle } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { PlaybookCard } from './PlaybookCard';
+import { PolicyConfigurationService, type PolicyConfig } from '@/services/policyConfigurationService';
 
-interface PlaybookConfiguration {
+interface PlaybookMeta {
   id: string;
-  policy_name: string;
-  enabled: boolean;
-  settings: any;
-  expected_lift: number;
+  title: string;
+  subtitle: string;
+  icon: any;
+  description: string;
+  sequence: string[];
+  triggerCriteria: string;
+  expectedActions: string;
 }
 
 export function PlaybookOrchestrator() {
-  const [playbooks, setPlaybooks] = useState<PlaybookConfiguration[]>([]);
+  const [playbooks, setPlaybooks] = useState<PolicyConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const playbookConfigs = [
-    {
+  const playbookMeta: Record<string, PlaybookMeta> = {
+    '5-minute-callback': {
+      id: '5-minute-callback',
+      title: '5-Minute Callback',
+      subtitle: 'Ultra-fast response for high-intent leads',
+      icon: Phone,
+      description: 'Immediately prioritizes high-intent leads for 5-minute callback',
+      sequence: ['Lead scoring', 'Instant notification', 'Priority callback task'],
+      triggerCriteria: 'High-intent lead submission',
+      expectedActions: '15 new priority callbacks'
+    },
+    'stalled-7day-reengage': {
       id: 'stalled-7day-reengage',
       title: 'Stalled 7-Day Re-engage',
       subtitle: 'Re-ignite momentum: SMS + email + callback task',
@@ -32,7 +45,7 @@ export function PlaybookOrchestrator() {
       triggerCriteria: 'Applications stalled ≥7 days',
       expectedActions: '27 new prioritized actions'
     },
-    {
+    'event-rsvp-interview': {
       id: 'event-rsvp-interview',
       title: 'Event RSVP → Interview Invite',
       subtitle: 'Capitalize on warm intent within 48h',
@@ -42,7 +55,7 @@ export function PlaybookOrchestrator() {
       triggerCriteria: 'Event RSVP within 24-48h',
       expectedActions: '12 new interview invites'
     },
-    {
+    'document-chase': {
       id: 'document-chase',
       title: 'Document Chase',
       subtitle: 'Close the paperwork gap with a call + one-click email',
@@ -52,7 +65,7 @@ export function PlaybookOrchestrator() {
       triggerCriteria: 'Missing required documents',
       expectedActions: '35 document follow-ups'
     }
-  ];
+  };
 
   useEffect(() => {
     loadPlaybookConfigurations();
@@ -60,13 +73,8 @@ export function PlaybookOrchestrator() {
 
   const loadPlaybookConfigurations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('policy_configurations')
-        .select('*')
-        .in('policy_name', playbookConfigs.map(p => p.id));
-
-      if (error) throw error;
-      setPlaybooks(data || []);
+      const data = await PolicyConfigurationService.getPlaybooks();
+      setPlaybooks(data);
     } catch (error) {
       console.error('Error loading playbook configurations:', error);
       toast({
@@ -88,48 +96,32 @@ export function PlaybookOrchestrator() {
       
       if (existingConfig) {
         // Update existing
-        const { error } = await supabase
-          .from('policy_configurations')
-          .update({ enabled })
-          .eq('id', existingConfig.id);
-
-        if (error) throw error;
-
+        const updatedConfig = await PolicyConfigurationService.toggleEnabled(existingConfig.id, enabled);
         setPlaybooks(prev => 
           prev.map(p => 
-            p.id === existingConfig.id ? { ...p, enabled } : p
+            p.id === existingConfig.id ? updatedConfig : p
           )
         );
       } else {
         // Create new configuration
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) throw new Error('User not authenticated');
+        const meta = playbookMeta[playbookId];
+        if (!meta) throw new Error('Playbook configuration not found');
 
-        const playbookConfig = playbookConfigs.find(p => p.id === playbookId);
-        if (!playbookConfig) throw new Error('Playbook configuration not found');
-
-        const { data, error } = await supabase
-          .from('policy_configurations')
-          .insert({
-            user_id: user.id,
-            policy_name: playbookId,
-            enabled,
-            settings: { playbook_type: playbookId },
-            expected_lift: 0
-          })
-          .select()
-          .single();
-
-        if (error) throw error;
-        setPlaybooks(prev => [...prev, data]);
+        const newConfig = await PolicyConfigurationService.upsertConfiguration(playbookId, {
+          enabled,
+          settings: { playbook_type: playbookId },
+          expected_lift: parseFloat(meta.expectedActions.match(/\d+/)?.[0] || '0')
+        });
+        
+        setPlaybooks(prev => [...prev, newConfig]);
       }
 
       // Show success toast with action count
-      const playbookConfig = playbookConfigs.find(p => p.id === playbookId);
-      if (enabled && playbookConfig) {
+      const meta = playbookMeta[playbookId];
+      if (enabled && meta) {
         toast({
           title: "Playbook Activated",
-          description: `${playbookConfig.expectedActions} created`,
+          description: `${meta.expectedActions} created`,
         });
       } else {
         toast({
@@ -154,6 +146,12 @@ export function PlaybookOrchestrator() {
     const config = playbooks.find(p => p.policy_name === playbookId);
     return config?.enabled || false;
   };
+
+  // Get all unique playbook IDs from database and metadata
+  const allPlaybookIds = [...new Set([
+    ...playbooks.map(p => p.policy_name),
+    ...Object.keys(playbookMeta)
+  ])];
 
   const activePlaybooks = playbooks.filter(p => p.enabled).length;
 
@@ -246,15 +244,20 @@ export function PlaybookOrchestrator() {
 
       {/* Playbook Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {playbookConfigs.map((playbook) => (
-          <PlaybookCard
-            key={playbook.id}
-            {...playbook}
-            enabled={getPlaybookStatus(playbook.id)}
-            updating={updating === playbook.id}
-            onToggle={(enabled) => handlePlaybookToggle(playbook.id, enabled)}
-          />
-        ))}
+        {allPlaybookIds.map((playbookId) => {
+          const meta = playbookMeta[playbookId];
+          if (!meta) return null;
+          
+          return (
+            <PlaybookCard
+              key={playbookId}
+              {...meta}
+              enabled={getPlaybookStatus(playbookId)}
+              updating={updating === playbookId}
+              onToggle={(enabled) => handlePlaybookToggle(playbookId, enabled)}
+            />
+          );
+        })}
       </div>
 
       {/* Implementation Notes */}

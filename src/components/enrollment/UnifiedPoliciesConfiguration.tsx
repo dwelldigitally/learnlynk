@@ -11,6 +11,8 @@ import { PolicyConfigurationService, type PolicyConfig } from '@/services/policy
 import { supabase } from '@/integrations/supabase/client';
 import { Shield, Clock, MessageSquare, StopCircle, Settings, Zap, Phone, TrendingUp, Volume2 } from 'lucide-react';
 import { ExpectedLiftPanel } from './ExpectedLiftPanel';
+import PolicyWizard from './wizard/PolicyWizard';
+import { PolicyData } from '@/types/policy';
 
 interface SpeedPolicyConfiguration {
   id: string;
@@ -31,7 +33,11 @@ export function UnifiedPoliciesConfiguration() {
   const [speedPolicyLoading, setSpeedPolicyLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   
+  // Policy Wizard State
+  const [showPolicyWizard, setShowPolicyWizard] = useState(false);
+  
   const { toast } = useToast();
+  const policyService = PolicyConfigurationService;
 
   useEffect(() => {
     loadAllPolicies();
@@ -47,6 +53,8 @@ export function UnifiedPoliciesConfiguration() {
       loadSpeedPolicyConfiguration()
     ]);
   };
+
+  const loadConfigurations = loadAllPolicies;
 
   // General Policies Functions
   const loadGeneralPolicies = async () => {
@@ -612,12 +620,9 @@ export function UnifiedPoliciesConfiguration() {
             try {
               await policyService.upsertConfiguration(policyData.name, {
                 policy_name: policyData.name,
-                description: policyData.description,
-                policy_type: policyData.policyType,
-                is_active: policyData.isActive,
+                enabled: policyData.isActive,
                 settings: policyData.settings,
-                priority: policyData.priority,
-                category: policyData.category
+                expected_lift: policyData.expectedLift
               });
               await loadConfigurations();
               toast({

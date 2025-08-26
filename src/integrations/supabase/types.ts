@@ -2516,6 +2516,60 @@ export type Database = {
           },
         ]
       }
+      journey_stage_progress: {
+        Row: {
+          completed_at: string | null
+          completion_data: Json | null
+          created_at: string
+          id: string
+          journey_instance_id: string
+          notes: string | null
+          stage_id: string
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completion_data?: Json | null
+          created_at?: string
+          id?: string
+          journey_instance_id: string
+          notes?: string | null
+          stage_id: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completion_data?: Json | null
+          created_at?: string
+          id?: string
+          journey_instance_id?: string
+          notes?: string | null
+          stage_id?: string
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journey_stage_progress_journey_instance_id_fkey"
+            columns: ["journey_instance_id"]
+            isOneToOne: false
+            referencedRelation: "student_journey_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "journey_stage_progress_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journey_stages: {
         Row: {
           completion_criteria: Json | null
@@ -2593,9 +2647,12 @@ export type Database = {
           description: string | null
           estimated_duration_days: number | null
           id: string
+          inherits_from_template_id: string | null
+          is_master_template: boolean | null
           is_system_template: boolean
           name: string
           program_type: string | null
+          student_type: string | null
           template_data: Json
           updated_at: string
           usage_count: number | null
@@ -2607,9 +2664,12 @@ export type Database = {
           description?: string | null
           estimated_duration_days?: number | null
           id?: string
+          inherits_from_template_id?: string | null
+          is_master_template?: boolean | null
           is_system_template?: boolean
           name: string
           program_type?: string | null
+          student_type?: string | null
           template_data?: Json
           updated_at?: string
           usage_count?: number | null
@@ -2621,14 +2681,25 @@ export type Database = {
           description?: string | null
           estimated_duration_days?: number | null
           id?: string
+          inherits_from_template_id?: string | null
+          is_master_template?: boolean | null
           is_system_template?: boolean
           name?: string
           program_type?: string | null
+          student_type?: string | null
           template_data?: Json
           updated_at?: string
           usage_count?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "journey_templates_inherits_from_template_id_fkey"
+            columns: ["inherits_from_template_id"]
+            isOneToOne: false
+            referencedRelation: "journey_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_activities: {
         Row: {
@@ -3018,6 +3089,7 @@ export type Database = {
           source_details: string | null
           state: string | null
           status: Database["public"]["Enums"]["lead_status"]
+          student_type: string | null
           substage: string | null
           tags: string[] | null
           updated_at: string
@@ -3060,6 +3132,7 @@ export type Database = {
           source_details?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
+          student_type?: string | null
           substage?: string | null
           tags?: string[] | null
           updated_at?: string
@@ -3102,6 +3175,7 @@ export type Database = {
           source_details?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["lead_status"]
+          student_type?: string | null
           substage?: string | null
           tags?: string[] | null
           updated_at?: string
@@ -5209,6 +5283,70 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      student_journey_instances: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_stage_id: string | null
+          id: string
+          journey_id: string
+          lead_id: string
+          progress_data: Json | null
+          started_at: string
+          status: string
+          student_type: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_stage_id?: string | null
+          id?: string
+          journey_id: string
+          lead_id: string
+          progress_data?: Json | null
+          started_at?: string
+          status?: string
+          student_type: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_stage_id?: string | null
+          id?: string
+          journey_id?: string
+          lead_id?: string
+          progress_data?: Json | null
+          started_at?: string
+          status?: string
+          student_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_journey_instances_current_stage_id_fkey"
+            columns: ["current_stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_journey_instances_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "academic_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_journey_instances_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_journey_progress: {
         Row: {

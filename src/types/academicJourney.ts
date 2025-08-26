@@ -8,6 +8,9 @@ export interface JourneyTemplate {
   complexity_level: 'simple' | 'medium' | 'complex';
   estimated_duration_days?: number;
   is_system_template: boolean;
+  is_master_template: boolean;
+  student_type: 'domestic' | 'international' | 'all';
+  inherits_from_template_id?: string;
   usage_count: number;
   template_data: JourneyTemplateData;
   created_at: string;
@@ -96,7 +99,7 @@ export interface JourneyChannelRule {
 }
 
 // Supporting Types
-export type StageType = 'inquiry' | 'application' | 'documents' | 'evaluation' | 'interview' | 'offer' | 'deposit' | 'onboarding' | 'custom';
+export type StageType = 'lead_capture' | 'application_start' | 'prerequisites' | 'language_test' | 'documents' | 'interview' | 'admission_decision' | 'visa_support' | 'contract_signing' | 'deposit_payment' | 'enrollment_complete' | 'custom';
 
 export type RequirementType = 'document' | 'test' | 'interview' | 'payment' | 'form' | 'verification' | 'custom';
 
@@ -199,14 +202,17 @@ export interface JourneyWizardState {
 
 // Pre-built Journey Templates
 export const JOURNEY_STAGE_TYPES: Record<StageType, { label: string; description: string; icon: string }> = {
-  inquiry: { label: 'Inquiry', description: 'Initial student interest and information gathering', icon: '🔍' },
-  application: { label: 'Application', description: 'Formal application submission and processing', icon: '📝' },
-  documents: { label: 'Documents', description: 'Required document collection and verification', icon: '📄' },
-  evaluation: { label: 'Evaluation', description: 'Academic and eligibility assessment', icon: '⚖️' },
-  interview: { label: 'Interview', description: 'Personal interview and assessment', icon: '🎤' },
-  offer: { label: 'Offer', description: 'Admission decision and offer presentation', icon: '🎓' },
-  deposit: { label: 'Deposit', description: 'Enrollment confirmation and deposit collection', icon: '💰' },
-  onboarding: { label: 'Onboarding', description: 'Pre-enrollment preparation and orientation', icon: '🚀' },
+  lead_capture: { label: 'Lead Capture', description: 'Initial lead inquiry received', icon: '👤' },
+  application_start: { label: 'Application Start', description: 'Student begins application process', icon: '📝' },
+  prerequisites: { label: 'Prerequisites', description: 'Verify academic prerequisites', icon: '✅' },
+  language_test: { label: 'Language Test', description: 'English proficiency testing', icon: '🗣️' },
+  documents: { label: 'Documents', description: 'Document submission and verification', icon: '📄' },
+  interview: { label: 'Interview', description: 'Admission interview', icon: '🎤' },
+  admission_decision: { label: 'Admission Decision', description: 'Review and admission decision', icon: '🎓' },
+  visa_support: { label: 'Visa Support', description: 'Visa application assistance', icon: '📋' },
+  contract_signing: { label: 'Contract Signing', description: 'Sign enrollment contract', icon: '📋' },
+  deposit_payment: { label: 'Deposit Payment', description: 'Submit enrollment deposit', icon: '💰' },
+  enrollment_complete: { label: 'Enrollment Complete', description: 'Student enrollment finalized', icon: '🚀' },
   custom: { label: 'Custom', description: 'Program-specific custom stage', icon: '⚙️' }
 };
 
@@ -228,3 +234,31 @@ export const CHANNEL_TYPES: Record<ChannelType, { label: string; description: st
   video_call: { label: 'Video Call', description: 'Video conference call', icon: '📹' },
   portal_message: { label: 'Portal Message', description: 'Student portal message', icon: '🔔' }
 };
+
+// New types for student journey tracking
+export interface StudentJourneyInstance {
+  id: string;
+  lead_id: string;
+  journey_id: string;
+  current_stage_id?: string;
+  student_type: 'domestic' | 'international';
+  started_at: string;
+  completed_at?: string;
+  status: 'active' | 'paused' | 'completed' | 'cancelled';
+  progress_data: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface JourneyStageProgress {
+  id: string;
+  journey_instance_id: string;
+  stage_id: string;
+  started_at: string;
+  completed_at?: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'skipped' | 'failed';
+  completion_data: Record<string, any>;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}

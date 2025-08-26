@@ -34,11 +34,24 @@ export function DataInitializer({ children }: DataInitializerProps) {
       });
 
       try {
-        // Only seed data if user is authenticated AND token is valid
-        if (!user || !isTokenValid) {
-          console.log('📊 DataInitializer: No authenticated user or invalid token, skipping initialization');
+        // If no user, just mark as initialized
+        if (!user) {
+          console.log('📊 DataInitializer: No user, skipping initialization');
           setIsInitialized(true);
           return;
+        }
+
+        // If token is invalid, try to refresh first
+        if (!isTokenValid) {
+          console.log('📊 DataInitializer: Token invalid, attempting refresh...');
+          const refreshSuccess = await refreshSession();
+          if (!refreshSuccess) {
+            console.log('📊 DataInitializer: Token refresh failed, skipping initialization');
+            setIsInitialized(true);
+            return;
+          }
+          // Wait a moment for the new token to be available
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
 
         initializationAttempted.current = true;

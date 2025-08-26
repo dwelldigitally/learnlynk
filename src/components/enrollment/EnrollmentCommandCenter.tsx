@@ -103,21 +103,74 @@ export function EnrollmentCommandCenter() {
         description: "Action queue data has been updated with proper filtering support",
       });
 
-      const { data, error } = await supabase
-        .from('action_queue')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('yield_score', { ascending: false });
+      // Load both action_queue and student_actions for comprehensive view
+      const [actionQueueResult, studentActionsResult] = await Promise.all([
+        supabase
+          .from('action_queue')
+          .select('*')
+          .eq('user_id', user?.id)
+          .order('yield_score', { ascending: false }),
+        supabase
+          .from('student_actions')
+          .select(`
+            *,
+            plays:play_id (name, play_type)
+          `)
+          .eq('user_id', user?.id)
+          .eq('status', 'pending')
+          .order('priority')
+          .order('created_at')
+      ]);
 
-      if (error) throw error;
+      if (actionQueueResult.error) throw actionQueueResult.error;
+      if (studentActionsResult.error) throw studentActionsResult.error;
       
-      // Parse reason_codes JSON for each action
-      const processedActions = (data || []).map(action => ({
+      // Convert student_actions to action queue format
+      const studentActionItems = (studentActionsResult.data || []).map(action => {
+        const metadata = action.metadata as Record<string, any> || {};
+        return {
+          id: action.id,
+          user_id: action.user_id,
+          student_id: action.student_id,
+          student_name: `Student ${action.student_id?.slice(-4)}`, // Fallback name
+          program: metadata.program || 'Unknown Program',
+          yield_score: metadata.yield_score || 50,
+          yield_band: metadata.yield_band || 'medium',
+          reason_codes: Array.isArray(action.reason_chips) ? action.reason_chips : [],
+          suggested_action: action.instruction,
+          status: 'pending',
+          priority_band: action.priority <= 1 ? 'high' : action.priority <= 2 ? 'medium' : 'low',
+          sla_due_at: action.scheduled_at,
+          created_at: action.created_at,
+          updated_at: action.updated_at,
+          completed_at: null,
+          completed_by: null,
+          is_from_student_actions: true,
+          original_action_id: action.id,
+          play_name: action.plays?.name,
+          play_type: action.plays?.play_type
+        };
+      });
+      
+      // Parse reason_codes JSON for action_queue items
+      const processedQueueActions = (actionQueueResult.data || []).map(action => ({
         ...action,
         reason_codes: typeof action.reason_codes === 'string' ? 
           JSON.parse(action.reason_codes) : 
-          action.reason_codes || []
+          action.reason_codes || [],
+        is_from_student_actions: false
       }));
+      
+      // Combine and sort by priority and yield score
+      const processedActions = [...processedQueueActions, ...studentActionItems]
+        .sort((a, b) => {
+          if (a.priority_band !== b.priority_band) {
+            const priorityOrder = { high: 1, medium: 2, low: 3 };
+            return priorityOrder[a.priority_band as keyof typeof priorityOrder] - 
+                   priorityOrder[b.priority_band as keyof typeof priorityOrder];
+          }
+          return b.yield_score - a.yield_score;
+        });
       
       console.log('Loaded actions:', processedActions.length);
       console.log('Action types:', [...new Set(processedActions.map(a => a.suggested_action))]);

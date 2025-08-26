@@ -333,8 +333,27 @@ export class JourneyOrchestrator {
     progress: StudentJourneyProgress, 
     stage: any
   ): string {
+    // Get student info from action_queue if available
     const stageContext = stage ? ` (${stage.name} stage)` : '';
-    return `${play.name} action for student${stageContext}`;
+    const actionType = this.getContextualActionType(play, stage);
+    
+    switch (play.play_type) {
+      case 'immediate_response':
+        return `Call student now - new ${stage?.name || 'inquiry'}${stageContext}`;
+      case 'nurture_sequence':
+        const daysSinceStage = Math.floor(
+          (Date.now() - new Date(progress.stage_started_at!).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        return `Follow up on stalled ${stage?.name || 'stage'} (${daysSinceStage} days)`;
+      case 'document_follow_up':
+        return `Request missing documents for ${stage?.name || 'current stage'}`;
+      case 'interview_scheduler':
+        return `Schedule interview for ${stage?.name || 'application'} review`;
+      case 'deposit_follow_up':
+        return `Process deposit and begin onboarding`;
+      default:
+        return `${play.name} action for student${stageContext}`;
+    }
   }
 
   private static generateContextualReasonChips(
@@ -342,16 +361,68 @@ export class JourneyOrchestrator {
     stage: any, 
     progress: StudentJourneyProgress
   ): string[] {
-    const chips = [play.name];
-    if (stage) chips.push(stage.name);
+    const chips: string[] = [];
     
+    // Primary trigger
+    chips.push(play.name);
+    
+    // Journey context
+    if (stage?.name) {
+      chips.push(stage.name);
+    }
+    
+    // Time-based urgency
     const stageAge = progress.stage_started_at 
       ? Math.floor((Date.now() - new Date(progress.stage_started_at).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
     
-    if (stageAge > 3) chips.push(`${stageAge}d in stage`);
+    if (stageAge > 7) {
+      chips.push(`${stageAge}d stalled`);
+    } else if (stageAge > 3) {
+      chips.push(`${stageAge}d in stage`);
+    }
     
-    return chips;
+    // Journey-specific context
+    const metadata = progress.metadata as Record<string, any> || {};
+    
+    // Requirements status
+    const totalRequirements = stage?.total_requirements || 0;
+    const completedRequirements = (progress.requirements_completed as string[] || []).length;
+    const completionRatio = totalRequirements > 0 ? completedRequirements / totalRequirements : 0;
+    
+    if (completionRatio > 0.8) {
+      chips.push('Nearly complete');
+    } else if (completionRatio < 0.3 && stageAge > 2) {
+      chips.push('Low progress');
+    }
+    
+    // Stage type specific context
+    switch (stage?.stage_type) {
+      case 'document_collection':
+        chips.push('Doc missing');
+        break;
+      case 'application_review':
+        chips.push('Review pending');
+        break;
+      case 'interview':
+        chips.push('Interview needed');
+        break;
+      case 'enrollment':
+        chips.push('Ready to enroll');
+        break;
+    }
+    
+    // Journey momentum
+    if (metadata.last_stage_transition) {
+      const lastTransition = new Date(metadata.last_stage_transition.timestamp);
+      const daysSinceTransition = Math.floor((Date.now() - lastTransition.getTime()) / (1000 * 60 * 60 * 24));
+      
+      if (daysSinceTransition === 0) {
+        chips.push('Recent progress');
+      }
+    }
+    
+    return chips.slice(0, 4); // Limit to 4 chips for UI clarity
   }
 
   private static calculateContextualPriority(play: any, stage: any): number {

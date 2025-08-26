@@ -7,7 +7,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Bot, Mail, Phone, MessageSquare, Calendar, Star, Clock, Play, TrendingUp, AlertCircle, CheckCircle } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Bot, Mail, Phone, MessageSquare, Calendar, Star, Clock, Play, TrendingUp, AlertCircle, CheckCircle, Eye, Send, Pause, RotateCcw, Target } from 'lucide-react';
 
 interface StudentAction {
   id: string;
@@ -58,6 +59,37 @@ interface BulkActionSummary {
   recommended_action_type: string;
 }
 
+interface ExecutionStep {
+  id: string;
+  name: string;
+  description: string;
+  status: 'pending' | 'current' | 'completed' | 'failed';
+}
+
+interface StudentPreview {
+  student_id: string;
+  student_name: string;
+  preview_content: {
+    subject?: string;
+    body: string;
+    recipient: string;
+    timing: string;
+    playbook?: string;
+  };
+  status: 'pending' | 'sending' | 'sent' | 'failed';
+  execution_time?: string;
+  error_message?: string;
+}
+
+interface ExecutionProgress {
+  total: number;
+  completed: number;
+  failed: number;
+  current_batch: number;
+  estimated_completion: string;
+  is_paused: boolean;
+}
+
 interface EnhancedBulkActionDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -79,13 +111,59 @@ export function EnhancedBulkActionDialog({
   const [customMessage, setCustomMessage] = useState('');
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState('overview');
+  
+  // Execution states
+  const [currentStep, setCurrentStep] = useState<'planning' | 'preview' | 'confirmation' | 'execution' | 'results'>('planning');
+  const [executionSteps, setExecutionSteps] = useState<ExecutionStep[]>([]);
+  const [studentPreviews, setStudentPreviews] = useState<StudentPreview[]>([]);
+  const [executionProgress, setExecutionProgress] = useState<ExecutionProgress | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionResults, setExecutionResults] = useState<any[]>([]);
+  const [selectedPreviewStudent, setSelectedPreviewStudent] = useState<string>('');
 
   useEffect(() => {
     if (isOpen && selectedActions.length > 0) {
       setSelectedLeads(selectedActions.map(action => action.id));
+      initializeExecutionSteps();
       generateAIRecommendations();
     }
   }, [isOpen, selectedActions]);
+
+  const initializeExecutionSteps = () => {
+    const steps: ExecutionStep[] = [
+      {
+        id: 'planning',
+        name: 'AI Analysis & Planning',
+        description: 'Analyze students and generate personalized recommendations',
+        status: 'current'
+      },
+      {
+        id: 'preview',
+        name: 'Preview & Customize',
+        description: 'Review what will be sent to each student',
+        status: 'pending'
+      },
+      {
+        id: 'confirmation',
+        name: 'Final Confirmation',
+        description: 'Confirm execution details and timing',
+        status: 'pending'
+      },
+      {
+        id: 'execution',
+        name: 'Execute Actions',
+        description: 'Send communications to selected students',
+        status: 'pending'
+      },
+      {
+        id: 'results',
+        name: 'Results & Follow-up',
+        description: 'Review execution results and plan next steps',
+        status: 'pending'
+      }
+    ];
+    setExecutionSteps(steps);
+  };
 
   const generateAIRecommendations = async () => {
     setLoading(true);
@@ -119,11 +197,92 @@ export function EnhancedBulkActionDialog({
 
       setAIRecommendations(mockRecommendations);
       setBulkSummary(summary);
+      generateStudentPreviews(mockRecommendations);
+      updateExecutionStep('planning', 'completed');
+      setCurrentStep('preview');
     } catch (error) {
       console.error('Error generating AI recommendations:', error);
+      updateExecutionStep('planning', 'failed');
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateStudentPreviews = (recommendations: AIRecommendation[]) => {
+    const previews: StudentPreview[] = recommendations.map(rec => {
+      const action = selectedActions.find(a => a.id === rec.student_id);
+      return {
+        student_id: rec.student_id,
+        student_name: rec.student_name,
+        preview_content: {
+          subject: actionType === 'email' ? generateEmailSubject(action!) : undefined,
+          body: rec.personalized_message || generateActionContent(action!, actionType),
+          recipient: getRecipientInfo(action!),
+          timing: rec.best_timing || 'Immediate',
+          playbook: `${action?.metadata?.journey_name} > ${action?.metadata?.stage_name} > ${action?.metadata?.play_name}`
+        },
+        status: 'pending'
+      };
+    });
+    setStudentPreviews(previews);
+    if (previews.length > 0) {
+      setSelectedPreviewStudent(previews[0].student_id);
+    }
+  };
+
+  const generateEmailSubject = (action: StudentAction): string => {
+    const subjects = [
+      `Next steps for your ${action.metadata?.program} application`,
+      `Your ${action.metadata?.program} journey with us`,
+      `Important update about ${action.metadata?.program}`,
+      `Let's discuss your ${action.metadata?.program} goals`
+    ];
+    return subjects[Math.floor(Math.random() * subjects.length)];
+  };
+
+  const generateActionContent = (action: StudentAction, type: string): string => {
+    const name = action.metadata?.student_name || 'Student';
+    const program = action.metadata?.program || 'our program';
+    
+    switch (type) {
+      case 'email':
+        return `Dear ${name},\n\nI wanted to personally reach out regarding your interest in ${program}. Based on your profile and engagement, I believe this program aligns perfectly with your career goals.\n\nI'd love to schedule a brief conversation to discuss:\n• Program curriculum and career outcomes\n• Financial aid and payment options\n• Your specific questions and timeline\n\nWhen would be a good time for a 15-minute call this week?\n\nBest regards,\n[Your Name]`;
+      case 'sms':
+        return `Hi ${name}! I have some exciting updates about ${program}. When's a good time for a quick call to discuss your next steps? - [Your Name]`;
+      case 'call':
+        return `Call Script for ${name}:\n\n1. Warm greeting and introduction\n2. Reference their interest in ${program}\n3. Ask about their timeline and goals\n4. Discuss program benefits and outcomes\n5. Address any concerns or questions\n6. Schedule next steps or application guidance\n\nKey talking points:\n• Personalized career outcomes\n• Flexible scheduling options\n• Strong job placement rates\n• Financial aid opportunities`;
+      case 'meeting':
+        return `Meeting agenda for ${name}:\n\n• Welcome and introductions (5 min)\n• Program overview and curriculum (15 min)\n• Career services and outcomes (10 min)\n• Financial options and next steps (10 min)\n• Q&A and application guidance (10 min)\n\nPrep notes:\n• Review their background and interests\n• Prepare specific examples relevant to their goals\n• Have application materials ready`;
+      default:
+        return `Personalized outreach for ${name} regarding ${program}`;
+    }
+  };
+
+  const getRecipientInfo = (action: StudentAction): string => {
+    const email = action.metadata?.contact_info?.email;
+    const phone = action.metadata?.contact_info?.phone;
+    const name = action.metadata?.student_name;
+    
+    switch (actionType) {
+      case 'email':
+        return email ? `${name} <${email}>` : `${name} (email required)`;
+      case 'sms':
+        return phone ? `${name} (${phone})` : `${name} (phone required)`;
+      case 'call':
+        return phone ? `${name} (${phone})` : `${name} (phone required)`;
+      case 'meeting':
+        return email ? `${name} <${email}>` : `${name} (email required)`;
+      default:
+        return name || 'Unknown';
+    }
+  };
+
+  const updateExecutionStep = (stepId: string, status: ExecutionStep['status']) => {
+    setExecutionSteps(prev => 
+      prev.map(step => 
+        step.id === stepId ? { ...step, status } : step
+      )
+    );
   };
 
   const getPersonalizedReasoning = (action: StudentAction): string => {
@@ -217,6 +376,101 @@ export function EnhancedBulkActionDialog({
     }
   };
 
+  const proceedToPreview = () => {
+    updateExecutionStep('preview', 'current');
+    setCurrentStep('preview');
+    setActiveTab('preview');
+  };
+
+  const proceedToConfirmation = () => {
+    updateExecutionStep('preview', 'completed');
+    updateExecutionStep('confirmation', 'current');
+    setCurrentStep('confirmation');
+    setActiveTab('confirmation');
+  };
+
+  const startExecution = async () => {
+    updateExecutionStep('confirmation', 'completed');
+    updateExecutionStep('execution', 'current');
+    setCurrentStep('execution');
+    setActiveTab('execution');
+    setIsExecuting(true);
+
+    const selectedPreviews = studentPreviews.filter(p => selectedLeads.includes(p.student_id));
+    
+    setExecutionProgress({
+      total: selectedPreviews.length,
+      completed: 0,
+      failed: 0,
+      current_batch: 1,
+      estimated_completion: calculateExecutionTime(selectedPreviews.length),
+      is_paused: false
+    });
+
+    // Simulate execution
+    for (let i = 0; i < selectedPreviews.length; i++) {
+      if (executionProgress?.is_paused) break;
+      
+      const preview = selectedPreviews[i];
+      setStudentPreviews(prev => 
+        prev.map(p => 
+          p.student_id === preview.student_id 
+            ? { ...p, status: 'sending' }
+            : p
+        )
+      );
+
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+
+      // Simulate success/failure (90% success rate)
+      const success = Math.random() > 0.1;
+      
+      setStudentPreviews(prev => 
+        prev.map(p => 
+          p.student_id === preview.student_id 
+            ? { 
+                ...p, 
+                status: success ? 'sent' : 'failed',
+                execution_time: new Date().toLocaleTimeString(),
+                error_message: success ? undefined : 'Failed to send - retry available'
+              }
+            : p
+        )
+      );
+
+      setExecutionProgress(prev => prev ? {
+        ...prev,
+        completed: prev.completed + (success ? 1 : 0),
+        failed: prev.failed + (success ? 0 : 1)
+      } : null);
+    }
+
+    setIsExecuting(false);
+    updateExecutionStep('execution', 'completed');
+    updateExecutionStep('results', 'current');
+    setCurrentStep('results');
+    setActiveTab('results');
+  };
+
+  const calculateExecutionTime = (count: number): string => {
+    const minutes = Math.ceil(count * 1.5); // 1.5 minutes per action
+    return `~${minutes} minutes`;
+  };
+
+  const pauseExecution = () => {
+    setExecutionProgress(prev => prev ? { ...prev, is_paused: true } : null);
+  };
+
+  const resumeExecution = () => {
+    setExecutionProgress(prev => prev ? { ...prev, is_paused: false } : null);
+  };
+
+  const retryFailed = async () => {
+    const failedPreviews = studentPreviews.filter(p => p.status === 'failed');
+    // Implement retry logic
+  };
+
   const handleExecute = () => {
     const actionsToExecute = selectedActions.filter(action => selectedLeads.includes(action.id));
     onExecute(actionsToExecute, customMessage);
@@ -226,7 +480,7 @@ export function EnhancedBulkActionDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             {getActionIcon()}
@@ -234,6 +488,38 @@ export function EnhancedBulkActionDialog({
             <Badge variant="secondary">{selectedActions.length} students</Badge>
           </DialogTitle>
         </DialogHeader>
+
+        {/* Execution Steps Progress */}
+        <div className="border-b pb-4">
+          <div className="flex items-center justify-between">
+            {executionSteps.map((step, index) => (
+              <div key={step.id} className="flex items-center">
+                <div className={`flex items-center space-x-2 px-3 py-2 rounded-lg ${
+                  step.status === 'completed' ? 'bg-green-100 text-green-700' :
+                  step.status === 'current' ? 'bg-primary/10 text-primary' :
+                  step.status === 'failed' ? 'bg-red-100 text-red-700' :
+                  'bg-muted text-muted-foreground'
+                }`}>
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                    step.status === 'completed' ? 'bg-green-600 text-white' :
+                    step.status === 'current' ? 'bg-primary text-white' :
+                    step.status === 'failed' ? 'bg-red-600 text-white' :
+                    'bg-muted-foreground text-white'
+                  }`}>
+                    {step.status === 'completed' ? <CheckCircle className="h-3 w-3" /> : index + 1}
+                  </div>
+                  <div>
+                    <div className="font-medium text-sm">{step.name}</div>
+                    <div className="text-xs opacity-75">{step.description}</div>
+                  </div>
+                </div>
+                {index < executionSteps.length - 1 && (
+                  <div className="w-8 h-px bg-border mx-2"></div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
 
         {loading ? (
           <div className="flex items-center justify-center h-96">
@@ -279,10 +565,13 @@ export function EnhancedBulkActionDialog({
             )}
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="students">Student Analysis</TabsTrigger>
-                <TabsTrigger value="customize">Customize & Execute</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-6">
+                <TabsTrigger value="overview" disabled={currentStep !== 'planning'}>Overview</TabsTrigger>
+                <TabsTrigger value="students" disabled={currentStep !== 'planning'}>Student Analysis</TabsTrigger>
+                <TabsTrigger value="preview" disabled={currentStep === 'planning'}>Preview</TabsTrigger>
+                <TabsTrigger value="confirmation" disabled={!['confirmation', 'execution', 'results'].includes(currentStep)}>Confirmation</TabsTrigger>
+                <TabsTrigger value="execution" disabled={!['execution', 'results'].includes(currentStep)}>Execution</TabsTrigger>
+                <TabsTrigger value="results" disabled={currentStep !== 'results'}>Results</TabsTrigger>
               </TabsList>
 
               <TabsContent value="overview" className="space-y-4">
@@ -312,6 +601,23 @@ export function EnhancedBulkActionDialog({
                         <span className="text-sm">Low Confidence ({bulkSummary?.low_confidence})</span>
                       </div>
                     </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Ready to proceed to preview phase
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button onClick={proceedToPreview} className="flex items-center space-x-2">
+                      <Eye className="h-4 w-4" />
+                      <span>Preview Communications</span>
+                    </Button>
                   </div>
                 </div>
               </TabsContent>
@@ -386,30 +692,320 @@ export function EnhancedBulkActionDialog({
                 </ScrollArea>
               </TabsContent>
 
-              <TabsContent value="customize" className="space-y-4">
-                <div>
-                  <h3 className="font-medium mb-2">Custom Message (Optional)</h3>
-                  <Textarea
-                    placeholder={`Add a custom message for this ${actionType} campaign...`}
-                    value={customMessage}
-                    onChange={(e) => setCustomMessage(e.target.value)}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+              <TabsContent value="preview" className="space-y-4">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <p className="font-medium">Ready to execute {actionType} for {selectedLeads.length} students</p>
+                    <h3 className="font-medium mb-3">Student Previews</h3>
+                    <ScrollArea className="h-[400px]">
+                      <div className="space-y-2 pr-4">
+                        {studentPreviews.filter(p => selectedLeads.includes(p.student_id)).map((preview) => (
+                          <div 
+                            key={preview.student_id}
+                            className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                              selectedPreviewStudent === preview.student_id ? 'ring-2 ring-primary bg-primary/5' : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => setSelectedPreviewStudent(preview.student_id)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium">{preview.student_name}</h4>
+                              <Badge variant="outline" className="text-xs">
+                                {preview.preview_content.playbook?.split(' > ').pop() || 'Manual'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {preview.preview_content.timing}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-3 flex items-center space-x-2">
+                      <Eye className="h-4 w-4" />
+                      <span>Preview Content</span>
+                    </h3>
+                    {selectedPreviewStudent && (
+                      <div className="border rounded-lg p-4 space-y-4">
+                        {(() => {
+                          const preview = studentPreviews.find(p => p.student_id === selectedPreviewStudent);
+                          if (!preview) return null;
+                          
+                          return (
+                            <>
+                              <div className="space-y-2">
+                                <div className="text-sm">
+                                  <span className="font-medium">To:</span> {preview.preview_content.recipient}
+                                </div>
+                                <div className="text-sm">
+                                  <span className="font-medium">Timing:</span> {preview.preview_content.timing}
+                                </div>
+                                {preview.preview_content.playbook && (
+                                  <div className="text-sm">
+                                    <span className="font-medium">Triggered by:</span> {preview.preview_content.playbook}
+                                  </div>
+                                )}
+                                {preview.preview_content.subject && (
+                                  <div className="text-sm">
+                                    <span className="font-medium">Subject:</span> {preview.preview_content.subject}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <Separator />
+                              
+                              <div className="space-y-2">
+                                <h4 className="font-medium">Content:</h4>
+                                <div className="bg-muted/30 p-3 rounded text-sm whitespace-pre-wrap">
+                                  {preview.preview_content.body}
+                                </div>
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div>
                     <p className="text-sm text-muted-foreground">
-                      Estimated completion: {bulkSummary?.estimated_completion_time}
+                      {selectedLeads.length} students ready for {actionType}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="outline" onClick={onClose}>
-                      Cancel
+                  <div className="flex space-x-2">
+                    <Button variant="outline" onClick={() => setCurrentStep('planning')}>
+                      Back to Analysis
                     </Button>
-                    <Button onClick={handleExecute} disabled={selectedLeads.length === 0}>
-                      Execute {actionType.charAt(0).toUpperCase() + actionType.slice(1)}
+                    <Button onClick={proceedToConfirmation} className="flex items-center space-x-2">
+                      <Target className="h-4 w-4" />
+                      <span>Proceed to Confirmation</span>
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="confirmation" className="space-y-4">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-medium mb-4">Final Confirmation</h3>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm">Execution Summary</h4>
+                        <div className="space-y-2 text-sm">
+                          <p><span className="font-medium">Action Type:</span> {actionType.charAt(0).toUpperCase() + actionType.slice(1)}</p>
+                          <p><span className="font-medium">Total Students:</span> {selectedLeads.length}</p>
+                          <p><span className="font-medium">Estimated Time:</span> {calculateExecutionTime(selectedLeads.length)}</p>
+                          <p><span className="font-medium">Success Rate Prediction:</span> {bulkSummary?.avg_success_rate}%</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm">Safety Checks</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span className="text-sm">All recipients have valid contact info</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span className="text-sm">Content reviewed and approved</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                            <span className="text-sm">Timing optimized for engagement</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-2">Custom Message (Optional)</h4>
+                    <Textarea
+                      placeholder={`Add a custom message for this ${actionType} campaign...`}
+                      value={customMessage}
+                      onChange={(e) => setCustomMessage(e.target.value)}
+                      rows={3}
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Ready to execute {selectedLeads.length} {actionType} actions
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" onClick={() => setCurrentStep('preview')}>
+                      Back to Preview
+                    </Button>
+                    <Button 
+                      onClick={startExecution}
+                      disabled={selectedLeads.length === 0}
+                      className="flex items-center space-x-2"
+                    >
+                      <Send className="h-4 w-4" />
+                      <span>Start Execution</span>
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="execution" className="space-y-4">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-medium">Execution in Progress</h3>
+                      <div className="flex items-center space-x-2">
+                        {isExecuting && (
+                          <Button variant="outline" size="sm" onClick={pauseExecution}>
+                            <Pause className="h-4 w-4 mr-1" />
+                            Pause
+                          </Button>
+                        )}
+                        {executionProgress?.is_paused && (
+                          <Button variant="outline" size="sm" onClick={resumeExecution}>
+                            <Play className="h-4 w-4 mr-1" />
+                            Resume
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {executionProgress && (
+                      <div className="space-y-4">
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium">
+                              Progress: {executionProgress.completed + executionProgress.failed} / {executionProgress.total}
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              ETA: {executionProgress.estimated_completion}
+                            </span>
+                          </div>
+                          <Progress 
+                            value={((executionProgress.completed + executionProgress.failed) / executionProgress.total) * 100} 
+                            className="h-2"
+                          />
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="text-center p-3 bg-green-50 rounded-lg">
+                            <div className="text-2xl font-bold text-green-600">{executionProgress.completed}</div>
+                            <div className="text-sm text-green-700">Completed</div>
+                          </div>
+                          <div className="text-center p-3 bg-red-50 rounded-lg">
+                            <div className="text-2xl font-bold text-red-600">{executionProgress.failed}</div>
+                            <div className="text-sm text-red-700">Failed</div>
+                          </div>
+                          <div className="text-center p-3 bg-muted/50 rounded-lg">
+                            <div className="text-2xl font-bold">{executionProgress.total - executionProgress.completed - executionProgress.failed}</div>
+                            <div className="text-sm text-muted-foreground">Pending</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Student Status</h4>
+                    <ScrollArea className="h-[300px]">
+                      <div className="space-y-2 pr-4">
+                        {studentPreviews.filter(p => selectedLeads.includes(p.student_id)).map((preview) => (
+                          <div key={preview.student_id} className="flex items-center justify-between p-3 border rounded-lg">
+                            <div>
+                              <h5 className="font-medium">{preview.student_name}</h5>
+                              {preview.execution_time && (
+                                <p className="text-xs text-muted-foreground">Executed at {preview.execution_time}</p>
+                              )}
+                              {preview.error_message && (
+                                <p className="text-xs text-red-600">{preview.error_message}</p>
+                              )}
+                            </div>
+                            <Badge variant={
+                              preview.status === 'sent' ? 'default' :
+                              preview.status === 'sending' ? 'secondary' :
+                              preview.status === 'failed' ? 'destructive' :
+                              'outline'
+                            }>
+                              {preview.status === 'sending' ? 'Sending...' : preview.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="results" className="space-y-4">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="font-medium mb-4">Execution Results</h3>
+                    <div className="grid grid-cols-3 gap-4 mb-6">
+                      <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                        <div className="text-3xl font-bold text-green-600">
+                          {studentPreviews.filter(p => p.status === 'sent').length}
+                        </div>
+                        <div className="text-sm text-green-700">Successfully Sent</div>
+                        <div className="text-xs text-green-600 mt-1">
+                          {Math.round((studentPreviews.filter(p => p.status === 'sent').length / selectedLeads.length) * 100)}% success rate
+                        </div>
+                      </div>
+                      <div className="text-center p-4 bg-red-50 rounded-lg border border-red-200">
+                        <div className="text-3xl font-bold text-red-600">
+                          {studentPreviews.filter(p => p.status === 'failed').length}
+                        </div>
+                        <div className="text-sm text-red-700">Failed</div>
+                        {studentPreviews.filter(p => p.status === 'failed').length > 0 && (
+                          <Button variant="outline" size="sm" className="mt-2" onClick={retryFailed}>
+                            <RotateCcw className="h-3 w-3 mr-1" />
+                            Retry
+                          </Button>
+                        )}
+                      </div>
+                      <div className="text-center p-4 bg-primary/5 rounded-lg border border-primary/20">
+                        <div className="text-3xl font-bold text-primary">
+                          {Math.round(((studentPreviews.filter(p => p.status === 'sent').length / selectedLeads.length) * 100))}%
+                        </div>
+                        <div className="text-sm text-primary">vs {bulkSummary?.avg_success_rate}% predicted</div>
+                        <div className="text-xs text-muted-foreground mt-1">Performance vs AI prediction</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium mb-3">Next Steps & Follow-up</h4>
+                    <div className="space-y-3">
+                      <div className="p-4 bg-muted/30 rounded-lg">
+                        <h5 className="font-medium mb-2">Recommended Follow-up Actions</h5>
+                        <ul className="space-y-1 text-sm">
+                          <li>• Monitor response rates over next 24-48 hours</li>
+                          <li>• Schedule follow-up actions for non-responders in 3-5 days</li>
+                          <li>• Review failed sends and update contact information</li>
+                          <li>• Track engagement metrics and optimize future campaigns</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-4 border-t">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      Execution completed for {selectedLeads.length} students
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" onClick={onClose}>
+                      Close
+                    </Button>
+                    <Button onClick={() => handleExecute()}>
+                      View Full Report
                     </Button>
                   </div>
                 </div>

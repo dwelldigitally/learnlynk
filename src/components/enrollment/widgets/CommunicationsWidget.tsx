@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Mail, MessageSquare, Send, Clock } from 'lucide-react';
 
 interface StudentAction {
@@ -17,15 +18,33 @@ interface StudentAction {
       email?: string;
       phone?: string;
     };
+    // Journey/Play Traceability
+    journey_name?: string;
+    stage_name?: string;
+    play_name?: string;
+    play_category?: string;
+    generation_source?: string;
+    journey_context?: boolean;
   };
 }
 
 interface CommunicationsWidgetProps {
   actions: StudentAction[];
   onCompleteAction: (actionId: string) => void;
+  selectedItems?: string[];
+  onToggleItem?: (itemId: string) => void;
+  onToggleAll?: (itemIds: string[]) => void;
+  showBulkActions?: boolean;
 }
 
-export function CommunicationsWidget({ actions, onCompleteAction }: CommunicationsWidgetProps) {
+export function CommunicationsWidget({ 
+  actions, 
+  onCompleteAction,
+  selectedItems = [],
+  onToggleItem,
+  onToggleAll,
+  showBulkActions = false
+}: CommunicationsWidgetProps) {
   const isOverdue = (scheduledAt: string) => new Date(scheduledAt) < new Date();
   
   const getActionIcon = (actionType: string) => {
@@ -44,15 +63,33 @@ export function CommunicationsWidget({ actions, onCompleteAction }: Communicatio
     }
   };
 
+  const actionIds = actions.map(action => action.id);
+  const isAllSelected = actionIds.length > 0 && actionIds.every(id => selectedItems.includes(id));
+  const isPartiallySelected = selectedItems.length > 0 && selectedItems.length < actionIds.length && actionIds.some(id => selectedItems.includes(id));
+
   return (
-    <Card className="border-green-200 bg-green-50/30">
+    <Card className="border-border bg-muted/30">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center space-x-2 text-green-700">
-            <MessageSquare className="h-4 w-4" />
-            <span>✉️ Communications</span>
+          <div className="flex items-center space-x-2">
+            {showBulkActions && onToggleAll && (
+              <Checkbox
+                checked={isAllSelected}
+                ref={(el) => {
+                  if (el && 'indeterminate' in el) {
+                    (el as any).indeterminate = isPartiallySelected;
+                  }
+                }}
+                onCheckedChange={() => onToggleAll(actionIds)}
+                className="mr-2"
+              />
+            )}
+            <div className="flex items-center space-x-2 text-foreground">
+              <MessageSquare className="h-4 w-4" />
+              <span>Communications</span>
+            </div>
           </div>
-          <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+          <Badge variant="secondary" className="text-sm">
             {actions.length}
           </Badge>
         </CardTitle>
@@ -70,61 +107,85 @@ export function CommunicationsWidget({ actions, onCompleteAction }: Communicatio
             return (
               <div 
                 key={action.id}
-                className={`p-3 rounded-lg border ${
+                className={`p-3 rounded-lg border transition-colors ${
                   overdue 
-                    ? 'bg-red-100 border-red-300' 
-                    : 'bg-white border-green-200'
-                }`}
+                    ? 'bg-destructive/10 border-destructive/30' 
+                    : 'bg-background border-border'
+                } ${selectedItems.includes(action.id) ? 'ring-2 ring-primary' : ''}`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <div className="flex items-center space-x-1">
-                        {getActionIcon(action.action_type)}
-                        <span className="font-medium text-sm truncate">
-                          {action.metadata?.student_name || 'Student'}
-                        </span>
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                    {showBulkActions && onToggleItem && (
+                      <Checkbox
+                        checked={selectedItems.includes(action.id)}
+                        onCheckedChange={() => onToggleItem(action.id)}
+                        className="mt-0.5"
+                      />
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <div className="flex items-center space-x-1">
+                          {getActionIcon(action.action_type)}
+                          <span className="font-medium text-sm truncate">
+                            {action.metadata?.student_name || 'Student'}
+                          </span>
+                        </div>
+                        
+                        <Badge variant="outline" className="text-xs">
+                          {getActionLabel(action.action_type)}
+                        </Badge>
+                        
+                        {overdue && (
+                          <Badge variant="destructive" className="text-xs">
+                            <Clock className="h-2 w-2 mr-1" />
+                            Overdue
+                          </Badge>
+                        )}
                       </div>
                       
-                      <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200 text-xs">
-                        {getActionLabel(action.action_type)}
-                      </Badge>
-                      
-                      {overdue && (
-                        <Badge variant="destructive" className="text-xs">
-                          <Clock className="h-2 w-2 mr-1" />
-                          Overdue
-                        </Badge>
-                      )}
-                    </div>
-                    
-                    <p className="text-xs text-muted-foreground mb-1 line-clamp-2">
-                      {action.instruction}
-                    </p>
-                    
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                      <span>{action.metadata?.program || 'Unknown Program'}</span>
-                      
-                      {action.action_type === 'email' && action.metadata?.contact_info?.email && (
-                        <span className="truncate">
-                          • {action.metadata.contact_info.email}
-                        </span>
+                      <p className="text-xs text-muted-foreground mb-1 line-clamp-2">
+                        {action.instruction}
+                      </p>
+
+                      {/* Journey/Play Context */}
+                      {(action.metadata?.play_name || action.metadata?.journey_context) && (
+                        <div className="flex flex-wrap items-center gap-1 mb-1">
+                          {action.metadata?.journey_context && (
+                            <Badge variant="outline" className="text-xs">
+                              🎯 {action.metadata.stage_name || 'Journey'}
+                            </Badge>
+                          )}
+                          {action.metadata?.play_name && (
+                            <Badge variant="outline" className="text-xs">
+                              ⚡ {action.metadata.play_name}
+                            </Badge>
+                          )}
+                        </div>
                       )}
                       
-                      {action.action_type === 'sms' && action.metadata?.contact_info?.phone && (
-                        <span className="truncate">
-                          • {action.metadata.contact_info.phone}
-                        </span>
-                      )}
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                        <span>{action.metadata?.program || 'Unknown Program'}</span>
+                        
+                        {action.action_type === 'email' && action.metadata?.contact_info?.email && (
+                          <span className="truncate">
+                            • {action.metadata.contact_info.email}
+                          </span>
+                        )}
+                        
+                        {action.action_type === 'sms' && action.metadata?.contact_info?.phone && (
+                          <span className="truncate">
+                            • {action.metadata.contact_info.phone}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   <Button
                     size="sm"
                     variant={overdue ? "destructive" : "outline"}
-                    className={`ml-2 h-6 px-2 text-xs ${
-                      overdue ? 'bg-red-600 hover:bg-red-700' : 'hover:bg-green-100'
-                    }`}
+                    className="ml-2 h-6 px-2 text-xs"
                     onClick={() => onCompleteAction(action.id)}
                   >
                     Send
@@ -137,7 +198,7 @@ export function CommunicationsWidget({ actions, onCompleteAction }: Communicatio
         
         {actions.length > 4 && (
           <div className="text-center pt-2">
-            <Button variant="ghost" size="sm" className="text-green-700 hover:bg-green-100">
+            <Button variant="ghost" size="sm" className="text-primary hover:bg-accent">
               View all {actions.length} messages →
             </Button>
           </div>

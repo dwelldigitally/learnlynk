@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Phone, Clock, Star } from 'lucide-react';
 
 interface StudentAction {
@@ -29,9 +30,20 @@ interface StudentAction {
 interface CallsToMakeWidgetProps {
   actions: StudentAction[];
   onCompleteAction: (actionId: string) => void;
+  selectedItems?: string[];
+  onToggleItem?: (itemId: string) => void;
+  onToggleAll?: (itemIds: string[]) => void;
+  showBulkActions?: boolean;
 }
 
-export function CallsToMakeWidget({ actions, onCompleteAction }: CallsToMakeWidgetProps) {
+export function CallsToMakeWidget({ 
+  actions, 
+  onCompleteAction,
+  selectedItems = [],
+  onToggleItem,
+  onToggleAll,
+  showBulkActions = false
+}: CallsToMakeWidgetProps) {
   const isOverdue = (scheduledAt: string) => new Date(scheduledAt) < new Date();
   const sortedActions = actions.sort((a, b) => {
     // Prioritize overdue, then urgent, then by scheduled time
@@ -44,15 +56,33 @@ export function CallsToMakeWidget({ actions, onCompleteAction }: CallsToMakeWidg
     return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
   });
 
+  const actionIds = actions.map(action => action.id);
+  const isAllSelected = actionIds.length > 0 && actionIds.every(id => selectedItems.includes(id));
+  const isPartiallySelected = selectedItems.length > 0 && selectedItems.length < actionIds.length && actionIds.some(id => selectedItems.includes(id));
+
   return (
-    <Card className="border-blue-200 bg-blue-50/30">
+    <Card className="border-border bg-muted/30">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center space-x-2 text-blue-700">
-            <Phone className="h-4 w-4" />
-            <span>📞 Calls to Make</span>
+          <div className="flex items-center space-x-2">
+            {showBulkActions && onToggleAll && (
+              <Checkbox
+                checked={isAllSelected}
+                ref={(el) => {
+                  if (el && 'indeterminate' in el) {
+                    (el as any).indeterminate = isPartiallySelected;
+                  }
+                }}
+                onCheckedChange={() => onToggleAll(actionIds)}
+                className="mr-2"
+              />
+            )}
+            <div className="flex items-center space-x-2 text-foreground">
+              <Phone className="h-4 w-4" />
+              <span>Calls to Make</span>
+            </div>
           </div>
-          <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
+          <Badge variant="secondary" className="text-sm">
             {actions.length}
           </Badge>
         </CardTitle>
@@ -71,85 +101,92 @@ export function CallsToMakeWidget({ actions, onCompleteAction }: CallsToMakeWidg
             return (
               <div 
                 key={action.id}
-                className={`p-3 rounded-lg border ${
+                className={`p-3 rounded-lg border transition-colors ${
                   overdue 
-                    ? 'bg-red-100 border-red-300' 
+                    ? 'bg-destructive/10 border-destructive/30' 
                     : action.priority === 1
-                    ? 'bg-orange-100 border-orange-300'
-                    : 'bg-white border-blue-200'
-                }`}
+                    ? 'bg-accent border-border'
+                    : 'bg-background border-border'
+                } ${selectedItems.includes(action.id) ? 'ring-2 ring-primary' : ''}`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-medium text-sm truncate">
-                        {action.metadata?.student_name || 'Student'}
-                      </span>
-                      
-                      {action.metadata?.yield_score && action.metadata.yield_score >= 60 && (
-                        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 text-xs">
-                          <Star className="h-2 w-2 mr-1" />
-                          {action.metadata.yield_score}%
-                        </Badge>
-                      )}
-                      
-                      {overdue && (
-                        <Badge variant="destructive" className="text-xs">
-                          Overdue
-                        </Badge>
-                      )}
-                      
-                      {action.priority === 1 && !overdue && (
-                        <Badge variant="secondary" className="bg-orange-100 text-orange-700 text-xs">
-                          Urgent
-                        </Badge>
-                      )}
-                    </div>
+                  <div className="flex items-start space-x-3 flex-1 min-w-0">
+                    {showBulkActions && onToggleItem && (
+                      <Checkbox
+                        checked={selectedItems.includes(action.id)}
+                        onCheckedChange={() => onToggleItem(action.id)}
+                        className="mt-0.5"
+                      />
+                    )}
                     
-                    <p className="text-xs text-muted-foreground mb-1 line-clamp-1">
-                      {action.instruction}
-                    </p>
-                    
-                    {/* Journey/Play Context */}
-                    {(action.metadata?.play_name || action.metadata?.journey_context) && (
-                      <div className="flex flex-wrap items-center gap-1 mb-1">
-                        {action.metadata?.journey_context && (
-                          <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                            🎯 {action.metadata.stage_name || 'Journey'}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <span className="font-medium text-sm truncate">
+                          {action.metadata?.student_name || 'Student'}
+                        </span>
+                        
+                        {action.metadata?.yield_score && action.metadata.yield_score >= 60 && (
+                          <Badge variant="outline" className="text-xs">
+                            <Star className="h-2 w-2 mr-1" />
+                            {action.metadata.yield_score}%
                           </Badge>
                         )}
-                        {action.metadata?.play_name && (
-                          <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                            ⚡ {action.metadata.play_name}
+                        
+                        {overdue && (
+                          <Badge variant="destructive" className="text-xs">
+                            Overdue
+                          </Badge>
+                        )}
+                        
+                        {action.priority === 1 && !overdue && (
+                          <Badge variant="secondary" className="text-xs">
+                            Urgent
                           </Badge>
                         )}
                       </div>
-                    )}
-                    
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>
-                        {overdue ? 'Overdue' : scheduledTime.toLocaleTimeString([], { 
-                          hour: '2-digit', 
-                          minute: '2-digit' 
-                        })}
-                      </span>
                       
-                      {action.metadata?.contact_info?.phone && (
-                        <span className="truncate">
-                          • {action.metadata.contact_info.phone}
-                        </span>
+                      <p className="text-xs text-muted-foreground mb-1 line-clamp-1">
+                        {action.instruction}
+                      </p>
+                      
+                      {/* Journey/Play Context */}
+                      {(action.metadata?.play_name || action.metadata?.journey_context) && (
+                        <div className="flex flex-wrap items-center gap-1 mb-1">
+                          {action.metadata?.journey_context && (
+                            <Badge variant="outline" className="text-xs">
+                              🎯 {action.metadata.stage_name || 'Journey'}
+                            </Badge>
+                          )}
+                          {action.metadata?.play_name && (
+                            <Badge variant="outline" className="text-xs">
+                              ⚡ {action.metadata.play_name}
+                            </Badge>
+                          )}
+                        </div>
                       )}
+                      
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        <span>
+                          {overdue ? 'Overdue' : scheduledTime.toLocaleTimeString([], { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </span>
+                        
+                        {action.metadata?.contact_info?.phone && (
+                          <span className="truncate">
+                            • {action.metadata.contact_info.phone}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   <Button
                     size="sm"
                     variant={overdue || action.priority === 1 ? "default" : "outline"}
-                    className={`ml-2 h-6 px-2 text-xs ${
-                      overdue ? 'bg-red-600 hover:bg-red-700' :
-                      action.priority === 1 ? 'bg-orange-600 hover:bg-orange-700' : ''
-                    }`}
+                    className="ml-2 h-6 px-2 text-xs"
                     onClick={() => onCompleteAction(action.id)}
                   >
                     Call
@@ -162,7 +199,7 @@ export function CallsToMakeWidget({ actions, onCompleteAction }: CallsToMakeWidg
         
         {actions.length > 4 && (
           <div className="text-center pt-2">
-            <Button variant="ghost" size="sm" className="text-blue-700 hover:bg-blue-100">
+            <Button variant="ghost" size="sm" className="text-primary hover:bg-accent">
               View all {actions.length} calls →
             </Button>
           </div>

@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
+import { AuthSessionMonitor } from "@/components/auth/AuthSessionMonitor";
 import ScrollToTop from "@/components/ScrollToTop";
 import Home from "./pages/Home";
 import ModernSignIn from "./pages/ModernSignIn";
@@ -41,6 +42,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <AuthSessionMonitor />
             <ScrollToTop />
             <DataInitializer>
               <Routes>

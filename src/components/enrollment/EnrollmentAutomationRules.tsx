@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Zap, Plus, Edit, Trash2, Clock, Mail, Phone, MessageSquare } from 'lucide-react';
+import { Zap, Plus, Edit, Trash2, Clock, Mail, Phone, MessageSquare, Settings, Shield, Cog } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -218,6 +218,57 @@ export function EnrollmentAutomationRules() {
 
   return (
     <div className="p-6 space-y-6">
+      {/* Navigation Hints */}
+      <Card className="border-purple-200 bg-purple-50/50">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Settings className="h-6 w-6 text-blue-600" />
+              </div>
+              <h4 className="font-medium text-foreground mb-2">Playbooks</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Manager-friendly business recipes with simple on/off switches.
+              </p>
+              <a href="/admin/enrollment/playbooks" className="text-sm text-blue-600 hover:underline">
+                ← Simpler Interface
+              </a>
+            </div>
+            
+            <div className="text-center">
+              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Shield className="h-6 w-6 text-orange-600" />
+              </div>
+              <h4 className="font-medium text-foreground mb-2">Policies</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Safety rules that control when/how these automation rules can execute.
+              </p>
+              <a href="/admin/enrollment/policies" className="text-sm text-blue-600 hover:underline">
+                Configure Policies →
+              </a>
+            </div>
+            
+            <div className="text-center">
+              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Cog className="h-6 w-6 text-purple-600" />
+              </div>
+              <h4 className="font-medium text-foreground mb-2">Automation Rules (This Page)</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Advanced technical interface for complex triggers and custom conditions.
+              </p>
+              <Badge variant="default" className="text-xs">You Are Here</Badge>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-background border rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              <strong>Advanced Interface:</strong> Use this for complex scenarios that don't fit standard Playbooks. 
+              Most users should start with Playbooks for 80% of automation needs.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Automation Rules</h1>

@@ -236,13 +236,57 @@ export function PoliciesConfiguration() {
         </Badge>
       </div>
 
+      {/* Navigation Hints */}
+      <Card className="border-orange-200 bg-orange-50/50">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Settings className="h-6 w-6 text-blue-600" />
+              </div>
+              <h4 className="font-medium text-foreground mb-2">Playbooks</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Simple on/off switches for enrollment sequences and business recipes.
+              </p>
+              <a href="/admin/enrollment/playbooks" className="text-sm text-blue-600 hover:underline">
+                ← Back to Playbooks
+              </a>
+            </div>
+            
+            <div className="text-center">
+              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <Shield className="h-6 w-6 text-orange-600" />
+              </div>
+              <h4 className="font-medium text-foreground mb-2">Policies (This Page)</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Safety rules that all automation must follow. Quiet hours, pacing, stop triggers.
+              </p>
+              <Badge variant="default" className="text-xs">You Are Here</Badge>
+            </div>
+            
+            <div className="text-center">
+              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
+                <MessageSquare className="h-6 w-6 text-purple-600" />
+              </div>
+              <h4 className="font-medium text-foreground mb-2">Automation Rules</h4>
+              <p className="text-sm text-muted-foreground mb-3">
+                Advanced technical interface for complex triggers and custom scenarios.
+              </p>
+              <a href="/admin/enrollment/automation-rules" className="text-sm text-blue-600 hover:underline">
+                Advanced Rules →
+              </a>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Explanation */}
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="p-6">
           <h3 className="font-medium mb-2">What are Policies?</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Policies are the rules of the road—quiet hours, stop after deposit, pacing, and which channels are allowed. 
-            They keep things sensible and safe.
+            They keep things sensible and safe. <strong>Policies win</strong> — even if a playbook wants to send a message, policies can block it.
           </p>
           
           {preview && (

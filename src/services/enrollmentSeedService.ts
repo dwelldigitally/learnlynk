@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { supabaseWrapper } from './supabaseWrapper';
 
 // Generate proper UUID
 function generateUUID(): string {

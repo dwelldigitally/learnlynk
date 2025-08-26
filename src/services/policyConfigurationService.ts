@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { supabaseWrapper } from './supabaseWrapper';
 
 type PolicyConfiguration = Database['public']['Tables']['policy_configurations']['Row'];
 type PolicyConfigurationInsert = Database['public']['Tables']['policy_configurations']['Insert'];
@@ -10,13 +11,15 @@ export type PolicyConfigInsert = PolicyConfigurationInsert;
 export class PolicyConfigurationService {
   // Get all policy configurations
   static async getAllConfigurations(): Promise<PolicyConfig[]> {
-    const { data, error } = await supabase
-      .from('policy_configurations')
-      .select('*')
-      .order('created_at');
+    return supabaseWrapper.retryOperation(async () => {
+      const { data, error } = await supabase
+        .from('policy_configurations')
+        .select('*')
+        .order('created_at');
 
-    if (error) throw error;
-    return data || [];
+      if (error) throw error;
+      return data || [];
+    });
   }
 
   // Get playbook configurations (policy_name like playbooks)

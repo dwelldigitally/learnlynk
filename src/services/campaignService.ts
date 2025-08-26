@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { supabaseWrapper } from './supabaseWrapper';
 
 type DbCampaign = Database['public']['Tables']['campaigns']['Row'];
 type DbCampaignStep = Database['public']['Tables']['campaign_steps']['Row'];
@@ -14,13 +15,15 @@ export type CampaignStepInsert = Database['public']['Tables']['campaign_steps'][
 
 export class CampaignService {
   static async getCampaigns(): Promise<Campaign[]> {
-    const { data, error } = await supabase
-      .from('campaigns')
-      .select('*')
-      .order('created_at', { ascending: false });
+    return supabaseWrapper.retryOperation(async () => {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
+      if (error) throw error;
+      return data || [];
+    });
   }
 
   static async createCampaign(campaignData: Omit<CampaignInsert, 'user_id'>): Promise<Campaign> {

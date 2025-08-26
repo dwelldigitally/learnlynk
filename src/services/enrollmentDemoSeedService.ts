@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { supabaseWrapper } from './supabaseWrapper';
 
 export interface Play {
   name: string;

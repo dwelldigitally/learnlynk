@@ -4,7 +4,7 @@ import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService'
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { useAuthRetry } from '@/hooks/useAuthRetry';
+import { useAuthenticatedOperation } from '@/hooks/useAuthenticatedOperation';
 
 interface DataInitializerProps {
   children: React.ReactNode;
@@ -15,8 +15,8 @@ export function DataInitializer({ children }: DataInitializerProps) {
   const [initializationError, setInitializationError] = useState<string | null>(null);
   const initializationAttempted = useRef(false);
   const { toast } = useToast();
-  const { user, loading: authLoading, isTokenValid, refreshSession } = useAuth();
-  const { executeWithRetry } = useAuthRetry();
+  const { user, loading: authLoading, isTokenValid, refreshSession, session } = useAuth();
+  const { executeWithAuth } = useAuthenticatedOperation();
 
   useEffect(() => {
     const initializeData = async () => {
@@ -88,7 +88,7 @@ export function DataInitializer({ children }: DataInitializerProps) {
           };
         };
 
-        const { existingActions, existingPlays, hasError } = await executeWithRetry(checkExistingData);
+        const { existingActions, existingPlays, hasError } = await executeWithAuth(checkExistingData);
 
         if (hasError) {
           throw new Error('Failed to check existing data after retry attempts');
@@ -106,7 +106,7 @@ export function DataInitializer({ children }: DataInitializerProps) {
             await enrollmentSeedService.seedAll();
           };
 
-          await executeWithRetry(seedData);
+          await executeWithAuth(seedData);
           
           console.log('📊 DataInitializer: Demo data seeded successfully');
           toast({
@@ -141,7 +141,7 @@ export function DataInitializer({ children }: DataInitializerProps) {
     if (!authLoading && !initializationAttempted.current) {
       initializeData();
     }
-  }, [user, authLoading, isTokenValid, toast, executeWithRetry]);
+  }, [user, authLoading, isTokenValid, toast, executeWithAuth]);
 
   // Handle token refresh when needed
   const handleRetryInitialization = async () => {

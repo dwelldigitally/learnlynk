@@ -1,27 +1,30 @@
 import { supabase } from '@/integrations/supabase/client';
 import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
 import { Lead } from '@/types/lead';
+import { supabaseWrapper } from './supabaseWrapper';
 
 export class CommunicationTemplateService {
   static async getTemplates(type?: string): Promise<CommunicationTemplate[]> {
-    let query = supabase
-      .from('communication_templates')
-      .select('*')
-      .eq('is_active', true)
-      .order('usage_count', { ascending: false });
+    return supabaseWrapper.retryOperation(async () => {
+      let query = supabase
+        .from('communication_templates')
+        .select('*')
+        .eq('is_active', true)
+        .order('usage_count', { ascending: false });
 
-    if (type) {
-      query = query.eq('type', type);
-    }
+      if (type) {
+        query = query.eq('type', type);
+      }
 
-    const { data, error } = await query;
+      const { data, error } = await query;
 
-    if (error) {
-      console.error('Error fetching templates:', error);
-      throw new Error('Failed to fetch templates');
-    }
+      if (error) {
+        console.error('Error fetching templates:', error);
+        throw new Error('Failed to fetch templates');
+      }
 
-    return (data || []) as CommunicationTemplate[];
+      return (data || []) as CommunicationTemplate[];
+    });
   }
 
   static async createTemplate(templateData: TemplateFormData): Promise<CommunicationTemplate> {

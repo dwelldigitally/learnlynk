@@ -3,7 +3,6 @@ import { Search, ChevronRight, ChevronDown, Menu } from "lucide-react";
 import { useState } from "react";
 import { navigationStructure } from "@/data/navigationStructure";
 import { Button } from "@/components/ui/button";
-import { AIQuickActions } from "./AIQuickActions";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import {
@@ -386,12 +385,6 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
         )}
       </div>
 
-      {/* AI Quick Actions Footer */}
-      {!isCollapsed && (
-        <div className="border-t border-border p-4">
-          <AIQuickActions />
-        </div>
-      )}
     </div>
   );
 }

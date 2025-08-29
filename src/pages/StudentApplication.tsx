@@ -239,9 +239,9 @@ export default function StudentApplication() {
         description: "You will be redirected to your student portal."
       });
 
-      // Redirect to student portal with access token
+      // Redirect to existing student portal
       setTimeout(() => {
-        navigate(`/student-portal/${accessToken}`);
+        navigate(`/student?token=${accessToken}`);
       }, 2000);
 
     } catch (error) {

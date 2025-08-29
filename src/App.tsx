@@ -32,7 +32,6 @@ import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
 import StudentApplication from "./pages/StudentApplication";
-import { StudentPortalAccess } from "./components/student/StudentPortalAccess";
 
 const queryClient = new QueryClient();
 
@@ -55,10 +54,9 @@ const App = () => {
                <Route path="/forgot-password" element={<ForgotPassword />} />
                <Route path="/reset-password" element={<ResetPassword />} />
                
-               {/* Webform Routes */}
-               <Route path="/webform" element={<StudentApplication />} />
-               <Route path="/apply" element={<StudentApplication />} />
-               <Route path="/student-portal/:accessToken" element={<StudentPortalAccess />} />
+                {/* Webform Routes */}
+                <Route path="/webform" element={<StudentApplication />} />
+                <Route path="/apply" element={<StudentApplication />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               

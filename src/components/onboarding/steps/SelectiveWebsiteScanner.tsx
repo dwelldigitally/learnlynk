@@ -76,6 +76,10 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
   const [scanProgress, setScanProgress] = useState<ScanProgress>({ current: 0, total: 0, currentPage: '' });
   const [scanResults, setScanResults] = useState<any>(null);
   const [estimatedTime, setEstimatedTime] = useState(0);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanStatus, setScanStatus] = useState<string>('');
+  const [scanError, setScanError] = useState<string | null>(null);
+  const [progressInterval, setProgressInterval] = useState<NodeJS.Timeout | null>(null);
 
   const discoverPages = async () => {
     if (!websiteUrl) {
@@ -312,25 +316,77 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
       return;
     }
 
+    // Reset state
+    setIsScanning(true);
+    setScanError(null);
     setCurrentStep('scanning');
     setScanProgress({ current: 0, total: allUrls.length, currentPage: '' });
+    setScanStatus('Initializing scan...');
+
+    // Clear any existing progress interval
+    if (progressInterval) {
+      clearInterval(progressInterval);
+      setProgressInterval(null);
+    }
+
+    const timeoutMs = 5 * 60 * 1000; // 5 minute timeout
+    let timeoutId: NodeJS.Timeout;
 
     try {
-      console.log('Starting real scan with URLs:', allUrls);
+      console.log('Starting scan with URLs:', allUrls);
       
-      // Update progress periodically during scan
-      const progressInterval = setInterval(() => {
-        setScanProgress(prev => ({
-          ...prev,
-          current: Math.min(prev.current + 1, prev.total),
-          currentPage: `Scanning page ${Math.min(prev.current + 1, prev.total)}/${prev.total}`
-        }));
-      }, 1000);
+      toast({
+        title: "Starting Scan",
+        description: `Analyzing ${allUrls.length} pages. This may take a few minutes.`,
+      });
 
-      // Perform real scan using WebsiteScannerService
-      const scanResult = await WebsiteScannerService.scanSpecificPages(allUrls);
+      // Set up timeout
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutId = setTimeout(() => {
+          reject(new Error('Scan timed out after 5 minutes. Try selecting fewer pages or try again later.'));
+        }, timeoutMs);
+      });
+
+      // Set up progress tracking
+      setScanStatus('Scanning pages...');
       
-      clearInterval(progressInterval);
+      // Create scanning promise with progress tracking
+      const scanPromise = (async () => {
+        // Start progress updates
+        let progressStep = 0;
+        const interval = setInterval(() => {
+          progressStep = (progressStep + 1) % allUrls.length;
+          setScanProgress(prev => ({
+            ...prev,
+            current: Math.min(prev.current + 0.5, prev.total * 0.8), // Don't exceed 80% until done
+            currentPage: `Analyzing: ${allUrls[progressStep]?.split('/').pop() || 'page'}`
+          }));
+        }, 2000);
+        
+        setProgressInterval(interval);
+
+        try {
+          const scanResult = await WebsiteScannerService.scanSpecificPages(allUrls);
+          clearInterval(interval);
+          return scanResult;
+        } catch (error) {
+          clearInterval(interval);
+          throw error;
+        }
+      })();
+
+      // Race between scan and timeout
+      const scanResult = await Promise.race([scanPromise, timeoutPromise]);
+      
+      clearTimeout(timeoutId);
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        setProgressInterval(null);
+      }
+
+      // Complete progress
+      setScanProgress({ current: allUrls.length, total: allUrls.length, currentPage: 'Processing results...' });
+      setScanStatus('Processing scan results...');
       
       if (scanResult.success) {
         const results = {
@@ -373,18 +429,67 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
           description: `Successfully analyzed ${scanResult.pages_scanned} pages and found ${results.programs.length} programs.`,
         });
       } else {
-        throw new Error(scanResult.error || 'Scan failed');
+        throw new Error(scanResult.error || 'Scan failed - no data returned');
       }
 
     } catch (error) {
       console.error('Scan error:', error);
-      toast({
-        title: "Scan Failed",
-        description: error instanceof Error ? error.message : "Unable to complete the scan. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Clear timeout and intervals
+      clearTimeout(timeoutId!);
+      if (progressInterval) {
+        clearInterval(progressInterval);
+        setProgressInterval(null);
+      }
+
+      const errorMessage = error instanceof Error ? error.message : "Unable to complete the scan";
+      setScanError(errorMessage);
+      
+      // Show different messages based on error type
+      if (errorMessage.includes('timeout') || errorMessage.includes('timed out')) {
+        toast({
+          title: "Scan Timed Out",
+          description: "The scan took too long. Try selecting fewer pages or try again later.",
+          variant: "destructive"
+        });
+      } else if (errorMessage.includes('rate limit')) {
+        toast({
+          title: "Rate Limit Reached",
+          description: "Too many requests. Please wait a few minutes and try again.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Scan Failed",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
+      
       setCurrentStep('selection');
+    } finally {
+      setIsScanning(false);
+      setScanStatus('');
     }
+  };
+
+  const cancelScan = () => {
+    if (progressInterval) {
+      clearInterval(progressInterval);
+      setProgressInterval(null);
+    }
+    setIsScanning(false);
+    setScanError(null);
+    setCurrentStep('selection');
+    toast({
+      title: "Scan Cancelled",
+      description: "The scan has been cancelled.",
+    });
+  };
+
+  const retryScan = () => {
+    setScanError(null);
+    startScan();
   };
 
   const handleConfirm = () => {
@@ -649,7 +754,7 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
 
   // Step 3: Scanning Progress
   if (currentStep === 'scanning') {
-    const progress = (scanProgress.current / scanProgress.total) * 100;
+    const progress = Math.min((scanProgress.current / scanProgress.total) * 100, 100);
     
     return (
       <div className="space-y-8">
@@ -658,39 +763,89 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
             <Search className="w-8 h-8 text-primary animate-pulse" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
-            Scanning Selected Pages
+            {scanError ? 'Scan Failed' : 'Scanning Selected Pages'}
           </h3>
           <p className="text-muted-foreground">
-            Analyzing your selected pages for programs, fees, and requirements...
+            {scanError ? 'There was an issue with the scan' : 'Analyzing your selected pages for programs, fees, and requirements...'}
           </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Progress</span>
-              <span>{scanProgress.current} of {scanProgress.total} pages</span>
+        {scanError ? (
+          <div className="space-y-4">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <X className="w-5 h-5 text-destructive mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-medium text-destructive">
+                    Scan Error
+                  </h4>
+                  <p className="text-sm text-destructive/80 mt-1">
+                    {scanError}
+                  </p>
+                </div>
+              </div>
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
-              <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
+
+            <div className="flex justify-center space-x-3">
+              <Button variant="outline" onClick={() => setCurrentStep('selection')}>
+                Back to Selection
+              </Button>
+              <Button onClick={retryScan}>
+                Try Again
+              </Button>
             </div>
           </div>
-          
-          {scanProgress.currentPage && (
-            <div className="text-center">
-              <p className="text-sm text-muted-foreground">
-                Currently scanning: <span className="font-medium">{scanProgress.currentPage}</span>
-              </p>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Progress</span>
+                <span>{Math.round(scanProgress.current)} of {scanProgress.total} pages</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-3">
+                <div 
+                  className="bg-primary h-3 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+                  style={{ width: `${Math.max(progress, 5)}%` }}
+                >
+                  {progress > 20 && (
+                    <span className="text-xs text-primary-foreground font-medium">
+                      {Math.round(progress)}%
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
+            
+            {scanProgress.currentPage && (
+              <div className="text-center">
+                <p className="text-sm text-muted-foreground">
+                  <span className="font-medium">{scanProgress.currentPage}</span>
+                </p>
+              </div>
+            )}
+
+            {scanStatus && (
+              <div className="text-center">
+                <p className="text-xs text-muted-foreground">
+                  Status: {scanStatus}
+                </p>
+              </div>
+            )}
+
+            <div className="flex justify-center">
+              <Button variant="outline" onClick={cancelScan} size="sm">
+                Cancel Scan
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            This focused scan is much faster than analyzing entire websites.
+            {scanError 
+              ? 'You can try again with fewer pages or different URLs'
+              : 'This focused scan analyzes only your selected pages for faster results.'
+            }
           </p>
         </div>
       </div>

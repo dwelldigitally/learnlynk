@@ -195,10 +195,12 @@ export function ComposeMessageModal({
 
         const response = await supabase.functions.invoke('send-lead-email', {
           body: {
-            to: selectedLead.email,
+            leadId: selectedLead.id,
+            leadEmail: selectedLead.email,
+            leadName: `${selectedLead.first_name} ${selectedLead.last_name}`,
+            emailType: 'ai_generated',
             subject,
-            htmlContent: content.replace(/\n/g, '<br>'),
-            leadId: selectedLead.id
+            content: content.replace(/\n/g, '<br>')
           }
         });
 

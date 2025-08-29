@@ -1,31 +1,59 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, createContext, useContext } from "react";
 import { useLocation, useSearchParams } from "react-router-dom";
 import StudentLayout from "@/components/student/StudentLayout";
 import StudentDashboard from "@/components/student/StudentDashboard";
 import StudentOverview from "@/components/student/StudentOverview";
 import YourApplications from "@/components/student/YourApplications";
-import PayYourFee from "@/components/student/PayYourFee";
 import MessageCentre from "@/components/student/MessageCentre";
 import AcademicPlanning from "@/components/student/AcademicPlanning";
-import FinancialAid from "@/components/student/FinancialAid";
-import CareerServices from "@/components/student/CareerServices";
+import DocumentUpload from "@/components/student/DocumentUpload";
+import PayYourFee from "@/components/student/PayYourFee";
 
 import NewsAndEvents from "./NewsAndEvents";
 import LifeAtWCC from "./LifeAtWCC";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+import { useStudentSession, useStudentPortalRealtime, useActivityTracking } from "@/hooks/useStudentPortalIntegration";
+
+// Student Portal Context
+interface StudentPortalContextType {
+  session: any;
+  accessToken: string | null;
+  leadId: string | null;
+  sessionId: string | null;
+  isLoading: boolean;
+}
+
+const StudentPortalContext = createContext<StudentPortalContextType>({
+  session: null,
+  accessToken: null,
+  leadId: null,
+  sessionId: null,
+  isLoading: true,
+});
+
+export const useStudentPortalContext = () => useContext(StudentPortalContext);
 
 const StudentPortal: React.FC = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [portalData, setPortalData] = useState<any>(null);
   const [isValidating, setIsValidating] = useState(false);
   
-  // Check for access token from webform redirect
+  // Get session data using the integration hook
+  const { data: session, isLoading: sessionLoading } = useStudentSession(accessToken);
+  
+  // Set up real-time updates and activity tracking
+  const { isConnected } = useStudentPortalRealtime(session?.lead_id || null);
+  useActivityTracking(session?.id || null);
+  
+  // Check for access token from webform redirect or URL params
   useEffect(() => {
     const token = searchParams.get('token');
     if (token) {
+      setAccessToken(token);
       validateAccessToken(token);
     }
   }, [searchParams]);
@@ -72,10 +100,8 @@ const StudentPortal: React.FC = () => {
         return <YourApplications />;
       case "/student/academic-planning":
         return <AcademicPlanning />;
-      case "/student/financial-aid":
-        return <FinancialAid />;
-      case "/student/career-services":
-        return <CareerServices />;
+      case "/student/documents":
+        return <DocumentUpload />;
       case "/student/fee":
         return <PayYourFee />;
       case "/student/messages":
@@ -89,10 +115,46 @@ const StudentPortal: React.FC = () => {
     }
   };
 
+  // Create context value
+  const contextValue: StudentPortalContextType = {
+    session,
+    accessToken,
+    leadId: session?.lead_id || null,
+    sessionId: session?.id || null,
+    isLoading: sessionLoading || isValidating,
+  };
+
+  if (isValidating || sessionLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading your portal...</p>
+          {isConnected && (
+            <p className="mt-2 text-sm text-emerald-600">🔄 Real-time updates connected</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!session && accessToken) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-destructive">Access Denied</h2>
+          <p className="mt-2 text-muted-foreground">Your session has expired or is invalid.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <StudentLayout>
-      {renderContent()}
-    </StudentLayout>
+    <StudentPortalContext.Provider value={contextValue}>
+      <StudentLayout>
+        {renderContent()}
+      </StudentLayout>
+    </StudentPortalContext.Provider>
   );
 };
 

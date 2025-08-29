@@ -5161,6 +5161,57 @@ export type Database = {
         }
         Relationships: []
       }
+      student_academic_plans: {
+        Row: {
+          academic_level: string | null
+          advisor_approved_at: string | null
+          advisor_approved_by: string | null
+          advisor_notes: string | null
+          course_selections: Json | null
+          created_at: string | null
+          id: string
+          intake_date: string | null
+          lead_id: string
+          prerequisites_status: Json | null
+          program_name: string
+          session_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          academic_level?: string | null
+          advisor_approved_at?: string | null
+          advisor_approved_by?: string | null
+          advisor_notes?: string | null
+          course_selections?: Json | null
+          created_at?: string | null
+          id?: string
+          intake_date?: string | null
+          lead_id: string
+          prerequisites_status?: Json | null
+          program_name: string
+          session_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          academic_level?: string | null
+          advisor_approved_at?: string | null
+          advisor_approved_by?: string | null
+          advisor_notes?: string | null
+          course_selections?: Json | null
+          created_at?: string | null
+          id?: string
+          intake_date?: string | null
+          lead_id?: string
+          prerequisites_status?: Json | null
+          program_name?: string
+          session_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       student_actions: {
         Row: {
           action_type: string
@@ -5222,6 +5273,60 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_application_progress: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          estimated_completion: string | null
+          id: string
+          last_updated_by: string | null
+          lead_id: string
+          next_steps: string | null
+          progress_percentage: number | null
+          requirements_completed: Json | null
+          requirements_pending: Json | null
+          session_id: string
+          stage: string
+          status: string | null
+          substage: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string | null
+          estimated_completion?: string | null
+          id?: string
+          last_updated_by?: string | null
+          lead_id: string
+          next_steps?: string | null
+          progress_percentage?: number | null
+          requirements_completed?: Json | null
+          requirements_pending?: Json | null
+          session_id: string
+          stage: string
+          status?: string | null
+          substage?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string | null
+          estimated_completion?: string | null
+          id?: string
+          last_updated_by?: string | null
+          lead_id?: string
+          next_steps?: string | null
+          progress_percentage?: number | null
+          requirements_completed?: Json | null
+          requirements_pending?: Json | null
+          session_id?: string
+          stage?: string
+          status?: string | null
+          substage?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       student_applications: {
         Row: {
@@ -5328,6 +5433,66 @@ export type Database = {
         }
         Relationships: []
       }
+      student_document_uploads: {
+        Row: {
+          admin_comments: string | null
+          admin_reviewed_at: string | null
+          admin_reviewed_by: string | null
+          admin_status: string | null
+          created_at: string | null
+          document_name: string
+          document_type: string
+          file_path: string | null
+          file_size: number | null
+          id: string
+          lead_id: string
+          metadata: Json | null
+          ocr_text: string | null
+          requirement_id: string | null
+          session_id: string
+          updated_at: string | null
+          upload_status: string | null
+        }
+        Insert: {
+          admin_comments?: string | null
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          admin_status?: string | null
+          created_at?: string | null
+          document_name: string
+          document_type: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          ocr_text?: string | null
+          requirement_id?: string | null
+          session_id: string
+          updated_at?: string | null
+          upload_status?: string | null
+        }
+        Update: {
+          admin_comments?: string | null
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          admin_status?: string | null
+          created_at?: string | null
+          document_name?: string
+          document_type?: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          ocr_text?: string | null
+          requirement_id?: string | null
+          session_id?: string
+          updated_at?: string | null
+          upload_status?: string | null
+        }
+        Relationships: []
+      }
       student_documents: {
         Row: {
           comments: string | null
@@ -5376,6 +5541,63 @@ export type Database = {
           updated_at?: string
           uploaded_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      student_fee_payments: {
+        Row: {
+          admin_confirmed_at: string | null
+          admin_confirmed_by: string | null
+          amount: number
+          created_at: string | null
+          currency: string | null
+          due_date: string | null
+          id: string
+          lead_id: string
+          paid_date: string | null
+          payment_data: Json | null
+          payment_method: string | null
+          payment_reference: string | null
+          payment_status: string | null
+          payment_type: string
+          session_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          admin_confirmed_at?: string | null
+          admin_confirmed_by?: string | null
+          amount: number
+          created_at?: string | null
+          currency?: string | null
+          due_date?: string | null
+          id?: string
+          lead_id: string
+          paid_date?: string | null
+          payment_data?: Json | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
+          payment_type: string
+          session_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          admin_confirmed_at?: string | null
+          admin_confirmed_by?: string | null
+          amount?: number
+          created_at?: string | null
+          currency?: string | null
+          due_date?: string | null
+          id?: string
+          lead_id?: string
+          paid_date?: string | null
+          payment_data?: Json | null
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string | null
+          payment_type?: string
+          session_id?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -5537,6 +5759,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      student_portal_communications: {
+        Row: {
+          attachments: Json | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          lead_id: string
+          message: string
+          message_type: string | null
+          priority: string | null
+          read_at: string | null
+          recipient_id: string | null
+          recipient_type: string
+          sender_id: string | null
+          sender_name: string
+          sender_type: string
+          session_id: string | null
+          subject: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          lead_id: string
+          message: string
+          message_type?: string | null
+          priority?: string | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_type: string
+          sender_id?: string | null
+          sender_name: string
+          sender_type: string
+          session_id?: string | null
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          lead_id?: string
+          message?: string
+          message_type?: string | null
+          priority?: string | null
+          read_at?: string | null
+          recipient_id?: string | null
+          recipient_type?: string
+          sender_id?: string | null
+          sender_name?: string
+          sender_type?: string
+          session_id?: string | null
+          subject?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       student_portal_config: {
         Row: {
@@ -5700,6 +5982,96 @@ export type Database = {
           subject?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      student_portal_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_read: boolean | null
+          lead_id: string
+          message: string
+          metadata: Json | null
+          notification_type: string
+          priority: string | null
+          read_at: string | null
+          session_id: string | null
+          title: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          lead_id: string
+          message: string
+          metadata?: Json | null
+          notification_type: string
+          priority?: string | null
+          read_at?: string | null
+          session_id?: string | null
+          title: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          lead_id?: string
+          message?: string
+          metadata?: Json | null
+          notification_type?: string
+          priority?: string | null
+          read_at?: string | null
+          session_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      student_portal_sessions: {
+        Row: {
+          access_token: string
+          created_at: string | null
+          email: string
+          expires_at: string
+          id: string
+          is_active: boolean | null
+          last_activity: string | null
+          lead_id: string
+          session_data: Json | null
+          student_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_token: string
+          created_at?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          is_active?: boolean | null
+          last_activity?: string | null
+          lead_id: string
+          session_data?: Json | null
+          student_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          created_at?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_activity?: string | null
+          lead_id?: string
+          session_data?: Json | null
+          student_name?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ComposeMessageModal } from './ComposeMessageModal';
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from 'react-hook-form';
 import { MessageDetailModal } from './modals/MessageDetailModal';
@@ -892,6 +893,17 @@ const CommunicationHub: React.FC = () => {
           mode={aiMode}
           onSave={handleAISave}
           existingTemplate={editingTemplate || undefined}
+        />
+      )}
+
+      {showComposeModal && (
+        <ComposeMessageModal
+          isOpen={showComposeModal}
+          onClose={() => setShowComposeModal(false)}
+          leadId="sample-lead-123"
+          leadName="Sample Lead"
+          leadEmail="sample@example.com"
+          leadPhone="+1234567890"
         />
       )}
     </div>

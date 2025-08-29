@@ -406,6 +406,21 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
             intakes: program.intake_dates,
             sourcePages: allUrls.filter(url => url.includes('program') || url.includes('academic'))
           })),
+          institution: {
+            name: scanResult.institution.name,
+            description: scanResult.institution.description || "Educational institution providing quality programs and services.",
+            website: websiteUrl,
+            phone: scanResult.institution.phone,
+            email: scanResult.institution.email,
+            address: scanResult.institution.address,
+            city: scanResult.institution.city,
+            state: scanResult.institution.state,
+            country: scanResult.institution.country,
+            logo_url: scanResult.institution.logo_url,
+            primary_color: scanResult.institution.primary_color,
+            founded_year: scanResult.institution.founded_year,
+            employee_count: scanResult.institution.employee_count
+          },
           generalInfo: {
             institutionName: scanResult.institution.name,
             accreditation: "Accredited Institution",

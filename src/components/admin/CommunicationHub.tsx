@@ -23,6 +23,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ComposeMessageModal } from './ComposeMessageModal';
+import { LeadSelector } from './LeadSelector';
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from 'react-hook-form';
 import { MessageDetailModal } from './modals/MessageDetailModal';
@@ -66,6 +67,8 @@ const CommunicationHub: React.FC = () => {
   const [automationBuilderOpen, setAutomationBuilderOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
+  const [showLeadSelector, setShowLeadSelector] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
@@ -196,6 +199,12 @@ const CommunicationHub: React.FC = () => {
     });
     
     setSelectedMessages([]);
+  };
+
+  const handleLeadSelect = (lead: any) => {
+    setSelectedLead(lead);
+    setShowLeadSelector(false);
+    setShowComposeModal(true);
   };
 
   // Template management functions
@@ -358,7 +367,7 @@ const CommunicationHub: React.FC = () => {
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
-          <Button onClick={() => setShowComposeModal(true)}>
+          <Button onClick={() => setShowLeadSelector(true)}>
             <Send className="h-4 w-4 mr-2" />
             Send Message
           </Button>
@@ -900,10 +909,15 @@ const CommunicationHub: React.FC = () => {
         <ComposeMessageModal
           isOpen={showComposeModal}
           onClose={() => setShowComposeModal(false)}
-          leadId="sample-lead-123"
-          leadName="Sample Lead"
-          leadEmail="sample@example.com"
-          leadPhone="+1234567890"
+          selectedLead={selectedLead}
+        />
+      )}
+
+      {showLeadSelector && (
+        <LeadSelector
+          isOpen={showLeadSelector}
+          onClose={() => setShowLeadSelector(false)}
+          onSelectLead={handleLeadSelect}
         />
       )}
     </div>

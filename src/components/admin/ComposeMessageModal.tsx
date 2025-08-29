@@ -25,10 +25,13 @@ import {
 interface ComposeMessageModalProps {
   isOpen: boolean;
   onClose: () => void;
-  leadId?: string;
-  leadName?: string;
-  leadEmail?: string;
-  leadPhone?: string;
+  selectedLead?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone?: string;
+  } | null;
 }
 
 interface GeneratedContent {
@@ -46,10 +49,7 @@ interface GeneratedContent {
 export function ComposeMessageModal({ 
   isOpen, 
   onClose, 
-  leadId = "sample-lead",
-  leadName = "John Doe", 
-  leadEmail = "john@example.com",
-  leadPhone = "+1234567890"
+  selectedLead
 }: ComposeMessageModalProps) {
   const [selectedType, setSelectedType] = useState<'email' | 'sms'>('email');
   const [selectedTone, setSelectedTone] = useState('professional');
@@ -81,8 +81,11 @@ export function ComposeMessageModal({
 
   const handleTemplateSelect = (templateId: string) => {
     const template = templates.find(t => t.id === templateId);
-    if (template) {
-      const mockLead = { name: leadName, email: leadEmail };
+    if (template && selectedLead) {
+      const mockLead = { 
+        name: `${selectedLead.first_name} ${selectedLead.last_name}`, 
+        email: selectedLead.email 
+      };
       const personalized = CommunicationTemplateService.personalizeContent(template, mockLead as any);
       
       if (selectedType === 'email' && personalized.subject) {
@@ -100,10 +103,10 @@ export function ComposeMessageModal({
         body: {
           action: 'generateCommunication',
           leadData: {
-            name: leadName,
-            email: leadEmail,
-            phone: leadPhone,
-            id: leadId
+            name: selectedLead ? `${selectedLead.first_name} ${selectedLead.last_name}` : 'Lead',
+            email: selectedLead?.email || '',
+            phone: selectedLead?.phone || '',
+            id: selectedLead?.id || ''
           },
           communicationType: selectedType,
           tone: selectedTone,
@@ -159,6 +162,15 @@ export function ComposeMessageModal({
   };
 
   const sendContent = async () => {
+    if (!selectedLead) {
+      toast({
+        title: "No Lead Selected",
+        description: "Please select a lead before sending",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!content.trim()) {
       toast({
         title: "Missing Content",
@@ -183,10 +195,10 @@ export function ComposeMessageModal({
 
         const response = await supabase.functions.invoke('send-lead-email', {
           body: {
-            to: leadEmail,
+            to: selectedLead.email,
             subject,
             htmlContent: content.replace(/\n/g, '<br>'),
-            leadId
+            leadId: selectedLead.id
           }
         });
 
@@ -194,7 +206,7 @@ export function ComposeMessageModal({
       } else {
         const response = await supabase.functions.invoke('send-sms', {
           body: {
-            phoneNumber: leadPhone,
+            phoneNumber: selectedLead.phone || '',
             message: content
           }
         });
@@ -204,7 +216,7 @@ export function ComposeMessageModal({
 
       toast({
         title: "Message Sent!",
-        description: `${selectedType === 'email' ? 'Email' : 'SMS'} sent successfully to ${leadName}`,
+        description: `${selectedType === 'email' ? 'Email' : 'SMS'} sent successfully to ${selectedLead.first_name} ${selectedLead.last_name}`,
       });
 
       // Reset form
@@ -251,7 +263,10 @@ export function ComposeMessageModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Compose Message - {leadName}</DialogTitle>
+          <DialogTitle>
+            Compose Message
+            {selectedLead && ` - ${selectedLead.first_name} ${selectedLead.last_name}`}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -383,11 +398,19 @@ export function ComposeMessageModal({
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Recipient Info */}
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-sm">
-                  <strong>To:</strong> {leadName} ({selectedType === 'email' ? leadEmail : leadPhone})
-                </p>
-              </div>
+              {selectedLead ? (
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-sm">
+                    <strong>To:</strong> {selectedLead.first_name} {selectedLead.last_name} ({selectedType === 'email' ? selectedLead.email : selectedLead.phone})
+                  </p>
+                </div>
+              ) : (
+                <div className="p-3 bg-destructive/10 rounded-lg">
+                  <p className="text-sm text-destructive">
+                    <strong>No lead selected.</strong> Please close this modal and select a lead first.
+                  </p>
+                </div>
+              )}
 
               {/* Subject (Email only) */}
               {selectedType === 'email' && (

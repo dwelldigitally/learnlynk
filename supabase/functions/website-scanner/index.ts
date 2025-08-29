@@ -110,18 +110,38 @@ serve(async (req) => {
 
     console.log('Using Firecrawl API with key:', firecrawlApiKey.substring(0, 8) + '...');
 
-    // Use Firecrawl scrape API for single page scraping (more reliable)
+    // Use Firecrawl crawl API for comprehensive multi-page crawling
     const requestBody = {
       url: url,
+      crawlerOptions: {
+        includes: [
+          "**/programs/**",
+          "**/courses/**", 
+          "**/admissions/**",
+          "**/fees/**",
+          "**/apply/**",
+          "**/academics/**",
+          "**/departments/**"
+        ],
+        excludes: [
+          "**/admin/**",
+          "**/login/**",
+          "**/student-portal/**",
+          "**/*.pdf",
+          "**/*.doc*"
+        ],
+        limit: comprehensive ? 50 : 20,
+        returnOnlyUrls: false
+      },
       pageOptions: {
         onlyMainContent: true,
         includeHtml: false
       }
     };
 
-    console.log('Firecrawl request body:', JSON.stringify(requestBody, null, 2));
+    console.log('Firecrawl crawl request body:', JSON.stringify(requestBody, null, 2));
 
-    const scrapeResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
+    const crawlResponse = await fetch('https://api.firecrawl.dev/v0/crawl', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
@@ -130,53 +150,84 @@ serve(async (req) => {
       body: JSON.stringify(requestBody),
     });
 
-    console.log('Firecrawl response status:', scrapeResponse.status);
+    console.log('Firecrawl crawl response status:', crawlResponse.status);
 
-    if (!scrapeResponse.ok) {
-      const errorText = await scrapeResponse.text();
+    if (!crawlResponse.ok) {
+      const errorText = await crawlResponse.text();
       console.error('Firecrawl API error details:', {
-        status: scrapeResponse.status,
-        statusText: scrapeResponse.statusText,
-        headers: Object.fromEntries(scrapeResponse.headers.entries()),
+        status: crawlResponse.status,
+        statusText: crawlResponse.statusText,
+        headers: Object.fromEntries(crawlResponse.headers.entries()),
         body: errorText
       });
       
       // Provide specific error messages based on status code
-      if (scrapeResponse.status === 401) {
+      if (crawlResponse.status === 401) {
         throw new Error('Invalid Firecrawl API key. Please check your API key configuration.');
-      } else if (scrapeResponse.status === 429) {
+      } else if (crawlResponse.status === 429) {
         throw new Error('Firecrawl API rate limit exceeded. Please try again later.');
-      } else if (scrapeResponse.status === 400) {
+      } else if (crawlResponse.status === 400) {
         throw new Error(`Invalid request to Firecrawl API. Details: ${errorText}`);
       } else {
-        throw new Error(`Firecrawl API error: ${scrapeResponse.status} - ${errorText}`);
+        throw new Error(`Firecrawl API error: ${crawlResponse.status} - ${errorText}`);
       }
     }
 
-    const scrapeData = await scrapeResponse.json();
-    console.log('Firecrawl response data structure:', Object.keys(scrapeData));
+    const crawlData = await crawlResponse.json();
+    console.log('Firecrawl crawl response data structure:', Object.keys(crawlData));
     
-    if (!scrapeData.success) {
-      console.error('Scrape failed:', scrapeData);
-      throw new Error(`Website scraping failed: ${scrapeData.error || 'Unknown error'}`);
+    if (!crawlData.success) {
+      console.error('Crawl failed:', crawlData);
+      throw new Error(`Website crawling failed: ${crawlData.error || 'Unknown error'}`);
     }
 
-    console.log(`Successfully scraped content from: ${url}`);
+    // Wait for crawl completion if it's still in progress
+    let jobId = crawlData.jobId;
+    let crawlResult = crawlData;
+    
+    if (jobId && crawlData.status !== 'completed') {
+      console.log(`Crawl job ${jobId} in progress, waiting for completion...`);
+      
+      // Poll for completion (max 2 minutes)
+      const maxAttempts = 24; // 24 * 5 seconds = 2 minutes
+      let attempts = 0;
+      
+      while (attempts < maxAttempts && crawlResult.status !== 'completed') {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+        
+        const statusResponse = await fetch(`https://api.firecrawl.dev/v0/crawl/status/${jobId}`, {
+          headers: {
+            'Authorization': `Bearer ${firecrawlApiKey}`,
+          },
+        });
+        
+        if (statusResponse.ok) {
+          crawlResult = await statusResponse.json();
+          console.log(`Crawl status: ${crawlResult.status}, completed: ${crawlResult.completed || 0}/${crawlResult.total || 0}`);
+          attempts++;
+        } else {
+          break;
+        }
+      }
+      
+      if (crawlResult.status !== 'completed') {
+        console.warn('Crawl did not complete in time, using partial results');
+      }
+    }
 
-    // Prepare content for AI analysis - handle different response formats
-    const contentText = scrapeData.data?.markdown || scrapeData.data?.content || scrapeData.markdown || scrapeData.content || '';
-    const extractedData = scrapeData.data?.extract || scrapeData.extract || {};
-    const metadata = scrapeData.data?.metadata || scrapeData.metadata || {};
+    const crawledPages = crawlResult.data || [];
+    console.log(`Successfully crawled ${crawledPages.length} pages from: ${url}`);
 
-    const scrapedContent = [{
-      url: url,
-      title: metadata.title || 'Website Content',
-      content: contentText,
-      extracted: extractedData
-    }];
+    // Prepare content for AI analysis
+    const scrapedContent = crawledPages.map((page: any, index: number) => ({
+      url: page.metadata?.sourceURL || page.url || `${url}/page-${index}`,
+      title: page.metadata?.title || `Page ${index + 1}`,
+      content: page.markdown || page.content || '',
+      extracted: page.extract || {}
+    })).filter((page: any) => page.content && page.content.length > 100); // Filter out pages with minimal content
 
-    console.log(`Content length: ${contentText.length} characters`);
-    console.log('Extracted data keys:', Object.keys(extractedData));
+    const totalContentLength = scrapedContent.reduce((sum: number, page: any) => sum + page.content.length, 0);
+    console.log(`Total content length: ${totalContentLength} characters across ${scrapedContent.length} pages`);
 
     // Now analyze with AI
     const analysisResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-content-analyzer`, {
@@ -210,8 +261,8 @@ serve(async (req) => {
       programs: analysisResult.programs || [],
       applicationForms: analysisResult.forms || [],
       success: true,
-      pages_scanned: 1,
-      total_content_length: scrapedContent[0].content.length
+      pages_scanned: scrapedContent.length,
+      total_content_length: totalContentLength
     };
 
     console.log(`Analysis complete. Found ${result.programs.length} programs and ${result.applicationForms.length} forms`);

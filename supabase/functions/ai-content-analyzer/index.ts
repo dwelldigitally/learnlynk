@@ -114,11 +114,14 @@ serve(async (req) => {
     const systemPrompt = `You are an expert educational institution data analyst. Your task is to analyze website content and extract comprehensive information about the institution and its programs.
 
 CRITICAL INSTRUCTIONS:
-1. Extract ALL programs/courses/degrees mentioned across all pages
+1. Extract ALL programs/courses/degrees mentioned across all pages - look carefully as some institutions have 50+ programs
 2. For each program, extract comprehensive details including fees, requirements, and deadlines
 3. Map HTML form fields to appropriate types (text, email, select, radio, checkbox, etc.)
 4. Be thorough and accurate - this data will populate an enrollment management system
 5. Return ONLY valid JSON with no additional text or explanations
+6. IMPORTANT: Look for application fees - many institutions have a standard application fee (like $250) that applies to all programs
+7. If you find a standard application fee mentioned anywhere, apply it to ALL programs as a "application" fee type
+8. Search across ALL pages for complete program listings - don't just rely on homepage summaries
 
 For programs, map to these types:
 - certificate, diploma, degree, short-course, workshop, online-course
@@ -218,6 +221,12 @@ You must return a JSON object with this exact structure:`;
     }
   ]
 }
+
+SPECIAL NOTES FOR THIS ANALYSIS:
+- This institution is known to have around 65 programs total - make sure you find them all across the different pages
+- Look specifically for application fees (many institutions charge around $250 for applications)
+- Pay attention to program categories like Healthcare, Business, Technology, etc.
+- Check for both domestic and international fee structures
 
 Analyze this educational institution website content and extract ALL available information:
 

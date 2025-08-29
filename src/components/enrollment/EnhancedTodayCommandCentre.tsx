@@ -139,7 +139,7 @@ export function EnhancedTodayCommandCentre() {
     }
   };
 
-  // Remove loadActions since it's now handled by useRealTimeActions hook
+  // Load conversion metrics and actions
 
   const loadConversionMetrics = async () => {
     try {

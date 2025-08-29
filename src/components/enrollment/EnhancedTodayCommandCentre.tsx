@@ -24,9 +24,7 @@ import { ConversionOpportunitiesWidget } from './widgets/ConversionOpportunities
 import { SmartActionsPanel } from './SmartActionsPanel';
 import { SmartActionsConfiguration } from './SmartActionsConfiguration';
 import { EnhancedBulkActionsToolbar } from './EnhancedBulkActionsToolbar';
-import { AITaskExecutionPanel } from './AITaskExecutionPanel';
 import { ProductivityDashboard } from './ProductivityDashboard';
-import { AITaskIntelligenceService } from '@/services/aiTaskIntelligence';
 
 interface StudentAction {
   id: string;
@@ -72,7 +70,6 @@ interface ConversionMetrics {
 export function EnhancedTodayCommandCentre() {
   const [actions, setActions] = useState<StudentAction[]>([]);
   const [loading, setLoading] = useState(false);
-  const [intelligentTasks, setIntelligentTasks] = useState<any[]>([]);
   const [showConfiguration, setShowConfiguration] = useState(false);
   const [metrics, setMetrics] = useState<ConversionMetrics>({
     leadToApplicant: 0,
@@ -352,22 +349,6 @@ export function EnhancedTodayCommandCentre() {
         <ProductivityDashboard />
       </div>
 
-      {/* AI Task Execution Panel */}
-      <div className="mb-6">
-        <AITaskExecutionPanel 
-          tasks={intelligentTasks}
-          onTaskExecuted={(taskId) => {
-            setIntelligentTasks(prev => prev.filter(task => task.id !== taskId));
-          }}
-          onTaskCreated={(task) => {
-            console.log('Creating task:', task);
-            toast({
-              title: "Task Created",
-              description: `Added "${task.title}" to your task queue`,
-            });
-          }}
-        />
-      </div>
 
       {/* Smart Actions Panel */}
       <div className="mb-6">

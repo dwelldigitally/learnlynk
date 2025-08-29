@@ -22,6 +22,10 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { ProfileService } from "@/services/profileService";
+import { useToast } from "@/hooks/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { QuickCommunicationModal } from "./QuickCommunicationModal";
 import { QuickTaskModal } from "./QuickTaskModal";
 import { QuickNoteModal } from "./QuickNoteModal";
@@ -31,13 +35,16 @@ import { OutlookEmailWidget } from "./OutlookEmailWidget";
 
 const AdminHome: React.FC = () => {
   const { profile } = useProfile();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showLookupModal, setShowLookupModal] = useState(false);
+  const [isResettingOnboarding, setIsResettingOnboarding] = useState(false);
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -48,6 +55,46 @@ const AdminHome: React.FC = () => {
   };
 
   const firstName = profile?.first_name || "there";
+
+  const handleResetOnboarding = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Error",
+        description: "User not found. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsResettingOnboarding(true);
+
+    try {
+      const { error } = await ProfileService.resetOnboarding(user.id);
+      
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Success",
+        description: "Onboarding reset successfully! Starting demo...",
+      });
+
+      // Navigate to onboarding after a brief delay
+      setTimeout(() => {
+        navigate("/onboarding");
+      }, 1000);
+    } catch (error) {
+      console.error('Failed to reset onboarding:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reset onboarding. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsResettingOnboarding(false);
+    }
+  };
 
   const quickActions = [
     {
@@ -104,7 +151,8 @@ const AdminHome: React.FC = () => {
       description: "Try the onboarding flow",
       icon: Play,
       color: "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20",
-      onClick: () => navigate("/onboarding")
+      onClick: () => {}, // Will be handled by AlertDialog
+      isDemo: true
     }
   ];
 
@@ -156,6 +204,48 @@ const AdminHome: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quickActions.map((action, index) => {
             const Icon = action.icon;
+            
+            if (action.isDemo) {
+              return (
+                <AlertDialog key={index}>
+                  <AlertDialogTrigger asChild>
+                    <Card className="border-0 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105">
+                      <CardContent className="p-6 text-center space-y-4">
+                        <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-colors ${action.color}`}>
+                          <Icon className="h-8 w-8" />
+                        </div>
+                        <div className="space-y-2">
+                          <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
+                            {action.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {action.description}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset Onboarding?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will reset your onboarding progress and allow you to experience the full onboarding flow again for demo purposes.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction 
+                        onClick={handleResetOnboarding}
+                        disabled={isResettingOnboarding}
+                      >
+                        {isResettingOnboarding ? "Resetting..." : "Continue"}
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              );
+            }
+
             return (
               <Card 
                 key={index}

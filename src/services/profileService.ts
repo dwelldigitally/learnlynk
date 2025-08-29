@@ -130,4 +130,28 @@ export class ProfileService {
       return { completed: false, error };
     }
   }
+
+  /**
+   * Resets onboarding status for a user (for demo purposes)
+   */
+  static async resetOnboarding(userId: string): Promise<{ error: any }> {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          onboarding_completed_at: null 
+        })
+        .eq('user_id', userId);
+
+      if (!error) {
+        // Also clear localStorage
+        localStorage.removeItem('onboarding-completed');
+      }
+
+      return { error };
+    } catch (error) {
+      console.error('Error resetting onboarding:', error);
+      return { error };
+    }
+  }
 }

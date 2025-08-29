@@ -175,39 +175,30 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                 <li key={item.href}>
                   {hasSubItems ? (
                     item.subItems.length === 1 ? (
-                      // Single sub-item: navigate directly to the sub-item
-                      isCollapsed ? (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className={cn(
-                                "flex items-center justify-center w-full h-12 rounded-md transition-colors",
-                                isSubItemActive 
-                                  ? "bg-primary text-primary-foreground" 
-                                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                              )}
-                            >
-                              <item.icon className="w-6 h-6" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent 
-                            side="right" 
-                            align="start"
-                            className="min-w-48 bg-background border shadow-lg z-50"
-                          >
-                            <DropdownMenuItem asChild>
-                              <NavLink 
-                                to={item.subItems[0].href}
-                                className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
-                              >
-                                <item.icon className="w-4 h-4" />
-                                <span>{item.name}</span>
-                              </NavLink>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      ) : (
+                       // Single sub-item: navigate directly to the sub-item
+                       isCollapsed ? (
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                             <NavLink 
+                               to={item.subItems[0].href}
+                               className={cn(
+                                 "flex items-center justify-center w-full h-12 rounded-md transition-colors",
+                                 isSubItemActive 
+                                   ? "bg-primary text-primary-foreground" 
+                                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                               )}
+                             >
+                               <item.icon className="w-6 h-6" />
+                             </NavLink>
+                           </TooltipTrigger>
+                           <TooltipContent side="right" className="bg-background border shadow-lg z-50">
+                             <div className="flex items-center space-x-2">
+                               <item.icon className="w-4 h-4" />
+                               <span>{item.name}</span>
+                             </div>
+                           </TooltipContent>
+                         </Tooltip>
+                       ) : (
                         <NavLink 
                           to={item.subItems[0].href}
                           className={cn(
@@ -329,12 +320,12 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                         )}
                       </Collapsible>
                     )
-                  ) : (
+                   ) : (
                     isCollapsed ? (
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <NavLink 
+                            to={item.href}
                             className={cn(
                               "flex items-center justify-center w-full h-12 rounded-md transition-colors",
                               isActive 
@@ -343,34 +334,25 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                             )}
                           >
                             <item.icon className="w-6 h-6" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent 
-                          side="right" 
-                          align="start"
-                          className="min-w-48 bg-background border shadow-lg z-50"
-                        >
-                          <DropdownMenuItem asChild>
-                            <NavLink 
-                              to={item.href}
-                              className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
-                            >
-                              <item.icon className="w-4 h-4" />
-                              <span>{item.name}</span>
-                              {item.count && (
-                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                                  {item.count}
-                                </span>
-                              )}
-                              {item.badge && (
-                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                                  {item.badge}
-                                </span>
-                              )}
-                            </NavLink>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                          </NavLink>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="bg-background border shadow-lg z-50">
+                          <div className="flex items-center space-x-2">
+                            <item.icon className="w-4 h-4" />
+                            <span>{item.name}</span>
+                            {item.count && (
+                              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                                {item.count}
+                              </span>
+                            )}
+                            {item.badge && (
+                              <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
                     ) : (
                       <NavLink 
                         to={item.href}

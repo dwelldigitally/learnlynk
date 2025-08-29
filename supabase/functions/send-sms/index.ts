@@ -28,12 +28,22 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Send SMS function called - v2.0 with updated credentials")
+    console.log("Send SMS function called - v3.0 with environment debugging")
+    
+    // Debug: Log all available environment variables (without values for security)
+    console.log("Available environment variables:", Object.keys(Deno.env.toObject()))
     
     // Check if Twilio credentials are configured
     const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID")
     const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN")
     const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER")
+    
+    // Debug: Log which credentials are found (without showing actual values)
+    console.log("Twilio credential status:", {
+      accountSid: !!twilioAccountSid,
+      authToken: !!twilioAuthToken,
+      phoneNumber: !!twilioPhoneNumber
+    })
     
     if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {
       console.error("Twilio credentials not configured")

@@ -15,7 +15,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
-import { AdminDashboard } from "./pages/AdminDashboard";
+import ModernAdminLayout from "./components/admin/ModernAdminLayout";
+import AdminOverview from "./components/admin/AdminOverview";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
@@ -51,6 +52,7 @@ const App = () => {
               <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/apply" element={<StudentApplication />} />
+              <Route path="/webform" element={<StudentApplication />} />
               <Route path="/student-portal/:accessToken" element={<StudentPortalAccess />} />
               <Route path="/sign-in" element={<ModernSignIn />} />
               <Route path="/sign-up" element={<ModernSignUp />} />
@@ -101,8 +103,9 @@ const App = () => {
               
               {/* Sales rep dashboard is now handled by AdminDashboard */}
               
-              {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
-              <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
+              {/* General admin routes - this handles all /admin/* routes with full admin layout */}
+              <Route path="/admin" element={<ProtectedRoute element={<ModernAdminLayout><AdminOverview /></ModernAdminLayout>} />} />
+              <Route path="/admin/*" element={<ProtectedRoute element={<ModernAdminLayout />} />} />
               
               {/* Student Portal Routes */}
               <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />

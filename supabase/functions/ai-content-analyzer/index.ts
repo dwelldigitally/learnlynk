@@ -90,6 +90,198 @@ interface AnalysisResult {
   }>;
 }
 
+// Helper function to estimate token count (rough approximation: 1 token ≈ 4 characters)
+function estimateTokens(text: string): number {
+  return Math.ceil(text.length / 4);
+}
+
+// Helper function to filter and clean content
+function filterContent(content: string): string {
+  // Remove common navigation and footer patterns
+  const patterns = [
+    /(?:navigation|nav|menu|footer|header|sidebar)[\s\S]*?(?=\n\n|\n[A-Z]|$)/gi,
+    /(?:cookie|privacy|terms|policy)[\s\S]*?(?=\n\n|\n[A-Z]|$)/gi,
+    /(?:copyright|©)[\s\S]*?(?=\n\n|\n[A-Z]|$)/gi,
+    /(?:skip to|back to top|home page)[\s\S]*?(?=\n\n|\n[A-Z]|$)/gi
+  ];
+  
+  let filtered = content;
+  patterns.forEach(pattern => {
+    filtered = filtered.replace(pattern, '');
+  });
+  
+  // Remove excessive whitespace
+  filtered = filtered.replace(/\n{3,}/g, '\n\n').trim();
+  
+  return filtered;
+}
+
+// Helper function to chunk content into manageable pieces
+function chunkContent(pages: Array<{url: string; title: string; content: string; extracted?: any}>, maxTokensPerChunk: number = 15000): Array<Array<typeof pages[0]>> {
+  const chunks: Array<Array<typeof pages[0]>> = [];
+  let currentChunk: Array<typeof pages[0]> = [];
+  let currentTokens = 0;
+  
+  for (const page of pages) {
+    const filteredContent = filterContent(page.content);
+    const pageTokens = estimateTokens(filteredContent + page.title + page.url);
+    
+    // If adding this page would exceed the limit, start a new chunk
+    if (currentTokens + pageTokens > maxTokensPerChunk && currentChunk.length > 0) {
+      chunks.push([...currentChunk]);
+      currentChunk = [];
+      currentTokens = 0;
+    }
+    
+    currentChunk.push({
+      ...page,
+      content: filteredContent
+    });
+    currentTokens += pageTokens;
+  }
+  
+  // Add the last chunk if it has content
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+  
+  return chunks;
+}
+
+// Helper function to analyze a chunk with retry logic
+async function analyzeChunk(chunk: Array<{url: string; title: string; content: string; extracted?: any}>, openAIApiKey: string, retries: number = 2): Promise<Partial<AnalysisResult>> {
+  const chunkContent = chunk.map(page => `
+    URL: ${page.url}
+    Title: ${page.title}
+    Content: ${page.content}
+    ${page.extracted ? `Extracted Data: ${JSON.stringify(page.extracted, null, 2)}` : ''}
+  `).join('\n\n---PAGE BREAK---\n\n');
+
+  const systemPrompt = `You are an expert educational institution data analyst. Analyze this chunk of website content and extract information about the institution and its programs.
+
+CRITICAL INSTRUCTIONS:
+1. Extract ALL programs/courses/degrees mentioned in this content chunk
+2. For each program, extract comprehensive details including fees, requirements, and deadlines
+3. Be thorough and accurate - this data will populate an enrollment management system
+4. Return ONLY valid JSON with no additional text or explanations
+5. Look for application fees and other fee structures
+6. If this chunk doesn't contain programs, return empty arrays but still extract institution info if available
+
+Return a JSON object with this structure:
+{
+  "institution": {
+    "name": "string or null",
+    "description": "string or null", 
+    "website": "string or null",
+    "phone": "string or null",
+    "email": "string or null",
+    "address": "string or null",
+    "city": "string or null",
+    "state": "string or null", 
+    "country": "string or null",
+    "logo_url": "string or null",
+    "primary_color": "string or null",
+    "founded_year": "number or null",
+    "employee_count": "number or null"
+  },
+  "programs": [...],
+  "forms": [...]
+}`;
+
+  const prompt = `${systemPrompt}
+
+Analyze this educational institution website content chunk:
+
+${chunkContent}`;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      console.log(`Analyzing chunk (attempt ${attempt + 1}/${retries + 1}), content length: ${chunkContent.length}`);
+      
+      const requestBody = {
+        model: 'gpt-4o-mini', // Using mini for better rate limits and cost efficiency
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert educational institution data analyst. Return only valid JSON with comprehensive program and institution data.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        max_tokens: 3000,
+        temperature: 0.3
+      };
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`OpenAI API error (attempt ${attempt + 1}):`, {
+          status: response.status,
+          statusText: response.statusText,
+          errorBody: errorText
+        });
+        
+        // If it's a rate limit error and we have retries left, wait and try again
+        if (response.status === 429 && attempt < retries) {
+          const waitTime = Math.pow(2, attempt) * 1000; // Exponential backoff
+          console.log(`Rate limit hit, waiting ${waitTime}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+        
+        throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      const analysisText = data.choices[0].message.content;
+
+      console.log('Raw chunk analysis:', analysisText.substring(0, 500) + '...');
+
+      // Parse the JSON response
+      try {
+        const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+        const jsonString = jsonMatch ? jsonMatch[0] : analysisText;
+        const result = JSON.parse(jsonString);
+        
+        return {
+          institution: result.institution || null,
+          programs: Array.isArray(result.programs) ? result.programs : [],
+          forms: Array.isArray(result.forms) ? result.forms : []
+        };
+      } catch (parseError) {
+        console.error('Failed to parse chunk analysis JSON:', parseError);
+        return {
+          institution: null,
+          programs: [],
+          forms: []
+        };
+      }
+    } catch (error) {
+      console.error(`Error in chunk analysis attempt ${attempt + 1}:`, error);
+      if (attempt === retries) {
+        throw error;
+      }
+    }
+  }
+  
+  // Fallback return
+  return {
+    institution: null,
+    programs: [],
+    forms: []
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -103,229 +295,72 @@ serve(async (req) => {
       throw new Error('OpenAI API key not configured');
     }
 
-    // Combine all content for analysis
-    const combinedContent = content.map(page => `
-      URL: ${page.url}
-      Title: ${page.title}
-      Content: ${page.content}
-      ${page.extracted ? `Extracted Data: ${JSON.stringify(page.extracted, null, 2)}` : ''}
-    `).join('\n\n---PAGE BREAK---\n\n');
-
-    const systemPrompt = `You are an expert educational institution data analyst. Your task is to analyze website content and extract comprehensive information about the institution and its programs.
-
-CRITICAL INSTRUCTIONS:
-1. Extract ALL programs/courses/degrees mentioned across all pages - look carefully as some institutions have 50+ programs
-2. For each program, extract comprehensive details including fees, requirements, and deadlines
-3. Map HTML form fields to appropriate types (text, email, select, radio, checkbox, etc.)
-4. Be thorough and accurate - this data will populate an enrollment management system
-5. Return ONLY valid JSON with no additional text or explanations
-6. IMPORTANT: Look for application fees - many institutions have a standard application fee (like $250) that applies to all programs
-7. If you find a standard application fee mentioned anywhere, apply it to ALL programs as a "application" fee type
-8. Search across ALL pages for complete program listings - don't just rely on homepage summaries
-
-For programs, map to these types:
-- certificate, diploma, degree, short-course, workshop, online-course
-
-For delivery methods:
-- in-person, online, hybrid
-
-For form field types, use these exact values:
-- text, email, tel, number, textarea, select, radio, checkbox, multi-select, date, file, url
-
-You must return a JSON object with this exact structure:`;
-
-    const prompt = `${systemPrompt}
-
-{
-  "institution": {
-    "name": "string - Institution name",
-    "description": "string - Mission/about description", 
-    "website": "string - Main website URL",
-    "phone": "string - Main phone number",
-    "email": "string - Main contact email",
-    "address": "string - Physical address",
-    "city": "string - City",
-    "state": "string - State/Province", 
-    "country": "string - Country",
-    "logo_url": "string - Logo image URL if found",
-    "primary_color": "string - Brand color if identifiable",
-    "founded_year": "number - Year founded if mentioned",
-    "employee_count": "number - Staff count if mentioned"
-  },
-  "programs": [
-    {
-      "name": "string - Program name",
-      "code": "string - Program code if available",
-      "description": "string - Program description",
-      "type": "certificate|diploma|degree|short-course|workshop|online-course",
-      "duration": "string - Program duration (e.g., '6 months', '2 years')",
-      "delivery_method": "in-person|online|hybrid",
-      "campus": ["array of campus locations"],
-      "entry_requirements": [
-        {
-          "type": "academic|language|experience|health|age|other",
-          "title": "string - Requirement title",
-          "description": "string - Detailed description",
-          "mandatory": "boolean"
-        }
-      ],
-      "document_requirements": [
-        {
-          "name": "string - Document name",
-          "description": "string - Document description", 
-          "mandatory": "boolean",
-          "accepted_formats": ["PDF", "DOC", "JPG"]
-        }
-      ],
-      "fee_structure": {
-        "domestic_fees": [
-          {
-            "type": "tuition|application|registration|lab|materials|other",
-            "amount": "number - Fee amount",
-            "currency": "CAD|USD|EUR|GBP|AUD",
-            "description": "string - Fee description"
-          }
-        ],
-        "international_fees": [
-          {
-            "type": "tuition|application|registration|lab|materials|other", 
-            "amount": "number - Fee amount",
-            "currency": "CAD|USD|EUR|GBP|AUD",
-            "description": "string - Fee description"
-          }
-        ]
-      },
-      "intake_dates": ["array of intake dates"],
-      "application_deadline": "string - Application deadline",
-      "category": "string - Program category",
-      "status": "active|inactive|draft",
-      "url": "string - Program page URL"
-    }
-  ],
-  "forms": [
-    {
-      "title": "string - Form title",
-      "description": "string - Form description",
-      "fields": [
-        {
-          "id": "string - Field identifier",
-          "label": "string - Field label",
-          "type": "text|email|tel|number|textarea|select|radio|checkbox|multi-select|date|file|url",
-          "required": "boolean",
-          "options": [{"label": "string", "value": "string"}],
-          "validation": ["array of validation rules"]
-        }
-      ],
-      "program_association": "string - Associated program if applicable",
-      "url": "string - Form page URL"
-    }
-  ]
-}
-
-SPECIAL NOTES FOR THIS ANALYSIS:
-- This institution is known to have around 65 programs total - make sure you find them all across the different pages
-- Look specifically for application fees (many institutions charge around $250 for applications)
-- Pay attention to program categories like Healthcare, Business, Technology, etc.
-- Check for both domestic and international fee structures
-
-Analyze this educational institution website content and extract ALL available information:
-
-${combinedContent}`;
-
-    console.log('Sending request to OpenAI with prompt length:', prompt.length);
-    console.log('OpenAI API key available:', !!openAIApiKey);
+    console.log(`Starting analysis of ${content.length} pages`);
     
-    const requestBody = {
-      model: 'gpt-4o',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are an expert educational institution data analyst. Return only valid JSON with comprehensive program and institution data.'
-        },
-        {
-          role: 'user',
-          content: prompt
+    // Chunk the content to avoid token limits
+    const chunks = chunkContent(content, 12000); // Conservative limit to stay well under 30k tokens
+    console.log(`Split content into ${chunks.length} chunks`);
+    
+    // Analyze each chunk
+    const chunkResults: Array<Partial<AnalysisResult>> = [];
+    for (let i = 0; i < chunks.length; i++) {
+      console.log(`Analyzing chunk ${i + 1}/${chunks.length} with ${chunks[i].length} pages`);
+      try {
+        const chunkResult = await analyzeChunk(chunks[i], openAIApiKey);
+        chunkResults.push(chunkResult);
+        
+        // Add delay between requests to respect rate limits
+        if (i < chunks.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
-      ],
-      max_tokens: 4000,
-      temperature: 0.7
+      } catch (error) {
+        console.error(`Error analyzing chunk ${i + 1}:`, error);
+        // Continue with other chunks even if one fails
+        chunkResults.push({ institution: null, programs: [], forms: [] });
+      }
+    }
+
+    // Combine results from all chunks
+    let combinedInstitution: any = {
+      name: content[0]?.url ? new URL(content[0].url).hostname.replace('www.', '') : 'Unknown Institution',
+      description: 'Educational institution',
+      website: content[0]?.url || ''
     };
-
-    console.log('OpenAI request body (without content):', {
-      model: requestBody.model,
-      messages: requestBody.messages.map(m => ({ role: m.role, content_length: m.content.length })),
-      max_completion_tokens: requestBody.max_completion_tokens
-    });
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(requestBody),
-    });
-
-    console.log('OpenAI response status:', response.status);
-    console.log('OpenAI response headers:', Object.fromEntries(response.headers.entries()));
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenAI API error details:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorBody: errorText
-      });
-      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
-    }
-
-    const data = await response.json();
-    const analysisText = data.choices[0].message.content;
-
-    console.log('Raw AI analysis:', analysisText);
-
-    // Parse the JSON response
-    let analysisResult: AnalysisResult;
-    try {
-      // Extract JSON from the response (in case there's extra text)
-      const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
-      const jsonString = jsonMatch ? jsonMatch[0] : analysisText;
-      analysisResult = JSON.parse(jsonString);
-    } catch (parseError) {
-      console.error('Failed to parse AI response as JSON:', parseError);
-      console.error('AI response was:', analysisText);
+    
+    const allPrograms: any[] = [];
+    const allForms: any[] = [];
+    
+    // Merge institution data (prefer non-null values)
+    for (const result of chunkResults) {
+      if (result.institution) {
+        Object.keys(result.institution).forEach(key => {
+          if (result.institution[key] && !combinedInstitution[key]) {
+            combinedInstitution[key] = result.institution[key];
+          }
+        });
+      }
       
-      // Fallback: create a basic structure
-      analysisResult = {
-        institution: {
-          name: new URL(content[0]?.url || 'https://example.com').hostname.replace('www.', ''),
-          description: 'Educational institution',
-          website: content[0]?.url || ''
-        },
-        programs: [],
-        forms: []
-      };
+      // Collect all programs and forms
+      if (result.programs) {
+        allPrograms.push(...result.programs);
+      }
+      if (result.forms) {
+        allForms.push(...result.forms);
+      }
     }
 
-    // Validate and clean the data
-    if (!analysisResult.institution) {
-      analysisResult.institution = {
-        name: 'Unknown Institution',
-        description: '',
-        website: content[0]?.url || ''
-      };
-    }
+    // Remove duplicate programs based on name
+    const uniquePrograms = allPrograms.filter((program, index, self) => 
+      index === self.findIndex(p => p.name === program.name)
+    );
 
-    if (!Array.isArray(analysisResult.programs)) {
-      analysisResult.programs = [];
-    }
-
-    if (!Array.isArray(analysisResult.forms)) {
-      analysisResult.forms = [];
-    }
+    // Remove duplicate forms based on title
+    const uniqueForms = allForms.filter((form, index, self) => 
+      index === self.findIndex(f => f.title === form.title)
+    );
 
     // Ensure each program has required fields
-    analysisResult.programs = analysisResult.programs.map(program => ({
+    const cleanedPrograms = uniquePrograms.map(program => ({
       name: program.name || 'Untitled Program',
       code: program.code || '',
       description: program.description || '',
@@ -343,7 +378,14 @@ ${combinedContent}`;
       url: program.url || ''
     }));
 
-    console.log(`Successfully analyzed content and found ${analysisResult.programs.length} programs and ${analysisResult.forms.length} forms`);
+    const analysisResult: AnalysisResult = {
+      institution: combinedInstitution,
+      programs: cleanedPrograms,
+      forms: uniqueForms
+    };
+
+    console.log(`Successfully analyzed ${content.length} pages in ${chunks.length} chunks`);
+    console.log(`Found ${analysisResult.programs.length} programs and ${analysisResult.forms.length} forms`);
 
     return new Response(JSON.stringify(analysisResult), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

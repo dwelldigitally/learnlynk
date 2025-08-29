@@ -14,10 +14,11 @@ export const OTPVerificationScreen: React.FC = () => {
   const { user, refreshUser, signOut } = useAuth();
   const navigate = useNavigate();
   const [otp, setOtp] = useState('');
-  const [storedOtp, setStoredOtp] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+  const [remainingAttempts, setRemainingAttempts] = useState(5);
+  const [canResend, setCanResend] = useState(false);
 
   // Countdown timer
   useEffect(() => {
@@ -48,14 +49,21 @@ export const OTPVerificationScreen: React.FC = () => {
 
       if (error) throw error;
 
-      if (data?.otp) {
-        setStoredOtp(data.otp); // In production, store this securely
+      if (data?.success) {
         setTimeLeft(600); // Reset timer
-        toast.success('Verification code sent to your email!');
+        setRemainingAttempts(5); // Reset attempts
+        setCanResend(false);
+        toast.success(data.message || 'Verification code sent to your email!');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending OTP:', error);
-      toast.error('Failed to send verification code. Please try again.');
+      if (error.message?.includes('Too many')) {
+        toast.error(error.message);
+        setCanResend(false);
+        setTimeLeft(3600); // 1 hour for rate limit
+      } else {
+        toast.error('Failed to send verification code. Please try again.');
+      }
     } finally {
       setIsResending(false);
     }
@@ -67,28 +75,54 @@ export const OTPVerificationScreen: React.FC = () => {
       return;
     }
 
+    if (!user?.email) {
+      toast.error('No email found. Please try signing up again.');
+      return;
+    }
+
     setIsVerifying(true);
     try {
-      // Verify OTP
-      if (otp === storedOtp) {
+      // Verify OTP using secure backend function
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: { email: user.email, otp }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
         // Mark email as verified in Supabase
-        const { error } = await supabase.auth.updateUser({
+        const { error: updateError } = await supabase.auth.updateUser({
           data: { email_verified: true }
         });
 
-        if (error) throw error;
+        if (updateError) throw updateError;
 
         toast.success('Email verified successfully!');
         
         // Refresh user data and navigate to onboarding
         await refreshUser();
         navigate('/onboarding');
-      } else {
-        toast.error('Invalid verification code. Please try again.');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error verifying OTP:', error);
-      toast.error('Verification failed. Please try again.');
+      
+      if (error.message?.includes('Invalid OTP')) {
+        const remaining = error.remainingAttempts ?? remainingAttempts - 1;
+        setRemainingAttempts(remaining);
+        setOtp(''); // Clear the input
+        
+        if (remaining === 0) {
+          setCanResend(true);
+          toast.error('Maximum attempts exceeded. Please request a new code.');
+        } else {
+          toast.error(`Invalid code. ${remaining} attempts remaining.`);
+        }
+      } else if (error.message?.includes('expired') || error.message?.includes('Maximum')) {
+        setCanResend(true);
+        toast.error(error.message);
+      } else {
+        toast.error(error.message || 'Verification failed. Please try again.');
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -150,6 +184,14 @@ export const OTPVerificationScreen: React.FC = () => {
             </div>
           )}
 
+          {remainingAttempts < 5 && remainingAttempts > 0 && (
+            <Alert>
+              <AlertDescription className="text-amber-600">
+                {remainingAttempts} verification attempts remaining
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Alert>
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
@@ -160,7 +202,7 @@ export const OTPVerificationScreen: React.FC = () => {
           <div className="space-y-3">
             <Button 
               onClick={verifyOTP}
-              disabled={isVerifying || otp.length !== 6}
+              disabled={isVerifying || otp.length !== 6 || remainingAttempts === 0}
               className="w-full"
             >
               {isVerifying && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}
@@ -170,7 +212,7 @@ export const OTPVerificationScreen: React.FC = () => {
             <Button 
               variant="outline" 
               onClick={sendOTP}
-              disabled={isResending || timeLeft > 540} // Disable if less than 1 minute passed
+              disabled={isResending || (timeLeft > 540 && !canResend)} // Allow resend if rate limited or attempts exceeded
               className="w-full"
             >
               {isResending && <RefreshCw className="mr-2 h-4 w-4 animate-spin" />}

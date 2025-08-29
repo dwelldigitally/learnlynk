@@ -3922,6 +3922,72 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_rate_limits: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          identifier: string
+          limit_type: string
+          window_start: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          identifier: string
+          limit_type: string
+          window_start?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          identifier?: string
+          limit_type?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      otp_verifications: {
+        Row: {
+          attempts: number
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          ip_address: unknown | null
+          max_attempts: number
+          otp_hash: string
+          user_agent: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          max_attempts?: number
+          otp_hash: string
+          user_agent?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown | null
+          max_attempts?: number
+          otp_hash?: string
+          user_agent?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       outcome_metrics: {
         Row: {
           after_value: number | null
@@ -6057,6 +6123,10 @@ export type Database = {
       assign_demo_data_to_user: {
         Args: { demo_enabled?: boolean; target_email: string }
         Returns: boolean
+      }
+      cleanup_expired_otps: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       user_has_demo_data: {
         Args: { user_email?: string }

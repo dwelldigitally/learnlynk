@@ -1,7 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Resend } from "npm:resend@2.0.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+
+// Initialize Supabase client
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -14,24 +21,97 @@ interface SendOTPRequest {
   name?: string;
 }
 
+// Helper function to hash OTP
+async function hashOTP(otp: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(otp);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Helper function to check rate limits
+async function checkRateLimit(email: string, ipAddress: string): Promise<{ allowed: boolean; error?: string }> {
+  const now = new Date();
+  const oneHour = new Date(now.getTime() - 60 * 60 * 1000);
+  const oneMinute = new Date(now.getTime() - 60 * 1000);
+
+  // Check email rate limit (5 per hour)
+  const { data: emailLimits } = await supabase
+    .from('otp_rate_limits')
+    .select('attempts')
+    .eq('identifier', email)
+    .eq('limit_type', 'email')
+    .gte('window_start', oneHour.toISOString())
+    .single();
+
+  if (emailLimits && emailLimits.attempts >= 5) {
+    return { allowed: false, error: "Too many OTP requests for this email. Please try again in an hour." };
+  }
+
+  // Check IP rate limit (10 per hour)
+  const { data: ipLimits } = await supabase
+    .from('otp_rate_limits')
+    .select('attempts')
+    .eq('identifier', ipAddress)
+    .eq('limit_type', 'ip')
+    .gte('window_start', oneHour.toISOString())
+    .single();
+
+  if (ipLimits && ipLimits.attempts >= 10) {
+    return { allowed: false, error: "Too many OTP requests from this IP. Please try again in an hour." };
+  }
+
+  return { allowed: true };
+}
+
+// Helper function to update rate limits
+async function updateRateLimit(identifier: string, limitType: string) {
+  const oneHour = new Date(Date.now() - 60 * 60 * 1000);
+  
+  // Check if there's an existing rate limit entry in the current window
+  const { data: existing } = await supabase
+    .from('otp_rate_limits')
+    .select('*')
+    .eq('identifier', identifier)
+    .eq('limit_type', limitType)
+    .gte('window_start', oneHour.toISOString())
+    .single();
+
+  if (existing) {
+    // Update existing entry
+    await supabase
+      .from('otp_rate_limits')
+      .update({ attempts: existing.attempts + 1 })
+      .eq('id', existing.id);
+  } else {
+    // Create new entry
+    await supabase
+      .from('otp_rate_limits')
+      .insert({
+        identifier,
+        limit_type: limitType,
+        attempts: 1,
+        window_start: new Date().toISOString()
+      });
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log("Send OTP function called, method:", req.method);
-  console.log("RESEND_API_KEY configured:", !!Deno.env.get("RESEND_API_KEY"));
+  console.log("Send OTP function called - v2.0 with secure database storage");
 
   try {
     // Check if RESEND_API_KEY is configured
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    console.log("RESEND_API_KEY configured:", !!resendApiKey);
-    
     if (!resendApiKey) {
       console.error("RESEND_API_KEY environment variable not found");
       return new Response(
-        JSON.stringify({ error: "Email service not configured - no API key found" }),
+        JSON.stringify({ error: "Email service not configured" }),
         {
           status: 500,
           headers: { "Content-Type": "application/json", ...corsHeaders },
@@ -40,42 +120,96 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const { email, name }: SendOTPRequest = await req.json();
+    const ipAddress = req.headers.get('x-forwarded-for') || 'unknown';
+    const userAgent = req.headers.get('user-agent') || '';
+
     console.log("Attempting to send OTP to:", email);
+
+    // Check rate limits
+    const rateLimitResult = await checkRateLimit(email, ipAddress);
+    if (!rateLimitResult.allowed) {
+      return new Response(
+        JSON.stringify({ error: rateLimitResult.error }),
+        {
+          status: 429,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    // Update rate limits
+    await updateRateLimit(email, 'email');
+    await updateRateLimit(ipAddress, 'ip');
+
+    // Clean up old OTPs for this email
+    await supabase
+      .from('otp_verifications')
+      .delete()
+      .eq('email', email);
 
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log("Generated OTP:", otp);
+    const otpHash = await hashOTP(otp);
+
+    // Store OTP in database
+    const { error: dbError } = await supabase
+      .from('otp_verifications')
+      .insert({
+        email,
+        otp_hash: otpHash,
+        ip_address: ipAddress,
+        user_agent: userAgent
+      });
+
+    if (dbError) {
+      console.error("Database error:", dbError);
+      return new Response(
+        JSON.stringify({ error: "Failed to store OTP" }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
     
+    // Send email with OTP
     const emailResponse = await resend.emails.send({
-      from: "Learnlynk <onboarding@resend.dev>", // Using Resend's verified domain
+      from: "Learnlynk <onboarding@resend.dev>",
       to: [email],
       subject: "Verify Your Email - EduCRM",
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h1 style="color: #333; text-align: center;">Email Verification</h1>
-          <p>Hello ${name || 'there'},</p>
-          <p>Welcome to EduCRM! Please use the verification code below to verify your email address:</p>
-          
-          <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0; border-radius: 8px;">
-            <h2 style="color: #2563eb; font-size: 32px; letter-spacing: 4px; margin: 0;">${otp}</h2>
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h1 style="color: #1f2937; margin: 0; font-size: 28px; font-weight: 600;">Email Verification</h1>
           </div>
           
-          <p>This code will expire in 10 minutes.</p>
-          <p>If you didn't create an account with EduCRM, please ignore this email.</p>
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; text-align: center; margin: 20px 0;">
+            <h2 style="color: #ffffff; font-size: 36px; letter-spacing: 8px; margin: 0; font-family: 'Courier New', monospace;">${otp}</h2>
+            <p style="color: #e5e7eb; margin: 10px 0 0 0; font-size: 14px;">Your verification code</p>
+          </div>
           
-          <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-          <p style="color: #666; font-size: 14px; text-align: center;">
-            This is an automated message, please do not reply to this email.
-          </p>
+          <div style="padding: 20px 0;">
+            <p style="color: #374151; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">Hello ${name || 'there'},</p>
+            <p style="color: #374151; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">Welcome to EduCRM! Please use the verification code above to verify your email address.</p>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 15px 0;">⏰ This code will expire in <strong>10 minutes</strong></p>
+            <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 15px 0;">🔒 For your security, never share this code with anyone</p>
+          </div>
+          
+          <div style="border-top: 1px solid #e5e7eb; padding-top: 20px; margin-top: 30px;">
+            <p style="color: #9ca3af; font-size: 13px; text-align: center; margin: 0;">
+              If you didn't request this verification, please ignore this email.<br>
+              This is an automated message, please do not reply.
+            </p>
+          </div>
         </div>
       `,
     });
 
-    console.log("OTP email sent successfully:", emailResponse);
+    console.log("OTP email sent successfully. Message ID:", emailResponse.data?.id);
 
     return new Response(JSON.stringify({ 
       success: true, 
-      otp: otp, // In production, don't return OTP in response
+      message: "OTP sent successfully to your email",
       messageId: emailResponse.data?.id 
     }), {
       status: 200,

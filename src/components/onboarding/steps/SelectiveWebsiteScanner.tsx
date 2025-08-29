@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { WebsiteScannerService } from '@/services/websiteScanner';
 
 interface SelectiveWebsiteScannerProps {
   data: any;
@@ -88,86 +89,84 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
     setIsDiscovering(true);
     
     try {
-      // Simulate page discovery - in reality this would be a quick site crawl
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('Discovering site structure for:', websiteUrl);
+      const { categories: discoveredCategories } = await WebsiteScannerService.discoverSiteStructure(websiteUrl);
       
-      // Mock discovered categories
-      const mockCategories: PageCategory[] = [
-        {
-          id: 'programs',
-          label: 'Academic Programs',
-          description: 'Degree programs, courses, and curricula',
-          icon: GraduationCap,
-          selected: true,
-          pages: [
-            { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 95 },
-            { url: `${websiteUrl}/undergraduate`, title: 'Undergraduate Programs', description: 'Bachelor degree programs', category: 'programs', confidence: 90 },
-            { url: `${websiteUrl}/graduate`, title: 'Graduate Programs', description: 'Master and PhD programs', category: 'programs', confidence: 90 },
-            { url: `${websiteUrl}/courses`, title: 'Course Catalog', description: 'Individual course listings', category: 'programs', confidence: 85 }
-          ]
-        },
-        {
-          id: 'admissions',
-          label: 'Admissions Info',
-          description: 'Requirements, processes, and applications',
-          icon: FileText,
-          selected: true,
-          pages: [
-            { url: `${websiteUrl}/admissions`, title: 'Admissions', description: 'Main admissions page', category: 'admissions', confidence: 95 },
-            { url: `${websiteUrl}/requirements`, title: 'Entry Requirements', description: 'Admission requirements', category: 'admissions', confidence: 90 },
-            { url: `${websiteUrl}/apply`, title: 'Application Process', description: 'How to apply', category: 'admissions', confidence: 88 }
-          ]
-        },
-        {
-          id: 'fees',
-          label: 'Fees & Tuition',
-          description: 'Tuition costs and fee structures',
-          icon: DollarSign,
-          selected: true,
-          pages: [
-            { url: `${websiteUrl}/tuition`, title: 'Tuition & Fees', description: 'Cost information', category: 'fees', confidence: 92 },
-            { url: `${websiteUrl}/financial-aid`, title: 'Financial Aid', description: 'Scholarships and aid', category: 'fees', confidence: 85 }
-          ]
-        },
-        {
-          id: 'deadlines',
-          label: 'Dates & Deadlines',
-          description: 'Application deadlines and intake dates',
-          icon: Calendar,
-          selected: false,
-          pages: [
-            { url: `${websiteUrl}/calendar`, title: 'Academic Calendar', description: 'Important dates', category: 'deadlines', confidence: 80 },
-            { url: `${websiteUrl}/deadlines`, title: 'Application Deadlines', description: 'When to apply', category: 'deadlines', confidence: 85 }
-          ]
-        },
-        {
-          id: 'general',
-          label: 'General Info',
-          description: 'About us, contact, and general information',
-          icon: Users,
-          selected: false,
-          pages: [
-            { url: `${websiteUrl}/about`, title: 'About Us', description: 'Institution information', category: 'general', confidence: 70 },
-            { url: `${websiteUrl}/contact`, title: 'Contact', description: 'Contact information', category: 'general', confidence: 75 }
-          ]
-        }
-      ];
+      // Map to our category structure with icons
+      const iconMap = {
+        'programs': GraduationCap,
+        'admissions': FileText,
+        'fees': DollarSign,
+        'deadlines': Calendar,
+        'general': Users
+      };
 
-      setCategories(mockCategories);
-      updateEstimatedTime(mockCategories);
+      const mappedCategories: PageCategory[] = discoveredCategories.map(cat => ({
+        id: cat.id,
+        label: cat.label,
+        description: cat.description,
+        icon: iconMap[cat.id as keyof typeof iconMap] || FileText,
+        pages: cat.pages.map(page => ({
+          ...page,
+          category: cat.id
+        })),
+        selected: ['programs', 'admissions', 'fees'].includes(cat.id) // Auto-select most important categories
+      }));
+
+      if (mappedCategories.length === 0) {
+        // Fallback categories if discovery fails
+        const fallbackCategories: PageCategory[] = [
+          {
+            id: 'programs',
+            label: 'Academic Programs',
+            description: 'Degree programs, courses, and curricula',
+            icon: GraduationCap,
+            selected: true,
+            pages: [
+              { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 60 },
+              { url: `${websiteUrl}/academics`, title: 'Academics', description: 'Academic information', category: 'programs', confidence: 60 }
+            ]
+          }
+        ];
+        setCategories(fallbackCategories);
+        updateEstimatedTime(fallbackCategories);
+      } else {
+        setCategories(mappedCategories);
+        updateEstimatedTime(mappedCategories);
+      }
+
       setCurrentStep('selection');
       
       toast({
         title: "Pages Discovered!",
-        description: `Found ${mockCategories.reduce((sum, cat) => sum + cat.pages.length, 0)} relevant pages across ${mockCategories.length} categories.`,
+        description: `Found ${mappedCategories.reduce((sum, cat) => sum + cat.pages.length, 0)} relevant pages across ${mappedCategories.length} categories.`,
       });
 
     } catch (error) {
+      console.error('Page discovery error:', error);
       toast({
-        title: "Discovery Failed",
-        description: "Unable to analyze the website structure. Please try again.",
+        title: "Discovery Failed", 
+        description: "Unable to analyze the website structure. Using fallback options.",
         variant: "destructive"
       });
+      
+      // Provide fallback categories
+      const fallbackCategories: PageCategory[] = [
+        {
+          id: 'programs',
+          label: 'Academic Programs',
+          description: 'Degree programs, courses, and curricula', 
+          icon: GraduationCap,
+          selected: true,
+          pages: [
+            { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 50 },
+            { url: `${websiteUrl}/academics`, title: 'Academics', description: 'Academic information', category: 'programs', confidence: 50 }
+          ]
+        }
+      ];
+      setCategories(fallbackCategories);
+      updateEstimatedTime(fallbackCategories);
+      setCurrentStep('selection');
     } finally {
       setIsDiscovering(false);
     }
@@ -234,15 +233,9 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
       .filter(cat => cat.selected)
       .flatMap(cat => cat.pages);
     
-    const allPages = [...selectedPages, ...customUrls.map(url => ({
-      url,
-      title: 'Custom Page',
-      description: 'User-specified page',
-      category: 'custom',
-      confidence: 100
-    }))];
+    const allUrls = [...selectedPages.map(page => page.url), ...customUrls];
 
-    if (allPages.length === 0) {
+    if (allUrls.length === 0) {
       toast({
         title: "No Pages Selected",
         description: "Please select at least one category or add custom URLs.",
@@ -252,71 +245,74 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
     }
 
     setCurrentStep('scanning');
-    setScanProgress({ current: 0, total: allPages.length, currentPage: '' });
+    setScanProgress({ current: 0, total: allUrls.length, currentPage: '' });
 
     try {
-      // Simulate scanning each page
-      for (let i = 0; i < allPages.length; i++) {
-        setScanProgress({
-          current: i + 1,
-          total: allPages.length,
-          currentPage: allPages[i].title
+      console.log('Starting real scan with URLs:', allUrls);
+      
+      // Update progress periodically during scan
+      const progressInterval = setInterval(() => {
+        setScanProgress(prev => ({
+          ...prev,
+          current: Math.min(prev.current + 1, prev.total),
+          currentPage: `Scanning page ${Math.min(prev.current + 1, prev.total)}/${prev.total}`
+        }));
+      }, 1000);
+
+      // Perform real scan using WebsiteScannerService
+      const scanResult = await WebsiteScannerService.scanSpecificPages(allUrls);
+      
+      clearInterval(progressInterval);
+      
+      if (scanResult.success) {
+        const results = {
+          url: websiteUrl,
+          pagesScanned: scanResult.pages_scanned,
+          programs: scanResult.programs.map(program => ({
+            name: program.name,
+            description: program.description,
+            duration: program.duration,
+            tuitionFee: program.fee_structure?.domestic_fees?.[0] ? 
+              `${program.fee_structure.domestic_fees[0].currency} ${program.fee_structure.domestic_fees[0].amount}` : 
+              'Contact for pricing',
+            applicationFee: program.fee_structure?.domestic_fees?.find(fee => fee.type === 'application')?.amount ? 
+              `${program.fee_structure.domestic_fees.find(fee => fee.type === 'application')?.currency} ${program.fee_structure.domestic_fees.find(fee => fee.type === 'application')?.amount}` :
+              'Contact for details',
+            requirements: program.entry_requirements.map(req => req.title),
+            intakes: program.intake_dates,
+            sourcePages: allUrls.filter(url => url.includes('program') || url.includes('academic'))
+          })),
+          generalInfo: {
+            institutionName: scanResult.institution.name,
+            accreditation: "Accredited Institution",
+            established: scanResult.institution.founded_year?.toString() || "Established Institution",
+            studentBody: scanResult.institution.employee_count ? `${scanResult.institution.employee_count}+ staff` : "Active student body"
+          },
+          contactInfo: {
+            phone: scanResult.institution.phone || "Contact via website",
+            email: scanResult.institution.email || "Contact via website", 
+            address: scanResult.institution.address || `${scanResult.institution.city || ''}, ${scanResult.institution.state || ''}, ${scanResult.institution.country || ''}`.replace(/^,\s*|,\s*$/g, '') || "Contact for address"
+          },
+          confidence: Math.round((scanResult.urls_successfully_scraped || 0) / allUrls.length * 100),
+          rawScanData: scanResult
+        };
+
+        setScanResults(results);
+        setCurrentStep('results');
+        
+        toast({
+          title: "Scan Complete!",
+          description: `Successfully analyzed ${scanResult.pages_scanned} pages and found ${results.programs.length} programs.`,
         });
-        await new Promise(resolve => setTimeout(resolve, 500));
+      } else {
+        throw new Error(scanResult.error || 'Scan failed');
       }
 
-      // Mock scan results
-      const mockResults = {
-        url: websiteUrl,
-        pagesScanned: allPages.length,
-        programs: [
-          {
-            name: "Bachelor of Computer Science",
-            description: "Comprehensive 4-year program covering software development, algorithms, and computer systems.",
-            duration: "4 years",
-            tuitionFee: "$45,000/year",
-            applicationFee: "$100",
-            requirements: ["High School Diploma", "SAT Score: 1200+", "Math Prerequisites"],
-            intakes: ["Fall 2024", "Spring 2025"],
-            sourcePages: [`${websiteUrl}/programs`, `${websiteUrl}/undergraduate`]
-          },
-          {
-            name: "Master of Business Administration",
-            description: "Advanced business program focusing on leadership, strategy, and innovation.",
-            duration: "2 years", 
-            tuitionFee: "$55,000/year",
-            applicationFee: "$150",
-            requirements: ["Bachelor's Degree", "GMAT Score: 550+", "Work Experience: 2+ years"],
-            intakes: ["Fall 2024", "Spring 2025", "Summer 2025"],
-            sourcePages: [`${websiteUrl}/programs`, `${websiteUrl}/graduate`]
-          }
-        ],
-        generalInfo: {
-          institutionName: "Tech University",
-          accreditation: "ABET Accredited",
-          established: "1985",
-          studentBody: "12,000+ students"
-        },
-        contactInfo: {
-          phone: "(555) 123-4567",
-          email: "admissions@techuniv.edu",
-          address: "123 University Ave, Tech City, TC 12345"
-        },
-        confidence: 94
-      };
-
-      setScanResults(mockResults);
-      setCurrentStep('results');
-      
-      toast({
-        title: "Scan Complete!",
-        description: `Successfully analyzed ${allPages.length} pages and found ${mockResults.programs.length} programs.`,
-      });
-
     } catch (error) {
+      console.error('Scan error:', error);
       toast({
         title: "Scan Failed",
-        description: "Unable to complete the scan. Please try again.",
+        description: error instanceof Error ? error.message : "Unable to complete the scan. Please try again.",
         variant: "destructive"
       });
       setCurrentStep('selection');
@@ -599,8 +595,8 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
     return (
       <div className="space-y-6">
         <div className="text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-success/10 rounded-xl mb-4">
-            <Check className="w-8 h-8 text-success" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/10 rounded-xl mb-4">
+            <Check className="w-8 h-8 text-green-500" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
             Scan Complete!

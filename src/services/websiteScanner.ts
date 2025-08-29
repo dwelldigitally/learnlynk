@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface ScanRequest {
   url: string;
   comprehensive?: boolean;
+  specificUrls?: string[];
 }
 
 export interface DetectedProgram {
@@ -85,6 +86,8 @@ export interface ScanResult {
   pages_scanned: number;
   total_content_length: number;
   error?: string;
+  urls_requested?: number;
+  urls_successfully_scraped?: number;
 }
 
 export class WebsiteScannerService {
@@ -198,6 +201,169 @@ export class WebsiteScannerService {
     } catch (error) {
       console.error('Website scanning error:', error);
       throw error;
+    }
+  }
+
+  static async scanSpecificPages(urls: string[]): Promise<ScanResult> {
+    try {
+      console.log(`Starting selective scan for ${urls.length} specific URLs`);
+      
+      const { data, error } = await supabase.functions.invoke('website-scanner', {
+        body: { specificUrls: urls }
+      });
+
+      if (error) {
+        console.error('Selective scan error:', error);
+        throw new Error(`Selective scan failed: ${error.message}`);
+      }
+
+      if (!data?.success) {
+        const errorMessage = data?.error || 'Selective scanning failed';
+        throw new Error(errorMessage);
+      }
+
+      console.log(`Successfully scanned ${data.pages_scanned} pages and found ${data.programs.length} programs`);
+      return data as ScanResult;
+      
+    } catch (error) {
+      console.error('Selective scan error:', error);
+      throw error;
+    }
+  }
+
+  static async discoverSiteStructure(url: string): Promise<{
+    categories: Array<{
+      id: string;
+      label: string;
+      description: string;
+      pages: Array<{
+        url: string;
+        title: string;
+        description: string;
+        confidence: number;
+      }>;
+    }>;
+  }> {
+    try {
+      // Quick site analysis to discover common educational pages
+      const baseUrl = new URL(url).origin;
+      
+      // Common patterns for educational institutions
+      const commonPaths = [
+        // Programs
+        { path: '/programs', category: 'programs', title: 'Academic Programs', description: 'Main programs page' },
+        { path: '/academics', category: 'programs', title: 'Academics', description: 'Academic information' },
+        { path: '/undergraduate', category: 'programs', title: 'Undergraduate Programs', description: 'Bachelor degree programs' },
+        { path: '/graduate', category: 'programs', title: 'Graduate Programs', description: 'Master and PhD programs' },
+        { path: '/courses', category: 'programs', title: 'Course Catalog', description: 'Individual course listings' },
+        { path: '/degrees', category: 'programs', title: 'Degree Programs', description: 'Available degrees' },
+        
+        // Admissions
+        { path: '/admissions', category: 'admissions', title: 'Admissions', description: 'Main admissions page' },
+        { path: '/apply', category: 'admissions', title: 'Apply Now', description: 'Application process' },
+        { path: '/requirements', category: 'admissions', title: 'Entry Requirements', description: 'Admission requirements' },
+        { path: '/application', category: 'admissions', title: 'Application', description: 'How to apply' },
+        
+        // Fees
+        { path: '/tuition', category: 'fees', title: 'Tuition & Fees', description: 'Cost information' },
+        { path: '/fees', category: 'fees', title: 'Fees', description: 'Fee structure' },
+        { path: '/financial-aid', category: 'fees', title: 'Financial Aid', description: 'Scholarships and aid' },
+        { path: '/scholarships', category: 'fees', title: 'Scholarships', description: 'Available scholarships' },
+        
+        // Deadlines
+        { path: '/deadlines', category: 'deadlines', title: 'Application Deadlines', description: 'When to apply' },
+        { path: '/calendar', category: 'deadlines', title: 'Academic Calendar', description: 'Important dates' },
+        { path: '/dates', category: 'deadlines', title: 'Important Dates', description: 'Key dates and deadlines' },
+        
+        // General
+        { path: '/about', category: 'general', title: 'About Us', description: 'Institution information' },
+        { path: '/contact', category: 'general', title: 'Contact', description: 'Contact information' }
+      ];
+
+      // Test which pages exist by making quick HEAD requests
+      const existingPages = [];
+      
+      for (const pathInfo of commonPaths) {
+        try {
+          const testUrl = `${baseUrl}${pathInfo.path}`;
+          const response = await fetch(testUrl, { method: 'HEAD' });
+          
+          if (response.ok) {
+            existingPages.push({
+              url: testUrl,
+              title: pathInfo.title,
+              description: pathInfo.description,
+              category: pathInfo.category,
+              confidence: response.status === 200 ? 85 : 70
+            });
+          }
+        } catch {
+          // Ignore errors for non-existent pages
+        }
+      }
+
+      // Group by category
+      const categoryMap = new Map();
+      
+      existingPages.forEach(page => {
+        if (!categoryMap.has(page.category)) {
+          categoryMap.set(page.category, []);
+        }
+        categoryMap.get(page.category).push(page);
+      });
+
+      // Create category structure
+      const categories = [
+        {
+          id: 'programs',
+          label: 'Academic Programs',
+          description: 'Degree programs, courses, and curricula',
+          pages: categoryMap.get('programs') || []
+        },
+        {
+          id: 'admissions',
+          label: 'Admissions Info',
+          description: 'Requirements, processes, and applications',
+          pages: categoryMap.get('admissions') || []
+        },
+        {
+          id: 'fees',
+          label: 'Fees & Tuition',
+          description: 'Tuition costs and fee structures',
+          pages: categoryMap.get('fees') || []
+        },
+        {
+          id: 'deadlines',
+          label: 'Dates & Deadlines',
+          description: 'Application deadlines and intake dates',
+          pages: categoryMap.get('deadlines') || []
+        },
+        {
+          id: 'general',
+          label: 'General Info',
+          description: 'About us, contact, and general information',
+          pages: categoryMap.get('general') || []
+        }
+      ].filter(cat => cat.pages.length > 0); // Only include categories with pages
+
+      return { categories };
+      
+    } catch (error) {
+      console.error('Site structure discovery error:', error);
+      // Return fallback structure
+      return {
+        categories: [
+          {
+            id: 'programs',
+            label: 'Academic Programs',
+            description: 'Degree programs, courses, and curricula',
+            pages: [
+              { url: `${url}/programs`, title: 'Academic Programs', description: 'Main programs page', confidence: 60 },
+              { url: `${url}/academics`, title: 'Academics', description: 'Academic information', confidence: 60 }
+            ]
+          }
+        ]
+      };
     }
   }
 

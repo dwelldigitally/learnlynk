@@ -9,6 +9,7 @@ const corsHeaders = {
 interface ScanRequest {
   url: string;
   comprehensive?: boolean;
+  specificUrls?: string[];
 }
 
 interface ScanResult {
@@ -111,10 +112,16 @@ serve(async (req) => {
       });
     }
     
-    const { url, comprehensive = true }: ScanRequest = requestBody;
+    const { url, comprehensive = true, specificUrls }: ScanRequest = requestBody;
     
-    if (!url) {
-      throw new Error('URL is required');
+    if (!url && (!specificUrls || specificUrls.length === 0)) {
+      throw new Error('URL or specific URLs are required');
+    }
+
+    // If specific URLs are provided, use selective scanning
+    if (specificUrls && specificUrls.length > 0) {
+      console.log(`Starting selective scan for ${specificUrls.length} specific URLs`);
+      return await handleSelectiveScanning(specificUrls, req);
     }
 
     console.log(`Starting comprehensive scan for: ${url}`);
@@ -320,3 +327,128 @@ serve(async (req) => {
     );
   }
 });
+
+// Handle selective scanning of specific URLs
+async function handleSelectiveScanning(urls: string[], req: Request): Promise<Response> {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  };
+
+  try {
+    const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
+    if (!firecrawlApiKey) {
+      throw new Error('Firecrawl API key not configured');
+    }
+
+    console.log(`Scanning ${urls.length} specific URLs with Firecrawl`);
+    
+    const scrapedContent = [];
+    let successCount = 0;
+    
+    // Scrape each URL individually for better control and faster processing
+    for (const url of urls) {
+      try {
+        console.log(`Scraping: ${url}`);
+        
+        const firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${firecrawlApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: url,
+            pageOptions: {
+              onlyMainContent: true,
+              includeHtml: false
+            }
+          }),
+        });
+
+        if (firecrawlResponse.ok) {
+          const pageData = await firecrawlResponse.json();
+          if (pageData.success && pageData.data) {
+            scrapedContent.push({
+              url: pageData.data.metadata?.sourceURL || url,
+              title: pageData.data.metadata?.title || `Page from ${new URL(url).pathname}`,
+              content: pageData.data.markdown || pageData.data.content || '',
+              extracted: pageData.data.extract || {}
+            });
+            successCount++;
+          }
+        } else {
+          console.warn(`Failed to scrape ${url}: ${firecrawlResponse.status}`);
+        }
+      } catch (error) {
+        console.warn(`Error scraping ${url}:`, error);
+      }
+    }
+
+    // Filter out pages with minimal content
+    const validContent = scrapedContent.filter(page => page.content && page.content.length > 100);
+    const totalContentLength = validContent.reduce((sum, page) => sum + page.content.length, 0);
+    
+    console.log(`Successfully scraped ${successCount}/${urls.length} pages, ${validContent.length} with substantial content`);
+
+    // Analyze with AI
+    const analysisResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-content-analyzer`, {
+      method: 'POST',
+      headers: {
+        'Authorization': req.headers.get('Authorization') || '',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: validContent,
+        analysis_type: 'educational_institution',
+        extract_programs: true,
+        extract_forms: true
+      }),
+    });
+
+    if (!analysisResponse.ok) {
+      throw new Error(`AI analysis failed: ${analysisResponse.status}`);
+    }
+
+    const analysisResult = await analysisResponse.json();
+    
+    const result = {
+      institution: analysisResult.institution || {
+        name: urls[0] ? new URL(urls[0]).hostname.replace('www.', '') : 'Unknown Institution',
+        description: 'Educational institution',
+        website: urls[0] || '',
+      },
+      programs: analysisResult.programs || [],
+      applicationForms: analysisResult.forms || [],
+      success: true,
+      pages_scanned: validContent.length,
+      total_content_length: totalContentLength,
+      urls_requested: urls.length,
+      urls_successfully_scraped: successCount
+    };
+
+    console.log(`Selective scan complete: ${result.programs.length} programs, ${result.applicationForms.length} forms found`);
+
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+
+  } catch (error) {
+    console.error('Selective scanning error:', error);
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error.message,
+        institution: null,
+        programs: [],
+        applicationForms: [],
+        pages_scanned: 0,
+        total_content_length: 0
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+}

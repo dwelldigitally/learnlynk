@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useSegmentSelection } from '@/hooks/useSegmentSelection';
+import { useRealTimeActions } from '@/hooks/useRealTimeActions';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Phone, Mail, FileText, CheckCircle, Clock, User, GraduationCap, 
@@ -20,6 +21,9 @@ import { CommunicationsWidget } from './widgets/CommunicationsWidget';
 import { DocumentReviewsWidget } from './widgets/DocumentReviewsWidget';
 import { OverdueUrgentWidget } from './widgets/OverdueUrgentWidget';
 import { ConversionOpportunitiesWidget } from './widgets/ConversionOpportunitiesWidget';
+import { RealTimeAnalyticsWidget } from './widgets/RealTimeAnalyticsWidget';
+import { SmartAutomationWidget } from './widgets/SmartAutomationWidget';
+import { EnhancedBulkActionsToolbar } from './EnhancedBulkActionsToolbar';
 
 interface StudentAction {
   id: string;
@@ -63,8 +67,7 @@ interface ConversionMetrics {
 }
 
 export function EnhancedTodayCommandCentre() {
-  const [actions, setActions] = useState<StudentAction[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { actions, loading, newActionCount, markNewActionsSeen } = useRealTimeActions();
   const [metrics, setMetrics] = useState<ConversionMetrics>({
     leadToApplicant: 0,
     applicantToEnrolled: 0,
@@ -90,51 +93,11 @@ export function EnhancedTodayCommandCentre() {
   const { toast } = useToast();
 
   useEffect(() => {
-    loadActions();
     loadConversionMetrics();
-  }, []);
+    markNewActionsSeen();
+  }, [markNewActionsSeen]);
 
-  const loadActions = async () => {
-    try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      console.log('📊 Loading actions - User:', !!user, user?.id, userError);
-      
-      if (userError || !user) {
-        console.log('❌ User authentication failed, refreshing session');
-        await supabase.auth.refreshSession();
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('student_actions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'pending')
-        .order('priority', { ascending: true })
-        .order('scheduled_at', { ascending: true });
-
-      console.log('📊 Supabase query result:', { data: data?.length, error });
-      if (error) throw error;
-      
-      const transformedActions = (data || []).map(action => ({
-        ...action,
-        metadata: typeof action.metadata === 'string' 
-          ? JSON.parse(action.metadata) 
-          : action.metadata || {}
-      })) as StudentAction[];
-      
-      setActions(transformedActions);
-    } catch (error) {
-      console.error('Error loading actions:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load today's actions",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Remove loadActions since it's now handled by useRealTimeActions hook
 
   const loadConversionMetrics = async () => {
     try {
@@ -169,7 +132,7 @@ export function EnhancedTodayCommandCentre() {
 
       if (error) throw error;
 
-      setActions(actions.filter(a => a.id !== actionId));
+      // Actions are automatically updated via real-time subscription
       
       toast({
         title: "Action completed! 🎉",
@@ -397,6 +360,34 @@ export function EnhancedTodayCommandCentre() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Enhanced Analytics & Automation */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <RealTimeAnalyticsWidget />
+        <SmartAutomationWidget />
+        
+        {/* New Action Indicator */}
+        {newActionCount > 0 && (
+          <Card className="border-primary bg-primary/5">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium">New Actions</p>
+                  <p className="text-2xl font-bold text-primary">{newActionCount}</p>
+                  <p className="text-xs text-muted-foreground">just arrived</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={markNewActionsSeen}
+                >
+                  Mark Seen
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* Task Widgets Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">

@@ -25,6 +25,7 @@ import CompletionCelebrationScreen from './steps/CompletionCelebrationScreen';
 
 interface OnboardingData {
   company: any;
+  website: any;
   websiteData: any;
   programs: any[];
   requirements: any[];
@@ -60,6 +61,7 @@ const ComprehensiveOnboarding: React.FC = () => {
   const [isSkippingAll, setIsSkippingAll] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     company: {},
+    website: {},
     websiteData: {},
     programs: [],
     requirements: [],
@@ -94,7 +96,14 @@ const ComprehensiveOnboarding: React.FC = () => {
   const saveProgress = (stepData: any, stepIndex: number = currentStep) => {
     const updatedData = { ...onboardingData };
     const stepKey = ONBOARDING_STEPS[stepIndex].id as keyof OnboardingData;
-    updatedData[stepKey] = stepData;
+    
+    // Special handling for website data to ensure proper mapping
+    if (stepKey === 'website') {
+      console.log('Saving website scan data:', stepData);
+      updatedData.websiteData = stepData;
+    } else {
+      updatedData[stepKey] = stepData;
+    }
     
     setOnboardingData(updatedData);
     
@@ -105,6 +114,7 @@ const ComprehensiveOnboarding: React.FC = () => {
     };
     
     localStorage.setItem('onboarding-progress', JSON.stringify(progressData));
+    console.log('Saved progress data:', progressData);
   };
 
   const handleStepComplete = (stepData: any) => {

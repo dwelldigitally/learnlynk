@@ -81,6 +81,22 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
   const [scanError, setScanError] = useState<string | null>(null);
   const [progressInterval, setProgressInterval] = useState<NodeJS.Timeout | null>(null);
 
+  // Load existing scan results on mount
+  React.useEffect(() => {
+    const savedResults = localStorage.getItem('website-scan-results');
+    if (savedResults && !scanResults) {
+      try {
+        const parsed = JSON.parse(savedResults);
+        setScanResults(parsed);
+        setWebsiteUrl(parsed.url || '');
+        setCurrentStep('institution'); // Go to review if results exist
+        console.log('Loaded previous scan results:', parsed);
+      } catch (error) {
+        console.error('Failed to load saved scan results:', error);
+      }
+    }
+  }, []);
+
   const discoverPages = async () => {
     if (!websiteUrl) {
       toast({
@@ -446,6 +462,11 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
           rawScanData: scanResult
         };
 
+        // Save scan results to localStorage for persistence
+        localStorage.setItem('website-scan-results', JSON.stringify(results));
+        
+        console.log('Calling onComplete with scan results:', results);
+        onComplete(results);
         setScanResults(results);
         setCurrentStep('institution');
         
@@ -890,8 +911,20 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
       <InstitutionReview
         institution={scanResults.institution}
         onConfirm={(institution) => {
-          setScanResults(prev => prev ? { ...prev, institution } : null);
-          setCurrentStep('results');
+          const finalResults = {
+            ...scanResults,
+            institution
+          };
+          
+          // Save updated results to localStorage
+          localStorage.setItem('website-scan-results', JSON.stringify(finalResults));
+          
+          setScanResults(finalResults);
+          
+          // Pass results to parent and continue
+          console.log('Institution confirmed, calling onComplete with:', finalResults);
+          onComplete(finalResults);
+          onNext();
         }}
         onEdit={() => setCurrentStep('selection')}
       />

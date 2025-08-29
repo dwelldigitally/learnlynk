@@ -68,22 +68,22 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
 }) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<CompanyData>({
-    institutionName: data?.institutionName || websiteData?.institutionInfo?.institutionName || '',
+    institutionName: data?.institutionName || websiteData?.institution?.name || '',
     institutionType: data?.institutionType || '',
     website: data?.website || websiteData?.url || '',
-    description: data?.description || '',
-    established: data?.established || websiteData?.institutionInfo?.established || '',
-    accreditation: data?.accreditation || websiteData?.institutionInfo?.accreditation || '',
-    studentCapacity: data?.studentCapacity || websiteData?.institutionInfo?.studentBody || '',
-    address: data?.address || websiteData?.contactInfo?.address || '',
-    city: data?.city || '',
-    state: data?.state || '',
+    description: data?.description || websiteData?.institution?.description || '',
+    established: data?.established || websiteData?.institution?.founded_year?.toString() || '',
+    accreditation: data?.accreditation || '',
+    studentCapacity: data?.studentCapacity || '',
+    address: data?.address || websiteData?.institution?.address || '',
+    city: data?.city || websiteData?.institution?.city || '',
+    state: data?.state || websiteData?.institution?.state || '',
     zipCode: data?.zipCode || '',
-    country: data?.country || 'United States',
-    phone: data?.phone || websiteData?.contactInfo?.phone || '',
-    email: data?.email || websiteData?.contactInfo?.email || '',
-    logoUrl: data?.logoUrl || '',
-    primaryColor: data?.primaryColor || '#3B82F6',
+    country: data?.country || websiteData?.institution?.country || 'United States',
+    phone: data?.phone || websiteData?.institution?.phone || '',
+    email: data?.email || websiteData?.institution?.email || '',
+    logoUrl: data?.logoUrl || websiteData?.institution?.logo_url || '',
+    primaryColor: data?.primaryColor || websiteData?.institution?.primary_color || '#3B82F6',
     secondaryColor: data?.secondaryColor || '#10B981'
   });
 

@@ -22,7 +22,7 @@ const ProgramSetupScreen: React.FC<ProgramSetupScreenProps> = ({
   onSkip
 }) => {
   const { toast } = useToast();
-  const [programs, setPrograms] = useState(data?.programs || websiteData?.detectedPrograms || []);
+  const [programs, setPrograms] = useState(data?.programs || websiteData?.programs || []);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
 
@@ -69,17 +69,21 @@ const ProgramSetupScreen: React.FC<ProgramSetupScreenProps> = ({
 
   return (
     <div className="space-y-6">
-      {websiteData?.detectedPrograms && (
+      {websiteData?.programs && websiteData.programs.length > 0 && (
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
           <div className="flex items-center space-x-2 mb-2">
             <Check className="w-5 h-5 text-primary" />
             <span className="font-medium text-primary">
-              {websiteData.detectedPrograms.length} programs detected from your website
+              {websiteData.programs.length} programs detected from your website
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
             Review and customize the detected programs below, or add additional programs.
           </p>
+          <div className="mt-2 text-xs text-muted-foreground">
+            Confidence: {websiteData.confidence || 'N/A'}% • 
+            Source: {websiteData.pagesScanned || 'Multiple'} pages analyzed
+          </div>
         </div>
       )}
 

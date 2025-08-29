@@ -241,8 +241,7 @@ ${combinedContent}`;
             content: prompt
           }
         ],
-        max_completion_tokens: 4000,
-        temperature: 0.1
+        max_completion_tokens: 4000
       }),
     });
 

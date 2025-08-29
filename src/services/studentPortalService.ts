@@ -231,98 +231,32 @@ export class StudentPortalService {
   }
 
   private static generatePortalConfig(program: string, intakeDate?: string): any {
-    // Program-specific configurations
-    const programConfigs: Record<string, any> = {
-      'Business Administration': {
-        theme: {
-          primary: '#2563eb',
-          secondary: '#1e40af',
-          accent: '#3b82f6'
-        },
-        timeline: {
-          applicationDeadline: '2024-04-15',
-          documentSubmission: '2024-05-01',
-          finalDecision: '2024-06-01'
-        },
-        resources: [
-          'Business Fundamentals Guide',
-          'Career Planning Toolkit',
-          'Industry Networking Events'
-        ]
-      },
-      'Computer Science': {
-        theme: {
-          primary: '#059669',
-          secondary: '#047857',
-          accent: '#10b981'
-        },
-        timeline: {
-          applicationDeadline: '2024-04-20',
-          documentSubmission: '2024-05-05',
-          finalDecision: '2024-06-05'
-        },
-        resources: [
-          'Programming Fundamentals',
-          'Tech Industry Guide',
-          'Coding Bootcamp Prep'
-        ]
-      },
-      'Nursing': {
-        theme: {
-          primary: '#dc2626',
-          secondary: '#b91c1c',
-          accent: '#ef4444'
-        },
-        timeline: {
-          applicationDeadline: '2024-04-10',
-          documentSubmission: '2024-04-25',
-          finalDecision: '2024-05-25'
-        },
-        resources: [
-          'Healthcare Fundamentals',
-          'Clinical Skills Guide',
-          'Medical Ethics Training'
-        ]
-      }
-    };
-
-    const defaultConfig = {
+    // Simple default configuration to avoid encoding issues
+    const config: any = {
       theme: {
-        primary: '#6366f1',
-        secondary: '#4f46e5',
-        accent: '#8b5cf6'
+        primary: "#6366f1",
+        secondary: "#4f46e5", 
+        accent: "#8b5cf6"
       },
       timeline: {
-        applicationDeadline: '2024-05-01',
-        documentSubmission: '2024-05-15',
-        finalDecision: '2024-06-15'
+        applicationDeadline: "2024-05-01",
+        documentSubmission: "2024-05-15",
+        finalDecision: "2024-06-15"
       },
       resources: [
-        'Student Handbook',
-        'Academic Planning Guide',
-        'Campus Resources'
-      ]
+        "Student Handbook",
+        "Academic Planning Guide", 
+        "Campus Resources"
+      ],
+      welcomeMessage: `Welcome to your personalized ${program} portal!`,
+      program: program
     };
 
-    const config = programConfigs[program] || defaultConfig;
-    
-    // Adjust timeline based on intake date if provided
+    // Add intake date if provided
     if (intakeDate) {
-      const intake = new Date(intakeDate);
-      const deadlines = {
-        applicationDeadline: new Date(intake.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        documentSubmission: new Date(intake.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        finalDecision: new Date(intake.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-      };
-      config.timeline = deadlines;
+      config.intakeDate = intakeDate;
     }
 
-    return {
-      ...config,
-      welcomeMessage: `Welcome to your personalized ${program} portal!`,
-      intakeDate,
-      program,
-      createdAt: new Date().toISOString()
-    };
+    return config;
   }
 }

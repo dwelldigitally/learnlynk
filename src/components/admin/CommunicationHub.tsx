@@ -202,6 +202,7 @@ const CommunicationHub: React.FC = () => {
   };
 
   const handleLeadSelect = (lead: any) => {
+    console.log('handleLeadSelect called with lead:', lead);
     setSelectedLead(lead);
     setShowLeadSelector(false);
     setShowComposeModal(true);

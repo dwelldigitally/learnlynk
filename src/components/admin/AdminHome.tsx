@@ -17,7 +17,8 @@ import {
   ClipboardList,
   ChevronDown,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Play
 } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
@@ -97,6 +98,13 @@ const AdminHome: React.FC = () => {
       icon: ClipboardList,
       color: "bg-teal-500/10 text-teal-600 hover:bg-teal-500/20",
       onClick: () => navigate("/admin/assignments")
+    },
+    {
+      title: "Demo Onboarding",
+      description: "Try the onboarding flow",
+      icon: Play,
+      color: "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20",
+      onClick: () => navigate("/onboarding")
     }
   ];
 

@@ -4,8 +4,10 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { GlassCard } from '@/components/modern/GlassCard';
-import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, SkipForward } from 'lucide-react';
 import { UserMenu } from '@/components/auth/UserMenu';
+import { useAuth } from '@/contexts/AuthContext';
+import { ProfileService } from '@/services/profileService';
 
 // Step Components
 import CompanySetupScreen from './steps/CompanySetupScreen';
@@ -53,7 +55,9 @@ const ONBOARDING_STEPS = [
 const ComprehensiveOnboarding: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
+  const [isSkippingAll, setIsSkippingAll] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     company: {},
     websiteData: {},
@@ -145,6 +149,49 @@ const ComprehensiveOnboarding: React.FC = () => {
     handleNext();
   };
 
+  const handleSkipAllSteps = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Error",
+        description: "User not found. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSkippingAll(true);
+
+    try {
+      // Complete onboarding in the database
+      const { error } = await ProfileService.completeOnboarding(user.id);
+      
+      if (error) {
+        throw error;
+      }
+
+      // Clear onboarding progress and mark as completed
+      localStorage.removeItem('onboarding-progress');
+      localStorage.setItem('onboarding-completed', 'true');
+
+      toast({
+        title: "Demo Setup Complete!",
+        description: "All onboarding steps skipped. Welcome to your dashboard!",
+      });
+
+      // Navigate to admin dashboard
+      navigate('/admin');
+    } catch (error) {
+      console.error('Failed to skip onboarding:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete onboarding. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSkippingAll(false);
+    }
+  };
+
   const renderCurrentStep = () => {
     const stepProps = {
       data: onboardingData[ONBOARDING_STEPS[currentStep].id as keyof OnboardingData],
@@ -204,6 +251,16 @@ const ComprehensiveOnboarding: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-center space-x-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSkipAllSteps}
+                  disabled={isSkippingAll}
+                  className="glass-button text-muted-foreground hover:text-foreground"
+                >
+                  <SkipForward className="mr-2 w-4 h-4" />
+                  {isSkippingAll ? "Skipping..." : "Skip All (Demo)"}
+                </Button>
                 <div className="text-right">
                   <div className="text-sm font-medium text-foreground">{Math.round(progress)}% Complete</div>
                   <div className="text-xs text-muted-foreground">{ONBOARDING_STEPS.length - currentStep - 1} steps remaining</div>

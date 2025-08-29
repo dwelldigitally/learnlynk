@@ -93,52 +93,111 @@ export class WebsiteScannerService {
       console.log(`Starting website scan for: ${url}`);
       console.log('Attempting to call website-scanner edge function...');
       
-      // First try a health check
+      // First try a health check with timeout
       try {
-        const healthCheck = await supabase.functions.invoke('website-scanner', {
+        const healthPromise = supabase.functions.invoke('website-scanner', {
           body: { action: 'health' }
         });
+        
+        const healthTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Health check timeout')), 10000)
+        );
+        
+        const healthCheck = await Promise.race([healthPromise, healthTimeout]);
         console.log('Health check response:', healthCheck);
       } catch (healthError) {
         console.warn('Health check failed:', healthError);
+        // Continue anyway, the function might still work
       }
       
-      // Main scan request with simplified headers
-      const { data, error } = await supabase.functions.invoke('website-scanner', {
-        body: { url, comprehensive }
-      });
+      // Main scan request with timeout and retry logic
+      let lastError: any;
+      const maxRetries = 2;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          console.log(`Scan attempt ${attempt}/${maxRetries}`);
+          
+          const scanPromise = supabase.functions.invoke('website-scanner', {
+            body: { url, comprehensive }
+          });
+          
+          // 5 minute timeout for comprehensive scans, 2 minutes for basic scans
+          const timeoutMs = comprehensive ? 5 * 60 * 1000 : 2 * 60 * 1000;
+          const timeoutPromise = new Promise<never>((_, reject) => 
+            setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+          );
+          
+          const result = await Promise.race([scanPromise, timeoutPromise]);
+          const { data, error } = result;
 
-      console.log('Function call completed. Error:', error, 'Data:', data);
+          console.log('Function call completed. Error:', error, 'Data:', data);
 
-      if (error) {
-        console.error('Supabase function error details:', {
-          message: error.message,
-          stack: error.stack,
-          context: error.context,
-          details: error.details
-        });
-        
-        // Distinguish between different types of errors
-        if (error.message?.includes('Failed to fetch') || error.message?.includes('Failed to send a request')) {
-          throw new Error('Unable to connect to the website scanning service. The function may be unavailable.');
-        } else if (error.message?.includes('rate limit')) {
-          throw new Error('Firecrawl API rate limit reached. Please wait a few minutes and try again.');
-        } else {
-          throw new Error(`Website scanning failed: ${error.message || 'Unknown error'}`);
+          if (error) {
+            console.error('Supabase function error details:', {
+              message: error.message,
+              stack: error.stack,
+              context: error.context,
+              details: error.details
+            });
+            
+            // Don't retry certain types of errors
+            if (error.message?.includes('rate limit') || error.message?.includes('429')) {
+              throw new Error('Firecrawl API rate limit reached. Please wait a few minutes and try again.');
+            }
+            
+            lastError = error;
+            continue; // Try again
+          }
+
+          if (!data?.success) {
+            console.error('Scan failed with data:', data);
+            const errorMessage = data?.error || 'Website scanning failed - unknown error';
+            
+            // Don't retry if it's a configuration error
+            if (errorMessage.includes('API key') || errorMessage.includes('configuration')) {
+              throw new Error(errorMessage);
+            }
+            
+            lastError = new Error(errorMessage);
+            continue; // Try again
+          }
+
+          console.log(`Successfully scanned ${data.pages_scanned} pages and found ${data.programs.length} programs`);
+          return data as ScanResult;
+          
+        } catch (error: any) {
+          lastError = error;
+          
+          if (error.message === 'Request timeout') {
+            console.log(`Attempt ${attempt} timed out`);
+            if (attempt < maxRetries) {
+              console.log('Retrying with shorter timeout...');
+              comprehensive = false; // Switch to non-comprehensive scan for retry
+              continue;
+            }
+          }
+          
+          // Don't retry fetch errors on last attempt
+          if (attempt === maxRetries) {
+            break;
+          }
+          
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 2000));
         }
       }
-
-      if (!data?.success) {
-        console.error('Scan failed with data:', data);
-        throw new Error(data?.error || 'Website scanning failed - unknown error');
-      }
-
-      console.log(`Successfully scanned ${data.pages_scanned} pages and found ${data.programs.length} programs`);
       
-      return data as ScanResult;
+      // If we get here, all attempts failed
+      if (lastError?.message?.includes('Failed to fetch') || lastError?.message?.includes('Failed to send a request') || lastError?.message === 'Request timeout') {
+        throw new Error('The website scanning request timed out. This usually happens with large websites. Please try with a smaller website or try again later.');
+      }
+      
+      throw lastError || new Error('Website scanning failed after multiple attempts');
+      
     } catch (error) {
       console.error('Website scanning error:', error);
-      throw error; // Re-throw the error as-is to preserve the enhanced error messages
+      throw error;
     }
   }
 

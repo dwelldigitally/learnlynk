@@ -11,7 +11,8 @@ export type LeadSource =
   | 'csv_import'
   | 'chatbot'
   | 'ads'
-  | 'forms';
+  | 'forms'
+  | 'webform';
 
 export type LeadStatus = 
   | 'new'

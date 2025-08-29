@@ -31,6 +31,8 @@ import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
+import StudentApplication from "./pages/StudentApplication";
+import { StudentPortalAccess } from "./components/student/StudentPortalAccess";
 
 const queryClient = new QueryClient();
 
@@ -46,12 +48,17 @@ const App = () => {
             <ScrollToTop />
             <DataInitializer>
               <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/sign-in" element={<ModernSignIn />} />
-              <Route path="/sign-up" element={<ModernSignUp />} />
-              <Route path="/verify-email" element={<EmailVerificationScreen />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+               <Route path="/" element={<Home />} />
+               <Route path="/sign-in" element={<ModernSignIn />} />
+               <Route path="/sign-up" element={<ModernSignUp />} />
+               <Route path="/verify-email" element={<EmailVerificationScreen />} />
+               <Route path="/forgot-password" element={<ForgotPassword />} />
+               <Route path="/reset-password" element={<ResetPassword />} />
+               
+               {/* Webform Routes */}
+               <Route path="/webform" element={<StudentApplication />} />
+               <Route path="/apply" element={<StudentApplication />} />
+               <Route path="/student-portal/:accessToken" element={<StudentPortalAccess />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               

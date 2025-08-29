@@ -2049,6 +2049,8 @@ export type Database = {
           form_id: string
           id: string
           ip_address: unknown | null
+          lead_id: string | null
+          student_portal_id: string | null
           submission_data: Json
           submitted_at: string
           user_agent: string | null
@@ -2057,6 +2059,8 @@ export type Database = {
           form_id: string
           id?: string
           ip_address?: unknown | null
+          lead_id?: string | null
+          student_portal_id?: string | null
           submission_data?: Json
           submitted_at?: string
           user_agent?: string | null
@@ -2065,6 +2069,8 @@ export type Database = {
           form_id?: string
           id?: string
           ip_address?: unknown | null
+          lead_id?: string | null
+          student_portal_id?: string | null
           submission_data?: Json
           submitted_at?: string
           user_agent?: string | null
@@ -2075,6 +2081,20 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "forms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_submissions_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_submissions_student_portal_id_fkey"
+            columns: ["student_portal_id"]
+            isOneToOne: false
+            referencedRelation: "student_portals"
             referencedColumns: ["id"]
           },
         ]
@@ -4228,6 +4248,7 @@ export type Database = {
           title: string | null
           updated_at: string
           user_id: string
+          user_role: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -4249,6 +4270,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id: string
+          user_role?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -4270,6 +4292,7 @@ export type Database = {
           title?: string | null
           updated_at?: string
           user_id?: string
+          user_role?: string | null
         }
         Relationships: []
       }
@@ -5633,6 +5656,51 @@ export type Database = {
         }
         Relationships: []
       }
+      student_portals: {
+        Row: {
+          access_token: string
+          country: string | null
+          created_at: string
+          email: string
+          id: string
+          intake_date: string | null
+          is_active: boolean
+          phone: string | null
+          portal_config: Json
+          program: string
+          student_name: string
+          updated_at: string
+        }
+        Insert: {
+          access_token?: string
+          country?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          intake_date?: string | null
+          is_active?: boolean
+          phone?: string | null
+          portal_config?: Json
+          program: string
+          student_name: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          country?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          intake_date?: string | null
+          is_active?: boolean
+          phone?: string | null
+          portal_config?: Json
+          program?: string
+          student_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           academic_progress: number | null
@@ -6000,6 +6068,38 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       waste_radar: {
         Row: {
           created_at: string
@@ -6127,6 +6227,10 @@ export type Database = {
       cleanup_expired_otps: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      has_role: {
+        Args: { _role: string; _user_id: string }
+        Returns: boolean
       }
       user_has_demo_data: {
         Args: { user_email?: string }

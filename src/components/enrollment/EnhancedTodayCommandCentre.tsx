@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { useSegmentSelection } from '@/hooks/useSegmentSelection';
-import { useRealTimeActions } from '@/hooks/useRealTimeActions';
+
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Phone, Mail, FileText, CheckCircle, Clock, User, GraduationCap, 
@@ -70,7 +70,8 @@ interface ConversionMetrics {
 }
 
 export function EnhancedTodayCommandCentre() {
-  const { actions, loading, newActionCount, markNewActionsSeen } = useRealTimeActions();
+  const [actions, setActions] = useState<StudentAction[]>([]);
+  const [loading, setLoading] = useState(false);
   const [intelligentTasks, setIntelligentTasks] = useState<any[]>([]);
   const [showConfiguration, setShowConfiguration] = useState(false);
   const [metrics, setMetrics] = useState<ConversionMetrics>({
@@ -99,8 +100,44 @@ export function EnhancedTodayCommandCentre() {
 
   useEffect(() => {
     loadConversionMetrics();
-    markNewActionsSeen();
-  }, [markNewActionsSeen]);
+    loadActions();
+  }, []);
+
+  const loadActions = async () => {
+    try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('student_actions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'pending')
+        .order('priority', { ascending: true })
+        .order('scheduled_at', { ascending: true });
+
+      if (error) throw error;
+      
+      const transformedActions = (data || []).map(action => ({
+        ...action,
+        metadata: typeof action.metadata === 'string' 
+          ? JSON.parse(action.metadata) 
+          : action.metadata || {}
+      })) as StudentAction[];
+      
+      setActions(transformedActions);
+    } catch (error) {
+      console.error('Error loading actions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load actions",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Remove loadActions since it's now handled by useRealTimeActions hook
 

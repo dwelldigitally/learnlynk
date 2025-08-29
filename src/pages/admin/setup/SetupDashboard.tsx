@@ -120,10 +120,10 @@ export const SetupDashboard = () => {
     console.log('Checking completion for', stepId, 'with data:', data);
     switch (stepId) {
       case 'institution':
-        const institutionComplete = !!(data.institution?.institutionName && data.programs?.length > 0);
+        const institutionComplete = !!(data.institution?.institutionName && data.programs?.programs?.length > 0);
         console.log('Institution completion check:', { 
           hasInstitution: !!data.institution?.institutionName, 
-          hasPrograms: !!data.programs?.length,
+          hasPrograms: !!data.programs?.programs?.length,
           result: institutionComplete 
         });
         return institutionComplete;

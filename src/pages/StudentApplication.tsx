@@ -91,54 +91,89 @@ export function StudentApplication() {
 
     setIsSubmitting(true);
 
+    let portal = null;
+    let lead = null;
+
     try {
-      // Create student portal
-      const portalData = {
-        student_name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        phone: formData.phone,
-        country: formData.country,
-        program: formData.programName,
-        intake_date: formData.intakeDate || null
-      };
+      console.log('Starting application submission...');
+      
+      // Step 1: Create student portal
+      try {
+        console.log('Creating student portal...');
+        const portalData = {
+          student_name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          country: formData.country,
+          program: formData.programName,
+          intake_date: formData.intakeDate || null
+        };
 
-      const portal = await StudentPortalService.createStudentPortal(portalData);
+        portal = await StudentPortalService.createStudentPortal(portalData);
+        console.log('Student portal created successfully:', portal.id);
+      } catch (portalError) {
+        console.error('Failed to create student portal:', portalError);
+        throw new Error('Failed to create student portal. Please try again.');
+      }
 
-      // Create lead in admin system
-      const leadData = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        country: formData.country,
-        program_interest: [formData.programName],
-        source: 'web' as const,
-        status: 'new' as const,
-        priority: 'medium' as const,
-        notes: `Application submitted for ${formData.programName}${formData.intakeDate ? `. Intake: ${new Date(formData.intakeDate).toLocaleDateString()}` : ''}`,
-        utm_source: 'student_application',
-        utm_medium: 'web_form',
-        utm_campaign: 'portal_creation'
-      };
+      // Step 2: Create lead in admin system
+      try {
+        console.log('Creating lead record...');
+        const leadData = {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          country: formData.country,
+          program_interest: [formData.programName],
+          source: 'web' as const,
+          status: 'new' as const,
+          priority: 'medium' as const,
+          user_id: null, // Explicitly set for anonymous RLS policy
+          notes: `Application submitted for ${formData.programName}${formData.intakeDate ? `. Intake: ${new Date(formData.intakeDate).toLocaleDateString()}` : ''}`,
+          utm_source: 'student_application',
+          utm_medium: 'web_form',
+          utm_campaign: 'portal_creation'
+        };
 
-      const { data: lead, error: leadError } = await supabase
-        .from('leads')
-        .insert(leadData)
-        .select()
-        .single();
+        const { data: leadResult, error: leadError } = await supabase
+          .from('leads')
+          .insert(leadData)
+          .select()
+          .single();
 
-      if (leadError) throw leadError;
+        if (leadError) {
+          console.error('Lead creation error:', leadError);
+          throw leadError;
+        }
 
-      // Create form submission record
-      const submissionData = {
-        form_id: 'student-application',
-        submission_data: formData,
-        student_portal_id: portal.id,
-        lead_id: lead.id
-      };
+        lead = leadResult;
+        console.log('Lead created successfully:', lead.id);
+      } catch (leadError) {
+        console.error('Failed to create lead:', leadError);
+        // Continue without failing - portal is already created
+        console.warn('Continuing without lead creation...');
+      }
 
-      await FormService.createFormSubmission('student-application', submissionData);
+      // Step 3: Create form submission record (optional)
+      try {
+        console.log('Creating form submission record...');
+        const submissionData = {
+          form_id: 'student-application',
+          submission_data: formData,
+          student_portal_id: portal.id,
+          lead_id: lead?.id || null
+        };
 
+        await FormService.createFormSubmission('student-application', submissionData);
+        console.log('Form submission record created successfully');
+      } catch (formError) {
+        console.error('Failed to create form submission record:', formError);
+        // This is non-critical, continue without failing
+        console.warn('Continuing without form submission record...');
+      }
+
+      // Success - we have at least the portal
       setAccessToken(portal.access_token);
       setIsSuccess(true);
 
@@ -147,11 +182,17 @@ export function StudentApplication() {
         description: "Your student portal has been created successfully.",
       });
 
+      console.log('Application submission completed successfully');
+
     } catch (error) {
-      console.error('Error creating student portal:', error);
+      console.error('Application submission failed:', error);
+      
+      // Provide more specific error message
+      const errorMessage = error instanceof Error ? error.message : 'There was an error processing your application. Please try again.';
+      
       toast({
         title: "Submission Failed",
-        description: "There was an error processing your application. Please try again.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

@@ -114,16 +114,9 @@ serve(async (req) => {
     const requestBody = {
       url: url,
       crawlerOptions: {
-        includes: [
-          "**/programs/**",
-          "**/courses/**", 
-          "**/admissions/**",
-          "**/application/**",
-          "**/apply/**",
-          "**/academics/**",
-          "**/departments/**"
-        ],
         excludes: [
+          "**/blog/**",
+          "**/news/**",
           "**/admin/**",
           "**/login/**",
           "**/student-portal/**",

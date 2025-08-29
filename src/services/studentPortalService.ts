@@ -26,10 +26,11 @@ export interface StudentPortal {
   updated_at: string;
 }
 
+// Align with actual student_portal_content table structure
 export interface StudentPortalContent {
   id: string;
   user_id: string;
-  content_type: 'news' | 'announcement' | 'document' | 'alert';
+  content_type: string;
   title: string;
   description?: string;
   content?: string;
@@ -44,22 +45,8 @@ export interface StudentPortalContent {
   registered_count: number;
   max_capacity?: number;
   is_published: boolean;
-  target_audience: string[];
+  target_audience: any;
   metadata: any;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface StudentPortalMessage {
-  id: string;
-  user_id: string;
-  title: string;
-  content: string;
-  message_type: 'info' | 'warning' | 'error' | 'success';
-  priority: 'normal' | 'high' | 'urgent';
-  target_students: string[];
-  scheduled_for?: string;
-  is_read: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -133,7 +120,7 @@ export class StudentPortalService {
     if (error) throw error;
   }
 
-  // Content Management Methods
+  // Content Management Methods - using actual table structure
   static async getPortalContent(): Promise<StudentPortalContent[]> {
     const { data, error } = await supabase
       .from('student_portal_content')
@@ -187,69 +174,6 @@ export class StudentPortalService {
     if (error) throw error;
   }
 
-  // Message Management Methods
-  static async getPortalMessages(): Promise<StudentPortalMessage[]> {
-    const { data, error } = await supabase
-      .from('student_portal_messages')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  }
-
-  static async getStudentMessages(studentId: string): Promise<StudentPortalMessage[]> {
-    const { data, error } = await supabase
-      .from('student_portal_messages')
-      .select('*')
-      .contains('target_students', [studentId])
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-    return data || [];
-  }
-
-  static async createPortalMessage(message: Omit<StudentPortalMessage, 'id' | 'created_at' | 'updated_at' | 'is_read'>): Promise<StudentPortalMessage> {
-    const { data, error } = await supabase
-      .from('student_portal_messages')
-      .insert({ ...message, is_read: false })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
-
-  static async updatePortalMessage(id: string, updates: Partial<StudentPortalMessage>): Promise<StudentPortalMessage> {
-    const { data, error } = await supabase
-      .from('student_portal_messages')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
-
-  static async deletePortalMessage(id: string): Promise<void> {
-    const { error } = await supabase
-      .from('student_portal_messages')
-      .delete()
-      .eq('id', id);
-
-    if (error) throw error;
-  }
-
-  static async markMessageAsRead(messageId: string, studentId: string): Promise<void> {
-    const { error } = await supabase
-      .from('student_portal_messages')
-      .update({ is_read: true })
-      .eq('id', messageId);
-
-    if (error) throw error;
-  }
-
   // Configuration Management Methods
   static async getPortalConfig(): Promise<StudentPortalConfig[]> {
     const { data, error } = await supabase
@@ -296,13 +220,6 @@ export class StudentPortalService {
     return supabase
       .channel('student_portal_content_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'student_portal_content' }, callback)
-      .subscribe();
-  }
-
-  static subscribeToMessageChanges(callback: () => void) {
-    return supabase
-      .channel('student_portal_message_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'student_portal_messages' }, callback)
       .subscribe();
   }
 

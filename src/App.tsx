@@ -31,6 +31,8 @@ import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
+import { StudentApplication } from "./pages/StudentApplication";
+import { StudentPortalAccess } from "./pages/StudentPortalAccess";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ const App = () => {
             <DataInitializer>
               <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/apply" element={<StudentApplication />} />
+              <Route path="/student-portal/:accessToken" element={<StudentPortalAccess />} />
               <Route path="/sign-in" element={<ModernSignIn />} />
               <Route path="/sign-up" element={<ModernSignUp />} />
               <Route path="/verify-email" element={<EmailVerificationScreen />} />

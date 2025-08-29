@@ -38,6 +38,7 @@ import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementS
 import { IntegrationHub } from "@/components/admin/database/IntegrationHub";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
+import { StudentPortalsDashboard } from "@/components/admin/StudentPortalsDashboard";
 import AIEmailManagementPage from "./AIEmailManagementPage";
 import { HubSpotOAuthCallback } from "@/pages/HubSpotOAuthCallback";
 import RecruiterManagement from "@/components/admin/RecruiterManagement";
@@ -136,6 +137,8 @@ const AdminDashboard: React.FC = () => {
         return <StudentManagement />;
       case "/admin/student-portal":
         return <StudentPortalManagement />;
+      case "/admin/student-portals":
+        return <StudentPortalsDashboard />;
       case "/admin/programs":
         return <ProgramManagement />;
       case "/admin/workflows":

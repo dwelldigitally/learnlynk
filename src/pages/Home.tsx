@@ -309,18 +309,19 @@ const Home: React.FC = () => {
                 >
                   <Button 
                     size="lg" 
-                    onClick={() => navigate('/sign-up')}
+                    onClick={() => navigate('/apply')}
                     className="bg-primary hover:bg-primary-hover px-8 py-4 text-lg font-semibold group"
                   >
-                    Start Your Free 30-Day Trial
+                    Apply Now - Get Your Portal
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                   <Button 
                     variant="outline" 
                     size="lg"
+                    onClick={() => navigate('/sign-up')}
                     className="px-8 py-4 text-lg border-border hover:bg-muted"
                   >
-                    Schedule a Demo
+                    Admin Portal Sign Up
                   </Button>
                 </motion.div>
                 

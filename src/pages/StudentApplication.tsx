@@ -1,0 +1,453 @@
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
+import { StudentPortalService } from '@/services/studentPortalService';
+import { FormService } from '@/services/formService';
+import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle, User, GraduationCap, Calendar, FileText, Send } from 'lucide-react';
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  program: string;
+  intakeDate: string;
+  previousEducation: string;
+  motivation: string;
+  goals: string;
+}
+
+const programs = [
+  'Business Administration',
+  'Computer Science',
+  'Nursing',
+  'Engineering',
+  'Psychology',
+  'Marketing',
+  'Accounting',
+  'Graphic Design'
+];
+
+const intakeDates = [
+  '2024-09-01',
+  '2024-11-01',
+  '2025-01-15',
+  '2025-03-01',
+  '2025-05-15',
+  '2025-07-01'
+];
+
+export function StudentApplication() {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [accessToken, setAccessToken] = useState('');
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState<FormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    country: '',
+    program: '',
+    intakeDate: '',
+    previousEducation: '',
+    motivation: '',
+    goals: ''
+  });
+
+  const totalSteps = 4;
+  const progressPercent = (currentStep / totalSteps) * 100;
+
+  const updateFormData = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const nextStep = () => {
+    if (currentStep < totalSteps) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const validateStep = (step: number): boolean => {
+    switch (step) {
+      case 1:
+        return formData.firstName.trim() !== '' && 
+               formData.lastName.trim() !== '' && 
+               formData.email.trim() !== '';
+      case 2:
+        return formData.program.trim() !== '' && formData.intakeDate.trim() !== '';
+      case 3:
+        return formData.previousEducation.trim() !== '';
+      case 4:
+        return formData.motivation.trim() !== '';
+      default:
+        return true;
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (!validateStep(4)) {
+      toast({
+        title: "Incomplete Information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Create student portal
+      const portalData = {
+        student_name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        program: formData.program,
+        intake_date: formData.intakeDate
+      };
+
+      const portal = await StudentPortalService.createStudentPortal(portalData);
+
+      // Create lead in admin system
+      const leadData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        country: formData.country,
+        program_interest: [formData.program],
+        source: 'web' as const,
+        status: 'new' as const,
+        priority: 'medium' as const,
+        notes: `Application submitted for ${formData.program}. Intake: ${formData.intakeDate}. Motivation: ${formData.motivation}`,
+        utm_source: 'student_application',
+        utm_medium: 'web_form',
+        utm_campaign: 'portal_creation'
+      };
+
+      const { data: lead, error: leadError } = await supabase
+        .from('leads')
+        .insert(leadData)
+        .select()
+        .single();
+
+      if (leadError) throw leadError;
+
+      // Create form submission record
+      const submissionData = {
+        form_id: 'student-application',
+        submission_data: formData,
+        student_portal_id: portal.id,
+        lead_id: lead.id
+      };
+
+      await FormService.createFormSubmission('student-application', submissionData);
+
+      setAccessToken(portal.access_token);
+      setIsSuccess(true);
+
+      toast({
+        title: "Application Submitted!",
+        description: "Your student portal has been created successfully.",
+      });
+
+    } catch (error) {
+      console.error('Error creating student portal:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error processing your application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handlePortalAccess = () => {
+    window.open(`/student-portal/${accessToken}`, '_blank');
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl">
+          <CardHeader className="text-center">
+            <CheckCircle className="w-16 h-16 text-primary mx-auto mb-4" />
+            <CardTitle className="text-3xl text-primary">Application Successful!</CardTitle>
+            <CardDescription className="text-lg">
+              Your personalized student portal has been created
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="bg-muted/50 p-6 rounded-lg">
+              <h3 className="font-semibold text-lg mb-2">What's Next?</h3>
+              <ul className="space-y-2 text-muted-foreground">
+                <li>• Access your personalized portal for {formData.program}</li>
+                <li>• Track your application progress</li>
+                <li>• Upload required documents</li>
+                <li>• Connect with your admissions advisor</li>
+              </ul>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button onClick={handlePortalAccess} className="flex-1">
+                Access Your Portal
+              </Button>
+              <Button variant="outline" onClick={() => navigate('/')} className="flex-1">
+                Return to Home
+              </Button>
+            </div>
+
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Portal Access Token: <code className="bg-muted px-2 py-1 rounded">{accessToken}</code></p>
+              <p className="mt-1">Save this token to access your portal anytime</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted/50 py-8 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary mb-4">Apply to Our College</h1>
+          <p className="text-xl text-muted-foreground">Create your personalized student portal in minutes</p>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-muted-foreground mb-2">
+            <span>Step {currentStep} of {totalSteps}</span>
+            <span>{Math.round(progressPercent)}% Complete</span>
+          </div>
+          <Progress value={progressPercent} className="h-2" />
+        </div>
+
+        <Card className="w-full">
+          <CardHeader>
+            {currentStep === 1 && (
+              <>
+                <User className="w-8 h-8 text-primary mb-2" />
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>Tell us about yourself</CardDescription>
+              </>
+            )}
+            {currentStep === 2 && (
+              <>
+                <GraduationCap className="w-8 h-8 text-primary mb-2" />
+                <CardTitle>Program Selection</CardTitle>
+                <CardDescription>Choose your program and intake date</CardDescription>
+              </>
+            )}
+            {currentStep === 3 && (
+              <>
+                <FileText className="w-8 h-8 text-primary mb-2" />
+                <CardTitle>Educational Background</CardTitle>
+                <CardDescription>Share your academic history</CardDescription>
+              </>
+            )}
+            {currentStep === 4 && (
+              <>
+                <Send className="w-8 h-8 text-primary mb-2" />
+                <CardTitle>Motivation & Goals</CardTitle>
+                <CardDescription>Tell us why you want to join us</CardDescription>
+              </>
+            )}
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Step 1: Personal Information */}
+            {currentStep === 1 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">First Name *</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) => updateFormData('firstName', e.target.value)}
+                      placeholder="Enter your first name"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) => updateFormData('lastName', e.target.value)}
+                      placeholder="Enter your last name"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="email">Email Address *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateFormData('email', e.target.value)}
+                    placeholder="Enter your email address"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) => updateFormData('phone', e.target.value)}
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="country">Country</Label>
+                    <Input
+                      id="country"
+                      value={formData.country}
+                      onChange={(e) => updateFormData('country', e.target.value)}
+                      placeholder="Enter your country"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Program Selection */}
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="program">Program of Interest *</Label>
+                  <Select value={formData.program} onValueChange={(value) => updateFormData('program', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a program" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {programs.map((program) => (
+                        <SelectItem key={program} value={program}>{program}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="intakeDate">Preferred Intake Date *</Label>
+                  <Select value={formData.intakeDate} onValueChange={(value) => updateFormData('intakeDate', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an intake date" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {intakeDates.map((date) => (
+                        <SelectItem key={date} value={date}>
+                          {new Date(date).toLocaleDateString('en-US', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Educational Background */}
+            {currentStep === 3 && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="previousEducation">Previous Education *</Label>
+                  <Textarea
+                    id="previousEducation"
+                    value={formData.previousEducation}
+                    onChange={(e) => updateFormData('previousEducation', e.target.value)}
+                    placeholder="Describe your educational background, including degrees, certifications, and relevant experience..."
+                    className="min-h-[120px]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Step 4: Motivation & Goals */}
+            {currentStep === 4 && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="motivation">Why do you want to study this program? *</Label>
+                  <Textarea
+                    id="motivation"
+                    value={formData.motivation}
+                    onChange={(e) => updateFormData('motivation', e.target.value)}
+                    placeholder="Tell us what motivates you to pursue this program..."
+                    className="min-h-[120px]"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="goals">Career Goals</Label>
+                  <Textarea
+                    id="goals"
+                    value={formData.goals}
+                    onChange={(e) => updateFormData('goals', e.target.value)}
+                    placeholder="What are your career aspirations after completing this program?"
+                    className="min-h-[120px]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-6">
+              <Button 
+                variant="outline" 
+                onClick={prevStep} 
+                disabled={currentStep === 1}
+              >
+                Previous
+              </Button>
+
+              {currentStep < totalSteps ? (
+                <Button 
+                  onClick={nextStep} 
+                  disabled={!validateStep(currentStep)}
+                >
+                  Next
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleSubmit} 
+                  disabled={!validateStep(currentStep) || isSubmitting}
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

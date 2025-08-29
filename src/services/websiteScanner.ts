@@ -97,11 +97,13 @@ export class WebsiteScannerService {
       });
 
       if (error) {
-        throw new Error(`Website scanning failed: ${error.message}`);
+        console.error('Supabase function error:', error);
+        throw new Error(`Website scanning failed: ${error.message || JSON.stringify(error)}`);
       }
 
-      if (!data.success) {
-        throw new Error(data.error || 'Website scanning failed');
+      if (!data?.success) {
+        console.error('Scan failed with data:', data);
+        throw new Error(data?.error || 'Website scanning failed - unknown error');
       }
 
       console.log(`Successfully scanned ${data.pages_scanned} pages and found ${data.programs.length} programs`);
@@ -109,7 +111,14 @@ export class WebsiteScannerService {
       return data as ScanResult;
     } catch (error) {
       console.error('Website scanning error:', error);
-      throw error;
+      
+      // Extract more meaningful error messages
+      let errorMessage = error.message;
+      if (errorMessage.includes('FunctionsHttpError') || errorMessage.includes('non-2xx status code')) {
+        errorMessage = 'Website scanning service is having issues. Please check your Firecrawl API key configuration or try again later.';
+      }
+      
+      throw new Error(errorMessage);
     }
   }
 

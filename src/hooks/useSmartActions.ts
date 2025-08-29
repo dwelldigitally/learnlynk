@@ -153,6 +153,8 @@ export function useSmartActions() {
 }
 
 async function getLeadsForContext(context: string, leadIds?: string[]) {
+  console.log(`[Smart Actions] Fetching leads for context: ${context}`, { leadIds });
+  
   let query = supabase.from('leads').select('*');
   
   if (leadIds?.length) {
@@ -168,11 +170,20 @@ async function getLeadsForContext(context: string, leadIds?: string[]) {
       case 'new':
         query = query.eq('status', 'new');
         break;
+      case 'all':
+      default:
+        // For 'all' context, we don't add additional filters
+        break;
     }
   }
 
   const { data, error } = await query.limit(50);
-  if (error) throw error;
+  if (error) {
+    console.error('[Smart Actions] Error fetching leads:', error);
+    throw error;
+  }
+  
+  console.log(`[Smart Actions] Found ${data?.length || 0} leads:`, data);
   return data || [];
 }
 

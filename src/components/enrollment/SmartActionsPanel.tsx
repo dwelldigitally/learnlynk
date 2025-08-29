@@ -43,14 +43,20 @@ export function SmartActionsPanel({ onConfigurationClick }: SmartActionsPanelPro
   }, []);
 
   const generateActions = async () => {
+    console.log('[SmartActions Panel] Starting action generation...');
     try {
       const newActions = await generateSmartActions({
         context: 'all',
         maxActions: 15,
       });
+      console.log('[SmartActions Panel] Generated actions:', newActions.length, newActions);
       setActions(newActions);
+      
+      if (newActions.length === 0) {
+        console.log('[SmartActions Panel] No actions generated - checking why...');
+      }
     } catch (error) {
-      console.error('Failed to generate actions:', error);
+      console.error('[SmartActions Panel] Failed to generate actions:', error);
     }
   };
 

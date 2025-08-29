@@ -22,7 +22,7 @@ export function useApplicationPrograms() {
       const { data, error } = await supabase
         .from('programs')
         .select('id, name, type, description, duration, enrollment_status, next_intake, metadata')
-        .eq('enrollment_status', 'open')
+        .in('enrollment_status', ['open', 'active'])
         .order('name', { ascending: true });
 
       if (error) {

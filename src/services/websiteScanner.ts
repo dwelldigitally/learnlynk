@@ -93,7 +93,10 @@ export class WebsiteScannerService {
       console.log(`Starting website scan for: ${url}`);
       
       const { data, error } = await supabase.functions.invoke('website-scanner', {
-        body: { url, comprehensive }
+        body: { url, comprehensive },
+        headers: {
+          'x-request-timeout': '300' // 5 minutes timeout for comprehensive scans
+        }
       });
 
       if (error) {

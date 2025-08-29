@@ -258,6 +258,14 @@ serve(async (req) => {
     };
 
     console.log(`Analysis complete. Found ${result.programs.length} programs and ${result.applicationForms.length} forms`);
+    console.log('Scan result summary:', {
+      success: result.success,
+      institution_name: result.institution.name,
+      programs_count: result.programs.length,
+      forms_count: result.applicationForms.length,
+      pages_scanned: result.pages_scanned,
+      total_content_length: result.total_content_length
+    });
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

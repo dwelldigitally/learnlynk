@@ -187,12 +187,24 @@ const WebsiteScanningScreen: React.FC<WebsiteScanningScreenProps> = ({
       });
 
     } catch (err: any) {
-      setError(err.message || "Failed to scan website. Please check the URL and try again.");
-      toast({
-        title: "Scan Failed",
-        description: "Unable to analyze the website. You can skip this step and add programs manually.",
-        variant: "destructive"
-      });
+      console.error('Website scanning error:', err);
+      
+      // Check if this is a rate limit error
+      if (err.message?.includes('rate limit') || err.message?.includes('Rate limit')) {
+        setError("Firecrawl API rate limit reached. Please wait a few minutes and try again, or use a different URL.");
+        toast({
+          title: "Rate Limit Reached",
+          description: "The scanning service is temporarily rate limited. Please try again in a few minutes.",
+          variant: "destructive"
+        });
+      } else {
+        setError(err.message || "Failed to scan website. Please check the URL and try again.");
+        toast({
+          title: "Scan Failed",
+          description: "Unable to analyze the website. You can skip this step and add programs manually.",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsScanning(false);
     }

@@ -174,111 +174,161 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
               return (
                 <li key={item.href}>
                   {hasSubItems ? (
-                    <Collapsible 
-                      open={isGroupExpanded || isSubItemActive} 
-                      onOpenChange={() => toggleGroup(item.name)}
-                    >
-                      <div className="flex items-center">
-                        {isCollapsed ? (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
+                    item.subItems.length === 1 ? (
+                      // Single sub-item: navigate directly to the sub-item
+                      isCollapsed ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className={cn(
+                                "flex items-center justify-center w-full h-12 rounded-md transition-colors",
+                                isSubItemActive 
+                                  ? "bg-primary text-primary-foreground" 
+                                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              )}
+                            >
+                              <item.icon className="w-6 h-6" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent 
+                            side="right" 
+                            align="start"
+                            className="min-w-48 bg-background border shadow-lg z-50"
+                          >
+                            <DropdownMenuItem asChild>
+                              <NavLink 
+                                to={item.subItems[0].href}
+                                className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                              >
+                                <item.icon className="w-4 h-4" />
+                                <span>{item.name}</span>
+                              </NavLink>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <NavLink 
+                          to={item.subItems[0].href}
+                          className={cn(
+                            "flex items-center space-x-4 w-full h-12 px-3 rounded-md transition-colors",
+                            isSubItemActive 
+                              ? "bg-primary text-primary-foreground" 
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                        >
+                          <item.icon className="w-5 h-5" />
+                          <span>{item.name}</span>
+                        </NavLink>
+                      )
+                    ) : (
+                      // Multiple sub-items: show collapsible group
+                      <Collapsible 
+                        open={isGroupExpanded || isSubItemActive} 
+                        onOpenChange={() => toggleGroup(item.name)}
+                      >
+                        <div className="flex items-center">
+                          {isCollapsed ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  className={cn(
+                                    "flex items-center justify-center w-full h-12 rounded-md transition-colors",
+                                    isActive 
+                                      ? "bg-primary text-primary-foreground" 
+                                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                  )}
+                                >
+                                  <item.icon className="w-6 h-6" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent 
+                                side="right" 
+                                align="start"
+                                className="min-w-48 bg-background border shadow-lg z-50"
+                              >
+                                <DropdownMenuItem asChild>
+                                  <NavLink 
+                                    to={item.href}
+                                    className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                                  >
+                                    <item.icon className="w-4 h-4" />
+                                    <span>{item.name}</span>
+                                  </NavLink>
+                                </DropdownMenuItem>
+                                {item.subItems?.map((subItem) => (
+                                  <DropdownMenuItem key={subItem.href} asChild>
+                                    <NavLink 
+                                      to={subItem.href}
+                                      className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                                    >
+                                      <subItem.icon className="w-4 h-4" />
+                                      <span>{subItem.name}</span>
+                                    </NavLink>
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          ) : (
+                            <>
+                              <NavLink 
+                                to={item.href}
                                 className={cn(
-                                  "flex items-center justify-center w-full h-12 rounded-md transition-colors",
+                                  "flex items-center space-x-4 flex-1 h-12 px-3 rounded-md transition-colors",
                                   isActive 
                                     ? "bg-primary text-primary-foreground" 
                                     : "text-muted-foreground hover:text-foreground hover:bg-muted"
                                 )}
                               >
-                                <item.icon className="w-6 h-6" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent 
-                              side="right" 
-                              align="start"
-                              className="min-w-48 bg-background border shadow-lg z-50"
-                            >
-                              <DropdownMenuItem asChild>
-                                <NavLink 
-                                  to={item.href}
-                                  className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                                <item.icon className="w-5 h-5" />
+                                <span>{item.name}</span>
+                              </NavLink>
+                              <CollapsibleTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="px-2 py-1 h-8 w-8"
                                 >
-                                  <item.icon className="w-4 h-4" />
-                                  <span>{item.name}</span>
-                                </NavLink>
-                              </DropdownMenuItem>
-                              {item.subItems?.map((subItem) => (
-                                <DropdownMenuItem key={subItem.href} asChild>
-                                  <NavLink 
-                                    to={subItem.href}
-                                    className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
-                                  >
-                                    <subItem.icon className="w-4 h-4" />
-                                    <span>{subItem.name}</span>
-                                  </NavLink>
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        ) : (
-                          <>
-                            <NavLink 
-                              to={item.href}
-                              className={cn(
-                                "flex items-center space-x-4 flex-1 h-12 px-3 rounded-md transition-colors",
-                                isActive 
-                                  ? "bg-primary text-primary-foreground" 
-                                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                              )}
-                            >
-                              <item.icon className="w-5 h-5" />
-                              <span>{item.name}</span>
-                            </NavLink>
-                            <CollapsibleTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="px-2 py-1 h-8 w-8"
-                              >
-                                {(isGroupExpanded || isSubItemActive) ? (
-                                  <ChevronDown className="w-4 h-4" />
-                                ) : (
-                                  <ChevronRight className="w-4 h-4" />
-                                )}
-                              </Button>
-                            </CollapsibleTrigger>
-                          </>
+                                  {(isGroupExpanded || isSubItemActive) ? (
+                                    <ChevronDown className="w-4 h-4" />
+                                  ) : (
+                                    <ChevronRight className="w-4 h-4" />
+                                  )}
+                                </Button>
+                              </CollapsibleTrigger>
+                            </>
+                          )}
+                        </div>
+                        
+                        {!isCollapsed && (
+                          <CollapsibleContent className="ml-4 mt-1">
+                            <ul className="space-y-1">
+                              {item.subItems.map((subItem) => {
+                                const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
+                                
+                                return (
+                                  <li key={subItem.href}>
+                                    <NavLink 
+                                      to={subItem.href}
+                                      className={cn(
+                                        "flex items-center space-x-3 pl-6 h-10 rounded-md transition-colors",
+                                        isSubActive 
+                                          ? "bg-primary text-primary-foreground" 
+                                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                      )}
+                                    >
+                                      <subItem.icon className="w-3.5 h-3.5" />
+                                      <span>{subItem.name}</span>
+                                    </NavLink>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </CollapsibleContent>
                         )}
-                      </div>
-                      
-                      {!isCollapsed && (
-                        <CollapsibleContent className="ml-4 mt-1">
-                          <ul className="space-y-1">
-                            {item.subItems.map((subItem) => {
-                              const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
-                              
-                              return (
-                                <li key={subItem.href}>
-                                  <NavLink 
-                                    to={subItem.href}
-                                    className={cn(
-                                      "flex items-center space-x-3 pl-6 h-10 rounded-md transition-colors",
-                                      isSubActive 
-                                        ? "bg-primary text-primary-foreground" 
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                    )}
-                                  >
-                                    <subItem.icon className="w-3.5 h-3.5" />
-                                    <span>{subItem.name}</span>
-                                  </NavLink>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </CollapsibleContent>
-                      )}
-                    </Collapsible>
+                      </Collapsible>
+                    )
                   ) : (
                     isCollapsed ? (
                       <DropdownMenu>

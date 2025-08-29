@@ -90,7 +90,39 @@ const handler = async (req: Request): Promise<Response> => {
     // Generate unique access token
     const accessToken = crypto.randomUUID();
 
-    // Create lead record
+    // Test database connection first
+    console.log('Testing database connection...');
+    const { data: testData, error: testError } = await supabase
+      .from('leads')
+      .select('count')
+      .limit(1);
+    
+    if (testError) {
+      console.error('Database connection test failed:', testError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Database connection failed',
+          details: testError.message
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    console.log('Database connection successful');
+
+    // Create lead record with proper source enum value
+    console.log('Creating lead record with data:', {
+      first_name: submissionData.firstName,
+      last_name: submissionData.lastName,
+      email: submissionData.email,
+      source: 'webform',
+      user_id: null, // Explicitly set to null for anonymous submission
+    });
+
     const { data: leadData, error: leadError } = await supabase
       .from('leads')
       .insert({
@@ -106,17 +138,21 @@ const handler = async (req: Request): Promise<Response> => {
         status: 'new',
         priority: 'medium',
         lead_score: 50,
-        tags: ['webform', 'document-submission']
+        tags: ['webform', 'document-submission'],
+        user_id: null // Explicitly set to null for anonymous submission
       })
       .select()
       .single();
 
     if (leadError) {
       console.error('Error creating lead:', leadError);
+      console.error('Lead error details:', JSON.stringify(leadError, null, 2));
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'Failed to create lead record' 
+          message: 'Failed to create lead record',
+          details: leadError.message,
+          code: leadError.code
         }),
         { 
           status: 500, 
@@ -124,6 +160,8 @@ const handler = async (req: Request): Promise<Response> => {
         }
       );
     }
+
+    console.log('Lead created successfully:', leadData.id);
 
     // Create student portal access
     const { data: portalAccessData, error: portalAccessError } = await supabase

@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
 import SelectiveWebsiteScanner from '@/components/onboarding/steps/SelectiveWebsiteScanner';
 import CompanySetupScreen from '@/components/onboarding/steps/CompanySetupScreen';
 import ProgramSetupScreen from '@/components/onboarding/steps/ProgramSetupScreen';
 import { Globe, Building2, GraduationCap } from 'lucide-react';
 
 export const InstitutionSetup = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('website');
   const [websiteData, setWebsiteData] = useState<any>(null);
   const [institutionData, setInstitutionData] = useState<any>(null);
+  const [programsData, setProgramsData] = useState<any>(null);
   
   const handleWebsiteComplete = (data: any) => {
     setWebsiteData(data);
@@ -23,8 +28,17 @@ export const InstitutionSetup = () => {
   };
 
   const handleProgramsComplete = (data: any) => {
-    // Save all data and potentially navigate back to setup dashboard
+    setProgramsData(data);
+    // Save all data and navigate back to setup dashboard
     console.log('Institution setup complete:', { websiteData, institutionData, programs: data });
+    
+    toast({
+      title: "Institution Setup Complete!",
+      description: "Your institution details and programs have been configured successfully.",
+    });
+    
+    // Navigate back to setup dashboard
+    navigate('/admin/setup');
   };
 
   return (
@@ -54,6 +68,7 @@ export const InstitutionSetup = () => {
             <TabsTrigger value="programs" className="flex items-center space-x-2">
               <GraduationCap className="w-4 h-4" />
               <span>Academic Programs</span>
+              {programsData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
             </TabsTrigger>
           </TabsList>
 
@@ -81,8 +96,8 @@ export const InstitutionSetup = () => {
               data={null}
               websiteData={websiteData}
               onComplete={handleProgramsComplete}
-              onNext={() => {}}
-              onSkip={() => {}}
+              onNext={() => navigate('/admin/setup')}
+              onSkip={() => navigate('/admin/setup')}
             />
           </TabsContent>
         </Tabs>

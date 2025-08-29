@@ -107,6 +107,8 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
       : leadAge;
 
     // Generate contextual suggestions
+
+    // Immediate response for brand new leads (within 24 hours)
     if (lead.status === 'new' && leadAge < 1) {
       suggestions.push({
         id: 'immediate-response',
@@ -121,6 +123,22 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
       });
     }
 
+    // Re-engagement for older new leads (1-30 days)
+    if (lead.status === 'new' && leadAge >= 1 && leadAge <= 30) {
+      suggestions.push({
+        id: 'lead-reengagement',
+        name: 'Lead Re-engagement Campaign',
+        play_type: 'reengagement_sequence',
+        description: 'Multi-touch campaign to re-engage dormant lead',
+        confidence: 75,
+        reasoning: ['Older new lead', `${leadAge} days since inquiry`, 'Needs activation'],
+        urgency: 'medium',
+        estimated_outcome: '20% reactivation rate',
+        trigger_conditions: ['Dormant new lead', 'No initial contact']
+      });
+    }
+
+    // Follow-up for contacted leads with gaps
     if (lastContactDays >= 3 && lead.status === 'contacted') {
       suggestions.push({
         id: 'follow-up-sequence',
@@ -135,6 +153,22 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
       });
     }
 
+    // Program discovery for leads without program interest
+    if (!lead.program_interest || lead.program_interest.length === 0) {
+      suggestions.push({
+        id: 'program-discovery',
+        name: 'Program Discovery Call',
+        play_type: 'discovery_call',
+        description: 'Discovery call to understand program interests',
+        confidence: 70,
+        reasoning: ['No program interest recorded', 'Needs qualification', 'Discovery required'],
+        urgency: 'medium',
+        estimated_outcome: '45% program identification',
+        trigger_conditions: ['Missing program interest', 'Qualification needed']
+      });
+    }
+
+    // Program-specific information for interested leads
     if (lead.program_interest && lead.program_interest.length > 0) {
       suggestions.push({
         id: 'program-specific',
@@ -149,6 +183,22 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
       });
     }
 
+    // Lead score improvement for low-scoring leads
+    if (!lead.lead_score || lead.lead_score < 40) {
+      suggestions.push({
+        id: 'score-improvement',
+        name: 'Lead Score Improvement Sequence',
+        play_type: 'scoring_sequence',
+        description: 'Targeted actions to improve lead qualification',
+        confidence: 65,
+        reasoning: ['Low lead score', 'Needs qualification', 'Score improvement potential'],
+        urgency: 'low',
+        estimated_outcome: '30% score improvement',
+        trigger_conditions: ['Low lead score', 'Qualification gaps']
+      });
+    }
+
+    // Priority scheduling for high-scoring leads
     if (lead.lead_score && lead.lead_score >= 70) {
       suggestions.push({
         id: 'interview-scheduler',
@@ -160,6 +210,21 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
         urgency: 'high',
         estimated_outcome: '60% interview acceptance',
         trigger_conditions: ['High lead score', 'Qualification criteria met']
+      });
+    }
+
+    // Default nurture campaign for any lead without specific triggers
+    if (suggestions.length === 0) {
+      suggestions.push({
+        id: 'basic-nurture',
+        name: 'Basic Nurture Campaign',
+        play_type: 'basic_nurture',
+        description: 'Standard nurture sequence to maintain engagement',
+        confidence: 60,
+        reasoning: ['Default engagement strategy', 'Relationship building', 'Interest maintenance'],
+        urgency: 'low',
+        estimated_outcome: '15% engagement increase',
+        trigger_conditions: ['General lead engagement']
       });
     }
 

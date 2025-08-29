@@ -121,8 +121,10 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
         selected: ['programs', 'admissions', 'fees'].includes(cat.id) // Auto-select most important categories
       }));
 
-      if (mappedCategories.length === 0) {
-        // Fallback categories if discovery fails
+      if (mappedCategories.length === 0 || mappedCategories.every(cat => cat.pages.length === 0)) {
+        // Enhanced fallback when discovery fails completely
+        console.log('Discovery returned empty results, using enhanced fallback');
+        
         const fallbackCategories: PageCategory[] = [
           {
             id: 'programs',
@@ -131,13 +133,45 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
             icon: GraduationCap,
             selected: true,
             pages: [
-              { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 60 },
-              { url: `${websiteUrl}/academics`, title: 'Academics', description: 'Academic information', category: 'programs', confidence: 60 }
+              { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 50 },
+              { url: `${websiteUrl}/academics`, title: 'Academics', description: 'Academic information', category: 'programs', confidence: 50 },
+              { url: `${websiteUrl}/courses`, title: 'Courses', description: 'Course listings', category: 'programs', confidence: 50 },
+              { url: `${websiteUrl}/study`, title: 'Study Options', description: 'Study programs', category: 'programs', confidence: 50 }
+            ]
+          },
+          {
+            id: 'admissions',
+            label: 'Admissions Information',
+            description: 'Application requirements and processes',
+            icon: FileText,
+            selected: true,
+            pages: [
+              { url: `${websiteUrl}/admissions`, title: 'Admissions', description: 'How to apply', category: 'admissions', confidence: 50 },
+              { url: `${websiteUrl}/apply`, title: 'Apply Now', description: 'Application process', category: 'admissions', confidence: 50 },
+              { url: `${websiteUrl}/requirements`, title: 'Entry Requirements', description: 'Admission requirements', category: 'admissions', confidence: 50 }
+            ]
+          },
+          {
+            id: 'fees',
+            label: 'Tuition & Fees',
+            description: 'Cost information and financial aid',
+            icon: DollarSign,
+            selected: false,
+            pages: [
+              { url: `${websiteUrl}/tuition`, title: 'Tuition & Fees', description: 'Cost information', category: 'fees', confidence: 50 },
+              { url: `${websiteUrl}/fees`, title: 'Fees', description: 'Fee structure', category: 'fees', confidence: 50 },
+              { url: `${websiteUrl}/financial-aid`, title: 'Financial Aid', description: 'Scholarships and aid', category: 'fees', confidence: 50 }
             ]
           }
         ];
         setCategories(fallbackCategories);
         updateEstimatedTime(fallbackCategories);
+        
+        toast({
+          title: "Using Suggested Pages",
+          description: "We couldn't find specific pages automatically, but we've suggested common educational pages. You can customize these below.",
+          variant: "default"
+        });
       } else {
         setCategories(mappedCategories);
         updateEstimatedTime(mappedCategories);
@@ -158,7 +192,7 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
         variant: "destructive"
       });
       
-      // Provide fallback categories
+      // Enhanced fallback with more comprehensive suggestions
       const fallbackCategories: PageCategory[] = [
         {
           id: 'programs',
@@ -167,8 +201,34 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
           icon: GraduationCap,
           selected: true,
           pages: [
-            { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 50 },
-            { url: `${websiteUrl}/academics`, title: 'Academics', description: 'Academic information', category: 'programs', confidence: 50 }
+            { url: `${websiteUrl}/programs`, title: 'Academic Programs', description: 'Main programs page', category: 'programs', confidence: 40 },
+            { url: `${websiteUrl}/academics`, title: 'Academics', description: 'Academic information', category: 'programs', confidence: 40 },
+            { url: `${websiteUrl}/courses`, title: 'Courses', description: 'Course listings', category: 'programs', confidence: 40 },
+            { url: `${websiteUrl}/undergraduate`, title: 'Undergraduate', description: 'Bachelor programs', category: 'programs', confidence: 40 },
+            { url: `${websiteUrl}/graduate`, title: 'Graduate', description: 'Master programs', category: 'programs', confidence: 40 }
+          ]
+        },
+        {
+          id: 'admissions',
+          label: 'Admissions Information',
+          description: 'Application requirements and processes',
+          icon: FileText,
+          selected: true,
+          pages: [
+            { url: `${websiteUrl}/admissions`, title: 'Admissions', description: 'How to apply', category: 'admissions', confidence: 40 },
+            { url: `${websiteUrl}/apply`, title: 'Apply Now', description: 'Application process', category: 'admissions', confidence: 40 },
+            { url: `${websiteUrl}/requirements`, title: 'Requirements', description: 'Entry requirements', category: 'admissions', confidence: 40 }
+          ]
+        },
+        {
+          id: 'fees',
+          label: 'Tuition & Fees',
+          description: 'Cost information and financial aid',
+          icon: DollarSign,
+          selected: false,
+          pages: [
+            { url: `${websiteUrl}/tuition`, title: 'Tuition & Fees', description: 'Cost information', category: 'fees', confidence: 40 },
+            { url: `${websiteUrl}/fees`, title: 'Fees', description: 'Fee structure', category: 'fees', confidence: 40 }
           ]
         }
       ];
@@ -487,16 +547,20 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
 
         {/* Custom URLs */}
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Custom URLs</Label>
+          <Label className="text-sm font-medium">Add Custom URLs</Label>
+          <p className="text-xs text-muted-foreground">
+            Add specific pages you want to scan that weren't automatically discovered.
+          </p>
           <div className="flex space-x-2">
             <Input
               value={newCustomUrl}
               onChange={(e) => setNewCustomUrl(e.target.value)}
-              placeholder="https://your-site.edu/specific-page"
+              placeholder={`${websiteUrl}/custom-page`}
               className="flex-1"
             />
             <Button onClick={addCustomUrl} disabled={!newCustomUrl}>
-              <Plus className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-1" />
+              Add
             </Button>
           </div>
           {customUrls.length > 0 && (
@@ -516,6 +580,41 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
             </div>
           )}
         </div>
+
+        {/* Help Text for Empty Results */}
+        {categories.length > 0 && categories.every(cat => cat.pages.length === 0) && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <div className="flex items-start space-x-3">
+              <div className="text-amber-600 dark:text-amber-400">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                  No pages discovered automatically
+                </h4>
+                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
+                  This can happen if your website has a unique structure. Try adding custom URLs above 
+                  or check if your website uses different paths than expected.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Results Summary */}
+        {categories.length > 0 && (
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <div className="flex items-center space-x-2">
+              <Check className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                Ready to scan {selectedCount} pages across {categories.filter(cat => cat.selected).length} categories
+              </span>
+            </div>
+            <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
+              Estimated time: {estimatedTime} seconds
+            </p>
+          </div>
+        )}
 
         {/* Summary */}
         <Card>

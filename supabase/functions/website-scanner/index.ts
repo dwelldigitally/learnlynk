@@ -520,53 +520,74 @@ async function handlePageDiscovery(url: string) {
 async function analyzePageStructure(url: string, htmlContent: string, links: string[]) {
   const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
   if (!openAIApiKey) {
-    // Return fallback structure if no AI available
+    console.log('No OpenAI API key, using fallback structure');
     return generateFallbackStructure(url, links);
   }
 
   try {
     const baseUrl = new URL(url).origin;
     const relevantLinks = links
-      .filter(link => link.startsWith(baseUrl) || link.startsWith('/'))
+      .filter(link => {
+        // Filter for educational content more broadly
+        if (link.startsWith(baseUrl) || link.startsWith('/')) {
+          const fullUrl = link.startsWith('/') ? baseUrl + link : link;
+          // Exclude clearly non-educational pages
+          const excludePatterns = [
+            /privacy/i, /terms/i, /legal/i, /cookie/i, /news/i, /event/i, 
+            /login/i, /staff/i, /faculty/i, /career/i, /job/i, /admin/i,
+            /\.pdf$/, /\.doc$/, /\.zip$/, /\.(jpg|jpeg|png|gif|svg)$/i
+          ];
+          return !excludePatterns.some(pattern => pattern.test(fullUrl));
+        }
+        return false;
+      })
       .map(link => link.startsWith('/') ? baseUrl + link : link)
-      .slice(0, 50); // Limit to 50 links for analysis
+      .slice(0, 100); // Increased to 100 links for better analysis
 
-    const prompt = `Analyze this educational institution website and categorize the discovered pages.
+    console.log(`Analyzing ${relevantLinks.length} relevant links for categorization`);
+
+    const prompt = `You are analyzing an educational institution website to help categorize pages for comprehensive information extraction.
 
 Website: ${url}
-Available links: ${relevantLinks.join('\n')}
+Available links (${relevantLinks.length} total):
+${relevantLinks.slice(0, 50).join('\n')}${relevantLinks.length > 50 ? '\n... and ' + (relevantLinks.length - 50) + ' more links' : ''}
 
-HTML content snippet: ${htmlContent.substring(0, 2000)}
+HTML content preview: ${htmlContent.substring(0, 3000)}
 
-Categorize the links into these educational categories:
-1. programs - Academic programs, courses, degrees, diplomas, certificates
-2. admissions - Admissions info, requirements, applications, enrollment
-3. fees - Tuition, fees, financial aid, scholarships, costs
-4. deadlines - Application deadlines, intake dates, academic calendar
-5. general - About, contact, campus info, general information
+IMPORTANT: Be generous in your categorization. Include pages that might contain relevant information even if you're not 100% certain. We want comprehensive coverage.
 
-For each category that has relevant pages, return the most important and relevant pages (max 5 per category).
+Categorize links into these educational categories:
+1. programs - Academic programs, courses, degrees, diplomas, certificates, study areas, faculties, schools, departments
+2. admissions - Admissions info, requirements, applications, enrollment, how to apply, entry requirements
+3. fees - Tuition, fees, financial aid, scholarships, costs, funding, payment information
+4. deadlines - Application deadlines, intake dates, academic calendar, important dates, enrollment periods
+5. general - About, contact, campus info, student services, facilities, general information
 
-Return JSON format:
+RULES:
+- Include pages even with moderate confidence (50%+)
+- Return up to 8 pages per category (increased from 5)
+- Prefer pages with clear educational indicators
+- Include obvious fallback pages like /programs, /admissions, /tuition, etc.
+- If you find any educational-sounding pages, include them
+
+Return ONLY valid JSON in this exact format:
 {
   "categories": [
     {
       "id": "programs",
-      "label": "Academic Programs",
+      "label": "Academic Programs", 
       "description": "Degree programs, courses, and curricula",
       "pages": [
         {
           "url": "full_url_here",
           "title": "descriptive_title",
           "description": "what_this_page_contains",
-          "confidence": 85
+          "confidence": 75
         }
       ]
     }
   ]
-}
-
-Only include categories that have relevant pages. Be intelligent about filtering - exclude irrelevant pages like privacy policy, staff directory, news, etc.`;
+}`;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -579,15 +600,15 @@ Only include categories that have relevant pages. Be intelligent about filtering
         messages: [
           {
             role: 'system',
-            content: 'You are an expert at analyzing educational institution websites. Return only valid JSON.'
+            content: 'You are an expert at analyzing educational institution websites. Always return valid JSON. Be generous in categorizing pages - include any page that might contain relevant educational information. Focus on comprehensive coverage rather than strict filtering.'
           },
           {
             role: 'user',
             content: prompt
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2000
+        temperature: 0.1, // Lower temperature for more consistent results
+        max_tokens: 3000 // Increased for more comprehensive results
       }),
     });
 
@@ -598,10 +619,37 @@ Only include categories that have relevant pages. Be intelligent about filtering
       try {
         const parsed = JSON.parse(content);
         console.log('AI-analyzed page structure:', parsed);
-        return parsed;
+        
+        // Ensure we have at least some categories, supplement with fallback if needed
+        if (!parsed.categories || parsed.categories.length === 0) {
+          console.log('AI returned empty categories, using fallback');
+          return generateFallbackStructure(url, links);
+        }
+        
+        // Supplement sparse results with fallback categories
+        const fallbackResult = generateFallbackStructure(url, links);
+        const combinedCategories = [...parsed.categories];
+        
+        // Add fallback categories if AI missed them
+        fallbackResult.categories.forEach(fallbackCat => {
+          const existingCat = combinedCategories.find(cat => cat.id === fallbackCat.id);
+          if (!existingCat) {
+            combinedCategories.push(fallbackCat);
+          } else if (existingCat.pages.length < 2 && fallbackCat.pages.length > 0) {
+            // Supplement with fallback pages if AI didn't find enough
+            const uniquePages = fallbackCat.pages.filter(page => 
+              !existingCat.pages.some(existing => existing.url === page.url)
+            );
+            existingCat.pages.push(...uniquePages.slice(0, 3));
+          }
+        });
+        
+        return { categories: combinedCategories };
       } catch (parseError) {
-        console.warn('Failed to parse AI response, using fallback');
+        console.warn('Failed to parse AI response, using fallback:', parseError);
       }
+    } else {
+      console.warn('Empty AI response, using fallback');
     }
   } catch (error) {
     console.warn('AI analysis failed, using fallback:', error);
@@ -612,25 +660,42 @@ Only include categories that have relevant pages. Be intelligent about filtering
 
 function generateFallbackStructure(url: string, links: string[]) {
   const baseUrl = new URL(url).origin;
+  console.log(`Generating fallback structure for ${url} with ${links.length} links`);
   
-  // Pattern-based categorization as fallback
+  // Enhanced pattern-based categorization with more aggressive matching
   const patterns = {
-    programs: [/programs?/i, /academics?/i, /courses?/i, /degrees?/i, /undergraduate/i, /graduate/i, /diploma/i, /certificate/i],
-    admissions: [/admissions?/i, /apply/i, /application/i, /requirements?/i, /enroll/i],
-    fees: [/tuition/i, /fees?/i, /cost/i, /financial/i, /scholarship/i],
-    deadlines: [/deadline/i, /calendar/i, /dates?/i, /timeline/i],
-    general: [/about/i, /contact/i, /campus/i]
+    programs: [
+      /programs?/i, /academics?/i, /courses?/i, /degrees?/i, /undergraduate/i, 
+      /graduate/i, /diploma/i, /certificate/i, /study/i, /education/i, 
+      /training/i, /school/i, /faculty/i, /department/i, /learning/i
+    ],
+    admissions: [
+      /admissions?/i, /apply/i, /application/i, /requirements?/i, /enroll/i,
+      /admission/i, /entry/i, /how.*apply/i, /getting.*started/i, /join/i
+    ],
+    fees: [
+      /tuition/i, /fees?/i, /cost/i, /financial/i, /scholarship/i, /funding/i,
+      /payment/i, /price/i, /expense/i, /aid/i, /bursary/i
+    ],
+    deadlines: [
+      /deadline/i, /calendar/i, /dates?/i, /timeline/i, /schedule/i, 
+      /intake/i, /start/i, /semester/i, /term/i
+    ],
+    general: [
+      /about/i, /contact/i, /campus/i, /info/i, /overview/i, /services/i
+    ]
   };
 
   const categories = [];
   
+  // First try to find pages based on existing links
   for (const [categoryId, categoryPatterns] of Object.entries(patterns)) {
     const categoryPages = links
       .filter(link => {
         const fullUrl = link.startsWith('/') ? baseUrl + link : link;
         return categoryPatterns.some(pattern => pattern.test(fullUrl));
       })
-      .slice(0, 5)
+      .slice(0, 8) // Increased from 5 to 8
       .map(link => {
         const fullUrl = link.startsWith('/') ? baseUrl + link : link;
         const pathParts = new URL(fullUrl).pathname.split('/').filter(Boolean);
@@ -644,15 +709,58 @@ function generateFallbackStructure(url: string, links: string[]) {
         };
       });
 
-    if (categoryPages.length > 0) {
-      const categoryLabels = {
-        programs: { label: 'Academic Programs', description: 'Degree programs, courses, and curricula' },
-        admissions: { label: 'Admissions Info', description: 'Requirements, processes, and applications' },
-        fees: { label: 'Fees & Tuition', description: 'Tuition costs and fee structures' },
-        deadlines: { label: 'Dates & Deadlines', description: 'Application deadlines and intake dates' },
-        general: { label: 'General Info', description: 'About us, contact, and general information' }
-      };
+    const categoryLabels = {
+      programs: { label: 'Academic Programs', description: 'Degree programs, courses, and curricula' },
+      admissions: { label: 'Admissions Info', description: 'Requirements, processes, and applications' },
+      fees: { label: 'Fees & Tuition', description: 'Tuition costs and fee structures' },
+      deadlines: { label: 'Dates & Deadlines', description: 'Application deadlines and intake dates' },
+      general: { label: 'General Info', description: 'About us, contact, and general information' }
+    };
 
+    // Always include category with at least some common URLs to try
+    const commonUrls = {
+      programs: [
+        { path: '/programs', title: 'Academic Programs' },
+        { path: '/academics', title: 'Academics' },
+        { path: '/courses', title: 'Courses' },
+        { path: '/study', title: 'Study Options' }
+      ],
+      admissions: [
+        { path: '/admissions', title: 'Admissions' },
+        { path: '/apply', title: 'Apply' },
+        { path: '/how-to-apply', title: 'How to Apply' },
+        { path: '/requirements', title: 'Requirements' }
+      ],
+      fees: [
+        { path: '/tuition', title: 'Tuition & Fees' },
+        { path: '/fees', title: 'Fees' },
+        { path: '/costs', title: 'Costs' },
+        { path: '/financial-aid', title: 'Financial Aid' }
+      ],
+      deadlines: [
+        { path: '/deadlines', title: 'Deadlines' },
+        { path: '/calendar', title: 'Academic Calendar' },
+        { path: '/important-dates', title: 'Important Dates' }
+      ],
+      general: [
+        { path: '/about', title: 'About Us' },
+        { path: '/contact', title: 'Contact' },
+        { path: '/campus', title: 'Campus' }
+      ]
+    };
+
+    // If no pages found from links, add common URL patterns
+    if (categoryPages.length === 0) {
+      const defaultPages = commonUrls[categoryId as keyof typeof commonUrls] || [];
+      categoryPages.push(...defaultPages.map(page => ({
+        url: `${baseUrl}${page.path}`,
+        title: page.title,
+        description: `${page.title} information`,
+        confidence: 50 // Lower confidence for guessed URLs
+      })));
+    }
+
+    if (categoryPages.length > 0) {
       categories.push({
         id: categoryId,
         label: categoryLabels[categoryId].label,
@@ -662,5 +770,30 @@ function generateFallbackStructure(url: string, links: string[]) {
     }
   }
 
+  // Ensure we always have at least programs category
+  if (categories.length === 0) {
+    console.log('No categories found, providing minimal fallback');
+    categories.push({
+      id: 'programs',
+      label: 'Academic Programs',
+      description: 'Degree programs, courses, and curricula',
+      pages: [
+        {
+          url: `${baseUrl}/programs`,
+          title: 'Academic Programs',
+          description: 'Main programs page',
+          confidence: 40
+        },
+        {
+          url: `${baseUrl}/academics`,
+          title: 'Academics',
+          description: 'Academic information',
+          confidence: 40
+        }
+      ]
+    });
+  }
+
+  console.log(`Generated ${categories.length} fallback categories with ${categories.reduce((sum, cat) => sum + cat.pages.length, 0)} total pages`);
   return { categories };
 }

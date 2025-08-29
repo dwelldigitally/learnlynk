@@ -80,9 +80,9 @@ const AdminHome: React.FC = () => {
         description: "Onboarding reset successfully! Starting demo...",
       });
 
-      // Navigate to onboarding after a brief delay
+      // Force a page reload to ensure ProtectedRoute re-evaluates onboarding status
       setTimeout(() => {
-        navigate("/onboarding");
+        window.location.href = "/onboarding";
       }, 1000);
     } catch (error) {
       console.error('Failed to reset onboarding:', error);

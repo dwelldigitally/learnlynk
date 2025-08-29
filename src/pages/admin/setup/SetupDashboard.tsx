@@ -117,9 +117,16 @@ export const SetupDashboard = () => {
   }, []);
 
   const checkStepCompletion = (stepId: string, data: any): boolean => {
+    console.log('Checking completion for', stepId, 'with data:', data);
     switch (stepId) {
       case 'institution':
-        return !!(data.institution?.name && data.programs?.length > 0);
+        const institutionComplete = !!(data.institution?.institutionName && data.programs?.length > 0);
+        console.log('Institution completion check:', { 
+          hasInstitution: !!data.institution?.institutionName, 
+          hasPrograms: !!data.programs?.length,
+          result: institutionComplete 
+        });
+        return institutionComplete;
       case 'applications':
         return !!(data.requirements?.length > 0 || data.forms?.length > 0);
       case 'business':

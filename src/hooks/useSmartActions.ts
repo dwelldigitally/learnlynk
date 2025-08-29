@@ -178,73 +178,163 @@ async function getLeadsForContext(context: string, leadIds?: string[]) {
 
 async function generateActionsForLead(lead: any, actionTypes?: string[]): Promise<SmartAction[]> {
   const actions: SmartAction[] = [];
-  const availableTypes = actionTypes || ['email', 'call', 'follow_up', 'assignment'];
+  const availableTypes = actionTypes || ['email', 'call', 'follow_up', 'assignment', 'document'];
 
-  // AI-powered action generation logic
+  console.log(`[Smart Actions] Generating actions for lead: ${lead.first_name} ${lead.last_name}`, {
+    leadId: lead.id,
+    leadScore: lead.lead_score,
+    status: lead.status,
+    lastContact: lead.last_contacted_at,
+    assignedTo: lead.assigned_to,
+    programInterest: lead.program_interest
+  });
+
+  // Calculate enhanced lead metrics
   const lastContact = lead.last_contacted_at ? new Date(lead.last_contacted_at) : null;
   const daysSinceContact = lastContact ? Math.floor((Date.now() - lastContact.getTime()) / (1000 * 60 * 60 * 24)) : 999;
-  const leadScore = lead.lead_score || 0;
-  const aiScore = lead.ai_score || 0;
+  const leadAge = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24));
+  const baseLeadScore = lead.lead_score || 0;
+  
+  // Calculate dynamic lead score if base score is low/missing
+  const dynamicScore = calculateDynamicLeadScore(lead, leadAge, daysSinceContact);
+  const effectiveLeadScore = Math.max(baseLeadScore, dynamicScore);
+  
+  console.log(`[Smart Actions] Lead metrics:`, {
+    baseScore: baseLeadScore,
+    dynamicScore,
+    effectiveScore: effectiveLeadScore,
+    leadAge,
+    daysSinceContact
+  });
 
-  // Email follow-up action
-  if (availableTypes.includes('email') && daysSinceContact > 2) {
-    const confidence = Math.min(95, 60 + leadScore + (daysSinceContact * 2));
-    const emailAction: SmartAction = {
-      id: `email_${lead.id}_${Date.now()}`,
-      type: 'email',
-      title: `Send follow-up email to ${lead.first_name}`,
-      description: `Personalized follow-up email based on ${daysSinceContact} days since last contact`,
-      leadId: lead.id,
-      leadName: `${lead.first_name} ${lead.last_name}`,
-      confidence,
-      priority: leadScore > 70 ? 'high' : 'medium',
-      aiReasoning: `Lead has ${leadScore} score and hasn't been contacted for ${daysSinceContact} days. High engagement probability.`,
-      estimatedImpact: `+${Math.round(confidence * 0.3)}% conversion probability`,
-      actionData: {
+  // 1. Email Actions - Generate for most leads
+  if (availableTypes.includes('email')) {
+    let shouldGenerateEmail = false;
+    let emailType = 'follow_up';
+    let reasoning = '';
+    
+    if (leadAge === 0) {
+      // New lead - welcome email
+      shouldGenerateEmail = true;
+      emailType = 'welcome';
+      reasoning = `New lead created today - welcome sequence recommended`;
+    } else if (daysSinceContact > 2) {
+      // Follow-up needed
+      shouldGenerateEmail = true;
+      emailType = 'follow_up';
+      reasoning = `${daysSinceContact} days since last contact - re-engagement needed`;
+    } else if (lead.status === 'new' && leadAge > 0) {
+      // New status but not contacted
+      shouldGenerateEmail = true;
+      emailType = 'initial_contact';
+      reasoning = `Lead in 'new' status for ${leadAge} days - initial contact needed`;
+    }
+
+    if (shouldGenerateEmail) {
+      const confidence = Math.min(95, 55 + effectiveLeadScore + Math.min(daysSinceContact * 2, 25));
+      const emailAction: SmartAction = {
+        id: `email_${lead.id}_${Date.now()}`,
+        type: 'email',
+        title: `Send ${emailType.replace('_', ' ')} email to ${lead.first_name}`,
+        description: `Personalized ${emailType} email - ${reasoning}`,
         leadId: lead.id,
-        emailTemplate: 'follow_up',
-        subject: `Following up on your ${lead.program_interest?.[0] || 'program'} interest`,
-        content: `Hi {firstName},\n\nI wanted to follow up on your interest in our {program}. Do you have any questions I can help answer?\n\nBest regards`,
-        personalization: {
-          program: lead.program_interest?.[0] || 'program',
-          lastContact: lastContact?.toLocaleDateString(),
+        leadName: `${lead.first_name} ${lead.last_name}`,
+        confidence,
+        priority: effectiveLeadScore > 50 ? 'high' : leadAge === 0 ? 'medium' : 'low',
+        aiReasoning: reasoning,
+        estimatedImpact: `+${Math.round(confidence * 0.3)}% engagement probability`,
+        actionData: {
+          leadId: lead.id,
+          emailTemplate: emailType,
+          subject: getEmailSubject(emailType, lead),
+          content: getEmailContent(emailType, lead),
+          personalization: {
+            program: lead.program_interest?.[0] || 'our programs',
+            lastContact: lastContact?.toLocaleDateString(),
+            leadAge,
+          },
         },
-      },
-      isAutoExecutable: confidence > 85,
-      createdAt: new Date().toISOString(),
-    };
-    actions.push(emailAction);
+        isAutoExecutable: confidence > 80,
+        createdAt: new Date().toISOString(),
+      };
+      actions.push(emailAction);
+      console.log(`[Smart Actions] Generated email action:`, emailAction.title);
+    }
   }
 
-  // Call action for high-value leads
-  if (availableTypes.includes('call') && leadScore > 60 && daysSinceContact > 5) {
-    const confidence = Math.min(90, 50 + leadScore + Math.min(daysSinceContact * 3, 30));
-    const callAction: SmartAction = {
-      id: `call_${lead.id}_${Date.now()}`,
-      type: 'call',
-      title: `Schedule call with ${lead.first_name}`,
-      description: `High-value lead needs personal attention`,
+  // 2. Call Actions - Lowered threshold and more conditions
+  if (availableTypes.includes('call')) {
+    let shouldGenerateCall = false;
+    let callReasoning = '';
+    
+    if (effectiveLeadScore > 30 && daysSinceContact > 3) {
+      shouldGenerateCall = true;
+      callReasoning = `Lead score ${effectiveLeadScore} with ${daysSinceContact} days silence - personal touch needed`;
+    } else if (lead.status === 'contacted' && daysSinceContact > 7) {
+      shouldGenerateCall = true;
+      callReasoning = `Previously contacted lead needs follow-up call after ${daysSinceContact} days`;
+    } else if (lead.source === 'phone' || lead.source === 'referral') {
+      shouldGenerateCall = true;
+      callReasoning = `High-intent source (${lead.source}) - immediate call recommended`;
+    }
+
+    if (shouldGenerateCall) {
+      const confidence = Math.min(90, 45 + effectiveLeadScore + Math.min(daysSinceContact * 2, 25));
+      const callAction: SmartAction = {
+        id: `call_${lead.id}_${Date.now()}`,
+        type: 'call',
+        title: `Schedule call with ${lead.first_name}`,
+        description: `Personal outreach call - ${callReasoning}`,
+        leadId: lead.id,
+        leadName: `${lead.first_name} ${lead.last_name}`,
+        confidence,
+        priority: effectiveLeadScore > 50 ? 'high' : 'medium',
+        aiReasoning: callReasoning,
+        estimatedImpact: `+${Math.round(confidence * 0.4)}% conversion probability`,
+        actionData: {
+          leadId: lead.id,
+          callScript: `Discuss ${lead.program_interest?.[0] || 'program'} options and address any concerns`,
+          purpose: effectiveLeadScore > 50 ? 'conversion_consultation' : 'qualification_call',
+          duration: 30,
+        },
+        isAutoExecutable: false,
+        createdAt: new Date().toISOString(),
+      };
+      actions.push(callAction);
+      console.log(`[Smart Actions] Generated call action:`, callAction.title);
+    }
+  }
+
+  // 3. Follow-up Actions - For leads needing nurturing
+  if (availableTypes.includes('follow_up') && leadAge > 1) {
+    const confidence = Math.min(85, 50 + (effectiveLeadScore * 0.5) + (leadAge * 2));
+    const followUpAction: SmartAction = {
+      id: `followup_${lead.id}_${Date.now()}`,
+      type: 'follow_up',
+      title: `Schedule follow-up for ${lead.first_name}`,
+      description: `Nurturing sequence based on ${leadAge} day lead age`,
       leadId: lead.id,
       leadName: `${lead.first_name} ${lead.last_name}`,
       confidence,
-      priority: 'high',
-      aiReasoning: `Lead score ${leadScore} indicates high value. ${daysSinceContact} days without contact requires personal touch.`,
-      estimatedImpact: `+${Math.round(confidence * 0.5)}% conversion probability`,
+      priority: leadAge > 7 ? 'medium' : 'low',
+      aiReasoning: `Lead age ${leadAge} days indicates need for structured follow-up sequence`,
+      estimatedImpact: `+${Math.round(confidence * 0.25)}% long-term conversion`,
       actionData: {
         leadId: lead.id,
-        callScript: `Discuss ${lead.program_interest?.[0] || 'program'} options and address any concerns`,
-        purpose: 'conversion_consultation',
-        duration: 30,
+        followUpType: leadAge > 7 ? 're_engagement' : 'nurturing',
+        scheduledDays: leadAge > 7 ? 1 : 3,
+        sequence: 'standard_nurturing',
       },
-      isAutoExecutable: false,
+      isAutoExecutable: confidence > 75,
       createdAt: new Date().toISOString(),
     };
-    actions.push(callAction);
+    actions.push(followUpAction);
+    console.log(`[Smart Actions] Generated follow-up action:`, followUpAction.title);
   }
 
-  // Assignment action for unassigned leads
+  // 4. Assignment Actions - For all unassigned leads
   if (availableTypes.includes('assignment') && !lead.assigned_to) {
-    const confidence = Math.min(95, 70 + leadScore);
+    const confidence = Math.min(95, 65 + effectiveLeadScore);
     const assignmentAction: SmartAction = {
       id: `assign_${lead.id}_${Date.now()}`,
       type: 'assignment',
@@ -253,20 +343,132 @@ async function generateActionsForLead(lead: any, actionTypes?: string[]): Promis
       leadId: lead.id,
       leadName: `${lead.first_name} ${lead.last_name}`,
       confidence,
-      priority: leadScore > 70 ? 'urgent' : 'medium',
-      aiReasoning: `Unassigned lead with score ${leadScore}. Optimal advisor assignment based on capacity and specialization.`,
+      priority: effectiveLeadScore > 50 ? 'urgent' : 'high',
+      aiReasoning: `Unassigned lead with effective score ${effectiveLeadScore}. Immediate assignment improves response time.`,
       estimatedImpact: `+40% response time improvement`,
       actionData: {
         leadId: lead.id,
-        advisorId: 'auto_select', // Will be determined at execution time
-        reason: `Lead score ${leadScore} matches advisor specialization`,
-        priority: leadScore > 70 ? 'high' : 'medium',
+        advisorId: 'auto_select',
+        reason: `Lead profile matches advisor specialization - score: ${effectiveLeadScore}`,
+        priority: effectiveLeadScore > 50 ? 'high' : 'medium',
       },
       isAutoExecutable: confidence > 85,
       createdAt: new Date().toISOString(),
     };
     actions.push(assignmentAction);
+    console.log(`[Smart Actions] Generated assignment action:`, assignmentAction.title);
   }
 
+  // 5. Document Actions - For new leads or qualification needs
+  if (availableTypes.includes('document')) {
+    let shouldGenerateDocument = false;
+    let docType = 'application_summary';
+    let docReasoning = '';
+    
+    if (leadAge === 0) {
+      shouldGenerateDocument = true;
+      docType = 'welcome_packet';
+      docReasoning = 'New lead - welcome packet with program information';
+    } else if (lead.status === 'new' && !lead.program_interest?.length) {
+      shouldGenerateDocument = true;
+      docType = 'program_overview';
+      docReasoning = 'Lead needs program information for qualification';
+    } else if (effectiveLeadScore > 40) {
+      shouldGenerateDocument = true;
+      docType = 'application_summary';
+      docReasoning = 'Qualified lead - application summary for next steps';
+    }
+
+    if (shouldGenerateDocument) {
+      const confidence = Math.min(80, 60 + (effectiveLeadScore * 0.3));
+      const documentAction: SmartAction = {
+        id: `document_${lead.id}_${Date.now()}`,
+        type: 'document',
+        title: `Generate ${docType.replace('_', ' ')} for ${lead.first_name}`,
+        description: docReasoning,
+        leadId: lead.id,
+        leadName: `${lead.first_name} ${lead.last_name}`,
+        confidence,
+        priority: 'low',
+        aiReasoning: docReasoning,
+        estimatedImpact: `+${Math.round(confidence * 0.2)}% information clarity`,
+        actionData: {
+          leadId: lead.id,
+          documentType: docType,
+          template: docType,
+          personalized: true,
+        },
+        isAutoExecutable: confidence > 70,
+        createdAt: new Date().toISOString(),
+      };
+      actions.push(documentAction);
+      console.log(`[Smart Actions] Generated document action:`, documentAction.title);
+    }
+  }
+
+  console.log(`[Smart Actions] Generated ${actions.length} total actions for ${lead.first_name}`);
   return actions;
+}
+
+function calculateDynamicLeadScore(lead: any, leadAge: number, daysSinceContact: number): number {
+  let score = 20; // Base score for all leads
+  
+  // Source quality scoring
+  const sourceScores: Record<string, number> = {
+    'referral': 25,
+    'phone': 20,
+    'web': 15,
+    'social_media': 10,
+    'agent': 15,
+    'other': 5
+  };
+  score += sourceScores[lead.source] || 5;
+  
+  // Recency scoring (newer leads get higher scores)
+  if (leadAge === 0) score += 15; // Brand new
+  else if (leadAge <= 3) score += 10; // Very recent
+  else if (leadAge <= 7) score += 5; // Recent
+  
+  // Program interest scoring
+  if (lead.program_interest?.length > 0) score += 10;
+  if (lead.program_interest?.length > 1) score += 5; // Multiple interests
+  
+  // Contact info completeness
+  if (lead.phone) score += 5;
+  if (lead.email) score += 5;
+  
+  // UTM campaign data (indicates marketing engagement)
+  if (lead.utm_campaign || lead.utm_source) score += 5;
+  
+  return Math.min(score, 80); // Cap at 80 for dynamic scoring
+}
+
+function getEmailSubject(emailType: string, lead: any): string {
+  const program = lead.program_interest?.[0] || 'our programs';
+  
+  switch (emailType) {
+    case 'welcome':
+      return `Welcome! Next steps for your ${program} interest`;
+    case 'initial_contact':
+      return `Your ${program} inquiry - let's connect`;
+    case 'follow_up':
+      return `Following up on your ${program} interest`;
+    default:
+      return `Update on your ${program} application`;
+  }
+}
+
+function getEmailContent(emailType: string, lead: any): string {
+  const program = lead.program_interest?.[0] || 'program';
+  
+  switch (emailType) {
+    case 'welcome':
+      return `Hi {firstName},\n\nWelcome! Thank you for your interest in our ${program}. I'm excited to help you explore this opportunity.\n\nI'll be in touch soon with more details and next steps.\n\nBest regards`;
+    case 'initial_contact':
+      return `Hi {firstName},\n\nI noticed you're interested in our ${program}. I'd love to learn more about your goals and see how we can help.\n\nWhen would be a good time for a quick call?\n\nBest regards`;
+    case 'follow_up':
+      return `Hi {firstName},\n\nI wanted to follow up on your interest in our ${program}. Do you have any questions I can help answer?\n\nI'm here to help you with the next steps.\n\nBest regards`;
+    default:
+      return `Hi {firstName},\n\nI have some updates regarding your ${program} application. Let's connect to discuss your next steps.\n\nBest regards`;
+  }
 }

@@ -28,7 +28,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Send SMS function called")
+    console.log("Send SMS function called - v2.0 with updated credentials")
     
     // Check if Twilio credentials are configured
     const twilioAccountSid = Deno.env.get("TWILIO_ACCOUNT_SID")

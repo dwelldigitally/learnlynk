@@ -146,8 +146,8 @@ Deno.serve(async (req) => {
     console.log("Email template generated successfully")
 
     const { data, error } = await resend.emails.send({
-      from: 'Learnlynk <hello@learnlynk.com>', // Update with your verified domain
-      to: leadEmail, // Remove array wrapper - Resend expects string not array
+      from: 'Learnlynk <onboarding@resend.dev>', // Using Resend's verified default domain
+      to: leadEmail,
       subject,
       html,
     })

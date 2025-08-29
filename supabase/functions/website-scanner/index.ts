@@ -108,57 +108,75 @@ serve(async (req) => {
       throw new Error('Firecrawl API key not configured. Please add your Firecrawl API key in the Supabase secrets.');
     }
 
+    console.log('Using Firecrawl API with key:', firecrawlApiKey.substring(0, 8) + '...');
+
     // Use Firecrawl scrape API for single page scraping (more reliable)
+    const requestBody = {
+      url: url,
+      pageOptions: {
+        onlyMainContent: true,
+        includeHtml: false
+      }
+    };
+
+    console.log('Firecrawl request body:', JSON.stringify(requestBody, null, 2));
+
     const scrapeResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        url: url,
-        pageOptions: {
-          onlyMainContent: true,
-          includeHtml: false,
-          waitFor: 3000
-        },
-        extractorOptions: {
-          extractionSchema: {
-            institution_name: "Extract the institution or college name",
-            programs: "Extract all academic programs, courses, degrees, and certificates offered",
-            requirements: "Extract admission requirements, prerequisites, and application requirements",
-            fees: "Extract tuition fees, costs, application fees, and payment information", 
-            contact: "Extract contact information, addresses, phone numbers, and emails",
-            about: "Extract information about the institution, mission, vision, and history"
-          }
-        }
-      }),
+      body: JSON.stringify(requestBody),
     });
+
+    console.log('Firecrawl response status:', scrapeResponse.status);
 
     if (!scrapeResponse.ok) {
       const errorText = await scrapeResponse.text();
-      console.error('Firecrawl API error:', scrapeResponse.status, errorText);
-      throw new Error(`Firecrawl API error: ${scrapeResponse.status} - ${errorText}`);
+      console.error('Firecrawl API error details:', {
+        status: scrapeResponse.status,
+        statusText: scrapeResponse.statusText,
+        headers: Object.fromEntries(scrapeResponse.headers.entries()),
+        body: errorText
+      });
+      
+      // Provide specific error messages based on status code
+      if (scrapeResponse.status === 401) {
+        throw new Error('Invalid Firecrawl API key. Please check your API key configuration.');
+      } else if (scrapeResponse.status === 429) {
+        throw new Error('Firecrawl API rate limit exceeded. Please try again later.');
+      } else if (scrapeResponse.status === 400) {
+        throw new Error(`Invalid request to Firecrawl API. Details: ${errorText}`);
+      } else {
+        throw new Error(`Firecrawl API error: ${scrapeResponse.status} - ${errorText}`);
+      }
     }
 
     const scrapeData = await scrapeResponse.json();
+    console.log('Firecrawl response data structure:', Object.keys(scrapeData));
     
     if (!scrapeData.success) {
-      console.error('Scrape failed:', scrapeData.error);
+      console.error('Scrape failed:', scrapeData);
       throw new Error(`Website scraping failed: ${scrapeData.error || 'Unknown error'}`);
     }
 
     console.log(`Successfully scraped content from: ${url}`);
 
-    // Prepare content for AI analysis
+    // Prepare content for AI analysis - handle different response formats
+    const contentText = scrapeData.data?.markdown || scrapeData.data?.content || scrapeData.markdown || scrapeData.content || '';
+    const extractedData = scrapeData.data?.extract || scrapeData.extract || {};
+    const metadata = scrapeData.data?.metadata || scrapeData.metadata || {};
+
     const scrapedContent = [{
       url: url,
-      title: scrapeData.data?.metadata?.title || 'Website Content',
-      content: scrapeData.data?.markdown || scrapeData.data?.content || '',
-      extracted: scrapeData.data?.extract || {}
+      title: metadata.title || 'Website Content',
+      content: contentText,
+      extracted: extractedData
     }];
 
-    console.log(`Content length: ${scrapedContent[0].content.length} characters`);
+    console.log(`Content length: ${contentText.length} characters`);
+    console.log('Extracted data keys:', Object.keys(extractedData));
 
     // Now analyze with AI
     const analysisResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-content-analyzer`, {

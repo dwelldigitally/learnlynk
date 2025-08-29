@@ -17,3 +17,9 @@ verify_jwt = true
 
 [functions.hubspot-oauth]
 verify_jwt = true
+
+[functions.website-scanner]
+verify_jwt = false
+
+[functions.ai-content-analyzer]
+verify_jwt = false

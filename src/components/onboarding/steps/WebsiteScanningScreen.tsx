@@ -17,6 +17,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import AIWebsiteScanner from '../components/AIWebsiteScanner';
+import { WebsiteScannerService } from '@/services/websiteScanner';
 
 interface WebsiteScanningScreenProps {
   data: any;
@@ -134,24 +135,59 @@ const WebsiteScanningScreen: React.FC<WebsiteScanningScreenProps> = ({
     setCurrentStage(0);
 
     try {
-      // Simulate progressive scanning stages
+      // Show scanning stages with real progress
       for (let i = 0; i < SCANNING_STAGES.length; i++) {
         setCurrentStage(i);
-        await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 1000));
+        if (i < SCANNING_STAGES.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        }
       }
 
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the real website scanner service
+      const result = await WebsiteScannerService.scanWebsite(websiteUrl, true);
 
-      setScanResult(mockScanResult);
+      if (!result.success) {
+        throw new Error(result.error || 'Scanning failed');
+      }
+
+      // Transform the result to match our interface
+      const transformedResult: ScanResult = {
+        url: websiteUrl,
+        programs: result.programs.map(program => ({
+          name: program.name,
+          description: program.description,
+          duration: program.duration,
+          tuitionFee: program.fee_structure.domestic_fees[0]?.amount ? 
+            `$${program.fee_structure.domestic_fees[0].amount}/${program.duration.includes('year') ? 'year' : 'total'}` : 
+            'Contact for pricing',
+          applicationFee: program.fee_structure.domestic_fees.find(f => f.type === 'application')?.amount ? 
+            `$${program.fee_structure.domestic_fees.find(f => f.type === 'application')?.amount}` : '$100',
+          requirements: program.entry_requirements.map(req => req.title),
+          intakes: program.intake_dates
+        })),
+        generalInfo: {
+          institutionName: result.institution.name,
+          accreditation: 'Accredited Institution',
+          established: result.institution.founded_year?.toString() || 'Established Institution',
+          studentBody: result.institution.employee_count ? `${result.institution.employee_count}+ staff` : 'Growing Institution'
+        },
+        contactInfo: {
+          phone: result.institution.phone || 'Contact for details',
+          email: result.institution.email || 'Contact for details', 
+          address: result.institution.address || 'Contact for details'
+        },
+        confidence: 95
+      };
+
+      setScanResult(transformedResult);
       
       toast({
         title: "Website Scanned Successfully!",
-        description: `Found ${mockScanResult.programs.length} programs with ${mockScanResult.confidence}% confidence.`,
+        description: `Found ${transformedResult.programs.length} programs from ${result.pages_scanned} pages analyzed.`,
       });
 
-    } catch (err) {
-      setError("Failed to scan website. Please check the URL and try again.");
+    } catch (err: any) {
+      setError(err.message || "Failed to scan website. Please check the URL and try again.");
       toast({
         title: "Scan Failed",
         description: "Unable to analyze the website. You can skip this step and add programs manually.",
@@ -169,8 +205,15 @@ const WebsiteScanningScreen: React.FC<WebsiteScanningScreenProps> = ({
         scanResult,
         detectedPrograms: scanResult.programs,
         institutionInfo: scanResult.generalInfo,
-        contactInfo: scanResult.contactInfo
+        contactInfo: scanResult.contactInfo,
+        rawScanData: scanResult // Store the complete scan data for program wizard
       });
+      
+      toast({
+        title: "Website Analysis Complete!",
+        description: `Ready to import ${scanResult.programs.length} detected programs.`,
+      });
+      
       onNext();
     }
   };

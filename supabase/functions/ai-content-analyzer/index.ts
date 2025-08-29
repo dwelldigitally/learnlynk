@@ -117,7 +117,7 @@ function filterContent(content: string): string {
 }
 
 // Helper function to chunk content into manageable pieces
-function chunkContent(pages: Array<{url: string; title: string; content: string; extracted?: any}>, maxTokensPerChunk: number = 15000): Array<Array<typeof pages[0]>> {
+function chunkContent(pages: Array<{url: string; title: string; content: string; extracted?: any}>, maxTokensPerChunk: number = 18000): Array<Array<typeof pages[0]>> {
   const chunks: Array<Array<typeof pages[0]>> = [];
   let currentChunk: Array<typeof pages[0]> = [];
   let currentTokens = 0;
@@ -157,15 +157,37 @@ async function analyzeChunk(chunk: Array<{url: string; title: string; content: s
     ${page.extracted ? `Extracted Data: ${JSON.stringify(page.extracted, null, 2)}` : ''}
   `).join('\n\n---PAGE BREAK---\n\n');
 
-  const systemPrompt = `You are an expert educational institution data analyst. Analyze this chunk of website content and extract information about the institution and its programs.
+  const systemPrompt = `You are an expert educational institution data analyst specialized in extracting comprehensive program information from college/university websites.
 
-CRITICAL INSTRUCTIONS:
-1. Extract ALL programs/courses/degrees mentioned in this content chunk
-2. For each program, extract comprehensive details including fees, requirements, and deadlines
-3. Be thorough and accurate - this data will populate an enrollment management system
-4. Return ONLY valid JSON with no additional text or explanations
-5. Look for application fees and other fee structures
-6. If this chunk doesn't contain programs, return empty arrays but still extract institution info if available
+CRITICAL INSTRUCTIONS FOR PROGRAM EXTRACTION:
+1. Extract ALL programs/courses/degrees/certificates mentioned in this content chunk
+2. For duration: Look for patterns like "12 months", "2 years", "18-month", "1-2 years", "24 weeks", etc. Convert to standardized format
+3. For fees: Extract tuition fees, application fees, registration fees. Look for domestic vs international pricing
+4. For requirements: Extract academic prerequisites, grade requirements, English language requirements, work experience
+5. For descriptions: Extract full program descriptions, career outcomes, curriculum highlights
+6. For deadlines: Extract application deadlines, intake dates, important dates
+7. Return ONLY valid JSON with no additional text or explanations
+8. Be extremely thorough - this data populates an enrollment management system
+
+DURATION EXTRACTION RULES:
+- "12 months" → "12 months"
+- "2 years" → "2 years"  
+- "18-month program" → "18 months"
+- "1-2 years" → "1-2 years"
+- "24 weeks" → "24 weeks"
+- If unclear, use "Not specified"
+
+FEE EXTRACTION RULES:
+- Look for numbers followed by currency symbols ($, CAD, USD)
+- Extract application fees, tuition fees, lab fees, registration fees
+- Distinguish between domestic and international rates
+- Include payment plan information if available
+
+REQUIREMENTS EXTRACTION RULES:
+- Academic requirements (high school diploma, bachelor's degree, GPA)
+- English language requirements (IELTS, TOEFL scores)
+- Work experience requirements
+- Portfolio or interview requirements
 
 Return a JSON object with this structure:
 {
@@ -210,7 +232,7 @@ ${chunkContent}`;
             content: prompt
           }
         ],
-        max_tokens: 3000,
+        max_tokens: 4000,
         temperature: 0.3
       };
 
@@ -297,8 +319,8 @@ serve(async (req) => {
 
     console.log(`Starting analysis of ${content.length} pages`);
     
-    // Chunk the content to avoid token limits
-    const chunks = chunkContent(content, 12000); // Conservative limit to stay well under 30k tokens
+    // Chunk the content to avoid token limits  
+    const chunks = chunkContent(content, 15000); // Increased limit for better extraction
     console.log(`Split content into ${chunks.length} chunks`);
     
     // Analyze each chunk

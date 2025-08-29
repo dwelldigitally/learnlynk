@@ -22,6 +22,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { WebsiteScannerService } from '@/services/websiteScanner';
+import InstitutionReview from './InstitutionReview';
 
 interface SelectiveWebsiteScannerProps {
   data: any;
@@ -66,7 +67,7 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
   onSkip
 }) => {
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState<'url' | 'discovery' | 'selection' | 'scanning' | 'results'>('url');
+  const [currentStep, setCurrentStep] = useState<'url' | 'discovery' | 'selection' | 'scanning' | 'institution' | 'results'>('url');
   const [websiteUrl, setWebsiteUrl] = useState(data?.url || '');
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [categories, setCategories] = useState<PageCategory[]>([]);
@@ -305,7 +306,7 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
         };
 
         setScanResults(results);
-        setCurrentStep('results');
+        setCurrentStep('institution');
         
         toast({
           title: "Scan Complete!",
@@ -597,7 +598,21 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
     );
   }
 
-  // Step 4: Results
+  // Step 4: Institution Review
+  if (currentStep === 'institution' && scanResults?.institution) {
+    return (
+      <InstitutionReview
+        institution={scanResults.institution}
+        onConfirm={(institution) => {
+          setScanResults(prev => prev ? { ...prev, institution } : null);
+          setCurrentStep('results');
+        }}
+        onEdit={() => setCurrentStep('selection')}
+      />
+    );
+  }
+
+  // Step 5: Results
   if (currentStep === 'results' && scanResults) {
     return (
       <div className="space-y-6">
@@ -643,49 +658,109 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
         {/* Detected Programs Preview */}
         <div className="space-y-4">
           <h4 className="font-medium text-foreground">Detected Programs</h4>
-          {scanResults.programs.slice(0, 2).map((program: any, index: number) => (
+          {scanResults.programs.slice(0, 3).map((program: any, index: number) => (
             <Card key={index}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">{program.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{program.description}</p>
+                {program.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-2">{program.description}</p>
+                )}
+                {program.code && (
+                  <Badge variant="outline" className="w-fit">{program.code}</Badge>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div>
                     <Label className="text-muted-foreground">Duration</Label>
-                    <p className="font-medium">{program.duration}</p>
+                    <p className="font-medium">{program.duration || 'Not specified'}</p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground">Tuition</Label>
-                    <p className="font-medium">{program.tuitionFee}</p>
+                    <Label className="text-muted-foreground">Type</Label>
+                    <p className="font-medium capitalize">{program.type || 'Program'}</p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground">Application Fee</Label>
-                    <p className="font-medium">{program.applicationFee}</p>
+                    <Label className="text-muted-foreground">Delivery</Label>
+                    <p className="font-medium capitalize">{program.delivery_method || 'In-person'}</p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground">Intakes</Label>
-                    <p className="font-medium">{program.intakes.join(', ')}</p>
+                    <Label className="text-muted-foreground">Status</Label>
+                    <Badge variant={program.status === 'active' ? 'default' : 'secondary'}>
+                      {program.status || 'Active'}
+                    </Badge>
                   </div>
                 </div>
-                {program.sourcePages && (
-                  <div className="mt-3">
-                    <Label className="text-muted-foreground">Source Pages</Label>
+
+                {/* Fee Structure */}
+                {(program.fee_structure?.domestic_fees?.length > 0 || program.fee_structure?.international_fees?.length > 0) && (
+                  <div className="mt-4 pt-4 border-t">
+                    <Label className="text-muted-foreground">Fees</Label>
+                    <div className="mt-2 space-y-1">
+                      {program.fee_structure.domestic_fees?.map((fee: any, feeIndex: number) => (
+                        <div key={feeIndex} className="flex justify-between text-sm">
+                          <span>{fee.type}: </span>
+                          <span className="font-medium">{fee.currency} ${fee.amount}</span>
+                        </div>
+                      ))}
+                      {program.fee_structure.international_fees?.map((fee: any, feeIndex: number) => (
+                        <div key={feeIndex} className="flex justify-between text-sm">
+                          <span>{fee.type} (Intl): </span>
+                          <span className="font-medium">{fee.currency} ${fee.amount}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Requirements */}
+                {program.entry_requirements?.length > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <Label className="text-muted-foreground">Entry Requirements</Label>
+                    <div className="mt-2 space-y-1">
+                      {program.entry_requirements.slice(0, 2).map((req: any, reqIndex: number) => (
+                        <div key={reqIndex} className="text-sm">
+                          <span className="font-medium">{req.title}:</span> {req.description}
+                        </div>
+                      ))}
+                      {program.entry_requirements.length > 2 && (
+                        <p className="text-xs text-muted-foreground">
+                          +{program.entry_requirements.length - 2} more requirements
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Intake Dates */}
+                {program.intake_dates?.length > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <Label className="text-muted-foreground">Intake Dates</Label>
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {program.sourcePages.map((page: string, pageIndex: number) => (
-                        <Badge key={pageIndex} variant="outline" className="text-xs">
-                          {page.split('/').pop()}
+                      {program.intake_dates.map((intake: string, intakeIndex: number) => (
+                        <Badge key={intakeIndex} variant="outline" className="text-xs">
+                          {intake}
                         </Badge>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {program.url && (
+                  <div className="mt-3">
+                    <Label className="text-muted-foreground">Source URL</Label>
+                    <div className="mt-1">
+                      <Badge variant="outline" className="text-xs">
+                        {new URL(program.url).pathname.split('/').pop() || 'Program Page'}
+                      </Badge>
                     </div>
                   </div>
                 )}
               </CardContent>
             </Card>
           ))}
-          {scanResults.programs.length > 2 && (
+          {scanResults.programs.length > 3 && (
             <p className="text-sm text-muted-foreground text-center">
-              +{scanResults.programs.length - 2} more programs detected
+              +{scanResults.programs.length - 3} more programs detected
             </p>
           )}
         </div>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MessageSquare, Mail, Phone, Sparkles, Copy, Send, RefreshCw, ThumbsUp } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { useToast } from '@/components/ui/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface CommunicationProps {
   lead: Lead;
@@ -175,12 +176,13 @@ Best regards,
     setLoading(true);
     try {
       if (selectedType === 'email') {
-        const response = await fetch('https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/send-lead-email', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
+        // Validate email address
+        if (!lead.email || !lead.email.trim()) {
+          throw new Error('Lead email address is missing');
+        }
+
+        const { data, error } = await supabase.functions.invoke('send-lead-email', {
+          body: {
             leadId: lead.id,
             leadEmail: lead.email,
             leadName: `${lead.first_name} ${lead.last_name}`,
@@ -191,17 +193,17 @@ Best regards,
             metadata: {
               tone: selectedTone,
               estimatedEngagement: generatedContent.estimatedEngagement,
-              generatedAt: new Date().toISOString()
+              generatedAt: new Date().toISOString(),
+              source: 'ai_smart_communication'
             }
-          })
+          }
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to send email');
+        if (error) {
+          throw error;
         }
 
-        const result = await response.json();
-        console.log('Email sent successfully:', result);
+        console.log('Email sent successfully:', data);
 
         toast({
           title: "Email Sent Successfully",
@@ -218,7 +220,7 @@ Best regards,
       console.error('Failed to send content:', error);
       toast({
         title: "Failed to Send",
-        description: "There was an error sending the message. Please try again.",
+        description: error.message || "There was an error sending the message. Please try again.",
         variant: "destructive"
       });
     } finally {

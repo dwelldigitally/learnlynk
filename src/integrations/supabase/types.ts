@@ -2751,11 +2751,13 @@ export type Database = {
       }
       lead_communications: {
         Row: {
+          ai_agent_id: string | null
           communication_date: string
           content: string
           created_at: string
           direction: string
           id: string
+          is_ai_generated: boolean | null
           lead_id: string
           metadata: Json | null
           scheduled_for: string | null
@@ -2766,11 +2768,13 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          ai_agent_id?: string | null
           communication_date?: string
           content: string
           created_at?: string
           direction: string
           id?: string
+          is_ai_generated?: boolean | null
           lead_id: string
           metadata?: Json | null
           scheduled_for?: string | null
@@ -2781,11 +2785,13 @@ export type Database = {
           user_id: string
         }
         Update: {
+          ai_agent_id?: string | null
           communication_date?: string
           content?: string
           created_at?: string
           direction?: string
           id?: string
+          is_ai_generated?: boolean | null
           lead_id?: string
           metadata?: Json | null
           scheduled_for?: string | null

@@ -118,13 +118,36 @@ Deno.serve(async (req) => {
 
     console.log("Sending email to lead:", leadEmail, "Type:", emailType)
 
+    // Validate required fields
+    if (!leadEmail || !leadEmail.trim()) {
+      console.error("Lead email is missing or empty")
+      return new Response(
+        JSON.stringify({ error: "Lead email address is required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      )
+    }
+
+    if (!leadName || !leadName.trim()) {
+      console.error("Lead name is missing or empty")
+      return new Response(
+        JSON.stringify({ error: "Lead name is required" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      )
+    }
+
     // Generate professional HTML template
     const html = getEmailTemplate(emailType, leadName, content, programInterest)
     console.log("Email template generated successfully")
 
     const { data, error } = await resend.emails.send({
       from: 'Learnlynk <hello@learnlynk.com>', // Update with your verified domain
-      to: [leadEmail],
+      to: leadEmail, // Remove array wrapper - Resend expects string not array
       subject,
       html,
     })

@@ -142,7 +142,26 @@ export function CommunicationHub({ lead, onUpdate }: CommunicationHubProps) {
     };
 
     try {
-      await LeadCommunicationService.createCommunication(lead.id, replyData);
+      // First, send the email
+      await supabase.functions.invoke('send-lead-email', {
+        body: {
+          leadId: lead.id,
+          leadEmail: lead.email,
+          leadName: `${lead.first_name} ${lead.last_name}`,
+          emailType: 'follow_up',
+          subject: replyData.subject || 'Re: Follow-up',
+          content: replyContent,
+          programInterest: lead.program_interest,
+          metadata: {
+            source: 'communication_hub',
+            sentAt: new Date().toISOString()
+          }
+        }
+      });
+
+      // Then, log the communication
+      await LeadCommunicationService.createCommunication(lead.id, replyData, false);
+      
       setReplyContent('');
       setShowReplyBox(false);
       loadCommunications();

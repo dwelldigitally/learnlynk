@@ -21,11 +21,15 @@ export function StudentPortalAccess() {
         return;
       }
 
+      console.log('Fetching portal with access token:', accessToken);
+
       try {
         const portalData = await StudentPortalService.getPortalByToken(accessToken);
+        console.log('Portal data retrieved:', portalData);
         if (portalData) {
           setPortal(portalData);
         } else {
+          console.log('No portal data found for token:', accessToken);
           setError('Invalid or expired access token');
         }
       } catch (err) {

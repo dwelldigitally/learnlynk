@@ -128,7 +128,7 @@ serve(async (req) => {
     console.log('Using Firecrawl API with key:', firecrawlApiKey.substring(0, 8) + '...');
 
     // Use Firecrawl crawl API for comprehensive multi-page crawling
-    const requestBody = {
+    const firecrawlRequestBody = {
       url: url,
       crawlerOptions: {
         limit: comprehensive ? 50 : 20,
@@ -140,7 +140,7 @@ serve(async (req) => {
       }
     };
 
-    console.log('Firecrawl crawl request body:', JSON.stringify(requestBody, null, 2));
+    console.log('Firecrawl crawl request body:', JSON.stringify(firecrawlRequestBody, null, 2));
 
     const crawlResponse = await fetch('https://api.firecrawl.dev/v0/crawl', {
       method: 'POST',
@@ -148,7 +148,7 @@ serve(async (req) => {
         'Authorization': `Bearer ${firecrawlApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(firecrawlRequestBody),
     });
 
     console.log('Firecrawl crawl response status:', crawlResponse.status);

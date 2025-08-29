@@ -115,13 +115,13 @@ serve(async (req) => {
       url: url,
       crawlerOptions: {
         excludes: [
-          "**/blog/**",
-          "**/news/**",
-          "**/admin/**",
-          "**/login/**",
-          "**/student-portal/**",
-          "**/*.pdf",
-          "**/*.doc*"
+          "/blog/*",
+          "/news/*",
+          "/admin/*",
+          "/login/*",
+          "/student-portal/*",
+          "*.pdf",
+          "*.doc*"
         ],
         limit: comprehensive ? 50 : 20,
         returnOnlyUrls: false

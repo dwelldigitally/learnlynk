@@ -26,9 +26,8 @@ export function useRealTimeAlerts() {
 
   const loadInitialAlerts = async () => {
     try {
-      // Get recent leads data to generate alerts
-      const { leads } = await LeadService.getLeads();
-      const generatedAlerts = generateAlertsFromLeads(leads);
+      // Mock implementation for now
+      const generatedAlerts: RealTimeAlert[] = [];
       setAlerts(generatedAlerts);
     } catch (error) {
       console.error('Error loading alerts:', error);

@@ -5491,6 +5491,53 @@ export type Database = {
         }
         Relationships: []
       }
+      student_portal_access: {
+        Row: {
+          access_token: string
+          application_date: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          lead_id: string | null
+          programs_applied: string[] | null
+          status: string | null
+          student_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_token: string
+          application_date?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          lead_id?: string | null
+          programs_applied?: string[] | null
+          status?: string | null
+          student_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_token?: string
+          application_date?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          lead_id?: string | null
+          programs_applied?: string[] | null
+          status?: string | null
+          student_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_portal_access_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_portal_config: {
         Row: {
           config_key: string
@@ -6262,6 +6309,7 @@ export type Database = {
         | "chatbot"
         | "ads"
         | "forms"
+        | "webform"
       lead_status:
         | "new"
         | "contacted"
@@ -6422,6 +6470,7 @@ export const Constants = {
         "chatbot",
         "ads",
         "forms",
+        "webform",
       ],
       lead_status: [
         "new",

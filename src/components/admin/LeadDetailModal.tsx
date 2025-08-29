@@ -34,8 +34,8 @@ export function LeadDetailModal({ open, onOpenChange, lead, onStatusChange, onLe
 
   const loadActivities = async () => {
     try {
-      const activities = await LeadService.getLeadActivities(lead.id);
-      setActivities(activities);
+      const result = await LeadService.getLeadActivities(lead.id);
+      setActivities(result.data || []);
     } catch (error) {
       console.error('Failed to load activities:', error);
     }

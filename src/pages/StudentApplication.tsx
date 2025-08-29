@@ -12,6 +12,7 @@ import { ArrowLeft, User, BookOpen, FileText, CreditCard } from 'lucide-react';
 import { LeadService } from '@/services/leadService';
 import { StudentPortalService } from '@/services/studentPortalService';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FormData {
   firstName: string;
@@ -177,10 +178,27 @@ export default function StudentApplication() {
       
       const lead = leadResult.data;
 
-      // Create student portal linked to this lead
+      // Create student portal access record using the new table
       const accessToken = `portal_${lead.id}_${Date.now()}`;
       
-      // Create portal configuration
+      // Create portal access record in the new table
+      const { error: portalError } = await supabase
+        .from('student_portal_access')
+        .insert({
+          access_token: accessToken,
+          lead_id: lead.id,
+          student_name: `${formData.firstName} ${formData.lastName}`,
+          application_date: new Date().toISOString(),
+          programs_applied: formData.programInterest,
+          status: 'active'
+        });
+
+      if (portalError) {
+        console.error('Error creating portal access:', portalError);
+        // Continue anyway, don't fail the whole process
+      }
+      
+      // Create portal configuration for admin management
       const portalConfig = {
         portal_title: `${formData.firstName}'s Student Portal`,
         welcome_message: `Welcome ${formData.firstName}! Track your application progress here.`,

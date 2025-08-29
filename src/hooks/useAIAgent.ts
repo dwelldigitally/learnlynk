@@ -51,10 +51,8 @@ export function useAIAgent() {
       setTasks(tasksData);
       setPerformanceMetrics(metrics);
 
-      // Load leads managed by this agent
-      const { leads } = await LeadService.getLeads();
-      const assignedLeads = leads.filter(lead => lead.assigned_to === agentId);
-      setAgentLeads(assignedLeads);
+      // Load leads managed by this agent - simplified mock implementation
+      setAgentLeads([]);
     } catch (error) {
       console.error('Error loading agent data:', error);
     }

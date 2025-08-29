@@ -56,31 +56,27 @@ export function StudentPortalAccess() {
     }
 
     try {
-      // Find portal config that contains this access token
-      const { data: configs, error: configError } = await supabase
-        .from('student_portal_config')
+      // Use the new student_portal_access table
+      const { data: portalAccess, error: accessError } = await supabase
+        .from('student_portal_access')
         .select('*')
-        .eq('config_key', 'portal_access')
-        .contains('config_value', { access_token: accessToken });
+        .eq('access_token', accessToken)
+        .eq('status', 'active')
+        .gte('expires_at', new Date().toISOString())
+        .single();
 
-      if (configError || !configs || configs.length === 0) {
+      if (accessError || !portalAccess) {
         setError('Access token not found or expired');
         setLoading(false);
         return;
       }
 
-      const config = configs[0];
-      const configData = config.config_value;
-
-      // Extract lead ID from config
-      const leadId = (configData as any).lead_id;
-      
-      if (leadId) {
-        // Get lead data to display student information
+      // Get the lead data to get current status
+      if (portalAccess.lead_id) {
         const { data: lead, error: leadError } = await supabase
           .from('leads')
           .select('*')
-          .eq('id', leadId)
+          .eq('id', portalAccess.lead_id)
           .single();
 
         if (leadError || !lead) {
@@ -91,11 +87,11 @@ export function StudentPortalAccess() {
 
         setAccessData({
           leadId: lead.id,
-          studentName: `${lead.first_name} ${lead.last_name}`,
-          applicationDate: (configData as any).application_date || lead.created_at,
-          programsApplied: (configData as any).programs_applied || lead.program_interest || [],
+          studentName: portalAccess.student_name,
+          applicationDate: portalAccess.application_date,
+          programsApplied: portalAccess.programs_applied || [],
           status: lead.status || 'under_review',
-          config: configData
+          config: portalAccess
         });
       }
 

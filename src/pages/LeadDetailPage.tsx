@@ -51,7 +51,7 @@ export default function LeadDetailPage() {
     try {
       setLoading(true);
       console.log('📡 Calling LeadService.getLeadById...');
-      const leadData = await LeadService.getLeadById(leadId);
+      const { data: leadData, error } = await LeadService.getLeadById(leadId);
       console.log('📊 Lead data received:', leadData);
       
       if (leadData) {

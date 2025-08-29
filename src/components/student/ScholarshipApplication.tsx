@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Award, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ScholarshipApplicationProps {
   scholarship: {
@@ -30,14 +31,45 @@ const ScholarshipApplication: React.FC<ScholarshipApplicationProps> = ({ scholar
     gpa: "",
     additionalComments: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Application Submitted",
-      description: "Your scholarship application has been sent to your admissions advisor for review."
-    });
-    onBack();
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('submit-document-form', {
+        body: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          country: '',
+          programInterest: [scholarship.name],
+          notes: `Scholarship Application for ${scholarship.name}\n\nPersonal Statement: ${formData.essay}\n\nGPA: ${formData.gpa}\n\nStudent ID: ${formData.studentId}\n\nAdditional Comments: ${formData.additionalComments}`,
+          applicationType: 'scholarship'
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Application Submitted",
+        description: "Your scholarship application has been sent to your admissions advisor for review."
+      });
+      onBack();
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Submission Failed",
+        description: "There was an error submitting your application. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -171,9 +203,9 @@ const ScholarshipApplication: React.FC<ScholarshipApplicationProps> = ({ scholar
               />
             </div>
 
-            <Button type="submit" className="w-full flex items-center gap-2">
+            <Button type="submit" className="w-full flex items-center gap-2" disabled={isSubmitting}>
               <Send className="h-4 w-4" />
-              Submit Application
+              {isSubmitting ? "Submitting..." : "Submit Application"}
             </Button>
           </form>
         </CardContent>

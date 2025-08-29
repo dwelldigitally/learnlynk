@@ -21,8 +21,8 @@ const DocumentUpload: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedRequirement, setSelectedRequirement] = useState("");
   const [notes, setNotes] = useState("");
-  const pageAnimation = usePageEntranceAnimation();
-  const staggerAnimation = useStaggeredReveal(0.1);
+  const isPageLoaded = usePageEntranceAnimation();
+  const staggerAnimation = useStaggeredReveal(5, 100); // 5 items with 100ms delay
 
   // Get existing documents and upload mutation
   const { data: documents, isLoading: documentsLoading } = useStudentDocuments(sessionId);
@@ -183,9 +183,15 @@ const DocumentUpload: React.FC = () => {
   return (
     <motion.div 
       className="container mx-auto p-6 space-y-8 max-w-7xl"
-      {...pageAnimation}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: isPageLoaded ? 1 : 0, y: isPageLoaded ? 0 : 20 }}
+      transition={{ duration: 0.5 }}
     >
-      <motion.div {...staggerAnimation}>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4 }}
+      >
         <h1 className="text-3xl font-bold text-foreground">Document Upload</h1>
         <p className="text-muted-foreground mt-2">
           Upload your required documents for application review. All documents should be in PDF format.

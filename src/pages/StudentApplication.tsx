@@ -25,14 +25,10 @@ interface FormData {
   programName: string;
   intakeId: string;
   intakeDate: string;
-  previousEducation: string;
-  motivation: string;
-  goals: string;
 }
 
 
 export function StudentApplication() {
-  const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [accessToken, setAccessToken] = useState('');
@@ -48,18 +44,12 @@ export function StudentApplication() {
     programId: '',
     programName: '',
     intakeId: '',
-    intakeDate: '',
-    previousEducation: '',
-    motivation: '',
-    goals: ''
+    intakeDate: ''
   });
 
   // Fetch dynamic data
   const { data: programs = [], isLoading: programsLoading } = useApplicationPrograms();
   const { data: intakes = [], isLoading: intakesLoading } = useApplicationIntakes(formData.programId);
-
-  const totalSteps = 4;
-  const progressPercent = (currentStep / totalSteps) * 100;
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -75,44 +65,22 @@ export function StudentApplication() {
     updateFormData('intakeDate', '');
   };
 
-  // Handle intake selection
+  // Handle intake selection  
   const handleIntakeChange = (intakeId: string) => {
     const selectedIntake = intakes.find(i => i.id === intakeId);
     updateFormData('intakeId', intakeId);
     updateFormData('intakeDate', selectedIntake?.start_date || '');
   };
 
-  const nextStep = () => {
-    if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return formData.firstName.trim() !== '' && 
-               formData.lastName.trim() !== '' && 
-               formData.email.trim() !== '';
-      case 2:
-        return formData.programId.trim() !== '' && formData.intakeId.trim() !== '';
-      case 3:
-        return formData.previousEducation.trim() !== '';
-      case 4:
-        return formData.motivation.trim() !== '';
-      default:
-        return true;
-    }
+  const validateForm = (): boolean => {
+    return formData.firstName.trim() !== '' && 
+           formData.lastName.trim() !== '' && 
+           formData.email.trim() !== '' &&
+           formData.programId.trim() !== '';
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(4)) {
+    if (!validateForm()) {
       toast({
         title: "Incomplete Information",
         description: "Please fill in all required fields.",
@@ -147,7 +115,7 @@ export function StudentApplication() {
         source: 'web' as const,
         status: 'new' as const,
         priority: 'medium' as const,
-        notes: `Application submitted for ${formData.programName}. Intake: ${new Date(formData.intakeDate).toLocaleDateString()}. Motivation: ${formData.motivation}`,
+        notes: `Application submitted for ${formData.programName}${formData.intakeDate ? `. Intake: ${new Date(formData.intakeDate).toLocaleDateString()}` : ''}`,
         utm_source: 'student_application',
         utm_medium: 'web_form',
         utm_campaign: 'portal_creation'
@@ -242,270 +210,178 @@ export function StudentApplication() {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-primary mb-4">Apply to Our College</h1>
-          <p className="text-xl text-muted-foreground">Create your personalized student portal in minutes</p>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between text-sm text-muted-foreground mb-2">
-            <span>Step {currentStep} of {totalSteps}</span>
-            <span>{Math.round(progressPercent)}% Complete</span>
-          </div>
-          <Progress value={progressPercent} className="h-2" />
+          <p className="text-xl text-muted-foreground">Create your personalized student portal</p>
         </div>
 
         <Card className="w-full">
           <CardHeader>
-            {currentStep === 1 && (
-              <>
-                <User className="w-8 h-8 text-primary mb-2" />
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>Tell us about yourself</CardDescription>
-              </>
-            )}
-            {currentStep === 2 && (
-              <>
-                <GraduationCap className="w-8 h-8 text-primary mb-2" />
-                <CardTitle>Program Selection</CardTitle>
-                <CardDescription>Choose your program and intake date</CardDescription>
-              </>
-            )}
-            {currentStep === 3 && (
-              <>
-                <FileText className="w-8 h-8 text-primary mb-2" />
-                <CardTitle>Educational Background</CardTitle>
-                <CardDescription>Share your academic history</CardDescription>
-              </>
-            )}
-            {currentStep === 4 && (
-              <>
-                <Send className="w-8 h-8 text-primary mb-2" />
-                <CardTitle>Motivation & Goals</CardTitle>
-                <CardDescription>Tell us why you want to join us</CardDescription>
-              </>
-            )}
+            <User className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Student Application</CardTitle>
+            <CardDescription>Tell us about yourself and your program interest</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Step 1: Personal Information */}
-            {currentStep === 1 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">First Name *</Label>
-                    <Input
-                      id="firstName"
-                      value={formData.firstName}
-                      onChange={(e) => updateFormData('firstName', e.target.value)}
-                      placeholder="Enter your first name"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
-                    <Input
-                      id="lastName"
-                      value={formData.lastName}
-                      onChange={(e) => updateFormData('lastName', e.target.value)}
-                      placeholder="Enter your last name"
-                    />
-                  </div>
-                </div>
-
+            {/* Personal Information */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="email">Email Address *</Label>
+                  <Label htmlFor="firstName">First Name *</Label>
                   <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => updateFormData('email', e.target.value)}
-                    placeholder="Enter your email address"
+                    id="firstName"
+                    value={formData.firstName}
+                    onChange={(e) => updateFormData('firstName', e.target.value)}
+                    placeholder="Enter your first name"
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      value={formData.phone}
-                      onChange={(e) => updateFormData('phone', e.target.value)}
-                      placeholder="Enter your phone number"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      value={formData.country}
-                      onChange={(e) => updateFormData('country', e.target.value)}
-                      placeholder="Enter your country"
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={(e) => updateFormData('lastName', e.target.value)}
+                    placeholder="Enter your last name"
+                  />
                 </div>
               </div>
-            )}
 
-            {/* Step 2: Program Selection */}
-            {currentStep === 2 && (
-              <div className="space-y-4">
+              <div>
+                <Label htmlFor="email">Email Address *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => updateFormData('email', e.target.value)}
+                  placeholder="Enter your email address"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="program">Program of Interest *</Label>
-                  <Select 
-                    value={formData.programId} 
-                    onValueChange={handleProgramChange}
-                    disabled={programsLoading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder={programsLoading ? "Loading programs..." : "Select a program"} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {programs.map((program) => (
-                        <SelectItem key={program.id} value={program.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{program.name}</span>
-                            {program.type && (
-                              <span className="text-sm text-muted-foreground">{program.type}</span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {programsLoading && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading available programs...
-                    </div>
-                  )}
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => updateFormData('phone', e.target.value)}
+                    placeholder="Enter your phone number"
+                  />
                 </div>
-
                 <div>
-                  <Label htmlFor="intakeDate">Preferred Intake Date *</Label>
-                  <Select 
-                    value={formData.intakeId} 
-                    onValueChange={handleIntakeChange}
-                    disabled={intakesLoading || !formData.programId}
-                  >
-                    <SelectTrigger>
-                      <SelectValue 
-                        placeholder={
-                          !formData.programId 
-                            ? "Please select a program first" 
-                            : intakesLoading 
-                              ? "Loading intake dates..." 
-                              : "Select an intake date"
-                        } 
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {intakes.map((intake) => (
-                        <SelectItem key={intake.id} value={intake.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {new Date(intake.start_date).toLocaleDateString('en-US', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                              })}
+                  <Label htmlFor="country">Country</Label>
+                  <Input
+                    id="country"
+                    value={formData.country}
+                    onChange={(e) => updateFormData('country', e.target.value)}
+                    placeholder="Enter your country"
+                  />
+                </div>
+              </div>
+
+              {/* Program Selection */}
+              <div>
+                <Label htmlFor="program">Program of Interest *</Label>
+                <Select 
+                  value={formData.programId} 
+                  onValueChange={handleProgramChange}
+                  disabled={programsLoading}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={programsLoading ? "Loading programs..." : "Select a program"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {programs.map((program) => (
+                      <SelectItem key={program.id} value={program.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">{program.name}</span>
+                          {program.type && (
+                            <span className="text-sm text-muted-foreground">{program.type}</span>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {programsLoading && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading available programs...
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="intakeDate">Preferred Intake Date (Optional)</Label>
+                <Select 
+                  value={formData.intakeId} 
+                  onValueChange={handleIntakeChange}
+                  disabled={intakesLoading || !formData.programId}
+                >
+                  <SelectTrigger>
+                    <SelectValue 
+                      placeholder={
+                        !formData.programId 
+                          ? "Please select a program first" 
+                          : intakesLoading 
+                            ? "Loading intake dates..." 
+                            : "Select an intake date (optional)"
+                      } 
+                    />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {intakes.map((intake) => (
+                      <SelectItem key={intake.id} value={intake.id}>
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {new Date(intake.start_date).toLocaleDateString('en-US', { 
+                              year: 'numeric', 
+                              month: 'long', 
+                              day: 'numeric' 
+                            })}
+                          </span>
+                          <div className="text-sm text-muted-foreground">
+                            {intake.delivery_method && `${intake.delivery_method} • `}
+                            {intake.study_mode && `${intake.study_mode} • `}
+                            {intake.campus && `${intake.campus} campus`}
+                          </div>
+                          {intake.application_deadline && (
+                            <span className="text-xs text-orange-600">
+                              Apply by: {new Date(intake.application_deadline).toLocaleDateString()}
                             </span>
-                            <div className="text-sm text-muted-foreground">
-                              {intake.delivery_method && `${intake.delivery_method} • `}
-                              {intake.study_mode && `${intake.study_mode} • `}
-                              {intake.campus && `${intake.campus} campus`}
-                            </div>
-                            {intake.application_deadline && (
-                              <span className="text-xs text-orange-600">
-                                Apply by: {new Date(intake.application_deadline).toLocaleDateString()}
-                              </span>
-                            )}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {intakesLoading && formData.programId && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Loading available intake dates...
-                    </div>
-                  )}
-                  {formData.programId && intakes.length === 0 && !intakesLoading && (
-                    <p className="text-sm text-orange-600 mt-1">
-                      No upcoming intakes available for this program. Please contact admissions for more information.
-                    </p>
-                  )}
-                </div>
+                          )}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {intakesLoading && formData.programId && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading available intake dates...
+                  </div>
+                )}
+                {formData.programId && intakes.length === 0 && !intakesLoading && (
+                  <p className="text-sm text-orange-600 mt-1">
+                    No upcoming intakes available for this program. Please contact admissions for more information.
+                  </p>
+                )}
               </div>
-            )}
+            </div>
 
-            {/* Step 3: Educational Background */}
-            {currentStep === 3 && (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="previousEducation">Previous Education *</Label>
-                  <Textarea
-                    id="previousEducation"
-                    value={formData.previousEducation}
-                    onChange={(e) => updateFormData('previousEducation', e.target.value)}
-                    placeholder="Describe your educational background, including degrees, certifications, and relevant experience..."
-                    className="min-h-[120px]"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Step 4: Motivation & Goals */}
-            {currentStep === 4 && (
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="motivation">Why do you want to study this program? *</Label>
-                  <Textarea
-                    id="motivation"
-                    value={formData.motivation}
-                    onChange={(e) => updateFormData('motivation', e.target.value)}
-                    placeholder="Tell us what motivates you to pursue this program..."
-                    className="min-h-[120px]"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="goals">Career Goals</Label>
-                  <Textarea
-                    id="goals"
-                    value={formData.goals}
-                    onChange={(e) => updateFormData('goals', e.target.value)}
-                    placeholder="What are your career aspirations after completing this program?"
-                    className="min-h-[120px]"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between pt-6">
+            {/* Submit Button */}
+            <div className="pt-6">
               <Button 
-                variant="outline" 
-                onClick={prevStep} 
-                disabled={currentStep === 1}
+                onClick={handleSubmit} 
+                disabled={!validateForm() || isSubmitting}
+                className="w-full"
               >
-                Previous
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Submitting Application...
+                  </>
+                ) : (
+                  'Submit Application'
+                )}
               </Button>
-
-              {currentStep < totalSteps ? (
-                <Button 
-                  onClick={nextStep} 
-                  disabled={!validateStep(currentStep)}
-                >
-                  Next
-                </Button>
-              ) : (
-                <Button 
-                  onClick={handleSubmit} 
-                  disabled={!validateStep(currentStep) || isSubmitting}
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
-                </Button>
-              )}
             </div>
           </CardContent>
         </Card>

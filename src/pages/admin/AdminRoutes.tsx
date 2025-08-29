@@ -9,8 +9,13 @@ import { CampaignManagement } from '@/components/admin/CampaignManagement';
 import CommunicationHub from '@/components/admin/CommunicationHub';
 import EventManagement from '@/components/admin/EventManagement';
 import { StudentPortalsDashboard } from '@/components/admin/StudentPortalsDashboard';
+import { ApplicantManagement } from '@/components/admin/ApplicantManagement';
+import DocumentManagement from '@/components/admin/DocumentManagement';
+import { LeadAnalyticsDashboard } from '@/components/admin/LeadAnalyticsDashboard';
+import { AdvancedLeadAnalyticsDashboard } from '@/components/admin/AdvancedLeadAnalyticsDashboard';
 
 export function AdminRoutes() {
+  console.log('AdminRoutes: Current location:', window.location.pathname);
   return (
     <Routes>
       {/* Default admin route */}
@@ -23,8 +28,11 @@ export function AdminRoutes() {
       <Route path="communication" element={<CommunicationHub />} />
       
       {/* Students & Applications Section */}
+      <Route path="applicants" element={<ApplicantManagement />} />
       <Route path="students" element={<StudentManagement />} />
       <Route path="applications" element={<StudentManagement />} />
+      <Route path="student-portal" element={<StudentPortalsDashboard />} />
+      <Route path="documents" element={<DocumentManagement />} />
       
       {/* Data Management Section */}
       <Route path="events" element={<EventManagement />} />
@@ -42,6 +50,8 @@ export function AdminRoutes() {
       {/* Analytics & Reports Section */}
       <Route path="analytics" element={<AnalyticsReporting />} />
       <Route path="reports" element={<AnalyticsReporting />} />
+      <Route path="leads/analytics" element={<LeadAnalyticsDashboard />} />
+      <Route path="leads/advanced-analytics" element={<AdvancedLeadAnalyticsDashboard />} />
       
       {/* Catch-all redirect to home */}
       <Route path="*" element={<Navigate to="/admin" replace />} />

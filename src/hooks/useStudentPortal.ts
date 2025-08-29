@@ -1,7 +1,8 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { StudentPortalService, StudentPortalContent, StudentPortalMessage, StudentPortalConfig } from '@/services/studentPortalService';
 import { useEffect } from 'react';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // Content hooks
 export function usePortalContent() {
@@ -22,6 +23,7 @@ export function usePublishedContent() {
 
 export function useContentMutations() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const createContent = useMutation({
     mutationFn: StudentPortalService.createPortalContent,
@@ -108,6 +110,7 @@ export function useStudentMessages(studentId: string) {
 
 export function useMessageMutations() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const createMessage = useMutation({
     mutationFn: StudentPortalService.createPortalMessage,
@@ -194,6 +197,7 @@ export function usePortalConfig() {
 
 export function useConfigMutations() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
 
   const saveConfig = useMutation({
     mutationFn: StudentPortalService.createOrUpdatePortalConfig,

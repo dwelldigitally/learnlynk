@@ -28,7 +28,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Send SMS function called - v4.0 with enhanced credential validation")
+    console.log("Send SMS function called - v5.0 FORCED REDEPLOY with credential validation")
     
     // Debug: Log all available environment variables (without values for security)
     console.log("Available environment variables:", Object.keys(Deno.env.toObject()))

@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,8 +14,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
-import ModernAdminLayout from "./components/admin/ModernAdminLayout";
-import { AdminRoutes } from "./pages/admin/AdminRoutes";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
@@ -33,8 +31,6 @@ import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
-import { StudentApplication } from "./pages/StudentApplication";
-import { StudentPortalAccess } from "./pages/StudentPortalAccess";
 
 const queryClient = new QueryClient();
 
@@ -51,9 +47,6 @@ const App = () => {
             <DataInitializer>
               <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/apply" element={<StudentApplication />} />
-              <Route path="/webform" element={<StudentApplication />} />
-              <Route path="/student-portal/:accessToken" element={<StudentPortalAccess />} />
               <Route path="/sign-in" element={<ModernSignIn />} />
               <Route path="/sign-up" element={<ModernSignUp />} />
               <Route path="/verify-email" element={<EmailVerificationScreen />} />
@@ -103,8 +96,8 @@ const App = () => {
               
               {/* Sales rep dashboard is now handled by AdminDashboard */}
               
-              {/* General admin routes - this handles all /admin/* routes with full admin layout */}
-              <Route path="/admin/*" element={<ProtectedRoute element={<ModernAdminLayout><AdminRoutes /></ModernAdminLayout>} />} />
+              {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
+              <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               
               {/* Student Portal Routes */}
               <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />

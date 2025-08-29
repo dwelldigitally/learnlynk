@@ -2049,8 +2049,6 @@ export type Database = {
           form_id: string
           id: string
           ip_address: unknown | null
-          lead_id: string | null
-          student_portal_id: string | null
           submission_data: Json
           submitted_at: string
           user_agent: string | null
@@ -2059,8 +2057,6 @@ export type Database = {
           form_id: string
           id?: string
           ip_address?: unknown | null
-          lead_id?: string | null
-          student_portal_id?: string | null
           submission_data?: Json
           submitted_at?: string
           user_agent?: string | null
@@ -2069,8 +2065,6 @@ export type Database = {
           form_id?: string
           id?: string
           ip_address?: unknown | null
-          lead_id?: string | null
-          student_portal_id?: string | null
           submission_data?: Json
           submitted_at?: string
           user_agent?: string | null
@@ -2081,20 +2075,6 @@ export type Database = {
             columns: ["form_id"]
             isOneToOne: false
             referencedRelation: "forms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "form_submissions_student_portal_id_fkey"
-            columns: ["student_portal_id"]
-            isOneToOne: false
-            referencedRelation: "student_portals"
             referencedColumns: ["id"]
           },
         ]
@@ -5650,51 +5630,6 @@ export type Database = {
           subject?: string
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      student_portals: {
-        Row: {
-          access_token: string
-          country: string | null
-          created_at: string
-          email: string
-          id: string
-          intake_date: string | null
-          is_active: boolean
-          phone: string | null
-          portal_config: Json
-          program: string
-          student_name: string
-          updated_at: string
-        }
-        Insert: {
-          access_token?: string
-          country?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          intake_date?: string | null
-          is_active?: boolean
-          phone?: string | null
-          portal_config?: Json
-          program: string
-          student_name: string
-          updated_at?: string
-        }
-        Update: {
-          access_token?: string
-          country?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          intake_date?: string | null
-          is_active?: boolean
-          phone?: string | null
-          portal_config?: Json
-          program?: string
-          student_name?: string
-          updated_at?: string
         }
         Relationships: []
       }

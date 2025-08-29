@@ -12,7 +12,8 @@ import {
   Edit, 
   Trash2, 
   FileText,
-  MoreHorizontal
+  MoreHorizontal,
+  Code2
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -275,12 +276,23 @@ export function BuilderSelectionPage() {
                   <CardTitle className="text-lg flex items-center gap-2">
                     <FormInput className="h-5 w-5 text-blue-500" />
                     Forms
-                    <Badge variant="secondary" className="ml-auto">
+                 <Badge variant="secondary" className="ml-auto">
                       {forms.length}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-end">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => navigate('/admin/builder/forms/embed')}
+                      className="flex items-center gap-2"
+                    >
+                      <Code2 className="h-4 w-4" />
+                      Generate Embed Code
+                    </Button>
+                  </div>
                   {renderItemsTable(forms, 'forms')}
                 </CardContent>
               </Card>

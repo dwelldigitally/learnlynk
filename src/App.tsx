@@ -32,6 +32,7 @@ import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
 import StudentApplication from "./pages/StudentApplication";
+import EmbedDocumentForm from "./pages/EmbedDocumentForm";
 
 const queryClient = new QueryClient();
 
@@ -54,9 +55,12 @@ const App = () => {
                <Route path="/forgot-password" element={<ForgotPassword />} />
                <Route path="/reset-password" element={<ResetPassword />} />
                
-                {/* Webform Routes */}
-                <Route path="/webform" element={<StudentApplication />} />
-                <Route path="/apply" element={<StudentApplication />} />
+                 {/* Webform Routes */}
+                 <Route path="/webform" element={<StudentApplication />} />
+                 <Route path="/apply" element={<StudentApplication />} />
+                 
+                 {/* Embeddable Form Routes */}
+                 <Route path="/embed/document-form" element={<EmbedDocumentForm />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               
@@ -74,9 +78,10 @@ const App = () => {
               
               {/* Universal Builder routes */}
               <Route path="/admin/builder" element={<ProtectedRoute element={<UniversalBuilderPage />} />} />
-              <Route path="/admin/builder/forms" element={<ProtectedRoute element={<FormBuilderPage />} />} />
-              <Route path="/admin/builder/forms/:formId" element={<ProtectedRoute element={<FormBuilderPage />} />} />
-              <Route path="/admin/builder/forms/:formId/edit" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+               <Route path="/admin/builder/forms" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+               <Route path="/admin/builder/forms/:formId" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+               <Route path="/admin/builder/forms/:formId/edit" element={<ProtectedRoute element={<FormBuilderPage />} />} />
+               <Route path="/admin/builder/forms/embed" element={<ProtectedRoute element={<FormBuilderPage />} />} />
               <Route path="/admin/builder/workflows" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
               <Route path="/admin/builder/workflows/:workflowId" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
               <Route path="/admin/builder/workflows/:workflowId/edit" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />

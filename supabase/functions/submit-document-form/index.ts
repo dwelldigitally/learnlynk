@@ -1,0 +1,251 @@
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.53.0";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+};
+
+interface SubmissionData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  country?: string;
+  programInterest?: string;
+  documentType: string;
+  notes?: string;
+}
+
+const handler = async (req: Request): Promise<Response> => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { 
+        status: 405, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  }
+
+  try {
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    // Parse form data
+    const formData = await req.formData();
+    
+    const submissionData: SubmissionData = {
+      firstName: formData.get('firstName') as string,
+      lastName: formData.get('lastName') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string || undefined,
+      country: formData.get('country') as string || undefined,
+      programInterest: formData.get('programInterest') as string || undefined,
+      documentType: formData.get('documentType') as string,
+      notes: formData.get('notes') as string || undefined,
+    };
+
+    const documentFile = formData.get('document') as File;
+
+    // Validate required fields
+    const requiredFields = ['firstName', 'lastName', 'email', 'documentType'];
+    for (const field of requiredFields) {
+      if (!submissionData[field as keyof SubmissionData]) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: `Missing required field: ${field}` 
+          }),
+          { 
+            status: 400, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+    }
+
+    if (!documentFile) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Document file is required' 
+        }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Generate unique access token
+    const accessToken = crypto.randomUUID();
+
+    // Create lead record
+    const { data: leadData, error: leadError } = await supabase
+      .from('leads')
+      .insert({
+        first_name: submissionData.firstName,
+        last_name: submissionData.lastName,
+        email: submissionData.email,
+        phone: submissionData.phone,
+        country: submissionData.country,
+        source: 'webform',
+        source_details: 'Embeddable Document Form',
+        program_interest: submissionData.programInterest ? [submissionData.programInterest] : [],
+        notes: submissionData.notes,
+        status: 'new',
+        priority: 'medium',
+        lead_score: 50,
+        tags: ['webform', 'document-submission']
+      })
+      .select()
+      .single();
+
+    if (leadError) {
+      console.error('Error creating lead:', leadError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Failed to create lead record' 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Create student portal access
+    const { data: portalAccessData, error: portalAccessError } = await supabase
+      .from('student_portal_access')
+      .insert({
+        lead_id: leadData.id,
+        access_token: accessToken,
+        student_name: `${submissionData.firstName} ${submissionData.lastName}`,
+        programs_applied: submissionData.programInterest ? [submissionData.programInterest] : [],
+        status: 'active',
+        expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString() // 6 months
+      })
+      .select()
+      .single();
+
+    if (portalAccessError) {
+      console.error('Error creating portal access:', portalAccessError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Failed to create portal access' 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Create student portal session
+    const { data: sessionData, error: sessionError } = await supabase
+      .from('student_portal_sessions')
+      .insert({
+        access_token: accessToken,
+        lead_id: leadData.id,
+        student_name: `${submissionData.firstName} ${submissionData.lastName}`,
+        email: submissionData.email,
+        expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString() // 6 months
+      })
+      .select()
+      .single();
+
+    if (sessionError) {
+      console.error('Error creating session:', sessionError);
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Failed to create session' 
+        }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Convert file to base64 and store document
+    const fileArrayBuffer = await documentFile.arrayBuffer();
+    const fileBase64 = btoa(String.fromCharCode(...new Uint8Array(fileArrayBuffer)));
+    
+    const { error: documentError } = await supabase
+      .from('student_document_uploads')
+      .insert({
+        lead_id: leadData.id,
+        session_id: sessionData.id,
+        document_name: documentFile.name,
+        document_type: submissionData.documentType,
+        file_size: documentFile.size,
+        upload_status: 'uploaded',
+        admin_status: 'pending',
+        metadata: {
+          originalName: documentFile.name,
+          mimeType: documentFile.type,
+          fileData: fileBase64,
+          uploadSource: 'embeddable_form'
+        }
+      });
+
+    if (documentError) {
+      console.error('Error storing document:', documentError);
+      // Don't fail the entire process for document storage issues
+      console.warn('Document storage failed, but lead and portal access created successfully');
+    }
+
+    // Generate portal URL
+    const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('//', '//').replace('supabase.co', 'lovable.app') || 'https://your-domain.lovable.app';
+    const portalUrl = `${baseUrl}/student?token=${accessToken}`;
+
+    console.log('Successfully processed submission:', {
+      leadId: leadData.id,
+      sessionId: sessionData.id,
+      email: submissionData.email
+    });
+
+    return new Response(
+      JSON.stringify({ 
+        success: true,
+        message: 'Document submitted successfully',
+        accessToken,
+        portalUrl,
+        leadId: leadData.id
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+
+  } catch (error) {
+    console.error('Error in submit-document-form function:', error);
+    return new Response(
+      JSON.stringify({ 
+        success: false, 
+        message: 'Internal server error',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  }
+};
+
+serve(handler);

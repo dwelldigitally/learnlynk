@@ -99,7 +99,7 @@ export function StudentApplication() {
         phone: formData.phone,
         country: formData.country,
         program: formData.programName,
-        intake_date: formData.intakeDate
+        intake_date: formData.intakeDate || null
       };
 
       const portal = await StudentPortalService.createStudentPortal(portalData);

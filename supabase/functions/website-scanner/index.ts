@@ -115,13 +115,13 @@ serve(async (req) => {
       url: url,
       crawlerOptions: {
         includes: [
-          "*/programs/*",
-          "*/courses/*", 
-          "*/admissions/*",
-          "*/fees/*",
-          "*/apply/*",
-          "*/academics/*",
-          "*/departments/*"
+          "**/programs/**",
+          "**/courses/**", 
+          "**/admissions/**",
+          "**/application/**",
+          "**/apply/**",
+          "**/academics/**",
+          "**/departments/**"
         ],
         excludes: [
           "**/admin/**",

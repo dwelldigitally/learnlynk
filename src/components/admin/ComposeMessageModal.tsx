@@ -206,14 +206,35 @@ export function ComposeMessageModal({
 
         if (response.error) throw response.error;
       } else {
+        if (!selectedLead.phone?.trim()) {
+          toast({
+            title: "Missing Phone Number",
+            description: "This lead doesn't have a phone number",
+            variant: "destructive",
+          });
+          setSending(false);
+          return;
+        }
+
         const response = await supabase.functions.invoke('send-sms', {
           body: {
-            phoneNumber: selectedLead.phone || '',
-            message: content
+            leadId: selectedLead.id,
+            phoneNumber: selectedLead.phone,
+            leadName: `${selectedLead.first_name} ${selectedLead.last_name}`,
+            message: content,
+            messageType: 'ai_generated',
+            metadata: {
+              source: 'communication_hub',
+              tone: selectedTone,
+              generated: !!generatedContent
+            }
           }
         });
 
-        if (response.error) throw response.error;
+        if (response.error) {
+          console.error('SMS sending error:', response.error);
+          throw new Error(response.error.message || 'Failed to send SMS');
+        }
       }
 
       toast({

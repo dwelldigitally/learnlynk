@@ -89,12 +89,29 @@ interface DetectedForm {
 }
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { url, comprehensive = true }: ScanRequest = await req.json();
+    console.log('Website scanner function called');
+    const requestBody = await req.json();
+    console.log('Request body:', requestBody);
+    
+    // Health check endpoint
+    if (requestBody.action === 'health') {
+      console.log('Health check requested');
+      return new Response(JSON.stringify({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        function: 'website-scanner'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    const { url, comprehensive = true }: ScanRequest = requestBody;
     
     if (!url) {
       throw new Error('URL is required');

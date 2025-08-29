@@ -91,17 +91,41 @@ export class WebsiteScannerService {
   static async scanWebsite(url: string, comprehensive: boolean = true): Promise<ScanResult> {
     try {
       console.log(`Starting website scan for: ${url}`);
+      console.log('Attempting to call website-scanner edge function...');
       
+      // First try a health check
+      try {
+        const healthCheck = await supabase.functions.invoke('website-scanner', {
+          body: { action: 'health' }
+        });
+        console.log('Health check response:', healthCheck);
+      } catch (healthError) {
+        console.warn('Health check failed:', healthError);
+      }
+      
+      // Main scan request with simplified headers
       const { data, error } = await supabase.functions.invoke('website-scanner', {
-        body: { url, comprehensive },
-        headers: {
-          'x-request-timeout': '300' // 5 minutes timeout for comprehensive scans
-        }
+        body: { url, comprehensive }
       });
 
+      console.log('Function call completed. Error:', error, 'Data:', data);
+
       if (error) {
-        console.error('Supabase function error:', error);
-        throw new Error(`Website scanning failed: ${error.message || JSON.stringify(error)}`);
+        console.error('Supabase function error details:', {
+          message: error.message,
+          stack: error.stack,
+          context: error.context,
+          details: error.details
+        });
+        
+        // Distinguish between different types of errors
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('Failed to send a request')) {
+          throw new Error('Unable to connect to the website scanning service. The function may be unavailable.');
+        } else if (error.message?.includes('rate limit')) {
+          throw new Error('Firecrawl API rate limit reached. Please wait a few minutes and try again.');
+        } else {
+          throw new Error(`Website scanning failed: ${error.message || 'Unknown error'}`);
+        }
       }
 
       if (!data?.success) {
@@ -114,14 +138,7 @@ export class WebsiteScannerService {
       return data as ScanResult;
     } catch (error) {
       console.error('Website scanning error:', error);
-      
-      // Extract more meaningful error messages
-      let errorMessage = error.message;
-      if (errorMessage.includes('FunctionsHttpError') || errorMessage.includes('non-2xx status code')) {
-        errorMessage = 'Website scanning service is having issues. Please check your Firecrawl API key configuration or try again later.';
-      }
-      
-      throw new Error(errorMessage);
+      throw error; // Re-throw the error as-is to preserve the enhanced error messages
     }
   }
 

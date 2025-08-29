@@ -53,7 +53,7 @@ const App = () => {
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
-              <Route path="/dashboard" element={<Navigate to="/admin" replace />} />
+              <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               
               {/* HubSpot OAuth callback route - matches what HubSpot sends */}
               <Route path="/hubspot/oauth/callback" element={<HubSpotOAuthCallback />} />

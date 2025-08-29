@@ -98,8 +98,21 @@ export const navigationStructure: NavigationStructure = {
       ]
     },
     {
+      id: "setup",
+      name: "Setup & Configuration",
+      icon: Cog,
+      items: [
+        { name: "Setup Dashboard", href: "/admin/setup", icon: Cog },
+        { name: "Institution Setup", href: "/admin/setup/institution", icon: Building2 },
+        { name: "Application Setup", href: "/admin/setup/applications", icon: FileText },
+        { name: "Business Setup", href: "/admin/setup/business", icon: Briefcase },
+        { name: "Team Setup", href: "/admin/setup/team", icon: Users },
+        { name: "Data Setup", href: "/admin/setup/data", icon: Database }
+      ]
+    },
+    {
       id: "configuration",
-      name: "Configuration", 
+      name: "System Configuration", 
       icon: Settings,
       items: [
         { name: "Stages & Workflows", href: "/admin/configuration", icon: Settings },

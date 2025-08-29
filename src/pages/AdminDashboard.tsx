@@ -58,6 +58,12 @@ import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 import { EnhancedTodayCommandCentre } from "@/components/enrollment/EnhancedTodayCommandCentre";
+import { SetupDashboard } from "./admin/setup/SetupDashboard";
+import { InstitutionSetup } from "./admin/setup/InstitutionSetup";
+import { ApplicationSetup } from "./admin/setup/ApplicationSetup";
+import { BusinessSetup } from "./admin/setup/BusinessSetup";
+import { TeamSetup } from "./admin/setup/TeamSetup";
+import { DataSetup } from "./admin/setup/DataSetup";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -192,6 +198,20 @@ const AdminDashboard: React.FC = () => {
         return <OutcomesDashboard />;
       case "/admin/ai-intelligence":
         return <AIIntelligenceDashboard />;
+      
+      // Setup routes
+      case "/admin/setup":
+        return <SetupDashboard />;
+      case "/admin/setup/institution":
+        return <InstitutionSetup />;
+      case "/admin/setup/applications":
+        return <ApplicationSetup />;
+      case "/admin/setup/business":
+        return <BusinessSetup />;
+      case "/admin/setup/team":
+        return <TeamSetup />;
+      case "/admin/setup/data":
+        return <DataSetup />;
       default:
         return <AdminOverview />;
     }

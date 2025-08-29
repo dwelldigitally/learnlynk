@@ -24,6 +24,9 @@ import { ConversionOpportunitiesWidget } from './widgets/ConversionOpportunities
 import { RealTimeAnalyticsWidget } from './widgets/RealTimeAnalyticsWidget';
 import { SmartAutomationWidget } from './widgets/SmartAutomationWidget';
 import { EnhancedBulkActionsToolbar } from './EnhancedBulkActionsToolbar';
+import { AITaskExecutionPanel } from './AITaskExecutionPanel';
+import { ProductivityDashboard } from './ProductivityDashboard';
+import { AITaskIntelligenceService } from '@/services/aiTaskIntelligence';
 
 interface StudentAction {
   id: string;
@@ -68,6 +71,7 @@ interface ConversionMetrics {
 
 export function EnhancedTodayCommandCentre() {
   const { actions, loading, newActionCount, markNewActionsSeen } = useRealTimeActions();
+  const [intelligentTasks, setIntelligentTasks] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<ConversionMetrics>({
     leadToApplicant: 0,
     applicantToEnrolled: 0,
@@ -360,6 +364,28 @@ export function EnhancedTodayCommandCentre() {
           </div>
         </CardContent>
       </Card>
+
+      {/* AI Productivity Dashboard */}
+      <div className="mb-6">
+        <ProductivityDashboard />
+      </div>
+
+      {/* AI Task Execution Panel */}
+      <div className="mb-6">
+        <AITaskExecutionPanel 
+          tasks={intelligentTasks}
+          onTaskExecuted={(taskId) => {
+            setIntelligentTasks(prev => prev.filter(task => task.id !== taskId));
+          }}
+          onTaskCreated={(task) => {
+            console.log('Creating task:', task);
+            toast({
+              title: "Task Created",
+              description: `Added "${task.title}" to your task queue`,
+            });
+          }}
+        />
+      </div>
 
       {/* Enhanced Analytics & Automation */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">

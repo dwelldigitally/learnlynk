@@ -223,30 +223,50 @@ Analyze this educational institution website content and extract ALL available i
 
 ${combinedContent}`;
 
+    console.log('Sending request to OpenAI with prompt length:', prompt.length);
+    console.log('OpenAI API key available:', !!openAIApiKey);
+    
+    const requestBody = {
+      model: 'gpt-5-2025-08-07',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert educational institution data analyst. Return only valid JSON with comprehensive program and institution data.'
+        },
+        {
+          role: 'user',
+          content: prompt
+        }
+      ],
+      max_completion_tokens: 4000
+    };
+
+    console.log('OpenAI request body (without content):', {
+      model: requestBody.model,
+      messages: requestBody.messages.map(m => ({ role: m.role, content_length: m.content.length })),
+      max_completion_tokens: requestBody.max_completion_tokens
+    });
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'gpt-5-2025-08-07',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert educational institution data analyst. Return only valid JSON with comprehensive program and institution data.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
-        max_completion_tokens: 4000
-      }),
+      body: JSON.stringify(requestBody),
     });
 
+    console.log('OpenAI response status:', response.status);
+    console.log('OpenAI response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error details:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorBody: errorText
+      });
+      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();

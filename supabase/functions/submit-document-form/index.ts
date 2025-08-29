@@ -123,8 +123,35 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Generate unique access token
-    const accessToken = crypto.randomUUID();
+    // Helper function to generate unique access token with retry logic
+    const generateUniqueAccessToken = async (maxRetries = 5): Promise<string> => {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const token = crypto.randomUUID();
+        console.log(`Generating access token, attempt ${attempt}: ${token}`);
+        
+        // Check if token already exists
+        const { data: existingToken, error: checkError } = await supabase
+          .from('student_portal_sessions')
+          .select('access_token')
+          .eq('access_token', token)
+          .maybeSingle();
+        
+        if (checkError) {
+          console.warn(`Error checking token uniqueness on attempt ${attempt}:`, checkError);
+          if (attempt === maxRetries) throw checkError;
+          continue;
+        }
+        
+        if (!existingToken) {
+          console.log(`Unique token generated successfully: ${token}`);
+          return token;
+        }
+        
+        console.log(`Token collision detected on attempt ${attempt}, retrying...`);
+      }
+      
+      throw new Error('Failed to generate unique access token after maximum retries');
+    };
 
     // Test database connection first
     console.log('Testing database connection...');
@@ -150,47 +177,111 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Database connection successful');
 
-    // Create lead record with proper source enum value
-    console.log('Creating lead record with data:', {
-      first_name: submissionData.firstName,
-      last_name: submissionData.lastName,
-      email: submissionData.email,
-      source: 'webform',
-      user_id: null, // Explicitly set to null for anonymous submission
-    });
-
-    const { data: leadData, error: leadError } = await supabase
+    // Check for existing lead with same email and program
+    console.log('Checking for existing lead...');
+    const { data: existingLead, error: existingLeadError } = await supabase
       .from('leads')
-      .insert({
+      .select('*')
+      .eq('email', submissionData.email)
+      .contains('program_interest', submissionData.programInterest)
+      .maybeSingle();
+
+    if (existingLeadError) {
+      console.warn('Error checking for existing lead:', existingLeadError);
+    }
+
+    let leadData: any;
+
+    if (existingLead) {
+      console.log('Found existing lead:', existingLead.id);
+      leadData = existingLead;
+      
+      // Update existing lead with new information if provided
+      const { data: updatedLead, error: updateError } = await supabase
+        .from('leads')
+        .update({
+          first_name: submissionData.firstName,
+          last_name: submissionData.lastName,
+          phone: submissionData.phone || existingLead.phone,
+          country: submissionData.country || existingLead.country,
+          notes: submissionData.notes || existingLead.notes,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingLead.id)
+        .select()
+        .single();
+
+      if (updateError) {
+        console.warn('Failed to update existing lead:', updateError);
+      } else {
+        leadData = updatedLead;
+        console.log('Updated existing lead successfully');
+      }
+    } else {
+      // Create new lead record
+      console.log('Creating new lead record with data:', {
         first_name: submissionData.firstName,
         last_name: submissionData.lastName,
         email: submissionData.email,
-        phone: submissionData.phone,
-        country: submissionData.country,
         source: 'webform',
-        source_details: submissionData.applicationType === 'scholarship' ? 'Scholarship Application' : 'Embeddable Document Form',
-        program_interest: submissionData.programInterest,
-        notes: submissionData.notes,
-        status: 'new',
-        priority: 'medium',
-        lead_score: 50,
-        tags: submissionData.applicationType === 'scholarship' 
-          ? ['webform', 'scholarship-application'] 
-          : ['webform', 'document-submission'],
-        user_id: null // Explicitly set to null for anonymous submission
-      })
-      .select()
-      .single();
+        user_id: null,
+      });
 
-    if (leadError) {
-      console.error('Error creating lead:', leadError);
-      console.error('Lead error details:', JSON.stringify(leadError, null, 2));
+      const { data: newLead, error: leadError } = await supabase
+        .from('leads')
+        .insert({
+          first_name: submissionData.firstName,
+          last_name: submissionData.lastName,
+          email: submissionData.email,
+          phone: submissionData.phone,
+          country: submissionData.country,
+          source: 'webform',
+          source_details: submissionData.applicationType === 'scholarship' ? 'Scholarship Application' : 'Webform Submission',
+          program_interest: submissionData.programInterest,
+          notes: submissionData.notes,
+          status: 'new',
+          priority: 'medium',
+          lead_score: 50,
+          tags: submissionData.applicationType === 'scholarship' 
+            ? ['webform', 'scholarship-application'] 
+            : ['webform', 'submission'],
+          user_id: null
+        })
+        .select()
+        .single();
+
+      if (leadError) {
+        console.error('Error creating lead:', leadError);
+        console.error('Lead error details:', JSON.stringify(leadError, null, 2));
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: 'Failed to create lead record',
+            details: leadError.message,
+            code: leadError.code
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+
+      leadData = newLead;
+      console.log('Lead created successfully:', leadData.id);
+    }
+
+    // Generate unique access token
+    let accessToken: string;
+    try {
+      accessToken = await generateUniqueAccessToken();
+    } catch (tokenError) {
+      console.error('Failed to generate unique access token:', tokenError);
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'Failed to create lead record',
-          details: leadError.message,
-          code: leadError.code
+          message: 'Failed to generate access token',
+          details: tokenError instanceof Error ? tokenError.message : 'Unknown error'
         }),
         { 
           status: 500, 
@@ -199,37 +290,89 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log('Lead created successfully:', leadData.id);
-
-    // Create student portal access
-    const { data: portalAccessData, error: portalAccessError } = await supabase
+    // Create student portal access (check if exists first)
+    console.log('Creating/updating student portal access...');
+    const { data: existingAccess } = await supabase
       .from('student_portal_access')
-      .insert({
-        lead_id: leadData.id,
-        access_token: accessToken,
-        student_name: `${submissionData.firstName} ${submissionData.lastName}`,
-        programs_applied: submissionData.programInterest,
-        status: 'active',
-        expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString() // 6 months
-      })
-      .select()
-      .single();
+      .select('*')
+      .eq('lead_id', leadData.id)
+      .maybeSingle();
 
-    if (portalAccessError) {
-      console.error('Error creating portal access:', portalAccessError);
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: 'Failed to create portal access' 
-        }),
-        { 
-          status: 500, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      );
+    let portalAccessData: any;
+    if (existingAccess) {
+      // Update existing access
+      const { data: updatedAccess, error: updateAccessError } = await supabase
+        .from('student_portal_access')
+        .update({
+          access_token: accessToken,
+          student_name: `${submissionData.firstName} ${submissionData.lastName}`,
+          programs_applied: submissionData.programInterest,
+          status: 'active',
+          expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', existingAccess.id)
+        .select()
+        .single();
+
+      if (updateAccessError) {
+        console.error('Error updating portal access:', updateAccessError);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: 'Failed to update portal access',
+            details: updateAccessError.message
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+      portalAccessData = updatedAccess;
+      console.log('Portal access updated successfully');
+    } else {
+      // Create new access
+      const { data: newAccess, error: portalAccessError } = await supabase
+        .from('student_portal_access')
+        .insert({
+          lead_id: leadData.id,
+          access_token: accessToken,
+          student_name: `${submissionData.firstName} ${submissionData.lastName}`,
+          programs_applied: submissionData.programInterest,
+          status: 'active',
+          expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString()
+        })
+        .select()
+        .single();
+
+      if (portalAccessError) {
+        console.error('Error creating portal access:', portalAccessError);
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            message: 'Failed to create portal access',
+            details: portalAccessError.message
+          }),
+          { 
+            status: 500, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+      portalAccessData = newAccess;
+      console.log('Portal access created successfully');
     }
 
-    // Create student portal session
+    // Create student portal session (remove existing ones with same access token first)
+    console.log('Creating student portal session...');
+    
+    // Delete any existing sessions with the same access token (shouldn't happen but safety measure)
+    await supabase
+      .from('student_portal_sessions')
+      .delete()
+      .eq('access_token', accessToken);
+
     const { data: sessionData, error: sessionError } = await supabase
       .from('student_portal_sessions')
       .insert({
@@ -237,17 +380,20 @@ const handler = async (req: Request): Promise<Response> => {
         lead_id: leadData.id,
         student_name: `${submissionData.firstName} ${submissionData.lastName}`,
         email: submissionData.email,
-        expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString() // 6 months
+        expires_at: new Date(Date.now() + 6 * 30 * 24 * 60 * 60 * 1000).toISOString()
       })
       .select()
       .single();
 
     if (sessionError) {
       console.error('Error creating session:', sessionError);
+      console.error('Session error details:', JSON.stringify(sessionError, null, 2));
       return new Response(
         JSON.stringify({ 
           success: false, 
-          message: 'Failed to create session' 
+          message: 'Failed to create session',
+          details: sessionError.message,
+          code: sessionError.code
         }),
         { 
           status: 500, 
@@ -300,9 +446,21 @@ const handler = async (req: Request): Promise<Response> => {
       console.log('No document to upload - this is a regular application');
     }
 
-    // Generate portal URL
-    const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('//', '//').replace('supabase.co', 'lovable.app') || 'https://your-domain.lovable.app';
+    // Generate portal URL - get the correct domain from request headers
+    const origin = req.headers.get('origin') || req.headers.get('referer');
+    let baseUrl = 'https://effa936e-da4f-49df-b4e9-293871d5adb4.sandbox.lovable.dev';
+    
+    if (origin) {
+      try {
+        const url = new URL(origin);
+        baseUrl = `${url.protocol}//${url.host}`;
+      } catch (e) {
+        console.warn('Failed to parse origin URL:', origin);
+      }
+    }
+    
     const portalUrl = `${baseUrl}/student?token=${accessToken}`;
+    console.log('Generated portal URL:', portalUrl);
 
     console.log('Successfully processed submission:', {
       leadId: leadData.id,

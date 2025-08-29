@@ -169,11 +169,61 @@ Best regards,
     });
   };
 
-  const sendContent = () => {
-    toast({
-      title: "Message Sent",
-      description: `${selectedType === 'email' ? 'Email' : 'SMS'} sent to ${lead.first_name} ${lead.last_name}`,
-    });
+  const sendContent = async () => {
+    if (!generatedContent) return;
+    
+    setLoading(true);
+    try {
+      if (selectedType === 'email') {
+        const response = await fetch('https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/send-lead-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            leadId: lead.id,
+            leadEmail: lead.email,
+            leadName: `${lead.first_name} ${lead.last_name}`,
+            emailType: 'ai_generated',
+            subject: generatedContent.subject || 'Message from Learnlynk',
+            content: generatedContent.content,
+            programInterest: lead.program_interest,
+            metadata: {
+              tone: selectedTone,
+              estimatedEngagement: generatedContent.estimatedEngagement,
+              generatedAt: new Date().toISOString()
+            }
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to send email');
+        }
+
+        const result = await response.json();
+        console.log('Email sent successfully:', result);
+
+        toast({
+          title: "Email Sent Successfully",
+          description: `Email sent to ${lead.first_name} ${lead.last_name}`,
+        });
+      } else {
+        // SMS sending would be implemented here
+        toast({
+          title: "SMS Feature Coming Soon",
+          description: "SMS sending will be available in the next update",
+        });
+      }
+    } catch (error) {
+      console.error('Failed to send content:', error);
+      toast({
+        title: "Failed to Send",
+        description: "There was an error sending the message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -334,9 +384,9 @@ Best regards,
                   <RefreshCw className="h-3 w-3 mr-1" />
                   Regenerate
                 </Button>
-                <Button size="sm" onClick={sendContent}>
+                <Button size="sm" onClick={sendContent} disabled={loading}>
                   <Send className="h-3 w-3 mr-1" />
-                  Send Now
+                  {loading ? 'Sending...' : 'Send Now'}
                 </Button>
               </div>
             </>

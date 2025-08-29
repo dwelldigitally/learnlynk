@@ -231,14 +231,148 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
     return suggestions;
   };
 
-  const executePlay = async (playId: string) => {
-    try {
-      // Create a student action based on the suggested play
-      const play = suggestedPlays.find(p => p.id === playId);
-      if (!play) return;
+  const sendPlayEmail = async (play: SuggestedPlay) => {
+    const emailContent = getEmailContentForPlay(play);
+    
+    const response = await fetch('https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/send-lead-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        leadId: lead.id,
+        leadEmail: lead.email,
+        leadName: `${lead.first_name} ${lead.last_name}`,
+        emailType: play.play_type,
+        subject: emailContent.subject,
+        content: emailContent.content,
+        programInterest: lead.program_interest,
+        metadata: {
+          playName: play.name,
+          confidence: play.confidence,
+          reasoning: play.reasoning,
+          executedAt: new Date().toISOString()
+        }
+      })
+    });
 
+    if (!response.ok) {
+      throw new Error('Failed to send email');
+    }
+
+    return await response.json();
+  };
+
+  const getEmailContentForPlay = (play: SuggestedPlay) => {
+    const leadName = lead.first_name;
+    const programText = lead.program_interest && lead.program_interest.length > 0 
+      ? lead.program_interest.join(', ') 
+      : 'our educational programs';
+
+    switch (play.play_type) {
+      case 'reengagement_sequence':
+        return {
+          subject: `${leadName}, let's continue your educational journey`,
+          content: `Hi ${leadName},
+
+I wanted to personally follow up on your recent inquiry about ${programText}. I know how important finding the right educational opportunity is, and I'm here to help make that process as smooth as possible.
+
+Since your initial inquiry, we've had several students from ${lead.country} successfully complete our programs and advance their careers. I'd love to share some success stories and discuss how our programs could specifically benefit your goals.
+
+What would be the best time for a quick 15-minute call this week? I can work around your schedule.
+
+Looking forward to speaking with you soon!`
+        };
+
+      case 'discovery_call':
+        return {
+          subject: `${leadName}, let's explore your educational goals`,
+          content: `Hello ${leadName},
+
+Thank you for your interest in our educational programs! I'd love to learn more about your specific goals and help you discover which program would be the perfect fit for your career aspirations.
+
+During a brief 15-minute discovery call, we can discuss:
+• Your career objectives and timeline
+• Program options that align with your interests
+• Flexible scheduling and learning formats
+• Support available for students from ${lead.country}
+
+Are you available for a quick call this week? I have several time slots available and can accommodate your schedule.
+
+Best regards!`
+        };
+
+      case 'scoring_sequence':
+        return {
+          subject: `${leadName}, important information about your application`,
+          content: `Hi ${leadName},
+
+I've been reviewing your inquiry about ${programText} and wanted to reach out personally to help you with the next steps.
+
+To ensure you get the most relevant information and support, I'd love to learn a bit more about:
+• Your educational background
+• Your career goals and timeline
+• Any specific areas of interest within ${programText}
+• Your preferred learning schedule
+
+This will help me provide you with personalized guidance and ensure you have all the information needed to make the best decision for your future.
+
+Would you be available for a brief call this week?`
+        };
+
+      case 'basic_nurture':
+        return {
+          subject: `${leadName}, your educational journey awaits`,
+          content: `Hello ${leadName},
+
+I hope this message finds you well! I wanted to follow up on your interest in ${programText} and see how I can best support your educational goals.
+
+Whether you're just starting to explore your options or ready to take the next step, I'm here to help. Our programs have helped thousands of students like you achieve their career aspirations, and I'd love to share how we can do the same for you.
+
+Here are some next steps we could explore:
+• Schedule a personalized consultation
+• Review program details and requirements
+• Discuss scholarship and financing options
+• Connect with program graduates from ${lead.country}
+
+What sounds most helpful to you right now?`
+        };
+
+      default:
+        return {
+          subject: `${leadName}, next steps for your education`,
+          content: `Hi ${leadName},
+
+Thank you for your continued interest in our programs. I'm reaching out to help you with the next steps in your educational journey.
+
+I'd love to schedule a brief call to discuss how we can support your goals and answer any questions you might have.
+
+Looking forward to speaking with you soon!`
+        };
+    }
+  };
+
+  const executePlay = async (play: SuggestedPlay) => {
+    try {
       const { data: user } = await supabase.auth.getUser();
       if (!user.user) throw new Error('User not authenticated');
+
+      // If it's an email-based play, send email directly
+      if (play.play_type === 'reengagement_sequence' || 
+          play.play_type === 'discovery_call' || 
+          play.play_type === 'scoring_sequence' || 
+          play.play_type === 'basic_nurture') {
+        
+        await sendPlayEmail(play);
+        
+        toast({
+          title: "Email Sent Successfully",
+          description: `${play.name} email sent to ${lead.first_name} ${lead.last_name}`,
+        });
+        
+        onUpdate?.();
+        return;
+      }
 
       const { error } = await supabase
         .from('student_actions')
@@ -423,7 +557,7 @@ export function AIPlaysPanel({ lead, onUpdate }: AIPlaysPanelProps) {
                   <Button 
                     size="sm" 
                     className="w-full text-xs"
-                    onClick={() => executePlay(play.id)}
+                    onClick={() => executePlay(play)}
                   >
                     Execute Play
                   </Button>

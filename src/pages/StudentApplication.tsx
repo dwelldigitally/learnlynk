@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { StudentPortalService } from '@/services/studentPortalService';
 import { FormService } from '@/services/formService';
 import { supabase } from '@/integrations/supabase/client';
-import { CheckCircle, User, GraduationCap, Calendar, FileText, Send } from 'lucide-react';
+import { useApplicationPrograms } from '@/hooks/useApplicationPrograms';
+import { useApplicationIntakes } from '@/hooks/useApplicationIntakes';
+import { CheckCircle, User, GraduationCap, Calendar, FileText, Send, Loader2 } from 'lucide-react';
 
 interface FormData {
   firstName: string;
@@ -19,32 +21,15 @@ interface FormData {
   email: string;
   phone: string;
   country: string;
-  program: string;
+  programId: string;
+  programName: string;
+  intakeId: string;
   intakeDate: string;
   previousEducation: string;
   motivation: string;
   goals: string;
 }
 
-const programs = [
-  'Business Administration',
-  'Computer Science',
-  'Nursing',
-  'Engineering',
-  'Psychology',
-  'Marketing',
-  'Accounting',
-  'Graphic Design'
-];
-
-const intakeDates = [
-  '2024-09-01',
-  '2024-11-01',
-  '2025-01-15',
-  '2025-03-01',
-  '2025-05-15',
-  '2025-07-01'
-];
 
 export function StudentApplication() {
   const [currentStep, setCurrentStep] = useState(1);
@@ -60,18 +45,41 @@ export function StudentApplication() {
     email: '',
     phone: '',
     country: '',
-    program: '',
+    programId: '',
+    programName: '',
+    intakeId: '',
     intakeDate: '',
     previousEducation: '',
     motivation: '',
     goals: ''
   });
 
+  // Fetch dynamic data
+  const { data: programs = [], isLoading: programsLoading } = useApplicationPrograms();
+  const { data: intakes = [], isLoading: intakesLoading } = useApplicationIntakes(formData.programId);
+
   const totalSteps = 4;
   const progressPercent = (currentStep / totalSteps) * 100;
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle program selection
+  const handleProgramChange = (programId: string) => {
+    const selectedProgram = programs.find(p => p.id === programId);
+    updateFormData('programId', programId);
+    updateFormData('programName', selectedProgram?.name || '');
+    // Reset intake selection when program changes
+    updateFormData('intakeId', '');
+    updateFormData('intakeDate', '');
+  };
+
+  // Handle intake selection
+  const handleIntakeChange = (intakeId: string) => {
+    const selectedIntake = intakes.find(i => i.id === intakeId);
+    updateFormData('intakeId', intakeId);
+    updateFormData('intakeDate', selectedIntake?.start_date || '');
   };
 
   const nextStep = () => {
@@ -93,7 +101,7 @@ export function StudentApplication() {
                formData.lastName.trim() !== '' && 
                formData.email.trim() !== '';
       case 2:
-        return formData.program.trim() !== '' && formData.intakeDate.trim() !== '';
+        return formData.programId.trim() !== '' && formData.intakeId.trim() !== '';
       case 3:
         return formData.previousEducation.trim() !== '';
       case 4:
@@ -122,7 +130,7 @@ export function StudentApplication() {
         email: formData.email,
         phone: formData.phone,
         country: formData.country,
-        program: formData.program,
+        program: formData.programName,
         intake_date: formData.intakeDate
       };
 
@@ -135,11 +143,11 @@ export function StudentApplication() {
         email: formData.email,
         phone: formData.phone,
         country: formData.country,
-        program_interest: [formData.program],
+        program_interest: [formData.programName],
         source: 'web' as const,
         status: 'new' as const,
         priority: 'medium' as const,
-        notes: `Application submitted for ${formData.program}. Intake: ${formData.intakeDate}. Motivation: ${formData.motivation}`,
+        notes: `Application submitted for ${formData.programName}. Intake: ${new Date(formData.intakeDate).toLocaleDateString()}. Motivation: ${formData.motivation}`,
         utm_source: 'student_application',
         utm_medium: 'web_form',
         utm_campaign: 'portal_creation'
@@ -202,7 +210,7 @@ export function StudentApplication() {
             <div className="bg-muted/50 p-6 rounded-lg">
               <h3 className="font-semibold text-lg mb-2">What's Next?</h3>
               <ul className="space-y-2 text-muted-foreground">
-                <li>• Access your personalized portal for {formData.program}</li>
+                <li>• Access your personalized portal for {formData.programName}</li>
                 <li>• Track your application progress</li>
                 <li>• Upload required documents</li>
                 <li>• Connect with your admissions advisor</li>
@@ -342,36 +350,90 @@ export function StudentApplication() {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="program">Program of Interest *</Label>
-                  <Select value={formData.program} onValueChange={(value) => updateFormData('program', value)}>
+                  <Select 
+                    value={formData.programId} 
+                    onValueChange={handleProgramChange}
+                    disabled={programsLoading}
+                  >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a program" />
+                      <SelectValue placeholder={programsLoading ? "Loading programs..." : "Select a program"} />
                     </SelectTrigger>
                     <SelectContent>
                       {programs.map((program) => (
-                        <SelectItem key={program} value={program}>{program}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="intakeDate">Preferred Intake Date *</Label>
-                  <Select value={formData.intakeDate} onValueChange={(value) => updateFormData('intakeDate', value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an intake date" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {intakeDates.map((date) => (
-                        <SelectItem key={date} value={date}>
-                          {new Date(date).toLocaleDateString('en-US', { 
-                            year: 'numeric', 
-                            month: 'long', 
-                            day: 'numeric' 
-                          })}
+                        <SelectItem key={program.id} value={program.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{program.name}</span>
+                            {program.type && (
+                              <span className="text-sm text-muted-foreground">{program.type}</span>
+                            )}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {programsLoading && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading available programs...
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="intakeDate">Preferred Intake Date *</Label>
+                  <Select 
+                    value={formData.intakeId} 
+                    onValueChange={handleIntakeChange}
+                    disabled={intakesLoading || !formData.programId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue 
+                        placeholder={
+                          !formData.programId 
+                            ? "Please select a program first" 
+                            : intakesLoading 
+                              ? "Loading intake dates..." 
+                              : "Select an intake date"
+                        } 
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {intakes.map((intake) => (
+                        <SelectItem key={intake.id} value={intake.id}>
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {new Date(intake.start_date).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                              })}
+                            </span>
+                            <div className="text-sm text-muted-foreground">
+                              {intake.delivery_method && `${intake.delivery_method} • `}
+                              {intake.study_mode && `${intake.study_mode} • `}
+                              {intake.campus && `${intake.campus} campus`}
+                            </div>
+                            {intake.application_deadline && (
+                              <span className="text-xs text-orange-600">
+                                Apply by: {new Date(intake.application_deadline).toLocaleDateString()}
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {intakesLoading && formData.programId && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading available intake dates...
+                    </div>
+                  )}
+                  {formData.programId && intakes.length === 0 && !intakesLoading && (
+                    <p className="text-sm text-orange-600 mt-1">
+                      No upcoming intakes available for this program. Please contact admissions for more information.
+                    </p>
+                  )}
                 </div>
               </div>
             )}

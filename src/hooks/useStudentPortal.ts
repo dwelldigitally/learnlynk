@@ -146,4 +146,3 @@ export function useRealTimePortalUpdates() {
     };
   }, [queryClient]);
 }
-</lov-code>

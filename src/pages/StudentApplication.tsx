@@ -143,35 +143,33 @@ export default function StudentApplication() {
     setIsSubmitting(true);
 
     try {
-      // For public webform submissions, we don't require admin authentication
-      // Anonymous leads are allowed by RLS policy: "Allow anonymous lead creation from public forms"
+      // For public webform submissions, create anonymous lead directly
+      // This bypasses any authentication context from LeadService
+      const { data: lead, error: leadError } = await supabase
+        .from('leads')
+        .insert({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          country: formData.country,
+          state: formData.state,
+          city: formData.city,
+          source: 'webform',
+          program_interest: formData.programInterest,
+          notes: `Personal Statement: ${formData.personalStatement}\n\nPrevious Education: ${formData.previousEducation}\n\nWork Experience: ${formData.workExperience}\n\nHow they heard about us: ${formData.howDidYouHear}`,
+          utm_source: 'webform',
+          utm_medium: 'application',
+          user_id: null, // Anonymous submission
+          source_details: 'Online Application Form',
+          tags: ['webform-application', ...formData.programInterest.map(p => p.toLowerCase().replace(/\s+/g, '-'))]
+        })
+        .select()
+        .single();
       
-      // Create lead as anonymous submission
-      const leadData = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        country: formData.country,
-        state: formData.state,
-        city: formData.city,
-        source: 'webform' as const,
-        program_interest: formData.programInterest,
-        notes: `Personal Statement: ${formData.personalStatement}\n\nPrevious Education: ${formData.previousEducation}\n\nWork Experience: ${formData.workExperience}\n\nHow they heard about us: ${formData.howDidYouHear}`,
-        utm_source: 'webform',
-        utm_medium: 'application',
-        user_id: null, // Anonymous submission - no admin user required
-        source_details: 'Online Application Form',
-        tags: ['webform-application', ...formData.programInterest.map(p => p.toLowerCase().replace(/\s+/g, '-'))]
-      };
-
-      const leadResult = await LeadService.createLead(leadData);
-      
-      if (leadResult.error || !leadResult.data) {
-        throw new Error('Failed to create lead: ' + (leadResult.error?.message || 'Unknown error'));
+      if (leadError || !lead) {
+        throw new Error('Failed to create lead: ' + (leadError?.message || 'Unknown error'));
       }
-      
-      const lead = leadResult.data;
 
       // Create student portal access record using the new table
       const accessToken = `portal_${lead.id}_${Date.now()}`;

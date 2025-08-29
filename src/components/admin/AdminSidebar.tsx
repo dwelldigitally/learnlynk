@@ -10,6 +10,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 interface AdminSidebarProps {
@@ -91,7 +97,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
     <div 
       className={cn(
         "border-r border-border h-[calc(100vh-4rem)] bg-card flex flex-col transition-all duration-300",
-        isCollapsed ? "w-14" : "w-80"
+        isCollapsed ? "w-20" : "w-80"
       )}
     >
       {/* Collapse Button - Top position when collapsed */}
@@ -174,10 +180,10 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                     >
                       <div className="flex items-center">
                         {isCollapsed ? (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <NavLink 
-                                to={item.href}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
                                 className={cn(
                                   "flex items-center justify-center w-full h-12 rounded-md transition-colors",
                                   isActive 
@@ -186,12 +192,35 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                 )}
                               >
                                 <item.icon className="w-6 h-6" />
-                              </NavLink>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">
-                              {item.name}
-                            </TooltipContent>
-                          </Tooltip>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent 
+                              side="right" 
+                              align="start"
+                              className="min-w-48 bg-background border shadow-lg z-50"
+                            >
+                              <DropdownMenuItem asChild>
+                                <NavLink 
+                                  to={item.href}
+                                  className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                                >
+                                  <item.icon className="w-4 h-4" />
+                                  <span>{item.name}</span>
+                                </NavLink>
+                              </DropdownMenuItem>
+                              {item.subItems?.map((subItem) => (
+                                <DropdownMenuItem key={subItem.href} asChild>
+                                  <NavLink 
+                                    to={subItem.href}
+                                    className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                                  >
+                                    <subItem.icon className="w-4 h-4" />
+                                    <span>{subItem.name}</span>
+                                  </NavLink>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         ) : (
                           <>
                             <NavLink 
@@ -252,10 +281,10 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                     </Collapsible>
                   ) : (
                     isCollapsed ? (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <NavLink 
-                            to={item.href}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
                             className={cn(
                               "flex items-center justify-center w-full h-12 rounded-md transition-colors",
                               isActive 
@@ -264,19 +293,34 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                             )}
                           >
                             <item.icon className="w-6 h-6" />
-                          </NavLink>
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                          <div className="flex flex-col">
-                            <span>{item.name}</span>
-                            {item.count && (
-                              <span className="text-xs text-muted-foreground">
-                                {item.count} items
-                              </span>
-                            )}
-                          </div>
-                        </TooltipContent>
-                      </Tooltip>
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent 
+                          side="right" 
+                          align="start"
+                          className="min-w-48 bg-background border shadow-lg z-50"
+                        >
+                          <DropdownMenuItem asChild>
+                            <NavLink 
+                              to={item.href}
+                              className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
+                            >
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.name}</span>
+                              {item.count && (
+                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                                  {item.count}
+                                </span>
+                              )}
+                              {item.badge && (
+                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </NavLink>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     ) : (
                       <NavLink 
                         to={item.href}

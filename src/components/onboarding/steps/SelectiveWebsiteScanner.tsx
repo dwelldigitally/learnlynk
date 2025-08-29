@@ -90,6 +90,13 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
     
     try {
       console.log('Discovering site structure for:', websiteUrl);
+      
+      // Show a toast indicating we're using real web scraping
+      toast({
+        title: "Analyzing Website",
+        description: "Using AI to discover and categorize your website pages...",
+      });
+      
       const { categories: discoveredCategories } = await WebsiteScannerService.discoverSiteStructure(websiteUrl);
       
       // Map to our category structure with icons

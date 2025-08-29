@@ -111,6 +111,12 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Page discovery endpoint
+    if (requestBody.action === 'discover') {
+      console.log('Page discovery requested for:', requestBody.url);
+      return await handlePageDiscovery(requestBody.url);
+    }
     
     const { url, comprehensive = true, specificUrls }: ScanRequest = requestBody;
     
@@ -451,4 +457,210 @@ async function handleSelectiveScanning(urls: string[], req: Request): Promise<Re
       }
     );
   }
+}
+
+async function handlePageDiscovery(url: string) {
+  const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
+  if (!firecrawlApiKey) {
+    throw new Error('Firecrawl API key not configured');
+  }
+
+  try {
+    console.log('Starting page discovery for:', url);
+    
+    // Scrape the homepage to get navigation and structure
+    const response = await fetch('https://api.firecrawl.dev/v0/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${firecrawlApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: url,
+        pageOptions: {
+          onlyMainContent: false,
+          includeHtml: true,
+          includeLinks: true
+        }
+      })
+    });
+
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Failed to scrape homepage');
+    }
+
+    // Extract links from the scraped content
+    const links = data.data?.links || [];
+    const htmlContent = data.data?.html || '';
+    
+    // Analyze content with AI to categorize pages
+    const aiAnalysisResult = await analyzePageStructure(url, htmlContent, links);
+    
+    return new Response(JSON.stringify({
+      success: true,
+      categories: aiAnalysisResult.categories
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+    
+  } catch (error) {
+    console.error('Page discovery error:', error);
+    return new Response(JSON.stringify({
+      success: false,
+      error: error.message
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function analyzePageStructure(url: string, htmlContent: string, links: string[]) {
+  const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+  if (!openAIApiKey) {
+    // Return fallback structure if no AI available
+    return generateFallbackStructure(url, links);
+  }
+
+  try {
+    const baseUrl = new URL(url).origin;
+    const relevantLinks = links
+      .filter(link => link.startsWith(baseUrl) || link.startsWith('/'))
+      .map(link => link.startsWith('/') ? baseUrl + link : link)
+      .slice(0, 50); // Limit to 50 links for analysis
+
+    const prompt = `Analyze this educational institution website and categorize the discovered pages.
+
+Website: ${url}
+Available links: ${relevantLinks.join('\n')}
+
+HTML content snippet: ${htmlContent.substring(0, 2000)}
+
+Categorize the links into these educational categories:
+1. programs - Academic programs, courses, degrees, diplomas, certificates
+2. admissions - Admissions info, requirements, applications, enrollment
+3. fees - Tuition, fees, financial aid, scholarships, costs
+4. deadlines - Application deadlines, intake dates, academic calendar
+5. general - About, contact, campus info, general information
+
+For each category that has relevant pages, return the most important and relevant pages (max 5 per category).
+
+Return JSON format:
+{
+  "categories": [
+    {
+      "id": "programs",
+      "label": "Academic Programs",
+      "description": "Degree programs, courses, and curricula",
+      "pages": [
+        {
+          "url": "full_url_here",
+          "title": "descriptive_title",
+          "description": "what_this_page_contains",
+          "confidence": 85
+        }
+      ]
+    }
+  ]
+}
+
+Only include categories that have relevant pages. Be intelligent about filtering - exclude irrelevant pages like privacy policy, staff directory, news, etc.`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert at analyzing educational institution websites. Return only valid JSON.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000
+      }),
+    });
+
+    const aiData = await response.json();
+    const content = aiData.choices[0]?.message?.content;
+    
+    if (content) {
+      try {
+        const parsed = JSON.parse(content);
+        console.log('AI-analyzed page structure:', parsed);
+        return parsed;
+      } catch (parseError) {
+        console.warn('Failed to parse AI response, using fallback');
+      }
+    }
+  } catch (error) {
+    console.warn('AI analysis failed, using fallback:', error);
+  }
+
+  return generateFallbackStructure(url, links);
+}
+
+function generateFallbackStructure(url: string, links: string[]) {
+  const baseUrl = new URL(url).origin;
+  
+  // Pattern-based categorization as fallback
+  const patterns = {
+    programs: [/programs?/i, /academics?/i, /courses?/i, /degrees?/i, /undergraduate/i, /graduate/i, /diploma/i, /certificate/i],
+    admissions: [/admissions?/i, /apply/i, /application/i, /requirements?/i, /enroll/i],
+    fees: [/tuition/i, /fees?/i, /cost/i, /financial/i, /scholarship/i],
+    deadlines: [/deadline/i, /calendar/i, /dates?/i, /timeline/i],
+    general: [/about/i, /contact/i, /campus/i]
+  };
+
+  const categories = [];
+  
+  for (const [categoryId, categoryPatterns] of Object.entries(patterns)) {
+    const categoryPages = links
+      .filter(link => {
+        const fullUrl = link.startsWith('/') ? baseUrl + link : link;
+        return categoryPatterns.some(pattern => pattern.test(fullUrl));
+      })
+      .slice(0, 5)
+      .map(link => {
+        const fullUrl = link.startsWith('/') ? baseUrl + link : link;
+        const pathParts = new URL(fullUrl).pathname.split('/').filter(Boolean);
+        const title = pathParts[pathParts.length - 1]?.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Page';
+        
+        return {
+          url: fullUrl,
+          title: title,
+          description: `${title} information`,
+          confidence: 70
+        };
+      });
+
+    if (categoryPages.length > 0) {
+      const categoryLabels = {
+        programs: { label: 'Academic Programs', description: 'Degree programs, courses, and curricula' },
+        admissions: { label: 'Admissions Info', description: 'Requirements, processes, and applications' },
+        fees: { label: 'Fees & Tuition', description: 'Tuition costs and fee structures' },
+        deadlines: { label: 'Dates & Deadlines', description: 'Application deadlines and intake dates' },
+        general: { label: 'General Info', description: 'About us, contact, and general information' }
+      };
+
+      categories.push({
+        id: categoryId,
+        label: categoryLabels[categoryId].label,
+        description: categoryLabels[categoryId].description,
+        pages: categoryPages
+      });
+    }
+  }
+
+  return { categories };
 }

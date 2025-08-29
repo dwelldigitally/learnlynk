@@ -105,11 +105,11 @@ serve(async (req) => {
     // Initialize Firecrawl
     const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!firecrawlApiKey) {
-      throw new Error('Firecrawl API key not configured');
+      throw new Error('Firecrawl API key not configured. Please add your Firecrawl API key in the Supabase secrets.');
     }
 
-    // Crawl the website comprehensively
-    const crawlResponse = await fetch('https://api.firecrawl.dev/v0/crawl', {
+    // Use Firecrawl scrape API for single page scraping (more reliable)
+    const scrapeResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
@@ -117,69 +117,48 @@ serve(async (req) => {
       },
       body: JSON.stringify({
         url: url,
-        crawlerOptions: {
-          includes: ["**/programs/**", "**/courses/**", "**/admissions/**", "**/apply/**", "**/about/**"],
-          limit: comprehensive ? 50 : 10,
-          maxDepth: 3,
-        },
         pageOptions: {
-          extractorOptions: {
-            extractionSchema: {
-              programs: "Extract all academic programs, courses, and degrees offered",
-              requirements: "Extract admission requirements, prerequisites, and application requirements",
-              fees: "Extract tuition fees, costs, and payment information",
-              deadlines: "Extract application deadlines and important dates",
-              contact: "Extract contact information, addresses, and institutional details",
-              forms: "Extract application forms and their fields"
-            }
-          },
           onlyMainContent: true,
+          includeHtml: false,
+          waitFor: 3000
+        },
+        extractorOptions: {
+          extractionSchema: {
+            institution_name: "Extract the institution or college name",
+            programs: "Extract all academic programs, courses, degrees, and certificates offered",
+            requirements: "Extract admission requirements, prerequisites, and application requirements",
+            fees: "Extract tuition fees, costs, application fees, and payment information", 
+            contact: "Extract contact information, addresses, phone numbers, and emails",
+            about: "Extract information about the institution, mission, vision, and history"
+          }
         }
       }),
     });
 
-    if (!crawlResponse.ok) {
-      throw new Error(`Firecrawl API error: ${crawlResponse.statusText}`);
+    if (!scrapeResponse.ok) {
+      const errorText = await scrapeResponse.text();
+      console.error('Firecrawl API error:', scrapeResponse.status, errorText);
+      throw new Error(`Firecrawl API error: ${scrapeResponse.status} - ${errorText}`);
     }
 
-    const crawlData = await crawlResponse.json();
+    const scrapeData = await scrapeResponse.json();
     
-    if (!crawlData.success) {
-      throw new Error(`Crawl failed: ${crawlData.error || 'Unknown error'}`);
+    if (!scrapeData.success) {
+      console.error('Scrape failed:', scrapeData.error);
+      throw new Error(`Website scraping failed: ${scrapeData.error || 'Unknown error'}`);
     }
 
-    // Get the job ID and poll for completion
-    const jobId = crawlData.jobId;
-    let jobStatus;
-    let attempts = 0;
-    const maxAttempts = 30; // 5 minutes max
+    console.log(`Successfully scraped content from: ${url}`);
 
-    do {
-      await new Promise(resolve => setTimeout(resolve, 10000)); // Wait 10 seconds
-      
-      const statusResponse = await fetch(`https://api.firecrawl.dev/v0/crawl/status/${jobId}`, {
-        headers: {
-          'Authorization': `Bearer ${firecrawlApiKey}`,
-        },
-      });
+    // Prepare content for AI analysis
+    const scrapedContent = [{
+      url: url,
+      title: scrapeData.data?.metadata?.title || 'Website Content',
+      content: scrapeData.data?.markdown || scrapeData.data?.content || '',
+      extracted: scrapeData.data?.extract || {}
+    }];
 
-      if (!statusResponse.ok) {
-        throw new Error(`Status check failed: ${statusResponse.statusText}`);
-      }
-
-      jobStatus = await statusResponse.json();
-      attempts++;
-      
-      console.log(`Crawl status: ${jobStatus.status}, completed: ${jobStatus.completed}/${jobStatus.total}`);
-      
-    } while (jobStatus.status === 'scraping' && attempts < maxAttempts);
-
-    if (jobStatus.status !== 'completed') {
-      throw new Error(`Crawl did not complete successfully. Status: ${jobStatus.status}`);
-    }
-
-    const scrapedPages = jobStatus.data || [];
-    console.log(`Successfully crawled ${scrapedPages.length} pages`);
+    console.log(`Content length: ${scrapedContent[0].content.length} characters`);
 
     // Now analyze with AI
     const analysisResponse = await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/ai-content-analyzer`, {
@@ -189,12 +168,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        content: scrapedPages.map(page => ({
-          url: page.metadata?.sourceURL || '',
-          title: page.metadata?.title || '',
-          content: page.markdown || page.content || '',
-          extracted: page.extract || {}
-        })),
+        content: scrapedContent,
         analysis_type: 'educational_institution',
         extract_programs: true,
         extract_forms: true
@@ -202,7 +176,9 @@ serve(async (req) => {
     });
 
     if (!analysisResponse.ok) {
-      throw new Error(`AI analysis failed: ${analysisResponse.statusText}`);
+      const errorText = await analysisResponse.text();
+      console.error('AI analysis failed:', analysisResponse.status, errorText);
+      throw new Error(`AI analysis failed: ${analysisResponse.status} - ${errorText}`);
     }
 
     const analysisResult = await analysisResponse.json();
@@ -210,15 +186,17 @@ serve(async (req) => {
     const result: ScanResult = {
       institution: analysisResult.institution || {
         name: new URL(url).hostname.replace('www.', ''),
-        description: '',
+        description: 'Educational institution',
         website: url,
       },
       programs: analysisResult.programs || [],
       applicationForms: analysisResult.forms || [],
       success: true,
-      pages_scanned: scrapedPages.length,
-      total_content_length: scrapedPages.reduce((sum, page) => sum + (page.content?.length || 0), 0)
+      pages_scanned: 1,
+      total_content_length: scrapedContent[0].content.length
     };
+
+    console.log(`Analysis complete. Found ${result.programs.length} programs and ${result.applicationForms.length} forms`);
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -226,10 +204,23 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('Website scanning error:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = error.message;
+    if (errorMessage.includes('Firecrawl API key not configured')) {
+      errorMessage = 'Firecrawl API key is not configured. Please add your Firecrawl API key to the Supabase secrets.';
+    } else if (errorMessage.includes('Bad Request') || errorMessage.includes('401')) {
+      errorMessage = 'Invalid Firecrawl API key or request. Please check your API key configuration.';
+    } else if (errorMessage.includes('429')) {
+      errorMessage = 'Firecrawl API rate limit exceeded. Please try again later.';
+    } else if (errorMessage.includes('timeout')) {
+      errorMessage = 'Website scanning timed out. The website may be slow to respond.';
+    }
+
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: errorMessage,
         institution: null,
         programs: [],
         applicationForms: [],

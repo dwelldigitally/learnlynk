@@ -301,13 +301,21 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
   };
 
   const startScan = async () => {
+    console.log('=== START SCAN DEBUG ===');
+    console.log('Current step before scan:', currentStep);
+    
     const selectedPages = categories
       .filter(cat => cat.selected)
       .flatMap(cat => cat.pages);
     
     const allUrls = [...selectedPages.map(page => page.url), ...customUrls];
 
+    console.log('Selected categories:', categories.filter(cat => cat.selected).map(cat => cat.id));
+    console.log('All URLs to scan:', allUrls);
+    console.log('Categories state:', categories);
+
     if (allUrls.length === 0) {
+      console.log('ERROR: No URLs selected for scanning');
       toast({
         title: "No Pages Selected",
         description: "Please select at least one category or add custom URLs.",
@@ -317,11 +325,13 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
     }
 
     // Reset state
+    console.log('Setting scanning state...');
     setIsScanning(true);
     setScanError(null);
     setCurrentStep('scanning');
     setScanProgress({ current: 0, total: allUrls.length, currentPage: '' });
     setScanStatus('Initializing scan...');
+    console.log('State set - currentStep should now be "scanning"');
 
     // Clear any existing progress interval
     if (progressInterval) {
@@ -522,6 +532,13 @@ const SelectiveWebsiteScanner: React.FC<SelectiveWebsiteScannerProps> = ({
       onNext();
     }
   };
+
+  // Debug: Log current step on every render
+  console.log('=== RENDER DEBUG ===');
+  console.log('currentStep:', currentStep);
+  console.log('isScanning:', isScanning);
+  console.log('scanError:', scanError);
+  console.log('scanResults?.institution:', scanResults?.institution);
 
   // Step 1: URL Entry
   if (currentStep === 'url') {

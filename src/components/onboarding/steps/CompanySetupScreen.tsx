@@ -10,6 +10,7 @@ import { Building, Globe, Users, MapPin, Phone, Mail } from 'lucide-react';
 
 interface CompanySetupScreenProps {
   data: any;
+  websiteData?: any;
   onComplete: (data: any) => void;
   onNext: () => void;
   onSkip: () => void;
@@ -60,26 +61,27 @@ const STUDENT_CAPACITIES = [
 
 const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
   data,
+  websiteData,
   onComplete,
   onNext,
   onSkip
 }) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<CompanyData>({
-    institutionName: data?.institutionName || '',
+    institutionName: data?.institutionName || websiteData?.institutionInfo?.institutionName || '',
     institutionType: data?.institutionType || '',
-    website: data?.website || '',
+    website: data?.website || websiteData?.url || '',
     description: data?.description || '',
-    established: data?.established || '',
-    accreditation: data?.accreditation || '',
-    studentCapacity: data?.studentCapacity || '',
-    address: data?.address || '',
+    established: data?.established || websiteData?.institutionInfo?.established || '',
+    accreditation: data?.accreditation || websiteData?.institutionInfo?.accreditation || '',
+    studentCapacity: data?.studentCapacity || websiteData?.institutionInfo?.studentBody || '',
+    address: data?.address || websiteData?.contactInfo?.address || '',
     city: data?.city || '',
     state: data?.state || '',
     zipCode: data?.zipCode || '',
     country: data?.country || 'United States',
-    phone: data?.phone || '',
-    email: data?.email || '',
+    phone: data?.phone || websiteData?.contactInfo?.phone || '',
+    email: data?.email || websiteData?.contactInfo?.email || '',
     logoUrl: data?.logoUrl || '',
     primaryColor: data?.primaryColor || '#3B82F6',
     secondaryColor: data?.secondaryColor || '#10B981'

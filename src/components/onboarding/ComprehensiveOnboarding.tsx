@@ -38,9 +38,9 @@ interface OnboardingData {
 }
 
 const ONBOARDING_STEPS = [
-  { id: 'company', title: 'Company Setup', description: 'Configure your institution profile' },
   { id: 'website', title: 'Website Analysis', description: 'AI-powered website scanning' },
-  { id: 'programs', title: 'Program Setup', description: 'Add your academic programs' },
+  { id: 'company', title: 'Institution Review', description: 'Review and edit detected information' },
+  { id: 'programs', title: 'Program Review', description: 'Review and manage detected programs' },
   { id: 'requirements', title: 'Requirements', description: 'Set up application requirements' },
   { id: 'forms', title: 'Lead Capture', description: 'Create application forms' },
   { id: 'payment', title: 'Payment Setup', description: 'Configure Stripe integration' },
@@ -201,10 +201,10 @@ const ComprehensiveOnboarding: React.FC = () => {
     };
 
     switch (ONBOARDING_STEPS[currentStep].id) {
-      case 'company':
-        return <CompanySetupScreen {...stepProps} />;
       case 'website':
         return <WebsiteScanningScreen {...stepProps} />;
+      case 'company':
+        return <CompanySetupScreen {...stepProps} websiteData={onboardingData.websiteData} />;
       case 'programs':
         return <ProgramSetupScreen {...stepProps} websiteData={onboardingData.websiteData} />;
       case 'requirements':

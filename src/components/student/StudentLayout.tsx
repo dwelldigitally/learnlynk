@@ -6,6 +6,7 @@ import { Mail, Bell, Plus, Home, FileText, ClipboardList, Calendar, DollarSign, 
 import { Badge } from "@/components/ui/badge";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { useProfile } from "@/hooks/useProfile";
+import { useStudentPortalContext } from "@/pages/StudentPortal";
 import NotificationCentre from "@/components/student/NotificationCentre";
 import FloatingMarketingMessages from "@/components/student/FloatingMarketingMessages";
 import CampusTourBooking from "@/components/student/CampusTourBooking";
@@ -21,7 +22,9 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const currentPath = location.pathname;
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [useDummyData, setUseDummyData] = useState(false);
   const { profile } = useProfile();
+  const { session } = useStudentPortalContext();
 
   // Navigation items for the sidebar
   const navItems = [
@@ -70,9 +73,17 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               </div>
               <div className="flex-1">
                 <h3 className="font-medium text-sm">
-                  {profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Student'}
+                  {useDummyData 
+                    ? (profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Student')
+                    : (session?.student_name || 'Student')
+                  }
                 </h3>
-                <p className="text-xs text-gray-500">{profile?.email || 'student@wcc.ca'}</p>
+                <p className="text-xs text-gray-500">
+                  {useDummyData 
+                    ? (profile?.email || 'student@wcc.ca')
+                    : (session?.email || 'student@wcc.ca')
+                  }
+                </p>
               </div>
               <div className="text-xs text-gray-400">Edit</div>
             </div>
@@ -146,8 +157,19 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           {/* Left Section */}
           <div className="flex-1">
             <h1 className="text-2xl font-semibold flex items-center">
-              Hey {profile?.first_name || 'Student'} <span className="ml-2">👋</span>
+              Hey {useDummyData 
+                ? (profile?.first_name || 'Student')
+                : (session?.student_name?.split(' ')[0] || 'Student')
+              } <span className="ml-2">👋</span>
             </h1>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setUseDummyData(!useDummyData)}
+              className="mt-2 text-xs"
+            >
+              {useDummyData ? 'Use Real Data' : 'Use Dummy Data'}
+            </Button>
           </div>
           
           {/* Center Section - Marketing Messages */}
@@ -158,8 +180,16 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           {/* Right Section */}
           <div className="flex-1 flex items-center justify-end space-x-4">
             <div className="text-right text-sm">
-              <div>Student Id: {profile?.student_id || 'WCC1047859'}</div>
-              <div className="text-gray-500">{profile?.email || 'student@wcc.ca'}</div>
+              <div>Student Id: {useDummyData 
+                ? (profile?.student_id || 'WCC1047859')
+                : (session?.id?.slice(-8) || 'WCC' + Math.random().toString().slice(-6))
+              }</div>
+              <div className="text-gray-500">
+                {useDummyData 
+                  ? (profile?.email || 'student@wcc.ca')
+                  : (session?.email || 'student@wcc.ca')
+                }
+              </div>
             </div>
             <Link to="/student/messages" className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
               <Mail size={20} />

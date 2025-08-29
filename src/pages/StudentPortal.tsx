@@ -9,6 +9,7 @@ import MessageCentre from "@/components/student/MessageCentre";
 import AcademicPlanning from "@/components/student/AcademicPlanning";
 import DocumentUpload from "@/components/student/DocumentUpload";
 import PayYourFee from "@/components/student/PayYourFee";
+import WelcomeOnboarding from "@/components/student/WelcomeOnboarding";
 
 import NewsAndEvents from "./NewsAndEvents";
 import LifeAtWCC from "./LifeAtWCC";
@@ -41,6 +42,7 @@ const StudentPortal: React.FC = () => {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [portalData, setPortalData] = useState<any>(null);
   const [isValidating, setIsValidating] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
   
   // Get session data using the integration hook
   const { data: session, isLoading: sessionLoading } = useStudentSession(accessToken);
@@ -79,6 +81,13 @@ const StudentPortal: React.FC = () => {
       }
       
       setPortalData(data);
+      
+      // Check if this is first time visiting
+      const hasSeenWelcome = localStorage.getItem(`welcome_seen_${data.access_token}`);
+      if (!hasSeenWelcome) {
+        setShowWelcome(true);
+      }
+      
       toast({
         title: "Welcome!",
         description: `Welcome ${data.student_name}! Your application has been received.`
@@ -88,6 +97,13 @@ const StudentPortal: React.FC = () => {
     } finally {
       setIsValidating(false);
     }
+  };
+
+  const handleWelcomeComplete = () => {
+    if (portalData?.access_token) {
+      localStorage.setItem(`welcome_seen_${portalData.access_token}`, 'true');
+    }
+    setShowWelcome(false);
   };
   
   const renderContent = () => {
@@ -154,6 +170,12 @@ const StudentPortal: React.FC = () => {
       <StudentLayout>
         {renderContent()}
       </StudentLayout>
+      
+      <WelcomeOnboarding 
+        open={showWelcome}
+        onComplete={handleWelcomeComplete}
+        studentName={portalData?.student_name || session?.student_name || "Student"}
+      />
     </StudentPortalContext.Provider>
   );
 };

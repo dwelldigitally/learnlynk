@@ -3,14 +3,15 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import PaymentSetupScreen from '@/components/onboarding/steps/PaymentSetupScreen';
-// import IntegrationsSetupScreen from '@/components/onboarding/steps/IntegrationsSetupScreen';
-// import EventsSetupScreen from '@/components/onboarding/steps/EventsSetupScreen';
+import IntegrationsSetupScreen from '@/components/onboarding/steps/IntegrationsSetupScreen';
+import EventSetupScreen from '@/components/onboarding/steps/EventSetupScreen';
 import { CreditCard, Zap, Calendar } from 'lucide-react';
 
 export const BusinessSetup = () => {
   const [activeTab, setActiveTab] = useState('payment');
   const [paymentData, setPaymentData] = useState<any>(null);
   const [integrationsData, setIntegrationsData] = useState<any>(null);
+  const [eventsData, setEventsData] = useState<any>(null);
   
   const handlePaymentComplete = (data: any) => {
     setPaymentData(data);
@@ -23,6 +24,7 @@ export const BusinessSetup = () => {
   };
 
   const handleEventsComplete = (data: any) => {
+    setEventsData(data);
     console.log('Business setup complete:', { paymentData, integrationsData, events: data });
   };
 
@@ -53,6 +55,7 @@ export const BusinessSetup = () => {
             <TabsTrigger value="events" className="flex items-center space-x-2">
               <Calendar className="w-4 h-4" />
               <span>Events</span>
+              {eventsData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
             </TabsTrigger>
           </TabsList>
 
@@ -66,23 +69,21 @@ export const BusinessSetup = () => {
           </TabsContent>
 
           <TabsContent value="integrations" className="mt-6">
-            <div className="text-center py-12">
-              <Zap className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Integrations Setup</h3>
-              <p className="text-muted-foreground">
-                Third-party integrations and API connections will be available here.
-              </p>
-            </div>
+            <IntegrationsSetupScreen
+              data={integrationsData}
+              onComplete={handleIntegrationsComplete}
+              onNext={() => setActiveTab('events')}
+              onSkip={() => setActiveTab('events')}
+            />
           </TabsContent>
 
           <TabsContent value="events" className="mt-6">
-            <div className="text-center py-12">
-              <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Events Setup</h3>
-              <p className="text-muted-foreground">
-                Event management and scheduling tools will be available here.
-              </p>
-            </div>
+            <EventSetupScreen
+              data={eventsData}
+              onComplete={handleEventsComplete}
+              onNext={() => {}}
+              onSkip={() => {}}
+            />
           </TabsContent>
         </Tabs>
       </Card>

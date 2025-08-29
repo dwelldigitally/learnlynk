@@ -3,12 +3,13 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import TeamSetupScreen from '@/components/onboarding/steps/TeamSetupScreen';
-// import SystemTrainingScreen from '@/components/onboarding/steps/SystemTrainingScreen';
+import SystemTrainingScreen from '@/components/onboarding/steps/SystemTrainingScreen';
 import { Users, BookOpen } from 'lucide-react';
 
 export const TeamSetup = () => {
   const [activeTab, setActiveTab] = useState('team');
   const [teamData, setTeamData] = useState<any>(null);
+  const [trainingData, setTrainingData] = useState<any>(null);
   
   const handleTeamComplete = (data: any) => {
     setTeamData(data);
@@ -16,6 +17,7 @@ export const TeamSetup = () => {
   };
 
   const handleTrainingComplete = (data: any) => {
+    setTrainingData(data);
     console.log('Team setup complete:', { teamData, training: data });
   };
 
@@ -41,6 +43,7 @@ export const TeamSetup = () => {
             <TabsTrigger value="training" className="flex items-center space-x-2">
               <BookOpen className="w-4 h-4" />
               <span>System Training</span>
+              {trainingData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
             </TabsTrigger>
           </TabsList>
 
@@ -54,13 +57,12 @@ export const TeamSetup = () => {
           </TabsContent>
 
           <TabsContent value="training" className="mt-6">
-            <div className="text-center py-12">
-              <BookOpen className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">System Training</h3>
-              <p className="text-muted-foreground">
-                Training resources and onboarding materials will be available here.
-              </p>
-            </div>
+            <SystemTrainingScreen
+              data={trainingData}
+              onComplete={handleTrainingComplete}
+              onNext={() => {}}
+              onSkip={() => {}}
+            />
           </TabsContent>
         </Tabs>
       </Card>

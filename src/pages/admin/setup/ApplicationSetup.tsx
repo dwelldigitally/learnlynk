@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import RequirementsSetupScreen from '@/components/onboarding/steps/RequirementsSetupScreen';
-// import FormsSetupScreen from '@/components/onboarding/steps/FormsSetupScreen';
-// import LeadCaptureSetupScreen from '@/components/onboarding/steps/LeadCaptureSetupScreen';
+import FormBuilderScreen from '@/components/onboarding/steps/FormBuilderScreen';
 import { FileText, FormInput, UserPlus } from 'lucide-react';
 
 export const ApplicationSetup = () => {
   const [activeTab, setActiveTab] = useState('requirements');
   const [requirementsData, setRequirementsData] = useState<any>(null);
   const [formsData, setFormsData] = useState<any>(null);
+  const [leadCaptureData, setLeadCaptureData] = useState<any>(null);
   
   const handleRequirementsComplete = (data: any) => {
     setRequirementsData(data);
@@ -23,6 +24,7 @@ export const ApplicationSetup = () => {
   };
 
   const handleLeadCaptureComplete = (data: any) => {
+    setLeadCaptureData(data);
     console.log('Application setup complete:', { requirementsData, formsData, leadCapture: data });
   };
 
@@ -53,6 +55,7 @@ export const ApplicationSetup = () => {
             <TabsTrigger value="leadcapture" className="flex items-center space-x-2">
               <UserPlus className="w-4 h-4" />
               <span>Lead Capture</span>
+              {leadCaptureData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
             </TabsTrigger>
           </TabsList>
 
@@ -67,22 +70,42 @@ export const ApplicationSetup = () => {
           </TabsContent>
 
           <TabsContent value="forms" className="mt-6">
-            <div className="text-center py-12">
-              <FormInput className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Forms Setup</h3>
-              <p className="text-muted-foreground">
-                Form builder and management tools will be available here.
-              </p>
-            </div>
+            <FormBuilderScreen
+              data={formsData}
+              onComplete={handleFormsComplete}
+              onNext={() => setActiveTab('leadcapture')}
+              onSkip={() => setActiveTab('leadcapture')}
+            />
           </TabsContent>
 
           <TabsContent value="leadcapture" className="mt-6">
-            <div className="text-center py-12">
-              <UserPlus className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Lead Capture Setup</h3>
-              <p className="text-muted-foreground">
-                Lead capture and tracking configuration will be available here.
-              </p>
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Lead Capture Configuration</h3>
+                <p className="text-muted-foreground">
+                  Configure how leads are captured and processed from your website.
+                </p>
+              </div>
+              
+              <div className="bg-muted/30 rounded-lg p-4">
+                <h4 className="font-medium text-foreground mb-2">Lead Processing Features</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Automatic lead assignment to counselors</li>
+                  <li>• Email notifications and follow-up sequences</li>
+                  <li>• Lead scoring based on program interest</li>
+                  <li>• Integration with CRM systems</li>
+                  <li>• Duplicate lead detection and merging</li>
+                </ul>
+              </div>
+              
+              <div className="flex justify-center space-x-4">
+                <Button variant="outline" onClick={() => handleLeadCaptureComplete({})}>
+                  Configure Later
+                </Button>
+                <Button onClick={() => handleLeadCaptureComplete({ configured: true })}>
+                  Complete Setup
+                </Button>
+              </div>
             </div>
           </TabsContent>
         </Tabs>

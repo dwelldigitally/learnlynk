@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,7 +15,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
-import AdminDashboard from "./pages/AdminDashboard";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";

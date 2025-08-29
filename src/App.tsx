@@ -16,7 +16,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
 import ModernAdminLayout from "./components/admin/ModernAdminLayout";
-import AdminOverview from "./components/admin/AdminOverview";
+import { AdminRoutes } from "./pages/admin/AdminRoutes";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
@@ -104,8 +104,7 @@ const App = () => {
               {/* Sales rep dashboard is now handled by AdminDashboard */}
               
               {/* General admin routes - this handles all /admin/* routes with full admin layout */}
-              <Route path="/admin" element={<ProtectedRoute element={<ModernAdminLayout><AdminOverview /></ModernAdminLayout>} />} />
-              <Route path="/admin/*" element={<ProtectedRoute element={<ModernAdminLayout />} />} />
+              <Route path="/admin/*" element={<ProtectedRoute element={<ModernAdminLayout><AdminRoutes /></ModernAdminLayout>} />} />
               
               {/* Student Portal Routes */}
               <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />

@@ -236,7 +236,7 @@ ${combinedContent}`;
     console.log('OpenAI API key available:', !!openAIApiKey);
     
     const requestBody = {
-      model: 'gpt-5-2025-08-07',
+      model: 'gpt-4o',
       messages: [
         {
           role: 'system',
@@ -247,7 +247,8 @@ ${combinedContent}`;
           content: prompt
         }
       ],
-      max_completion_tokens: 4000
+      max_tokens: 4000,
+      temperature: 0.7
     };
 
     console.log('OpenAI request body (without content):', {

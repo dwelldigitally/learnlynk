@@ -223,62 +223,6 @@ export function EnhancedTodayCommandCentre() {
 
   return (
     <div className="space-y-6">
-      {/* Conversion Metrics Header */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-primary/20 bg-primary/5">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Lead → Applicant</p>
-                <p className="text-2xl font-bold text-primary">{metrics.leadToApplicant}%</p>
-                <p className="text-xs text-muted-foreground">conversion rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-green-200 bg-green-50/50">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Award className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm text-muted-foreground">Applicant → Enrolled</p>
-                <p className="text-2xl font-bold text-green-600">{metrics.applicantToEnrolled}%</p>
-                <p className="text-xs text-muted-foreground">enrollment rate</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-yellow-200 bg-yellow-50/50">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="h-5 w-5 text-yellow-600" />
-              <div>
-                <p className="text-sm text-muted-foreground">Revenue Pipeline</p>
-                <p className="text-2xl font-bold text-yellow-600">
-                  ${(metrics.revenueImpact / 1000).toFixed(0)}K
-                </p>
-                <p className="text-xs text-muted-foreground">potential value</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="border-orange-200 bg-orange-50/50">
-          <CardContent className="p-6">
-            <div className="flex items-center space-x-2">
-              <Flame className="h-5 w-5 text-orange-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Conversion Momentum</p>
-                <p className="text-2xl font-bold text-orange-500">{metrics.conversionMomentum}</p>
-                <p className="text-xs text-muted-foreground">actions today</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Smart Filters */}
       <Card>

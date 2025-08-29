@@ -338,6 +338,158 @@ class EnrollmentSeedService {
     }
   }
 
+  // Generate diverse student actions for the Today page
+  private generateStudentActions() {
+    const studentNames = [
+      'Emma Rodriguez', 'Michael Chen', 'Sarah Williams', 'David Thompson', 'Ashley Johnson',
+      'James Wilson', 'Maria Garcia', 'Robert Brown', 'Jennifer Davis', 'Christopher Lee',
+      'Amanda Martinez', 'Daniel Anderson', 'Jessica Taylor', 'Kevin Thomas', 'Lauren Jackson',
+      'Brandon White', 'Samantha Harris', 'Justin Martin', 'Nicole Thompson', 'Andrew Garcia',
+      'Rachel Kim', 'Tyler Johnson', 'Megan Clark', 'Jordan Martinez', 'Alexis Smith',
+      'Ethan Davis', 'Victoria Lee', 'Noah Williams', 'Isabella Brown', 'Mason Rodriguez',
+      'Sophia Anderson', 'Liam Thompson', 'Olivia Wilson', 'Jacob Martinez', 'Emily Garcia',
+      'William Johnson', 'Ava Davis', 'Lucas Smith', 'Mia Rodriguez', 'Benjamin Lee'
+    ];
+
+    const programs = [
+      'Computer Science', 'Business Administration', 'Nursing', 'Mechanical Engineering', 
+      'Psychology', 'Marketing', 'Data Science', 'Criminal Justice', 'Education', 
+      'Healthcare Administration', 'Cybersecurity', 'Graphic Design', 'Finance',
+      'Software Engineering', 'Digital Marketing', 'Human Resources', 'Project Management',
+      'Biomedical Engineering', 'Interior Design', 'Sports Management'
+    ];
+
+    const actionTypes = ['call', 'email', 'sms', 'review', 'document', 'task', 'follow-up', 'application'];
+
+    const reasonChips = [
+      ['High Intent', 'Webinar Attended', 'Application Started'],
+      ['Document Missing', 'Transcript Required', 'Follow-up Needed'],
+      ['Deposit Due', 'Decision Pending', 'Financial Aid'],
+      ['7 Days Stalled', 'No Response', 'Re-engagement'],
+      ['Program Interest', 'Schedule Visit', 'Info Session'],
+      ['Urgent Priority', 'SLA Breach', 'Immediate Action'],
+      ['Hot Lead', 'High Yield Score', 'Convert Ready'],
+      ['Application Review', 'Portfolio Check', 'Interview Prep'],
+      ['Email Opened', 'Site Engaged', 'Form Submitted'],
+      ['Callback Requested', 'Question Asked', 'Support Needed']
+    ];
+
+    const instructions = [
+      'Call to discuss program requirements and next steps',
+      'Send personalized follow-up email with program details',
+      'Review submitted application documents',
+      'Schedule campus visit or virtual tour',
+      'Assist with financial aid application',
+      'Follow up on missing transcript submission',
+      'Discuss enrollment deadline and deposit',
+      'Provide scholarship information and requirements',
+      'Answer questions about program curriculum',
+      'Schedule interview with program coordinator',
+      'Send SMS reminder about upcoming deadline',
+      'Review portfolio submission for completeness',
+      'Call to address concerns about program fit',
+      'Email course catalog and program outcomes',
+      'Follow up on webinar attendance engagement',
+      'Discuss housing options and applications',
+      'Provide internship and career placement info',
+      'Schedule meeting with academic advisor',
+      'Send information about student organizations',
+      'Follow up on financial aid documentation'
+    ];
+
+    const playSourcesAndJourneys = [
+      { source: 'Lead Nurture Journey', journey: 'Standard Inquiry Follow-up', category: 'nurture' },
+      { source: 'High Intent Campaign', journey: 'Hot Lead Conversion', category: 'conversion' },
+      { source: 'Application Support', journey: 'Document Completion', category: 'support' },
+      { source: 'Re-engagement Sequence', journey: 'Stalled Lead Revival', category: 'reactivation' },
+      { source: 'Decision Support', journey: 'Enrollment Confirmation', category: 'decision' },
+      { source: 'Financial Aid Journey', journey: 'Aid Application Process', category: 'financial' },
+      { source: 'Program Exploration', journey: 'Academic Discovery', category: 'exploration' },
+      { source: 'Visit Coordination', journey: 'Campus Experience', category: 'engagement' }
+    ];
+
+    const conversionStages = ['lead', 'applicant', 'enrolled'];
+    const generationSources = ['journey-orchestrator', 'standard-plays', 'manual', 'policy-trigger'];
+
+    return studentNames.map((name, index) => {
+      // Create realistic distribution
+      const yieldScore = index < 8 ? 75 + Math.random() * 25 :  // High yield
+                       index < 20 ? 50 + Math.random() * 25 :  // Medium yield  
+                       20 + Math.random() * 30;                // Low yield
+
+      const yieldBand = yieldScore > 70 ? 'high' : yieldScore > 40 ? 'medium' : 'low';
+      
+      // Mix of overdue, urgent, and scheduled
+      const scheduledDate = index < 6 ? new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000) : // Overdue
+                           index < 12 ? new Date(Date.now() + Math.random() * 6 * 60 * 60 * 1000) :   // Due soon
+                           new Date(Date.now() + (6 + Math.random() * 48) * 60 * 60 * 1000);          // Future
+
+      const priority = index < 8 ? 1 : index < 16 ? 2 : 3;
+      const playInfo = playSourcesAndJourneys[index % playSourcesAndJourneys.length];
+      
+      // Generate phone numbers for call actions
+      const phoneNumber = `(${Math.floor(Math.random() * 900) + 100}) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`;
+      
+       return {
+         action_type: actionTypes[index % actionTypes.length],
+         instruction: instructions[index % instructions.length],
+         reason_chips: reasonChips[index % reasonChips.length],
+         priority,
+         status: 'pending',
+         scheduled_at: scheduledDate.toISOString(),
+         student_id: generateUUID(),
+         metadata: {
+          student_name: name,
+          program: programs[index % programs.length],
+          yield_score: Number(yieldScore.toFixed(1)),
+          yield_band: yieldBand,
+          conversion_stage: conversionStages[index % conversionStages.length],
+          contact_info: {
+            email: `${name.toLowerCase().replace(' ', '.')}@email.com`,
+            phone: phoneNumber,
+            location: ['New York, NY', 'Los Angeles, CA', 'Chicago, IL', 'Houston, TX', 'Phoenix, AZ'][index % 5]
+          },
+          play_source: playInfo.source,
+          revenue_potential: 15000 + Math.random() * 35000,
+          journey_id: `journey_${index % 5 + 1}`,
+          journey_name: playInfo.journey,
+          stage_id: `stage_${Math.floor(index / 5) + 1}`,
+          stage_name: ['Initial Contact', 'Application Review', 'Decision Phase', 'Enrollment'][Math.floor(index / 10)],
+          play_id: `play_${index % 8 + 1}`,
+          play_name: playInfo.source,
+          play_category: playInfo.category,
+          generation_source: generationSources[index % generationSources.length],
+          journey_context: index % 3 === 0
+        }
+      };
+    });
+  }
+
+  async seedStudentActions() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const mockActions = this.generateStudentActions();
+      
+      const { data, error } = await supabase
+        .from('student_actions')
+        .insert(
+          mockActions.map(action => ({
+            user_id: user.id,
+            ...action
+          }))
+        )
+        .select();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error seeding student actions:', error);
+      throw error;
+    }
+  }
+
   async seedAll() {
     try {
       console.log('Seeding enrollment optimization data...');
@@ -347,7 +499,8 @@ class EnrollmentSeedService {
         this.seedSignals(),
         this.seedWasteRadar(),
         this.seedPolicyConfigurations(),
-        this.seedOutcomeMetrics()
+        this.seedOutcomeMetrics(),
+        this.seedStudentActions()
       ]);
 
       console.log('Successfully seeded all enrollment optimization data');

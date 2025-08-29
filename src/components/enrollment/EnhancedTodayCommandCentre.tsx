@@ -21,8 +21,8 @@ import { CommunicationsWidget } from './widgets/CommunicationsWidget';
 import { DocumentReviewsWidget } from './widgets/DocumentReviewsWidget';
 import { OverdueUrgentWidget } from './widgets/OverdueUrgentWidget';
 import { ConversionOpportunitiesWidget } from './widgets/ConversionOpportunitiesWidget';
-import { RealTimeAnalyticsWidget } from './widgets/RealTimeAnalyticsWidget';
-import { SmartAutomationWidget } from './widgets/SmartAutomationWidget';
+import { SmartActionsPanel } from './SmartActionsPanel';
+import { SmartActionsConfiguration } from './SmartActionsConfiguration';
 import { EnhancedBulkActionsToolbar } from './EnhancedBulkActionsToolbar';
 import { AITaskExecutionPanel } from './AITaskExecutionPanel';
 import { ProductivityDashboard } from './ProductivityDashboard';
@@ -72,6 +72,7 @@ interface ConversionMetrics {
 export function EnhancedTodayCommandCentre() {
   const { actions, loading, newActionCount, markNewActionsSeen } = useRealTimeActions();
   const [intelligentTasks, setIntelligentTasks] = useState<any[]>([]);
+  const [showConfiguration, setShowConfiguration] = useState(false);
   const [metrics, setMetrics] = useState<ConversionMetrics>({
     leadToApplicant: 0,
     applicantToEnrolled: 0,
@@ -331,33 +332,27 @@ export function EnhancedTodayCommandCentre() {
         />
       </div>
 
-      {/* Enhanced Analytics & Automation */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        <RealTimeAnalyticsWidget />
-        <SmartAutomationWidget />
-        
-        {/* New Action Indicator */}
-        {newActionCount > 0 && (
-          <Card className="border-primary bg-primary/5">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">New Actions</p>
-                  <p className="text-2xl font-bold text-primary">{newActionCount}</p>
-                  <p className="text-xs text-muted-foreground">just arrived</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={markNewActionsSeen}
-                >
-                  Mark Seen
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Smart Actions Panel */}
+      <div className="mb-6">
+        {showConfiguration ? (
+          <SmartActionsConfiguration />
+        ) : (
+          <SmartActionsPanel 
+            onConfigurationClick={() => setShowConfiguration(true)}
+          />
         )}
       </div>
+
+      {showConfiguration && (
+        <div className="mb-6 flex justify-end">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowConfiguration(false)}
+          >
+            Back to Actions
+          </Button>
+        </div>
+      )}
 
       {/* Task Widgets Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">

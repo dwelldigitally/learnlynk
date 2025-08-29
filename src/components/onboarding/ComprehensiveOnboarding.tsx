@@ -11,7 +11,7 @@ import { ProfileService } from '@/services/profileService';
 
 // Step Components
 import CompanySetupScreen from './steps/CompanySetupScreen';
-import WebsiteScanningScreen from './steps/WebsiteScanningScreen';
+import SelectiveWebsiteScanner from './steps/SelectiveWebsiteScanner';
 import ProgramSetupScreen from './steps/ProgramSetupScreen';
 import RequirementsSetupScreen from './steps/RequirementsSetupScreen';
 import FormBuilderScreen from './steps/FormBuilderScreen';
@@ -202,7 +202,7 @@ const ComprehensiveOnboarding: React.FC = () => {
 
     switch (ONBOARDING_STEPS[currentStep].id) {
       case 'website':
-        return <WebsiteScanningScreen {...stepProps} />;
+        return <SelectiveWebsiteScanner {...stepProps} />;
       case 'company':
         return <CompanySetupScreen {...stepProps} websiteData={onboardingData.websiteData} />;
       case 'programs':

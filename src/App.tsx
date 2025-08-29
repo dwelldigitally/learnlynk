@@ -33,6 +33,7 @@ import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
 import StudentApplication from "./pages/StudentApplication";
 import EmbedDocumentForm from "./pages/EmbedDocumentForm";
+import WebForm from "./pages/WebForm";
 
 const queryClient = new QueryClient();
 
@@ -55,9 +56,9 @@ const App = () => {
                <Route path="/forgot-password" element={<ForgotPassword />} />
                <Route path="/reset-password" element={<ResetPassword />} />
                
-                 {/* Webform Routes */}
-                 <Route path="/webform" element={<StudentApplication />} />
-                 <Route path="/apply" element={<StudentApplication />} />
+                  {/* Webform Routes */}
+                  <Route path="/webform" element={<WebForm />} />
+                  <Route path="/apply" element={<WebForm />} />
                  
                  {/* Embeddable Form Routes */}
                  <Route path="/embed/document-form" element={<EmbedDocumentForm />} />

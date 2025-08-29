@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, MessageSquare, FileText, Clock, Users } from 'lucide-react';
+import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
@@ -16,6 +16,9 @@ import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
 import { SegmentedTimeline } from '@/components/admin/leads/SegmentedTimeline';
 import { TasksAndNotes } from '@/components/admin/leads/TasksAndNotes';
 import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
+import { AcademicJourneyTracker } from '@/components/admin/leads/AcademicJourneyTracker';
+import { AIPlaysPanel } from '@/components/admin/leads/AIPlaysPanel';
+import { AICommunicationDemo } from '@/components/admin/leads/AICommunicationDemo';
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -23,7 +26,7 @@ export default function LeadDetailPage() {
   const { toast } = useToast();
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('communication');
+  const [activeTab, setActiveTab] = useState('journey');
 
   // UUID validation function
   const isValidUUID = (uuid: string): boolean => {
@@ -180,7 +183,15 @@ export default function LeadDetailPage() {
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-              <TabsList className="grid w-full grid-cols-4 mb-6">
+              <TabsList className="grid w-full grid-cols-6 mb-6">
+                <TabsTrigger value="journey" className="flex items-center gap-2">
+                  <Route className="h-4 w-4" />
+                  Journey
+                </TabsTrigger>
+                <TabsTrigger value="ai-plays" className="flex items-center gap-2">
+                  <Bot className="h-4 w-4" />
+                  AI Plays
+                </TabsTrigger>
                 <TabsTrigger value="communication" className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4" />
                   Communication
@@ -200,6 +211,17 @@ export default function LeadDetailPage() {
               </TabsList>
 
               <div className="flex-1 min-h-0">
+                <TabsContent value="journey" className="h-full m-0">
+                  <AcademicJourneyTracker lead={lead} onUpdate={loadLead} />
+                </TabsContent>
+
+                <TabsContent value="ai-plays" className="h-full m-0">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+                    <AIPlaysPanel lead={lead} onUpdate={loadLead} />
+                    <AICommunicationDemo lead={lead} />
+                  </div>
+                </TabsContent>
+
                 <TabsContent value="communication" className="h-full m-0">
                   <CommunicationHub lead={lead} onUpdate={loadLead} />
                 </TabsContent>

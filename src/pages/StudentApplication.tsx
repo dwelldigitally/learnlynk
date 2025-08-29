@@ -143,15 +143,10 @@ export default function StudentApplication() {
     setIsSubmitting(true);
 
     try {
-      // CRITICAL FIX: Get admin user ID from current authenticated user
-      // This ensures the lead is created in the admin's system, not as anonymous
-      const adminUserId = user?.id;
+      // For public webform submissions, we don't require admin authentication
+      // Anonymous leads are allowed by RLS policy: "Allow anonymous lead creation from public forms"
       
-      if (!adminUserId) {
-        throw new Error('Admin user not authenticated');
-      }
-
-      // Create lead in admin system with proper user_id
+      // Create lead as anonymous submission
       const leadData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -165,7 +160,7 @@ export default function StudentApplication() {
         notes: `Personal Statement: ${formData.personalStatement}\n\nPrevious Education: ${formData.previousEducation}\n\nWork Experience: ${formData.workExperience}\n\nHow they heard about us: ${formData.howDidYouHear}`,
         utm_source: 'webform',
         utm_medium: 'application',
-        user_id: adminUserId, // CRITICAL: This links the lead to admin user
+        user_id: null, // Anonymous submission - no admin user required
         source_details: 'Online Application Form',
         tags: ['webform-application', ...formData.programInterest.map(p => p.toLowerCase().replace(/\s+/g, '-'))]
       };

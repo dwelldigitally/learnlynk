@@ -28,7 +28,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Send SMS function called - v3.0 with environment debugging")
+    console.log("Send SMS function called - v4.0 with enhanced credential validation")
     
     // Debug: Log all available environment variables (without values for security)
     console.log("Available environment variables:", Object.keys(Deno.env.toObject()))
@@ -38,11 +38,23 @@ serve(async (req) => {
     const twilioAuthToken = Deno.env.get("TWILIO_AUTH_TOKEN")
     const twilioPhoneNumber = Deno.env.get("TWILIO_PHONE_NUMBER")
     
-    // Debug: Log which credentials are found (without showing actual values)
-    console.log("Twilio credential status:", {
-      accountSid: !!twilioAccountSid,
-      authToken: !!twilioAuthToken,
-      phoneNumber: !!twilioPhoneNumber
+    // Enhanced debug: Log credential status with length validation
+    console.log("Twilio credential detailed status:", {
+      accountSid: {
+        exists: !!twilioAccountSid,
+        length: twilioAccountSid?.length || 0,
+        startsWithAC: twilioAccountSid?.startsWith('AC') || false
+      },
+      authToken: {
+        exists: !!twilioAuthToken,
+        length: twilioAuthToken?.length || 0,
+        isNotEmpty: (twilioAuthToken?.trim().length || 0) > 0
+      },
+      phoneNumber: {
+        exists: !!twilioPhoneNumber,
+        length: twilioPhoneNumber?.length || 0,
+        isNotEmpty: (twilioPhoneNumber?.trim().length || 0) > 0
+      }
     })
     
     if (!twilioAccountSid || !twilioAuthToken || !twilioPhoneNumber) {

@@ -18,6 +18,16 @@ export const TeamSetup = () => {
 
   const handleTrainingComplete = (data: any) => {
     setTrainingData(data);
+    
+    // Save completion data to localStorage
+    const existingData = JSON.parse(localStorage.getItem('onboarding_data') || '{}');
+    const updatedData = {
+      ...existingData,
+      team: teamData,
+      training: data
+    };
+    localStorage.setItem('onboarding_data', JSON.stringify(updatedData));
+    
     console.log('Team setup complete:', { teamData, training: data });
   };
 

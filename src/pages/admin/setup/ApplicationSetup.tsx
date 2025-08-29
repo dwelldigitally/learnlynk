@@ -25,6 +25,17 @@ export const ApplicationSetup = () => {
 
   const handleLeadCaptureComplete = (data: any) => {
     setLeadCaptureData(data);
+    
+    // Save completion data to localStorage
+    const existingData = JSON.parse(localStorage.getItem('onboarding_data') || '{}');
+    const updatedData = {
+      ...existingData,
+      requirements: requirementsData,
+      forms: formsData,
+      leadCapture: data
+    };
+    localStorage.setItem('onboarding_data', JSON.stringify(updatedData));
+    
     console.log('Application setup complete:', { requirementsData, formsData, leadCapture: data });
   };
 

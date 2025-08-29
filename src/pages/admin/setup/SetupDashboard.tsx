@@ -72,23 +72,48 @@ export const SetupDashboard = () => {
     }
   ]);
 
-  // Load completion status from localStorage
+  // Load completion status from localStorage and refresh when returning to dashboard
   useEffect(() => {
-    const savedData = localStorage.getItem('onboarding_data');
-    if (savedData) {
-      try {
-        const data = JSON.parse(savedData);
-        setSetupSteps(prevSteps => 
-          prevSteps.map(step => {
-            // Check if this setup area has been completed
-            const isComplete = checkStepCompletion(step.id, data);
-            return { ...step, isComplete };
-          })
-        );
-      } catch (error) {
-        console.error('Error loading setup progress:', error);
+    const loadSetupProgress = () => {
+      const savedData = localStorage.getItem('onboarding_data');
+      if (savedData) {
+        try {
+          const data = JSON.parse(savedData);
+          setSetupSteps(prevSteps => 
+            prevSteps.map(step => {
+              // Check if this setup area has been completed
+              const isComplete = checkStepCompletion(step.id, data);
+              return { ...step, isComplete };
+            })
+          );
+        } catch (error) {
+          console.error('Error loading setup progress:', error);
+        }
       }
-    }
+    };
+
+    // Load initially
+    loadSetupProgress();
+
+    // Listen for storage changes (when other tabs/components update localStorage)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'onboarding_data') {
+        loadSetupProgress();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also refresh when returning to this page (in case localStorage was updated)
+    const handleFocus = () => {
+      loadSetupProgress();
+    };
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', handleFocus);
+    };
   }, []);
 
   const checkStepCompletion = (stepId: string, data: any): boolean => {

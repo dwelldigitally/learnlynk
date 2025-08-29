@@ -29,7 +29,17 @@ export const InstitutionSetup = () => {
 
   const handleProgramsComplete = (data: any) => {
     setProgramsData(data);
-    // Save all data and navigate back to setup dashboard
+    
+    // Save completion data to localStorage in the expected format
+    const existingData = JSON.parse(localStorage.getItem('onboarding_data') || '{}');
+    const updatedData = {
+      ...existingData,
+      institution: institutionData,
+      programs: data,
+      websiteData: websiteData
+    };
+    localStorage.setItem('onboarding_data', JSON.stringify(updatedData));
+    
     console.log('Institution setup complete:', { websiteData, institutionData, programs: data });
     
     toast({

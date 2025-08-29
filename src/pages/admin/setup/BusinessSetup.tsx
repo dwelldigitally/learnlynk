@@ -25,6 +25,17 @@ export const BusinessSetup = () => {
 
   const handleEventsComplete = (data: any) => {
     setEventsData(data);
+    
+    // Save completion data to localStorage
+    const existingData = JSON.parse(localStorage.getItem('onboarding_data') || '{}');
+    const updatedData = {
+      ...existingData,
+      payment: paymentData,
+      integrations: integrationsData,
+      events: data
+    };
+    localStorage.setItem('onboarding_data', JSON.stringify(updatedData));
+    
     console.log('Business setup complete:', { paymentData, integrationsData, events: data });
   };
 

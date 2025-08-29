@@ -210,10 +210,36 @@ Best regards,
           description: `Email sent to ${lead.first_name} ${lead.last_name}`,
         });
       } else {
-        // SMS sending would be implemented here
+        // SMS sending
+        if (!lead.phone || !lead.phone.trim()) {
+          throw new Error('Lead phone number is missing');
+        }
+
+        const { data, error } = await supabase.functions.invoke('send-sms', {
+          body: {
+            leadId: lead.id,
+            phoneNumber: lead.phone,
+            leadName: `${lead.first_name} ${lead.last_name}`,
+            message: generatedContent.content,
+            messageType: 'ai_generated',
+            metadata: {
+              tone: selectedTone,
+              estimatedEngagement: generatedContent.estimatedEngagement,
+              generatedAt: new Date().toISOString(),
+              source: 'ai_smart_communication'
+            }
+          }
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        console.log('SMS sent successfully:', data);
+
         toast({
-          title: "SMS Feature Coming Soon",
-          description: "SMS sending will be available in the next update",
+          title: "SMS Sent Successfully",
+          description: `SMS sent to ${lead.first_name} ${lead.last_name}`,
         });
       }
     } catch (error) {

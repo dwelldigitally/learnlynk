@@ -6,6 +6,9 @@ verify_jwt = false
 [functions.send-lead-email]
 verify_jwt = false
 
+[functions.send-sms]
+verify_jwt = false
+
 [functions.send-otp]
 verify_jwt = false
 

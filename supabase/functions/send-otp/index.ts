@@ -173,10 +173,12 @@ const handler = async (req: Request): Promise<Response> => {
     }
     
     // Send email with OTP
+    console.log("Attempting to send email via Resend with sender: info@winflow.ca");
+    
     const emailResponse = await resend.emails.send({
-      from: "Learnlynk <onboarding@resend.dev>",
+      from: "Winflow <info@winflow.ca>",
       to: [email],
-      subject: "Verify Your Email - EduCRM",
+      subject: "Verify Your Email - Winflow",
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
           <div style="text-align: center; margin-bottom: 30px;">
@@ -190,7 +192,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="padding: 20px 0;">
             <p style="color: #374151; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">Hello ${name || 'there'},</p>
-            <p style="color: #374151; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">Welcome to EduCRM! Please use the verification code above to verify your email address.</p>
+            <p style="color: #374151; font-size: 16px; line-height: 1.5; margin: 0 0 15px 0;">Welcome to Winflow! Please use the verification code above to verify your email address.</p>
             <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 15px 0;">⏰ This code will expire in <strong>10 minutes</strong></p>
             <p style="color: #6b7280; font-size: 14px; line-height: 1.5; margin: 15px 0;">🔒 For your security, never share this code with anyone</p>
           </div>
@@ -204,6 +206,20 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
       `,
     });
+
+    if (emailResponse.error) {
+      console.error("Resend API error:", emailResponse.error);
+      return new Response(
+        JSON.stringify({ 
+          error: "Failed to send email",
+          details: emailResponse.error.message || "Unknown email service error"
+        }),
+        {
+          status: 500,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
 
     console.log("OTP email sent successfully. Message ID:", emailResponse.data?.id);
 

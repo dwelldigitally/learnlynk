@@ -160,9 +160,17 @@ serve(async (req) => {
     const crawlData = await crawlResponse.json();
     console.log('Firecrawl crawl response data structure:', Object.keys(crawlData));
     
-    if (!crawlData.success) {
+    // Handle both immediate success and async job responses
+    if (!crawlData.success && !crawlData.jobId) {
       console.error('Crawl failed:', crawlData);
       throw new Error(`Website crawling failed: ${crawlData.error || 'Unknown error'}`);
+    }
+    
+    // Log the type of response we received
+    if (crawlData.success && crawlData.data) {
+      console.log('Received immediate success response with data');
+    } else if (crawlData.jobId) {
+      console.log('Received async job response, will poll for completion');
     }
 
     // Wait for crawl completion if it's still in progress

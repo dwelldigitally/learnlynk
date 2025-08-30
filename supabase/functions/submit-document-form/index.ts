@@ -459,7 +459,7 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
     
-    const portalUrl = `${baseUrl}/student?token=${accessToken}`;
+    const portalUrl = `${baseUrl}/student-portal?token=${accessToken}`;
     console.log('Generated portal URL:', portalUrl);
 
     console.log('Successfully processed submission:', {

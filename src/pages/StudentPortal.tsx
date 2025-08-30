@@ -109,22 +109,31 @@ const StudentPortal: React.FC = () => {
   const renderContent = () => {
     switch (location.pathname) {
       case "/student":
+      case "/student-portal":
         return <StudentOverview />;
       case "/student/dashboard":
+      case "/student-portal/dashboard":
         return <StudentDashboard />;
       case "/student/applications":
+      case "/student-portal/applications":
         return <YourApplications />;
       case "/student/academic-planning":
+      case "/student-portal/academic-planning":
         return <AcademicPlanning />;
       case "/student/documents":
+      case "/student-portal/documents":
         return <DocumentUpload />;
       case "/student/fee":
+      case "/student-portal/fee":
         return <PayYourFee />;
       case "/student/messages":
+      case "/student-portal/messages":
         return <MessageCentre />;
       case "/student/news-events":
+      case "/student-portal/news-events":
         return <NewsAndEvents />;
       case "/student/campus-life":
+      case "/student-portal/campus-life":
         return <LifeAtWCC />;
       default:
         return <StudentOverview />;

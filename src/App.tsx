@@ -110,14 +110,24 @@ const App = () => {
               {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               
-              {/* Student Portal Routes */}
+              {/* Token-Based Student Portal Routes (No Auth Required) */}
+              <Route path="/student-portal" element={<StudentPortal />} />
+              <Route path="/student-portal/dashboard" element={<StudentPortal />} />
+              <Route path="/student-portal/applications" element={<StudentPortal />} />
+              <Route path="/student-portal/academic-planning" element={<StudentPortal />} />
+              <Route path="/student-portal/documents" element={<StudentPortal />} />
+              <Route path="/student-portal/fee" element={<StudentPortal />} />
+              <Route path="/student-portal/messages" element={<StudentPortal />} />
+              <Route path="/student-portal/news-events" element={<StudentPortal />} />
+              <Route path="/student-portal/campus-life" element={<StudentPortal />} />
+
+              {/* Authenticated Student Portal Routes (For Admin Users) */}
               <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/dashboard" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/applications" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/academic-planning" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/financial-aid" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/career-services" element={<ProtectedRoute element={<StudentPortal />} />} />
-              
               <Route path="/student/fee" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/messages" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/news-events" element={<ProtectedRoute element={<StudentPortal />} />} />

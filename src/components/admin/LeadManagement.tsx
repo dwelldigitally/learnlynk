@@ -47,6 +47,8 @@ export function LeadManagement() {
   const [showEnhancedModal, setShowEnhancedModal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
+  const [unassignedCount, setUnassignedCount] = useState(0);
+  const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
   
   const [filterOptions, setFilterOptions] = useState({
     sources: [] as string[],
@@ -80,15 +82,27 @@ export function LeadManagement() {
     try {
       console.log('LoadLeads called at:', new Date().toISOString());
       setLoading(true);
-      const enhancedFilters: EnhancedLeadFilters = {
+      let enhancedFilters: EnhancedLeadFilters = {
         ...filters,
         sortBy,
         sortOrder
       };
+
+      // If showing unassigned only, filter for null user_id
+      if (showUnassignedOnly) {
+        enhancedFilters = {
+          ...enhancedFilters,
+          unassigned_only: true
+        };
+      }
+
       const response = await EnhancedLeadService.getLeads(currentPage, pageSize, enhancedFilters);
       setLeads(response.leads);
       setTotalCount(response.total);
       setTotalPages(response.totalPages);
+      
+      // Reload unassigned count
+      loadUnassignedCount();
     } catch (error) {
       toast({
         title: 'Error',
@@ -130,7 +144,17 @@ export function LeadManagement() {
     console.log('Initial mount - loading data');
     loadLeads();
     loadFilterOptions();
+    loadUnassignedCount();
   }, []);
+
+  const loadUnassignedCount = async () => {
+    try {
+      const count = await EnhancedLeadService.getUnassignedLeadsCount();
+      setUnassignedCount(count);
+    } catch (error) {
+      console.error('Failed to load unassigned count:', error);
+    }
+  };
 
   // Update stage stats when leads change
   useEffect(() => {
@@ -228,6 +252,11 @@ export function LeadManagement() {
     }));
     setCurrentPage(1); // Reset to first page
   };
+
+  // Auto-reload when switching between views
+  useEffect(() => {
+    loadLeads();
+  }, [showUnassignedOnly]);
   const handleExport = async () => {
     try {
       const blob = await EnhancedLeadService.exportLeads(filters);
@@ -252,7 +281,38 @@ export function LeadManagement() {
       });
     }
   };
+  const handleClaimLeads = async (selectedIds: string[]) => {
+    try {
+      const result = await EnhancedLeadService.claimLeads(selectedIds);
+      if (result.success > 0) {
+        toast({
+          title: 'Success',
+          description: `${result.success} leads claimed successfully`
+        });
+        setSelectedLeadIds([]);
+        loadLeads();
+      }
+      if (result.failed > 0) {
+        toast({
+          title: 'Warning',
+          description: `${result.failed} leads failed to claim`,
+          variant: 'destructive'
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to claim leads',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const handleBulkAction = async (action: string, selectedIds: string[]) => {
+    if (action === 'Claim Selected') {
+      return handleClaimLeads(selectedIds);
+    }
+
     try {
       let operation;
       switch (action) {
@@ -357,7 +417,17 @@ export function LeadManagement() {
     key: 'assigned_to',
     label: 'Assigned To',
     sortable: false,
-    type: 'text' as const
+    type: 'custom' as const,
+    render: (value: any, row: any) => (
+      <div className="flex items-center gap-2">
+        <span>{value}</span>
+        {row.is_unclaimed && (
+          <Badge variant="secondary" className="text-xs">
+            Needs Claim
+          </Badge>
+        )}
+      </div>
+    )
   }];
   const tableData = leads.map(lead => ({
     id: lead.id,
@@ -369,7 +439,8 @@ export function LeadManagement() {
     priority: lead.priority,
     lead_score: lead.lead_score,
     created_at: lead.created_at,
-    assigned_to: lead.assigned_to || 'Unassigned'
+    assigned_to: lead.assigned_to || (lead.user_id ? 'Unassigned' : 'Unclaimed'),
+    is_unclaimed: !lead.user_id
   }));
   const quickFilters = [{
     label: 'New Today',
@@ -428,17 +499,24 @@ export function LeadManagement() {
       label: a.name
     }))
   }];
-  const bulkActions = [{
-    label: 'Mark as Contacted',
-    onClick: (ids: string[]) => handleBulkAction('Mark as Contacted', ids)
-  }, {
-    label: 'Mark as Qualified',
-    onClick: (ids: string[]) => handleBulkAction('Mark as Qualified', ids)
-  }, {
-    label: 'Delete Selected',
-    onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
-    variant: 'destructive' as const
-  }];
+  const bulkActions = [
+    ...(showUnassignedOnly ? [{
+      label: 'Claim Selected',
+      onClick: (ids: string[]) => handleBulkAction('Claim Selected', ids),
+      variant: 'default' as const
+    }] : []),
+    {
+      label: 'Mark as Contacted',
+      onClick: (ids: string[]) => handleBulkAction('Mark as Contacted', ids)
+    }, {
+      label: 'Mark as Qualified',
+      onClick: (ids: string[]) => handleBulkAction('Mark as Qualified', ids)
+    }, {
+      label: 'Delete Selected',
+      onClick: (ids: string[]) => handleBulkAction('Delete Selected', ids),
+      variant: 'destructive' as const
+    }
+  ];
   return <div className="h-full flex flex-col bg-background">
     {/* Mobile-Optimized Page Header */}
     <div className="bg-background border-b border-border">
@@ -449,11 +527,24 @@ export function LeadManagement() {
               Lead Management
             </h1>
             <p className={cn("text-muted-foreground mt-1", isMobile ? "text-sm" : "")}>
-              {totalCount} total leads {selectedLeadIds.length > 0 && `• ${selectedLeadIds.length} selected`}
+              {showUnassignedOnly ? `${totalCount} unassigned leads` : `${totalCount} total leads`} 
+              {unassignedCount > 0 && !showUnassignedOnly && ` • ${unassignedCount} need claiming`}
+              {selectedLeadIds.length > 0 && ` • ${selectedLeadIds.length} selected`}
             </p>
           </div>
           
           <div className={cn("flex gap-3", isMobile ? "flex-col" : "")}>
+            {unassignedCount > 0 && (
+              <Button 
+                variant={showUnassignedOnly ? "default" : "outline"}
+                onClick={() => setShowUnassignedOnly(!showUnassignedOnly)}
+                size={isMobile ? "default" : "default"}
+                className={isMobile ? "min-h-[44px]" : ""}
+              >
+                <UserPlus className="w-4 h-4 mr-2" />
+                {showUnassignedOnly ? "Show All Leads" : `Unclaimed (${unassignedCount})`}
+              </Button>
+            )}
             <Button 
               variant="outline" 
               onClick={handleExport}

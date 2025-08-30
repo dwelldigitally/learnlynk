@@ -6,6 +6,7 @@ export interface EnhancedLeadFilters extends LeadSearchFilters {
   search?: string;
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
+  unassigned_only?: boolean;
 }
 
 export interface LeadListResponse {
@@ -55,10 +56,16 @@ export class EnhancedLeadService {
     const limitedPageSize = Math.min(pageSize, this.MAX_PAGE_SIZE);
     const offset = (page - 1) * limitedPageSize;
 
-    let query = supabase
-      .from('leads')
-      .select('*', { count: 'exact' })
-      .eq('user_id', user.id);
+      let query = supabase
+        .from('leads')
+        .select('*', { count: 'exact' });
+
+      // Filter based on unassigned_only flag
+      if (filters.unassigned_only) {
+        query = query.is('user_id', null);
+      } else {
+        query = query.or(`user_id.eq.${user.id},user_id.is.null`);
+      }
 
     // Apply search across multiple fields
     if (filters?.search && filters.search.trim()) {
@@ -199,8 +206,14 @@ export class EnhancedLeadService {
 
     let query = supabase
       .from('leads')
-      .select('*')
-      .eq('user_id', user.id);
+      .select('*');
+
+    // Apply same filtering logic as getLeads
+    if (filters?.unassigned_only) {
+      query = query.is('user_id', null);
+    } else {
+      query = query.or(`user_id.eq.${user.id},user_id.is.null`);
+    }
 
     // Apply same filters as getLeads
     if (filters?.search && filters.search.trim()) {
@@ -261,6 +274,55 @@ export class EnhancedLeadService {
     const programs = [...new Set(data?.flatMap(l => l.program_interest || []).filter(Boolean))];
 
     return { sources, statuses, priorities, assignees, programs };
+  }
+
+  // New method to claim unassigned leads
+  static async claimLeads(leadIds: string[]): Promise<{ success: number; failed: number }> {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
+      const { data, error } = await supabase
+        .from('leads')
+        .update({
+          user_id: user.id,
+          assigned_to: user.id,
+          assigned_at: new Date().toISOString(),
+          assignment_method: 'manual'
+        })
+        .in('id', leadIds)
+        .is('user_id', null) // Only claim leads that are truly unassigned
+        .select();
+
+      if (error) throw error;
+
+      return {
+        success: data?.length || 0,
+        failed: leadIds.length - (data?.length || 0)
+      };
+    } catch (error) {
+      console.error('Error claiming leads:', error);
+      return {
+        success: 0,
+        failed: leadIds.length
+      };
+    }
+  }
+
+  // New method to get unassigned leads count
+  static async getUnassignedLeadsCount(): Promise<number> {
+    try {
+      const { count, error } = await supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true })
+        .is('user_id', null);
+
+      if (error) throw error;
+      return count || 0;
+    } catch (error) {
+      console.error('Error getting unassigned leads count:', error);
+      return 0;
+    }
   }
 
   // Private helper methods

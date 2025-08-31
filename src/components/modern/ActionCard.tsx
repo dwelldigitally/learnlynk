@@ -75,7 +75,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
   return (
     <Card 
       className={cn(
-        "relative group hover:shadow-md transition-all duration-200",
+        "relative group transition-all duration-200",
         isSelected && "ring-2 ring-primary/50 bg-primary/5",
         "animate-scale-in",
         className
@@ -159,7 +159,7 @@ export const ActionCard: React.FC<ActionCardProps> = ({
               disabled={isExecuting}
               className={cn(
                 "h-8 px-3 transition-all duration-200",
-                canAutoExecute && "bg-success hover:bg-success/90 text-white"
+                canAutoExecute && "bg-success text-white"
               )}
             >
               {isExecuting ? (

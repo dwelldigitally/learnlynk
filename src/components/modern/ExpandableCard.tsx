@@ -57,7 +57,7 @@ export const ExpandableCard: React.FC<ExpandableCardProps> = ({
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <Card 
         className={cn(
-          "relative transition-all duration-300 hover:shadow-md border-l-4",
+          "relative transition-all duration-300 border-l-4",
           getPriorityBorder(),
           getPriorityGlow(),
           isFocused && "col-span-full ring-2 ring-primary/50",
@@ -65,51 +65,50 @@ export const ExpandableCard: React.FC<ExpandableCardProps> = ({
           className
         )}
       >
-        <CollapsibleTrigger asChild>
-          <CardHeader 
-            className={cn(
-              "cursor-pointer hover:bg-accent/50 transition-colors duration-200",
-              "flex flex-row items-center justify-between space-y-0 pb-2"
-            )}
-          >
-            <div className="flex items-center gap-3">
-              {icon && (
-                <div className="p-2 rounded-lg bg-primary/10 text-primary">
-                  {icon}
-                </div>
-              )}
-              <div>
-                <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                  {title}
-                  {count !== undefined && (
-                    <span className="text-sm font-normal bg-primary/20 text-primary px-2 py-1 rounded-full">
-                      {count}
-                    </span>
-                  )}
-                </CardTitle>
-                {subtitle && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {subtitle}
-                  </p>
-                )}
+        <CardHeader 
+          className={cn(
+            "flex flex-row items-center justify-between space-y-0 pb-2"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            {icon && (
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                {icon}
               </div>
+            )}
+            <div>
+              <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                {title}
+                {count !== undefined && (
+                  <span className="text-sm font-normal bg-primary/20 text-primary px-2 py-1 rounded-full">
+                    {count}
+                  </span>
+                )}
+              </CardTitle>
+              {subtitle && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {subtitle}
+                </p>
+              )}
             </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            {headerActions}
             
-            <div className="flex items-center gap-2">
-              {headerActions}
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsFocused(!isFocused);
-                }}
-                className="h-8 w-8 p-0"
-              >
-                {isFocused ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </Button>
-              
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsFocused(!isFocused);
+              }}
+              className="h-8 w-8 p-0"
+            >
+              {isFocused ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            </Button>
+            
+            <CollapsibleTrigger asChild>
               <Button
                 variant="ghost"
                 size="sm"
@@ -117,9 +116,9 @@ export const ExpandableCard: React.FC<ExpandableCardProps> = ({
               >
                 {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>
-            </div>
-          </CardHeader>
-        </CollapsibleTrigger>
+            </CollapsibleTrigger>
+          </div>
+        </CardHeader>
         
         <CollapsibleContent className="animate-accordion-down">
           <CardContent className="pt-0">

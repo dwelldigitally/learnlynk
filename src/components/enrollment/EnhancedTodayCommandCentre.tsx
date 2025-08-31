@@ -21,10 +21,12 @@ import { CommunicationsWidget } from './widgets/CommunicationsWidget';
 import { DocumentReviewsWidget } from './widgets/DocumentReviewsWidget';
 import { OverdueUrgentWidget } from './widgets/OverdueUrgentWidget';
 import { ConversionOpportunitiesWidget } from './widgets/ConversionOpportunitiesWidget';
-import { SmartActionsPanel } from './SmartActionsPanel';
 import { SmartActionsConfiguration } from './SmartActionsConfiguration';
 import { EnhancedBulkActionsToolbar } from './EnhancedBulkActionsToolbar';
-import { ProductivityDashboard } from './ProductivityDashboard';
+// Modern components
+import { ExpandableCard } from '../modern/ExpandableCard';
+import { SmartActionsHub } from '../modern/SmartActionsHub';
+import { EnhancedProductivityDashboard } from '../modern/EnhancedProductivityDashboard';
 
 interface StudentAction {
   id: string;
@@ -344,18 +346,17 @@ export function EnhancedTodayCommandCentre() {
         </CardContent>
       </Card>
 
-      {/* AI Productivity Dashboard */}
+      {/* Enhanced AI Productivity Dashboard */}
       <div className="mb-6">
-        <ProductivityDashboard />
+        <EnhancedProductivityDashboard />
       </div>
 
-
-      {/* Smart Actions Panel */}
+      {/* Smart Actions Hub */}
       <div className="mb-6">
         {showConfiguration ? (
           <SmartActionsConfiguration />
         ) : (
-          <SmartActionsPanel 
+          <SmartActionsHub 
             onConfigurationClick={() => setShowConfiguration(true)}
           />
         )}
@@ -372,61 +373,121 @@ export function EnhancedTodayCommandCentre() {
         </div>
       )}
 
-      {/* Task Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        <HotProspectsWidget 
-          actions={categorizedActions.hotProspects}
-          onCompleteAction={handleCompleteAction}
-          selectedItems={hotProspectsSelection.selectedItems}
-          onToggleItem={hotProspectsSelection.toggleItem}
-          onToggleAll={hotProspectsSelection.toggleAll}
-          showBulkActions={true}
-        />
+      {/* Enhanced Task Widgets Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ExpandableCard
+          title="Hot Prospects"
+          subtitle="High-value opportunities requiring immediate attention"
+          icon={<Flame className="h-5 w-5" />}
+          count={categorizedActions.hotProspects.length}
+          priority="urgent"
+          defaultExpanded={categorizedActions.hotProspects.length > 0}
+          className="animate-stagger-1"
+        >
+          <HotProspectsWidget 
+            actions={categorizedActions.hotProspects}
+            onCompleteAction={handleCompleteAction}
+            selectedItems={hotProspectsSelection.selectedItems}
+            onToggleItem={hotProspectsSelection.toggleItem}
+            onToggleAll={hotProspectsSelection.toggleAll}
+            showBulkActions={true}
+          />
+        </ExpandableCard>
         
-        <CallsToMakeWidget 
-          actions={categorizedActions.calls}
-          onCompleteAction={handleCompleteAction}
-          selectedItems={callsSelection.selectedItems}
-          onToggleItem={callsSelection.toggleItem}
-          onToggleAll={callsSelection.toggleAll}
-          showBulkActions={true}
-        />
+        <ExpandableCard
+          title="Calls to Make"
+          subtitle="Priority phone calls and check-ins"
+          icon={<Phone className="h-5 w-5" />}
+          count={categorizedActions.calls.length}
+          priority="high"
+          defaultExpanded={categorizedActions.calls.length > 0}
+          className="animate-stagger-2"
+        >
+          <CallsToMakeWidget 
+            actions={categorizedActions.calls}
+            onCompleteAction={handleCompleteAction}
+            selectedItems={callsSelection.selectedItems}
+            onToggleItem={callsSelection.toggleItem}
+            onToggleAll={callsSelection.toggleAll}
+            showBulkActions={true}
+          />
+        </ExpandableCard>
         
-        <CommunicationsWidget 
-          actions={categorizedActions.communications}
-          onCompleteAction={handleCompleteAction}
-          selectedItems={communicationsSelection.selectedItems}
-          onToggleItem={communicationsSelection.toggleItem}
-          onToggleAll={communicationsSelection.toggleAll}
-          showBulkActions={true}
-        />
+        <ExpandableCard
+          title="Communications"
+          subtitle="Emails, messages, and follow-ups"
+          icon={<Mail className="h-5 w-5" />}
+          count={categorizedActions.communications.length}
+          priority="medium"
+          defaultExpanded={categorizedActions.communications.length > 0}
+          className="animate-stagger-3"
+        >
+          <CommunicationsWidget 
+            actions={categorizedActions.communications}
+            onCompleteAction={handleCompleteAction}
+            selectedItems={communicationsSelection.selectedItems}
+            onToggleItem={communicationsSelection.toggleItem}
+            onToggleAll={communicationsSelection.toggleAll}
+            showBulkActions={true}
+          />
+        </ExpandableCard>
         
-        <DocumentReviewsWidget 
-          actions={categorizedActions.documentReviews}
-          onCompleteAction={handleCompleteAction}
-          selectedItems={documentReviewsSelection.selectedItems}
-          onToggleItem={documentReviewsSelection.toggleItem}
-          onToggleAll={documentReviewsSelection.toggleAll}
-          showBulkActions={true}
-        />
+        <ExpandableCard
+          title="Document Reviews"
+          subtitle="Applications and documents requiring review"
+          icon={<FileText className="h-5 w-5" />}
+          count={categorizedActions.documentReviews.length}
+          priority="medium"
+          defaultExpanded={categorizedActions.documentReviews.length > 0}
+          className="animate-stagger-4"
+        >
+          <DocumentReviewsWidget 
+            actions={categorizedActions.documentReviews}
+            onCompleteAction={handleCompleteAction}
+            selectedItems={documentReviewsSelection.selectedItems}
+            onToggleItem={documentReviewsSelection.toggleItem}
+            onToggleAll={documentReviewsSelection.toggleAll}
+            showBulkActions={true}
+          />
+        </ExpandableCard>
         
-        <OverdueUrgentWidget 
-          actions={categorizedActions.overdueUrgent}
-          onCompleteAction={handleCompleteAction}
-          selectedItems={overdueUrgentSelection.selectedItems}
-          onToggleItem={overdueUrgentSelection.toggleItem}
-          onToggleAll={overdueUrgentSelection.toggleAll}
-          showBulkActions={true}
-        />
+        <ExpandableCard
+          title="Overdue & Urgent"
+          subtitle="Time-sensitive tasks requiring immediate action"
+          icon={<AlertCircle className="h-5 w-5" />}
+          count={categorizedActions.overdueUrgent.length}
+          priority="urgent"
+          defaultExpanded={categorizedActions.overdueUrgent.length > 0}
+          className="animate-stagger-5"
+        >
+          <OverdueUrgentWidget 
+            actions={categorizedActions.overdueUrgent}
+            onCompleteAction={handleCompleteAction}
+            selectedItems={overdueUrgentSelection.selectedItems}
+            onToggleItem={overdueUrgentSelection.toggleItem}
+            onToggleAll={overdueUrgentSelection.toggleAll}
+            showBulkActions={true}
+          />
+        </ExpandableCard>
         
-        <ConversionOpportunitiesWidget 
-          actions={categorizedActions.conversionOps}
-          onCompleteAction={handleCompleteAction}
-          selectedItems={conversionOpsSelection.selectedItems}
-          onToggleItem={conversionOpsSelection.toggleItem}
-          onToggleAll={conversionOpsSelection.toggleAll}
-          showBulkActions={true}
-        />
+        <ExpandableCard
+          title="Conversion Opportunities"
+          subtitle="High-potential leads ready for advancement"
+          icon={<TrendingUp className="h-5 w-5" />}
+          count={categorizedActions.conversionOps.length}
+          priority="high"
+          defaultExpanded={categorizedActions.conversionOps.length > 0}
+          className="animate-stagger-1"
+        >
+          <ConversionOpportunitiesWidget 
+            actions={categorizedActions.conversionOps}
+            onCompleteAction={handleCompleteAction}
+            selectedItems={conversionOpsSelection.selectedItems}
+            onToggleItem={conversionOpsSelection.toggleItem}
+            onToggleAll={conversionOpsSelection.toggleAll}
+            showBulkActions={true}
+          />
+        </ExpandableCard>
       </div>
 
       {/* Summary Card */}

@@ -50,11 +50,16 @@ export function useAIProductivity() {
         .gte('created_at', `${today}T00:00:00`)
         .lte('created_at', `${today}T23:59:59`);
 
-      // Get user's leads and communications
+      // Get user's leads and communications (both owned and assigned)
+      const currentUser = await supabase.auth.getUser();
+      const userId = currentUser.data.user?.id;
+      
       const { data: userLeads } = await supabase
         .from('leads')
         .select('*, lead_communications(*)')
-        .eq('assigned_to', (await supabase.auth.getUser()).data.user?.id);
+        .or(`user_id.eq.${userId},assigned_to.eq.${userId}`);
+
+      console.log('ProductivityDashboard: Found leads for actions:', userLeads?.length || 0, userLeads);
 
       const completedTasks = todayTasks?.filter(task => task.status === 'completed') || [];
       const totalTasks = todayTasks?.length || 0;
@@ -218,46 +223,62 @@ function calculatePerformanceTrend(leads: any[]): 'improving' | 'stable' | 'decl
 async function generateOneClickActions(leads: any[]): Promise<OneClickAction[]> {
   const actions: OneClickAction[] = [];
   
-  // High-priority leads that need immediate attention
-  const urgentLeads = leads.filter(lead => {
-    const daysSinceContact = Math.floor(
-      (Date.now() - new Date(lead.updated_at).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return daysSinceContact >= 2 && lead.lead_score > 70;
-  });
+  console.log('Generating actions from leads:', leads.length, leads.map(l => ({ id: l.id, name: `${l.first_name} ${l.last_name}`, score: l.lead_score, status: l.status })));
+  
+  // New leads that need first contact (status = 'new')
+  const newLeads = leads.filter(lead => lead.status === 'new');
+  console.log('Found new leads:', newLeads.length);
 
-  urgentLeads.slice(0, 3).forEach((lead, index) => {
+  newLeads.slice(0, 3).forEach((lead, index) => {
     actions.push({
       id: `call-${lead.id}`,
       type: 'call',
       label: `Call ${lead.first_name} ${lead.last_name}`,
-      description: `High-value lead (score: ${lead.lead_score}) needs immediate follow-up`,
+      description: `New lead needs initial contact - Score: ${lead.lead_score}`,
       confidence_score: 0.85,
       estimated_time_minutes: 15,
       context_data: { lead_id: lead.id, phone: lead.phone }
     });
   });
 
-  // Email opportunities
-  const emailOpportunities = leads.filter(lead => 
-    lead.status === 'contacted' && !lead.lead_communications?.some(
-      (comm: any) => comm.type === 'email' && 
-      new Date(comm.created_at) > new Date(Date.now() - 24 * 60 * 60 * 1000)
-    )
-  );
-
-  emailOpportunities.slice(0, 2).forEach(lead => {
+  // Email opportunities for new leads
+  newLeads.slice(0, 2).forEach(lead => {
     actions.push({
       id: `email-${lead.id}`,
       type: 'email',
-      label: `Send program info to ${lead.first_name}`,
-      description: `Personalized email with program details based on interests`,
+      label: `Send welcome email to ${lead.first_name}`,
+      description: `Initial contact email with program information`,
       confidence_score: 0.75,
       estimated_time_minutes: 5,
       context_data: { lead_id: lead.id, interests: lead.program_interest }
     });
   });
 
+  // High-priority leads that need follow-up (regardless of score for now)
+  const urgentLeads = leads.filter(lead => {
+    const daysSinceContact = Math.floor(
+      (Date.now() - new Date(lead.updated_at).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return daysSinceContact >= 1 && lead.lead_score >= 0; // Any lead that's been around for a day
+  });
+
+  console.log('Found urgent leads:', urgentLeads.length);
+
+  urgentLeads.slice(0, 2).forEach((lead, index) => {
+    if (!actions.find(a => a.context_data.lead_id === lead.id)) { // Avoid duplicates
+      actions.push({
+        id: `followup-${lead.id}`,
+        type: 'email',
+        label: `Follow up with ${lead.first_name}`,
+        description: `Follow-up needed - ${Math.floor((Date.now() - new Date(lead.updated_at).getTime()) / (1000 * 60 * 60 * 24))} days since last update`,
+        confidence_score: 0.70,
+        estimated_time_minutes: 5,
+        context_data: { lead_id: lead.id, interests: lead.program_interest }
+      });
+    }
+  });
+
+  console.log('Generated actions:', actions.length, actions.map(a => ({ id: a.id, type: a.type, label: a.label })));
   return actions;
 }
 

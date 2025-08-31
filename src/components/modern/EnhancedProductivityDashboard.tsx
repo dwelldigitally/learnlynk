@@ -32,25 +32,11 @@ export const EnhancedProductivityDashboard: React.FC = () => {
     }
   };
 
-  const tasksCompleted = useCountUp({ 
-    end: metrics?.daily_tasks_completed || 0,
-    duration: 1500
-  });
-
-  const avgResponseTime = useCountUp({ 
-    end: Math.round((metrics?.avg_response_time_hours || 0) * 10) / 10,
-    duration: 1800
-  });
-
-  const conversionRate = useCountUp({ 
-    end: Math.round((metrics?.conversion_rate || 0) * 10) / 10,
-    duration: 2000
-  });
-
-  const efficiencyRating = useCountUp({ 
-    end: getEfficiencyScore(),
-    duration: 2200
-  });
+  // Simple counters for now - we'll fix useCountUp hook later
+  const tasksValue = metrics?.daily_tasks_completed || 0;
+  const avgResponseValue = Math.round((metrics?.avg_response_time_hours || 0) * 10) / 10;
+  const conversionValue = Math.round((metrics?.conversion_rate || 0) * 10) / 10;
+  const efficiencyValue = getEfficiencyScore();
 
   const getEfficiencyColor = (rating: number) => {
     if (rating >= 85) return 'text-success';
@@ -133,8 +119,8 @@ export const EnhancedProductivityDashboard: React.FC = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Tasks Completed</p>
                   <div className="flex items-center gap-2">
-                    <span ref={tasksCompleted.ref} className="text-2xl font-bold">
-                      {tasksCompleted.count}
+                    <span className="text-2xl font-bold">
+                      {tasksValue}
                     </span>
                     {getTrendIcon('stable')}
                   </div>
@@ -152,8 +138,8 @@ export const EnhancedProductivityDashboard: React.FC = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg Response Time</p>
                   <div className="flex items-center gap-2">
-                    <span ref={avgResponseTime.ref} className="text-2xl font-bold">
-                      {avgResponseTime.count}h
+                    <span className="text-2xl font-bold">
+                      {avgResponseValue}h
                     </span>
                     {getTrendIcon('stable')}
                   </div>
@@ -171,8 +157,8 @@ export const EnhancedProductivityDashboard: React.FC = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
                   <div className="flex items-center gap-2">
-                    <span ref={conversionRate.ref} className="text-2xl font-bold">
-                      {conversionRate.count}%
+                    <span className="text-2xl font-bold">
+                      {conversionValue}%
                     </span>
                     {getTrendIcon('stable')}
                   </div>
@@ -191,10 +177,9 @@ export const EnhancedProductivityDashboard: React.FC = () => {
                   <p className="text-sm font-medium text-muted-foreground">Efficiency Rating</p>
                   <div className="flex items-center gap-2">
                     <span 
-                      ref={efficiencyRating.ref} 
                       className={`text-2xl font-bold ${getEfficiencyColor(getEfficiencyScore())}`}
                     >
-                      {efficiencyRating.count}%
+                      {efficiencyValue}%
                     </span>
                     {getTrendIcon('stable')}
                   </div>

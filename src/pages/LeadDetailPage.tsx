@@ -166,6 +166,14 @@ export default function LeadDetailPage() {
           </div>
           
           <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate(`/admin/leads/test/${leadId}`)}
+              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+            >
+              🧪 Try New Design
+            </Button>
             <div className="text-sm text-muted-foreground">
               Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
             </div>

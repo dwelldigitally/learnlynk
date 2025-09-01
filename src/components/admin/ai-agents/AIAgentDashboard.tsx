@@ -77,6 +77,142 @@ const MOCK_AGENTS: AIAgent[] = [
   }
 ];
 
+// Mock Journey AI Agents
+const MOCK_JOURNEY_AGENTS = [
+  {
+    id: 'journey-agent-1',
+    name: 'Application Completion Accelerator',
+    description: 'Nudges students to complete missing application requirements',
+    status: 'active',
+    purpose: 'incomplete_docs',
+    targetCriteria: {
+      programs: ['Undergraduate', 'Graduate'],
+      stages: ['Application Started', 'Documents Pending'],
+      geography: ['Domestic', 'International'],
+      scoreRange: { min: 0, max: 100 },
+      studentType: 'all'
+    },
+    journeyPaths: ['Undergraduate Application', 'Graduate Application'],
+    autoAdjustByStage: true,
+    dailyActionLimits: { maxActionsPerStudent: 2, maxTotalActions: 150 },
+    approvedChannels: ['email', 'sms', 'in_app'],
+    toneGuide: 'friendly',
+    confidenceSettings: {
+      autoActThreshold: 85,
+      askApprovalRange: { min: 60, max: 84 },
+      skipThreshold: 60
+    },
+    metrics: {
+      studentsProgressed: 156,
+      stagesCompleted: 284,
+      averageAcceleration: 2.3,
+      conversionRate: 78,
+      engagementRate: 92
+    },
+    createdAt: '2024-01-12T11:30:00Z',
+    updatedAt: '2024-01-22T09:15:00Z'
+  },
+  {
+    id: 'journey-agent-2',
+    name: 'Interview Preparation Assistant',
+    description: 'Guides students through interview scheduling and preparation',
+    status: 'active',
+    purpose: 'interview_followup',
+    targetCriteria: {
+      programs: ['MBA', 'Graduate'],
+      stages: ['Interview Invited', 'Interview Scheduled'],
+      geography: ['All'],
+      scoreRange: { min: 70, max: 100 },
+      studentType: 'all'
+    },
+    journeyPaths: ['Graduate Admissions', 'MBA Program'],
+    autoAdjustByStage: true,
+    dailyActionLimits: { maxActionsPerStudent: 3, maxTotalActions: 80 },
+    approvedChannels: ['email', 'sms'],
+    toneGuide: 'formal',
+    confidenceSettings: {
+      autoActThreshold: 90,
+      askApprovalRange: { min: 70, max: 89 },
+      skipThreshold: 70
+    },
+    metrics: {
+      studentsProgressed: 89,
+      stagesCompleted: 134,
+      averageAcceleration: 1.8,
+      conversionRate: 85,
+      engagementRate: 96
+    },
+    createdAt: '2024-01-08T14:20:00Z',
+    updatedAt: '2024-01-20T16:45:00Z'
+  },
+  {
+    id: 'journey-agent-3',
+    name: 'High-Yield Conversion Optimizer',
+    description: 'Focuses on converting high-potential admitted students',
+    status: 'active',
+    purpose: 'high_yield_conversion',
+    targetCriteria: {
+      programs: ['All Programs'],
+      stages: ['Admitted', 'Deposit Pending'],
+      geography: ['Domestic', 'International'],
+      scoreRange: { min: 85, max: 100 },
+      studentType: 'all'
+    },
+    journeyPaths: ['Post-Admission', 'Enrollment Confirmation'],
+    autoAdjustByStage: true,
+    dailyActionLimits: { maxActionsPerStudent: 4, maxTotalActions: 100 },
+    approvedChannels: ['email', 'sms', 'phone'],
+    toneGuide: 'friendly',
+    confidenceSettings: {
+      autoActThreshold: 80,
+      askApprovalRange: { min: 65, max: 79 },
+      skipThreshold: 65
+    },
+    metrics: {
+      studentsProgressed: 67,
+      stagesCompleted: 89,
+      averageAcceleration: 3.1,
+      conversionRate: 91,
+      engagementRate: 88
+    },
+    createdAt: '2024-01-05T10:00:00Z',
+    updatedAt: '2024-01-21T13:30:00Z'
+  },
+  {
+    id: 'journey-agent-4',
+    name: 'Student Re-engagement Specialist',
+    description: 'Re-activates dormant students who have stalled in their journey',
+    status: 'shadow',
+    purpose: 'applicant_nurture',
+    targetCriteria: {
+      programs: ['Undergraduate', 'Certificate'],
+      stages: ['Inquiry Made', 'Application Started'],
+      geography: ['Domestic'],
+      scoreRange: { min: 40, max: 80 },
+      studentType: 'domestic'
+    },
+    journeyPaths: ['Pre-Application', 'Early Interest'],
+    autoAdjustByStage: false,
+    dailyActionLimits: { maxActionsPerStudent: 1, maxTotalActions: 200 },
+    approvedChannels: ['email', 'sms'],
+    toneGuide: 'casual',
+    confidenceSettings: {
+      autoActThreshold: 75,
+      askApprovalRange: { min: 50, max: 74 },
+      skipThreshold: 50
+    },
+    metrics: {
+      studentsProgressed: 0,
+      stagesCompleted: 0,
+      averageAcceleration: 0,
+      conversionRate: 0,
+      engagementRate: 0
+    },
+    createdAt: '2024-01-18T16:00:00Z',
+    updatedAt: '2024-01-18T16:00:00Z'
+  }
+];
+
 const MOCK_ANALYTICS: AIAgentAnalytics[] = [
   {
     agentId: 'agent-1',
@@ -331,7 +467,7 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-muted-foreground">Active Journey Agents</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-2xl font-bold">{MOCK_JOURNEY_AGENTS.filter(agent => agent.status === 'active').length}</p>
                   </div>
                   <Route className="h-8 w-8 text-primary" />
                 </div>
@@ -342,8 +478,8 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Journey Steps Managed</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-sm text-muted-foreground">Students Progressed</p>
+                    <p className="text-2xl font-bold">{MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.studentsProgressed || 0), 0)}</p>
                   </div>
                   <Target className="h-8 w-8 text-blue-600" />
                 </div>
@@ -354,8 +490,8 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Students Progressed</p>
-                    <p className="text-2xl font-bold">0</p>
+                    <p className="text-sm text-muted-foreground">Stages Completed</p>
+                    <p className="text-2xl font-bold">{MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.stagesCompleted || 0), 0)}</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
@@ -366,8 +502,8 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Acceleration Rate</p>
-                    <p className="text-2xl font-bold">0%</p>
+                    <p className="text-sm text-muted-foreground">Avg Conversion Rate</p>
+                    <p className="text-2xl font-bold">{Math.round(MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.conversionRate || 0), 0) / MOCK_JOURNEY_AGENTS.length)}%</p>
                   </div>
                   <MessageSquare className="h-8 w-8 text-purple-600" />
                 </div>
@@ -384,16 +520,67 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <Route className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Journey Agents Yet</h3>
-                <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                  Create your first Journey AI agent to help students move through their academic journey stages more efficiently.
-                </p>
-                <Button onClick={handleCreateJourneyAgent}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Journey Agent
-                </Button>
+              <div className="space-y-4">
+                {MOCK_JOURNEY_AGENTS.map((agent) => (
+                  <div key={agent.id} className="p-4 border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold">{agent.name}</h3>
+                          <Badge variant={
+                            agent.status === 'active' ? 'default' : 
+                            agent.status === 'shadow' ? 'secondary' : 
+                            'outline'
+                          }>
+                            {agent.status === 'active' ? 'Active' : 
+                             agent.status === 'shadow' ? 'Shadow Mode' : 
+                             'Paused'}
+                          </Badge>
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                            {agent.purpose.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">{agent.description}</p>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium">Students Progressed</p>
+                            <p className="text-muted-foreground">{agent.metrics?.studentsProgressed || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Stages Completed</p>
+                            <p className="text-muted-foreground">{agent.metrics?.stagesCompleted || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Acceleration</p>
+                            <p className="text-muted-foreground">{agent.metrics?.averageAcceleration || 0}x faster</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Conversion Rate</p>
+                            <p className="text-muted-foreground">{agent.metrics?.conversionRate || 0}%</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Engagement</p>
+                            <p className="text-muted-foreground">{agent.metrics?.engagementRate || 0}%</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm">
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          {agent.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

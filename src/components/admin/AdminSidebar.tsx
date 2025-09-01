@@ -33,7 +33,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
     }
     return initialExpanded;
   });
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const getActiveSectionFromPath = () => {
     const path = location.pathname;

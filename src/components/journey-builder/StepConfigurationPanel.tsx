@@ -13,14 +13,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Plus, X, Clock, AlertTriangle, CheckCircle, 
   Calendar, Timer, Target, Bell, Users, 
-  FileText, Video, Phone, Zap, Settings
+  FileText, Video, Phone, Zap, Settings,
+  Sparkles, Loader2
 } from 'lucide-react';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { journeyElementTypes } from '@/config/elementTypes';
 import { PropertySchema } from '@/types/universalBuilder';
+import { toast } from 'sonner';
 
 export function StepConfigurationPanel() {
   const { state, dispatch } = useBuilder();
+  const [isLoadingAI, setIsLoadingAI] = React.useState(false);
   
   if (!state.selectedElementId) {
     return (
@@ -97,6 +100,81 @@ export function StepConfigurationPanel() {
     const newOptions = [...currentOptions];
     newOptions[index] = { ...newOptions[index], [field]: value };
     handlePropertyChange('options', newOptions);
+  };
+
+  const handleAISuggestions = async () => {
+    if (!selectedElement) return;
+
+    setIsLoadingAI(true);
+    try {
+      const response = await fetch('/functions/v1/ai-benchmark-suggestions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'step',
+          stepConfig: {
+            step: {
+              id: selectedElement.id,
+              type: selectedElement.type,
+              title: selectedElement.title,
+              description: selectedElement.description,
+              config: selectedElement.config,
+            },
+            journeyContext: {
+              totalSteps: state.config.elements.length,
+              targetPrograms: state.config.settings?.targetPrograms,
+              studentType: state.config.settings?.studentType,
+              academicLevel: state.config.settings?.academicLevel,
+            },
+          },
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.suggestions) {
+        const suggestions = data.suggestions;
+        
+        // Apply AI suggestions to step configuration
+        const updates: any = { config: { ...selectedElement.config } };
+
+        if (suggestions.benchmarks) {
+          updates.config.benchmarks = {
+            ...selectedElement.config.benchmarks,
+            ...suggestions.benchmarks,
+          };
+        }
+
+        if (suggestions.behavior) {
+          Object.keys(suggestions.behavior).forEach(key => {
+            updates.config[key] = suggestions.behavior[key];
+          });
+        }
+
+        dispatch({
+          type: 'UPDATE_ELEMENT',
+          payload: { id: selectedElement.id, updates },
+        });
+
+        toast.success('AI suggestions applied successfully!');
+        
+        // Show recommendations if available
+        if (suggestions.recommendations && suggestions.recommendations.length > 0) {
+          setTimeout(() => {
+            toast.info(`AI Recommendations: ${suggestions.recommendations.join('. ')}`);
+          }, 1000);
+        }
+      } else {
+        throw new Error(data.error || 'Failed to get AI suggestions');
+      }
+    } catch (error) {
+      console.error('Error getting AI suggestions:', error);
+      toast.error('Failed to get AI suggestions. Please try again.');
+    } finally {
+      setIsLoadingAI(false);
+    }
   };
 
   const getValue = (key: string) => {
@@ -353,10 +431,26 @@ export function StepConfigurationPanel() {
         {/* Timing & Benchmarks */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Timing & Benchmarks
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Timing & Benchmarks
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAISuggestions}
+                disabled={isLoadingAI}
+                className="gap-2"
+              >
+                {isLoadingAI ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                {isLoadingAI ? 'Generating...' : 'AI Suggest'}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

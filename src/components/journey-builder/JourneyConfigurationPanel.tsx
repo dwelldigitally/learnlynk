@@ -12,9 +12,11 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Settings, Clock, Target, AlertTriangle, CheckCircle2, 
-  Calendar, Users, BookOpen, MapPin, Bell, Timer 
+  Calendar, Users, BookOpen, MapPin, Bell, Timer, 
+  Sparkles, Loader2
 } from 'lucide-react';
 import { useBuilder } from '@/contexts/BuilderContext';
+import { toast } from 'sonner';
 
 interface JourneyConfigurationPanelProps {
   onClose?: () => void;
@@ -23,6 +25,7 @@ interface JourneyConfigurationPanelProps {
 export function JourneyConfigurationPanel({ onClose }: JourneyConfigurationPanelProps) {
   const { state, dispatch } = useBuilder();
   const { config } = state;
+  const [isLoadingAI, setIsLoadingAI] = React.useState(false);
 
   const handleConfigChange = (key: string, value: any) => {
     dispatch({
@@ -56,6 +59,89 @@ export function JourneyConfigurationPanel({ onClose }: JourneyConfigurationPanel
         },
       },
     });
+  };
+
+  const handleAISuggestions = async () => {
+    setIsLoadingAI(true);
+    try {
+      const response = await fetch('/functions/v1/ai-benchmark-suggestions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'journey',
+          journeyConfig: {
+            name: config.name,
+            description: config.description,
+            targetPrograms: settings.targetPrograms,
+            studentType: settings.studentType,
+            academicLevel: settings.academicLevel,
+            applicationSeason: settings.applicationSeason,
+            steps: config.elements.map(el => ({
+              id: el.id,
+              type: el.type,
+              title: el.title,
+              description: el.description,
+              config: el.config,
+            })),
+          },
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success && data.suggestions) {
+        const suggestions = data.suggestions;
+        
+        // Apply AI suggestions to journey benchmarks
+        if (suggestions.overall) {
+          const newBenchmarks = {
+            ...benchmarks,
+            overall: {
+              ...benchmarks.overall,
+              ...suggestions.overall,
+              applicationDeadline: suggestions.overall.applicationDeadline || benchmarks.overall?.applicationDeadline,
+              decisionDeadline: suggestions.overall.decisionDeadline || benchmarks.overall?.decisionDeadline,
+            },
+          };
+
+          if (suggestions.steps) {
+            newBenchmarks.steps = {
+              ...benchmarks.steps,
+              ...suggestions.steps,
+            };
+          }
+
+          dispatch({
+            type: 'UPDATE_CONFIG',
+            payload: {
+              ...config,
+              settings: {
+                ...config.settings,
+                benchmarks: newBenchmarks,
+              },
+            },
+          });
+
+          toast.success('AI benchmarks applied successfully!');
+          
+          // Show recommendations if available
+          if (suggestions.recommendations && suggestions.recommendations.length > 0) {
+            setTimeout(() => {
+              toast.info(`AI Recommendations: ${suggestions.recommendations.join('. ')}`);
+            }, 1000);
+          }
+        }
+      } else {
+        throw new Error(data.error || 'Failed to get AI suggestions');
+      }
+    } catch (error) {
+      console.error('Error getting AI suggestions:', error);
+      toast.error('Failed to get AI suggestions. Please try again.');
+    } finally {
+      setIsLoadingAI(false);
+    }
   };
 
   const settings = config.settings || {};
@@ -180,10 +266,26 @@ export function JourneyConfigurationPanel({ onClose }: JourneyConfigurationPanel
         {/* Journey Timeline & Benchmarks */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Journey Benchmarks
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Clock className="h-5 w-5" />
+                Journey Benchmarks
+              </CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleAISuggestions}
+                disabled={isLoadingAI || config.elements.length === 0}
+                className="gap-2"
+              >
+                {isLoadingAI ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                {isLoadingAI ? 'Generating...' : 'AI Suggest'}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Overall Journey Benchmarks */}

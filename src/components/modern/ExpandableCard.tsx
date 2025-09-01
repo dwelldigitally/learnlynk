@@ -113,6 +113,7 @@ export const ExpandableCard: React.FC<ExpandableCardProps> = ({
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0"
+                onClick={() => setIsOpen(!isOpen)}
               >
                 {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               </Button>

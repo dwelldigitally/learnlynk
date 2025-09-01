@@ -559,7 +559,9 @@ export function IntakePipelineManagement() {
                     </span>
                   </div>
                   <Progress 
+                    variant="enrollment"
                     value={(intake.enrolled / intake.capacity) * 100} 
+                    enrollmentPercentage={(intake.enrolled / intake.capacity) * 100}
                     className="h-2"
                   />
                   

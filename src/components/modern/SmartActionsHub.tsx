@@ -291,7 +291,7 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
           className="animate-stagger-1"
         >
           <ScrollArea className="h-80">
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {autoExecutableActions.map((action, index) => (
                 <ActionCard
                   key={action.id}
@@ -330,7 +330,7 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
           className="animate-stagger-2"
         >
           <ScrollArea className="h-80">
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {highConfidenceActions.map((action, index) => (
                 <ActionCard
                   key={action.id}
@@ -369,7 +369,7 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
           className="animate-stagger-3"
         >
           <ScrollArea className="h-80">
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {reviewActions.map((action, index) => (
                 <ActionCard
                   key={action.id}

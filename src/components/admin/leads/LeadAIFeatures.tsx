@@ -42,6 +42,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+// Purpose mapping for better display
+const PURPOSE_LABELS = {
+  'applicant_nurture': 'Applicant Nurturing',
+  'incomplete_docs': 'Document Recovery',
+  'interview_followup': 'Interview Follow-up',
+  'high_yield_conversion': 'High-Yield Conversion',
+  'custom': 'Custom Purpose'
+};
+
 // Mock data for demonstration
 const MOCK_AGENTS = [
   {
@@ -337,7 +346,12 @@ export function LeadAIFeatures() {
                       <div className="lg:col-span-2 space-y-4">
                         <div>
                           <p className="text-sm font-medium text-muted-foreground mb-1">Purpose</p>
-                          <p className="text-sm">{agent.description}</p>
+                          <div className="space-y-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {PURPOSE_LABELS[agent.purpose as keyof typeof PURPOSE_LABELS] || agent.purpose}
+                            </Badge>
+                            <p className="text-sm">{agent.description}</p>
+                          </div>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-muted-foreground mb-1">Audience Size</p>

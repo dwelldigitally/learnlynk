@@ -677,7 +677,7 @@ export function LeadManagement() {
                 if (lead) {
                   navigate(`/admin/leads/detail/${lead.id}`);
                 }
-              }} 
+              }}
               onSelectionChange={setSelectedLeadIds} 
             />
           </ConditionalDataWrapper>

@@ -21,6 +21,14 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+// Import step components
+import { AgentPurposeStep } from "./journey-steps/AgentPurposeStep";
+import { AudienceScopeStep } from "./journey-steps/AudienceScopeStep";
+import { JourneyIntegrationStep } from "./journey-steps/JourneyIntegrationStep";
+import { PolicyConstraintsStep } from "./journey-steps/PolicyConstraintsStep";
+import { PlaybookAccessStep } from "./journey-steps/PlaybookAccessStep";
+import { ConfidenceSettingsStep } from "./journey-steps/ConfidenceSettingsStep";
+import { ReviewLaunchStep } from "./journey-steps/ReviewLaunchStep";
 // New interface for journey-based AI agents
 export interface JourneyAIAgentData {
   // Agent Purpose & Type
@@ -346,28 +354,24 @@ export function JourneyBasedAIAgentWizard({ open, onOpenChange, editingAgent, on
       );
     }
 
-    // Placeholder step content - would implement actual step components
-    return (
-      <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-lg font-semibold mb-2">
-            {WIZARD_STEPS[currentStep]?.title}
-          </h3>
-          <p className="text-muted-foreground">
-            {WIZARD_STEPS[currentStep]?.description}
-          </p>
-        </div>
-        
-        {/* Placeholder content */}
-        <div className="bg-muted/50 p-6 rounded-lg text-center">
-          <p className="text-muted-foreground">
-            Step {currentStep + 1} content would be implemented here.
-            <br />
-            This would include the appropriate form fields and configurations for this step.
-          </p>
-        </div>
-      </div>
-    );
+    switch (currentStep) {
+      case 0:
+        return <AgentPurposeStep data={agentData} updateData={updateAgentData} />;
+      case 1:
+        return <AudienceScopeStep data={agentData} updateData={updateAgentData} />;
+      case 2:
+        return <JourneyIntegrationStep data={agentData} updateData={updateAgentData} />;
+      case 3:
+        return <PolicyConstraintsStep data={agentData} updateData={updateAgentData} />;
+      case 4:
+        return <PlaybookAccessStep data={agentData} updateData={updateAgentData} />;
+      case 5:
+        return <ConfidenceSettingsStep data={agentData} updateData={updateAgentData} />;
+      case 6:
+        return <ReviewLaunchStep data={agentData} updateData={updateAgentData} onSave={handleSave} isSaving={isSaving} />;
+      default:
+        return null;
+    }
   };
 
   const progressPercentage = ((currentStep + 1) / WIZARD_STEPS.length) * 100;

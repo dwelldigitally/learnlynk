@@ -202,12 +202,22 @@ const generateStudents = (intakeId: string, count: number): StudentData[] => {
 };
 
 export function IntakePipelineManagement() {
-  const [intakes] = useState<IntakeData[]>(generateDummyIntakes());
+  const [intakes, setIntakes] = useState<IntakeData[]>(generateDummyIntakes());
   const [selectedIntake, setSelectedIntake] = useState<IntakeData | null>(null);
   const [activeTab, setActiveTab] = useState('leads');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showSalesApproachDialog, setShowSalesApproachDialog] = useState(false);
+  const [newIntake, setNewIntake] = useState({
+    name: '',
+    program: '',
+    campus: '',
+    capacity: 25,
+    startDate: '',
+    endDate: ''
+  });
 
   // AI Recommendations data
   const getAIRecommendations = (intake: IntakeData) => {
@@ -259,6 +269,56 @@ export function IntakePipelineManagement() {
     toast.success(`${action} applied to ${selectedRows.length} selected items`);
     setSelectedRows([]);
     setShowBulkActions(false);
+  };
+
+  const handleCreateIntake = () => {
+    if (!newIntake.name || !newIntake.program || !newIntake.campus || !newIntake.startDate || !newIntake.endDate) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    const id = `intake-${Date.now()}`;
+    const intake: IntakeData = {
+      id,
+      name: newIntake.name,
+      program: newIntake.program,
+      campus: newIntake.campus,
+      startDate: newIntake.startDate,
+      endDate: newIntake.endDate,
+      capacity: newIntake.capacity,
+      enrolled: 0,
+      status: 'planning',
+      pipelineStrength: 50,
+      conversionRate: 20,
+      salesApproach: 'balanced',
+      leads: [],
+      applicants: [],
+      students: []
+    };
+
+    setIntakes(prev => [...prev, intake]);
+    setNewIntake({
+      name: '',
+      program: '',
+      campus: '',
+      capacity: 25,
+      startDate: '',
+      endDate: ''
+    });
+    setShowCreateDialog(false);
+    toast.success('Intake created successfully');
+  };
+
+  const handleUpdateSalesApproach = (approach: 'aggressive' | 'balanced' | 'conservative') => {
+    if (selectedIntake) {
+      const updatedIntake = { ...selectedIntake, salesApproach: approach };
+      setIntakes(prev => prev.map(intake => 
+        intake.id === selectedIntake.id ? updatedIntake : intake
+      ));
+      setSelectedIntake(updatedIntake);
+      setShowSalesApproachDialog(false);
+      toast.success(`Sales approach updated to ${approach}`);
+    }
   };
 
   const getPipelineStrengthColor = (strength: number) => {
@@ -314,10 +374,101 @@ export function IntakePipelineManagement() {
             <Brain className="h-4 w-4 mr-2" />
             AI Insights
           </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Intake
-          </Button>
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Intake
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Create New Intake</DialogTitle>
+                <DialogDescription>
+                  Add a new intake to manage your enrollment pipeline
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Intake Name</Label>
+                  <Input
+                    id="name"
+                    value={newIntake.name}
+                    onChange={(e) => setNewIntake(prev => ({ ...prev, name: e.target.value }))}
+                    placeholder="e.g., Business Administration - Fall 2024"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="program">Program</Label>
+                  <Select value={newIntake.program} onValueChange={(value) => setNewIntake(prev => ({ ...prev, program: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select program" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Business Administration">Business Administration</SelectItem>
+                      <SelectItem value="Computer Science">Computer Science</SelectItem>
+                      <SelectItem value="Digital Marketing">Digital Marketing</SelectItem>
+                      <SelectItem value="Healthcare Management">Healthcare Management</SelectItem>
+                      <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="campus">Campus</Label>
+                  <Select value={newIntake.campus} onValueChange={(value) => setNewIntake(prev => ({ ...prev, campus: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select campus" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Surrey">Surrey</SelectItem>
+                      <SelectItem value="Vancouver">Vancouver</SelectItem>
+                      <SelectItem value="Richmond">Richmond</SelectItem>
+                      <SelectItem value="Burnaby">Burnaby</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="capacity">Capacity</Label>
+                  <Input
+                    id="capacity"
+                    type="number"
+                    value={newIntake.capacity}
+                    onChange={(e) => setNewIntake(prev => ({ ...prev, capacity: parseInt(e.target.value) || 25 }))}
+                    min="1"
+                    max="100"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="startDate">Start Date</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={newIntake.startDate}
+                      onChange={(e) => setNewIntake(prev => ({ ...prev, startDate: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="endDate">End Date</Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      value={newIntake.endDate}
+                      onChange={(e) => setNewIntake(prev => ({ ...prev, endDate: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleCreateIntake}>
+                    Create Intake
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -480,6 +631,97 @@ export function IntakePipelineManagement() {
                     </Button>
                   </div>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Sales Approach & Settings */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Sales Approach & Pipeline Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-6 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Current Sales Approach</Label>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="capitalize">
+                      {selectedIntake.salesApproach}
+                    </Badge>
+                    <Dialog open={showSalesApproachDialog} onOpenChange={setShowSalesApproachDialog}>
+                      <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Change
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Update Sales Approach</DialogTitle>
+                          <DialogDescription>
+                            Choose the sales approach that best fits your intake strategy
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div 
+                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                              selectedIntake.salesApproach === 'aggressive' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => handleUpdateSalesApproach('aggressive')}
+                          >
+                            <div className="font-medium">Aggressive</div>
+                            <div className="text-sm text-muted-foreground">
+                              High-frequency follow-ups, urgent messaging, immediate action focus
+                            </div>
+                          </div>
+                          <div 
+                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                              selectedIntake.salesApproach === 'balanced' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => handleUpdateSalesApproach('balanced')}
+                          >
+                            <div className="font-medium">Balanced</div>
+                            <div className="text-sm text-muted-foreground">
+                              Regular follow-ups, educational content, relationship building
+                            </div>
+                          </div>
+                          <div 
+                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                              selectedIntake.salesApproach === 'conservative' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => handleUpdateSalesApproach('conservative')}
+                          >
+                            <div className="font-medium">Conservative</div>
+                            <div className="text-sm text-muted-foreground">
+                              Gentle nurturing, educational approach, long-term relationship focus
+                            </div>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Pipeline Strength</Label>
+                  <div className="flex items-center gap-2">
+                    <Progress value={selectedIntake.pipelineStrength} className="flex-1" />
+                    <span className={`font-medium ${getPipelineStrengthColor(selectedIntake.pipelineStrength)}`}>
+                      {selectedIntake.pipelineStrength}%
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>Conversion Rate</Label>
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="h-4 w-4 text-green-600" />
+                    <span className="font-medium">{selectedIntake.conversionRate}%</span>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -53,6 +53,7 @@ export default function LeadDetailTestPage() {
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
+  const [showDemoData, setShowDemoData] = useState(false);
 
   useEffect(() => {
     if (leadId) {
@@ -89,14 +90,53 @@ export default function LeadDetailTestPage() {
     }
   };
 
-  // Empty data arrays - no mock data
-  const mockEngagementTimeline: any[] = [];
+  // Demo data - conditional based on showDemoData state
+  const demoEngagementTimeline = [
+    { id: 1, type: 'email', action: 'Welcome email sent', timestamp: '2024-01-15 09:00', source: 'AI', status: 'opened' },
+    { id: 2, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered' },
+    { id: 3, type: 'event', action: 'Virtual info session attended', timestamp: '2024-01-17 18:00', source: 'Student', status: 'attended' },
+    { id: 4, type: 'application', action: 'Application started', timestamp: '2024-01-18 10:15', source: 'Student', status: 'in_progress' },
+    { id: 5, type: 'email', action: 'Follow-up on incomplete application', timestamp: '2024-01-20 11:00', source: 'AI', status: 'sent' }
+  ];
 
-  const mockAIRecommendations: any[] = [];
+  const demoAIRecommendations = [
+    {
+      id: 1,
+      action: 'Send scholarship deadline reminder',
+      confidence: 87,
+      rationale: 'Student showed high interest in financial aid during info session',
+      timing: 'Next 24 hours',
+      priority: 'high'
+    },
+    {
+      id: 2,
+      action: 'Schedule one-on-one program consultation',
+      confidence: 72,
+      rationale: 'Similar students benefit from personal interaction at this stage',
+      timing: 'Within 3 days',
+      priority: 'medium'
+    }
+  ];
 
-  const mockDocuments: any[] = [];
+  const demoDocuments = [
+    { id: 1, name: 'High School Transcript', status: 'uploaded', uploadDate: '2024-01-18', aiInsight: 'GPA: 3.7, Strong in STEM' },
+    { id: 2, name: 'Personal Statement', status: 'missing', required: true },
+    { id: 3, name: 'Letters of Recommendation', status: 'partial', uploadDate: '2024-01-19', aiInsight: '1 of 2 required letters' }
+  ];
 
-  const mockScores = {
+  const demoScores = {
+    yieldLikelihood: 73,
+    yieldTrend: 'up',
+    engagementScore: 85,
+    riskLevel: 'low',
+    programMatch: 92
+  };
+
+  // Use demo data or empty data based on state
+  const mockEngagementTimeline = showDemoData ? demoEngagementTimeline : [];
+  const mockAIRecommendations = showDemoData ? demoAIRecommendations : [];
+  const mockDocuments = showDemoData ? demoDocuments : [];
+  const mockScores = showDemoData ? demoScores : {
     yieldLikelihood: 0,
     yieldTrend: 'neutral',
     engagementScore: 0,
@@ -176,6 +216,14 @@ export default function LeadDetailTestPage() {
             <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
               🧪 Test Version
             </Badge>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowDemoData(!showDemoData)}
+              className={showDemoData ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200" : "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"}
+            >
+              {showDemoData ? '📊 Clear Demo Data' : '🎯 Fill Demo Data'}
+            </Button>
           </div>
           
           <div className="flex items-center gap-3">
@@ -230,13 +278,13 @@ export default function LeadDetailTestPage() {
                 <div className="mt-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Application Progress</span>
-                    <span className="text-sm text-muted-foreground">Not Started</span>
+                    <span className="text-sm text-muted-foreground">{showDemoData ? '60% Complete' : 'Not Started'}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="flex-1 grid grid-cols-5 gap-1">
-                      <div className="h-2 bg-gray-200 rounded-full"></div>
-                      <div className="h-2 bg-gray-200 rounded-full"></div>
-                      <div className="h-2 bg-gray-200 rounded-full"></div>
+                      <div className={`h-2 rounded-full ${showDemoData ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                      <div className={`h-2 rounded-full ${showDemoData ? 'bg-green-500' : 'bg-gray-200'}`}></div>
+                      <div className={`h-2 rounded-full ${showDemoData ? 'bg-green-500' : 'bg-gray-200'}`}></div>
                       <div className="h-2 bg-gray-200 rounded-full"></div>
                       <div className="h-2 bg-gray-200 rounded-full"></div>
                     </div>
@@ -252,9 +300,23 @@ export default function LeadDetailTestPage() {
 
                 {/* Tags */}
                 <div className="flex gap-2 mt-3">
-                  <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
-                    No tags assigned
-                  </Badge>
+                  {showDemoData ? (
+                    <>
+                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                        🔥 High Priority
+                      </Badge>
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        📅 Info Session Attendee
+                      </Badge>
+                      <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                        📄 Incomplete Docs
+                      </Badge>
+                    </>
+                  ) : (
+                    <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+                      No tags assigned
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
@@ -269,19 +331,44 @@ export default function LeadDetailTestPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="bg-white/80 p-4 rounded-lg border border-green-100 text-center">
-                <div className="text-green-700 mb-2">
-                  <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  No AI recommendations available
+              {showDemoData ? (
+                <div className="bg-white/80 p-4 rounded-lg border border-green-100">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="font-medium text-green-900">Send scholarship reminder</span>
+                    <Badge className="bg-green-100 text-green-800">87% confidence</Badge>
+                  </div>
+                  <p className="text-sm text-green-700 mb-3">
+                    Based on similar students, this message has a 37% yield boost
+                  </p>
+                  <div className="flex items-center gap-2 text-xs text-green-600 mb-3">
+                    <Clock className="h-3 w-3" />
+                    Best to send within next 24h
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Zap className="h-3 w-3 mr-1" />
+                      Execute Now
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Edit & Send
+                    </Button>
+                  </div>
                 </div>
-                <p className="text-sm text-green-600 mb-3">
-                  AI will analyze this lead and provide recommendations
-                </p>
-                <Button size="sm" variant="outline" disabled>
-                  <Zap className="h-3 w-3 mr-1" />
-                  Generate Recommendations
-                </Button>
-              </div>
+              ) : (
+                <div className="bg-white/80 p-4 rounded-lg border border-green-100 text-center">
+                  <div className="text-green-700 mb-2">
+                    <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    No AI recommendations available
+                  </div>
+                  <p className="text-sm text-green-600 mb-3">
+                    AI will analyze this lead and provide recommendations
+                  </p>
+                  <Button size="sm" variant="outline" disabled>
+                    <Zap className="h-3 w-3 mr-1" />
+                    Generate Recommendations
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -304,13 +391,46 @@ export default function LeadDetailTestPage() {
           </div>
           
           <ScrollArea className="h-full p-4">
-            <div className="text-center py-8">
-              <Activity className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground font-medium">No activity yet</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Engagement timeline will appear here as interactions occur
-              </p>
-            </div>
+            {mockEngagementTimeline.length > 0 ? (
+              <div className="space-y-4">
+                {mockEngagementTimeline.map((event, index) => (
+                  <div key={event.id} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-3 h-3 rounded-full ${
+                        event.source === 'AI' ? 'bg-blue-500' : 
+                        event.source === 'Human' ? 'bg-green-500' : 'bg-purple-500'
+                      }`} />
+                      {index < mockEngagementTimeline.length - 1 && (
+                        <div className="w-px h-8 bg-border mt-2" />
+                      )}
+                    </div>
+                    <div className="flex-1 pb-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        {getIconForEvent(event.type)}
+                        <span className="text-sm font-medium">{event.action}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{event.timestamp}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {event.source}
+                        </Badge>
+                        <Badge variant={event.status === 'opened' ? 'default' : 'secondary'} className="text-xs">
+                          {event.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Activity className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground font-medium">No activity yet</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Engagement timeline will appear here as interactions occur
+                </p>
+              </div>
+            )}
           </ScrollArea>
         </div>
 
@@ -332,43 +452,46 @@ export default function LeadDetailTestPage() {
               <TabsContent value="summary" className="h-full space-y-6">
                 {/* 📊 Lead Intelligence & Scores */}
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                  <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200">
+                  <Card className={`bg-gradient-to-br ${showDemoData ? 'from-green-50 to-green-100 border-green-200' : 'from-gray-50 to-gray-100 border-gray-200'}`}>
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        <Target className="h-4 w-4 text-gray-400" />
+                        <Target className={`h-4 w-4 ${showDemoData ? 'text-green-600' : 'text-gray-400'}`} />
+                        {showDemoData && mockScores.yieldTrend === 'up' && (
+                          <TrendingUp className="h-3 w-3 text-green-600" />
+                        )}
                       </div>
-                      <div className="text-2xl font-bold text-gray-400">{mockScores.yieldLikelihood}%</div>
-                      <div className="text-xs text-gray-500">Yield Likelihood</div>
+                      <div className={`text-2xl font-bold ${showDemoData ? 'text-green-800' : 'text-gray-400'}`}>{mockScores.yieldLikelihood}%</div>
+                      <div className={`text-xs ${showDemoData ? 'text-green-600' : 'text-gray-500'}`}>Yield Likelihood</div>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200">
+                  <Card className={`bg-gradient-to-br ${showDemoData ? 'from-blue-50 to-blue-100 border-blue-200' : 'from-gray-50 to-gray-100 border-gray-200'}`}>
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        <Activity className="h-4 w-4 text-gray-400" />
+                        <Activity className={`h-4 w-4 ${showDemoData ? 'text-blue-600' : 'text-gray-400'}`} />
                       </div>
-                      <div className="text-2xl font-bold text-gray-400">{mockScores.engagementScore}%</div>
-                      <div className="text-xs text-gray-500">Engagement</div>
+                      <div className={`text-2xl font-bold ${showDemoData ? 'text-blue-800' : 'text-gray-400'}`}>{mockScores.engagementScore}%</div>
+                      <div className={`text-xs ${showDemoData ? 'text-blue-600' : 'text-gray-500'}`}>Engagement</div>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200">
+                  <Card className={`bg-gradient-to-br ${showDemoData ? 'from-purple-50 to-purple-100 border-purple-200' : 'from-gray-50 to-gray-100 border-gray-200'}`}>
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        <GraduationCap className="h-4 w-4 text-gray-400" />
+                        <GraduationCap className={`h-4 w-4 ${showDemoData ? 'text-purple-600' : 'text-gray-400'}`} />
                       </div>
-                      <div className="text-2xl font-bold text-gray-400">{mockScores.programMatch}%</div>
-                      <div className="text-xs text-gray-500">Program Match</div>
+                      <div className={`text-2xl font-bold ${showDemoData ? 'text-purple-800' : 'text-gray-400'}`}>{mockScores.programMatch}%</div>
+                      <div className={`text-xs ${showDemoData ? 'text-purple-600' : 'text-gray-500'}`}>Program Match</div>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200">
+                  <Card className={`bg-gradient-to-br ${showDemoData ? 'from-orange-50 to-orange-100 border-orange-200' : 'from-gray-50 to-gray-100 border-gray-200'}`}>
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
-                        <Shield className="h-4 w-4 text-gray-400" />
+                        <Shield className={`h-4 w-4 ${showDemoData ? 'text-orange-600' : 'text-gray-400'}`} />
                       </div>
-                      <div className="text-2xl font-bold text-gray-400 capitalize">{mockScores.riskLevel}</div>
-                      <div className="text-xs text-gray-500">Risk Level</div>
+                      <div className={`text-2xl font-bold ${showDemoData ? 'text-orange-800' : 'text-gray-400'} capitalize`}>{mockScores.riskLevel}</div>
+                      <div className={`text-xs ${showDemoData ? 'text-orange-600' : 'text-gray-500'}`}>Risk Level</div>
                     </CardContent>
                   </Card>
 
@@ -398,11 +521,11 @@ export default function LeadDetailTestPage() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Campaign:</span>
-                          <span className="font-medium">Not tracked</span>
+                          <span className="font-medium">{showDemoData ? 'Fall 2024 Info Sessions' : 'Not tracked'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Referrer:</span>
-                          <span className="font-medium">Not available</span>
+                          <span className="font-medium">{showDemoData ? 'University Website' : 'Not available'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">First Touch:</span>
@@ -415,19 +538,19 @@ export default function LeadDetailTestPage() {
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Page Views:</span>
-                          <span className="font-medium">0</span>
+                          <span className="font-medium">{showDemoData ? '24' : '0'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Email Opens:</span>
-                          <span className="font-medium">0/0</span>
+                          <span className="font-medium">{showDemoData ? '8/10' : '0/0'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Response Rate:</span>
-                          <span className="font-medium">N/A</span>
+                          <span className="font-medium">{showDemoData ? '85%' : 'N/A'}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Last Activity:</span>
-                          <span className="font-medium">No activity</span>
+                          <span className="font-medium">{showDemoData ? '2 hours ago' : 'No activity'}</span>
                         </div>
                       </div>
                     </div>
@@ -638,11 +761,11 @@ export default function LeadDetailTestPage() {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                  <span>No urgent actions required</span>
+                  <div className={`w-2 h-2 rounded-full ${showDemoData ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                  <span>{showDemoData ? 'Application deadline in 5 days' : 'No urgent actions required'}</span>
                 </div>
-                <Button size="sm" className="w-full" disabled>
-                  No Actions Available
+                <Button size="sm" className="w-full" disabled={!showDemoData}>
+                  {showDemoData ? 'Send Deadline Reminder' : 'No Actions Available'}
                 </Button>
               </div>
             </CardContent>

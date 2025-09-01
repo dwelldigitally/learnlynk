@@ -642,84 +642,165 @@ export function IntakePipelineManagement() {
                 <Settings className="h-5 w-5" />
                 Sales Approach & Pipeline Settings
               </CardTitle>
+              <CardDescription>
+                Configure your sales strategy and monitor pipeline performance
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid gap-6 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Current Sales Approach</Label>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="capitalize">
-                      {selectedIntake.salesApproach}
-                    </Badge>
-                    <Dialog open={showSalesApproachDialog} onOpenChange={setShowSalesApproachDialog}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Settings className="h-4 w-4 mr-2" />
-                          Change
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Update Sales Approach</DialogTitle>
-                          <DialogDescription>
-                            Choose the sales approach that best fits your intake strategy
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div 
-                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                              selectedIntake.salesApproach === 'aggressive' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                            }`}
-                            onClick={() => handleUpdateSalesApproach('aggressive')}
-                          >
-                            <div className="font-medium">Aggressive</div>
-                            <div className="text-sm text-muted-foreground">
-                              High-frequency follow-ups, urgent messaging, immediate action focus
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Sales Approach Section */}
+                <div className="lg:col-span-1">
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium">Sales Approach</Label>
+                    <div className="p-4 border rounded-lg bg-muted/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <Badge variant="secondary" className="capitalize px-3 py-1">
+                          {selectedIntake.salesApproach}
+                        </Badge>
+                        <Dialog open={showSalesApproachDialog} onOpenChange={setShowSalesApproachDialog}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <Settings className="h-4 w-4 mr-2" />
+                              Modify
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-lg">
+                            <DialogHeader>
+                              <DialogTitle>Update Sales Approach</DialogTitle>
+                              <DialogDescription>
+                                Choose the sales approach that best fits your intake strategy and target audience
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-3">
+                              <div 
+                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
+                                  selectedIntake.salesApproach === 'aggressive' 
+                                    ? 'border-primary bg-primary/10 shadow-md' 
+                                    : 'border-border hover:border-primary/50'
+                                }`}
+                                onClick={() => handleUpdateSalesApproach('aggressive')}
+                              >
+                                <div className="flex items-center gap-3 mb-2">
+                                  <Zap className="h-5 w-5 text-orange-500" />
+                                  <div className="font-semibold">Aggressive</div>
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  High-frequency follow-ups, urgent messaging, immediate action focus
+                                </div>
+                                <div className="mt-2 text-xs text-primary font-medium">
+                                  ⚡ Fast results • High pressure • Quick decisions
+                                </div>
+                              </div>
+                              
+                              <div 
+                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
+                                  selectedIntake.salesApproach === 'balanced' 
+                                    ? 'border-primary bg-primary/10 shadow-md' 
+                                    : 'border-border hover:border-primary/50'
+                                }`}
+                                onClick={() => handleUpdateSalesApproach('balanced')}
+                              >
+                                <div className="flex items-center gap-3 mb-2">
+                                  <Target className="h-5 w-5 text-blue-500" />
+                                  <div className="font-semibold">Balanced</div>
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  Regular follow-ups, educational content, relationship building
+                                </div>
+                                <div className="mt-2 text-xs text-primary font-medium">
+                                  🎯 Steady growth • Professional • Relationship-focused
+                                </div>
+                              </div>
+                              
+                              <div 
+                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
+                                  selectedIntake.salesApproach === 'conservative' 
+                                    ? 'border-primary bg-primary/10 shadow-md' 
+                                    : 'border-border hover:border-primary/50'
+                                }`}
+                                onClick={() => handleUpdateSalesApproach('conservative')}
+                              >
+                                <div className="flex items-center gap-3 mb-2">
+                                  <CheckCircle className="h-5 w-5 text-green-500" />
+                                  <div className="font-semibold">Conservative</div>
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  Gentle nurturing, educational approach, long-term relationship focus
+                                </div>
+                                <div className="mt-2 text-xs text-primary font-medium">
+                                  🌱 Long-term • Gentle • Trust-building
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div 
-                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                              selectedIntake.salesApproach === 'balanced' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                            }`}
-                            onClick={() => handleUpdateSalesApproach('balanced')}
-                          >
-                            <div className="font-medium">Balanced</div>
-                            <div className="text-sm text-muted-foreground">
-                              Regular follow-ups, educational content, relationship building
-                            </div>
-                          </div>
-                          <div 
-                            className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-                              selectedIntake.salesApproach === 'conservative' ? 'border-primary bg-primary/5' : 'hover:bg-muted/50'
-                            }`}
-                            onClick={() => handleUpdateSalesApproach('conservative')}
-                          >
-                            <div className="font-medium">Conservative</div>
-                            <div className="text-sm text-muted-foreground">
-                              Gentle nurturing, educational approach, long-term relationship focus
-                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {selectedIntake.salesApproach === 'aggressive' && 'Fast-paced, high-pressure sales tactics'}
+                        {selectedIntake.salesApproach === 'balanced' && 'Professional, relationship-focused approach'}
+                        {selectedIntake.salesApproach === 'conservative' && 'Gentle, educational sales methodology'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Pipeline Metrics */}
+                <div className="lg:col-span-2">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    {/* Pipeline Strength */}
+                    <div className="space-y-3">
+                      <Label className="text-base font-medium">Pipeline Strength</Label>
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`text-2xl font-bold ${getPipelineStrengthColor(selectedIntake.pipelineStrength)}`}>
+                            {selectedIntake.pipelineStrength}%
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {selectedIntake.pipelineStrength >= 80 ? (
+                              <TrendingUp className="h-5 w-5 text-green-500" />
+                            ) : selectedIntake.pipelineStrength >= 60 ? (
+                              <Target className="h-5 w-5 text-yellow-500" />
+                            ) : (
+                              <TrendingDown className="h-5 w-5 text-red-500" />
+                            )}
                           </div>
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Pipeline Strength</Label>
-                  <div className="flex items-center gap-2">
-                    <Progress value={selectedIntake.pipelineStrength} className="flex-1" />
-                    <span className={`font-medium ${getPipelineStrengthColor(selectedIntake.pipelineStrength)}`}>
-                      {selectedIntake.pipelineStrength}%
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label>Conversion Rate</Label>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-green-600" />
-                    <span className="font-medium">{selectedIntake.conversionRate}%</span>
+                        <Progress value={selectedIntake.pipelineStrength} className="h-2 mb-2" />
+                        <p className="text-xs text-muted-foreground">
+                          {selectedIntake.pipelineStrength >= 80 && 'Excellent pipeline health'}
+                          {selectedIntake.pipelineStrength >= 60 && selectedIntake.pipelineStrength < 80 && 'Good pipeline performance'}
+                          {selectedIntake.pipelineStrength < 60 && 'Pipeline needs attention'}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Conversion Rate */}
+                    <div className="space-y-3">
+                      <Label className="text-base font-medium">Conversion Rate</Label>
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-2xl font-bold text-primary">
+                            {selectedIntake.conversionRate}%
+                          </span>
+                          <TrendingUp className="h-5 w-5 text-green-500" />
+                        </div>
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Leads to Students</span>
+                            <span className="font-medium">{selectedIntake.conversionRate}%</span>
+                          </div>
+                          <div className="h-1 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full bg-primary transition-all duration-300"
+                              style={{ width: `${selectedIntake.conversionRate}%` }}
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Industry average: 18-25%
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

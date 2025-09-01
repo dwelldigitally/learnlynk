@@ -828,7 +828,7 @@ function StudentsTable({
                       {student.paymentStatus}
                     </Badge>
                   </td>
-                  <td className="p-4">{student.gpa.toFixed(2)}</td>
+                  <td className="p-4">{student.gpa ? student.gpa.toFixed(2) : 'N/A'}</td>
                   <td className="p-4">
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline">

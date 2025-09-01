@@ -55,19 +55,19 @@ export function TopNavigationBar({
 
   return (
     <>
-      <div className={`${isMobile ? 'h-16' : 'h-20'} bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-3 sm:px-4 lg:px-6 sticky top-0 z-50`}>
+      <div className="h-14 sm:h-16 lg:h-20 bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-2 sm:px-4 lg:px-6 sticky top-0 z-50">
         {/* Left side - Logo + Main Navigation */}
-        <div className="flex items-center space-x-4 sm:space-x-8">
+        <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8 min-w-0 flex-1">
 
           {/* Logo */}
           <Link 
             to="/admin" 
-            className="flex items-center hover:opacity-80 transition-opacity"
+            className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
           >
             <img 
               src="/lovable-uploads/84dcaa90-0808-4fe4-842d-8a1a6809cd52.png" 
               alt="WCC Logo" 
-              className={`${isMobile ? 'h-10' : 'h-12'} w-auto object-contain`}
+              className="h-8 sm:h-10 lg:h-12 w-auto object-contain max-w-[120px] sm:max-w-none"
             />
           </Link>
 
@@ -145,28 +145,28 @@ export function TopNavigationBar({
         </div>
 
         {/* Right side - Search + Actions */}
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
           {/* Mobile Search Toggle */}
           {isMobile && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              className="text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="text-white hover:bg-white/10 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center p-0"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           )}
 
           {/* Desktop Search */}
           {!isMobile && (
-            <div className="relative hidden md:block">
+            <div className="relative hidden lg:block">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64 h-9"
+                className="pl-10 w-48 xl:w-64 h-9"
               />
             </div>
           )}
@@ -176,10 +176,10 @@ export function TopNavigationBar({
             variant="ghost"
             size="sm"
             onClick={() => setTaskModalOpen(true)}
-            className="text-white hover:bg-white/10 min-w-[44px] min-h-[44px] flex items-center justify-center"
+            className="text-white hover:bg-white/10 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center p-0"
             title="Create New Task"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
 
           {/* AI Actions Menu */}
@@ -196,15 +196,15 @@ export function TopNavigationBar({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="flex items-center space-x-2 text-white hover:bg-white/10 min-w-[44px] min-h-[44px]"
+                className="flex items-center space-x-1 text-white hover:bg-white/10 w-8 h-8 sm:w-10 sm:h-10 p-0"
               >
-                <Avatar className={`${isMobile ? 'w-6 h-6' : 'w-7 h-7'}`}>
+                <Avatar className="w-6 h-6 sm:w-7 sm:h-7">
                   <AvatarImage src="/placeholder-avatar.jpg" />
                   <AvatarFallback>
-                    <User className="w-4 h-4" />
+                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
                   </AvatarFallback>
                 </Avatar>
-                {!isMobile && <ChevronDown className="w-3 h-3 text-white/60 hidden sm:block" />}
+                {!isMobile && <ChevronDown className="w-2 h-2 sm:w-3 sm:h-3 text-white/60 hidden lg:block" />}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 bg-background border border-border shadow-lg rounded-md z-50">

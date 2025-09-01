@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle } from 'lucide-react';
+import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity } from 'lucide-react';
 import { usePrograms } from '@/services/programService';
 import { useAcademicJourneys } from '@/services/academicJourneyService';
 import { JourneyBuilder } from './JourneyBuilder';
@@ -85,7 +85,21 @@ export function ProgramJourneyManager() {
   };
 
   const getJourneyStatusColor = (isActive: boolean) => {
-    return isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800';
+    return isActive ? 'status-active' : 'status-inactive';
+  };
+
+  const getJourneyStatusIcon = (isActive: boolean) => {
+    return isActive ? CheckCircle : Clock;
+  };
+
+  const getJourneyCardClass = (isActive: boolean) => {
+    return isActive ? 'journey-card journey-card-active' : 'journey-card journey-card-inactive';
+  };
+
+  const getStagesCompletionPercentage = (stages: any[] = []) => {
+    if (!stages.length) return 0;
+    const activeStages = stages.filter(stage => stage.status === 'active').length;
+    return Math.round((activeStages / stages.length) * 100);
   };
 
   // Show Master Journey Setup Wizard if needed
@@ -119,151 +133,207 @@ export function ProgramJourneyManager() {
 
   // Main manager interface
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Academic Journey Manager</h1>
-          <p className="text-muted-foreground">
-            Design and manage student enrollment journeys from inquiry to enrollment
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setShowMasterSetup(true)}>
-            <Settings className="h-4 w-4 mr-2" />
-            Edit Master Templates
-          </Button>
-          <Button onClick={handleCreateJourney} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Journey
-          </Button>
+    <div className="space-y-8">
+      {/* Enhanced Header with Glass Card */}
+      <div className="glass-card p-8 rounded-2xl border border-border/50">
+        <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-xl bg-gradient-primary text-primary-foreground">
+                <BarChart3 className="h-6 w-6" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Academic Journey Manager
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Design and manage student enrollment journeys with advanced analytics
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setShowMasterSetup(true)} className="action-button">
+              <Settings className="h-4 w-4 mr-2" />
+              Master Templates
+            </Button>
+            <Button onClick={handleCreateJourney} className="gap-2 action-button bg-gradient-primary hover:shadow-lg">
+              <Plus className="h-4 w-4" />
+              Create Journey
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search journeys by name or description..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      {/* Enhanced Search and Filters */}
+      <div className="glass-card p-6 rounded-xl border border-border/50">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
+            <Input
+              placeholder="Search journeys by name, description, or program..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-12 h-12 text-base rounded-xl border-border/50 focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <Select value={selectedProgram} onValueChange={setSelectedProgram}>
+            <SelectTrigger className="w-full sm:w-[240px] h-12 rounded-xl border-border/50">
+              <SelectValue placeholder="Filter by program" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Programs</SelectItem>
+              {programs?.map(program => (
+                <SelectItem key={program.id} value={program.id}>
+                  {program.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={selectedProgram} onValueChange={setSelectedProgram}>
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue placeholder="Select program" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Programs</SelectItem>
-            {programs?.map(program => (
-              <SelectItem key={program.id} value={program.id}>
-                {program.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Journeys Grid */}
+      {/* Enhanced Journeys Grid */}
       {journeysLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(6)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader>
-                <div className="h-6 bg-muted rounded w-3/4 mb-2"></div>
-                <div className="h-4 bg-muted rounded w-full"></div>
-              </CardHeader>
-              <CardContent>
+            <div key={i} className="journey-card p-6 animate-pulse">
+              <div className="space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2 flex-1">
+                    <div className="h-6 bg-muted rounded-lg w-3/4"></div>
+                    <div className="h-4 bg-muted rounded w-full"></div>
+                  </div>
+                  <div className="h-6 bg-muted rounded-full w-16"></div>
+                </div>
                 <div className="space-y-3">
                   <div className="h-4 bg-muted rounded w-1/2"></div>
                   <div className="h-4 bg-muted rounded w-2/3"></div>
-                  <div className="flex gap-2">
-                    <div className="h-8 bg-muted rounded flex-1"></div>
-                    <div className="h-8 bg-muted rounded flex-1"></div>
+                  <div className="flex gap-2 pt-2">
+                    <div className="h-10 bg-muted rounded-lg flex-1"></div>
+                    <div className="h-10 bg-muted rounded-lg flex-1"></div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       ) : filteredJourneys.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredJourneys.map(journey => (
-            <Card key={journey.id} className="group hover:shadow-lg transition-all duration-200">
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredJourneys.map((journey, index) => {
+            const StatusIcon = getJourneyStatusIcon(journey.is_active);
+            const completionPercentage = getStagesCompletionPercentage(journey.stages);
+            
+            return (
+              <div 
+                key={journey.id} 
+                className={`${getJourneyCardClass(journey.is_active)} p-6 group animate-fade-in`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                {/* Card Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-200 truncate">
                       {journey.name}
-                    </CardTitle>
-                    <CardDescription className="mt-1">
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                       {journey.description || 'No description provided'}
-                    </CardDescription>
+                    </p>
                   </div>
-                  <Badge className={getJourneyStatusColor(journey.is_active)}>
+                  <div className={`status-indicator ${getJourneyStatusColor(journey.is_active)} ml-3 flex-shrink-0`}>
+                    <StatusIcon className="h-3 w-3" />
                     {journey.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-muted-foreground" />
-                    <span className="truncate">{getProgramName(journey.program_id)}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Settings className="h-4 w-4 text-muted-foreground" />
-                    <span>{journey.stages?.length || 0} stages</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>v{journey.version}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{new Date(journey.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                {/* Progress Indicator */}
+                {journey.stages && journey.stages.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                      <span>Stage Progress</span>
+                      <span>{completionPercentage}%</span>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-2">
+                      <div 
+                        className="h-2 rounded-full bg-gradient-to-r from-primary to-accent transition-all duration-700"
+                        style={{ width: `${completionPercentage}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Journey Metrics */}
+                <div className="grid grid-cols-2 gap-4 mb-5">
+                  <div className="flex items-center gap-2 text-sm">
+                    <BookOpen className="h-4 w-4 text-muted-foreground" />
+                    <span className="truncate text-foreground">
+                      {getProgramName(journey.program_id)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Activity className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-foreground">
+                      {journey.stages?.length || 0} stages
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <FileText className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-foreground">v{journey.version}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-foreground">
+                      {new Date(journey.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1"
+                    className="flex-1 action-button hover:border-primary/30 hover:bg-primary/5"
                     onClick={() => setEditingJourneyId(journey.id)}
                   >
-                    <Settings className="h-4 w-4 mr-1" />
-                    Edit Journey
+                    <Settings className="h-4 w-4 mr-2" />
+                    Edit
                   </Button>
                   <Button 
                     variant="outline" 
                     size="sm" 
-                    className="flex-1"
+                    className="flex-1 action-button hover:border-accent/30 hover:bg-accent/5"
                     onClick={() => toast('Journey preview coming soon!')}
                   >
-                    <Eye className="h-4 w-4 mr-1" />
+                    <Eye className="h-4 w-4 mr-2" />
                     Preview
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            );
+          })}
         </div>
       ) : (
-        <Card className="text-center py-16">
-          <CardContent>
-            <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
-              <BookOpen className="h-10 w-10 text-muted-foreground" />
+        <div className="glass-card text-center py-20 rounded-2xl border border-border/50">
+          <div className="max-w-md mx-auto">
+            <div className="relative mb-8">
+              <div className="w-24 h-24 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto">
+                <BookOpen className="h-12 w-12 text-primary-foreground" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-warning rounded-full flex items-center justify-center">
+                <AlertTriangle className="h-3 w-3 text-white" />
+              </div>
             </div>
-            <h3 className="text-xl font-semibold mb-2">No Academic Journeys Found</h3>
-            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            <h3 className="text-2xl font-bold text-foreground mb-3">
+              No Academic Journeys Found
+            </h3>
+            <p className="text-muted-foreground mb-8 leading-relaxed">
               {searchTerm || selectedProgram !== 'all' 
-                ? 'No journeys match your current filters. Try adjusting your search criteria.'
-                : 'Get started by creating your first academic journey to manage student enrollment workflows.'
+                ? 'No journeys match your current filters. Try adjusting your search criteria or clear filters to see all journeys.'
+                : 'Transform your enrollment process by creating structured academic journeys. Guide students through each step from application to enrollment with intelligent workflows.'
               }
             </p>
-            <div className="flex gap-2 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               {(searchTerm || selectedProgram !== 'all') && (
                 <Button 
                   variant="outline" 
@@ -271,52 +341,79 @@ export function ProgramJourneyManager() {
                     setSearchTerm('');
                     setSelectedProgram('all');
                   }}
+                  className="action-button"
                 >
                   Clear Filters
                 </Button>
               )}
-              <Button onClick={handleCreateJourney} className="gap-2">
+              <Button 
+                onClick={handleCreateJourney} 
+                className="gap-2 action-button bg-gradient-primary hover:shadow-lg"
+              >
                 <Plus className="h-4 w-4" />
                 Create Your First Journey
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
-      {/* Quick Stats */}
+      {/* Enhanced Analytics Dashboard */}
       {filteredJourneys.length > 0 && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="text-center p-6">
-              <div className="text-2xl font-bold text-primary mb-1">{filteredJourneys.length}</div>
+        <div className="glass-card p-6 rounded-xl border border-border/50">
+          <div className="flex items-center gap-3 mb-6">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            <h3 className="text-lg font-semibold text-foreground">Analytics Overview</h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="relative mb-3">
+                <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto">
+                  <BarChart3 className="h-8 w-8 text-primary-foreground" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-foreground mb-1 animate-counter">
+                {filteredJourneys.length}
+              </div>
               <div className="text-sm text-muted-foreground">Total Journeys</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center p-6">
-              <div className="text-2xl font-bold text-green-600 mb-1">
+            </div>
+            
+            <div className="text-center">
+              <div className="relative mb-3">
+                <div className="w-16 h-16 bg-gradient-to-br from-success to-success-light rounded-2xl flex items-center justify-center mx-auto">
+                  <CheckCircle className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-success mb-1 animate-counter">
                 {filteredJourneys.filter(j => j.is_active).length}
               </div>
-              <div className="text-sm text-muted-foreground">Active</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center p-6">
-              <div className="text-2xl font-bold text-orange-600 mb-1">
+              <div className="text-sm text-muted-foreground">Active Journeys</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="relative mb-3">
+                <div className="w-16 h-16 bg-gradient-to-br from-warning to-warning-light rounded-2xl flex items-center justify-center mx-auto">
+                  <Clock className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-warning mb-1 animate-counter">
                 {filteredJourneys.filter(j => !j.is_active).length}
               </div>
               <div className="text-sm text-muted-foreground">Inactive</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center p-6">
-              <div className="text-2xl font-bold text-purple-600 mb-1">
+            </div>
+            
+            <div className="text-center">
+              <div className="relative mb-3">
+                <div className="w-16 h-16 bg-gradient-to-br from-accent to-accent-light rounded-2xl flex items-center justify-center mx-auto">
+                  <Users className="h-8 w-8 text-white" />
+                </div>
+              </div>
+              <div className="text-3xl font-bold text-accent mb-1 animate-counter">
                 {new Set(filteredJourneys.map(j => j.program_id)).size}
               </div>
               <div className="text-sm text-muted-foreground">Programs</div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )}
     </div>

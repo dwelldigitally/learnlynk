@@ -40,9 +40,21 @@
  
     /* Status colors */
     --success: 142 76% 36%;
+    --success-light: 142 76% 95%;
     --warning: 35 91% 65%;
+    --warning-light: 35 91% 95%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-light: 217 91% 95%;
+    
+    /* Journey-specific status colors */
+    --journey-active: 142 76% 36%;
+    --journey-active-light: 142 76% 95%;
+    --journey-inactive: 220 9% 55%;
+    --journey-inactive-light: 220 9% 95%;
+    --journey-draft: 35 91% 65%;
+    --journey-draft-light: 35 91% 95%;
 
     /* Borders and inputs */
     --border: 220 13% 91%;
@@ -66,6 +78,14 @@
     --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(215 85% 95%) 0%, hsl(215 85% 97%) 50%, hsl(220 9% 98%) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 58, 138, 0.05) 100%);
+    
+    /* Journey card gradients */
+    --gradient-active: linear-gradient(135deg, hsl(var(--journey-active-light)) 0%, hsl(var(--success-light)) 100%);
+    --gradient-inactive: linear-gradient(135deg, hsl(var(--journey-inactive-light)) 0%, hsl(var(--muted)) 100%);
+    --gradient-draft: linear-gradient(135deg, hsl(var(--journey-draft-light)) 0%, hsl(var(--warning-light)) 100%);
+    
+    /* Elevated card gradient */
+    --gradient-elevated: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
     
     /* Neomorphism shadows */
     --neo-shadow-light: 8px 8px 16px rgba(163, 177, 198, 0.15), -8px -8px 16px rgba(255, 255, 255, 0.7);
@@ -473,4 +493,105 @@
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+/* Journey-specific card styles */
+.journey-card {
+  @apply relative overflow-hidden rounded-xl border border-border/50 transition-all duration-300;
+  background: var(--gradient-elevated);
+}
+
+.journey-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-elevated);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+.journey-card-active {
+  background: var(--gradient-active);
+  border-color: hsl(var(--journey-active) / 0.3);
+}
+
+.journey-card-inactive {
+  background: var(--gradient-inactive);
+  border-color: hsl(var(--journey-inactive) / 0.3);
+}
+
+.journey-card-draft {
+  background: var(--gradient-draft);
+  border-color: hsl(var(--journey-draft) / 0.3);
+}
+
+/* Status indicators */
+.status-indicator {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium;
+}
+
+.status-active {
+  @apply text-emerald-700 bg-emerald-50 border border-emerald-200;
+}
+
+.status-inactive {
+  @apply text-slate-600 bg-slate-50 border border-slate-200;
+}
+
+.status-draft {
+  @apply text-amber-700 bg-amber-50 border border-amber-200;
+}
+
+/* Dark mode status adjustments */
+.dark .status-active {
+  @apply text-emerald-300 bg-emerald-900/30 border-emerald-800;
+}
+
+.dark .status-inactive {
+  @apply text-slate-400 bg-slate-800/30 border-slate-700;
+}
+
+.dark .status-draft {
+  @apply text-amber-300 bg-amber-900/30 border-amber-800;
+}
+
+/* Interactive elements */
+.action-button {
+  @apply relative overflow-hidden transition-all duration-200;
+}
+
+.action-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.action-button:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+/* Progress indicators */
+.progress-ring {
+  transform: rotate(-90deg);
+}
+
+.progress-ring circle {
+  stroke-dasharray: 113.1; /* 2 * PI * 18 (radius) */
+  stroke-dashoffset: 113.1;
+  transition: stroke-dashoffset 0.8s ease-in-out;
+}
+
+/* Icon animations */
+.icon-bounce {
+  animation: bounce-subtle 0.6s ease-in-out;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
 }

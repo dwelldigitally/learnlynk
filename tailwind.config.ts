@@ -61,8 +61,26 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				success: 'hsl(var(--success))',
-				warning: 'hsl(var(--warning))',
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					light: 'hsl(var(--success-light))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					light: 'hsl(var(--warning-light))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					light: 'hsl(var(--info-light))'
+				},
+				journey: {
+					active: 'hsl(var(--journey-active))',
+					'active-light': 'hsl(var(--journey-active-light))',
+					inactive: 'hsl(var(--journey-inactive))',
+					'inactive-light': 'hsl(var(--journey-inactive-light))',
+					draft: 'hsl(var(--journey-draft))',
+					'draft-light': 'hsl(var(--journey-draft-light))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
@@ -90,7 +108,11 @@ export default {
 				'gradient-primary': 'var(--gradient-primary)',
 				'gradient-subtle': 'var(--gradient-subtle)',
 				'gradient-hero': 'var(--gradient-hero)',
-				'gradient-glass': 'var(--gradient-glass)'
+				'gradient-glass': 'var(--gradient-glass)',
+				'gradient-active': 'var(--gradient-active)',
+				'gradient-inactive': 'var(--gradient-inactive)',
+				'gradient-draft': 'var(--gradient-draft)',
+				'gradient-elevated': 'var(--gradient-elevated)'
 			},
 			keyframes: {
 				'accordion-down': {

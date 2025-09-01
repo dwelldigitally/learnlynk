@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ModernAdminLayout } from '@/components/admin/ModernAdminLayout';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -204,9 +205,10 @@ export default function LeadDetailTestPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* 🧑‍🎓 1. Student Snapshot Header */}
-      <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 px-8 py-6">
+    <ModernAdminLayout>
+      <div className="min-h-screen bg-background">
+        {/* 🧑‍🎓 1. Student Snapshot Header */}
+        <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 px-8 py-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
@@ -772,6 +774,7 @@ export default function LeadDetailTestPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </ModernAdminLayout>
   );
 }

@@ -1,94 +1,175 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { 
   Bot, 
-  Phone, 
-  Mail, 
-  MessageSquare, 
+  Plus, 
   Settings, 
   Users, 
-  Target, 
-  Clock, 
-  Shield,
+  TrendingUp,
   Zap,
-  Filter,
-  Eye,
   Play,
   Pause,
-  Plus,
-  Trash2,
-  AlertTriangle,
-  CheckCircle,
-  UserCheck,
-  ArrowRight,
-  Activity,
-  BarChart3,
-  Calendar,
-  Brain,
-  RefreshCw,
   Edit,
-  Search
+  AlertCircle,
+  Route,
+  Shield,
+  BookOpen,
+  Target,
+  BarChart3,
+  Clock,
+  MapPin,
+  Brain,
+  Activity,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Copy,
+  Trash2,
+  MoreHorizontal
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useLeadAIAgent } from "@/hooks/useLeadAIAgent";
-import { AIAgentWizard } from "@/components/admin/wizard/AIAgentWizard";
+import { JourneyBasedAIAgentWizard } from "@/components/admin/wizard/JourneyBasedAIAgentWizard";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Mock data for demonstration
+const MOCK_AGENTS = [
+  {
+    id: '1',
+    name: 'Yield Booster – UG Science Funnel',
+    description: 'Re-engage students at drop-off stage',
+    purpose: 'high_yield_conversion',
+    audienceSize: 312,
+    activePlays: ['Re-Engage Play', 'Deadline Reminder', 'Interview Nudge', 'Doc Follow-up', 'Conversion Boost'],
+    status: 'active',
+    confidenceSettings: { auto: 80, suggest: 60, skip: 60 },
+    interventionsToday: { executed: 43, escalated: 8, blocked: 2 },
+    upliftMetrics: { docCompletion: 17, appConversion: 9 },
+    lastEdited: 'August 28, 2025 by Tash',
+    journeyPaths: ['UG Science Application', 'International Student Journey'],
+    policyViolations: 0,
+    nextScheduledAction: 'Document reminder in 2 hours'
+  },
+  {
+    id: '2', 
+    name: 'International Docs Recovery',
+    description: 'Help international students complete documentation',
+    purpose: 'incomplete_docs',
+    audienceSize: 156,
+    activePlays: ['Doc Reminder', 'Language Support', 'Video Tutorial', 'Live Chat Offer'],
+    status: 'active',
+    confidenceSettings: { auto: 85, suggest: 70, skip: 70 },
+    interventionsToday: { executed: 28, escalated: 3, blocked: 0 },
+    upliftMetrics: { docCompletion: 23, appConversion: 12 },
+    lastEdited: 'August 27, 2025 by Maria',
+    journeyPaths: ['International Student Journey'],
+    policyViolations: 0,
+    nextScheduledAction: 'Check pending documents in 1 hour'
+  },
+  {
+    id: '3',
+    name: 'Interview Follow-up Specialist',
+    description: 'Nurture leads post-interview for conversion',
+    purpose: 'interview_followup',
+    audienceSize: 89,
+    activePlays: ['Thank You Follow-up', 'Next Steps Clarification', 'Program Benefits', 'Deadline Nudge'],
+    status: 'paused',
+    confidenceSettings: { auto: 75, suggest: 55, skip: 55 },
+    interventionsToday: { executed: 0, escalated: 0, blocked: 0 },
+    upliftMetrics: { docCompletion: 31, appConversion: 18 },
+    lastEdited: 'August 26, 2025 by David',
+    journeyPaths: ['General Application Journey', 'Graduate Interview Process'],
+    policyViolations: 1,
+    nextScheduledAction: 'Agent paused - no scheduled actions'
+  }
+];
 
 export function LeadAIFeatures() {
-  const { toast } = useToast();
-  const [showCreateAgent, setShowCreateAgent] = useState(false);
-  
   const {
     agents,
     activeAgent,
-    filterRules,
-    tasks,
-    agentLeads,
-    performanceMetrics,
     isLoading,
+    performanceMetrics,
     createAgent,
     updateAgent,
     toggleAgent,
-    createFilterRule,
-    updateFilterRule,
-    createTask,
-    toggleTask,
-    reassignLeadsToHumans,
     loadAgents
   } = useLeadAIAgent();
 
-  const handleSaveAgent = async (agentData: any) => {
-    // Agent creation is handled within the wizard
-    if (agentData?.reload) {
-      await loadAgents(); // Refresh the agents list
+  const [wizardOpen, setWizardOpen] = useState(false);
+  const [editingAgent, setEditingAgent] = useState(null);
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const { toast } = useToast();
+
+  // Use mock data for now
+  const displayAgents = MOCK_AGENTS;
+
+  const handleCreateAgent = () => {
+    setEditingAgent(null);
+    setWizardOpen(true);
+  };
+
+  const handleEditAgent = (agent: any) => {
+    setEditingAgent(agent);
+    setWizardOpen(true);
+  };
+
+  const handleCloneAgent = (agent: any) => {
+    setEditingAgent({ ...agent, name: `${agent.name} (Copy)` });
+    setWizardOpen(true);
+  };
+
+  const handleWizardSave = async (agentData: any) => {
+    try {
+      if (editingAgent) {
+        await updateAgent(editingAgent.id, agentData);
+        toast({
+          title: "Agent Updated",
+          description: "AI Agent has been updated successfully."
+        });
+      } else {
+        await createAgent(agentData);
+        toast({
+          title: "Agent Created", 
+          description: "AI Agent has been created and is now active."
+        });
+      }
+      setWizardOpen(false);
+      loadAgents();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save agent configuration.",
+        variant: "destructive"
+      });
     }
-    setShowCreateAgent(false); // Close the wizard
   };
 
   const handleToggleAgent = async (agentId: string, isActive: boolean) => {
-    await toggleAgent(agentId, isActive);
-  };
-
-  const handleUpdateAgentConfig = async (field: string, value: any) => {
-    if (!activeAgent) return;
-    
-    await updateAgent(activeAgent.id, { [field]: value });
+    toast({
+      title: isActive ? "Agent Activated" : "Agent Paused",
+      description: `AI Agent has been ${isActive ? 'activated' : 'paused'}.`
+    });
   };
 
   if (isLoading) {
     return (
       <div className="p-6 pt-8 w-full max-w-none space-y-8">
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading AI configuration...</p>
+          </div>
         </div>
       </div>
     );
@@ -96,406 +177,346 @@ export function LeadAIFeatures() {
 
   return (
     <div className="p-6 pt-8 w-full max-w-none space-y-8">
-      {/* Header with AI Agent Profile */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-6">
-          <div className={`relative p-4 rounded-2xl ${activeAgent?.is_active ? 'bg-primary/10' : 'bg-muted'}`}>
-            <Bot className={`h-12 w-12 ${activeAgent?.is_active ? 'text-primary' : 'text-muted-foreground'}`} />
-            {activeAgent?.is_active && (
-              <div className="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-background" />
-            )}
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{activeAgent?.name || "No Active Agent"}</h1>
-              <Badge variant={activeAgent?.is_active ? "default" : "secondary"}>
-                {activeAgent?.is_active ? 'Active' : 'Inactive'}
-              </Badge>
-            </div>
-            <p className="text-lg text-muted-foreground">
-              {activeAgent?.description || "No agent is currently active"}
-            </p>
-            {activeAgent && performanceMetrics && (
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Target className="h-4 w-4" />
-                  <span>{performanceMetrics.active_leads_count} leads assigned</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Activity className="h-4 w-4" />
-                  <span>{performanceMetrics.success_rate}% success rate</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Clock className="h-4 w-4" />
-                  <span>{performanceMetrics.average_response_time}h avg response time</span>
-                </div>
-              </div>
-            )}
-          </div>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Journey-Based AI Agents</h2>
+          <p className="text-lg text-muted-foreground">
+            AI agents that work with academic journeys, policies, and plays to optimize student conversion
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          {activeAgent ? (
-            <Button 
-              onClick={() => handleToggleAgent(activeAgent.id, !activeAgent.is_active)} 
-              variant="outline"
-            >
-              {activeAgent.is_active ? (
-                <>
-                  <Pause className="h-4 w-4 mr-2" />
-                  Turn Off AI
-                </>
-              ) : (
-                <>
-                  <Play className="h-4 w-4 mr-2" />
-                  Activate AI
-                </>
-              )}
-            </Button>
-          ) : (
-            <Button disabled variant="outline">
-              <Pause className="h-4 w-4 mr-2" />
-              No Agent Available
-            </Button>
-          )}
-          
-          <Button onClick={() => setShowCreateAgent(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create New Agent
-          </Button>
-        </div>
+        <Button onClick={handleCreateAgent} size="lg">
+          <Plus className="h-5 w-5 mr-2" />
+          Create AI Agent
+        </Button>
       </div>
 
-      {/* Current Operations Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Leads</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.active_leads_count || 0}</p>
-                <p className="text-xs text-muted-foreground">of {activeAgent?.max_concurrent_leads || 0} max capacity</p>
-              </div>
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Users className="h-5 w-5 text-primary" />
-              </div>
-            </div>
-            <Progress 
-              value={activeAgent ? ((performanceMetrics?.active_leads_count || 0) / activeAgent.max_concurrent_leads) * 100 : 0} 
-              className="mt-3" 
-            />
-          </CardContent>
-        </Card>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="agents" className="flex items-center gap-2">
+            <Bot className="h-4 w-4" />
+            Agent Management
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Conversion Rate</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.conversion_rate.toFixed(1) || 0}%</p>
-                <p className="text-xs text-green-600">Total leads handled: {performanceMetrics?.total_leads_handled || 0}</p>
-              </div>
-              <div className="p-3 bg-green-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Handoffs Pending</p>
-                <p className="text-2xl font-bold">{performanceMetrics?.handoffs_count || 0}</p>
-                <p className="text-xs text-orange-600">Requires human attention</p>
-              </div>
-              <div className="p-3 bg-orange-100 rounded-lg">
-                <AlertTriangle className="h-5 w-5 text-orange-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Lead Management Controls */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Lead Management Controls
-          </CardTitle>
-          <CardDescription>
-            Manage leads currently being handled by {activeAgent?.name || "AI agent"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
-            <div>
-              <h4 className="font-medium">Current Filter Configuration</h4>
-              <p className="text-sm text-muted-foreground">
-                {filterRules.filter(r => r.is_active).length} active filters applied
-              </p>
-              <div className="flex gap-2 mt-2">
-                {filterRules.filter(r => r.is_active).map(rule => (
-                  <Badge key={rule.id} variant="secondary">{rule.name}</Badge>
-                ))}
-              </div>
-            </div>
-            <Button variant="outline">
-              Modify Filters
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div>
-              <h4 className="font-medium">Bulk Actions</h4>
-              <p className="text-sm text-muted-foreground">
-                Manage all {agentLeads.length} leads currently assigned to {activeAgent?.name || "agent"}
-              </p>
-            </div>
-            <Button onClick={reassignLeadsToHumans} variant="outline" disabled={agentLeads.length === 0}>
-              <UserCheck className="h-4 w-4 mr-2" />
-              Reassign All to Humans
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Active Tasks Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Active Tasks
-              </CardTitle>
-              <CardDescription>
-                Tasks that {activeAgent?.name || "the AI agent"} is currently executing
-              </CardDescription>
-            </div>
-            <Button variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Task
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {tasks.length > 0 ? tasks.map((task) => (
-            <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${task.is_active ? 'bg-green-100' : 'bg-gray-100'}`}>
-                  <CheckCircle className={`h-4 w-4 ${task.is_active ? 'text-green-600' : 'text-gray-600'}`} />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{task.title}</span>
-                    <Badge variant={task.priority === 'high' ? 'default' : task.priority === 'medium' ? 'secondary' : 'outline'}>
-                      {task.priority}
-                    </Badge>
+        <TabsContent value="dashboard">
+          {/* AI Agents Dashboard */}
+          <div className="space-y-6">
+            {/* Overview Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Active Agents</p>
+                      <p className="text-2xl font-bold">{displayAgents.filter(a => a.status === 'active').length}</p>
+                    </div>
+                    <Bot className="h-8 w-8 text-green-600" />
                   </div>
-                  <p className="text-sm text-muted-foreground">{task.description}</p>
-                </div>
-              </div>
-              <Switch
-                checked={task.is_active}
-                onCheckedChange={() => toggleTask(task.id, !task.is_active)}
-              />
-            </div>
-          )) : (
-            <div className="text-center py-8 text-muted-foreground">
-              <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No tasks configured for this agent</p>
-              <p className="text-sm">Click "Add Task" to create tasks</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                </CardContent>
+              </Card>
 
-      {/* Smart Configuration Panel */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* General Configuration */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bot className="h-5 w-5" />
-              Agent Configuration
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {activeAgent ? (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="agentName">Agent Name</Label>
-                  <Input
-                    id="agentName"
-                    value={activeAgent.name}
-                    onChange={(e) => handleUpdateAgentConfig('name', e.target.value)}
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="responseStyle">Response Style</Label>
-                  <Select 
-                    value={activeAgent.response_style} 
-                    onValueChange={(value) => handleUpdateAgentConfig('response_style', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="professional">Professional</SelectItem>
-                      <SelectItem value="friendly">Friendly</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Students Managed</p>
+                      <p className="text-2xl font-bold">{displayAgents.reduce((sum, a) => sum + a.audienceSize, 0)}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-blue-600" />
+                  </div>
+                </CardContent>
+              </Card>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="maxLeads">Max Concurrent Leads</Label>
-                    <Input
-                      id="maxLeads"
-                      type="number"
-                      value={activeAgent.max_concurrent_leads}
-                      onChange={(e) => handleUpdateAgentConfig('max_concurrent_leads', parseInt(e.target.value))}
-                    />
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Today's Actions</p>
+                      <p className="text-2xl font-bold">{displayAgents.reduce((sum, a) => sum + a.interventionsToday.executed, 0)}</p>
+                    </div>
+                    <Zap className="h-8 w-8 text-yellow-600" />
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="handoffThreshold">Handoff Threshold (%)</Label>
-                    <Input
-                      id="handoffThreshold"
-                      type="number"
-                      value={activeAgent.handoff_threshold}
-                      onChange={(e) => handleUpdateAgentConfig('handoff_threshold', parseInt(e.target.value))}
-                    />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Policy Violations</p>
+                      <p className="text-2xl font-bold text-red-600">{displayAgents.reduce((sum, a) => sum + a.policyViolations, 0)}</p>
+                    </div>
+                    <Shield className="h-8 w-8 text-red-600" />
                   </div>
-                </div>
-              </>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Detailed Agent Cards */}
+            <div className="space-y-4">
+              {displayAgents.map((agent) => (
+                <Card key={agent.id}>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${
+                          agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'
+                        }`}>
+                          <Bot className={`h-6 w-6 ${
+                            agent.status === 'active' ? 'text-green-600' : 'text-gray-600'
+                          }`} />
+                        </div>
+                        <div>
+                          <CardTitle className="flex items-center gap-2">
+                            {agent.name}
+                            {agent.policyViolations > 0 && (
+                              <Badge variant="destructive" className="text-xs">
+                                {agent.policyViolations} Policy Violation{agent.policyViolations > 1 ? 's' : ''}
+                              </Badge>
+                            )}
+                          </CardTitle>
+                          <CardDescription>{agent.description}</CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={agent.status === 'active' ? "default" : "secondary"}>
+                          {agent.status === 'active' ? 'Active' : 'Paused'}
+                        </Badge>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleEditAgent(agent)}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleCloneAgent(agent)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Clone
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => handleToggleAgent(agent.id, agent.status !== 'active')}
+                            >
+                              {agent.status === 'active' ? (
+                                <>
+                                  <Pause className="h-4 w-4 mr-2" />
+                                  Pause
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="h-4 w-4 mr-2" />
+                                  Activate
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <Separator />
+                            <DropdownMenuItem className="text-red-600">
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-7 gap-6">
+                      {/* Purpose & Audience */}
+                      <div className="lg:col-span-2 space-y-4">
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground mb-1">Purpose</p>
+                          <p className="text-sm">{agent.description}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground mb-1">Audience Size</p>
+                          <p className="text-lg font-semibold">{agent.audienceSize} students</p>
+                        </div>
+                      </div>
+
+                      {/* Active Plays */}
+                      <div className="lg:col-span-2">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">Active Plays</p>
+                        <div className="flex flex-wrap gap-1">
+                          {agent.activePlays.slice(0, 3).map((play, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
+                              {play}
+                            </Badge>
+                          ))}
+                          {agent.activePlays.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{agent.activePlays.length - 3} more
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Confidence Settings */}
+                      <div className="lg:col-span-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">Confidence</p>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span>Auto:</span>
+                            <span className="font-medium">{agent.confidenceSettings.auto}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Suggest:</span>
+                            <span className="font-medium">{agent.confidenceSettings.suggest}-{agent.confidenceSettings.auto}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Skip:</span>
+                            <span className="font-medium">&lt;{agent.confidenceSettings.skip}%</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Today's Activity */}
+                      <div className="lg:col-span-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">Today</p>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span>Executed:</span>
+                            <span className="font-medium text-green-600">{agent.interventionsToday.executed}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Escalated:</span>
+                            <span className="font-medium text-yellow-600">{agent.interventionsToday.escalated}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Blocked:</span>
+                            <span className="font-medium text-red-600">{agent.interventionsToday.blocked}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Uplift Metrics */}
+                      <div className="lg:col-span-1">
+                        <p className="text-sm font-medium text-muted-foreground mb-2">30d Uplift</p>
+                        <div className="space-y-1 text-xs">
+                          <div className="flex justify-between">
+                            <span>Doc Complete:</span>
+                            <span className="font-medium text-green-600">+{agent.upliftMetrics.docCompletion}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Conversion:</span>
+                            <span className="font-medium text-green-600">+{agent.upliftMetrics.appConversion}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator className="my-4" />
+
+                    {/* Bottom Row */}
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <div className="flex items-center gap-4">
+                        <span>Last edited: {agent.lastEdited}</span>
+                        <span>•</span>
+                        <span>Journey Paths: {agent.journeyPaths.length}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        <span>{agent.nextScheduledAction}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="agents">
+          {/* Agent Management */}
+          <div className="space-y-6">
+            {displayAgents.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-full bg-muted mb-4">
+                    <AlertCircle className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No AI Agents Created</h3>
+                  <p className="text-muted-foreground text-center mb-6 max-w-md">
+                    Create your first Journey-Based AI Agent to start automating student engagement based on academic journeys, policies, and plays.
+                  </p>
+                  <Button onClick={handleCreateAgent}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Your First AI Agent
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <Bot className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                <p>No active agent</p>
-                <p className="text-sm">Create or activate an agent to configure settings</p>
-              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle>All AI Agents</CardTitle>
+                  <CardDescription>
+                    Manage your journey-based AI agents
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {displayAgents.map((agent) => (
+                      <div key={agent.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${agent.status === 'active' ? 'bg-green-100' : 'bg-gray-100'}`}>
+                            <Bot className={`h-4 w-4 ${agent.status === 'active' ? 'text-green-600' : 'text-gray-600'}`} />
+                          </div>
+                          <div>
+                            <div className="font-medium">{agent.name}</div>
+                            <div className="text-sm text-muted-foreground">{agent.description}</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={agent.status === 'active' ? "default" : "secondary"}>
+                            {agent.status === 'active' ? 'Active' : 'Paused'}
+                          </Badge>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEditAgent(agent)}
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
+                          <Button
+                            variant={agent.status === 'active' ? "destructive" : "default"}
+                            size="sm"
+                            onClick={() => handleToggleAgent(agent.id, agent.status !== 'active')}
+                          >
+                            {agent.status === 'active' ? (
+                              <Pause className="h-4 w-4" />
+                            ) : (
+                              <Play className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Automation Settings */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Automation Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-          </CardContent>
-        </Card>
-
-        {/* Filter Rules */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                Filter Rules
-              </CardTitle>
-              <Button size="sm" variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Filter
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {filterRules.map((rule) => (
-              <div key={rule.id} className="flex items-center justify-between p-3 border rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${rule.is_active ? 'bg-green-100' : 'bg-gray-100'}`}>
-                    <Filter className={`h-4 w-4 ${rule.is_active ? 'text-green-600' : 'text-gray-600'}`} />
-                  </div>
-                  <div>
-                    <span className="font-medium text-sm">{rule.name}</span>
-                    <p className="text-xs text-muted-foreground">{rule.description}</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={rule.is_active}
-                  onCheckedChange={() => updateFilterRule(rule.id, { is_active: !rule.is_active })}
-                />
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Exemption Rules */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
-                Exemption Rules
-              </CardTitle>
-              <Button size="sm" variant="outline">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Exemption
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {/* Exemption rules would be loaded from database in a similar way to filter rules */}
-            <div className="text-center py-8 text-muted-foreground">
-              <Shield className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>No exemption rules configured</p>
-              <p className="text-sm">Click "Add Exemption" to create exemption rules</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Real-time Activity Monitor */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Real-time Activity Monitor
-          </CardTitle>
-          <CardDescription>
-            Live updates from {activeAgent?.name || "the AI agent"}'s current activities
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[
-              { time: "2 min ago", action: "Sent follow-up email to Sarah Chen", type: "email" },
-              { time: "5 min ago", action: "Qualified lead: MBA Program match (85% score)", type: "qualification" },
-              { time: "8 min ago", action: "Scheduled call with Michael Rodriguez", type: "scheduling" },
-              { time: "12 min ago", action: "Handoff initiated for VIP lead", type: "handoff" }
-            ].map((activity, index) => (
-              <div key={index} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <div className="p-2 bg-primary/10 rounded-lg">
-                  {activity.type === 'email' && <Mail className="h-4 w-4 text-primary" />}
-                  {activity.type === 'qualification' && <Target className="h-4 w-4 text-primary" />}
-                  {activity.type === 'scheduling' && <Calendar className="h-4 w-4 text-primary" />}
-                  {activity.type === 'handoff' && <Users className="h-4 w-4 text-primary" />}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{activity.action}</p>
-                  <p className="text-xs text-muted-foreground">{activity.time}</p>
-                </div>
-              </div>
-            ))}
           </div>
-        </CardContent>
-      </Card>
+        </TabsContent>
+      </Tabs>
 
-      {/* AI Agent Wizard */}
-      <AIAgentWizard 
-        open={showCreateAgent}
-        onOpenChange={setShowCreateAgent}
-        onSave={handleSaveAgent}
+      {/* Journey-Based AI Agent Wizard */}
+      <JourneyBasedAIAgentWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        editingAgent={editingAgent}
+        onSave={handleWizardSave}
       />
     </div>
   );

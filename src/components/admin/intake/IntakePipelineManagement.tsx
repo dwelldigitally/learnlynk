@@ -36,8 +36,22 @@ import {
   Settings,
   MoreHorizontal
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { toast } from 'sonner';
+
+// Helper function to safely format dates
+const safeFormatDate = (dateString: string, formatString: string = 'MMM d'): string => {
+  if (!dateString) return 'N/A';
+  
+  try {
+    const date = new Date(dateString);
+    if (!isValid(date)) return 'Invalid Date';
+    return format(date, formatString);
+  } catch (error) {
+    console.error('Date formatting error:', error, 'Date string:', dateString);
+    return 'Invalid Date';
+  }
+};
 
 // Dummy data types
 interface IntakeData {
@@ -134,19 +148,24 @@ const generateLeads = (intakeId: string, count: number): LeadData[] => {
   const stages = ['New', 'Contacted', 'Qualified', 'Proposal', 'Follow-up'];
   const advisors = ['Sarah Wilson', 'Mike Johnson', 'Emma Davis', 'James Chen'];
 
-  return Array.from({ length: count }, (_, i) => ({
-    id: `lead-${intakeId}-${i + 1}`,
-    name: `Lead ${i + 1} ${['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'][i % 5]}`,
-    email: `lead${i + 1}@example.com`,
-    phone: `+1-555-${String(i + 1000).slice(-4)}`,
-    source: sources[i % sources.length],
-    stage: stages[i % stages.length],
-    score: 40 + Math.floor(Math.random() * 60),
-    assignedTo: advisors[i % advisors.length],
-    createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
-    lastContact: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-    intakeId
-  }));
+  return Array.from({ length: count }, (_, i) => {
+    const createdDate = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000);
+    const lastContactDate = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+    
+    return {
+      id: `lead-${intakeId}-${i + 1}`,
+      name: `Lead ${i + 1} ${['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'][i % 5]}`,
+      email: `lead${i + 1}@example.com`,
+      phone: `+1-555-${String(i + 1000).slice(-4)}`,
+      source: sources[i % sources.length],
+      stage: stages[i % stages.length],
+      score: 40 + Math.floor(Math.random() * 60),
+      assignedTo: advisors[i % advisors.length],
+      createdAt: createdDate.toISOString(),
+      lastContact: lastContactDate.toISOString(),
+      intakeId
+    };
+  });
 };
 
 const generateApplicants = (intakeId: string, count: number): ApplicantData[] => {
@@ -625,7 +644,7 @@ function LeadsTable({
                     </div>
                   </td>
                   <td className="p-4">{lead.assignedTo}</td>
-                  <td className="p-4">{format(new Date(lead.lastContact), 'MMM d')}</td>
+                  <td className="p-4">{safeFormatDate(lead.lastContact)}</td>
                   <td className="p-4">
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline">
@@ -702,7 +721,7 @@ function ApplicantsTable({
                   </td>
                   <td className="p-4 font-medium">{applicant.name}</td>
                   <td className="p-4">{applicant.email}</td>
-                  <td className="p-4">{format(new Date(applicant.applicationDate), 'MMM d, yyyy')}</td>
+                  <td className="p-4">{safeFormatDate(applicant.applicationDate, 'MMM d, yyyy')}</td>
                   <td className="p-4">
                     <Badge variant={getStatusBadgeVariant(applicant.status)}>
                       {applicant.status.replace('_', ' ')}
@@ -798,7 +817,7 @@ function StudentsTable({
                   </td>
                   <td className="p-4 font-medium">{student.name}</td>
                   <td className="p-4">{student.email}</td>
-                  <td className="p-4">{format(new Date(student.enrollmentDate), 'MMM d, yyyy')}</td>
+                  <td className="p-4">{safeFormatDate(student.enrollmentDate, 'MMM d, yyyy')}</td>
                   <td className="p-4">
                     <Badge variant={getStatusBadgeVariant(student.status)}>
                       {student.status}

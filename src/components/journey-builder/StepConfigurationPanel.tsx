@@ -356,8 +356,8 @@ export function StepConfigurationPanel() {
   const benchmarks = selectedElement.config.benchmarks || {};
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+    <ScrollArea className="h-full max-w-full">
+      <div className="p-4 sm:p-6 space-y-6 max-w-full overflow-x-hidden">
         {/* Header */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">

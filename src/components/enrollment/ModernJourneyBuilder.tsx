@@ -206,42 +206,54 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
   const categorySteps = getCategorySteps();
 
   return (
-    <div className="min-h-screen bg-gradient-hero">
+    <div className="min-h-screen bg-gradient-hero overflow-x-hidden">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-border/50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={onBack} className="gap-2">
+        <div className="w-full max-w-none px-4 sm:px-6 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
+              <Button variant="ghost" onClick={onBack} className="gap-2 flex-shrink-0">
                 <ArrowLeft className="h-4 w-4" />
-                Back to Manager
+                <span className="hidden sm:inline">Back to Manager</span>
+                <span className="sm:hidden">Back</span>
               </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Journey Builder</h1>
-                <p className="text-muted-foreground">Create step-by-step academic enrollment workflows</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground truncate">Journey Builder</h1>
+                <p className="text-sm text-muted-foreground hidden sm:block">Create step-by-step academic enrollment workflows</p>
               </div>
             </div>
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setShowStepLibrary(true)} className="gap-2">
+            <div className="flex gap-2 sm:gap-3 flex-shrink-0 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowStepLibrary(true)} 
+                className="gap-2 flex-1 sm:flex-initial"
+                size="sm"
+              >
                 <Plus className="h-4 w-4" />
-                Add Step
+                <span className="hidden sm:inline">Add Step</span>
+                <span className="sm:hidden">Add</span>
               </Button>
-              <Button onClick={handleSave} className="gap-2 bg-gradient-primary">
+              <Button 
+                onClick={handleSave} 
+                className="gap-2 bg-gradient-primary flex-1 sm:flex-initial"
+                size="sm"
+              >
                 <Save className="h-4 w-4" />
-                Save Journey
+                <span className="hidden sm:inline">Save Journey</span>
+                <span className="sm:hidden">Save</span>
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="w-full max-w-none px-4 sm:px-6 py-6 sm:py-8 overflow-x-hidden">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8 max-w-none">
           {/* Journey Configuration */}
-          <div className="lg:col-span-1">
-            <div className="glass-card p-6 rounded-xl sticky top-32">
+          <div className="xl:col-span-1 order-3 xl:order-1">
+            <div className="glass-card p-4 sm:p-6 rounded-xl xl:sticky xl:top-32 max-w-full">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Journey Details</h3>
+                <h3 className="text-lg font-semibold truncate">Journey Details</h3>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -294,13 +306,14 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
           </div>
 
           {/* Journey Steps */}
-          <div className="lg:col-span-2">
-            <div className="glass-card p-6 rounded-xl">
-              <div className="flex items-center justify-between mb-6">
+          <div className="xl:col-span-2 order-1 xl:order-2">
+            <div className="glass-card p-4 sm:p-6 rounded-xl max-w-full">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <h3 className="text-lg font-semibold">Journey Steps</h3>
                 <Button 
                   onClick={() => setShowStepLibrary(true)}
-                  className="gap-2 bg-gradient-primary"
+                  className="gap-2 bg-gradient-primary w-full sm:w-auto"
+                  size="sm"
                 >
                   <Plus className="h-4 w-4" />
                   Add Step
@@ -308,12 +321,12 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
               </div>
 
               {journeySteps.length === 0 ? (
-                <div className="text-center py-16">
-                  <div className="w-20 h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-                    <Plus className="h-10 w-10 text-white" />
+                <div className="text-center py-12 sm:py-16">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Plus className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
                   </div>
                   <h4 className="text-lg font-semibold mb-2">Start Building Your Journey</h4>
-                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto text-sm sm:text-base">
                     Add steps to create a structured enrollment process. Students will progress through each step sequentially.
                   </p>
                   <Button 
@@ -334,35 +347,35 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
                       <div key={step.id} className="relative">
                         {/* Connection line */}
                         {index < journeySteps.length - 1 && (
-                          <div className="absolute left-6 top-20 w-0.5 h-8 bg-border z-0" />
+                          <div className="absolute left-6 top-16 sm:top-20 w-0.5 h-6 sm:h-8 bg-border z-0" />
                         )}
                         
-                        <div className="relative bg-card border border-border/50 rounded-xl p-4 hover:shadow-md transition-shadow">
-                          <div className="flex items-center gap-4">
+                        <div className="relative bg-card border border-border/50 rounded-xl p-3 sm:p-4 hover:shadow-md transition-shadow max-w-full">
+                          <div className="flex items-start gap-3 sm:gap-4 min-w-0">
                             {/* Step number and icon */}
-                            <div className="flex flex-col items-center gap-2">
-                              <div className={`w-12 h-12 ${stepColor} rounded-xl flex items-center justify-center relative z-10`}>
-                                <StepIcon className="h-6 w-6 text-white" />
+                            <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                              <div className={`w-10 h-10 sm:w-12 sm:h-12 ${stepColor} rounded-xl flex items-center justify-center relative z-10`}>
+                                <StepIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                               </div>
-                              <span className="text-xs font-medium text-muted-foreground">
+                              <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
                                 Step {index + 1}
                               </span>
                             </div>
 
                             {/* Step details */}
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium text-foreground">{step.title}</h4>
-                                <Badge variant="outline" className="text-xs">
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-1">
+                                <h4 className="font-medium text-foreground truncate">{step.title}</h4>
+                                <Badge variant="outline" className="text-xs whitespace-nowrap">
                                   {step.config?.required !== false ? 'Required' : 'Optional'}
                                 </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-muted-foreground line-clamp-2">
                                 {step.description || 'No description provided'}
                               </p>
                               {step.config?.duration && (
                                 <div className="flex items-center gap-1 mt-2">
-                                  <Clock className="h-3 w-3 text-muted-foreground" />
+                                  <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                                   <span className="text-xs text-muted-foreground">
                                     {step.config.duration} minutes
                                   </span>
@@ -371,7 +384,7 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
                             </div>
 
                             {/* Actions */}
-                            <div className="flex items-center gap-1">
+                            <div className="flex flex-col sm:flex-row items-center gap-1 flex-shrink-0">
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -389,13 +402,13 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
-                              <div className="flex flex-col gap-0.5">
+                              <div className="flex items-center gap-0.5">
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => moveStep(step.id, 'up')}
                                   disabled={index === 0}
-                                  className="h-4 w-6 p-0"
+                                  className="h-6 w-6 p-0"
                                 >
                                   <GripVertical className="h-3 w-3" />
                                 </Button>
@@ -404,7 +417,7 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
                                   size="sm"
                                   onClick={() => moveStep(step.id, 'down')}
                                   disabled={index === journeySteps.length - 1}
-                                  className="h-4 w-6 p-0"
+                                  className="h-6 w-6 p-0"
                                 >
                                   <GripVertical className="h-3 w-3" />
                                 </Button>
@@ -421,13 +434,13 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
           </div>
 
           {/* Configuration Panel */}
-          <div className="lg:col-span-1">
+          <div className="xl:col-span-1 order-2 xl:order-3">
             {state.selectedElementId === 'journey-config' ? (
               <JourneyConfigurationPanel />
             ) : state.selectedElementId ? (
               <StepConfigurationPanel />
             ) : (
-              <div className="glass-card p-6 rounded-xl h-fit">
+              <div className="glass-card p-4 sm:p-6 rounded-xl h-fit max-w-full">
                 <div className="text-center">
                   <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mx-auto mb-3">
                     <Settings className="h-6 w-6 text-muted-foreground" />
@@ -445,22 +458,22 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
 
       {/* Step Library Dialog */}
       <Dialog open={showStepLibrary} onOpenChange={setShowStepLibrary}>
-        <DialogContent className="max-w-4xl max-h-[80vh]">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl max-h-[85vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-xl">Choose Journey Steps</DialogTitle>
           </DialogHeader>
-          <ScrollArea className="max-h-[60vh]">
+          <ScrollArea className="max-h-[70vh] pr-4">
             <div className="space-y-6 p-1">
               {Object.entries(categorySteps).map(([category, steps]) => (
                 <div key={category} className="space-y-3">
                   <h3 className="text-lg font-semibold text-foreground">{category}</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {steps.map((step) => {
                       const StepIcon = getStepIcon(step.type);
                       const stepColor = getStepColor(step.type);
                       
                       return (
-                        <Card 
+                        <Card
                           key={step.type} 
                           className="cursor-pointer hover:shadow-lg transition-all duration-200 border-border/50"
                           onClick={() => addStep(step.type)}

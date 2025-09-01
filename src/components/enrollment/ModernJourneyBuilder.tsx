@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,18 +18,48 @@ import { BuilderConfig, JourneyElement } from '@/types/universalBuilder';
 import { journeyElementTypes } from '@/config/elementTypes';
 import { AcademicJourneyService } from '@/services/academicJourneyService';
 import { toast } from 'sonner';
+import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
+import { JourneyConfigurationPanel } from '@/components/journey-builder/JourneyConfigurationPanel';
+import { StepConfigurationPanel } from '@/components/journey-builder/StepConfigurationPanel';
 
 interface ModernJourneyBuilderProps {
   onBack: () => void;
 }
 
-export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
+function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
+  const { state, dispatch } = useBuilder();
   const [journeyName, setJourneyName] = useState('New Academic Journey');
   const [journeyDescription, setJourneyDescription] = useState('');
-  const [journeySteps, setJourneySteps] = useState<JourneyElement[]>([]);
-  const [selectedStep, setSelectedStep] = useState<JourneyElement | null>(null);
   const [showStepLibrary, setShowStepLibrary] = useState(false);
-  const [editingStep, setEditingStep] = useState<JourneyElement | null>(null);
+
+  // Initialize the builder with journey config
+  useEffect(() => {
+    dispatch({
+      type: 'SET_CONFIG',
+      payload: {
+        name: journeyName,
+        description: journeyDescription,
+        type: 'journey',
+        elements: [],
+        settings: {},
+      },
+    });
+  }, []);
+
+  // Update config when name/description changes
+  useEffect(() => {
+    dispatch({
+      type: 'UPDATE_CONFIG',
+      payload: {
+        ...state.config,
+        name: journeyName,
+        description: journeyDescription,
+      },
+    });
+  }, [journeyName, journeyDescription]);
+
+  const journeySteps = state.config.elements;
+  const selectedStep = state.selectedElementId ? journeySteps.find(el => el.id === state.selectedElementId) : null;
 
   const getStepIcon = (type: string) => {
     const iconMap = {
@@ -93,16 +123,19 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
       elementType: 'journey',
     } as JourneyElement;
 
-    setJourneySteps([...journeySteps, newStep]);
+    dispatch({
+      type: 'ADD_ELEMENT',
+      payload: newStep,
+    });
     setShowStepLibrary(false);
     toast.success(`${elementConfig.label} added to journey`);
   };
 
   const removeStep = (stepId: string) => {
-    setJourneySteps(journeySteps.filter(step => step.id !== stepId));
-    if (selectedStep?.id === stepId) {
-      setSelectedStep(null);
-    }
+    dispatch({
+      type: 'DELETE_ELEMENT',
+      payload: stepId,
+    });
     toast.success('Step removed from journey');
   };
 
@@ -112,15 +145,10 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
     
     if (newIndex < 0 || newIndex >= journeySteps.length) return;
 
-    const newSteps = [...journeySteps];
-    [newSteps[currentIndex], newSteps[newIndex]] = [newSteps[newIndex], newSteps[currentIndex]];
-    
-    // Update positions
-    newSteps.forEach((step, index) => {
-      step.position = index;
+    dispatch({
+      type: 'REORDER_ELEMENTS',
+      payload: { oldIndex: currentIndex, newIndex },
     });
-
-    setJourneySteps(newSteps);
   };
 
   const handleSave = async () => {
@@ -134,13 +162,7 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
       return;
     }
 
-    const config: BuilderConfig = {
-      name: journeyName,
-      description: journeyDescription,
-      type: 'journey',
-      elements: journeySteps,
-      settings: {}
-    };
+    const config = state.config;
 
     try {
       // Create the academic journey in the database
@@ -153,8 +175,8 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
       });
 
       // Create journey stages for each step
-      for (let i = 0; i < journeySteps.length; i++) {
-        const step = journeySteps[i];
+      for (let i = 0; i < config.elements.length; i++) {
+        const step = config.elements[i];
         await AcademicJourneyService.createJourneyStage({
           journey_id: journey.id,
           name: step.title || `Step ${i + 1}`,
@@ -214,11 +236,21 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
       </div>
 
       <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Journey Configuration */}
           <div className="lg:col-span-1">
             <div className="glass-card p-6 rounded-xl sticky top-32">
-              <h3 className="text-lg font-semibold mb-4">Journey Details</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Journey Details</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => dispatch({ type: 'SELECT_ELEMENT', payload: 'journey-config' })}
+                  className="gap-2"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </div>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="journeyName" className="text-sm font-medium">Journey Name</Label>
@@ -343,8 +375,9 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setEditingStep(step)}
+                                onClick={() => dispatch({ type: 'SELECT_ELEMENT', payload: step.id })}
                                 className="h-8 w-8 p-0"
+                                title="Configure step"
                               >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
@@ -385,6 +418,27 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
                 </div>
               )}
             </div>
+          </div>
+
+          {/* Configuration Panel */}
+          <div className="lg:col-span-1">
+            {state.selectedElementId === 'journey-config' ? (
+              <JourneyConfigurationPanel />
+            ) : state.selectedElementId ? (
+              <StepConfigurationPanel />
+            ) : (
+              <div className="glass-card p-6 rounded-xl h-fit">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center mx-auto mb-3">
+                    <Settings className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <h4 className="font-medium mb-2">Configuration Panel</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Select a step or click the settings icon to configure journey properties
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -436,6 +490,14 @@ export function ModernJourneyBuilder({ onBack }: ModernJourneyBuilderProps) {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export function ModernJourneyBuilder(props: ModernJourneyBuilderProps) {
+  return (
+    <BuilderProvider>
+      <JourneyBuilderContent {...props} />
+    </BuilderProvider>
   );
 }
 

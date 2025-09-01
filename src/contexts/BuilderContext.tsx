@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { BuilderState, BuilderConfig, UniversalElement, BuilderType } from '@/types/universalBuilder';
 
-type BuilderAction =
+export type BuilderAction =
   | { type: 'SET_CONFIG'; payload: BuilderConfig }
+  | { type: 'UPDATE_CONFIG'; payload: BuilderConfig }
   | { type: 'SET_BUILDER_TYPE'; payload: BuilderType }
   | { type: 'ADD_ELEMENT'; payload: UniversalElement }
   | { type: 'UPDATE_ELEMENT'; payload: { id: string; updates: Partial<UniversalElement> } }
@@ -36,6 +37,12 @@ function builderReducer(state: BuilderState, action: BuilderAction): BuilderStat
         ...state,
         config: action.payload,
         selectedElementId: null,
+      };
+
+    case 'UPDATE_CONFIG':
+      return {
+        ...state,
+        config: action.payload,
       };
 
     case 'SET_BUILDER_TYPE':

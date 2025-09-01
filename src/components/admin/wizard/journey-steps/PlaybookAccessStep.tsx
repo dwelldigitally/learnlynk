@@ -99,16 +99,19 @@ export function PlaybookAccessStep({ data, updateData }: PlaybookAccessStepProps
   };
 
   const setDefaultPlay = (trigger: string, playId: string) => {
+    const updatedTriggers = { ...data.defaultPlaysByTrigger };
+    if (playId === "none") {
+      delete updatedTriggers[trigger];
+    } else {
+      updatedTriggers[trigger] = playId;
+    }
     updateData({
-      defaultPlaysByTrigger: {
-        ...data.defaultPlaysByTrigger,
-        [trigger]: playId
-      }
+      defaultPlaysByTrigger: updatedTriggers
     });
   };
 
   const setFallbackPlay = (playId: string) => {
-    updateData({ fallbackPlay: playId });
+    updateData({ fallbackPlay: playId === "none" ? undefined : playId });
   };
 
   const selectedPlaysData = MOCK_PLAYS.filter(p => data.availablePlays.includes(p.id));
@@ -230,7 +233,7 @@ export function PlaybookAccessStep({ data, updateData }: PlaybookAccessStepProps
                     <SelectValue placeholder="Select default play..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No default play</SelectItem>
+                    <SelectItem value="none">No default play</SelectItem>
                     {selectedPlaysData.map(play => (
                       <SelectItem key={play.id} value={play.id}>{play.name}</SelectItem>
                     ))}
@@ -261,7 +264,7 @@ export function PlaybookAccessStep({ data, updateData }: PlaybookAccessStepProps
                 <SelectValue placeholder="Select fallback play..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No fallback play</SelectItem>
+                <SelectItem value="none">No fallback play</SelectItem>
                 {selectedPlaysData.map(play => (
                   <SelectItem key={play.id} value={play.id}>{play.name}</SelectItem>
                 ))}

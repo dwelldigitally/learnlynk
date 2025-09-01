@@ -35,18 +35,29 @@ export function useSmartActions() {
   const generateSmartActions = useCallback(async (
     request: SmartActionGenerationRequest = {}
   ): Promise<SmartAction[]> => {
+    console.log('[useSmartActions] Starting generation with request:', request);
     setIsGenerating(true);
     try {
       // Get leads based on context
       const leads = await getLeadsForContext(request.context || 'all', request.leadIds);
+      console.log('[useSmartActions] Retrieved leads for processing:', leads.length);
+      
+      if (leads.length === 0) {
+        console.warn('[useSmartActions] No leads found - cannot generate actions');
+        return [];
+      }
       
       // Generate actions using AI
       const actions: SmartAction[] = [];
       
       for (const lead of leads.slice(0, request.maxActions || 10)) {
+        console.log(`[useSmartActions] Processing lead: ${lead.first_name} ${lead.last_name} (${lead.id})`);
         const leadActions = await generateActionsForLead(lead, request.actionTypes);
+        console.log(`[useSmartActions] Generated ${leadActions.length} actions for ${lead.first_name}`);
         actions.push(...leadActions);
       }
+
+      console.log(`[useSmartActions] Total actions generated: ${actions.length}`);
 
       // Sort by confidence and priority
       actions.sort((a, b) => {
@@ -58,9 +69,17 @@ export function useSmartActions() {
         return b.confidence - a.confidence;
       });
 
+      console.log('[useSmartActions] Actions sorted and ready to return:', {
+        total: actions.length,
+        breakdown: actions.reduce((acc, action) => {
+          acc[action.type] = (acc[action.type] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>)
+      });
+
       return actions;
     } catch (error) {
-      console.error('Error generating smart actions:', error);
+      console.error('[useSmartActions] Error generating smart actions:', error);
       toast({
         title: "Generation Failed",
         description: "Failed to generate smart actions. Please try again.",

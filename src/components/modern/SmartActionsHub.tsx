@@ -48,11 +48,21 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
   }, []);
 
   const generateActions = async () => {
+    console.log('[SmartActionsHub] Starting action generation...');
     try {
       const newActions = await generateSmartActions({
         context: 'all',
         maxActions: 15,
       });
+      
+      console.log('[SmartActionsHub] Generated actions:', {
+        total: newActions.length,
+        autoExecutable: newActions.filter(a => a.isAutoExecutable).length,
+        highConfidence: newActions.filter(a => !a.isAutoExecutable && a.confidence >= 70).length,
+        review: newActions.filter(a => a.confidence < 70).length,
+        actions: newActions.map(a => ({ id: a.id, title: a.title, confidence: a.confidence, isAutoExecutable: a.isAutoExecutable }))
+      });
+      
       setActions(newActions);
       
       if (newActions.length > 0) {
@@ -60,9 +70,16 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
           title: "Smart Actions Generated",
           description: `Found ${newActions.length} optimization opportunities`,
         });
+      } else {
+        console.warn('[SmartActionsHub] No actions generated - this might indicate an issue');
+        toast({
+          title: "No Actions Generated",
+          description: "No optimization opportunities found. Check your lead data.",
+          variant: "default",
+        });
       }
     } catch (error) {
-      console.error('Failed to generate actions:', error);
+      console.error('[SmartActionsHub] Failed to generate actions:', error);
       toast({
         title: "Generation Failed",
         description: "Could not generate smart actions. Please try again.",
@@ -135,13 +152,47 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
   const autoExecutableActions = actions.filter(a => a.isAutoExecutable);
   const highConfidenceActions = actions.filter(a => !a.isAutoExecutable && a.confidence >= 70);
   const reviewActions = actions.filter(a => a.confidence < 70);
+  
+  console.log('[SmartActionsHub] Action categorization:', {
+    total: actions.length,
+    autoExecutable: autoExecutableActions.length,
+    highConfidence: highConfidenceActions.length,
+    review: reviewActions.length,
+    categories: {
+      autoExecutable: autoExecutableActions.map(a => a.title),
+      highConfidence: highConfidenceActions.map(a => a.title),
+      review: reviewActions.map(a => a.title)
+    }
+  });
 
   const totalImpact = actions.reduce((sum, action) => {
     const impact = parseInt(action.estimatedImpact?.match(/\d+/)?.[0] || '0');
     return sum + impact;
   }, 0);
 
-  if (actions.length === 0 && !isGenerating) {
+  // Loading state
+  if (isGenerating) {
+    return (
+      <Card className="glass-card">
+        <CardContent className="text-center py-12">
+          <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+            <RotateCcw className="h-8 w-8 text-primary animate-spin" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Generating Smart Actions</h3>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            AI is analyzing your leads and creating optimization opportunities...
+          </p>
+          <div className="w-64 mx-auto">
+            <Progress value={50} className="h-2 animate-pulse" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Empty state
+  if (actions.length === 0) {
+    console.log('[SmartActionsHub] Showing empty state - no actions available');
     return (
       <Card className="glass-card">
         <CardContent className="text-center py-12">
@@ -150,7 +201,8 @@ export const SmartActionsHub: React.FC<SmartActionsHubProps> = ({
           </div>
           <h3 className="text-xl font-semibold mb-2">No Smart Actions Available</h3>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            Generate AI-powered actions to optimize your enrollment process and boost conversions
+            Generate AI-powered actions to optimize your enrollment process and boost conversions.
+            Make sure you have leads in your system for actions to be generated.
           </p>
           <Button onClick={generateActions} size="lg" className="animate-bounce-in">
             <Sparkles className="h-4 w-4 mr-2" />

@@ -247,66 +247,64 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
         </div>
       </div>
 
-      <div className="w-full max-w-none px-4 sm:px-6 py-6 sm:py-8 overflow-x-hidden">
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 sm:gap-8 max-w-none">
-          {/* Journey Configuration */}
-          <div className="xl:col-span-1 order-3 xl:order-1">
-            <div className="glass-card p-4 sm:p-6 rounded-xl xl:sticky xl:top-32 max-w-full">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold truncate">Journey Details</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => dispatch({ type: 'SELECT_ELEMENT', payload: 'journey-config' })}
-                  className="gap-2"
-                >
-                  <Settings className="h-4 w-4" />
-                </Button>
+      <div className="w-full max-w-none px-4 sm:px-6 py-6 sm:py-8 overflow-x-hidden space-y-6">
+        {/* Journey Configuration - Now on top */}
+        <div className="glass-card p-4 sm:p-6 rounded-xl max-w-full">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold truncate">Journey Details</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => dispatch({ type: 'SELECT_ELEMENT', payload: 'journey-config' })}
+              className="gap-2"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="journeyName" className="text-sm font-medium">Journey Name</Label>
+              <Input
+                id="journeyName"
+                value={journeyName}
+                onChange={(e) => setJourneyName(e.target.value)}
+                placeholder="Enter journey name..."
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label htmlFor="journeyDescription" className="text-sm font-medium">Description</Label>
+              <Textarea
+                id="journeyDescription"
+                value={journeyDescription}
+                onChange={(e) => setJourneyDescription(e.target.value)}
+                placeholder="Describe this academic journey..."
+                rows={3}
+                className="mt-1"
+              />
+            </div>
+            <div className="pt-4 border-t border-border/50">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium">Journey Summary</span>
+                <Badge variant="outline">{journeySteps.length} steps</Badge>
               </div>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="journeyName" className="text-sm font-medium">Journey Name</Label>
-                  <Input
-                    id="journeyName"
-                    value={journeyName}
-                    onChange={(e) => setJourneyName(e.target.value)}
-                    placeholder="Enter journey name..."
-                    className="mt-1"
-                  />
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-3 w-3" />
+                  <span>Total Steps: {journeySteps.length}</span>
                 </div>
-                <div>
-                  <Label htmlFor="journeyDescription" className="text-sm font-medium">Description</Label>
-                  <Textarea
-                    id="journeyDescription"
-                    value={journeyDescription}
-                    onChange={(e) => setJourneyDescription(e.target.value)}
-                    placeholder="Describe this academic journey..."
-                    rows={3}
-                    className="mt-1"
-                  />
-                </div>
-                <div className="pt-4 border-t border-border/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Journey Summary</span>
-                    <Badge variant="outline">{journeySteps.length} steps</Badge>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="h-3 w-3" />
-                      <span>Total Steps: {journeySteps.length}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-3 w-3" />
-                      <span>Est. Duration: {Math.max(journeySteps.length * 2, 1)} days</span>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-3 w-3" />
+                  <span>Est. Duration: {Math.max(journeySteps.length * 2, 1)} days</span>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 sm:gap-8 max-w-none">
           {/* Journey Steps */}
-          <div className="xl:col-span-2 order-1 xl:order-2">
+          <div className="xl:col-span-2 order-1">
             <div className="glass-card p-4 sm:p-6 rounded-xl max-w-full">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <h3 className="text-lg font-semibold">Journey Steps</h3>
@@ -434,7 +432,7 @@ function JourneyBuilderContent({ onBack }: ModernJourneyBuilderProps) {
           </div>
 
           {/* Configuration Panel */}
-          <div className="xl:col-span-1 order-2 xl:order-3">
+          <div className="xl:col-span-1 order-2">
             {state.selectedElementId === 'journey-config' ? (
               <JourneyConfigurationPanel />
             ) : state.selectedElementId ? (

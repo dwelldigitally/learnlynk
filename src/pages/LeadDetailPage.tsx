@@ -136,10 +136,10 @@ export default function LeadDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation */}
-      {/* <TopNavigationBar 
+      <TopNavigationBar 
         activeSection="leads" 
         onSectionChange={() => {}} 
-      /> */}
+      />
       
       {/* Header with back button and lead info */}
       <div className="border-b bg-card px-6 py-4">
@@ -169,10 +169,7 @@ export default function LeadDetailPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => {
-                console.log('🧪 Trying new design, navigating to:', `/admin/leads/${leadId}`);
-                navigate(`/admin/leads/${leadId}`);
-              }}
+              onClick={() => navigate(`/admin/leads/test/${leadId}`)}
               className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
             >
               🧪 Try New Design

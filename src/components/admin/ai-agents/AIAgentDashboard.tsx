@@ -397,11 +397,11 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
             <CardContent>
               <div className="space-y-4">
                 {MOCK_AGENTS.map((agent) => (
-                  <div key={agent.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
+                  <div key={agent.id} className="p-4 border rounded-lg">
                     <div className="flex items-start justify-between">
-                      <div className="flex-1 cursor-pointer" onClick={() => window.location.href = `/admin/leads/ai/${agent.id}/analytics`}>
+                      <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold hover:text-primary transition-colors">{agent.name}</h3>
+                          <h3 className="font-semibold">{agent.name}</h3>
                           <Badge variant={
                             agent.status === 'active' ? 'default' : 
                             agent.status === 'shadow' ? 'secondary' : 
@@ -441,11 +441,7 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => window.location.href = `/admin/leads/ai/${agent.id}/analytics`}
-                        >
+                        <Button variant="outline" size="sm">
                           <BarChart3 className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm">

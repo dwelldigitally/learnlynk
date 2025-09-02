@@ -79,17 +79,7 @@ const AdminDashboard: React.FC = () => {
     
     // Check for lead detail route pattern - use LeadDetailPage
     if (location.pathname.startsWith("/admin/leads/detail/")) {
-      console.log('🔍 AdminDashboard: Matched /admin/leads/detail/ pattern');
       // Extract lead ID from the pathname and render LeadDetailPage directly (no layout wrapper)
-      return <LeadDetailPage />;
-    }
-    
-    // Check for direct lead ID route pattern (UUID format)
-    const leadUuidMatch = location.pathname.match(/^\/admin\/leads\/([0-9a-f-]{36})$/);
-    if (leadUuidMatch) {
-      console.log('🔍 AdminDashboard: Matched direct lead UUID pattern:', leadUuidMatch[1]);
-      // Redirect to proper detail route so useParams works correctly
-      window.history.replaceState(null, '', `/admin/leads/detail/${leadUuidMatch[1]}`);
       return <LeadDetailPage />;
     }
     

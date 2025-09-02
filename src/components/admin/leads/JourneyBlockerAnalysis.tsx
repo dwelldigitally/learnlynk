@@ -31,21 +31,19 @@ export function JourneyBlockerAnalysis({ leadId, leadData }: JourneyBlockerAnaly
   const [steps, setSteps] = useState<JourneyStep[]>([]);
 
   const analyzeJourney = () => {
-    if (!leadData) return;
-    
     // Simplified journey analysis based on lead status and data
     const journeySteps: JourneyStep[] = [
       {
         id: 'inquiry',
         name: 'Initial Inquiry',
         status: 'completed',
-        completedAt: leadData.created_at || new Date().toISOString()
+        completedAt: leadData.created_at
       },
       {
         id: 'consultation',
         name: 'Consultation',
         status: 'completed',
-        completedAt: leadData.created_at || new Date().toISOString()
+        completedAt: leadData.created_at
       },
       {
         id: 'application',
@@ -174,9 +172,7 @@ export function JourneyBlockerAnalysis({ leadId, leadData }: JourneyBlockerAnaly
   };
 
   useEffect(() => {
-    if (leadData) {
-      analyzeJourney();
-    }
+    analyzeJourney();
   }, [leadData]);
 
   const currentBlocker = getCurrentBlocker();

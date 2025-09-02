@@ -77,14 +77,10 @@ export default function LeadDetailTestPage() {
   const [isEditing, setIsEditing] = useState(false);
 
   const loadLead = useCallback(async () => {
-    if (!leadId || leadId === ':leadId') {
-      console.log('❌ Invalid leadId:', leadId);
-      return;
-    }
+    if (!leadId) return;
     
     try {
       setLoading(true);
-      console.log('🔍 Loading lead with ID:', leadId);
       const { data: leadData } = await LeadService.getLeadById(leadId);
       
       if (leadData) {
@@ -110,19 +106,10 @@ export default function LeadDetailTestPage() {
   }, [leadId, toast, navigate]);
 
   useEffect(() => {
-    if (leadId && leadId !== ':leadId') {
+    if (leadId) {
       loadLead();
-    } else if (leadId === ':leadId') {
-      console.error('❌ Route parameter issue: leadId is literal ":leadId"');
-      setLoading(false);
-      toast({
-        title: 'Route Error',
-        description: 'Invalid lead ID in URL. Please access this page from the leads list.',
-        variant: 'destructive'
-      });
-      navigate('/admin/leads');
     }
-  }, [leadId, loadLead, toast, navigate]);
+  }, [leadId, loadLead]);
 
   // Demo data
   const demoEngagementTimeline = [

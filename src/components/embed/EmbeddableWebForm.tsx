@@ -8,14 +8,13 @@ import { Loader2, Send, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
+// Match the programs available in the student portal
 const AVAILABLE_PROGRAMS = [
-  'Law School (JD)',
-  'MBA',
-  'PhD in Business Administration',
-  'Master of Education',
-  'Master of Public Administration',
-  'Master of Social Work',
-  'MD/MBA Dual Degree',
+  'Health Care Assistant',
+  'Education Assistant', 
+  'Aviation',
+  'Hospitality',
+  'ECE',
   'MLA'
 ];
 
@@ -95,34 +94,58 @@ export const EmbeddableWebForm: React.FC<EmbeddableWebFormProps> = ({
         description: "We will contact you soon with next steps.",
       });
 
+      // Log success data for debugging
+      console.log('Form submission successful:', {
+        accessToken: data?.accessToken,
+        portalUrl: data?.portalUrl,
+        hasOnSuccess: !!onSuccess,
+        isInIframe: window.parent !== window
+      });
+
       // Send success message to parent window if embedded
       if (window.parent !== window) {
         window.parent.postMessage({
           type: 'WEBFORM_SUCCESS',
           data: {
-            accessToken: data.accessToken,
-            portalUrl: data.portalUrl
+            accessToken: data?.accessToken,
+            portalUrl: data?.portalUrl
           }
         }, '*');
       }
 
-      if (onSuccess) {
+      if (onSuccess && data?.accessToken && data?.portalUrl) {
         onSuccess({
           accessToken: data.accessToken,
           portalUrl: data.portalUrl
         });
-      } else if (data.portalUrl) {
+      } else if (data?.portalUrl) {
         // Redirect after a short delay to show success message
         setTimeout(() => {
+          console.log('Redirecting to portal:', data.portalUrl);
           window.location.href = data.portalUrl;
         }, 2000);
+      } else {
+        console.error('No portal URL received from server');
+        toast({
+          title: "Portal Access Issue",
+          description: "Application submitted but unable to redirect to portal. Check your email for access.",
+          variant: "destructive",
+        });
       }
 
     } catch (error) {
       console.error('Error submitting application:', error);
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        formData: formData
+      });
+      
       toast({
         title: "Submission Failed",
-        description: "There was an error submitting your application. Please try again.",
+        description: error instanceof Error && error.message.includes('portal') 
+          ? "Application submitted but unable to create portal access. Please contact support."
+          : "There was an error submitting your application. Please try again.",
         variant: "destructive",
       });
     } finally {

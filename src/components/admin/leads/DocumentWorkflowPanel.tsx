@@ -188,8 +188,8 @@ export function DocumentWorkflowPanel({ leadId, documents = [] }: DocumentWorkfl
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -267,8 +267,8 @@ export function DocumentWorkflowPanel({ leadId, documents = [] }: DocumentWorkfl
         </div>
       </CardHeader>
       
-      <CardContent>
-        <ScrollArea className="h-[400px]">
+      <CardContent className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
           {displayDocuments.length > 0 ? (
             <div className="space-y-3">
               {displayDocuments.map((doc) => (

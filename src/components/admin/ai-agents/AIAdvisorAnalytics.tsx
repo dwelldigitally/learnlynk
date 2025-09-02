@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { ModernAdminLayout } from '@/components/admin/ModernAdminLayout';
 import { 
   ArrowLeft,
   Bot, 
@@ -251,23 +252,25 @@ export function AIAdvisorAnalytics() {
 
   if (!advisor) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <h2 className="text-xl font-semibold">Advisor not found</h2>
-          <Button onClick={() => navigate('/admin/leads/ai')}>
-            Back to AI Agents
-          </Button>
+      <ModernAdminLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center space-y-4">
+            <h2 className="text-xl font-semibold">Advisor not found</h2>
+            <Button onClick={() => navigate('/admin/leads/ai')}>
+              Back to AI Agents
+            </Button>
+          </div>
         </div>
-      </div>
+      </ModernAdminLayout>
     );
   }
 
   const currentAnalytics = advisor.analytics[selectedTimeframe];
 
   return (
-    <div className="min-h-screen bg-background">
+    <ModernAdminLayout>
       {/* Header */}
-      <div className="border-b bg-card px-6 py-4">
+      <div className="border-b bg-card px-6 py-4 -mx-6 -mt-6 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads/ai')}>
@@ -313,7 +316,7 @@ export function AIAdvisorAnalytics() {
       </div>
 
       {/* Analytics Overview */}
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <Card>
@@ -555,6 +558,6 @@ export function AIAdvisorAnalytics() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </ModernAdminLayout>
   );
 }

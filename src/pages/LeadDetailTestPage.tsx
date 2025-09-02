@@ -55,6 +55,8 @@ import { AppointmentBookingButton } from '@/components/admin/leads/AppointmentBo
 import { AdvisorMatchDialog } from '@/components/admin/leads/AdvisorMatchDialog';
 import { NotesSystemPanel } from '@/components/admin/leads/NotesSystemPanel';
 import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflowPanel';
+import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunicationPanel';
+import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunicationPanel';
 
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
@@ -758,7 +760,11 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="comms" className="h-full">
-                <CallHistorySection leadId={leadId || ''} />
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
+                  <CallHistorySection leadId={leadId || ''} />
+                  <EmailCommunicationPanel leadId={leadId || ''} leadEmail={lead?.email} />
+                  <SMSCommunicationPanel leadId={leadId || ''} leadPhone={lead?.phone} />
+                </div>
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">

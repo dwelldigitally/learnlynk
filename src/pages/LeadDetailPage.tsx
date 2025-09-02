@@ -169,7 +169,10 @@ export default function LeadDetailPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigate(`/admin/leads/detail/${leadId}`)}
+              onClick={() => {
+                console.log('🧪 Trying new design, navigating to:', `/admin/leads/${leadId}`);
+                navigate(`/admin/leads/${leadId}`);
+              }}
               className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
             >
               🧪 Try New Design

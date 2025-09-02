@@ -118,8 +118,8 @@ export function CallHistorySection({ leadId, calls = [], loading = false }: Call
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <PhoneCall className="h-5 w-5" />
@@ -131,9 +131,9 @@ export function CallHistorySection({ leadId, calls = [], loading = false }: Call
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-hidden">
         {displayCalls.length > 0 ? (
-          <ScrollArea className="h-[400px]">
+          <ScrollArea className="h-full">
             <div className="space-y-3">
               {displayCalls.map((call) => (
                 <div key={call.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">

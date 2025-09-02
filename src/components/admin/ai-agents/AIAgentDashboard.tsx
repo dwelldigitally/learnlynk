@@ -19,7 +19,13 @@ import {
   Target,
   Eye,
   Route,
-  UserCheck
+  UserCheck,
+  Activity,
+  PlayCircle,
+  Shield,
+  Zap,
+  CheckCircle,
+  ExternalLink
 } from "lucide-react";
 import { AIAgent, AIAgentAnalytics } from "@/types/ai-agent";
 import { AIAgentWizard } from "./AIAgentWizard";
@@ -441,7 +447,12 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(`/admin/leads/ai/${agent.id}/analytics`, '_blank')}
+                          title="View Analytics"
+                        >
                           <BarChart3 className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm">
@@ -568,7 +579,12 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => window.open(`/admin/leads/ai/${agent.id}/analytics`, '_blank')}
+                          title="View Analytics"
+                        >
                           <BarChart3 className="h-4 w-4" />
                         </Button>
                         <Button variant="outline" size="sm">
@@ -628,29 +644,101 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5" />
-                Recent Escalations
+                <Activity className="h-5 w-5" />
+                Recent AI Activities & Triggers
               </CardTitle>
+              <CardDescription>
+                Real-time view of AI decision-making and executions
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="flex items-start gap-3 p-3 border rounded-lg">
-                  <Clock className="h-4 w-4 mt-1 text-muted-foreground" />
+                  <PlayCircle className="h-4 w-4 mt-1 text-blue-600" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Student visa question escalated</p>
-                    <p className="text-xs text-muted-foreground">Domestic Undergrad Assistant • 23 minutes ago</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-medium">Welcome Sequence Executed</p>
+                      <Badge variant="default" className="text-xs">AI Play</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">International graduate inquiry triggered personalized welcome</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>Sarah Chen • Masters in CS</span>
+                      <span>•</span>
+                      <span>23 minutes ago</span>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="text-xs">45% confidence</Badge>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <Badge variant="outline" className="text-xs">87% confidence</Badge>
+                  </div>
                 </div>
                 
                 <div className="flex items-start gap-3 p-3 border rounded-lg">
-                  <Clock className="h-4 w-4 mt-1 text-muted-foreground" />
+                  <Shield className="h-4 w-4 mt-1 text-purple-600" />
                   <div className="flex-1">
-                    <p className="text-sm font-medium">Complex financial aid inquiry</p>
-                    <p className="text-xs text-muted-foreground">Domestic Undergrad Assistant • 1 hour ago</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-medium">Message Frequency Policy Applied</p>
+                      <Badge variant="secondary" className="text-xs">Policy Decision</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">Prevented excessive messaging (3+ messages today)</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>Michael Rodriguez</span>
+                      <span>•</span>
+                      <span>1 hour ago</span>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="text-xs">32% confidence</Badge>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <Badge variant="outline" className="text-xs">Policy enforced</Badge>
+                  </div>
                 </div>
+
+                <div className="flex items-start gap-3 p-3 border rounded-lg">
+                  <Zap className="h-4 w-4 mt-1 text-green-600" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-medium">Document Request Sent</p>
+                      <Badge variant="outline" className="text-xs">Execution Log</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">AI requested missing transcripts via personalized email</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>Emma Wilson • Bachelor of Business</span>
+                      <span>•</span>
+                      <span>2 hours ago</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <Badge variant="outline" className="text-xs">92% confidence</Badge>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3 p-3 border rounded-lg">
+                  <AlertTriangle className="h-4 w-4 mt-1 text-orange-600" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-medium">Complex Financial Aid Query Escalated</p>
+                      <Badge variant="destructive" className="text-xs">Escalation</Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-1">Scholarship eligibility required human expertise</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>David Park</span>
+                      <span>•</span>
+                      <span>3 hours ago</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <ExternalLink className="h-4 w-4 text-orange-600" />
+                    <Badge variant="outline" className="text-xs">34% confidence</Badge>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 pt-4 border-t">
+                <Button variant="outline" className="w-full" size="sm">
+                  <Activity className="h-4 w-4 mr-2" />
+                  View All Activities
+                </Button>
               </div>
             </CardContent>
           </Card>

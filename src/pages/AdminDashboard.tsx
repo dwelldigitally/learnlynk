@@ -82,6 +82,13 @@ const AdminDashboard: React.FC = () => {
       // Extract lead ID from the pathname and render LeadDetailPage directly (no layout wrapper)
       return <LeadDetailPage />;
     }
+
+    // Check for AI agent analytics route pattern
+    if (location.pathname.startsWith("/admin/leads/ai/") && location.pathname.includes("/analytics")) {
+      // Import and render the analytics page directly (no layout wrapper needed as it's already in ModernAdminLayout)
+      const { AIAdvisorAnalytics } = require("@/components/admin/ai-agents/AIAdvisorAnalytics");
+      return <AIAdvisorAnalytics />;
+    }
     
     switch (location.pathname) {
       case "/admin":

@@ -51,10 +51,13 @@ export default function LeadDetailTestPage() {
   const navigate = useNavigate();
   const { leadId } = useParams();
   const { toast } = useToast();
+  
+  // All useState hooks must be at the top
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('summary');
   const [showDemoData, setShowDemoData] = useState(false);
+  const [executingRecommendations, setExecutingRecommendations] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (leadId) {
@@ -91,7 +94,7 @@ export default function LeadDetailTestPage() {
     }
   };
 
-  // Demo data - conditional based on showDemoData state
+  // Demo data
   const demoEngagementTimeline = [
     { id: 1, type: 'email', action: 'Welcome email sent', timestamp: '2024-01-15 09:00', source: 'AI', status: 'opened' },
     { id: 2, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered' },
@@ -208,28 +211,7 @@ export default function LeadDetailTestPage() {
     programMatch: 0
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Loading lead details...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!lead) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center space-y-4">
-          <h2 className="text-xl font-semibold">Lead not found</h2>
-          <Button onClick={() => navigate('/admin/leads')}>Back to Leads</Button>
-        </div>
-      </div>
-    );
-  }
-
+  // Helper functions
   const getIconForEvent = (type: string) => {
     switch (type) {
       case 'email':
@@ -267,15 +249,11 @@ export default function LeadDetailTestPage() {
     }
   };
 
-  // AI Recommendation execution functionality
-  const [executingRecommendations, setExecutingRecommendations] = useState<Set<number>>(new Set());
-
   const executeRecommendation = async (recommendation: any) => {
     setExecutingRecommendations(prev => new Set(prev).add(recommendation.id));
     
-    // Simulate execution
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
       toast({
         title: 'Action Executed Successfully',
@@ -283,9 +261,7 @@ export default function LeadDetailTestPage() {
         variant: 'default'
       });
 
-      // Update recommendation status in demo data
       if (showDemoData) {
-        // In a real app, this would update the backend
         console.log('Recommendation executed:', recommendation);
       }
       
@@ -330,10 +306,32 @@ export default function LeadDetailTestPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading lead details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!lead) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-4">
+          <h2 className="text-xl font-semibold">Lead not found</h2>
+          <Button onClick={() => navigate('/admin/leads')}>Back to Leads</Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ModernAdminLayout>
       <div className="min-h-screen bg-background">
-        {/* 🧑‍🎓 1. Student Snapshot Header */}
+        {/* Student Snapshot Header */}
         <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 px-8 py-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
@@ -450,7 +448,7 @@ export default function LeadDetailTestPage() {
             </div>
           </div>
 
-          {/* 💡 Next-Best Action Panel */}
+          {/* AI Recommendation Panel */}
           <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg flex items-center gap-2 text-green-800">
@@ -518,7 +516,7 @@ export default function LeadDetailTestPage() {
 
       {/* Main Content Layout */}
       <div className="flex h-[calc(100vh-300px)]">
-        {/* 🔁 Left Panel - Engagement Timeline */}
+        {/* Left Panel - Engagement Timeline */}
         <div className="w-80 border-r bg-card">
           <div className="p-4 border-b">
             <h3 className="font-semibold flex items-center gap-2">
@@ -592,7 +590,7 @@ export default function LeadDetailTestPage() {
 
             <div className="flex-1 p-6">
               <TabsContent value="summary" className="h-full space-y-6">
-                {/* 📊 Lead Intelligence & Scores */}
+                {/* Lead Intelligence & Scores */}
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                   <Card className={`bg-gradient-to-br ${showDemoData ? 'from-green-50 to-green-100 border-green-200' : 'from-gray-50 to-gray-100 border-gray-200'}`}>
                     <CardContent className="p-4 text-center">
@@ -701,7 +699,7 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">
-                {/* 📁 Documents & Application Materials */}
+                {/* Documents & Application Materials */}
                 <Card className="h-full">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -713,23 +711,59 @@ export default function LeadDetailTestPage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-center py-8">
-                      <FileText className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground font-medium">No documents uploaded</p>
-                      <p className="text-sm text-muted-foreground mt-1 mb-4">
-                        Application documents will appear here once uploaded
-                      </p>
-                      <Button variant="outline" size="sm">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload First Document
-                      </Button>
-                    </div>
+                    {showDemoData && mockDocuments.length > 0 ? (
+                      <div className="space-y-4">
+                        {mockDocuments.map((doc) => (
+                          <div key={doc.id} className={`p-4 rounded-lg border ${getDocumentBgColor(doc.status)}`}>
+                            <div className="flex items-start justify-between mb-2">
+                              <div className="flex items-center gap-3">
+                                {getDocumentIcon(doc.status)}
+                                <div>
+                                  <h4 className="font-medium">{doc.name}</h4>
+                                  {doc.uploadDate && (
+                                    <p className="text-sm text-muted-foreground">
+                                      Uploaded {new Date(doc.uploadDate).toLocaleDateString()}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                              <Badge variant={doc.status === 'uploaded' ? 'default' : doc.status === 'partial' ? 'secondary' : 'destructive'}>
+                                {doc.status}
+                              </Badge>
+                            </div>
+                            {doc.aiInsight && (
+                              <div className="mt-2 p-2 bg-white/50 rounded text-sm">
+                                <span className="font-medium">AI Insight: </span>
+                                {doc.aiInsight}
+                              </div>
+                            )}
+                            {doc.required && doc.status === 'missing' && (
+                              <div className="mt-2 text-sm text-red-600 font-medium">
+                                ⚠️ Required document
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <FileText className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                        <p className="text-muted-foreground font-medium">No documents uploaded</p>
+                        <p className="text-sm text-muted-foreground mt-1 mb-4">
+                          Application documents will appear here once uploaded
+                        </p>
+                        <Button variant="outline" size="sm">
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload First Document
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
 
               <TabsContent value="ai" className="h-full">
-                {/* 🧠 AI Activity Log */}
+                {/* AI Activity Log */}
                 <div className="space-y-6 h-full">
                   <Card>
                     <CardHeader>

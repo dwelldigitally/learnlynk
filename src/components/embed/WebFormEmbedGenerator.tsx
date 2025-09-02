@@ -161,7 +161,12 @@ export function WebFormEmbedGenerator() {
       // Redirect to portal after delay
       if (result.portalUrl) {
         setTimeout(function() {
-          window.location.href = result.portalUrl;
+          // Always redirect to the main Learnlynk website for the student portal
+          var portalUrl = result.portalUrl;
+          if (portalUrl.startsWith('/student-portal')) {
+            portalUrl = '${window.location.origin}' + portalUrl;
+          }
+          window.location.href = portalUrl;
         }, 2000);
       }
     })

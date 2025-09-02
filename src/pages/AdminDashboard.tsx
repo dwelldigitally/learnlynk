@@ -88,6 +88,8 @@ const AdminDashboard: React.FC = () => {
     const leadUuidMatch = location.pathname.match(/^\/admin\/leads\/([0-9a-f-]{36})$/);
     if (leadUuidMatch) {
       console.log('🔍 AdminDashboard: Matched direct lead UUID pattern:', leadUuidMatch[1]);
+      // Redirect to proper detail route so useParams works correctly
+      window.history.replaceState(null, '', `/admin/leads/detail/${leadUuidMatch[1]}`);
       return <LeadDetailPage />;
     }
     

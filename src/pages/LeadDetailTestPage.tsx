@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ModernAdminLayout } from '@/components/admin/ModernAdminLayout';
@@ -70,13 +70,7 @@ export default function LeadDetailTestPage() {
   const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState('all');
 
-  useEffect(() => {
-    if (leadId) {
-      loadLead();
-    }
-  }, [leadId]);
-
-  const loadLead = async () => {
+  const loadLead = useCallback(async () => {
     if (!leadId) return;
     
     try {
@@ -103,7 +97,13 @@ export default function LeadDetailTestPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [leadId, toast, navigate]);
+
+  useEffect(() => {
+    if (leadId) {
+      loadLead();
+    }
+  }, [leadId, loadLead]);
 
   // Demo data
   const demoEngagementTimeline = [

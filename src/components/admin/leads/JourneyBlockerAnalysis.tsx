@@ -148,26 +148,26 @@ export function JourneyBlockerAnalysis({ leadId, leadData }: JourneyBlockerAnaly
   const getStepIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
+        return <CheckCircle className="h-5 w-5 text-success" />;
       case 'current':
-        return <Clock className="h-5 w-5 text-blue-500" />;
+        return <Clock className="h-5 w-5 text-foreground" />;
       case 'blocked':
-        return <AlertTriangle className="h-5 w-5 text-red-500" />;
+        return <AlertTriangle className="h-5 w-5 text-destructive" />;
       default:
-        return <div className="h-5 w-5 rounded-full border-2 border-gray-300" />;
+        return <div className="h-5 w-5 rounded-full border-2 border-muted" />;
     }
   };
 
   const getStepColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'border-green-200 bg-green-50';
+        return 'border-success/20 bg-success/5';
       case 'current':
-        return 'border-blue-200 bg-blue-50';
+        return 'border-primary/20 bg-primary/5';
       case 'blocked':
-        return 'border-red-200 bg-red-50';
+        return 'border-destructive/20 bg-destructive/5';
       default:
-        return 'border-gray-200 bg-gray-50';
+        return 'border-muted bg-muted/30';
     }
   };
 
@@ -203,35 +203,35 @@ export function JourneyBlockerAnalysis({ leadId, leadData }: JourneyBlockerAnaly
             </div>
           </div>
           
-          {/* Progress Bar */}
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300" 
-              style={{ width: `${(completedSteps / totalSteps) * 100}%` }}
-            />
-          </div>
+      {/* Progress Bar */}
+      <div className="w-full bg-muted rounded-full h-2">
+        <div 
+          className="bg-primary h-2 rounded-full transition-all duration-300" 
+          style={{ width: `${(completedSteps / totalSteps) * 100}%` }}
+        />
+      </div>
         </CardContent>
       </Card>
 
       {/* Current Blocker Alert */}
       {currentBlocker && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-destructive/20 bg-destructive/5">
           <CardContent className="p-6">
             <div className="flex items-start gap-4">
-              <AlertTriangle className="h-6 w-6 text-red-500 mt-0.5 flex-shrink-0" />
+              <AlertTriangle className="h-6 w-6 text-destructive mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h3 className="font-semibold text-red-900 mb-1">
+                <h3 className="font-semibold text-foreground mb-1">
                   Current Blocker: {currentBlocker.blocker?.title}
                 </h3>
-                <p className="text-red-700 text-sm mb-3">
+                <p className="text-muted-foreground text-sm mb-3">
                   {currentBlocker.blocker?.description}
                 </p>
                 <div className="flex items-center gap-2">
                   <Badge variant="destructive" className="text-xs">
                     Action Required
                   </Badge>
-                  <ArrowRight className="h-3 w-3 text-red-600" />
-                  <span className="text-sm text-red-800 font-medium">
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-sm text-foreground font-medium">
                     {currentBlocker.blocker?.actionRequired}
                   </span>
                 </div>
@@ -283,7 +283,7 @@ export function JourneyBlockerAnalysis({ leadId, leadData }: JourneyBlockerAnaly
                 {/* Connector */}
                 {index < steps.length - 1 && (
                   <div className="flex-shrink-0 w-8 flex justify-center">
-                    <ArrowRight className="h-4 w-4 text-gray-400" />
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
                   </div>
                 )}
               </div>

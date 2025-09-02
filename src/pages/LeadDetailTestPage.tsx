@@ -48,7 +48,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
-import { AIScoreCard } from '@/components/admin/leads/AIScoreCard';
+import { CompactLeadScore } from '@/components/admin/leads/CompactLeadScore';
 import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
 import { CallHistorySection } from '@/components/admin/leads/CallHistorySection';
 import { AppointmentBookingWidget } from '@/components/admin/leads/AppointmentBookingWidget';
@@ -390,11 +390,9 @@ export default function LeadDetailTestPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Student Info */}
           <div className="lg:col-span-2">
-            <div className="flex items-start gap-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                <Users className="h-8 w-8 text-primary" />
-              </div>
-              <div className="flex-1">
+             <div className="flex items-start gap-4">
+               <CompactLeadScore lead={lead} />
+               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-3xl font-bold text-foreground">
                     {lead.first_name} {lead.last_name}
@@ -496,8 +494,6 @@ export default function LeadDetailTestPage() {
 
           {/* Lead Score & Quick Actions */}
           <div className="space-y-4">
-            {/* Prominent Lead Score */}
-            <AIScoreCard lead={lead || {} as Lead} expanded={true} />
             
             {/* Flag for Review Button */}
             <Card className="bg-orange-50 border-orange-200">

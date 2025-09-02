@@ -138,10 +138,11 @@ export function WebFormEmbedGenerator() {
     submitButton.disabled = true;
     
     // Submit to Supabase edge function
-    fetch(baseUrl + '/functions/v1/submit-document-form', {
+    fetch('https://rpxygdaimdiarjpfmswl.supabase.co/functions/v1/submit-document-form', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweHlnZGFpbWRpYXJqcGZtc3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTY1MDcsImV4cCI6MjA2OTQ5MjUwN30.sR7gSV1I9CCtibU6sdk5FRH6r5m9Y1ZGrQ6ivRhNEcM'
       },
       body: JSON.stringify(data)
     })

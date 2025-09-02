@@ -51,7 +51,7 @@ import { LeadService } from '@/services/leadService';
 import { CompactLeadScore } from '@/components/admin/leads/CompactLeadScore';
 import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
 import { CallHistorySection } from '@/components/admin/leads/CallHistorySection';
-import { AppointmentBookingWidget } from '@/components/admin/leads/AppointmentBookingWidget';
+import { AppointmentBookingButton } from '@/components/admin/leads/AppointmentBookingButton';
 import { AdvisorMatchDialog } from '@/components/admin/leads/AdvisorMatchDialog';
 import { NotesSystemPanel } from '@/components/admin/leads/NotesSystemPanel';
 import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflowPanel';
@@ -380,6 +380,7 @@ export default function LeadDetailTestPage() {
               <Edit className="h-4 w-4 mr-2" />
               Edit Lead
             </Button>
+            <AppointmentBookingButton leadId={leadId || ''} />
             <Button size="sm">
               <Send className="h-4 w-4 mr-2" />
               Send Message
@@ -516,9 +517,6 @@ export default function LeadDetailTestPage() {
                 </Button>
               </CardContent>
             </Card>
-            
-            {/* Quick Appointment Booking */}
-            <AppointmentBookingWidget leadId={leadId || ''} />
           </div>
         </div>
       </div>

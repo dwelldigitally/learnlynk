@@ -57,6 +57,7 @@ import { NotesSystemPanel } from '@/components/admin/leads/NotesSystemPanel';
 import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflowPanel';
 import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunicationPanel';
 import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunicationPanel';
+import { LeadEditForm } from '@/components/admin/leads/LeadEditForm';
 
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
@@ -71,6 +72,7 @@ export default function LeadDetailTestPage() {
   const [executingRecommendations, setExecutingRecommendations] = useState<Set<number>>(new Set());
   const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState('all');
+  const [isEditing, setIsEditing] = useState(false);
 
   const loadLead = useCallback(async () => {
     if (!leadId) return;
@@ -378,7 +380,11 @@ export default function LeadDetailTestPage() {
           </div>
           
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
               <Edit className="h-4 w-4 mr-2" />
               Edit Lead
             </Button>
@@ -389,6 +395,24 @@ export default function LeadDetailTestPage() {
             </Button>
           </div>
         </div>
+
+        {/* Edit Form Modal */}
+        {isEditing && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 overflow-y-auto">
+            <div className="bg-background rounded-lg shadow-xl w-full max-w-4xl my-8">
+              <div className="p-6">
+                <LeadEditForm
+                  lead={lead}
+                  onSave={(updatedLead) => {
+                    setLead(updatedLead);
+                    setIsEditing(false);
+                  }}
+                  onCancel={() => setIsEditing(false)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Student Info */}

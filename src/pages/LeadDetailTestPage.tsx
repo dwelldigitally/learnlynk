@@ -1209,7 +1209,7 @@ export default function LeadDetailTestPage() {
             </CardContent>
           </Card>
         </div>
-        </div>
+      </div>
       </div>
 
       {/* Advisor Match Dialog */}

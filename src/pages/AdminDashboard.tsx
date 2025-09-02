@@ -57,6 +57,7 @@ import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrat
 import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
+import { AIAdvisorAnalytics } from "@/components/admin/ai-agents/AIAdvisorAnalytics";
 import { EnhancedTodayCommandCentre } from "@/components/enrollment/EnhancedTodayCommandCentre";
 import { SetupDashboard } from "./admin/setup/SetupDashboard";
 import { InstitutionSetup } from "./admin/setup/InstitutionSetup";
@@ -85,8 +86,7 @@ const AdminDashboard: React.FC = () => {
 
     // Check for AI agent analytics route pattern
     if (location.pathname.startsWith("/admin/leads/ai/") && location.pathname.includes("/analytics")) {
-      // Import and render the analytics page directly (no layout wrapper needed as it's already in ModernAdminLayout)
-      const { AIAdvisorAnalytics } = require("@/components/admin/ai-agents/AIAdvisorAnalytics");
+      // Render the analytics page directly (no layout wrapper needed as it's already in ModernAdminLayout)
       return <AIAdvisorAnalytics />;
     }
     

@@ -50,6 +50,7 @@ import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { CompactLeadScore } from '@/components/admin/leads/CompactLeadScore';
 import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
+import { AILeadSummary } from '@/components/admin/leads/AILeadSummary';
 import { CallHistorySection } from '@/components/admin/leads/CallHistorySection';
 import { AppointmentBookingButton } from '@/components/admin/leads/AppointmentBookingButton';
 import { AdvisorMatchDialog } from '@/components/admin/leads/AdvisorMatchDialog';
@@ -675,6 +676,12 @@ export default function LeadDetailTestPage() {
 
             <div className="flex-1 p-6">
               <TabsContent value="summary" className="h-full space-y-6">
+                {/* AI Summary Section - First */}
+                <AILeadSummary 
+                  leadId={leadId}
+                  leadName={`${lead.first_name} ${lead.last_name}`}
+                />
+                
                 {/* Lead Intelligence & Scores */}
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                   <Card className={`bg-gradient-to-br ${showDemoData ? 'from-green-50 to-green-100 border-green-200' : 'from-gray-50 to-gray-100 border-gray-200'}`}>

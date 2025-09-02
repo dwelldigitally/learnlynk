@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.submit-document-form]
 verify_jwt = false
+
+[functions.lead-ai-summary]
+verify_jwt = true

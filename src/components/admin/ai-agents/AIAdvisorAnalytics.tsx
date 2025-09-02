@@ -69,135 +69,226 @@ const MOCK_ADVISOR_DATA = {
       }
     },
 
-    // Recent activities
+    // Recent AI activities with actual play executions
     recentActivities: [
       {
         id: 'activity-1',
         timestamp: '2024-01-22T14:30:00Z',
-        type: 'email_sent',
-        action: 'Sent application reminder email',
+        type: 'play_execution',
+        action: 'Executed "Application Deadline Reminder" play',
         studentName: 'Sarah Johnson',
         studentId: 'student-123',
-        trigger: 'Application incomplete for 3 days',
+        playName: 'Application Deadline Reminder',
+        playId: 'play-001',
+        trigger: 'Application incomplete for 3 days + Deadline in 48 hours',
         confidence: 92,
         status: 'completed',
         details: {
-          emailSubject: 'Complete Your Application - Missing Documents',
-          channel: 'email',
-          template: 'application_reminder_v2'
+          policyApplied: 'Aggressive Follow-up Policy',
+          executionTime: '2.3s',
+          channel: 'email + sms',
+          template: 'deadline_reminder_urgent',
+          nextAction: 'Schedule follow-up call if no response in 24h',
+          outcome: 'Email opened, application resumed'
         }
       },
       {
         id: 'activity-2',
         timestamp: '2024-01-22T14:15:00Z',
-        type: 'lead_scoring',
-        action: 'Updated lead score based on engagement',
+        type: 'policy_decision',
+        action: 'Applied "High-Value Lead Prioritization" policy',
         studentName: 'Michael Chen',
         studentId: 'student-124',
-        trigger: 'Opened email and clicked scholarship link',
+        playName: 'VIP Lead Nurturing',
+        playId: 'play-002',
+        trigger: 'Lead score > 85 + High engagement pattern detected',
         confidence: 88,
         status: 'completed',
         details: {
-          previousScore: 72,
-          newScore: 85,
-          reason: 'High engagement with financial aid content'
+          policyApplied: 'VIP Lead Treatment Policy',
+          executionTime: '1.8s',
+          scoreIncrease: '+13 points (72 → 85)',
+          channel: 'personalized email',
+          assignedTo: 'Senior Advisor',
+          outcome: 'Lead upgraded to priority status'
         }
       },
       {
         id: 'activity-3',
         timestamp: '2024-01-22T13:45:00Z',
-        type: 'escalation',
-        action: 'Escalated complex financial aid question',
+        type: 'escalation_decision',
+        action: 'Escalated due to complexity threshold exceeded',
         studentName: 'Emily Rodriguez',
         studentId: 'student-125',
-        trigger: 'Student asked about FAFSA appeal process',
+        playName: 'Complex Query Handler',
+        playId: 'play-003',
+        trigger: 'Financial aid complexity score > 0.8',
         confidence: 45,
         status: 'escalated',
         details: {
-          escalationReason: 'Complex financial aid policy question',
+          policyApplied: 'Complexity Escalation Policy',
+          executionTime: '0.5s',
+          escalationReason: 'FAFSA appeal process requires specialist knowledge',
           assignedTo: 'Financial Aid Specialist',
-          urgency: 'medium'
+          urgency: 'medium',
+          outcome: 'Successfully escalated to human expert'
         }
       },
       {
         id: 'activity-4',
         timestamp: '2024-01-22T13:20:00Z',
         type: 'journey_progression',
-        action: 'Moved student to next journey stage',
+        action: 'Executed "Application Success" play',
         studentName: 'David Kim',
         studentId: 'student-126',
-        trigger: 'Application submitted successfully',
+        playName: 'Application Success Celebration',
+        playId: 'play-004',
+        trigger: 'Application status changed to submitted',
         confidence: 95,
         status: 'completed',
         details: {
+          policyApplied: 'Journey Progression Policy',
+          executionTime: '1.2s',
           fromStage: 'Application In Progress',
           toStage: 'Application Review',
-          nextAction: 'Send confirmation email'
+          nextPlay: 'Document Collection Reminder',
+          outcome: 'Student transitioned to next stage'
         }
       },
       {
         id: 'activity-5',
         timestamp: '2024-01-22T12:55:00Z',
-        type: 'sms_sent',
-        action: 'Sent deadline reminder SMS',
+        type: 'play_execution',
+        action: 'Executed "Deadline Alert" play',
         studentName: 'Jessica Martinez',
         studentId: 'student-127',
-        trigger: 'Application deadline in 48 hours',
+        playName: 'Deadline Alert Notification',
+        playId: 'play-005',
+        trigger: 'Deadline proximity rule triggered (48h remaining)',
         confidence: 89,
         status: 'completed',
         details: {
-          message: 'Hi Jessica! Just a friendly reminder that your application deadline is in 2 days.',
+          policyApplied: 'Time-Sensitive Communication Policy',
+          executionTime: '1.5s',
           channel: 'sms',
-          responseExpected: true
+          message: 'Urgent: Application deadline in 2 days',
+          responseExpected: true,
+          outcome: 'SMS delivered, awaiting response'
         }
       }
     ],
 
-    // Triggers and conditions
+    // Active AI plays and policy triggers
     activeTriggers: [
       {
-        id: 'trigger-1',
-        name: 'Application Incomplete',
-        description: 'Student has started but not completed application',
-        conditions: ['application_status = "incomplete"', 'days_since_start > 2'],
-        action: 'Send reminder email',
-        frequency: 'daily',
+        id: 'play-trigger-1',
+        name: 'Application Deadline Reminder Play',
+        description: 'Automatically triggers urgent reminders for incomplete applications near deadline',
+        playId: 'play-001',
+        conditions: [
+          'application_status = "incomplete"', 
+          'deadline_hours_remaining <= 48', 
+          'last_contact_hours > 24'
+        ],
+        policyName: 'Aggressive Follow-up Policy',
+        action: 'Send multi-channel reminder (email + SMS) with personalized deadline countdown',
+        frequency: 'once per deadline period',
         lastTriggered: '2024-01-22T14:30:00Z',
         timesTriggered: 12,
-        successRate: 67
+        successRate: 73,
+        outcomeMetrics: {
+          responsesReceived: 9,
+          applicationsCompleted: 7,
+          conversationRate: 58
+        }
       },
       {
-        id: 'trigger-2',
-        name: 'High Engagement Score',
-        description: 'Student shows high engagement with content',
-        conditions: ['email_opens > 3', 'link_clicks > 2', 'page_visits > 5'],
-        action: 'Increase lead score and send personalized follow-up',
-        frequency: 'immediate',
+        id: 'play-trigger-2',
+        name: 'High-Value Lead Prioritization Play',
+        description: 'Automatically identifies and prioritizes high-scoring leads for VIP treatment',
+        playId: 'play-002',
+        conditions: [
+          'lead_score > 80', 
+          'engagement_score > 70', 
+          'program_interest IN ["MBA", "Graduate"]'
+        ],
+        policyName: 'VIP Lead Treatment Policy',
+        action: 'Assign to senior advisor, send personalized welcome sequence, schedule priority call',
+        frequency: 'immediate on qualification',
         lastTriggered: '2024-01-22T14:15:00Z',
         timesTriggered: 8,
-        successRate: 84
+        successRate: 84,
+        outcomeMetrics: {
+          leadsUpgraded: 8,
+          meetingsScheduled: 6,
+          conversationRate: 75
+        }
       },
       {
-        id: 'trigger-3',
-        name: 'Deadline Approaching',
-        description: 'Application deadline is within 48 hours',
-        conditions: ['deadline_hours_remaining <= 48', 'application_status != "submitted"'],
-        action: 'Send urgent reminder via SMS and email',
-        frequency: 'once',
-        lastTriggered: '2024-01-22T12:55:00Z',
-        timesTriggered: 15,
-        successRate: 73
-      },
-      {
-        id: 'trigger-4',
-        name: 'Complex Query Detection',
-        description: 'Student asks questions requiring specialist knowledge',
-        conditions: ['message_complexity_score > 0.8', 'confidence_score < 60'],
-        action: 'Escalate to human advisor',
-        frequency: 'immediate',
+        id: 'play-trigger-3',
+        name: 'Complex Query Detection Play',
+        description: 'Identifies queries requiring human expertise and routes to appropriate specialists',
+        playId: 'play-003',
+        conditions: [
+          'message_complexity_score > 0.8', 
+          'confidence_score < 60',
+          'topic IN ["financial_aid", "visa", "legal"]'
+        ],
+        policyName: 'Complexity Escalation Policy',
+        action: 'Escalate to appropriate specialist with context and suggested response',
+        frequency: 'immediate on detection',
         lastTriggered: '2024-01-22T13:45:00Z',
         timesTriggered: 5,
-        successRate: 100
+        successRate: 100,
+        outcomeMetrics: {
+          queriesEscalated: 5,
+          resolutionTime: '24 minutes avg',
+          studentSatisfaction: 92
+        }
+      },
+      {
+        id: 'play-trigger-4',
+        name: 'Journey Stage Progression Play',
+        description: 'Automatically moves students through application stages and triggers appropriate next actions',
+        playId: 'play-004',
+        conditions: [
+          'stage_completion_detected = true',
+          'all_requirements_met = true',
+          'next_stage_available = true'
+        ],
+        policyName: 'Journey Progression Policy',
+        action: 'Update stage, send congratulatory message, initiate next stage requirements',
+        frequency: 'immediate on completion',
+        lastTriggered: '2024-01-22T13:20:00Z',
+        timesTriggered: 15,
+        successRate: 91,
+        outcomeMetrics: {
+          stageProgressions: 15,
+          timeToNextStage: '2.3 days avg',
+          completionRate: 87
+        }
+      },
+      {
+        id: 'play-trigger-5',
+        name: 'Re-engagement Play',
+        description: 'Attempts to re-engage dormant leads with personalized content and incentives',
+        playId: 'play-006',
+        conditions: [
+          'days_since_last_activity > 7',
+          'lead_score > 50',
+          'application_status != "submitted"'
+        ],
+        policyName: 'Lead Recovery Policy',
+        action: 'Send personalized re-engagement sequence with program highlights and deadline reminders',
+        frequency: 'weekly for dormant leads',
+        lastTriggered: '2024-01-22T10:30:00Z',
+        timesTriggered: 23,
+        successRate: 41,
+        outcomeMetrics: {
+          leadsReactivated: 9,
+          applicationsResumed: 6,
+          recoveryRate: 26
+        }
       }
     ]
   }
@@ -205,12 +296,13 @@ const MOCK_ADVISOR_DATA = {
 
 const getActivityIcon = (type: string) => {
   switch (type) {
+    case 'play_execution': return <PlayCircle className="h-4 w-4" />;
+    case 'policy_decision': return <Target className="h-4 w-4" />;
+    case 'escalation_decision': return <AlertTriangle className="h-4 w-4" />;
+    case 'journey_progression': return <CheckCircle className="h-4 w-4" />;
     case 'email_sent': return <Mail className="h-4 w-4" />;
     case 'sms_sent': return <MessageSquare className="h-4 w-4" />;
     case 'phone_call': return <Phone className="h-4 w-4" />;
-    case 'lead_scoring': return <Target className="h-4 w-4" />;
-    case 'escalation': return <AlertTriangle className="h-4 w-4" />;
-    case 'journey_progression': return <PlayCircle className="h-4 w-4" />;
     default: return <Activity className="h-4 w-4" />;
   }
 };
@@ -219,12 +311,13 @@ const getActivityColor = (type: string, status: string) => {
   if (status === 'escalated') return 'text-destructive';
   
   switch (type) {
+    case 'play_execution': return 'text-emerald-600';
+    case 'policy_decision': return 'text-purple-600';
+    case 'escalation_decision': return 'text-orange-600';
+    case 'journey_progression': return 'text-blue-600';
     case 'email_sent': return 'text-blue-600';
     case 'sms_sent': return 'text-green-600';
     case 'phone_call': return 'text-purple-600';
-    case 'lead_scoring': return 'text-orange-600';
-    case 'escalation': return 'text-destructive';
-    case 'journey_progression': return 'text-emerald-600';
     default: return 'text-muted-foreground';
   }
 };
@@ -453,13 +546,18 @@ export function AIAdvisorAnalytics() {
                               <Badge variant="outline" className="text-xs">
                                 {activity.confidence}% confidence
                               </Badge>
+                              {activity.playName && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {activity.playName}
+                                </Badge>
+                              )}
                             </div>
                             
                             <div className="text-sm text-muted-foreground">
                               <p><strong>Student:</strong> {activity.studentName}</p>
                               <p><strong>Trigger:</strong> {activity.trigger}</p>
                               {activity.details && (
-                                <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                                <div className="mt-2 p-2 bg-muted/50 rounded text-xs space-y-1">
                                   {Object.entries(activity.details).map(([key, value]) => (
                                     <p key={key}><strong>{key.replace(/_/g, ' ')}:</strong> {String(value)}</p>
                                   ))}
@@ -485,9 +583,9 @@ export function AIAdvisorAnalytics() {
           <TabsContent value="triggers" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Active Triggers</CardTitle>
+                <CardTitle>Active AI Plays & Policies</CardTitle>
                 <CardDescription>
-                  Conditions and triggers that activate this AI advisor
+                  AI plays being executed and policies that guide decision-making
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -497,12 +595,22 @@ export function AIAdvisorAnalytics() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
+                            <PlayCircle className="h-4 w-4 text-primary" />
                             <h4 className="font-medium">{trigger.name}</h4>
                             <Badge variant="outline">{trigger.frequency}</Badge>
                             <Badge variant="secondary">{trigger.successRate}% success</Badge>
                           </div>
                           
                           <p className="text-sm text-muted-foreground mb-3">{trigger.description}</p>
+                          
+                          {trigger.policyName && (
+                            <div className="mb-3">
+                              <p className="text-xs font-medium text-muted-foreground">GOVERNING POLICY:</p>
+                              <Badge variant="outline" className="text-xs mt-1">
+                                {trigger.policyName}
+                              </Badge>
+                            </div>
+                          )}
                           
                           <div className="space-y-2">
                             <div>
@@ -520,16 +628,34 @@ export function AIAdvisorAnalytics() {
                               <p className="text-xs font-medium text-muted-foreground">ACTION:</p>
                               <p className="text-sm">{trigger.action}</p>
                             </div>
+                            
+                            {trigger.outcomeMetrics && (
+                              <div>
+                                <p className="text-xs font-medium text-muted-foreground">OUTCOME METRICS:</p>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-1">
+                                  {Object.entries(trigger.outcomeMetrics).map(([key, value]) => (
+                                    <div key={key} className="text-xs">
+                                      <span className="font-medium">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}:</span> {String(value)}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                         
                         <div className="text-right space-y-1">
                           <p className="text-xs text-muted-foreground">
-                            Last triggered: {new Date(trigger.lastTriggered).toLocaleString()}
+                            Last executed: {new Date(trigger.lastTriggered).toLocaleString()}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Times triggered: {trigger.timesTriggered}
+                            Executions: {trigger.timesTriggered}
                           </p>
+                          {trigger.playId && (
+                            <p className="text-xs text-muted-foreground">
+                              Play ID: {trigger.playId}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>

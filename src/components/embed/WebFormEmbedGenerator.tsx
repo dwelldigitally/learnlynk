@@ -50,30 +50,127 @@ export function WebFormEmbedGenerator() {
   };
 
   const generateScriptCode = () => {
-    const embedUrl = generateEmbedUrl();
-    return `<div id="webform-embed"></div>
+    const baseUrl = window.location.origin;
+    
+    const embedConfig = {
+      title: config.title,
+      description: config.description,
+      submitText: config.submitButtonText,
+      successMessage: config.successMessage,
+      bgColor: config.bgColor,
+      textColor: config.textColor,
+      primaryColor: config.primaryColor
+    };
+    
+    return `<div id="wcc-webform-container"></div>
 <script>
 (function() {
-  var iframe = document.createElement('iframe');
-  iframe.src = '${embedUrl}';
-  iframe.width = '${config.width}';
-  iframe.height = '${config.height}';
-  iframe.frameBorder = '0';
-  iframe.scrolling = 'auto';
-  iframe.title = 'Application Form';
+  var config = ${JSON.stringify(embedConfig)};
+  var baseUrl = '${baseUrl}';
+  var container = document.getElementById('wcc-webform-container');
   
-  // Listen for success messages from the embedded form
-  window.addEventListener('message', function(event) {
-    if (event.data.type === 'WEBFORM_SUCCESS') {
-      console.log('Form submitted successfully:', event.data.data);
-      // You can add custom logic here, such as:
-      // - Redirecting to a thank you page
-      // - Showing a success message
-      // - Tracking the conversion
-    }
+  // Create the form HTML directly
+  var formHtml = \`
+    <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; background: \${config.bgColor}; color: \${config.textColor}; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+      <h2 style="margin-bottom: 8px; font-size: 24px; font-weight: bold;">\${config.title}</h2>
+      <p style="margin-bottom: 24px; color: #666;">\${config.description}</p>
+      
+      <form id="wcc-embed-form">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">First Name *</label>
+            <input type="text" name="firstName" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Last Name *</label>
+            <input type="text" name="lastName" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">Email Address *</label>
+          <input type="email" name="email" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+        </div>
+        
+        <div style="margin-bottom: 24px;">
+          <label style="display: block; margin-bottom: 8px; font-weight: 500;">Program of Interest *</label>
+          <select name="programInterest" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+            <option value="">Select a program</option>
+            <option value="Health Care Assistant">Health Care Assistant</option>
+            <option value="Education Assistant">Education Assistant</option>
+            <option value="Aviation">Aviation</option>
+            <option value="Hospitality">Hospitality</option>
+            <option value="ECE">ECE</option>
+            <option value="MLA">MLA</option>
+          </select>
+        </div>
+        
+        <button type="submit" style="width: 100%; padding: 12px; background: \${config.primaryColor}; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: 500; cursor: pointer;">\${config.submitText}</button>
+      </form>
+      
+      <div id="wcc-success-message" style="display: none; text-align: center; padding: 20px;">
+        <div style="color: #22c55e; font-size: 18px; font-weight: bold; margin-bottom: 8px;">✓ Success!</div>
+        <p>\${config.successMessage}</p>
+      </div>
+    </div>
+  \`;
+  
+  container.innerHTML = formHtml;
+  
+  // Handle form submission
+  document.getElementById('wcc-embed-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    var formData = new FormData(e.target);
+    var data = {
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+      email: formData.get('email'),
+      phone: '',
+      country: '',
+      programInterest: [formData.get('programInterest')],
+      notes: 'Application submitted via embedded webform for ' + formData.get('programInterest'),
+      applicationType: 'embedded-webform'
+    };
+    
+    var submitButton = e.target.querySelector('button[type="submit"]');
+    submitButton.textContent = 'Submitting...';
+    submitButton.disabled = true;
+    
+    // Submit to Supabase edge function
+    fetch(baseUrl + '/functions/v1/submit-document-form', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    })
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(result) {
+      if (result.error) {
+        throw new Error(result.error.message || 'Submission failed');
+      }
+      
+      // Hide form and show success message
+      document.getElementById('wcc-embed-form').style.display = 'none';
+      document.getElementById('wcc-success-message').style.display = 'block';
+      
+      // Redirect to portal after delay
+      if (result.portalUrl) {
+        setTimeout(function() {
+          window.location.href = result.portalUrl;
+        }, 2000);
+      }
+    })
+    .catch(function(error) {
+      console.error('Error:', error);
+      alert('There was an error submitting your application. Please try again.');
+      submitButton.textContent = config.submitText;
+      submitButton.disabled = false;
+    });
   });
-  
-  document.getElementById('webform-embed').appendChild(iframe);
 })();
 </script>`;
   };
@@ -244,8 +341,8 @@ export function WebFormEmbedGenerator() {
         <CardContent>
           <Tabs defaultValue="iframe" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="iframe">Simple Iframe</TabsTrigger>
-              <TabsTrigger value="script">Advanced Script</TabsTrigger>
+              <TabsTrigger value="iframe">Iframe (Limited)</TabsTrigger>
+              <TabsTrigger value="script">JavaScript Shortcode</TabsTrigger>
             </TabsList>
             
             <TabsContent value="iframe" className="space-y-4">
@@ -267,7 +364,7 @@ export function WebFormEmbedGenerator() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Simple iframe embed - just copy and paste this code into your HTML.
+                  <strong>⚠️ Limited:</strong> Iframe embeds cannot redirect users to the student portal. Use JavaScript Shortcode for full functionality.
                 </p>
               </div>
             </TabsContent>
@@ -291,7 +388,7 @@ export function WebFormEmbedGenerator() {
                   </Button>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Advanced embed with event handling - allows you to listen for form submission events.
+                  <strong>✅ Recommended:</strong> Full functionality with proper portal redirection. The form is injected directly into your page.
                 </p>
               </div>
             </TabsContent>

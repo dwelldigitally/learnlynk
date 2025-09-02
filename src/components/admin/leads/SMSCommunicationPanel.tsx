@@ -221,8 +221,8 @@ export function SMSCommunicationPanel({ leadId, messages = [], leadPhone, loadin
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Smartphone className="h-5 w-5" />
@@ -308,7 +308,7 @@ export function SMSCommunicationPanel({ leadId, messages = [], leadPhone, loadin
           </Dialog>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 overflow-hidden space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -321,8 +321,9 @@ export function SMSCommunicationPanel({ leadId, messages = [], leadPhone, loadin
         </div>
 
         {/* SMS List */}
-        <ScrollArea className="h-[400px]">
-          {filteredMessages.length > 0 ? (
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            {filteredMessages.length > 0 ? (
             <div className="space-y-3">
               {filteredMessages.map((message) => (
                 <div key={message.id} className={`border rounded-lg p-3 hover:bg-muted/50 transition-colors ${
@@ -425,20 +426,21 @@ export function SMSCommunicationPanel({ leadId, messages = [], leadPhone, loadin
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-8">
-              <Smartphone className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-              <p className="text-muted-foreground font-medium">No SMS communications</p>
-              <p className="text-sm text-muted-foreground mt-1 mb-4">
-                SMS history will appear here once messages are sent
-              </p>
-              <Button variant="outline" size="sm" onClick={() => setIsComposing(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Send First SMS
-              </Button>
-            </div>
-          )}
-        </ScrollArea>
+            ) : (
+              <div className="text-center py-8">
+                <Smartphone className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                <p className="text-muted-foreground font-medium">No SMS communications</p>
+                <p className="text-sm text-muted-foreground mt-1 mb-4">
+                  SMS history will appear here once messages are sent
+                </p>
+                <Button variant="outline" size="sm" onClick={() => setIsComposing(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Send First SMS
+                </Button>
+              </div>
+            )}
+          </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );

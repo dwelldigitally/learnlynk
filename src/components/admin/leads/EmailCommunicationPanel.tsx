@@ -204,8 +204,8 @@ export function EmailCommunicationPanel({ leadId, emails = [], leadEmail, loadin
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
+    <Card className="h-full flex flex-col">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
@@ -291,7 +291,7 @@ export function EmailCommunicationPanel({ leadId, emails = [], leadEmail, loadin
           </Dialog>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex-1 overflow-hidden space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -304,8 +304,9 @@ export function EmailCommunicationPanel({ leadId, emails = [], leadEmail, loadin
         </div>
 
         {/* Email List */}
-        <ScrollArea className="h-[400px]">
-          {filteredEmails.length > 0 ? (
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            {filteredEmails.length > 0 ? (
             <div className="space-y-3">
               {filteredEmails.map((email) => (
                 <div key={email.id} className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
@@ -418,6 +419,7 @@ export function EmailCommunicationPanel({ leadId, emails = [], leadEmail, loadin
             </div>
           )}
         </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );

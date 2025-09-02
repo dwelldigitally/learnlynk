@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -237,6 +238,7 @@ interface AIAgentDashboardProps {
 }
 
 export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
+  const navigate = useNavigate();
   const [showAdmissionWizard, setShowAdmissionWizard] = useState(false);
   const [showJourneyWizard, setShowJourneyWizard] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
@@ -450,7 +452,7 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => window.open(`/admin/leads/ai/${agent.id}/analytics`, '_blank')}
+                          onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
                           title="View Analytics"
                         >
                           <BarChart3 className="h-4 w-4" />
@@ -582,7 +584,7 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => window.open(`/admin/leads/ai/${agent.id}/analytics`, '_blank')}
+                          onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
                           title="View Analytics"
                         >
                           <BarChart3 className="h-4 w-4" />

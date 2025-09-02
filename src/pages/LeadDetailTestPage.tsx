@@ -107,7 +107,9 @@ export default function LeadDetailTestPage() {
       confidence: 87,
       rationale: 'Student showed high interest in financial aid during info session',
       timing: 'Next 24 hours',
-      priority: 'high'
+      priority: 'high',
+      type: 'email',
+      status: 'pending'
     },
     {
       id: 2,
@@ -115,7 +117,68 @@ export default function LeadDetailTestPage() {
       confidence: 72,
       rationale: 'Similar students benefit from personal interaction at this stage',
       timing: 'Within 3 days',
-      priority: 'medium'
+      priority: 'medium',
+      type: 'task',
+      status: 'pending'
+    },
+    {
+      id: 3,
+      action: 'Move to application review stage',
+      confidence: 94,
+      rationale: 'All documents submitted and eligibility criteria met',
+      timing: 'Immediate',
+      priority: 'high',
+      type: 'journey_move',
+      status: 'pending'
+    }
+  ];
+
+  const demoJourneyData = {
+    id: 'journey-1',
+    name: 'Bachelor of Science Application Journey',
+    currentStage: 'Document Collection',
+    currentStep: 3,
+    totalSteps: 7,
+    enrolledAt: '2024-01-15T09:00:00Z',
+    stages: [
+      { name: 'Initial Inquiry', completed: true, date: '2024-01-15' },
+      { name: 'Info Session', completed: true, date: '2024-01-17' },
+      { name: 'Document Collection', completed: false, active: true },
+      { name: 'Application Review', completed: false },
+      { name: 'Interview Process', completed: false },
+      { name: 'Admission Decision', completed: false },
+      { name: 'Enrollment', completed: false }
+    ],
+    nextRequiredAction: 'Submit transcripts and personal statement',
+    estimatedCompletionDate: '2024-02-15'
+  };
+
+  const demoExecutedPlays = [
+    {
+      id: 'play-1',
+      name: 'Welcome Email Sequence',
+      type: 'email_sequence',
+      status: 'completed',
+      executedAt: '2024-01-15T09:30:00Z',
+      steps: [
+        { name: 'Welcome email', status: 'completed', result: 'opened' },
+        { name: 'Program overview', status: 'completed', result: 'clicked' },
+        { name: 'Next steps guide', status: 'completed', result: 'opened' }
+      ],
+      performance: { open_rate: 85, click_rate: 65, conversion_rate: 23 }
+    },
+    {
+      id: 'play-2',
+      name: 'Document Reminder Campaign',
+      type: 'nurture_sequence',
+      status: 'active',
+      executedAt: '2024-01-20T08:00:00Z',
+      steps: [
+        { name: 'Initial reminder', status: 'completed', result: 'opened' },
+        { name: 'Helpful tips email', status: 'active', result: 'pending' },
+        { name: 'Final deadline warning', status: 'pending', result: 'pending' }
+      ],
+      performance: { open_rate: 92, click_rate: 45, conversion_rate: 0 }
     }
   ];
 
@@ -201,6 +264,69 @@ export default function LeadDetailTestPage() {
         return 'bg-yellow-100';
       default:
         return 'bg-red-100';
+    }
+  };
+
+  // AI Recommendation execution functionality
+  const [executingRecommendations, setExecutingRecommendations] = useState<Set<number>>(new Set());
+
+  const executeRecommendation = async (recommendation: any) => {
+    setExecutingRecommendations(prev => new Set(prev).add(recommendation.id));
+    
+    // Simulate execution
+    try {
+      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      
+      toast({
+        title: 'Action Executed Successfully',
+        description: `${recommendation.action} has been executed for ${lead?.first_name} ${lead?.last_name}`,
+        variant: 'default'
+      });
+
+      // Update recommendation status in demo data
+      if (showDemoData) {
+        // In a real app, this would update the backend
+        console.log('Recommendation executed:', recommendation);
+      }
+      
+    } catch (error) {
+      toast({
+        title: 'Execution Failed',
+        description: 'There was an error executing this recommendation. Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setExecutingRecommendations(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(recommendation.id);
+        return newSet;
+      });
+    }
+  };
+
+  const getRecommendationIcon = (type: string) => {
+    switch (type) {
+      case 'email':
+        return <Mail className="h-4 w-4" />;
+      case 'task':
+        return <CheckCircle className="h-4 w-4" />;
+      case 'journey_move':
+        return <Route className="h-4 w-4" />;
+      default:
+        return <Zap className="h-4 w-4" />;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'low':
+        return 'bg-green-100 text-green-800 border-green-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -347,9 +473,23 @@ export default function LeadDetailTestPage() {
                     Best to send within next 24h
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700">
-                      <Zap className="h-3 w-3 mr-1" />
-                      Execute Now
+                    <Button 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => executeRecommendation(demoAIRecommendations[0])}
+                      disabled={executingRecommendations.has(1)}
+                    >
+                      {executingRecommendations.has(1) ? (
+                        <>
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
+                          Executing...
+                        </>
+                      ) : (
+                        <>
+                          <Zap className="h-3 w-3 mr-1" />
+                          Execute Now
+                        </>
+                      )}
                     </Button>
                     <Button variant="outline" size="sm">
                       Edit & Send
@@ -595,47 +735,164 @@ export default function LeadDetailTestPage() {
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Bot className="h-5 w-5" />
-                        AI Activity & Recommendations
+                        AI Recommendations
                       </CardTitle>
+                      <CardDescription>
+                        AI-powered suggestions to optimize student engagement
+                      </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="text-center py-8">
-                        <Bot className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                        <p className="text-muted-foreground font-medium">No AI recommendations</p>
-                        <p className="text-sm text-muted-foreground mt-1 mb-4">
-                          AI will analyze this lead and provide actionable recommendations
-                        </p>
-                        <Button variant="outline" size="sm" disabled>
-                          <Brain className="h-4 w-4 mr-2" />
-                          Generate Recommendations
-                        </Button>
-                      </div>
+                      {showDemoData && mockAIRecommendations.length > 0 ? (
+                        <div className="space-y-4">
+                          {mockAIRecommendations.map((recommendation) => (
+                            <div key={recommendation.id} className="border rounded-lg p-4 bg-card">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex items-center gap-3">
+                                  {getRecommendationIcon(recommendation.type)}
+                                  <div>
+                                    <h4 className="font-medium">{recommendation.action}</h4>
+                                    <p className="text-sm text-muted-foreground">{recommendation.rationale}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className={getPriorityColor(recommendation.priority)}>
+                                    {recommendation.priority}
+                                  </Badge>
+                                  <Badge variant="secondary">{recommendation.confidence}% confidence</Badge>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {recommendation.timing}
+                                </div>
+                                <Badge variant="outline" className="text-xs">
+                                  {recommendation.type.replace('_', ' ')}
+                                </Badge>
+                              </div>
+
+                              <div className="flex gap-2">
+                                <Button 
+                                  size="sm" 
+                                  onClick={() => executeRecommendation(recommendation)}
+                                  disabled={executingRecommendations.has(recommendation.id)}
+                                  className="bg-primary hover:bg-primary/90"
+                                >
+                                  {executingRecommendations.has(recommendation.id) ? (
+                                    <>
+                                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
+                                      Executing...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Zap className="h-3 w-3 mr-1" />
+                                      Execute Now
+                                    </>
+                                  )}
+                                </Button>
+                                <Button variant="outline" size="sm">
+                                  <Edit className="h-3 w-3 mr-1" />
+                                  Edit
+                                </Button>
+                                <Button variant="ghost" size="sm">
+                                  <XCircle className="h-3 w-3 mr-1" />
+                                  Dismiss
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Bot className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                          <p className="text-muted-foreground font-medium">No AI recommendations</p>
+                          <p className="text-sm text-muted-foreground mt-1 mb-4">
+                            AI will analyze this lead and provide actionable recommendations
+                          </p>
+                          <Button variant="outline" size="sm" disabled>
+                            <Brain className="h-4 w-4 mr-2" />
+                            Generate Recommendations
+                          </Button>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
+                  {/* Executed Plays */}
                   <Card>
                     <CardHeader>
-                      <CardTitle>AI Control Panel</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Play className="h-5 w-5" />
+                        Executed Plays
+                      </CardTitle>
+                      <CardDescription>
+                        Automated sequences and campaigns executed for this student
+                      </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium">AI Engagement Status</h4>
-                          <p className="text-sm text-muted-foreground">
-                            No AI engagement configured for this lead
+                      {showDemoData && demoExecutedPlays.length > 0 ? (
+                        <div className="space-y-4">
+                          {demoExecutedPlays.map((play) => (
+                            <div key={play.id} className="border rounded-lg p-4 bg-card">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="font-medium flex items-center gap-2">
+                                    {play.name}
+                                    <Badge variant={play.status === 'completed' ? 'default' : 'secondary'}>
+                                      {play.status}
+                                    </Badge>
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    {play.type.replace('_', ' ')} • Executed {new Date(play.executedAt).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-3 gap-4 mb-3 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Open Rate:</span>
+                                  <span className="font-medium ml-2">{play.performance.open_rate}%</span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Click Rate:</span>
+                                  <span className="font-medium ml-2">{play.performance.click_rate}%</span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Conversion:</span>
+                                  <span className="font-medium ml-2">{play.performance.conversion_rate}%</span>
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <h5 className="text-sm font-medium">Steps:</h5>
+                                {play.steps.map((step, index) => (
+                                  <div key={index} className="flex items-center gap-2 text-sm">
+                                    <div className={`w-2 h-2 rounded-full ${
+                                      step.status === 'completed' ? 'bg-green-500' : 
+                                      step.status === 'active' ? 'bg-yellow-500' : 'bg-gray-300'
+                                    }`}></div>
+                                    <span className="flex-1">{step.name}</span>
+                                    {step.result !== 'pending' && (
+                                      <Badge variant="outline" className="text-xs">
+                                        {step.result}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Play className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                          <p className="text-muted-foreground font-medium">No plays executed</p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Automated sequences will appear here once executed
                           </p>
                         </div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" disabled>
-                            <Play className="h-4 w-4 mr-2" />
-                            Enable AI
-                          </Button>
-                          <Button variant="outline" size="sm" disabled>
-                            <Flag className="h-4 w-4 mr-2" />
-                            Configure
-                          </Button>
-                        </div>
-                      </div>
+                      )}
                     </CardContent>
                   </Card>
                 </div>
@@ -679,21 +936,153 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="journey" className="h-full">
-                <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Route className="h-5 w-5" />
-                      Journey Tracker
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Route className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground font-medium">Journey not started</p>
-                      <p className="text-sm text-muted-foreground mt-1">Student journey will be tracked here</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="space-y-6 h-full">
+                  {/* Current Journey */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Route className="h-5 w-5" />
+                        Current Journey
+                      </CardTitle>
+                      <CardDescription>
+                        Student's progress through their academic journey
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {showDemoData ? (
+                        <div className="space-y-6">
+                          {/* Journey Overview */}
+                          <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                            <div>
+                              <h4 className="font-semibold text-primary">{demoJourneyData.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                Enrolled {new Date(demoJourneyData.enrolledAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-2xl font-bold text-primary">{demoJourneyData.currentStep}/{demoJourneyData.totalSteps}</div>
+                              <div className="text-xs text-muted-foreground">Steps Complete</div>
+                            </div>
+                          </div>
+
+                          {/* Progress Bar */}
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-medium">Journey Progress</span>
+                              <span className="text-sm text-muted-foreground">{Math.round((demoJourneyData.currentStep / demoJourneyData.totalSteps) * 100)}%</span>
+                            </div>
+                            <Progress value={(demoJourneyData.currentStep / demoJourneyData.totalSteps) * 100} className="h-2" />
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Started</span>
+                              <span className="font-medium">Current: {demoJourneyData.currentStage}</span>
+                              <span>Complete</span>
+                            </div>
+                          </div>
+
+                          {/* Journey Stages */}
+                          <div className="space-y-3">
+                            <h5 className="text-sm font-medium">Journey Stages</h5>
+                            {demoJourneyData.stages.map((stage, index) => (
+                              <div key={index} className="flex items-center gap-3">
+                                <div className={`w-3 h-3 rounded-full ${
+                                  stage.completed ? 'bg-green-500' : 
+                                  stage.active ? 'bg-primary animate-pulse' : 'bg-gray-300'
+                                }`}></div>
+                                <div className="flex-1">
+                                  <div className={`text-sm font-medium ${stage.active ? 'text-primary' : ''}`}>
+                                    {stage.name}
+                                  </div>
+                                  {stage.date && (
+                                    <div className="text-xs text-muted-foreground">
+                                      Completed {new Date(stage.date).toLocaleDateString()}
+                                    </div>
+                                  )}
+                                </div>
+                                {stage.completed && (
+                                  <CheckCircle className="h-4 w-4 text-green-500" />
+                                )}
+                                {stage.active && (
+                                  <Clock className="h-4 w-4 text-primary" />
+                                )}
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Next Required Action */}
+                          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                              <h5 className="text-sm font-medium text-yellow-800">Next Required Action</h5>
+                            </div>
+                            <p className="text-sm text-yellow-700 mb-3">{demoJourneyData.nextRequiredAction}</p>
+                            <div className="flex items-center gap-4 text-xs text-yellow-600">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Est. completion: {new Date(demoJourneyData.estimatedCompletionDate).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Journey Actions */}
+                          <div className="flex gap-2">
+                            <Button size="sm" variant="outline">
+                              <Edit className="h-3 w-3 mr-1" />
+                              Edit Journey
+                            </Button>
+                            <Button size="sm" variant="outline">
+                              <Route className="h-3 w-3 mr-1" />
+                              Change Journey
+                            </Button>
+                            <Button size="sm">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Mark Current Stage Complete
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center py-8">
+                          <Route className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                          <p className="text-muted-foreground font-medium">Journey not started</p>
+                          <p className="text-sm text-muted-foreground mt-1 mb-4">
+                            Student journey will be tracked here once enrolled
+                          </p>
+                          <Button variant="outline" size="sm" disabled>
+                            <Plus className="h-3 w-3 mr-1" />
+                            Enroll in Journey
+                          </Button>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
+                  {/* Journey Analytics */}
+                  {showDemoData && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <PieChart className="h-5 w-5" />
+                          Journey Analytics
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <div className="text-2xl font-bold text-primary">18</div>
+                            <div className="text-xs text-muted-foreground">Days in Current Stage</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-green-600">92%</div>
+                            <div className="text-xs text-muted-foreground">On-Time Performance</div>
+                          </div>
+                          <div>
+                            <div className="text-2xl font-bold text-orange-600">3</div>
+                            <div className="text-xs text-muted-foreground">Pending Actions</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
               </TabsContent>
             </div>
           </Tabs>

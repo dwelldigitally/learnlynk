@@ -34,6 +34,7 @@ import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
 import StudentApplication from "./pages/StudentApplication";
 import EmbedDocumentForm from "./pages/EmbedDocumentForm";
+import EmbedWebForm from "./pages/EmbedWebForm";
 import WebForm from "./pages/WebForm";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,7 @@ const App = () => {
                  
                  {/* Embeddable Form Routes */}
                  <Route path="/embed/document-form" element={<EmbedDocumentForm />} />
+                 <Route path="/embed/webform" element={<EmbedWebForm />} />
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               

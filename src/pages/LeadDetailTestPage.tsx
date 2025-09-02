@@ -52,6 +52,7 @@ import { CompactLeadScore } from '@/components/admin/leads/CompactLeadScore';
 import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
 import { AILeadSummary } from '@/components/admin/leads/AILeadSummary';
 import { CallHistorySection } from '@/components/admin/leads/CallHistorySection';
+import { JourneyBlockerAnalysis } from '@/components/admin/leads/JourneyBlockerAnalysis';
 import { AppointmentBookingButton } from '@/components/admin/leads/AppointmentBookingButton';
 import { AdvisorMatchDialog } from '@/components/admin/leads/AdvisorMatchDialog';
 import { NotesSystemPanel } from '@/components/admin/leads/NotesSystemPanel';
@@ -1014,6 +1015,13 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="journey" className="h-full">
+                <JourneyBlockerAnalysis 
+                  leadId={leadId}
+                  leadData={lead}
+                />
+              </TabsContent>
+
+              <TabsContent value="journey-old" className="h-full">
                 <div className="space-y-6 h-full">
                   {/* Current Journey */}
                   <Card>

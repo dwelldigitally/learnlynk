@@ -128,9 +128,7 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
     }
   };
 
-  useEffect(() => {
-    generateSummary();
-  }, [leadId]);
+  // Removed auto-generation on mount - summary is now created only when user clicks a button
 
   return (
     <div className="space-y-6">

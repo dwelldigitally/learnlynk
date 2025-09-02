@@ -84,9 +84,9 @@ export function SalesCommandCenter() {
       change: "+12.3%",
       trend: "up",
       icon: BarChart3,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      borderColor: "border-green-200"
+      color: "text-success",
+      bgColor: "bg-success/5",
+      borderColor: "border-success/20"
     },
     {
       title: "Conversion Rate",
@@ -94,9 +94,9 @@ export function SalesCommandCenter() {
       change: "+2.1%",
       trend: "up",
       icon: TrendingUp,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      borderColor: "border-blue-200"
+      color: "text-primary",
+      bgColor: "bg-primary/5",
+      borderColor: "border-primary/20"
     },
     {
       title: "Response Time",
@@ -104,9 +104,9 @@ export function SalesCommandCenter() {
       change: "-0.6h",
       trend: "up",
       icon: Timer,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      borderColor: "border-purple-200"
+      color: "text-accent",
+      bgColor: "bg-accent/5",
+      borderColor: "border-accent/20"
     },
     {
       title: "Team Utilization",
@@ -114,9 +114,9 @@ export function SalesCommandCenter() {
       change: "+5%",
       trend: "up",
       icon: Activity,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      borderColor: "border-orange-200"
+      color: "text-warning",
+      bgColor: "bg-warning/5",
+      borderColor: "border-warning/20"
     }
   ];
 
@@ -166,7 +166,7 @@ export function SalesCommandCenter() {
           </p>
         </div>
         <div className="flex items-center gap-4">
-          <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50 px-3 py-1">
+          <Badge variant="outline" className="text-success border-success/20 bg-success/5 px-3 py-1">
             <CheckCircle className="h-4 w-4 mr-2" />
             System Operational
           </Badge>
@@ -203,41 +203,41 @@ export function SalesCommandCenter() {
       {/* AI & Human Agent Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* AI Agents Card */}
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 border-2">
+        <Card className="bg-gradient-subtle border-primary/20 border">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-blue-900">
-              <div className="p-2 rounded-lg bg-blue-100 border border-blue-200">
-                <Bot className="h-5 w-5 text-blue-600" />
+            <CardTitle className="flex items-center gap-3 text-foreground">
+              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                <Bot className="h-5 w-5 text-primary" />
               </div>
               AI Agent Performance
             </CardTitle>
-            <CardDescription className="text-blue-700">
+            <CardDescription className="text-muted-foreground">
               Automated tasks and AI-driven activities
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/70 p-4 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-600 font-medium">Active Agents</p>
-                <p className="text-2xl font-bold text-blue-900">{aiAgentStats.activeAgents}/{aiAgentStats.totalAgents}</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Active Agents</p>
+                <p className="text-2xl font-bold text-foreground">{aiAgentStats.activeAgents}/{aiAgentStats.totalAgents}</p>
               </div>
-              <div className="bg-white/70 p-4 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-600 font-medium">Tasks Today</p>
-                <p className="text-2xl font-bold text-blue-900">{aiAgentStats.tasksCompletedToday}</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Tasks Today</p>
+                <p className="text-2xl font-bold text-foreground">{aiAgentStats.tasksCompletedToday}</p>
               </div>
-              <div className="bg-white/70 p-4 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-600 font-medium">Confidence</p>
-                <p className="text-2xl font-bold text-blue-900">{aiAgentStats.averageConfidence}%</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Confidence</p>
+                <p className="text-2xl font-bold text-foreground">{aiAgentStats.averageConfidence}%</p>
               </div>
-              <div className="bg-white/70 p-4 rounded-lg border border-blue-100">
-                <p className="text-sm text-blue-600 font-medium">Automation Rate</p>
-                <p className="text-2xl font-bold text-blue-900">{aiAgentStats.automationRate}%</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Automation Rate</p>
+                <p className="text-2xl font-bold text-foreground">{aiAgentStats.automationRate}%</p>
               </div>
             </div>
-            <div className="bg-white/50 p-3 rounded-lg border border-blue-100">
+            <div className="bg-card/50 p-3 rounded-lg border border-border">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-blue-700">Automation Progress</span>
-                <span className="font-medium text-blue-900">{aiAgentStats.automationRate}%</span>
+                <span className="text-muted-foreground">Automation Progress</span>
+                <span className="font-medium text-foreground">{aiAgentStats.automationRate}%</span>
               </div>
               <Progress value={aiAgentStats.automationRate} className="mt-2 h-2" />
             </div>
@@ -245,41 +245,41 @@ export function SalesCommandCenter() {
         </Card>
 
         {/* Human Agents Card */}
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 border-2">
+        <Card className="bg-gradient-subtle border-secondary/20 border">
           <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-green-900">
-              <div className="p-2 rounded-lg bg-green-100 border border-green-200">
-                <UserCheck className="h-5 w-5 text-green-600" />
+            <CardTitle className="flex items-center gap-3 text-foreground">
+              <div className="p-2 rounded-lg bg-secondary/10 border border-secondary/20">
+                <UserCheck className="h-5 w-5 text-secondary" />
               </div>
               Human Agent Performance
             </CardTitle>
-            <CardDescription className="text-green-700">
+            <CardDescription className="text-muted-foreground">
               Counselor activity and engagement metrics
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/70 p-4 rounded-lg border border-green-100">
-                <p className="text-sm text-green-600 font-medium">Active Staff</p>
-                <p className="text-2xl font-bold text-green-900">{humanAgentStats.activeCounselors}/{humanAgentStats.totalCounselors}</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Active Staff</p>
+                <p className="text-2xl font-bold text-foreground">{humanAgentStats.activeCounselors}/{humanAgentStats.totalCounselors}</p>
               </div>
-              <div className="bg-white/70 p-4 rounded-lg border border-green-100">
-                <p className="text-sm text-green-600 font-medium">Response Time</p>
-                <p className="text-2xl font-bold text-green-900">{humanAgentStats.averageResponseTime}h</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Response Time</p>
+                <p className="text-2xl font-bold text-foreground">{humanAgentStats.averageResponseTime}h</p>
               </div>
-              <div className="bg-white/70 p-4 rounded-lg border border-green-100">
-                <p className="text-sm text-green-600 font-medium">Completed</p>
-                <p className="text-2xl font-bold text-green-900">{humanAgentStats.completedFollowups}</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Completed</p>
+                <p className="text-2xl font-bold text-foreground">{humanAgentStats.completedFollowups}</p>
               </div>
-              <div className="bg-white/70 p-4 rounded-lg border border-green-100">
-                <p className="text-sm text-green-600 font-medium">Conversion</p>
-                <p className="text-2xl font-bold text-green-900">{humanAgentStats.conversionRate}%</p>
+              <div className="bg-card/70 p-4 rounded-lg border border-border">
+                <p className="text-sm text-muted-foreground font-medium">Conversion</p>
+                <p className="text-2xl font-bold text-foreground">{humanAgentStats.conversionRate}%</p>
               </div>
             </div>
-            <div className="bg-white/50 p-3 rounded-lg border border-green-100">
+            <div className="bg-card/50 p-3 rounded-lg border border-border">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-green-700">Team Utilization</span>
-                <span className="font-medium text-green-900">{teamUtilization}%</span>
+                <span className="text-muted-foreground">Team Utilization</span>
+                <span className="font-medium text-foreground">{teamUtilization}%</span>
               </div>
               <Progress value={teamUtilization} className="mt-2 h-2" />
             </div>
@@ -288,26 +288,26 @@ export function SalesCommandCenter() {
       </div>
 
       {/* Critical Issues & Actions */}
-      <Card className="border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 border-2">
+      <Card className="border-warning/20 bg-warning/5 border">
         <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-3 text-amber-900">
-            <div className="p-2 rounded-lg bg-amber-100 border border-amber-200">
-              <Zap className="h-5 w-5 text-amber-600" />
+          <CardTitle className="flex items-center gap-3 text-foreground">
+            <div className="p-2 rounded-lg bg-warning/10 border border-warning/20">
+              <Zap className="h-5 w-5 text-warning" />
             </div>
             Critical Issues Requiring Action
           </CardTitle>
-          <CardDescription className="text-amber-700">
+          <CardDescription className="text-muted-foreground">
             High-priority items that need immediate attention to maintain performance
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {urgentItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-white/80 rounded-xl border border-amber-100 hover:shadow-md transition-all duration-200">
+              <div key={item.id} className="flex items-center justify-between p-4 bg-card/80 rounded-xl border border-border hover:shadow-md transition-all duration-200">
                 <div className="flex items-center gap-4">
                   <div className={`w-4 h-4 rounded-full flex-shrink-0 ${
-                    item.severity === 'critical' ? 'bg-red-500 shadow-lg shadow-red-200' :
-                    item.severity === 'high' ? 'bg-orange-500 shadow-lg shadow-orange-200' : 'bg-yellow-500 shadow-lg shadow-yellow-200'
+                    item.severity === 'critical' ? 'bg-destructive shadow-lg shadow-destructive/20' :
+                    item.severity === 'high' ? 'bg-warning shadow-lg shadow-warning/20' : 'bg-warning/60 shadow-lg shadow-warning/10'
                   }`} />
                   <div className="flex-grow">
                     <p className="font-semibold text-foreground text-lg">{item.title}</p>
@@ -315,7 +315,7 @@ export function SalesCommandCenter() {
                   </div>
                   <Badge variant="secondary" className="ml-3 px-3 py-1 text-sm font-medium">{item.count}</Badge>
                 </div>
-                <Button size="sm" variant="outline" className="ml-4 hover:bg-amber-50">
+                <Button size="sm" variant="outline" className="ml-4">
                   {item.action}
                 </Button>
               </div>
@@ -326,47 +326,47 @@ export function SalesCommandCenter() {
 
       {/* Status Indicators & Targets */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-r from-red-50 to-red-100 border-red-200">
+        <Card className="bg-destructive/5 border-destructive/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-red-700">Critical Alerts</p>
-                <p className="text-2xl font-bold text-red-900">{criticalAlerts}</p>
+                <p className="text-sm font-medium text-muted-foreground">Critical Alerts</p>
+                <p className="text-2xl font-bold text-foreground">{criticalAlerts}</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
+              <AlertTriangle className="h-8 w-8 text-destructive" />
             </div>
           </CardContent>
         </Card>
         
-        <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+        <Card className="bg-warning/5 border-warning/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700">SLA Breaches</p>
-                <p className="text-2xl font-bold text-orange-900">{commandCenterStats.slaViolations}</p>
+                <p className="text-sm font-medium text-muted-foreground">SLA Breaches</p>
+                <p className="text-2xl font-bold text-foreground">{commandCenterStats.slaViolations}</p>
               </div>
-              <Clock className="h-8 w-8 text-orange-500" />
+              <Clock className="h-8 w-8 text-warning" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+        <Card className="bg-primary/5 border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700">Unassigned Leads</p>
-                <p className="text-2xl font-bold text-blue-900">{commandCenterStats.unassignedLeads}</p>
+                <p className="text-sm font-medium text-muted-foreground">Unassigned Leads</p>
+                <p className="text-2xl font-bold text-foreground">{commandCenterStats.unassignedLeads}</p>
               </div>
-              <Users className="h-8 w-8 text-blue-500" />
+              <Users className="h-8 w-8 text-primary" />
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Performance Targets */}
-      <Card className="bg-gradient-to-r from-slate-50 to-gray-50 border-slate-200">
+      <Card className="bg-muted/30 border-border">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-slate-700">Current Performance Targets</CardTitle>
+          <CardTitle className="text-lg font-semibold text-foreground">Current Performance Targets</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
@@ -397,13 +397,13 @@ export function SalesCommandCenter() {
 
       {/* Main Command Center Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <div className="bg-gradient-to-r from-slate-50 via-white to-slate-50 p-2 rounded-2xl border-2 border-slate-200 shadow-lg">
+        <div className="bg-gradient-subtle p-2 rounded-2xl border-2 border-border shadow-lg">
           <TabsList className="grid w-full grid-cols-4 bg-transparent gap-2 h-auto p-2">
             <TabsTrigger 
               value="alert-center" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-red-200 data-[state=active]:text-red-600 data-[state=active]:bg-gradient-to-br data-[state=active]:from-red-50 data-[state=active]:to-red-100 hover:bg-white/70 hover:shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-destructive/20 data-[state=active]:text-destructive data-[state=active]:bg-destructive/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
             >
-              <div className="p-2 rounded-lg bg-red-100 data-[state=active]:bg-red-200">
+              <div className="p-2 rounded-lg bg-destructive/10 data-[state=active]:bg-destructive/20">
                 <AlertTriangle className="h-6 w-6" />
               </div>
               <div className="text-center">
@@ -413,9 +413,9 @@ export function SalesCommandCenter() {
             </TabsTrigger>
             <TabsTrigger 
               value="flash-reports" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-blue-200 data-[state=active]:text-blue-600 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-50 data-[state=active]:to-blue-100 hover:bg-white/70 hover:shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-primary/20 data-[state=active]:text-primary data-[state=active]:bg-primary/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
             >
-              <div className="p-2 rounded-lg bg-blue-100 data-[state=active]:bg-blue-200">
+              <div className="p-2 rounded-lg bg-primary/10 data-[state=active]:bg-primary/20">
                 <PieChart className="h-6 w-6" />
               </div>
               <div className="text-center">
@@ -425,9 +425,9 @@ export function SalesCommandCenter() {
             </TabsTrigger>
             <TabsTrigger 
               value="team-performance" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-green-200 data-[state=active]:text-green-600 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-50 data-[state=active]:to-green-100 hover:bg-white/70 hover:shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-success/20 data-[state=active]:text-success data-[state=active]:bg-success/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
             >
-              <div className="p-2 rounded-lg bg-green-100 data-[state=active]:bg-green-200">
+              <div className="p-2 rounded-lg bg-success/10 data-[state=active]:bg-success/20">
                 <Award className="h-6 w-6" />
               </div>
               <div className="text-center">
@@ -437,9 +437,9 @@ export function SalesCommandCenter() {
             </TabsTrigger>
             <TabsTrigger 
               value="workflow-automation" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-purple-200 data-[state=active]:text-purple-600 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-50 data-[state=active]:to-purple-100 hover:bg-white/70 hover:shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-accent/20 data-[state=active]:text-accent data-[state=active]:bg-accent/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
             >
-              <div className="p-2 rounded-lg bg-purple-100 data-[state=active]:bg-purple-200">
+              <div className="p-2 rounded-lg bg-accent/10 data-[state=active]:bg-accent/20">
                 <Brain className="h-6 w-6" />
               </div>
               <div className="text-center">

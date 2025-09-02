@@ -136,10 +136,10 @@ export default function LeadDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation */}
-      <TopNavigationBar 
+      {/* <TopNavigationBar 
         activeSection="leads" 
         onSectionChange={() => {}} 
-      />
+      /> */}
       
       {/* Header with back button and lead info */}
       <div className="border-b bg-card px-6 py-4">

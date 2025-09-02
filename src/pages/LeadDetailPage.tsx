@@ -169,10 +169,10 @@ export default function LeadDetailPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigate(`/admin/leads/${leadId}`)}
+              onClick={() => navigate(`/admin/leads/detail/${leadId}`)}
               className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
             >
-              🧪 Try Old Design
+              🧪 Try New Design
             </Button>
             <div className="text-sm text-muted-foreground">
               Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>

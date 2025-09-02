@@ -83,6 +83,12 @@ const AdminDashboard: React.FC = () => {
       return <LeadDetailPage />;
     }
     
+    // Check for direct lead ID route pattern (UUID format)
+    const leadUuidMatch = location.pathname.match(/^\/admin\/leads\/([0-9a-f-]{36})$/);
+    if (leadUuidMatch) {
+      return <LeadDetailPage />;
+    }
+    
     switch (location.pathname) {
       case "/admin":
         return <AdminOverview />;

@@ -41,11 +41,20 @@ import {
   Download,
   Upload,
   Plus,
-  PieChart
+  PieChart,
+  Filter,
+  User
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
+import { AIScoreCard } from '@/components/admin/leads/AIScoreCard';
+import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
+import { CallHistorySection } from '@/components/admin/leads/CallHistorySection';
+import { AppointmentBookingWidget } from '@/components/admin/leads/AppointmentBookingWidget';
+import { AdvisorMatchDialog } from '@/components/admin/leads/AdvisorMatchDialog';
+import { NotesSystemPanel } from '@/components/admin/leads/NotesSystemPanel';
+import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflowPanel';
 
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
@@ -58,6 +67,8 @@ export default function LeadDetailTestPage() {
   const [activeTab, setActiveTab] = useState('summary');
   const [showDemoData, setShowDemoData] = useState(false);
   const [executingRecommendations, setExecutingRecommendations] = useState<Set<number>>(new Set());
+  const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
+  const [timelineFilter, setTimelineFilter] = useState('all');
 
   useEffect(() => {
     if (leadId) {
@@ -96,11 +107,14 @@ export default function LeadDetailTestPage() {
 
   // Demo data
   const demoEngagementTimeline = [
-    { id: 1, type: 'email', action: 'Welcome email sent', timestamp: '2024-01-15 09:00', source: 'AI', status: 'opened' },
-    { id: 2, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered' },
-    { id: 3, type: 'event', action: 'Virtual info session attended', timestamp: '2024-01-17 18:00', source: 'Student', status: 'attended' },
-    { id: 4, type: 'application', action: 'Application started', timestamp: '2024-01-18 10:15', source: 'Student', status: 'in_progress' },
-    { id: 5, type: 'email', action: 'Follow-up on incomplete application', timestamp: '2024-01-20 11:00', source: 'AI', status: 'sent' }
+    { id: 1, type: 'email', action: 'Welcome email sent', timestamp: '2024-01-15 09:00', source: 'AI', status: 'opened', category: 'communication' },
+    { id: 2, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered', category: 'communication' },
+    { id: 3, type: 'event', action: 'Virtual info session attended', timestamp: '2024-01-17 18:00', source: 'Student', status: 'attended', category: 'engagement' },
+    { id: 4, type: 'application', action: 'Application started', timestamp: '2024-01-18 10:15', source: 'Student', status: 'in_progress', category: 'application' },
+    { id: 5, type: 'email', action: 'Follow-up on incomplete application', timestamp: '2024-01-20 11:00', source: 'AI', status: 'sent', category: 'communication' },
+    { id: 6, type: 'call', action: 'Outbound call - answered', timestamp: '2024-01-20 14:30', source: 'Human', status: 'completed', category: 'communication' },
+    { id: 7, type: 'note', action: 'Added financial aid discussion notes', timestamp: '2024-01-19 11:15', source: 'Human', status: 'completed', category: 'internal' },
+    { id: 8, type: 'document', action: 'High school transcript uploaded', timestamp: '2024-01-18 10:30', source: 'Student', status: 'approved', category: 'document' }
   ];
 
   const demoAIRecommendations = [
@@ -210,6 +224,15 @@ export default function LeadDetailTestPage() {
     riskLevel: 'unknown',
     programMatch: 0
   };
+
+  // Filter timeline based on selected filter
+  const filteredTimeline = mockEngagementTimeline.filter(event => {
+    if (timelineFilter === 'all') return true;
+    if (timelineFilter === 'human') return event.source === 'Human';
+    if (timelineFilter === 'ai') return event.source === 'AI';
+    if (timelineFilter === 'student') return event.source === 'Student';
+    return event.category === timelineFilter;
+  });
 
   // Helper functions
   const getIconForEvent = (type: string) => {
@@ -392,7 +415,13 @@ export default function LeadDetailTestPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>Sarah Johnson</span>
+                    <Button 
+                      variant="link" 
+                      className="p-0 h-auto text-sm font-normal underline hover:no-underline"
+                      onClick={() => setAdvisorMatchOpen(true)}
+                    >
+                      Sarah Johnson
+                    </Button>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
@@ -424,123 +453,153 @@ export default function LeadDetailTestPage() {
                   </div>
                 </div>
 
-                {/* Tags */}
-                <div className="flex gap-2 mt-3">
-                  {showDemoData ? (
-                    <>
-                      <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                        🔥 High Priority
+                {/* Tags & AI Indicator */}
+                <div className="flex items-center justify-between mt-3">
+                  <div className="flex gap-2">
+                    {showDemoData ? (
+                      <>
+                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
+                          🔥 High Priority
+                        </Badge>
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                          📅 Info Session Attendee
+                        </Badge>
+                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                          📄 Incomplete Docs
+                        </Badge>
+                      </>
+                    ) : (
+                      <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+                        No tags assigned
                       </Badge>
-                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                        📅 Info Session Attendee
-                      </Badge>
-                      <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                        📄 Incomplete Docs
-                      </Badge>
-                    </>
-                  ) : (
-                    <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
-                      No tags assigned
-                    </Badge>
-                  )}
+                    )}
+                  </div>
+                  
+                  {/* AgenticAI Indicator */}
+                  <AgenticAIIndicator 
+                    isAIManaged={showDemoData}
+                    aiStatus={showDemoData ? 'active' : undefined}
+                    lastAIAction={showDemoData ? 'Sent follow-up email 2 hours ago' : undefined}
+                    nextAIAction={showDemoData ? 'Schedule call reminder in 4 hours' : undefined}
+                    onHumanTakeover={() => {
+                      toast({
+                        title: 'Human Takeover Initiated',
+                        description: 'AI management has been paused. You now have full control.',
+                        variant: 'default'
+                      });
+                    }}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          {/* AI Recommendation Panel */}
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg flex items-center gap-2 text-green-800">
-                <Brain className="h-5 w-5" />
-                AI Recommendation
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {showDemoData ? (
-                <div className="bg-white/80 p-4 rounded-lg border border-green-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-green-900">Send scholarship reminder</span>
-                    <Badge className="bg-green-100 text-green-800">87% confidence</Badge>
+          {/* Lead Score & Quick Actions */}
+          <div className="space-y-4">
+            {/* Prominent Lead Score */}
+            <AIScoreCard lead={lead || {} as Lead} expanded={true} />
+            
+            {/* Flag for Review Button */}
+            <Card className="bg-orange-50 border-orange-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Flag className="h-4 w-4 text-orange-600" />
+                    <span className="font-medium text-orange-900">Review Required</span>
                   </div>
-                  <p className="text-sm text-green-700 mb-3">
-                    Based on similar students, this message has a 37% yield boost
-                  </p>
-                  <div className="flex items-center gap-2 text-xs text-green-600 mb-3">
-                    <Clock className="h-3 w-3" />
-                    Best to send within next 24h
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
-                      className="bg-green-600 hover:bg-green-700"
-                      onClick={() => executeRecommendation(demoAIRecommendations[0])}
-                      disabled={executingRecommendations.has(1)}
-                    >
-                      {executingRecommendations.has(1) ? (
-                        <>
-                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
-                          Executing...
-                        </>
-                      ) : (
-                        <>
-                          <Zap className="h-3 w-3 mr-1" />
-                          Execute Now
-                        </>
-                      )}
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Edit & Send
-                    </Button>
-                  </div>
+                  <Badge variant="outline" className="bg-orange-100 text-orange-800">
+                    Pending
+                  </Badge>
                 </div>
-              ) : (
-                <div className="bg-white/80 p-4 rounded-lg border border-green-100 text-center">
-                  <div className="text-green-700 mb-2">
-                    <Brain className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    No AI recommendations available
-                  </div>
-                  <p className="text-sm text-green-600 mb-3">
-                    AI will analyze this lead and provide recommendations
-                  </p>
-                  <Button size="sm" variant="outline" disabled>
-                    <Zap className="h-3 w-3 mr-1" />
-                    Generate Recommendations
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                <p className="text-sm text-orange-700 mb-3">
+                  Student has been flagged for manual review due to incomplete documentation
+                </p>
+                <Button size="sm" variant="outline" className="w-full">
+                  <Eye className="h-3 w-3 mr-1" />
+                  Review Now
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Quick Appointment Booking */}
+            <AppointmentBookingWidget leadId={leadId || ''} />
+          </div>
         </div>
       </div>
 
       {/* Main Content Layout */}
       <div className="flex h-[calc(100vh-300px)]">
-        {/* Left Panel - Engagement Timeline */}
+        {/* Left Panel - Enhanced Engagement Timeline */}
         <div className="w-80 border-r bg-card">
           <div className="p-4 border-b">
             <h3 className="font-semibold flex items-center gap-2">
               <Activity className="h-4 w-4" />
-              Engagement Timeline
+              Comprehensive Timeline
             </h3>
-            <div className="flex gap-2 mt-2">
-              <Button variant="outline" size="sm">All</Button>
-              <Button variant="ghost" size="sm">Human</Button>
-              <Button variant="ghost" size="sm">AI</Button>
+            <div className="flex flex-col gap-2 mt-3">
+              <div className="flex gap-1">
+                <Button 
+                  variant={timelineFilter === 'all' ? 'default' : 'ghost'} 
+                  size="sm"
+                  onClick={() => setTimelineFilter('all')}
+                >
+                  All
+                </Button>
+                <Button 
+                  variant={timelineFilter === 'human' ? 'default' : 'ghost'} 
+                  size="sm"
+                  onClick={() => setTimelineFilter('human')}
+                >
+                  Human
+                </Button>
+                <Button 
+                  variant={timelineFilter === 'ai' ? 'default' : 'ghost'} 
+                  size="sm"
+                  onClick={() => setTimelineFilter('ai')}
+                >
+                  AI
+                </Button>
+              </div>
+              <div className="flex gap-1">
+                <Button 
+                  variant={timelineFilter === 'communication' ? 'default' : 'ghost'} 
+                  size="sm"
+                  onClick={() => setTimelineFilter('communication')}
+                >
+                  <Mail className="h-3 w-3 mr-1" />
+                  Comms
+                </Button>
+                <Button 
+                  variant={timelineFilter === 'document' ? 'default' : 'ghost'} 
+                  size="sm"
+                  onClick={() => setTimelineFilter('document')}
+                >
+                  <FileText className="h-3 w-3 mr-1" />
+                  Docs
+                </Button>
+                <Button 
+                  variant={timelineFilter === 'engagement' ? 'default' : 'ghost'} 
+                  size="sm"
+                  onClick={() => setTimelineFilter('engagement')}
+                >
+                  <User className="h-3 w-3 mr-1" />
+                  Events
+                </Button>
+              </div>
             </div>
           </div>
           
           <ScrollArea className="h-full p-4">
-            {mockEngagementTimeline.length > 0 ? (
+            {filteredTimeline.length > 0 ? (
               <div className="space-y-4">
-                {mockEngagementTimeline.map((event, index) => (
+                {filteredTimeline.map((event, index) => (
                   <div key={event.id} className="flex gap-3">
                     <div className="flex flex-col items-center">
                       <div className={`w-3 h-3 rounded-full ${
                         event.source === 'AI' ? 'bg-blue-500' : 
                         event.source === 'Human' ? 'bg-green-500' : 'bg-purple-500'
                       }`} />
-                      {index < mockEngagementTimeline.length - 1 && (
+                      {index < filteredTimeline.length - 1 && (
                         <div className="w-px h-8 bg-border mt-2" />
                       )}
                     </div>
@@ -554,7 +613,7 @@ export default function LeadDetailTestPage() {
                         <Badge variant="outline" className="text-xs">
                           {event.source}
                         </Badge>
-                        <Badge variant={event.status === 'opened' ? 'default' : 'secondary'} className="text-xs">
+                        <Badge variant={event.status === 'opened' || event.status === 'completed' || event.status === 'approved' ? 'default' : 'secondary'} className="text-xs">
                           {event.status}
                         </Badge>
                       </div>
@@ -565,9 +624,14 @@ export default function LeadDetailTestPage() {
             ) : (
               <div className="text-center py-8">
                 <Activity className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground font-medium">No activity yet</p>
+                <p className="text-muted-foreground font-medium">
+                  {timelineFilter === 'all' ? 'No activity yet' : `No ${timelineFilter} activity`}
+                </p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Engagement timeline will appear here as interactions occur
+                  {timelineFilter === 'all' 
+                    ? 'Engagement timeline will appear here as interactions occur'
+                    : `${timelineFilter} activities will appear here when available`
+                  }
                 </p>
               </div>
             )}
@@ -578,12 +642,13 @@ export default function LeadDetailTestPage() {
         <div className="flex-1 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <div className="border-b p-4">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="comms">Comms</TabsTrigger>
                 <TabsTrigger value="docs">Docs</TabsTrigger>
                 <TabsTrigger value="ai">AI</TabsTrigger>
                 <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                <TabsTrigger value="notes">Notes</TabsTrigger>
                 <TabsTrigger value="journey">Journey</TabsTrigger>
               </TabsList>
             </div>
@@ -698,68 +763,16 @@ export default function LeadDetailTestPage() {
                 </Card>
               </TabsContent>
 
+              <TabsContent value="comms" className="h-full">
+                <CallHistorySection leadId={leadId || ''} />
+              </TabsContent>
+
               <TabsContent value="docs" className="h-full">
-                {/* Documents & Application Materials */}
-                <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Documents & Application Materials
-                    </CardTitle>
-                    <CardDescription>
-                      Track application progress and document uploads
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {showDemoData && mockDocuments.length > 0 ? (
-                      <div className="space-y-4">
-                        {mockDocuments.map((doc) => (
-                          <div key={doc.id} className={`p-4 rounded-lg border ${getDocumentBgColor(doc.status)}`}>
-                            <div className="flex items-start justify-between mb-2">
-                              <div className="flex items-center gap-3">
-                                {getDocumentIcon(doc.status)}
-                                <div>
-                                  <h4 className="font-medium">{doc.name}</h4>
-                                  {doc.uploadDate && (
-                                    <p className="text-sm text-muted-foreground">
-                                      Uploaded {new Date(doc.uploadDate).toLocaleDateString()}
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              <Badge variant={doc.status === 'uploaded' ? 'default' : doc.status === 'partial' ? 'secondary' : 'destructive'}>
-                                {doc.status}
-                              </Badge>
-                            </div>
-                            {doc.aiInsight && (
-                              <div className="mt-2 p-2 bg-white/50 rounded text-sm">
-                                <span className="font-medium">AI Insight: </span>
-                                {doc.aiInsight}
-                              </div>
-                            )}
-                            {doc.required && doc.status === 'missing' && (
-                              <div className="mt-2 text-sm text-red-600 font-medium">
-                                ⚠️ Required document
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <FileText className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                        <p className="text-muted-foreground font-medium">No documents uploaded</p>
-                        <p className="text-sm text-muted-foreground mt-1 mb-4">
-                          Application documents will appear here once uploaded
-                        </p>
-                        <Button variant="outline" size="sm">
-                          <Upload className="h-4 w-4 mr-2" />
-                          Upload First Document
-                        </Button>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+                <DocumentWorkflowPanel leadId={leadId || ''} />
+              </TabsContent>
+
+              <TabsContent value="notes" className="h-full">
+                <NotesSystemPanel leadId={leadId || ''} />
               </TabsContent>
 
               <TabsContent value="ai" className="h-full">
@@ -1196,8 +1209,16 @@ export default function LeadDetailTestPage() {
             </CardContent>
           </Card>
         </div>
+        </div>
       </div>
-      </div>
+
+      {/* Advisor Match Dialog */}
+      <AdvisorMatchDialog 
+        open={advisorMatchOpen}
+        onOpenChange={setAdvisorMatchOpen}
+        advisorName="Sarah Johnson"
+        lead={lead || {} as Lead}
+      />
     </ModernAdminLayout>
   );
 }

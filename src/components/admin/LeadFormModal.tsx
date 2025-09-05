@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
 import { LeadFormData, LeadSource } from '@/types/lead';
 import { supabase } from '@/integrations/supabase/client';
+import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
+import { getUpcomingIntakeDatesForProgram, formatIntakeDate, ProgramIntakeDate } from '@/constants/intakeDates';
 
 interface LeadFormModalProps {
   open: boolean;
@@ -18,6 +20,10 @@ interface LeadFormModalProps {
 
 export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormModalProps) {
   const [loading, setLoading] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<string>('');
+  const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
+  const [availableIntakeDates, setAvailableIntakeDates] = useState<ProgramIntakeDate[]>([]);
+  
   const [formData, setFormData] = useState<LeadFormData>({
     first_name: '',
     last_name: '',
@@ -33,6 +39,17 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
   });
   const { toast } = useToast();
 
+  // Handle program selection and load intake dates
+  const handleProgramChange = (program: string) => {
+    setSelectedProgram(program);
+    setSelectedIntakeDate(''); // Reset intake date when program changes
+    const intakeDates = getUpcomingIntakeDatesForProgram(program);
+    setAvailableIntakeDates(intakeDates);
+    
+    // Update form data with selected program
+    updateFormData('program_interest', [program]);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -40,6 +57,15 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
       toast({
         title: 'Error',
         description: 'Please fill in all required fields',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!selectedProgram) {
+      toast({
+        title: 'Error',
+        description: 'Please select a program of interest',
         variant: 'destructive'
       });
       return;
@@ -60,7 +86,15 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         user_id: user.id
       };
       
-      const result = await LeadService.createLead(leadDataWithUser);
+      // Include intake date in notes if selected
+      const notesWithIntake = selectedIntakeDate 
+        ? `${formData.notes ? formData.notes + '\n\n' : ''}Interested in intake: ${availableIntakeDates.find(d => d.id === selectedIntakeDate)?.label || selectedIntakeDate}`
+        : formData.notes;
+
+      const result = await LeadService.createLead({
+        ...leadDataWithUser,
+        notes: notesWithIntake
+      });
       console.log('Lead creation result:', result);
       
       if (result.error) {
@@ -81,6 +115,9 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         program_interest: [],
         notes: ''
       });
+      setSelectedProgram('');
+      setSelectedIntakeDate('');
+      setAvailableIntakeDates([]);
       
       console.log('Calling onLeadCreated');
       onLeadCreated();
@@ -204,6 +241,46 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
                 onChange={(e) => updateFormData('source_details', e.target.value)}
                 placeholder="e.g., Facebook Ad Campaign"
               />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="program">Program of Interest *</Label>
+              <Select value={selectedProgram} onValueChange={handleProgramChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a program" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STANDARDIZED_PROGRAMS.map((program) => (
+                    <SelectItem key={program} value={program}>
+                      {program}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="intake_date">Preferred Intake Date</Label>
+              <Select 
+                value={selectedIntakeDate} 
+                onValueChange={setSelectedIntakeDate}
+                disabled={!selectedProgram || availableIntakeDates.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={selectedProgram ? "Select intake date" : "Select program first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableIntakeDates.map((intake) => (
+                    <SelectItem key={intake.id} value={intake.id}>
+                      {formatIntakeDate(intake)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedProgram && availableIntakeDates.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">No upcoming intake dates available for this program</p>
+              )}
             </div>
           </div>
 

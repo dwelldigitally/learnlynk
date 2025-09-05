@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +11,8 @@ import { X, Save, User, MapPin, GraduationCap, Tag, FileText } from 'lucide-reac
 import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { useToast } from '@/hooks/use-toast';
+import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
+import { getUpcomingIntakeDatesForProgram, formatIntakeDate, ProgramIntakeDate } from '@/constants/intakeDates';
 
 interface LeadEditFormProps {
   lead: Lead;
@@ -21,6 +23,10 @@ interface LeadEditFormProps {
 export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<string>(lead.program_interest?.[0] || '');
+  const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
+  const [availableIntakeDates, setAvailableIntakeDates] = useState<ProgramIntakeDate[]>([]);
+  
   const [formData, setFormData] = useState({
     first_name: lead.first_name,
     last_name: lead.last_name,
@@ -43,15 +49,38 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
     utm_term: lead.utm_term || ''
   });
 
+  // Load intake dates when component mounts or program changes
+  useEffect(() => {
+    if (selectedProgram) {
+      const intakeDates = getUpcomingIntakeDatesForProgram(selectedProgram);
+      setAvailableIntakeDates(intakeDates);
+    } else {
+      setAvailableIntakeDates([]);
+    }
+  }, [selectedProgram]);
+
+  // Handle program selection and load intake dates
+  const handleProgramChange = (program: string) => {
+    setSelectedProgram(program);
+    setSelectedIntakeDate(''); // Reset intake date when program changes
+    handleInputChange('program_interest', program);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
 
     try {
+      // Include intake date in notes if selected
+      const notesWithIntake = selectedIntakeDate 
+        ? `${formData.notes ? formData.notes + '\n\n' : ''}Interested in intake: ${availableIntakeDates.find(d => d.id === selectedIntakeDate)?.label || selectedIntakeDate}`
+        : formData.notes;
+
       const updateData = {
         ...formData,
-        program_interest: formData.program_interest ? formData.program_interest.split(',').map(p => p.trim()).filter(Boolean) : [],
+        program_interest: selectedProgram ? [selectedProgram] : [],
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        notes: notesWithIntake,
         updated_at: new Date().toISOString()
       };
 
@@ -274,15 +303,44 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="program_interest">Program Interest</Label>
-            <Input
-              id="program_interest"
-              value={formData.program_interest}
-              onChange={(e) => handleInputChange('program_interest', e.target.value)}
-              placeholder="Enter programs separated by commas"
-            />
-            <p className="text-xs text-muted-foreground">Separate multiple programs with commas</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="program">Program of Interest</Label>
+              <Select value={selectedProgram} onValueChange={handleProgramChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a program" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STANDARDIZED_PROGRAMS.map((program) => (
+                    <SelectItem key={program} value={program}>
+                      {program}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="intake_date">Preferred Intake Date</Label>
+              <Select 
+                value={selectedIntakeDate} 
+                onValueChange={setSelectedIntakeDate}
+                disabled={!selectedProgram || availableIntakeDates.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={selectedProgram ? "Select intake date" : "Select program first"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableIntakeDates.map((intake) => (
+                    <SelectItem key={intake.id} value={intake.id}>
+                      {formatIntakeDate(intake)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedProgram && availableIntakeDates.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">No upcoming intake dates available for this program</p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

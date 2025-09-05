@@ -269,6 +269,7 @@ class LeadDataService {
       const progressEntries = predefinedStages.map((stageName, index) => ({
         lead_id: leadId,
         journey_id: journeyData.id,
+        stage_id: null,
         stage_name: stageName,
         completed: index === 0 // Mark first stage as completed
       }));

@@ -3003,7 +3003,7 @@ export type Database = {
           lead_id: string
           metadata: Json | null
           notes: string | null
-          stage_id: string
+          stage_id: string | null
           stage_name: string
           updated_at: string
         }
@@ -3016,7 +3016,7 @@ export type Database = {
           lead_id: string
           metadata?: Json | null
           notes?: string | null
-          stage_id: string
+          stage_id?: string | null
           stage_name: string
           updated_at?: string
         }
@@ -3029,7 +3029,7 @@ export type Database = {
           lead_id?: string
           metadata?: Json | null
           notes?: string | null
-          stage_id?: string
+          stage_id?: string | null
           stage_name?: string
           updated_at?: string
         }

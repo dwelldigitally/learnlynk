@@ -41,7 +41,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const [requirements, setRequirements] = useState<DocumentRequirement[]>([]);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedRequirement, setSelectedRequirement] = useState<string>('');
+  const [selectedRequirement, setSelectedRequirement] = useState<string>('none');
   const [customDocumentName, setCustomDocumentName] = useState('');
   const [reviewingDoc, setReviewingDoc] = useState<string | null>(null);
   const [reviewStatus, setReviewStatus] = useState<string>('');
@@ -122,7 +122,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
       });
 
       // Reset form
-      setSelectedRequirement('');
+      setSelectedRequirement('none');
       setCustomDocumentName('');
       if (fileInputRef.current) {
         fileInputRef.current.value = '';

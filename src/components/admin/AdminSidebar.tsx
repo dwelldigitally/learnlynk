@@ -96,7 +96,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   return (
     <div 
       className={cn(
-        "border-r border-border h-[calc(100vh-4rem)] bg-card flex flex-col transition-all duration-300",
+        "border-r border-border h-[calc(100vh-4rem)] bg-card flex flex-col transition-all duration-300 sticky top-16 lg:top-20",
         isCollapsed ? "w-20" : "w-80"
       )}
     >

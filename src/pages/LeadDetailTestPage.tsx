@@ -60,6 +60,10 @@ import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflow
 import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunicationPanel';
 import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunicationPanel';
 import { LeadEditForm } from '@/components/admin/leads/LeadEditForm';
+import { RealDataCommunications } from '@/components/admin/leads/RealDataCommunications';
+import { RealDataDocuments } from '@/components/admin/leads/RealDataDocuments';
+import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
+import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
@@ -789,15 +793,11 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="comms" className="h-full">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
-                  <CallHistorySection leadId={leadId || ''} />
-                  <EmailCommunicationPanel leadId={leadId || ''} leadEmail={lead?.email} />
-                  <SMSCommunicationPanel leadId={leadId || ''} leadPhone={lead?.phone} />
-                </div>
+                <RealDataCommunications leadId={leadId || ''} />
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">
-                <DocumentWorkflowPanel leadId={leadId || ''} />
+                <RealDataDocuments leadId={leadId || ''} />
               </TabsContent>
 
               <TabsContent value="notes" className="h-full">
@@ -974,48 +974,12 @@ export default function LeadDetailTestPage() {
                 </div>
               </TabsContent>
 
-              {/* Other tabs would continue with similar comprehensive layouts */}
-              <TabsContent value="comms" className="h-full">
-                <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5" />
-                      Message Center
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <MessageSquare className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground font-medium">No communications yet</p>
-                      <p className="text-sm text-muted-foreground mt-1">Message history will appear here</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
               <TabsContent value="tasks" className="h-full">
-                <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Task Assignment & Manual Override
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-center py-8">
-                      <Users className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                      <p className="text-muted-foreground font-medium">No tasks assigned</p>
-                      <p className="text-sm text-muted-foreground mt-1">Tasks and notes will appear here</p>
-                    </div>
-                  </CardContent>
-                </Card>
+                <RealDataTasks leadId={leadId || ''} />
               </TabsContent>
 
               <TabsContent value="journey" className="h-full">
-                <JourneyBlockerAnalysis 
-                  leadId={leadId}
-                  leadData={lead}
-                />
+                <RealDataJourney leadId={leadId || ''} />
               </TabsContent>
 
             </div>

@@ -3,13 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 export interface LeadCommunication {
   id: string;
   lead_id: string;
-  type: 'email' | 'sms' | 'call' | 'note' | 'meeting';
-  direction: 'inbound' | 'outbound' | 'internal';
-  source: 'AI' | 'Human' | 'Student' | 'System';
-  subject?: string;
+  ai_agent_id?: string;
+  communication_date: string;
   content: string;
-  status: 'pending' | 'sent' | 'delivered' | 'opened' | 'clicked' | 'replied' | 'failed' | 'completed';
+  direction: string;
+  is_ai_generated: boolean;
   metadata: any;
+  scheduled_for?: string;
+  status: string;
+  type: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -21,12 +24,13 @@ export interface LeadDocument {
   document_type: string;
   file_path?: string;
   file_size?: number;
-  status: 'pending' | 'uploaded' | 'approved' | 'rejected' | 'missing';
+  status: string;
   upload_date?: string;
   required: boolean;
   ai_insight?: string;
   admin_comments?: string;
   metadata: any;
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -37,11 +41,14 @@ export interface LeadTask {
   assigned_to?: string;
   title: string;
   description?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority: string;
+  status: string;
   due_date?: string;
   completed_at?: string;
   metadata: any;
+  task_type: string;
+  reminder_at?: string;
+  user_id: string;
   created_at: string;
   updated_at: string;
 }
@@ -116,7 +123,13 @@ class LeadDataService {
         .eq('lead_id', leadId)
         .order('created_at', { ascending: false });
 
-      return { data, error };
+      // Transform data to ensure metadata is included
+      const transformedData = data?.map((task: any) => ({
+        ...task,
+        metadata: task.metadata || {}
+      })) || null;
+
+      return { data: transformedData, error };
     } catch (error) {
       console.error('Error fetching tasks:', error);
       return { data: null, error };
@@ -187,12 +200,19 @@ class LeadDataService {
         .from('lead_tasks')
         .insert([{
           ...task,
-          user_id: user.user?.id
+          user_id: user.user?.id,
+          task_type: task.task_type || 'general'
         }])
         .select()
         .single();
 
-      return { data, error };
+      // Transform the response to ensure metadata is included
+      const transformedData = data ? {
+        ...(data as any),
+        metadata: (data as any).metadata || {}
+      } : null;
+
+      return { data: transformedData as LeadTask, error };
     } catch (error) {
       console.error('Error creating task:', error);
       return { data: null, error };

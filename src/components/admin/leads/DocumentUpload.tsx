@@ -109,7 +109,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
       await documentService.uploadDocument(
         leadId,
         file,
-        selectedRequirement,
+        selectedRequirement === 'none' ? null : selectedRequirement,
         customDocumentName || file.name
       );
 
@@ -244,7 +244,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <SelectValue placeholder="Select requirement (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No specific requirement</SelectItem>
+                  <SelectItem value="none">No specific requirement</SelectItem>
                   {requirements.map((req) => (
                     <SelectItem key={req.id} value={req.id}>
                       {req.name} {req.required && '*'}

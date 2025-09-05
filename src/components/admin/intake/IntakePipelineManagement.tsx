@@ -545,7 +545,9 @@ export function IntakePipelineManagement() {
                   <div className="flex justify-between items-start">
                     <div>
                       <CardTitle className="text-lg">{intake.name}</CardTitle>
-                      <CardDescription>{intake.program}</CardDescription>
+                      <CardDescription>
+                        {intake.program} • Starts {safeFormatDate(intake.startDate, 'MMM d, yyyy')}
+                      </CardDescription>
                     </div>
                     <Badge variant={getStatusBadgeVariant(intake.status)}>
                       {intake.status}

@@ -440,8 +440,10 @@ export default function LeadDetailTestPage() {
                                  description: `Moved to ${stage.stage_name}`,
                                });
                              }}
-                             className={`h-3 rounded-full transition-all duration-200 hover:h-4 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${
-                               stage.completed ? 'bg-primary hover:bg-primary/80' : 'bg-gray-200 hover:bg-gray-300'
+                             className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${
+                               stage.completed 
+                                 ? 'bg-gradient-to-r from-primary to-primary/80 shadow-sm hover:from-primary/90 hover:to-primary/70' 
+                                 : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
                              }`}
                            />
                          ))
@@ -458,10 +460,10 @@ export default function LeadDetailTestPage() {
                                    description: `Moved to ${stageNames[index]} stage`,
                                  });
                                }}
-                               className={`h-3 rounded-full transition-all duration-200 hover:h-4 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
+                               className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
                                  index <= currentStageIndex 
-                                   ? 'bg-green-500 hover:bg-green-600' 
-                                   : 'bg-gray-200 hover:bg-gray-300'
+                                   ? 'bg-gradient-to-r from-green-500 to-green-600 shadow-sm hover:from-green-400 hover:to-green-500 border border-green-600' 
+                                   : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
                                }`}
                                title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][index]}`}
                              />
@@ -479,18 +481,22 @@ export default function LeadDetailTestPage() {
                                  description: `Moved to ${stageNames[i]} stage`,
                                });
                              }}
-                             className="h-3 bg-gray-200 rounded-full transition-all duration-200 hover:h-4 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer"
+                             className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
+                               i <= currentStageIndex
+                                 ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm hover:from-blue-400 hover:to-blue-500 border border-blue-600'
+                                 : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
+                             }`}
                              title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][i]}`}
                            />
                          ))
-                       )}
-                     </div>
-                   </div>
+                        )}
+                      </div>
+                    </div>
                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
                      {journey && journey.stages ? (
                        // Show stage names from academic journey
                        journey.stages.slice(0, 5).map((stage, index) => (
-                         <span key={index} className={stage.completed ? 'text-primary font-medium' : ''}>
+                         <span key={index} className={`transition-colors ${stage.completed ? 'text-primary font-semibold' : 'hover:text-foreground'}`}>
                            {stage.stage_name}
                          </span>
                        ))
@@ -500,7 +506,7 @@ export default function LeadDetailTestPage() {
                            <span 
                              key={index}
                              className={`cursor-pointer transition-colors hover:text-foreground ${
-                               index <= currentStageIndex ? 'text-green-600 font-medium' : ''
+                               index <= currentStageIndex ? 'text-green-600 font-semibold' : ''
                              }`}
                              onClick={() => {
                                setCurrentStageIndex(index);

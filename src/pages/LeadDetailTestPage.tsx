@@ -130,13 +130,21 @@ export default function LeadDetailTestPage() {
   // Demo data
   const demoEngagementTimeline = [
     { id: 1, type: 'email', action: 'Welcome email sent', timestamp: '2024-01-15 09:00', source: 'AI', status: 'opened', category: 'communication' },
-    { id: 2, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered', category: 'communication' },
-    { id: 3, type: 'event', action: 'Virtual info session attended', timestamp: '2024-01-17 18:00', source: 'Student', status: 'attended', category: 'engagement' },
-    { id: 4, type: 'application', action: 'Application started', timestamp: '2024-01-18 10:15', source: 'Student', status: 'in_progress', category: 'application' },
-    { id: 5, type: 'email', action: 'Follow-up on incomplete application', timestamp: '2024-01-20 11:00', source: 'AI', status: 'sent', category: 'communication' },
-    { id: 6, type: 'call', action: 'Outbound call - answered', timestamp: '2024-01-20 14:30', source: 'Human', status: 'completed', category: 'communication' },
-    { id: 7, type: 'note', action: 'Added financial aid discussion notes', timestamp: '2024-01-19 11:15', source: 'Human', status: 'completed', category: 'internal' },
-    { id: 8, type: 'document', action: 'High school transcript uploaded', timestamp: '2024-01-18 10:30', source: 'Student', status: 'approved', category: 'document' }
+    { id: 2, type: 'ai_analysis', action: 'AI analyzed student profile - High potential match', timestamp: '2024-01-15 09:05', source: 'AI', status: 'completed', category: 'ai_activity' },
+    { id: 3, type: 'ai_scoring', action: 'Lead score updated: 73 → 85', timestamp: '2024-01-15 09:10', source: 'AI', status: 'completed', category: 'ai_activity' },
+    { id: 4, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered', category: 'communication' },
+    { id: 5, type: 'ai_recommendation', action: 'AI suggested scholarship info based on profile', timestamp: '2024-01-16 15:00', source: 'AI', status: 'executed', category: 'ai_activity' },
+    { id: 6, type: 'event', action: 'Virtual info session attended', timestamp: '2024-01-17 18:00', source: 'Student', status: 'attended', category: 'engagement' },
+    { id: 7, type: 'ai_automation', action: 'Auto-enrolled in document reminder sequence', timestamp: '2024-01-17 18:15', source: 'AI', status: 'active', category: 'ai_activity' },
+    { id: 8, type: 'application', action: 'Application started', timestamp: '2024-01-18 10:15', source: 'Student', status: 'in_progress', category: 'application' },
+    { id: 9, type: 'ai_insight', action: 'AI detected strong STEM background from transcript', timestamp: '2024-01-18 10:45', source: 'AI', status: 'completed', category: 'ai_activity' },
+    { id: 10, type: 'email', action: 'Follow-up on incomplete application', timestamp: '2024-01-20 11:00', source: 'AI', status: 'sent', category: 'communication' },
+    { id: 11, type: 'ai_prediction', action: 'AI predicted 87% enrollment likelihood', timestamp: '2024-01-20 11:30', source: 'AI', status: 'completed', category: 'ai_activity' },
+    { id: 12, type: 'call', action: 'Outbound call - answered', timestamp: '2024-01-20 14:30', source: 'Human', status: 'completed', category: 'communication' },
+    { id: 13, type: 'ai_optimization', action: 'AI optimized communication timing for student timezone', timestamp: '2024-01-20 15:00', source: 'AI', status: 'applied', category: 'ai_activity' },
+    { id: 14, type: 'note', action: 'Added financial aid discussion notes', timestamp: '2024-01-19 11:15', source: 'Human', status: 'completed', category: 'internal' },
+    { id: 15, type: 'document', action: 'High school transcript uploaded', timestamp: '2024-01-18 10:30', source: 'Student', status: 'approved', category: 'document' },
+    { id: 16, type: 'ai_validation', action: 'AI validated transcript authenticity - Verified', timestamp: '2024-01-18 10:32', source: 'AI', status: 'completed', category: 'ai_activity' }
   ];
 
   const demoAIRecommendations = [
@@ -267,6 +275,22 @@ export default function LeadDetailTestPage() {
         return <Calendar className="h-3 w-3 text-muted-foreground" />;
       case 'application':
         return <FileText className="h-3 w-3 text-muted-foreground" />;
+      case 'ai_analysis':
+        return <Brain className="h-3 w-3 text-blue-500" />;
+      case 'ai_scoring':
+        return <Target className="h-3 w-3 text-green-500" />;
+      case 'ai_recommendation':
+        return <Bot className="h-3 w-3 text-purple-500" />;
+      case 'ai_automation':
+        return <Zap className="h-3 w-3 text-orange-500" />;
+      case 'ai_insight':
+        return <Eye className="h-3 w-3 text-teal-500" />;
+      case 'ai_prediction':
+        return <TrendingUp className="h-3 w-3 text-indigo-500" />;
+      case 'ai_optimization':
+        return <Award className="h-3 w-3 text-amber-500" />;
+      case 'ai_validation':
+        return <CheckCircle className="h-3 w-3 text-emerald-500" />;
       default:
         return <Activity className="h-3 w-3 text-muted-foreground" />;
     }
@@ -675,13 +699,73 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="ai" className="h-full">
-                <div className="text-center py-8">
-                  <Bot className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                  <p className="text-muted-foreground font-medium">No AI activity yet</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    AI actions and automation will be tracked here
-                  </p>
-                </div>
+                {showDemoData ? (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold">AI Activity Log</h3>
+                      <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                        <Bot className="h-3 w-3 mr-1" />
+                        {mockEngagementTimeline.filter(e => e.category === 'ai_activity').length} AI Actions
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      {mockEngagementTimeline
+                        .filter(event => event.category === 'ai_activity')
+                        .map((event) => (
+                          <Card key={event.id} className="p-4">
+                            <div className="flex items-start gap-3">
+                              <div className="mt-1">
+                                {getIconForEvent(event.type)}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-medium text-sm">{event.action}</h4>
+                                  <Badge 
+                                    variant="outline" 
+                                    className={
+                                      event.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' :
+                                      event.status === 'active' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                                      event.status === 'executed' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                                      'bg-gray-50 text-gray-700 border-gray-200'
+                                    }
+                                  >
+                                    {event.status}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1">
+                                  {new Date(event.timestamp).toLocaleString()}
+                                </p>
+                              </div>
+                            </div>
+                          </Card>
+                        ))
+                      }
+                    </div>
+                    
+                    <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          <Bot className="h-8 w-8 text-blue-600" />
+                          <div>
+                            <h4 className="font-medium text-blue-900">AI Agent Status</h4>
+                            <p className="text-sm text-blue-700">
+                              Currently monitoring lead behavior and optimizing engagement strategy
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Bot className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                    <p className="text-muted-foreground font-medium">No AI activity yet</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      AI actions and automation will be tracked here
+                    </p>
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="tasks" className="h-full">

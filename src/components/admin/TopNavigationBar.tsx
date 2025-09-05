@@ -55,7 +55,7 @@ export function TopNavigationBar({
 
   return (
     <>
-      <div className="h-14 sm:h-16 lg:h-20 bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-2 sm:px-4 lg:px-6 sticky top-0 z-50">
+      <div className="h-14 sm:h-16 lg:h-20 bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-2 sm:px-4 lg:px-6 fixed top-0 left-0 right-0 z-50">
         {/* Left side - Logo + Main Navigation */}
         <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8 min-w-0 flex-1">
 

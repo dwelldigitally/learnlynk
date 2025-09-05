@@ -138,15 +138,19 @@ class LeadDataService {
 
   async getAcademicJourney(leadId: string): Promise<{ data: LeadAcademicJourney | null; error: any }> {
     try {
-      // First get the journey
+      // First get the journey - use maybeSingle to handle no data case
       const { data: journeyData, error: journeyError } = await supabase
         .from('lead_academic_journeys')
         .select('*')
         .eq('lead_id', leadId)
-        .single();
+        .maybeSingle();
 
-      if (journeyError || !journeyData) {
+      if (journeyError) {
         return { data: null, error: journeyError };
+      }
+
+      if (!journeyData) {
+        return { data: null, error: null };
       }
 
       // Then get the progress stages

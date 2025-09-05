@@ -13,19 +13,13 @@ export class LeadNotesService {
 
       if (error) {
         console.error('Error fetching notes:', error);
-        // Return dummy data if database fetch fails
-        return DummyLeadDataService.generateDummyNotes(leadId);
+        return [];
       }
 
-      // If no data found, return dummy data for demonstration
-      if (!data || data.length === 0) {
-        return DummyLeadDataService.generateDummyNotes(leadId);
-      }
-
-      return data as LeadNote[];
+      return (data || []) as LeadNote[];
     } catch (error) {
       console.error('Database connection error:', error);
-      return DummyLeadDataService.generateDummyNotes(leadId);
+      return [];
     }
   }
 

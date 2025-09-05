@@ -74,7 +74,7 @@ const App = () => {
               {/* Specific admin routes first */}
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
               
-              {/* Lead detail routes */}
+              {/* Lead detail routes - New design is now default */}
               <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailTestPage />} />} />
               <Route path="/admin/leads/test/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
               

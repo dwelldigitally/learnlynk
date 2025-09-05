@@ -666,9 +666,8 @@ export function LeadManagement() {
                 setSelectedLeadIds(selected ? leads.map(l => l.id) : []);
               }} 
               onLeadClick={(lead) => {
-                setSelectedLead(lead);
-                setShowEnhancedModal(true);
-              }} 
+                navigate(`/admin/leads/detail/${lead.id}`);
+              }}
               onBulkAction={handleBulkAction} 
               onSort={handleSort} 
               onFilter={handleFilter} 

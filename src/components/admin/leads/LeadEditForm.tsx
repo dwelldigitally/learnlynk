@@ -12,7 +12,7 @@ import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { useToast } from '@/hooks/use-toast';
 import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
-import { getUpcomingIntakeDatesForProgram, formatIntakeDate, ProgramIntakeDate } from '@/constants/intakeDates';
+import { IntakeService } from '@/services/intakeService';
 
 interface LeadEditFormProps {
   lead: Lead;
@@ -25,7 +25,7 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const [saving, setSaving] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<string>(lead.program_interest?.[0] || '');
   const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
-  const [availableIntakeDates, setAvailableIntakeDates] = useState<ProgramIntakeDate[]>([]);
+  const [availableIntakeDates, setAvailableIntakeDates] = useState<any[]>([]);
   
   const [formData, setFormData] = useState({
     first_name: lead.first_name,
@@ -51,16 +51,52 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
 
   // Load intake dates when component mounts or program changes
   useEffect(() => {
-    if (selectedProgram) {
-      const intakeDates = getUpcomingIntakeDatesForProgram(selectedProgram);
-      setAvailableIntakeDates(intakeDates);
-    } else {
-      setAvailableIntakeDates([]);
-    }
+    const loadIntakeDates = async () => {
+      if (selectedProgram) {
+        try {
+          console.log('🔥 Loading intake dates for program:', selectedProgram);
+          const allIntakes = await IntakeService.getAllIntakes();
+          console.log('📊 All intakes fetched:', allIntakes);
+          
+          const currentDate = new Date();
+          const programIntakes = allIntakes.filter((intake: any) => {
+            const intakeDate = new Date(intake.start_date);
+            const isFuture = intakeDate > currentDate;
+            const programMatch = intake.program_name === selectedProgram;
+            const statusOpen = intake.status === 'open';
+            
+            console.log('🔍 Checking intake:', {
+              name: intake.name,
+              program_name: intake.program_name,
+              selected_program: selectedProgram,
+              start_date: intake.start_date,
+              is_future: isFuture,
+              status: intake.status,
+              program_match: programMatch,
+              status_open: statusOpen,
+              passes_filter: programMatch && isFuture && statusOpen
+            });
+            
+            return programMatch && isFuture && statusOpen;
+          });
+          
+          console.log('🎯 Filtered program intakes for', selectedProgram, ':', programIntakes);
+          setAvailableIntakeDates(programIntakes);
+        } catch (error) {
+          console.error('💥 Error loading intake dates:', error);
+          setAvailableIntakeDates([]);
+        }
+      } else {
+        setAvailableIntakeDates([]);
+      }
+    };
+    
+    loadIntakeDates();
   }, [selectedProgram]);
 
   // Handle program selection and load intake dates
-  const handleProgramChange = (program: string) => {
+  const handleProgramChange = async (program: string) => {
+    console.log('🔥 handleProgramChange called with program:', program);
     setSelectedProgram(program);
     setSelectedIntakeDate(''); // Reset intake date when program changes
     handleInputChange('program_interest', program);
@@ -332,7 +368,7 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
                 <SelectContent>
                   {availableIntakeDates.map((intake) => (
                     <SelectItem key={intake.id} value={intake.id}>
-                      {formatIntakeDate(intake)}
+                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()} ({intake.capacity} spots total)
                     </SelectItem>
                   ))}
                 </SelectContent>

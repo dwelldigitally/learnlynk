@@ -149,7 +149,7 @@ export function LeadManagement() {
     loadLeads();
     loadFilterOptions();
     loadUnassignedCount();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadUnassignedCount = async () => {
     try {
@@ -260,7 +260,7 @@ export function LeadManagement() {
   // Auto-reload when switching between views
   useEffect(() => {
     loadLeads();
-  }, [showUnassignedOnly]);
+  }, [showUnassignedOnly]); // eslint-disable-line react-hooks/exhaustive-deps
   const handleExport = async () => {
     try {
       const blob = await EnhancedLeadService.exportLeads(filters);

@@ -64,10 +64,11 @@ import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunication
 import { LeadEditForm } from '@/components/admin/leads/LeadEditForm';
 import { CommunicationCenter } from '@/components/admin/applicants/CommunicationCenter';
 import { DocumentUpload } from '@/components/admin/leads/DocumentUpload';
+import { PresetDocumentUpload } from '@/components/admin/leads/PresetDocumentUpload';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
-import { useLeadDocuments } from '@/hooks/useLeadDocuments';
+import { usePresetDocuments } from '@/hooks/usePresetDocuments';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
 
 export default function LeadDetailTestPage() {
@@ -86,7 +87,7 @@ export default function LeadDetailTestPage() {
   const [isEditing, setIsEditing] = useState(false);
   
   // Document and journey data
-  const { documents, loading: documentsLoading, refetch: refetchDocuments } = useLeadDocuments(leadId || '');
+  const { documents: presetDocuments, loading: documentsLoading, refetchDocuments } = usePresetDocuments(leadId || '', 'Computer Science');
   
   // Academic journey data
   const { journey, loading: journeyLoading } = useLeadAcademicJourney(leadId || '');
@@ -659,10 +660,10 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">
-                <DocumentUpload
+                <PresetDocumentUpload
                   leadId={leadId || ''}
-                  programName={lead.program_interest?.[0] || 'Master of Landscape Architecture'}
-                  documents={documents}
+                  programName="Computer Science"
+                  documents={presetDocuments}
                   onDocumentUploaded={refetchDocuments}
                   onDocumentDeleted={refetchDocuments}
                   onStatusUpdated={refetchDocuments}

@@ -1,11 +1,15 @@
 // Standardized program list for the entire application
 export const STANDARDIZED_PROGRAMS = [
   'Health Care Assistant',
-  'Education Assistant',
+  'Education Assistant', 
   'Aviation',
   'Hospitality',
   'ECE',
-  'MLA'
+  'MLA',
+  'Business Administration',
+  'Computer Science',
+  'Data Analytics',
+  'Master of Business Administration'
 ] as const;
 
 export type StandardizedProgram = typeof STANDARDIZED_PROGRAMS[number];

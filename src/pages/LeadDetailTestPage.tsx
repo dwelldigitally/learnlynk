@@ -371,14 +371,6 @@ export default function LeadDetailTestPage() {
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => navigate(`/admin/leads/test/${leadId}`)}
-              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
-            >
-              🔄 Try Old Design
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
               onClick={() => setShowDemoData(!showDemoData)}
               className={showDemoData ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200" : "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"}
             >

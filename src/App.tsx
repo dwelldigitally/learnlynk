@@ -75,8 +75,8 @@ const App = () => {
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
               
               {/* Lead detail routes */}
-              <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
-              <Route path="/admin/leads/test/:leadId" element={<ProtectedRoute element={<LeadDetailTestPage />} />} />
+              <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailTestPage />} />} />
+              <Route path="/admin/leads/test/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
               
               {/* Student detail route - use a specific pattern to avoid conflicts */}
               <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />

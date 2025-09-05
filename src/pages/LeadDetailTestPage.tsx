@@ -368,9 +368,14 @@ export default function LeadDetailTestPage() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Leads
             </Button>
-            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-              🧪 Test Version
-            </Badge>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => navigate(`/admin/leads/test/${leadId}`)}
+              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+            >
+              🔄 Try Old Design
+            </Button>
             <Button 
               variant="outline" 
               size="sm" 

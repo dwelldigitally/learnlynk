@@ -18,8 +18,8 @@ import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import StudentPortal from "./pages/StudentPortal";
 import { ScholarshipApplications } from "./pages/ScholarshipApplications";
-import LeadDetailPage from "./pages/LeadDetailPage";
-import LeadDetailTestPage from "./pages/LeadDetailTestPage";
+import OldLeadDetailPage from "./pages/LeadDetailPage";
+import LeadDetailPage from "./pages/LeadDetailTestPage";
 import StudentDetailPage from "./pages/StudentDetailPage";
 import { UniversalBuilderPage } from "./pages/UniversalBuilderPage";
 import { FormBuilderPage } from "./pages/FormBuilderPage";
@@ -75,8 +75,8 @@ const App = () => {
               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
               
               {/* Lead detail routes - New design is now default */}
-              <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailTestPage />} />} />
-              <Route path="/admin/leads/test/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
+              <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />
+              <Route path="/admin/leads/test/:leadId" element={<ProtectedRoute element={<OldLeadDetailPage />} />} />
               
               {/* Student detail route - use a specific pattern to avoid conflicts */}
               <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />

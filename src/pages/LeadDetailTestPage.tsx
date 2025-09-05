@@ -64,6 +64,7 @@ import { RealDataCommunications } from '@/components/admin/leads/RealDataCommuni
 import { RealDataDocuments } from '@/components/admin/leads/RealDataDocuments';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
+import { useLeadAcademicJourney } from '@/hooks/useLeadData';
 
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
@@ -79,6 +80,9 @@ export default function LeadDetailTestPage() {
   const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState('all');
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Academic journey data
+  const { journey, loading: journeyLoading } = useLeadAcademicJourney(leadId || '');
 
   const loadLead = useCallback(async () => {
     if (!leadId) return;
@@ -457,27 +461,59 @@ export default function LeadDetailTestPage() {
                   </div>
                 </div>
 
-                {/* Application Stage Progress */}
+                 {/* Application Stage Progress */}
                 <div className="mt-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium">Application Progress</span>
-                    <span className="text-sm text-muted-foreground">{showDemoData ? '60% Complete' : 'Not Started'}</span>
+                    <span className="text-sm text-muted-foreground">
+                      {journey && journey.stages ? 
+                        `${Math.round((journey.stages.filter(s => s.completed).length / journey.stages.length) * 100)}% Complete` : 
+                        (showDemoData ? '60% Complete' : 'Not Started')
+                      }
+                    </span>
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="flex-1 grid grid-cols-5 gap-1">
-                      <div className={`h-2 rounded-full ${showDemoData ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                      <div className={`h-2 rounded-full ${showDemoData ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                      <div className={`h-2 rounded-full ${showDemoData ? 'bg-green-500' : 'bg-gray-200'}`}></div>
-                      <div className="h-2 bg-gray-200 rounded-full"></div>
-                      <div className="h-2 bg-gray-200 rounded-full"></div>
+                      {journey && journey.stages ? (
+                        // Show first 5 stages from academic journey
+                        journey.stages.slice(0, 5).map((stage, index) => (
+                          <div 
+                            key={index}
+                            className={`h-2 rounded-full ${stage.completed ? 'bg-primary' : 'bg-gray-200'}`}
+                          />
+                        ))
+                      ) : showDemoData ? (
+                        <>
+                          <div className="h-2 rounded-full bg-green-500"></div>
+                          <div className="h-2 rounded-full bg-green-500"></div>
+                          <div className="h-2 rounded-full bg-green-500"></div>
+                          <div className="h-2 bg-gray-200 rounded-full"></div>
+                          <div className="h-2 bg-gray-200 rounded-full"></div>
+                        </>
+                      ) : (
+                        Array.from({ length: 5 }, (_, i) => (
+                          <div key={i} className="h-2 bg-gray-200 rounded-full" />
+                        ))
+                      )}
                     </div>
                   </div>
                   <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>Inquiry</span>
-                    <span>Started</span>
-                    <span>Submitted</span>
-                    <span>Admitted</span>
-                    <span>Enrolled</span>
+                    {journey && journey.stages ? (
+                      // Show stage names from academic journey
+                      journey.stages.slice(0, 5).map((stage, index) => (
+                        <span key={index} className={stage.completed ? 'text-primary' : ''}>
+                          {stage.stage_name}
+                        </span>
+                      ))
+                    ) : (
+                      <>
+                        <span>Inquiry</span>
+                        <span>Started</span>
+                        <span>Submitted</span>
+                        <span>Admitted</span>
+                        <span>Enrolled</span>
+                      </>
+                    )}
                   </div>
                 </div>
 

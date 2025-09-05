@@ -85,6 +85,7 @@ export default function LeadDetailTestPage() {
   const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState('all');
   const [isEditing, setIsEditing] = useState(false);
+  const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
   
   // Document and journey data
   const { documents: presetDocuments, loading: documentsLoading, refetchDocuments } = usePresetDocuments(leadId || '', 'Computer Science');
@@ -415,60 +416,107 @@ export default function LeadDetailTestPage() {
                 </div>
 
                  {/* Application Stage Progress */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium">Application Progress</span>
-                    <span className="text-sm text-muted-foreground">
-                      {journey && journey.stages ? 
-                        `${Math.round((journey.stages.filter(s => s.completed).length / journey.stages.length) * 100)}% Complete` : 
-                        (showDemoData ? '60% Complete' : 'Not Started')
-                      }
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="flex-1 grid grid-cols-5 gap-1">
-                      {journey && journey.stages ? (
-                        // Show first 5 stages from academic journey
-                        journey.stages.slice(0, 5).map((stage, index) => (
-                          <div 
-                            key={index}
-                            className={`h-2 rounded-full ${stage.completed ? 'bg-primary' : 'bg-gray-200'}`}
-                          />
-                        ))
-                      ) : showDemoData ? (
-                        <>
-                          <div className="h-2 rounded-full bg-green-500"></div>
-                          <div className="h-2 rounded-full bg-green-500"></div>
-                          <div className="h-2 rounded-full bg-green-500"></div>
-                          <div className="h-2 bg-gray-200 rounded-full"></div>
-                          <div className="h-2 bg-gray-200 rounded-full"></div>
-                        </>
-                      ) : (
-                        Array.from({ length: 5 }, (_, i) => (
-                          <div key={i} className="h-2 bg-gray-200 rounded-full" />
-                        ))
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    {journey && journey.stages ? (
-                      // Show stage names from academic journey
-                      journey.stages.slice(0, 5).map((stage, index) => (
-                        <span key={index} className={stage.completed ? 'text-primary' : ''}>
-                          {stage.stage_name}
-                        </span>
-                      ))
-                    ) : (
-                      <>
-                        <span>Inquiry</span>
-                        <span>Started</span>
-                        <span>Submitted</span>
-                        <span>Admitted</span>
-                        <span>Enrolled</span>
-                      </>
-                    )}
-                  </div>
-                </div>
+                 <div className="mt-4">
+                   <div className="flex items-center justify-between mb-2">
+                     <span className="text-sm font-medium">Application Progress</span>
+                     <span className="text-sm text-muted-foreground">
+                       {journey && journey.stages ? 
+                         `${Math.round((journey.stages.filter(s => s.completed).length / journey.stages.length) * 100)}% Complete` : 
+                         (showDemoData ? `${Math.round(((currentStageIndex + 1) / 5) * 100)}% Complete` : 'Not Started')
+                       }
+                     </span>
+                   </div>
+                   <div className="flex items-center gap-1">
+                     <div className="flex-1 grid grid-cols-5 gap-1">
+                       {journey && journey.stages ? (
+                         // Show first 5 stages from academic journey
+                         journey.stages.slice(0, 5).map((stage, index) => (
+                           <button
+                             key={index}
+                             onClick={() => {
+                               // Handle stage click for real journey data
+                               toast({
+                                 title: 'Stage Updated',
+                                 description: `Moved to ${stage.stage_name}`,
+                               });
+                             }}
+                             className={`h-3 rounded-full transition-all duration-200 hover:h-4 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${
+                               stage.completed ? 'bg-primary hover:bg-primary/80' : 'bg-gray-200 hover:bg-gray-300'
+                             }`}
+                           />
+                         ))
+                       ) : showDemoData ? (
+                         <>
+                           {Array.from({ length: 5 }, (_, index) => (
+                             <button
+                               key={index}
+                               onClick={() => {
+                                 setCurrentStageIndex(index);
+                                 const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
+                                 toast({
+                                   title: 'Stage Updated',
+                                   description: `Moved to ${stageNames[index]} stage`,
+                                 });
+                               }}
+                               className={`h-3 rounded-full transition-all duration-200 hover:h-4 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
+                                 index <= currentStageIndex 
+                                   ? 'bg-green-500 hover:bg-green-600' 
+                                   : 'bg-gray-200 hover:bg-gray-300'
+                               }`}
+                               title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][index]}`}
+                             />
+                           ))}
+                         </>
+                       ) : (
+                         Array.from({ length: 5 }, (_, i) => (
+                           <button
+                             key={i}
+                             onClick={() => {
+                               setCurrentStageIndex(i);
+                               const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
+                               toast({
+                                 title: 'Stage Updated',
+                                 description: `Moved to ${stageNames[i]} stage`,
+                               });
+                             }}
+                             className="h-3 bg-gray-200 rounded-full transition-all duration-200 hover:h-4 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer"
+                             title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][i]}`}
+                           />
+                         ))
+                       )}
+                     </div>
+                   </div>
+                   <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                     {journey && journey.stages ? (
+                       // Show stage names from academic journey
+                       journey.stages.slice(0, 5).map((stage, index) => (
+                         <span key={index} className={stage.completed ? 'text-primary font-medium' : ''}>
+                           {stage.stage_name}
+                         </span>
+                       ))
+                     ) : (
+                       <>
+                         {['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'].map((stageName, index) => (
+                           <span 
+                             key={index}
+                             className={`cursor-pointer transition-colors hover:text-foreground ${
+                               index <= currentStageIndex ? 'text-green-600 font-medium' : ''
+                             }`}
+                             onClick={() => {
+                               setCurrentStageIndex(index);
+                               toast({
+                                 title: 'Stage Updated',
+                                 description: `Moved to ${stageName} stage`,
+                               });
+                             }}
+                           >
+                             {stageName}
+                           </span>
+                         ))}
+                       </>
+                     )}
+                   </div>
+                 </div>
 
                 {/* Tags & AI Indicator */}
                 <div className="flex items-center justify-between mt-3">

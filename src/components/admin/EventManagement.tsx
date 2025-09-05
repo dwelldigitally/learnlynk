@@ -208,10 +208,12 @@ const EventManagement: React.FC = () => {
                   <SelectValue placeholder="Select program" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="hca">Health Care Assistant</SelectItem>
-                  <SelectItem value="ece">Early Childhood Education</SelectItem>
-                  <SelectItem value="aviation">Aviation Maintenance</SelectItem>
-                  <SelectItem value="education">Education Assistant</SelectItem>
+                  <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
+                  <SelectItem value="Education Assistant">Education Assistant</SelectItem>
+                  <SelectItem value="Aviation">Aviation</SelectItem>
+                  <SelectItem value="Hospitality">Hospitality</SelectItem>
+                  <SelectItem value="ECE">ECE</SelectItem>
+                  <SelectItem value="MLA">MLA</SelectItem>
                 </SelectContent>
               </Select>
             </div>

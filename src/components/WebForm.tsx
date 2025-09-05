@@ -7,16 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Send, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
-// Match the programs available in the student portal
-const AVAILABLE_PROGRAMS = [
-  'Health Care Assistant',
-  'Education Assistant', 
-  'Aviation',
-  'Hospitality',
-  'ECE',
-  'MLA'
-];
+import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
 
 interface WebFormProps {
   onSuccess?: (data: { accessToken: string; portalUrl: string }) => void;
@@ -173,7 +164,7 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
                 <SelectValue placeholder="Select a program" />
               </SelectTrigger>
               <SelectContent>
-                {AVAILABLE_PROGRAMS.map((program) => (
+                {STANDARDIZED_PROGRAMS.map((program) => (
                   <SelectItem key={program} value={program}>
                     {program}
                   </SelectItem>

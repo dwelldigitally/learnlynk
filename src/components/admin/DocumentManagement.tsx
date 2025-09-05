@@ -129,9 +129,12 @@ const DocumentManagement: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Programs</SelectItem>
-                    <SelectItem value="hca">Health Care Assistant</SelectItem>
-                    <SelectItem value="ece">Early Childhood Education</SelectItem>
-                    <SelectItem value="aviation">Aviation Maintenance</SelectItem>
+                    <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
+                    <SelectItem value="Education Assistant">Education Assistant</SelectItem>
+                    <SelectItem value="Aviation">Aviation</SelectItem>
+                    <SelectItem value="Hospitality">Hospitality</SelectItem>
+                    <SelectItem value="ECE">ECE</SelectItem>
+                    <SelectItem value="MLA">MLA</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select>

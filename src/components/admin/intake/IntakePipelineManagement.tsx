@@ -112,7 +112,7 @@ interface StudentData {
 
 // Generate dummy data
 const generateDummyIntakes = (): IntakeData[] => {
-  const programs = ['Business Administration', 'Computer Science', 'Digital Marketing', 'Healthcare Management', 'Cybersecurity'];
+  const programs = ['Health Care Assistant', 'Education Assistant', 'Aviation', 'Hospitality', 'ECE', 'MLA'];
   const campuses = ['Surrey', 'Vancouver', 'Richmond', 'Burnaby'];
   const statuses = ['active', 'planning', 'closed'] as const;
   const salesApproaches = ['aggressive', 'balanced', 'conservative'] as const;
@@ -405,11 +405,12 @@ export function IntakePipelineManagement() {
                       <SelectValue placeholder="Select program" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Business Administration">Business Administration</SelectItem>
-                      <SelectItem value="Computer Science">Computer Science</SelectItem>
-                      <SelectItem value="Digital Marketing">Digital Marketing</SelectItem>
-                      <SelectItem value="Healthcare Management">Healthcare Management</SelectItem>
-                      <SelectItem value="Cybersecurity">Cybersecurity</SelectItem>
+                      <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
+                      <SelectItem value="Education Assistant">Education Assistant</SelectItem>
+                      <SelectItem value="Aviation">Aviation</SelectItem>
+                      <SelectItem value="Hospitality">Hospitality</SelectItem>
+                      <SelectItem value="ECE">ECE</SelectItem>
+                      <SelectItem value="MLA">MLA</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

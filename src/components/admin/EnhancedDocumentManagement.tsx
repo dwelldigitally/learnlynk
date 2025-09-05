@@ -705,8 +705,11 @@ const EnhancedDocumentManagement: React.FC = () => {
               <SelectContent>
                 <SelectItem value="all">All Programs</SelectItem>
                 <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
-                <SelectItem value="Business Administration">Business Administration</SelectItem>
-                <SelectItem value="Aviation Maintenance">Aviation Maintenance</SelectItem>
+                <SelectItem value="Education Assistant">Education Assistant</SelectItem>
+                <SelectItem value="Aviation">Aviation</SelectItem>
+                <SelectItem value="Hospitality">Hospitality</SelectItem>
+                <SelectItem value="ECE">ECE</SelectItem>
+                <SelectItem value="MLA">MLA</SelectItem>
               </SelectContent>
             </Select>
 

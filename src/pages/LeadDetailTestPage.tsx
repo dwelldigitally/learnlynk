@@ -562,27 +562,7 @@ export default function LeadDetailTestPage() {
           {/* Lead Score & Quick Actions */}
           <div className="space-y-4">
             
-            {/* Flag for Review Button */}
-            <Card className="bg-orange-50 border-orange-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Flag className="h-4 w-4 text-orange-600" />
-                    <span className="font-medium text-orange-900">Review Required</span>
-                  </div>
-                  <Badge variant="outline" className="bg-orange-100 text-orange-800">
-                    Pending
-                  </Badge>
-                </div>
-                <p className="text-sm text-orange-700 mb-3">
-                  Student has been flagged for manual review due to incomplete documentation
-                </p>
-                <Button size="sm" variant="outline" className="w-full">
-                  <Eye className="h-3 w-3 mr-1" />
-                  Review Now
-                </Button>
-              </CardContent>
-            </Card>
+            {/* AI Recommendations now shown in Summary tab */}
           </div>
         </div>
       </div>

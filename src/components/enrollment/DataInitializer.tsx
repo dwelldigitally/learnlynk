@@ -11,11 +11,14 @@ interface DataInitializerProps {
 }
 
 export function DataInitializer({ children }: DataInitializerProps) {
+  console.log('🚀 DataInitializer: Component mounting');
   const [isInitialized, setIsInitialized] = useState(false);
   const [initializationError, setInitializationError] = useState<string | null>(null);
   const initializationAttempted = useRef(false);
   const { toast } = useToast();
+  console.log('🔍 DataInitializer: About to call useAuth...');
   const { user, loading: authLoading, isTokenValid, refreshSession, session } = useAuth();
+  console.log('✅ DataInitializer: useAuth successful, user:', !!user);
   const { executeWithAuth } = useAuthenticatedOperation();
 
   useEffect(() => {

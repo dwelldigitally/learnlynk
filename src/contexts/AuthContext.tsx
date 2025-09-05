@@ -23,18 +23,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
+  console.log('🔍 useAuth called - context:', !!context, 'AuthContext:', AuthContext);
   if (context === undefined) {
-    console.error('AuthContext is undefined - component may be outside AuthProvider');
+    console.error('❌ AuthContext is undefined - component may be outside AuthProvider');
+    console.error('❌ React context value:', context);
+    console.error('❌ AuthContext object:', AuthContext);
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('🏗️ AuthProvider: Component mounting');
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [isTokenValid, setIsTokenValid] = useState(true);
+  console.log('🏗️ AuthProvider: State initialized');
 
   useEffect(() => {
     let isMounted = true;
@@ -248,6 +253,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshSession,
   };
 
+  console.log('🏗️ AuthProvider: Providing context value:', !!value);
   return (
     <AuthContext.Provider value={value}>
       {children}

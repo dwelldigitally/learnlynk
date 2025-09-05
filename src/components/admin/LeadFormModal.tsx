@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
 import { LeadFormData, LeadSource } from '@/types/lead';
+import { supabase } from '@/integrations/supabase/client';
 
 interface LeadFormModalProps {
   open: boolean;
@@ -46,7 +47,20 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
 
     try {
       setLoading(true);
-      await LeadService.createLead(formData);
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('User not authenticated');
+      }
+      
+      // Add user_id to form data
+      const leadDataWithUser = {
+        ...formData,
+        user_id: user.id
+      };
+      
+      await LeadService.createLead(leadDataWithUser);
       
       // Reset form
       setFormData({

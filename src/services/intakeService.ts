@@ -46,22 +46,58 @@ export class IntakeService {
       throw new Error('User not authenticated');
     }
 
-    const { data, error } = await supabase
+    // First fetch intakes
+    const { data: intakes, error: intakesError } = await supabase
       .from('intakes')
-      .select(`
-        *,
-        programs!inner(name, type, duration)
-      `)
+      .select('*')
       .eq('user_id', user.id)
       .order('start_date', { ascending: true });
 
-    if (error) {
-      console.error('Error fetching all intakes:', error);
+    if (intakesError) {
+      console.error('Error fetching intakes:', intakesError);
       toast.error('Failed to fetch intakes');
       return [];
     }
 
-    return data || [];
+    if (!intakes || intakes.length === 0) {
+      return [];
+    }
+
+    // Get unique program IDs
+    const programIds = [...new Set(intakes.map(intake => intake.program_id))];
+    
+    // Fetch programs separately
+    const { data: programs, error: programsError } = await supabase
+      .from('programs')
+      .select('id, name, type, duration')
+      .eq('user_id', user.id)
+      .in('id', programIds);
+
+    if (programsError) {
+      console.error('Error fetching programs:', programsError);
+      // Return intakes without program data if programs fetch fails
+      return intakes.map(intake => ({
+        ...intake,
+        program_name: 'Unknown Program'
+      }));
+    }
+
+    // Create program lookup map
+    const programMap = new Map();
+    programs?.forEach(program => {
+      programMap.set(program.id, program);
+    });
+
+    // Combine intakes with program data
+    return intakes.map(intake => {
+      const program = programMap.get(intake.program_id);
+      return {
+        ...intake,
+        program_name: program?.name || 'Unknown Program',
+        program_type: program?.type || 'Unknown',
+        program_duration: program?.duration || 'Unknown'
+      };
+    });
   }
 
   /**

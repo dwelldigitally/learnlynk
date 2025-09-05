@@ -10,7 +10,7 @@ import { LeadService } from '@/services/leadService';
 import { LeadFormData, LeadSource } from '@/types/lead';
 import { supabase } from '@/integrations/supabase/client';
 import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
-import { getUpcomingIntakeDatesForProgram, formatIntakeDate, ProgramIntakeDate } from '@/constants/intakeDates';
+import { IntakeService } from '@/services/intakeService';
 
 interface LeadFormModalProps {
   open: boolean;
@@ -22,7 +22,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
   const [loading, setLoading] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
-  const [availableIntakeDates, setAvailableIntakeDates] = useState<ProgramIntakeDate[]>([]);
+  const [availableIntakeDates, setAvailableIntakeDates] = useState<any[]>([]);
   
   const [formData, setFormData] = useState<LeadFormData>({
     first_name: '',
@@ -39,12 +39,24 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
   });
   const { toast } = useToast();
 
-  // Handle program selection and load intake dates
-  const handleProgramChange = (program: string) => {
+  // Handle program selection and load intake dates from database
+  const handleProgramChange = async (program: string) => {
     setSelectedProgram(program);
     setSelectedIntakeDate(''); // Reset intake date when program changes
-    const intakeDates = getUpcomingIntakeDatesForProgram(program);
-    setAvailableIntakeDates(intakeDates);
+    
+    try {
+      // Get all intakes and filter by program
+      const allIntakes = await IntakeService.getAllIntakes();
+      const programIntakes = allIntakes.filter((intake: any) => 
+        intake.program_name === program && 
+        new Date(intake.start_date) > new Date() && 
+        intake.status === 'open'
+      );
+      setAvailableIntakeDates(programIntakes);
+    } catch (error) {
+      console.error('Error fetching intake dates:', error);
+      setAvailableIntakeDates([]);
+    }
     
     // Update form data with selected program
     updateFormData('program_interest', [program]);
@@ -87,8 +99,9 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
       };
       
       // Include intake date in notes if selected
-      const notesWithIntake = selectedIntakeDate 
-        ? `${formData.notes ? formData.notes + '\n\n' : ''}Interested in intake: ${availableIntakeDates.find(d => d.id === selectedIntakeDate)?.label || selectedIntakeDate}`
+      const selectedIntake = availableIntakeDates.find(d => d.id === selectedIntakeDate);
+      const notesWithIntake = selectedIntake
+        ? `${formData.notes ? formData.notes + '\n\n' : ''}Interested in intake: ${selectedIntake.name} (${new Date(selectedIntake.start_date).toLocaleDateString()})`
         : formData.notes;
 
       const result = await LeadService.createLead({
@@ -273,7 +286,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
                 <SelectContent>
                   {availableIntakeDates.map((intake) => (
                     <SelectItem key={intake.id} value={intake.id}>
-                      {formatIntakeDate(intake)}
+                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()} ({intake.capacity} spots total)
                     </SelectItem>
                   ))}
                 </SelectContent>

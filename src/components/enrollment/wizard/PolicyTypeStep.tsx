@@ -9,7 +9,16 @@ import {
   Target, 
   Clock3, 
   Settings,
-  CheckCircle
+  CheckCircle,
+  Heart,
+  TrendingUp,
+  Smartphone,
+  AlertTriangle,
+  Globe,
+  Activity,
+  User,
+  Users,
+  Calendar
 } from "lucide-react";
 
 interface PolicyTypeStepProps {
@@ -25,7 +34,16 @@ const iconMap = {
   StopCircle,
   Target,
   Clock3,
-  Settings
+  Settings,
+  Heart,
+  TrendingUp,
+  Smartphone,
+  AlertTriangle,
+  Globe,
+  Activity,
+  User,
+  Users,
+  Calendar
 };
 
 const PolicyTypeStep: React.FC<PolicyTypeStepProps> = ({

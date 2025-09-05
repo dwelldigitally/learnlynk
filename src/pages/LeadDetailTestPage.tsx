@@ -63,10 +63,11 @@ import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunica
 import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunicationPanel';
 import { LeadEditForm } from '@/components/admin/leads/LeadEditForm';
 import { CommunicationCenter } from '@/components/admin/applicants/CommunicationCenter';
-import { RealDataDocuments } from '@/components/admin/leads/RealDataDocuments';
+import { DocumentUpload } from '@/components/admin/leads/DocumentUpload';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
+import { useLeadDocuments } from '@/hooks/useLeadDocuments';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
 
 export default function LeadDetailTestPage() {
@@ -83,6 +84,9 @@ export default function LeadDetailTestPage() {
   const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState('all');
   const [isEditing, setIsEditing] = useState(false);
+  
+  // Document and journey data
+  const { documents, loading: documentsLoading, refetch: refetchDocuments } = useLeadDocuments(leadId || '');
   
   // Academic journey data
   const { journey, loading: journeyLoading } = useLeadAcademicJourney(leadId || '');
@@ -655,7 +659,14 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">
-                <RealDataDocuments leadId={leadId || ''} />
+                <DocumentUpload
+                  leadId={leadId || ''}
+                  programName={lead.program_interest?.[0] || 'Master of Landscape Architecture'}
+                  documents={documents}
+                  onDocumentUploaded={refetchDocuments}
+                  onDocumentDeleted={refetchDocuments}
+                  onStatusUpdated={refetchDocuments}
+                />
               </TabsContent>
 
               <TabsContent value="notes" className="h-full">

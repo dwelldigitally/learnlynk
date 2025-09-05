@@ -2934,6 +2934,9 @@ export type Database = {
       lead_documents: {
         Row: {
           admin_comments: string | null
+          admin_reviewed_at: string | null
+          admin_reviewed_by: string | null
+          admin_status: string | null
           ai_insight: string | null
           created_at: string
           document_name: string
@@ -2943,7 +2946,9 @@ export type Database = {
           id: string
           lead_id: string
           metadata: Json | null
+          original_filename: string | null
           required: boolean | null
+          requirement_id: string | null
           status: string
           updated_at: string
           upload_date: string | null
@@ -2951,6 +2956,9 @@ export type Database = {
         }
         Insert: {
           admin_comments?: string | null
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          admin_status?: string | null
           ai_insight?: string | null
           created_at?: string
           document_name: string
@@ -2960,7 +2968,9 @@ export type Database = {
           id?: string
           lead_id: string
           metadata?: Json | null
+          original_filename?: string | null
           required?: boolean | null
+          requirement_id?: string | null
           status?: string
           updated_at?: string
           upload_date?: string | null
@@ -2968,6 +2978,9 @@ export type Database = {
         }
         Update: {
           admin_comments?: string | null
+          admin_reviewed_at?: string | null
+          admin_reviewed_by?: string | null
+          admin_status?: string | null
           ai_insight?: string | null
           created_at?: string
           document_name?: string
@@ -2977,7 +2990,9 @@ export type Database = {
           id?: string
           lead_id?: string
           metadata?: Json | null
+          original_filename?: string | null
           required?: boolean | null
+          requirement_id?: string | null
           status?: string
           updated_at?: string
           upload_date?: string | null

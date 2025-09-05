@@ -62,7 +62,7 @@ import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflow
 import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunicationPanel';
 import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunicationPanel';
 import { LeadEditForm } from '@/components/admin/leads/LeadEditForm';
-import { RealDataCommunications } from '@/components/admin/leads/RealDataCommunications';
+import { CommunicationCenter } from '@/components/admin/applicants/CommunicationCenter';
 import { RealDataDocuments } from '@/components/admin/leads/RealDataDocuments';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
@@ -643,7 +643,15 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="comms" className="h-full">
-                <RealDataCommunications leadId={leadId || ''} />
+                <CommunicationCenter 
+                  applicantId={leadId || ''}
+                  applicantName={`${lead.first_name} ${lead.last_name}`}
+                  applicantEmail={lead.email}
+                  onSendMessage={(type, content, subject) => {
+                    console.log('Sending message:', { type, content, subject, leadId });
+                    // TODO: Implement actual message sending
+                  }}
+                />
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">

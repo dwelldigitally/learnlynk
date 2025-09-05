@@ -218,13 +218,15 @@ const handler = async (req: Request): Promise<Response> => {
         console.log('Updated existing lead successfully');
       }
     } else {
-      // Create new lead record
+      // Create new lead record - assign to demo admin user
+      const DEMO_ADMIN_USER_ID = '7a4165be-91e3-4fd9-b2da-19a4be0f2df1'; // malhotratushar37@gmail.com
+      
       console.log('Creating new lead record with data:', {
         first_name: submissionData.firstName,
         last_name: submissionData.lastName,
         email: submissionData.email,
         source: 'webform',
-        user_id: null,
+        user_id: DEMO_ADMIN_USER_ID,
       });
 
       const { data: newLead, error: leadError } = await supabase
@@ -245,7 +247,7 @@ const handler = async (req: Request): Promise<Response> => {
           tags: submissionData.applicationType === 'scholarship' 
             ? ['webform', 'scholarship-application'] 
             : ['webform', 'submission'],
-          user_id: null
+          user_id: DEMO_ADMIN_USER_ID
         })
         .select()
         .single();

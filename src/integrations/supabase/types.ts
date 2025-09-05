@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      academic_journey_stages: {
+        Row: {
+          auto_progression_rules: Json | null
+          created_at: string
+          description: string | null
+          estimated_duration_days: number | null
+          id: string
+          is_active: boolean | null
+          is_required: boolean | null
+          name: string
+          order_index: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_progression_rules?: Json | null
+          created_at?: string
+          description?: string | null
+          estimated_duration_days?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_required?: boolean | null
+          name: string
+          order_index: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_progression_rules?: Json | null
+          created_at?: string
+          description?: string | null
+          estimated_duration_days?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_required?: boolean | null
+          name?: string
+          order_index?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       academic_journeys: {
         Row: {
           created_at: string
@@ -2721,6 +2763,72 @@ export type Database = {
           },
         ]
       }
+      lead_academic_journeys: {
+        Row: {
+          created_at: string
+          current_stage_id: string | null
+          current_stage_name: string
+          current_step: number | null
+          enrolled_at: string
+          estimated_completion_date: string | null
+          id: string
+          journey_name: string
+          lead_id: string
+          metadata: Json | null
+          next_required_action: string | null
+          total_steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_stage_id?: string | null
+          current_stage_name: string
+          current_step?: number | null
+          enrolled_at?: string
+          estimated_completion_date?: string | null
+          id?: string
+          journey_name: string
+          lead_id: string
+          metadata?: Json | null
+          next_required_action?: string | null
+          total_steps: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_stage_id?: string | null
+          current_stage_name?: string
+          current_step?: number | null
+          enrolled_at?: string
+          estimated_completion_date?: string | null
+          id?: string
+          journey_name?: string
+          lead_id?: string
+          metadata?: Json | null
+          next_required_action?: string | null
+          total_steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_academic_journeys_current_stage_id_fkey"
+            columns: ["current_stage_id"]
+            isOneToOne: false
+            referencedRelation: "academic_journey_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_academic_journeys_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_activities: {
         Row: {
           activity_data: Json | null
@@ -2822,6 +2930,132 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      lead_documents: {
+        Row: {
+          admin_comments: string | null
+          ai_insight: string | null
+          created_at: string
+          document_name: string
+          document_type: string
+          file_path: string | null
+          file_size: number | null
+          id: string
+          lead_id: string
+          metadata: Json | null
+          required: boolean | null
+          status: string
+          updated_at: string
+          upload_date: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_comments?: string | null
+          ai_insight?: string | null
+          created_at?: string
+          document_name: string
+          document_type: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          required?: boolean | null
+          status?: string
+          updated_at?: string
+          upload_date?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_comments?: string | null
+          ai_insight?: string | null
+          created_at?: string
+          document_name?: string
+          document_type?: string
+          file_path?: string | null
+          file_size?: number | null
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          required?: boolean | null
+          status?: string
+          updated_at?: string
+          upload_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_documents_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_journey_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          journey_id: string
+          lead_id: string
+          metadata: Json | null
+          notes: string | null
+          stage_id: string
+          stage_name: string
+          updated_at: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          journey_id: string
+          lead_id: string
+          metadata?: Json | null
+          notes?: string | null
+          stage_id: string
+          stage_name: string
+          updated_at?: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          journey_id?: string
+          lead_id?: string
+          metadata?: Json | null
+          notes?: string | null
+          stage_id?: string
+          stage_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_journey_progress_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "lead_academic_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_journey_progress_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_journey_progress_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "academic_journey_stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       lead_notes: {
         Row: {

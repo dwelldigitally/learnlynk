@@ -99,28 +99,27 @@ export function useLeadAcademicJourney(leadId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchJourney = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await leadDataService.getAcademicJourney(leadId);
+      if (error) {
+        setError(error.message || 'Failed to fetch academic journey');
+      } else {
+        setJourney(data);
+      }
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch academic journey');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!leadId) return;
-
-    const fetchJourney = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data, error } = await leadDataService.getAcademicJourney(leadId);
-        if (error) {
-          setError(error.message || 'Failed to fetch academic journey');
-        } else {
-          setJourney(data);
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch academic journey');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchJourney();
   }, [leadId]);
 
-  return { journey, loading, error, refetch: () => {} };
+  return { journey, loading, error, refetch: fetchJourney };
 }

@@ -3,15 +3,33 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
+import { leadDataService } from '@/services/leadDataService';
 import { Route, CheckCircle, Clock, Calendar, Target, Award } from 'lucide-react';
 import { format } from 'date-fns';
+import { useEffect } from 'react';
 
 interface RealDataJourneyProps {
   leadId: string;
 }
 
 export function RealDataJourney({ leadId }: RealDataJourneyProps) {
-  const { journey, loading, error } = useLeadAcademicJourney(leadId);
+  const { journey, loading, error, refetch } = useLeadAcademicJourney(leadId);
+
+  // Auto-create journey if none exists
+  useEffect(() => {
+    const createJourneyIfNeeded = async () => {
+      if (!loading && !error && !journey) {
+        try {
+          await leadDataService.createAcademicJourney(leadId, 'Student Academic Journey');
+          refetch();
+        } catch (err) {
+          console.error('Error creating academic journey:', err);
+        }
+      }
+    };
+
+    createJourneyIfNeeded();
+  }, [leadId, loading, error, journey, refetch]);
 
   if (loading) {
     return (

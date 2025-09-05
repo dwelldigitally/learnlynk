@@ -223,23 +223,28 @@ class LeadDataService {
     }
   }
 
-  async createAcademicJourney(leadId: string, journeyName: string = 'Default Academic Journey'): Promise<{ data: LeadAcademicJourney | null; error: any }> {
+  async createAcademicJourney(leadId: string, journeyName: string = 'Student Academic Journey'): Promise<{ data: LeadAcademicJourney | null; error: any }> {
     try {
       const { data: user } = await supabase.auth.getUser();
       
-      // Get default journey stages
-      const { data: stages, error: stagesError } = await supabase
-        .from('academic_journey_stages')
-        .select('*')
-        .eq('user_id', '00000000-0000-0000-0000-000000000000')
-        .order('order_index', { ascending: true });
+      // Define the predefined journey stages
+      const predefinedStages = [
+        'Inquiry',
+        'Qualification', 
+        'Nurturing',
+        'Application Initiated',
+        'Application Submitted',
+        'Documents Pending / Submitted',
+        'Interview / Counseling',
+        'Offer Sent',
+        'Offer Accepted',
+        'Enrollment Confirmed',
+        'Orientation & Onboarding',
+        'Enrolled / Active'
+      ];
 
-      if (stagesError || !stages || stages.length === 0) {
-        return { data: null, error: stagesError || new Error('No journey stages found') };
-      }
-
-      const totalSteps = stages.length;
-      const firstStage = stages[0];
+      const totalSteps = predefinedStages.length;
+      const firstStage = predefinedStages[0];
 
       // Create the journey
       const { data: journeyData, error: journeyError } = await supabase
@@ -248,8 +253,7 @@ class LeadDataService {
           lead_id: leadId,
           user_id: user.user?.id,
           journey_name: journeyName,
-          current_stage_id: firstStage.id,
-          current_stage_name: firstStage.name,
+          current_stage_name: firstStage,
           current_step: 1,
           total_steps: totalSteps,
           next_required_action: 'Begin initial inquiry process'
@@ -262,11 +266,11 @@ class LeadDataService {
       }
 
       // Create progress entries for all stages
-      const progressEntries = stages.map((stage, index) => ({
+      const progressEntries = predefinedStages.map((stageName, index) => ({
         lead_id: leadId,
         journey_id: journeyData.id,
-        stage_id: stage.id,
-        stage_name: stage.name,
+        stage_id: `stage-${index + 1}`, // Generate a simple stage ID
+        stage_name: stageName,
         completed: index === 0 // Mark first stage as completed
       }));
 

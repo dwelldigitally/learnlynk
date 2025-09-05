@@ -64,6 +64,7 @@ import { RealDataCommunications } from '@/components/admin/leads/RealDataCommuni
 import { RealDataDocuments } from '@/components/admin/leads/RealDataDocuments';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
+import { AIRecommendations } from '@/components/admin/leads/AIRecommendations';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
 
 export default function LeadDetailTestPage() {
@@ -826,6 +827,20 @@ export default function LeadDetailTestPage() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* New AI Recommendations Section */}
+                <AIRecommendations 
+                  currentStage={journey?.current_stage_name || 'Inquiry'}
+                  leadData={lead}
+                  onActionClick={(recommendationId) => {
+                    console.log('AI Recommendation action:', recommendationId);
+                    toast({
+                      title: 'Recommendation Action',
+                      description: `Triggered: ${recommendationId}`,
+                      variant: 'default'
+                    });
+                  }}
+                />
               </TabsContent>
 
               <TabsContent value="comms" className="h-full">

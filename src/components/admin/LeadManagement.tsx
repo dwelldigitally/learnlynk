@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedLeadService, EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { Lead, LeadStatus, LeadSource, LeadPriority, LeadStage } from '@/types/lead';
-import { RefinedLeadTable } from './RefinedLeadTable';
+import { SmartLeadTable } from './SmartLeadTable';
 import { AdvancedFilterPanel } from './AdvancedFilterPanel';
 import { LeadFormModal } from './LeadFormModal';
 import { LeadDetailModal } from './LeadDetailModal';
@@ -25,9 +25,13 @@ import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { UnifiedLeadHeader } from './leads/UnifiedLeadHeader';
 import { useDemoDataAccess } from '@/services/demoDataService';
-import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap } from 'lucide-react';
+import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap, Search, Users, Phone, Mail, Calendar, Star, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock, User, Tag, ArrowRight } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
 import { useHelpContent } from '@/hooks/useHelpContent';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { format } from 'date-fns';
 export function LeadManagement() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -647,38 +651,35 @@ export function LeadManagement() {
             emptyDescription="Create your first lead to get started with lead management." 
             loadingRows={5}
           >
-            <RefinedLeadTable 
-              title="Lead Management" 
-              columns={columns} 
-              data={tableData} 
-              totalCount={totalCount} 
-              currentPage={currentPage} 
-              totalPages={totalPages} 
-              pageSize={pageSize} 
+            <SmartLeadTable 
+              leads={leads} 
               loading={loading} 
-              searchable={true} 
-              filterable={true} 
-              exportable={true} 
-              selectable={true} 
-              sortBy={sortBy} 
-              sortOrder={sortOrder} 
-              filterOptions={enhancedFilterOptions} 
-              quickFilters={quickFilters} 
-              selectedIds={selectedLeadIds} 
-              bulkActions={bulkActions} 
-              onPageChange={handlePageChange} 
-              onPageSizeChange={handlePageSizeChange} 
-              onSearch={handleSearch} 
+              selectedLeadIds={selectedLeadIds} 
+              onLeadSelect={(leadId) => {
+                setSelectedLeadIds(prev => 
+                  prev.includes(leadId) 
+                    ? prev.filter(id => id !== leadId)
+                    : [...prev, leadId]
+                );
+              }} 
+              onSelectAll={(selected) => {
+                setSelectedLeadIds(selected ? leads.map(l => l.id) : []);
+              }} 
+              onLeadClick={(lead) => {
+                setSelectedLead(lead);
+                setShowEnhancedModal(true);
+              }} 
+              onBulkAction={handleBulkAction} 
               onSort={handleSort} 
               onFilter={handleFilter} 
+              onSearch={handleSearch} 
               onExport={handleExport} 
-              onRowClick={row => {
-                const lead = leads.find(l => l.id === row.id);
-                if (lead) {
-                  navigate(`/admin/leads/detail/${lead.id}`);
-                }
-              }}
-              onSelectionChange={setSelectedLeadIds} 
+              onAddLead={() => setShowLeadForm(true)} 
+              totalCount={totalCount} 
+              currentPage={currentPage} 
+              pageSize={pageSize} 
+              onPageChange={handlePageChange} 
+              onPageSizeChange={handlePageSizeChange} 
             />
           </ConditionalDataWrapper>
         </div>

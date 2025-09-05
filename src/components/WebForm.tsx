@@ -49,17 +49,24 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
       
       const currentDate = new Date();
       
-      // Query intakes and join with programs to filter by program name
+      // First get the program ID by name
+      const { data: programData, error: programError } = await supabase
+        .from('programs')
+        .select('id')
+        .eq('name', program)
+        .single();
+      
+      if (programError || !programData) {
+        console.error('💥 Error fetching program:', programError);
+        setAvailableIntakeDates([]);
+        return;
+      }
+      
+      // Then query intakes for that program
       const { data: intakes, error } = await supabase
         .from('intakes')
-        .select(`
-          *,
-          programs (
-            id,
-            name
-          )
-        `)
-        .eq('programs.name', program)
+        .select('*')
+        .eq('program_id', programData.id)
         .order('start_date', { ascending: true });
       
       if (error) {

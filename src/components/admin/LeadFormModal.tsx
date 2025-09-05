@@ -60,7 +60,12 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         user_id: user.id
       };
       
-      await LeadService.createLead(leadDataWithUser);
+      const result = await LeadService.createLead(leadDataWithUser);
+      console.log('Lead creation result:', result);
+      
+      if (result.error) {
+        throw new Error(result.error.message || 'Failed to create lead');
+      }
       
       // Reset form
       setFormData({
@@ -77,6 +82,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         notes: ''
       });
       
+      console.log('Calling onLeadCreated');
       onLeadCreated();
     } catch (error) {
       toast({

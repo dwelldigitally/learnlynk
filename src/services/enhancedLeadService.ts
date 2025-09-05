@@ -37,18 +37,26 @@ export class EnhancedLeadService {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
+      console.log('No authenticated user found');
       return this.getEmptyResponse(page, pageSize);
     }
 
+    console.log('Fetching leads for user:', user.id);
+
     // Check for demo data
     const hasDemoData = await DemoDataService.hasUserDemoData();
+    console.log('User has demo data access:', hasDemoData);
+    
     const { data: userLeads, count: userLeadsCount } = await supabase
       .from('leads')
       .select('id', { count: 'exact', head: true })
       .eq('user_id', user.id);
 
+    console.log('User leads count:', userLeadsCount, 'User leads data:', userLeads);
+
     // Return demo data if applicable
     if (hasDemoData && (userLeadsCount === 0 || userLeadsCount === null)) {
+      console.log('Returning demo data because user has demo access and no real leads');
       return this.getDemoDataResponse(page, pageSize, filters);
     }
 
@@ -113,7 +121,15 @@ export class EnhancedLeadService {
 
     const { data, error, count } = await query;
 
+    console.log('Query results:', { 
+      data: data, 
+      error: error, 
+      count: count,
+      dataLength: data?.length 
+    });
+
     if (error) {
+      console.error('Error fetching leads:', error);
       throw new Error(`Failed to fetch leads: ${error.message}`);
     }
 

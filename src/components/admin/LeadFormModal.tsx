@@ -41,28 +41,52 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
 
   // Handle program selection and load intake dates from database
   const handleProgramChange = async (program: string) => {
+    console.log('🔥 handleProgramChange called with program:', program);
     setSelectedProgram(program);
     setSelectedIntakeDate(''); // Reset intake date when program changes
     
     try {
+      console.log('📊 Fetching all intakes...');
       // Get all intakes and filter by program
       const allIntakes = await IntakeService.getAllIntakes();
-      console.log('All intakes fetched:', allIntakes);
+      console.log('✅ All intakes fetched:', allIntakes);
+      console.log('📝 Total intakes count:', allIntakes?.length || 0);
+      
+      if (!allIntakes || allIntakes.length === 0) {
+        console.log('❌ No intakes found in database');
+        setAvailableIntakeDates([]);
+        return;
+      }
+      
+      const currentDate = new Date();
+      console.log('⏰ Current date for filtering:', currentDate.toISOString());
       
       const programIntakes = allIntakes.filter((intake: any) => {
-        console.log('Checking intake:', intake.name, 'Program:', intake.program_name, 'Selected:', program);
-        console.log('Date check:', intake.start_date, 'Is future:', new Date(intake.start_date) > new Date());
-        console.log('Status:', intake.status);
+        const intakeDate = new Date(intake.start_date);
+        const isFuture = intakeDate > currentDate;
+        const programMatch = intake.program_name === program;
+        const statusOpen = intake.status === 'open';
         
-        return intake.program_name === program && 
-               new Date(intake.start_date) > new Date() && 
-               intake.status === 'open';
+        console.log('🔍 Checking intake:', {
+          name: intake.name,
+          program_name: intake.program_name,
+          selected_program: program,
+          start_date: intake.start_date,
+          is_future: isFuture,
+          status: intake.status,
+          program_match: programMatch,
+          status_open: statusOpen,
+          passes_filter: programMatch && isFuture && statusOpen
+        });
+        
+        return programMatch && isFuture && statusOpen;
       });
       
-      console.log('Filtered program intakes:', programIntakes);
+      console.log('🎯 Filtered program intakes for', program, ':', programIntakes);
+      console.log('📊 Found', programIntakes.length, 'matching intakes');
       setAvailableIntakeDates(programIntakes);
     } catch (error) {
-      console.error('Error fetching intake dates:', error);
+      console.error('💥 Error fetching intake dates:', error);
       setAvailableIntakeDates([]);
     }
     

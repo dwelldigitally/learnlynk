@@ -510,101 +510,71 @@ const getTypeIcon = (type: string) => {
   }
 };
 
-export function AIRecommendations({ currentStage, leadData, onActionClick }: AIRecommendationsProps) {
+export default function AIRecommendations({ currentStage, leadData, onActionClick }: AIRecommendationsProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   
   const recommendations = getRecommendationsForStage(currentStage);
-  
-  if (recommendations.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-primary" />
-            AI Recommendations
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">No recommendations available for this stage.</p>
-        </CardContent>
-      </Card>
-    );
+  const topRecommendation = recommendations.find(r => r.priority === 'high') || recommendations[0];
+
+  const handleActionClick = (recommendationId: string) => {
+    onActionClick?.(recommendationId);
+    console.log(`Executing recommendation: ${recommendationId}`);
+  };
+
+  if (!topRecommendation) {
+    return null;
   }
 
+  const Icon = topRecommendation.icon;
+  
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Brain className="h-5 w-5 text-primary" />
-          AI Recommendations for {currentStage}
-          <Badge variant="outline" className="ml-auto">
-            {recommendations.length} suggestions
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {recommendations.map((rec, index) => {
-          const IconComponent = rec.icon;
-          const isExpanded = expandedId === rec.id;
-          
-          return (
-            <div key={rec.id} className="space-y-3">
-              <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
-                <div className="mt-1">
-                  <IconComponent className="h-4 w-4 text-primary" />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-sm">{rec.title}</h4>
-                    <Badge 
-                      variant="secondary" 
-                      className={`text-xs ${getPriorityColor(rec.priority)}`}
-                    >
-                      {rec.priority}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      {getTypeIcon(rec.type)}
-                      <span className="text-xs text-muted-foreground capitalize">{rec.type}</span>
-                    </div>
-                    {rec.automated && (
-                      <Badge variant="outline" className="text-xs">
-                        <Zap className="h-3 w-3 mr-1" />
-                        Auto
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {rec.timeframe && (
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {rec.timeframe}
-                        </span>
-                      )}
-                    </div>
-                    
-                    {rec.actionLabel && (
-                      <Button 
-                        size="sm" 
-                        variant={rec.priority === 'high' ? 'default' : 'outline'}
-                        onClick={() => onActionClick?.(rec.id)}
-                        className="text-xs"
-                      >
-                        {rec.actionLabel}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-              
-              {index < recommendations.length - 1 && <Separator />}
+    <Card className={`${
+      topRecommendation.type === 'action' ? 'bg-blue-50 border-blue-200' :
+      topRecommendation.type === 'automation' ? 'bg-green-50 border-green-200' :
+      topRecommendation.type === 'alert' ? 'bg-orange-50 border-orange-200' :
+      'bg-purple-50 border-purple-200'
+    }`}>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className={`p-1.5 rounded-lg ${
+              topRecommendation.type === 'action' ? 'bg-blue-100 text-blue-600' :
+              topRecommendation.type === 'automation' ? 'bg-green-100 text-green-600' :
+              topRecommendation.type === 'alert' ? 'bg-orange-100 text-orange-600' :
+              'bg-purple-100 text-purple-600'
+            }`}>
+              <Icon className="h-4 w-4" />
             </div>
-          );
-        })}
+            <span className="font-medium text-sm">Next Best Action</span>
+            {topRecommendation.automated && (
+              <Badge variant="outline" className="text-xs">Auto</Badge>
+            )}
+          </div>
+          <Badge className={getPriorityColor(topRecommendation.priority)}>
+            {topRecommendation.priority}
+          </Badge>
+        </div>
+        
+        <h4 className="font-medium mb-2">{topRecommendation.title}</h4>
+        <p className="text-sm text-muted-foreground mb-3">
+          {topRecommendation.description}
+        </p>
+        
+        <div className="flex items-center justify-between">
+          <Button
+            size="sm"
+            variant={topRecommendation.type === 'action' ? 'default' : 'outline'}
+            onClick={() => handleActionClick(topRecommendation.id)}
+            className="h-8"
+          >
+            {topRecommendation.actionLabel || 'Take Action'}
+          </Button>
+          {topRecommendation.timeframe && (
+            <span className="text-xs text-muted-foreground">
+              {topRecommendation.timeframe}
+            </span>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { LeadTimeline } from '@/components/admin/lead-details/LeadTimeline';
+import { ComprehensiveTimeline } from '@/components/admin/leads/ComprehensiveTimeline';
 import { 
   ArrowLeft, 
   MessageSquare, 
@@ -64,7 +66,7 @@ import { RealDataCommunications } from '@/components/admin/leads/RealDataCommuni
 import { RealDataDocuments } from '@/components/admin/leads/RealDataDocuments';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
-import { AIRecommendations } from '@/components/admin/leads/AIRecommendations';
+import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
 
 export default function LeadDetailTestPage() {
@@ -262,85 +264,6 @@ export default function LeadDetailTestPage() {
         return <FileText className="h-3 w-3 text-muted-foreground" />;
       default:
         return <Activity className="h-3 w-3 text-muted-foreground" />;
-    }
-  };
-
-  const getDocumentIcon = (status: string) => {
-    switch (status) {
-      case 'uploaded':
-        return <CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'partial':
-        return <AlertTriangle className="h-5 w-5 text-yellow-600" />;
-      default:
-        return <XCircle className="h-5 w-5 text-red-600" />;
-    }
-  };
-
-  const getDocumentBgColor = (status: string) => {
-    switch (status) {
-      case 'uploaded':
-        return 'bg-green-100';
-      case 'partial':
-        return 'bg-yellow-100';
-      default:
-        return 'bg-red-100';
-    }
-  };
-
-  const executeRecommendation = async (recommendation: any) => {
-    setExecutingRecommendations(prev => new Set(prev).add(recommendation.id));
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      toast({
-        title: 'Action Executed Successfully',
-        description: `${recommendation.action} has been executed for ${lead?.first_name} ${lead?.last_name}`,
-        variant: 'default'
-      });
-
-      if (showDemoData) {
-        console.log('Recommendation executed:', recommendation);
-      }
-      
-    } catch (error) {
-      toast({
-        title: 'Execution Failed',
-        description: 'There was an error executing this recommendation. Please try again.',
-        variant: 'destructive'
-      });
-    } finally {
-      setExecutingRecommendations(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(recommendation.id);
-        return newSet;
-      });
-    }
-  };
-
-  const getRecommendationIcon = (type: string) => {
-    switch (type) {
-      case 'email':
-        return <Mail className="h-4 w-4" />;
-      case 'task':
-        return <CheckCircle className="h-4 w-4" />;
-      case 'journey_move':
-        return <Route className="h-4 w-4" />;
-      default:
-        return <Zap className="h-4 w-4" />;
-    }
-  };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -561,8 +484,18 @@ export default function LeadDetailTestPage() {
 
           {/* Lead Score & Quick Actions */}
           <div className="space-y-4">
-            
-            {/* AI Recommendations now shown in Summary tab */}
+            {/* AI Recommendations */}
+            <AIRecommendations 
+              currentStage={journey?.current_stage_name || 'Inquiry'}
+              leadData={lead}
+              onActionClick={(actionId) => {
+                console.log('AI Action clicked:', actionId);
+                toast({
+                  title: "AI Action Triggered",
+                  description: `Executing: ${actionId}`,
+                });
+              }}
+            />
           </div>
         </div>
       </div>
@@ -571,111 +504,11 @@ export default function LeadDetailTestPage() {
       <div className="flex h-[calc(100vh-300px)]">
         {/* Left Panel - Enhanced Engagement Timeline */}
         <div className="w-80 border-r bg-card">
-          <div className="p-4 border-b">
-            <h3 className="font-semibold flex items-center gap-2">
-              <Activity className="h-4 w-4" />
-              Comprehensive Timeline
-            </h3>
-            <div className="flex flex-col gap-2 mt-3">
-              <div className="flex gap-1">
-                <Button 
-                  variant={timelineFilter === 'all' ? 'default' : 'ghost'} 
-                  size="sm"
-                  onClick={() => setTimelineFilter('all')}
-                >
-                  All
-                </Button>
-                <Button 
-                  variant={timelineFilter === 'human' ? 'default' : 'ghost'} 
-                  size="sm"
-                  onClick={() => setTimelineFilter('human')}
-                >
-                  Human
-                </Button>
-                <Button 
-                  variant={timelineFilter === 'ai' ? 'default' : 'ghost'} 
-                  size="sm"
-                  onClick={() => setTimelineFilter('ai')}
-                >
-                  AI
-                </Button>
-              </div>
-              <div className="flex gap-1">
-                <Button 
-                  variant={timelineFilter === 'communication' ? 'default' : 'ghost'} 
-                  size="sm"
-                  onClick={() => setTimelineFilter('communication')}
-                >
-                  <Mail className="h-3 w-3 mr-1" />
-                  Comms
-                </Button>
-                <Button 
-                  variant={timelineFilter === 'document' ? 'default' : 'ghost'} 
-                  size="sm"
-                  onClick={() => setTimelineFilter('document')}
-                >
-                  <FileText className="h-3 w-3 mr-1" />
-                  Docs
-                </Button>
-                <Button 
-                  variant={timelineFilter === 'engagement' ? 'default' : 'ghost'} 
-                  size="sm"
-                  onClick={() => setTimelineFilter('engagement')}
-                >
-                  <User className="h-3 w-3 mr-1" />
-                  Events
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          <ScrollArea className="h-full p-4">
-            {filteredTimeline.length > 0 ? (
-              <div className="space-y-4">
-                {filteredTimeline.map((event, index) => (
-                  <div key={event.id} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div className={`w-3 h-3 rounded-full ${
-                        event.source === 'AI' ? 'bg-blue-500' : 
-                        event.source === 'Human' ? 'bg-green-500' : 'bg-purple-500'
-                      }`} />
-                      {index < filteredTimeline.length - 1 && (
-                        <div className="w-px h-8 bg-border mt-2" />
-                      )}
-                    </div>
-                    <div className="flex-1 pb-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        {getIconForEvent(event.type)}
-                        <span className="text-sm font-medium">{event.action}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{event.timestamp}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {event.source}
-                        </Badge>
-                        <Badge variant={event.status === 'opened' || event.status === 'completed' || event.status === 'approved' ? 'default' : 'secondary'} className="text-xs">
-                          {event.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Activity className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                <p className="text-muted-foreground font-medium">
-                  {timelineFilter === 'all' ? 'No activity yet' : `No ${timelineFilter} activity`}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {timelineFilter === 'all' 
-                    ? 'Engagement timeline will appear here as interactions occur'
-                    : `${timelineFilter} activities will appear here when available`
-                  }
-                </p>
-              </div>
-            )}
-          </ScrollArea>
+          <ComprehensiveTimeline 
+            leadId={leadId || ''}
+            filter={timelineFilter}
+            onFilterChange={setTimelineFilter}
+          />
         </div>
 
         {/* Center Content - Tabs */}
@@ -807,20 +640,6 @@ export default function LeadDetailTestPage() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* New AI Recommendations Section */}
-                <AIRecommendations 
-                  currentStage={journey?.current_stage_name || 'Inquiry'}
-                  leadData={lead}
-                  onActionClick={(recommendationId) => {
-                    console.log('AI Recommendation action:', recommendationId);
-                    toast({
-                      title: 'Recommendation Action',
-                      description: `Triggered: ${recommendationId}`,
-                      variant: 'default'
-                    });
-                  }}
-                />
               </TabsContent>
 
               <TabsContent value="comms" className="h-full">
@@ -836,172 +655,12 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="ai" className="h-full">
-                {/* AI Activity Log */}
-                <div className="space-y-6 h-full">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Bot className="h-5 w-5" />
-                        AI Recommendations
-                      </CardTitle>
-                      <CardDescription>
-                        AI-powered suggestions to optimize student engagement
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {showDemoData && mockAIRecommendations.length > 0 ? (
-                        <div className="space-y-4">
-                          {mockAIRecommendations.map((recommendation) => (
-                            <div key={recommendation.id} className="border rounded-lg p-4 bg-card">
-                              <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center gap-3">
-                                  {getRecommendationIcon(recommendation.type)}
-                                  <div>
-                                    <h4 className="font-medium">{recommendation.action}</h4>
-                                    <p className="text-sm text-muted-foreground">{recommendation.rationale}</p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Badge variant="outline" className={getPriorityColor(recommendation.priority)}>
-                                    {recommendation.priority}
-                                  </Badge>
-                                  <Badge variant="secondary">{recommendation.confidence}% confidence</Badge>
-                                </div>
-                              </div>
-                              
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  {recommendation.timing}
-                                </div>
-                                <Badge variant="outline" className="text-xs">
-                                  {recommendation.type.replace('_', ' ')}
-                                </Badge>
-                              </div>
-
-                              <div className="flex gap-2">
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => executeRecommendation(recommendation)}
-                                  disabled={executingRecommendations.has(recommendation.id)}
-                                  className="bg-primary hover:bg-primary/90"
-                                >
-                                  {executingRecommendations.has(recommendation.id) ? (
-                                    <>
-                                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-2"></div>
-                                      Executing...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Zap className="h-3 w-3 mr-1" />
-                                      Execute Now
-                                    </>
-                                  )}
-                                </Button>
-                                <Button variant="outline" size="sm">
-                                  <Edit className="h-3 w-3 mr-1" />
-                                  Edit
-                                </Button>
-                                <Button variant="ghost" size="sm">
-                                  <XCircle className="h-3 w-3 mr-1" />
-                                  Dismiss
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <Bot className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                          <p className="text-muted-foreground font-medium">No AI recommendations</p>
-                          <p className="text-sm text-muted-foreground mt-1 mb-4">
-                            AI will analyze this lead and provide actionable recommendations
-                          </p>
-                          <Button variant="outline" size="sm" disabled>
-                            <Brain className="h-4 w-4 mr-2" />
-                            Generate Recommendations
-                          </Button>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  {/* Executed Plays */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Play className="h-5 w-5" />
-                        Executed Plays
-                      </CardTitle>
-                      <CardDescription>
-                        Automated sequences and campaigns executed for this student
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {showDemoData && demoExecutedPlays.length > 0 ? (
-                        <div className="space-y-4">
-                          {demoExecutedPlays.map((play) => (
-                            <div key={play.id} className="border rounded-lg p-4 bg-card">
-                              <div className="flex items-start justify-between mb-3">
-                                <div>
-                                  <h4 className="font-medium flex items-center gap-2">
-                                    {play.name}
-                                    <Badge variant={play.status === 'completed' ? 'default' : 'secondary'}>
-                                      {play.status}
-                                    </Badge>
-                                  </h4>
-                                  <p className="text-sm text-muted-foreground">
-                                    {play.type.replace('_', ' ')} • Executed {new Date(play.executedAt).toLocaleDateString()}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-3 gap-4 mb-3 text-sm">
-                                <div>
-                                  <span className="text-muted-foreground">Open Rate:</span>
-                                  <span className="font-medium ml-2">{play.performance.open_rate}%</span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Click Rate:</span>
-                                  <span className="font-medium ml-2">{play.performance.click_rate}%</span>
-                                </div>
-                                <div>
-                                  <span className="text-muted-foreground">Conversion:</span>
-                                  <span className="font-medium ml-2">{play.performance.conversion_rate}%</span>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                <h5 className="text-sm font-medium">Steps:</h5>
-                                {play.steps.map((step, index) => (
-                                  <div key={index} className="flex items-center gap-2 text-sm">
-                                    <div className={`w-2 h-2 rounded-full ${
-                                      step.status === 'completed' ? 'bg-green-500' : 
-                                      step.status === 'active' ? 'bg-yellow-500' : 'bg-gray-300'
-                                    }`}></div>
-                                    <span className="flex-1">{step.name}</span>
-                                    {step.result !== 'pending' && (
-                                      <Badge variant="outline" className="text-xs">
-                                        {step.result}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="text-center py-8">
-                          <Play className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
-                          <p className="text-muted-foreground font-medium">No plays executed</p>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            Automated sequences will appear here once executed
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                <div className="text-center py-8">
+                  <Bot className="h-8 w-8 mx-auto mb-3 text-muted-foreground opacity-50" />
+                  <p className="text-muted-foreground font-medium">No AI activity yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    AI actions and automation will be tracked here
+                  </p>
                 </div>
               </TabsContent>
 

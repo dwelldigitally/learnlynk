@@ -47,11 +47,19 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
     try {
       // Get all intakes and filter by program
       const allIntakes = await IntakeService.getAllIntakes();
-      const programIntakes = allIntakes.filter((intake: any) => 
-        intake.program_name === program && 
-        new Date(intake.start_date) > new Date() && 
-        intake.status === 'open'
-      );
+      console.log('All intakes fetched:', allIntakes);
+      
+      const programIntakes = allIntakes.filter((intake: any) => {
+        console.log('Checking intake:', intake.name, 'Program:', intake.program_name, 'Selected:', program);
+        console.log('Date check:', intake.start_date, 'Is future:', new Date(intake.start_date) > new Date());
+        console.log('Status:', intake.status);
+        
+        return intake.program_name === program && 
+               new Date(intake.start_date) > new Date() && 
+               intake.status === 'open';
+      });
+      
+      console.log('Filtered program intakes:', programIntakes);
       setAvailableIntakeDates(programIntakes);
     } catch (error) {
       console.error('Error fetching intake dates:', error);

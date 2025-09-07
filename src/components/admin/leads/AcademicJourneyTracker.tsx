@@ -47,6 +47,11 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
     loadJourneyData();
   }, [lead.id]);
 
+  // Refresh data when lead status changes
+  useEffect(() => {
+    loadJourneyData();
+  }, [lead.status]);
+
   const loadJourneyData = async () => {
     try {
       setLoading(true);

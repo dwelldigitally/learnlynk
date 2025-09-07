@@ -9,22 +9,16 @@ import {
   Target,
   AlertTriangle,
   Users,
-  Clock,
   CheckCircle,
   Zap,
-  Flag,
   Award,
-  BarChart3,
   Settings,
   Bot,
   UserCheck,
-  TrendingUp,
-  TrendingDown,
   Brain,
   Activity,
   Shield,
   PieChart,
-  Timer,
   MessageSquare
 } from "lucide-react";
 import { FlashReports } from "./command-center/FlashReports";
@@ -35,22 +29,8 @@ import { useBenchmarkSettings } from "@/hooks/useBenchmarkSettings";
 
 export function SalesCommandCenter() {
   const [activeTab, setActiveTab] = useState("alert-center");
-  const [criticalAlerts, setCriticalAlerts] = useState(12);
-  const [teamUtilization, setTeamUtilization] = useState(78);
   const [showBenchmarkDialog, setShowBenchmarkDialog] = useState(false);
   const { settings } = useBenchmarkSettings();
-  
-  // Enhanced mock data for comprehensive dashboard
-  const commandCenterStats = {
-    totalPipelineValue: 2840000,
-    conversionRate: 14.7,
-    responseCompliance: 87,
-    teamUtilization: 78,
-    unassignedLeads: 23,
-    overdueFollowups: 8,
-    slaViolations: 5,
-    paymentIssues: 3
-  };
 
   // AI Agent Performance Data
   const aiAgentStats = {
@@ -75,50 +55,6 @@ export function SalesCommandCenter() {
     messagesSent: 134,
     leadsContacted: 78
   };
-
-  // Key Performance Metrics
-  const performanceMetrics = [
-    {
-      title: "Pipeline Value",
-      value: "$2.84M",
-      change: "+12.3%",
-      trend: "up",
-      icon: BarChart3,
-      color: "text-success",
-      bgColor: "bg-success/5",
-      borderColor: "border-success/20"
-    },
-    {
-      title: "Conversion Rate",
-      value: "14.7%",
-      change: "+2.1%",
-      trend: "up",
-      icon: TrendingUp,
-      color: "text-primary",
-      bgColor: "bg-primary/5",
-      borderColor: "border-primary/20"
-    },
-    {
-      title: "Response Time",
-      value: "2.4h",
-      change: "-0.6h",
-      trend: "up",
-      icon: Timer,
-      color: "text-accent",
-      bgColor: "bg-accent/5",
-      borderColor: "border-accent/20"
-    },
-    {
-      title: "Team Utilization",
-      value: "78%",
-      change: "+5%",
-      trend: "up",
-      icon: Activity,
-      color: "text-warning",
-      bgColor: "bg-warning/5",
-      borderColor: "border-warning/20"
-    }
-  ];
 
   const urgentItems = [
     {
@@ -175,27 +111,6 @@ export function SalesCommandCenter() {
             Configure
           </Button>
         </div>
-      </div>
-
-      {/* Key Performance Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {performanceMetrics.map((metric, index) => (
-          <Card key={index} className={`${metric.bgColor} ${metric.borderColor} border-2 hover:shadow-lg transition-all duration-300`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">{metric.title}</p>
-                <p className="text-3xl font-bold text-foreground">{metric.value}</p>
-                <div className={`flex items-center gap-1 mt-2 ${metric.color}`}>
-                  {metric.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                  <span className="text-sm font-medium">{metric.change}</span>
-                </div>
-              </div>
-              <div className={`p-3 rounded-xl ${metric.bgColor} border ${metric.borderColor}`}>
-                <metric.icon className={`h-6 w-6 ${metric.color}`} />
-              </div>
-            </div>
-          </Card>
-        ))}
       </div>
 
       {/* AI & Human Agent Overview */}
@@ -277,9 +192,9 @@ export function SalesCommandCenter() {
             <div className="bg-card/50 p-3 rounded-lg border border-border">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Team Utilization</span>
-                <span className="font-medium text-foreground">{teamUtilization}%</span>
+                <span className="font-medium text-foreground">78%</span>
               </div>
-              <Progress value={teamUtilization} className="mt-2 h-2" />
+              <Progress value={78} className="mt-2 h-2" />
             </div>
           </CardContent>
         </Card>
@@ -322,76 +237,6 @@ export function SalesCommandCenter() {
         </CardContent>
       </Card>
 
-      {/* Status Indicators & Targets */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="bg-destructive/5 border-destructive/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Critical Alerts</p>
-                <p className="text-2xl font-bold text-foreground">{criticalAlerts}</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-destructive" />
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-warning/5 border-warning/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">SLA Breaches</p>
-                <p className="text-2xl font-bold text-foreground">{commandCenterStats.slaViolations}</p>
-              </div>
-              <Clock className="h-8 w-8 text-warning" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-primary/5 border-primary/20">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Unassigned Leads</p>
-                <p className="text-2xl font-bold text-foreground">{commandCenterStats.unassignedLeads}</p>
-              </div>
-              <Users className="h-8 w-8 text-primary" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Performance Targets */}
-      <Card className="bg-muted/30 border-border">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold text-foreground">Current Performance Targets</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="flex items-center gap-3">
-              <Target className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">SLA Target</p>
-                <p className="font-semibold text-foreground">{settings.responseTime.slaTarget}h</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Conversion Target</p>
-                <p className="font-semibold text-foreground">{settings.conversion.overallTarget}%</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <MessageSquare className="h-5 w-5 text-primary" />
-              <div>
-                <p className="text-sm text-muted-foreground">Daily Contacts</p>
-                <p className="font-semibold text-foreground">{settings.activity.dailyContacts}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Main Command Center Interface */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">

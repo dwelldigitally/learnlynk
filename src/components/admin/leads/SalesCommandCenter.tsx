@@ -181,21 +181,19 @@ export function SalesCommandCenter() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {performanceMetrics.map((metric, index) => (
           <Card key={index} className={`${metric.bgColor} ${metric.borderColor} border-2 hover:shadow-lg transition-all duration-300`}>
-            <CardContent className="">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">{metric.title}</p>
-                  <p className="text-3xl font-bold text-foreground">{metric.value}</p>
-                  <div className={`flex items-center gap-1 mt-2 ${metric.color}`}>
-                    {metric.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-                    <span className="text-sm font-medium">{metric.change}</span>
-                  </div>
-                </div>
-                <div className={`p-3 rounded-xl ${metric.bgColor} border ${metric.borderColor}`}>
-                  <metric.icon className={`h-6 w-6 ${metric.color}`} />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">{metric.title}</p>
+                <p className="text-3xl font-bold text-foreground">{metric.value}</p>
+                <div className={`flex items-center gap-1 mt-2 ${metric.color}`}>
+                  {metric.trend === 'up' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+                  <span className="text-sm font-medium">{metric.change}</span>
                 </div>
               </div>
-            </CardContent>
+              <div className={`p-3 rounded-xl ${metric.bgColor} border ${metric.borderColor}`}>
+                <metric.icon className={`h-6 w-6 ${metric.color}`} />
+              </div>
+            </div>
           </Card>
         ))}
       </div>

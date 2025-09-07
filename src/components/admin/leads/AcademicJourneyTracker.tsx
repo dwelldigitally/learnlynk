@@ -207,7 +207,7 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
 
   const getStageColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-600 bg-green-50 border-green-200';
+      case 'completed': return 'text-white bg-purple-500 border-purple-500';
       case 'active': return 'text-blue-600 bg-blue-50 border-blue-200';
       case 'pending': return 'text-gray-600 bg-gray-50 border-gray-200';
       default: return 'text-gray-600 bg-gray-50 border-gray-200';

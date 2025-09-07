@@ -189,20 +189,28 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
 
     if (lead.status === 'new') {
       actions.push('Contact the lead to introduce our programs');
+      actions.push('Send welcome email with program information');
     } else if (lead.status === 'contacted') {
       actions.push('Schedule a follow-up call to discuss their interests');
+      actions.push('Send detailed program brochure');
     } else if (lead.status === 'qualified') {
-      actions.push('Send a personalized program proposal');
+      actions.push('Schedule enrollment consultation');
+      actions.push('Send application link and requirements');
+      actions.push('Provide financial aid information');
+    } else if (lead.status === 'converted') {
+      actions.push('Complete enrollment documentation');
+      actions.push('Schedule orientation session');
     } else if (lead.status === 'lost') {
-      actions.push('Re-engage with new offers or programs');
+      actions.push('Send re-engagement campaign');
+      actions.push('Offer alternative programs or schedules');
     }
 
     if (!lead.email) {
-      actions.push('Request the lead\'s email address');
+      actions.push('Request the lead\'s email address for communication');
     }
 
     if (lead.lead_score < 50) {
-      actions.push('Improve lead score by gathering more information');
+      actions.push('Conduct qualification assessment to improve score');
     }
 
     return actions;

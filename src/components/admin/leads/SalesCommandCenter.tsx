@@ -181,7 +181,7 @@ export function SalesCommandCenter() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {performanceMetrics.map((metric, index) => (
           <Card key={index} className={`${metric.bgColor} ${metric.borderColor} border-2 hover:shadow-lg transition-all duration-300`}>
-            <CardContent className="p-6">
+            <CardContent className="">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1">{metric.title}</p>

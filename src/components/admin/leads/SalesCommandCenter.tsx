@@ -32,29 +32,6 @@ export function SalesCommandCenter() {
   const [showBenchmarkDialog, setShowBenchmarkDialog] = useState(false);
   const { settings } = useBenchmarkSettings();
 
-  // AI Agent Performance Data
-  const aiAgentStats = {
-    totalAgents: 8,
-    activeAgents: 6,
-    tasksCompletedToday: 156,
-    averageConfidence: 94.2,
-    automationRate: 78.5,
-    interventionsRequired: 3,
-    messagesGenerated: 89,
-    leadsProcessed: 67
-  };
-
-  // Human Agent Performance Data
-  const humanAgentStats = {
-    totalCounselors: 12,
-    activeCounselors: 10,
-    averageResponseTime: 2.4,
-    completedFollowups: 45,
-    scheduledCalls: 18,
-    conversionRate: 16.8,
-    messagesSent: 134,
-    leadsContacted: 78
-  };
 
   const urgentItems = [
     {
@@ -113,92 +90,6 @@ export function SalesCommandCenter() {
         </div>
       </div>
 
-      {/* AI & Human Agent Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* AI Agents Card */}
-        <Card className="bg-gradient-subtle border-primary/20 border">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-foreground">
-              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                <Bot className="h-5 w-5 text-primary" />
-              </div>
-              AI Agent Performance
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Automated tasks and AI-driven activities
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Active Agents</p>
-                <p className="text-2xl font-bold text-foreground">{aiAgentStats.activeAgents}/{aiAgentStats.totalAgents}</p>
-              </div>
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Tasks Today</p>
-                <p className="text-2xl font-bold text-foreground">{aiAgentStats.tasksCompletedToday}</p>
-              </div>
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Confidence</p>
-                <p className="text-2xl font-bold text-foreground">{aiAgentStats.averageConfidence}%</p>
-              </div>
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Automation Rate</p>
-                <p className="text-2xl font-bold text-foreground">{aiAgentStats.automationRate}%</p>
-              </div>
-            </div>
-            <div className="bg-card/50 p-3 rounded-lg border border-border">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Automation Progress</span>
-                <span className="font-medium text-foreground">{aiAgentStats.automationRate}%</span>
-              </div>
-              <Progress value={aiAgentStats.automationRate} className="mt-2 h-2" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Human Agents Card */}
-        <Card className="bg-gradient-subtle border-secondary/20 border">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-foreground">
-              <div className="p-2 rounded-lg bg-secondary/10 border border-secondary/20">
-                <UserCheck className="h-5 w-5 text-secondary" />
-              </div>
-              Human Agent Performance
-            </CardTitle>
-            <CardDescription className="text-muted-foreground">
-              Counselor activity and engagement metrics
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Active Staff</p>
-                <p className="text-2xl font-bold text-foreground">{humanAgentStats.activeCounselors}/{humanAgentStats.totalCounselors}</p>
-              </div>
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Response Time</p>
-                <p className="text-2xl font-bold text-foreground">{humanAgentStats.averageResponseTime}h</p>
-              </div>
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Completed</p>
-                <p className="text-2xl font-bold text-foreground">{humanAgentStats.completedFollowups}</p>
-              </div>
-              <div className="bg-card/70 p-4 rounded-lg border border-border">
-                <p className="text-sm text-muted-foreground font-medium">Conversion</p>
-                <p className="text-2xl font-bold text-foreground">{humanAgentStats.conversionRate}%</p>
-              </div>
-            </div>
-            <div className="bg-card/50 p-3 rounded-lg border border-border">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Team Utilization</span>
-                <span className="font-medium text-foreground">78%</span>
-              </div>
-              <Progress value={78} className="mt-2 h-2" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Critical Issues & Actions */}
       <Card className="border-warning/20 bg-warning/5 border">

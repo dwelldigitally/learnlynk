@@ -295,325 +295,313 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
   const activeAgents = MOCK_AGENTS.filter(agent => agent.status === 'active').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 p-8 space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="glass-card p-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              AI Agents
-            </h1>
-            <p className="text-muted-foreground mt-2 text-lg">
-              Autonomous agents for admissions counseling and student journey management
-            </p>
-          </div>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">AI Agents</h1>
+          <p className="text-muted-foreground">
+            Autonomous agents for admissions counseling and student journey management
+          </p>
         </div>
       </div>
 
       {/* Agent Categories */}
-      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="space-y-8">
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between">
-            <TabsList className="grid w-auto grid-cols-2 bg-card/50 backdrop-blur-sm p-1 h-auto">
-              <TabsTrigger 
-                value="admission" 
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg px-6 py-3 rounded-lg transition-all duration-200"
-              >
-                <UserCheck className="h-4 w-4" />
-                AI Admission Advisors
-              </TabsTrigger>
-              <TabsTrigger 
-                value="journey" 
-                className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg px-6 py-3 rounded-lg transition-all duration-200"
-              >
-                <Route className="h-4 w-4" />
-                Journey AI Agents
-              </TabsTrigger>
-            </TabsList>
+      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="space-y-6">
+        <div className="flex items-center justify-between">
+          <TabsList className="grid w-auto grid-cols-2">
+            <TabsTrigger value="admission" className="flex items-center gap-2">
+              <UserCheck className="h-4 w-4" />
+              AI Admission Advisors
+            </TabsTrigger>
+            <TabsTrigger value="journey" className="flex items-center gap-2">
+              <Route className="h-4 w-4" />
+              Journey AI Agents
+            </TabsTrigger>
+          </TabsList>
           
-            <div className="flex gap-3">
-              <Button 
-                onClick={handleCreateAdmissionAgent}
-                variant={activeCategory === 'admission' ? 'default' : 'outline'}
-                disabled={activeCategory !== 'admission'}
-                className="shadow-lg hover:shadow-xl transition-all duration-200 h-11 px-6"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Admission Agent
-              </Button>
-              <Button 
-                onClick={handleCreateJourneyAgent}
-                variant={activeCategory === 'journey' ? 'default' : 'outline'}
-                disabled={activeCategory !== 'journey'}
-                className="shadow-lg hover:shadow-xl transition-all duration-200 h-11 px-6"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create Journey Agent
-              </Button>
-            </div>
+          <div className="flex gap-2">
+            <Button 
+              onClick={handleCreateAdmissionAgent}
+              variant={activeCategory === 'admission' ? 'default' : 'outline'}
+              disabled={activeCategory !== 'admission'}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Admission Agent
+            </Button>
+            <Button 
+              onClick={handleCreateJourneyAgent}
+              variant={activeCategory === 'journey' ? 'default' : 'outline'}
+              disabled={activeCategory !== 'journey'}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Journey Agent
+            </Button>
           </div>
         </div>
 
-        <TabsContent value="admission" className="space-y-8">
+        <TabsContent value="admission" className="space-y-6">
           {/* Admission Agents Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Active Advisors</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{activeAgents}</p>
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Advisors</p>
+                    <p className="text-2xl font-bold">{activeAgents}</p>
+                  </div>
                   <UserCheck className="h-8 w-8 text-primary" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Students Managed</p>
-                  <p className="text-3xl font-bold text-blue-600 mt-2">{totalStudentsManaged.toLocaleString()}</p>
-                </div>
-                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Students Managed</p>
+                    <p className="text-2xl font-bold">{totalStudentsManaged.toLocaleString()}</p>
+                  </div>
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Tasks Executed</p>
-                  <p className="text-3xl font-bold text-green-600 mt-2">{totalTasksExecuted.toLocaleString()}</p>
-                </div>
-                <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Tasks Executed</p>
+                    <p className="text-2xl font-bold">{totalTasksExecuted.toLocaleString()}</p>
+                  </div>
                   <MessageSquare className="h-8 w-8 text-green-600" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Avg Confidence</p>
-                  <p className="text-3xl font-bold text-purple-600 mt-2">
-                    {Math.round(MOCK_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.averageConfidence || 0), 0) / MOCK_AGENTS.length)}%
-                  </p>
-                </div>
-                <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/30">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avg Confidence</p>
+                    <p className="text-2xl font-bold">
+                      {Math.round(MOCK_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.averageConfidence || 0), 0) / MOCK_AGENTS.length)}%
+                    </p>
+                  </div>
                   <Target className="h-8 w-8 text-purple-600" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Admission Agents List */}
-          <div className="glass-card p-8">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground">AI Admission Advisors</h2>
-              <p className="text-muted-foreground mt-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>AI Admission Advisors</CardTitle>
+              <CardDescription>
                 Autonomous agents that handle admissions counselor tasks
-              </p>
-            </div>
-            <div className="space-y-6">
-              {MOCK_AGENTS.map((agent) => (
-                <div key={agent.id} className="neo-card p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold text-foreground">{agent.name}</h3>
-                        <Badge variant={
-                          agent.status === 'active' ? 'default' : 
-                          agent.status === 'shadow' ? 'secondary' : 
-                          'outline'
-                        } className="px-3 py-1">
-                          {agent.status === 'active' ? 'Active' : 
-                           agent.status === 'shadow' ? 'Shadow Mode' : 
-                           'Paused'}
-                        </Badge>
-                        {agent.status === 'active' && (
-                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-700 px-3 py-1">
-                            {agent.metrics?.averageConfidence}% avg confidence
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {MOCK_AGENTS.map((agent) => (
+                  <div key={agent.id} className="p-4 border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold">{agent.name}</h3>
+                          <Badge variant={
+                            agent.status === 'active' ? 'default' : 
+                            agent.status === 'shadow' ? 'secondary' : 
+                            'outline'
+                          }>
+                            {agent.status === 'active' ? 'Active' : 
+                             agent.status === 'shadow' ? 'Shadow Mode' : 
+                             'Paused'}
                           </Badge>
-                        )}
+                          {agent.status === 'active' && (
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              {agent.metrics?.averageConfidence}% avg confidence
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">{agent.description}</p>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium">Students Managed</p>
+                            <p className="text-muted-foreground">{agent.metrics?.studentsManaged || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Tasks Executed</p>
+                            <p className="text-muted-foreground">{agent.metrics?.tasksExecuted || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Escalations</p>
+                            <p className="text-muted-foreground">{agent.metrics?.escalations || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Yield Impact</p>
+                            <p className="text-muted-foreground">+{agent.metrics?.yieldImpact || 0}%</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <p className="text-muted-foreground mb-4 leading-relaxed">{agent.description}</p>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.studentsManaged || 0}</p>
-                          <p className="text-sm text-muted-foreground">Students Managed</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.tasksExecuted || 0}</p>
-                          <p className="text-sm text-muted-foreground">Tasks Executed</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.escalations || 0}</p>
-                          <p className="text-sm text-muted-foreground">Escalations</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">+{agent.metrics?.yieldImpact || 0}%</p>
-                          <p className="text-sm text-muted-foreground">Yield Impact</p>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
+                          title="View Analytics"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          {agent.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        </Button>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 ml-6">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
-                        title="View Analytics"
-                        className="hover:shadow-md transition-all duration-200"
-                      >
-                        <BarChart3 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" className="hover:shadow-md transition-all duration-200">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" className="hover:shadow-md transition-all duration-200">
-                        {agent.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
-        <TabsContent value="journey" className="space-y-8">
+        <TabsContent value="journey" className="space-y-6">
           {/* Journey Agents Overview Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Active Journey Agents</p>
-                  <p className="text-3xl font-bold text-primary mt-2">{MOCK_JOURNEY_AGENTS.filter(agent => agent.status === 'active').length}</p>
-                </div>
-                <div className="p-3 rounded-full bg-primary/10">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Journey Agents</p>
+                    <p className="text-2xl font-bold">{MOCK_JOURNEY_AGENTS.filter(agent => agent.status === 'active').length}</p>
+                  </div>
                   <Route className="h-8 w-8 text-primary" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Students Progressed</p>
-                  <p className="text-3xl font-bold text-blue-600 mt-2">{MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.studentsProgressed || 0), 0)}</p>
-                </div>
-                <div className="p-3 rounded-full bg-blue-100 dark:bg-blue-900/30">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Students Progressed</p>
+                    <p className="text-2xl font-bold">{MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.studentsProgressed || 0), 0)}</p>
+                  </div>
                   <Target className="h-8 w-8 text-blue-600" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Stages Completed</p>
-                  <p className="text-3xl font-bold text-green-600 mt-2">{MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.stagesCompleted || 0), 0)}</p>
-                </div>
-                <div className="p-3 rounded-full bg-green-100 dark:bg-green-900/30">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Stages Completed</p>
+                    <p className="text-2xl font-bold">{MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.stagesCompleted || 0), 0)}</p>
+                  </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
             
-            <div className="neo-card p-6 hover:scale-105 transition-all duration-300">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground font-medium">Avg Conversion Rate</p>
-                  <p className="text-3xl font-bold text-purple-600 mt-2">{Math.round(MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.conversionRate || 0), 0) / MOCK_JOURNEY_AGENTS.length)}%</p>
-                </div>
-                <div className="p-3 rounded-full bg-purple-100 dark:bg-purple-900/30">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avg Conversion Rate</p>
+                    <p className="text-2xl font-bold">{Math.round(MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.conversionRate || 0), 0) / MOCK_JOURNEY_AGENTS.length)}%</p>
+                  </div>
                   <MessageSquare className="h-8 w-8 text-purple-600" />
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Journey Agents List */}
-          <div className="glass-card p-8">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-foreground">Journey AI Agents</h2>
-              <p className="text-muted-foreground mt-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Journey AI Agents</CardTitle>
+              <CardDescription>
                 Agents that accelerate students through their academic journey
-              </p>
-            </div>
-            <div className="space-y-6">
-              {MOCK_JOURNEY_AGENTS.map((agent) => (
-                <div key={agent.id} className="neo-card p-6 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h3 className="text-xl font-semibold text-foreground">{agent.name}</h3>
-                        <Badge variant={
-                          agent.status === 'active' ? 'default' : 
-                          agent.status === 'shadow' ? 'secondary' : 
-                          'outline'
-                        } className="px-3 py-1">
-                          {agent.status === 'active' ? 'Active' : 
-                           agent.status === 'shadow' ? 'Shadow Mode' : 
-                           'Paused'}
-                        </Badge>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700 px-3 py-1">
-                          {agent.purpose.replace('_', ' ')}
-                        </Badge>
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {MOCK_JOURNEY_AGENTS.map((agent) => (
+                  <div key={agent.id} className="p-4 border rounded-lg">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="font-semibold">{agent.name}</h3>
+                          <Badge variant={
+                            agent.status === 'active' ? 'default' : 
+                            agent.status === 'shadow' ? 'secondary' : 
+                            'outline'
+                          }>
+                            {agent.status === 'active' ? 'Active' : 
+                             agent.status === 'shadow' ? 'Shadow Mode' : 
+                             'Paused'}
+                          </Badge>
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                            {agent.purpose.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        
+                        <p className="text-sm text-muted-foreground mb-3">{agent.description}</p>
+                        
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                          <div>
+                            <p className="font-medium">Students Progressed</p>
+                            <p className="text-muted-foreground">{agent.metrics?.studentsProgressed || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Stages Completed</p>
+                            <p className="text-muted-foreground">{agent.metrics?.stagesCompleted || 0}</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Acceleration</p>
+                            <p className="text-muted-foreground">{agent.metrics?.averageAcceleration || 0}x faster</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Conversion Rate</p>
+                            <p className="text-muted-foreground">{agent.metrics?.conversionRate || 0}%</p>
+                          </div>
+                          <div>
+                            <p className="font-medium">Engagement</p>
+                            <p className="text-muted-foreground">{agent.metrics?.engagementRate || 0}%</p>
+                          </div>
+                        </div>
                       </div>
                       
-                      <p className="text-muted-foreground mb-4 leading-relaxed">{agent.description}</p>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.studentsProgressed || 0}</p>
-                          <p className="text-sm text-muted-foreground">Students Progressed</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.stagesCompleted || 0}</p>
-                          <p className="text-sm text-muted-foreground">Stages Completed</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.averageAcceleration || 0}x faster</p>
-                          <p className="text-sm text-muted-foreground">Acceleration</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.conversionRate || 0}%</p>
-                          <p className="text-sm text-muted-foreground">Conversion Rate</p>
-                        </div>
-                        <div className="text-center p-3 rounded-lg bg-muted/30">
-                          <p className="font-semibold text-lg text-foreground">{agent.metrics?.engagementRate || 0}%</p>
-                          <p className="text-sm text-muted-foreground">Engagement</p>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
+                          title="View Analytics"
+                        >
+                          <BarChart3 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          {agent.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        </Button>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3 ml-6">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
-                        title="View Analytics"
-                        className="hover:shadow-md transition-all duration-200"
-                      >
-                        <BarChart3 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" className="hover:shadow-md transition-all duration-200">
-                        <Settings className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" className="hover:shadow-md transition-all duration-200">
-                        {agent.status === 'active' ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-                      </Button>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
       {/* Performance Overview */}

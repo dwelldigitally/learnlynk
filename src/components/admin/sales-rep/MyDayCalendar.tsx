@@ -24,6 +24,7 @@ export function MyDayCalendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [demoMode] = useState(true); // Always in demo mode
 
   useEffect(() => {
     loadTodaysEvents();
@@ -161,6 +162,11 @@ export function MyDayCalendar() {
       <div className="pb-3 p-6">
         <div className="text-base flex items-center gap-2">
           <Badge variant="secondary" className="ml-auto">{events.length} events</Badge>
+          {demoMode && (
+            <Badge variant="outline" className="text-xs">
+              Demo Mode
+            </Badge>
+          )}
         </div>
       </div>
       <div className="p-6 pt-0">

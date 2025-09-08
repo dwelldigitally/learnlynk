@@ -159,36 +159,35 @@ export function UnreadCommunications() {
   }
 
   return (
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div className="pb-3 p-6">
-        <div className="text-base flex items-center gap-2">
-          <Badge variant="destructive" className="ml-auto">{communications.length}</Badge>
-          {communications.length > 1 && (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              className="h-6 px-2 text-xs gap-1"
-              onClick={handleBulkAutoReply}
-            >
-              <Zap className="w-3 h-3" />
-              Auto Reply All
-            </Button>
-          )}
-        </div>
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Badge variant="destructive" className="ml-auto">{communications.length} unread</Badge>
+        {communications.length > 1 && (
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="h-6 px-2 text-xs gap-1"
+            onClick={handleBulkAutoReply}
+          >
+            <Zap className="w-3 h-3" />
+            Auto Reply All
+          </Button>
+        )}
       </div>
-      <div className="p-6 pt-0">
+      
+      <div className="space-y-3">
         {communications.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">All caught up!</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <>
             {communications.map((comm) => (
               <div
                 key={comm.id}
                 className={cn(
-                  "p-3 rounded-lg border transition-colors",
+                  "p-3 rounded-lg border transition-colors bg-white shadow-sm",
                   comm.is_urgent 
                     ? "border-destructive/20 bg-destructive/5" 
                     : "border-border hover:bg-muted/50"
@@ -253,37 +252,37 @@ export function UnreadCommunications() {
                 </div>
               </div>
             ))}
-          </div>
+          </>
         )}
-
-        <AutoReplyDialog
-          open={autoReplyOpen}
-          onOpenChange={setAutoReplyOpen}
-          communication={selectedCommunication}
-          onReplyGenerated={(reply) => {
-            console.log('Reply generated:', reply);
-          }}
-          onReplySent={() => {
-            if (selectedCommunication) {
-              handleSingleReplySuccess(selectedCommunication.id);
-            }
-          }}
-        />
-
-        <BulkAutoReplyDialog
-          open={bulkAutoReplyOpen}
-          onOpenChange={setBulkAutoReplyOpen}
-          communications={communications}
-          onRepliesSent={(sentReplies) => {
-            console.log('Bulk replies sent:', sentReplies);
-            // Remove replied communications from the list
-            const repliedCommunicationIds = sentReplies.map(reply => reply.communicationId);
-            setCommunications(prev => 
-              prev.filter(comm => !repliedCommunicationIds.includes(comm.id))
-            );
-          }}
-        />
       </div>
-    </div>
+
+      <AutoReplyDialog
+        open={autoReplyOpen}
+        onOpenChange={setAutoReplyOpen}
+        communication={selectedCommunication}
+        onReplyGenerated={(reply) => {
+          console.log('Reply generated:', reply);
+        }}
+        onReplySent={() => {
+          if (selectedCommunication) {
+            handleSingleReplySuccess(selectedCommunication.id);
+          }
+        }}
+      />
+
+      <BulkAutoReplyDialog
+        open={bulkAutoReplyOpen}
+        onOpenChange={setBulkAutoReplyOpen}
+        communications={communications}
+        onRepliesSent={(sentReplies) => {
+          console.log('Bulk replies sent:', sentReplies);
+          // Remove replied communications from the list
+          const repliedCommunicationIds = sentReplies.map(reply => reply.communicationId);
+          setCommunications(prev => 
+            prev.filter(comm => !repliedCommunicationIds.includes(comm.id))
+          );
+        }}
+      />
+    </>
   );
 }

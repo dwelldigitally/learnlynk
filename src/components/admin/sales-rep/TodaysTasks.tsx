@@ -190,20 +190,17 @@ export function TodaysTasks() {
   }
 
   return (
-    <div className="h-fit bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 rounded-lg border">
-      <div className="pb-3 p-6">
-        <div className="text-base flex items-center gap-2">
-          <div className="ml-auto flex items-center gap-2">
-            <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
-              {pendingTasks.length}
-            </Badge>
-            <Badge variant="outline" className="border-green-300 text-green-700">
-              {completedToday} done
-            </Badge>
-          </div>
-        </div>
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300 ml-auto">
+          {pendingTasks.length} pending
+        </Badge>
+        <Badge variant="outline" className="border-green-300 text-green-700">
+          {completedToday} done
+        </Badge>
       </div>
-      <div className="p-6 pt-0">
+      
+      <div className="space-y-3">
         {pendingTasks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <div className="p-3 bg-green-100 rounded-full w-12 h-12 mx-auto mb-3">
@@ -213,7 +210,7 @@ export function TodaysTasks() {
             <p className="text-xs text-muted-foreground mt-1">Great job staying on top of things</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <>
             {pendingTasks.slice(0, 4).map((task) => (
               <div
                 key={task.id}
@@ -221,7 +218,7 @@ export function TodaysTasks() {
                   "p-3 rounded-lg border transition-colors bg-white shadow-sm",
                   isOverdue(task.due_date)
                     ? "border-red-200 bg-red-50/50"
-                    : "border-green-100"
+                    : "border-border"
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -278,19 +275,19 @@ export function TodaysTasks() {
                 View all {pendingTasks.length} pending tasks
               </Button>
             )}
-          </div>
+          </>
         )}
-
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-100"
-          onClick={() => {/* Navigate to task creation */}}
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          Add New Task
-        </Button>
       </div>
+
+      <Button 
+        variant="outline" 
+        size="sm" 
+        className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-100"
+        onClick={() => {/* Navigate to task creation */}}
+      >
+        <Plus className="w-3 h-3 mr-1" />
+        Add New Task
+      </Button>
 
       <Dialog open={showExecutionDialog} onOpenChange={setShowExecutionDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -369,6 +366,6 @@ export function TodaysTasks() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

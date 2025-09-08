@@ -101,9 +101,9 @@ export function DailyHeader() {
 
   return (
     <div className="relative overflow-hidden">
-      {/* Background with gradient and subtle pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary/95 to-primary/80"></div>
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.3),transparent_50%)]"></div>
+      {/* Background with subtle modern gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-slate-100/95 to-slate-200/90 dark:from-slate-900 dark:via-slate-800/95 dark:to-slate-700/90"></div>
+      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_120%,rgba(148,163,184,0.4),transparent_50%)]"></div>
       
       <div className="relative">
         <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>

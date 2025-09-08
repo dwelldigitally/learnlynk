@@ -226,7 +226,7 @@ export function TodaysTasks() {
                   "p-3 rounded-lg border transition-colors bg-white shadow-sm",
                   isOverdue(task.due_date)
                     ? "border-red-200 bg-red-50/50"
-                    : "border-green-100 hover:bg-green-50/50"
+                    : "border-green-100"
                 )}
               >
                 <div className="flex items-start gap-3">

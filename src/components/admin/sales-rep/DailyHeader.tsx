@@ -113,18 +113,18 @@ export function DailyHeader() {
             {/* Left Section - Greeting and User Info */}
             <div className="flex-1">
               <div className="flex items-start justify-between mb-4">
-                <div className="text-primary-foreground space-y-2">
+                <div className="text-foreground space-y-2">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <h1 className={cn("font-bold tracking-tight", isMobile ? "text-xl" : "text-3xl")}>
+                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <h1 className={cn("font-bold tracking-tight text-foreground", isMobile ? "text-xl" : "text-3xl")}>
                       {greeting}, {displayName}! 
                       <span className="ml-2 text-2xl">👋</span>
                     </h1>
                   </div>
                   
                   {profile?.title && (
-                    <div className="flex items-center gap-2 text-primary-foreground/90">
-                      <Badge variant="secondary" className="bg-white/10 text-white border-white/20 text-xs">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border text-xs">
                         {profile.title}
                       </Badge>
                       {profile.department && (
@@ -133,36 +133,36 @@ export function DailyHeader() {
                     </div>
                   )}
                   
-                   <p className="text-primary-foreground/90 text-base font-medium">
+                   <p className="text-muted-foreground text-base font-medium">
                      {formattedDate} • Ready to achieve your goals?
                    </p>
                 </div>
                 
                 {/* Real-time Info Panel - Desktop */}
                 {!isMobile && (
-                  <div className="flex items-center gap-6 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                  <div className="flex items-center gap-6 bg-card backdrop-blur-sm rounded-xl px-4 py-3 border border-border">
                     <div className="text-center">
-                      <div className="text-2xl font-mono font-bold text-white">
+                      <div className="text-2xl font-mono font-bold text-foreground">
                         {formattedTime}
                       </div>
-                      <div className="text-xs text-white/70 mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         {currentTime.toLocaleDateString('en-US', { timeZoneName: 'short' }).split(', ')[1]}
                       </div>
                     </div>
                     
-                    <div className="w-px h-8 bg-white/20"></div>
+                    <div className="w-px h-8 bg-border"></div>
                     
                     <div className="flex items-center gap-2">
                       <div className={cn(
                         "w-2 h-2 rounded-full",
-                        isOnline ? "bg-green-400 animate-pulse" : "bg-red-400"
+                        isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
                       )}></div>
-                      <div className="text-sm text-white">
+                      <div className="text-sm text-foreground">
                         {isOnline ? 'Connected' : 'Offline'}
                       </div>
                     </div>
                     
-                    <div className="text-xs text-white/70">
+                    <div className="text-xs text-muted-foreground">
                       Synced {relativeTime}
                     </div>
                   </div>
@@ -174,71 +174,71 @@ export function DailyHeader() {
           {/* Modern Metrics Cards */}
           <div className="mt-6">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-1 h-6 bg-white/60 rounded-full"></div>
-              <h3 className="text-white/90 font-semibold text-sm uppercase tracking-wide">Today's Performance</h3>
+              <div className="w-1 h-6 bg-primary/60 rounded-full"></div>
+              <h3 className="text-foreground font-semibold text-sm uppercase tracking-wide">Today's Performance</h3>
             </div>
             
             <div className={cn("grid gap-3", isMobile ? "grid-cols-2" : "grid-cols-4")}>
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-4 h-4 text-blue-200" />
+                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-white">{todaysMetrics.callsMade}</div>
-                      <div className="text-xs text-white/80">Calls Made</div>
+                      <div className="text-lg font-bold text-foreground">{todaysMetrics.callsMade}</div>
+                      <div className="text-xs text-muted-foreground">Calls Made</div>
                     </div>
-                    <div className="text-xs text-white/60 font-medium">+2</div>
+                    <div className="text-xs text-muted-foreground font-medium">+2</div>
                   </div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-purple-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4 text-purple-200" />
+                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-white">{todaysMetrics.emailsSent}</div>
-                      <div className="text-xs text-white/80">Emails Sent</div>
+                      <div className="text-lg font-bold text-foreground">{todaysMetrics.emailsSent}</div>
+                      <div className="text-xs text-muted-foreground">Emails Sent</div>
                     </div>
-                    <div className="text-xs text-white/60 font-medium">+1</div>
+                    <div className="text-xs text-muted-foreground font-medium">+1</div>
                   </div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-4 h-4 text-green-200" />
+                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-white">{todaysMetrics.tasksCompleted}</div>
-                      <div className="text-xs text-white/80">Tasks Done</div>
+                      <div className="text-lg font-bold text-foreground">{todaysMetrics.tasksCompleted}</div>
+                      <div className="text-xs text-muted-foreground">Tasks Done</div>
                     </div>
-                    <div className="text-xs text-white/60 font-medium">On track</div>
+                    <div className="text-xs text-muted-foreground font-medium">On track</div>
                   </div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-orange-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-4 h-4 text-orange-200" />
+                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-white">{todaysMetrics.appointmentsBooked}</div>
-                      <div className="text-xs text-white/80">Meetings</div>
+                      <div className="text-lg font-bold text-foreground">{todaysMetrics.appointmentsBooked}</div>
+                      <div className="text-xs text-muted-foreground">Meetings</div>
                     </div>
-                    <div className="text-xs text-white/60 font-medium">+1</div>
+                    <div className="text-xs text-muted-foreground font-medium">+1</div>
                   </div>
                 </div>
               </div>
@@ -248,28 +248,28 @@ export function DailyHeader() {
           {/* Smart Insights Section */}
           <div className="mt-6 space-y-3">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-6 bg-white/60 rounded-full"></div>
-              <h3 className="text-white/90 font-semibold text-sm uppercase tracking-wide">Smart Insights</h3>
+              <div className="w-1 h-6 bg-primary/60 rounded-full"></div>
+              <h3 className="text-foreground font-semibold text-sm uppercase tracking-wide">Smart Insights</h3>
             </div>
             
             <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-500/20 to-emerald-600/10 backdrop-blur-sm border border-emerald-400/20 rounded-lg px-4 py-3 hover:border-emerald-400/40 transition-all duration-300">
-                <div className="w-8 h-8 bg-emerald-500/30 rounded-lg flex items-center justify-center">
-                  <Target className="w-4 h-4 text-emerald-200" />
+              <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-100/80 to-emerald-50/60 dark:from-emerald-900/30 dark:to-emerald-800/20 backdrop-blur-sm border border-emerald-200 dark:border-emerald-700/40 rounded-lg px-4 py-3 hover:border-emerald-300 dark:hover:border-emerald-600/60 transition-all duration-300">
+                <div className="w-8 h-8 bg-emerald-200 dark:bg-emerald-800/50 rounded-lg flex items-center justify-center">
+                  <Target className="w-4 h-4 text-emerald-700 dark:text-emerald-300" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-white">AI Priority Alert</div>
-                  <div className="text-xs text-white/80">3 high-value leads opened your emails yesterday</div>
+                  <div className="text-sm font-medium text-foreground">AI Priority Alert</div>
+                  <div className="text-xs text-muted-foreground">3 high-value leads opened your emails yesterday</div>
                 </div>
               </div>
               
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-500/20 to-blue-600/10 backdrop-blur-sm border border-blue-400/20 rounded-lg px-4 py-3 hover:border-blue-400/40 transition-all duration-300">
-                <div className="w-8 h-8 bg-blue-500/30 rounded-lg flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-blue-200" />
+              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-100/80 to-blue-50/60 dark:from-blue-900/30 dark:to-blue-800/20 backdrop-blur-sm border border-blue-200 dark:border-blue-700/40 rounded-lg px-4 py-3 hover:border-blue-300 dark:hover:border-blue-600/60 transition-all duration-300">
+                <div className="w-8 h-8 bg-blue-200 dark:bg-blue-800/50 rounded-lg flex items-center justify-center">
+                  <Clock className="w-4 h-4 text-blue-700 dark:text-blue-300" />
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-white">Next Meeting</div>
-                  <div className="text-xs text-white/80">Sales Review with Team in 1h 15m</div>
+                  <div className="text-sm font-medium text-foreground">Next Meeting</div>
+                  <div className="text-xs text-muted-foreground">Sales Review with Team in 1h 15m</div>
                 </div>
               </div>
             </div>
@@ -277,21 +277,21 @@ export function DailyHeader() {
 
           {/* Mobile Time/Status Panel */}
           {isMobile && (
-            <div className="mt-4 flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">
+            <div className="mt-4 flex items-center justify-between bg-card backdrop-blur-sm rounded-lg px-4 py-3 border border-border">
               <div className="flex items-center gap-3">
-                <div className="text-lg font-mono font-bold text-white">
+                <div className="text-lg font-mono font-bold text-foreground">
                   {formattedTime}
                 </div>
-                <div className="w-px h-4 bg-white/20"></div>
+                <div className="w-px h-4 bg-border"></div>
                 <div className="flex items-center gap-2">
                   <div className={cn(
                     "w-2 h-2 rounded-full",
-                    isOnline ? "bg-green-400 animate-pulse" : "bg-red-400"
+                    isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
                   )}></div>
-                  <span className="text-sm text-white">{isOnline ? 'Online' : 'Offline'}</span>
+                  <span className="text-sm text-foreground">{isOnline ? 'Online' : 'Offline'}</span>
                 </div>
               </div>
-              <div className="text-xs text-white/70">
+              <div className="text-xs text-muted-foreground">
                 Synced {relativeTime}
               </div>
             </div>

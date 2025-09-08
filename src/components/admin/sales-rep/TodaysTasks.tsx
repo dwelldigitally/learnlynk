@@ -3,19 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { CheckSquare, Clock, AlertTriangle, Calendar, Plus } from 'lucide-react';
+import { CheckSquare, Clock, AlertTriangle, Calendar, Plus, Play, X } from 'lucide-react';
 import { LeadTask } from '@/types/leadEnhancements';
 import { LeadTaskService } from '@/services/leadTaskService';
+import { useToast } from '@/hooks/use-toast';
 
 export function TodaysTasks() {
   const isMobile = useIsMobile();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [tasks, setTasks] = useState<LeadTask[]>([]);
   const [loading, setLoading] = useState(true);
   const [completingTasks, setCompletingTasks] = useState<Set<string>>(new Set());
+  const [selectedTask, setSelectedTask] = useState<LeadTask | null>(null);
+  const [showExecutionDialog, setShowExecutionDialog] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -86,18 +91,38 @@ export function TodaysTasks() {
     }
   };
 
+  const handleTaskClick = (task: LeadTask) => {
+    setSelectedTask(task);
+    setShowExecutionDialog(true);
+  };
+
   const handleTaskComplete = async (taskId: string) => {
     setCompletingTasks(prev => new Set(prev).add(taskId));
     
     try {
-      await LeadTaskService.updateTask(taskId, { status: 'completed' });
+      // Simulate successful execution
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       setTasks(prev => prev.map(task => 
         task.id === taskId 
           ? { ...task, status: 'completed', completed_at: new Date().toISOString() }
           : task
       ));
+      
+      toast({
+        title: "Task Completed",
+        description: `Successfully completed: ${selectedTask?.title}`,
+      });
+      
+      setShowExecutionDialog(false);
+      setSelectedTask(null);
     } catch (error) {
       console.error('Failed to complete task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete task. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setCompletingTasks(prev => {
         const newSet = new Set(prev);
@@ -207,9 +232,9 @@ export function TodaysTasks() {
                 <div className="flex items-start gap-3">
                   <Checkbox
                     checked={false}
-                    onCheckedChange={() => handleTaskComplete(task.id)}
+                    onCheckedChange={() => handleTaskClick(task)}
                     disabled={completingTasks.has(task.id)}
-                    className="mt-0.5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                    className="mt-0.5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 cursor-pointer"
                   />
 
                   <div className="flex-1 min-w-0">
@@ -271,6 +296,84 @@ export function TodaysTasks() {
           Add New Task
         </Button>
       </CardContent>
+
+      <Dialog open={showExecutionDialog} onOpenChange={setShowExecutionDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="p-1.5 bg-green-500 rounded-lg">
+                <CheckSquare className="w-4 h-4 text-white" />
+              </div>
+              Execute Task
+            </DialogTitle>
+            <DialogDescription>
+              Review task details before execution
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedTask && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Task:</span>
+                  <span className="text-sm">{selectedTask.title}</span>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Priority:</span>
+                  <Badge 
+                    variant="outline" 
+                    className={cn("text-xs", getPriorityColor(selectedTask.priority))}
+                  >
+                    {selectedTask.priority}
+                  </Badge>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Due:</span>
+                  <span className={cn(
+                    "text-sm",
+                    isOverdue(selectedTask.due_date) ? "text-red-600 font-medium" : "text-muted-foreground"
+                  )}>
+                    {formatTime(selectedTask.due_date)}
+                  </span>
+                </div>
+                
+                {selectedTask.description && (
+                  <div className="space-y-1">
+                    <span className="text-sm font-medium">Description:</span>
+                    <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-xs text-muted-foreground mb-2">Action Impact:</p>
+                <p className="text-sm">This task will be marked as completed and removed from your pending tasks list.</p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowExecutionDialog(false)}
+              disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
+            >
+              <X className="w-3 h-3 mr-1" />
+              Cancel
+            </Button>
+            <Button
+              onClick={() => selectedTask && handleTaskComplete(selectedTask.id)}
+              disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
+              className="bg-green-500 hover:bg-green-600"
+            >
+              <Play className="w-3 h-3 mr-1" />
+              {selectedTask && completingTasks.has(selectedTask.id) ? 'Executing...' : 'Execute Task'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

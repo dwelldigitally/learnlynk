@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Flame, Phone, Mail, Eye, TrendingUp, Activity, MousePointer, Clock } from 'lucide-react';
+import { Flame, Phone, Mail, Eye, TrendingUp, Activity, MousePointer, Clock, Zap, CheckCircle2, Timer } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { toast } from 'sonner';
@@ -26,6 +27,9 @@ export function HotLeadsToday() {
   const isMobile = useIsMobile();
   const [hotLeads, setHotLeads] = useState<HotLead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLead, setSelectedLead] = useState<HotLead | null>(null);
+  const [showPlaybookDialog, setShowPlaybookDialog] = useState(false);
+  const [isEnrolling, setIsEnrolling] = useState(false);
 
   useEffect(() => {
     loadHotLeads();
@@ -220,27 +224,49 @@ export function HotLeadsToday() {
     return { level: 'cool', color: 'text-blue-500', bgColor: 'bg-blue-500' };
   };
 
-  const handleAIPlayEnrollment = async (leadId: string, firstName: string, lastName: string) => {
-    try {
-      // AI suggests the best playbook based on lead data
-      const aiSuggestedPlaybook = {
-        id: 'hot-lead-nurture',
-        name: 'Hot Lead Nurture Sequence',
-        description: 'AI-optimized sequence for high-intent leads',
-        steps: 5,
-        duration: '7 days'
-      };
+  const handleAIPlayEnrollment = (lead: HotLead) => {
+    setSelectedLead(lead);
+    setShowPlaybookDialog(true);
+  };
 
-      toast.success(`Enrolling ${firstName} ${lastName} in "${aiSuggestedPlaybook.name}"`);
+  const confirmEnrollment = async () => {
+    if (!selectedLead) return;
+    
+    setIsEnrolling(true);
+    try {
+      toast.success(`Enrolling ${selectedLead.first_name} ${selectedLead.last_name} in AI playbook...`);
       
       // Simulate enrollment API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      toast.success(`${firstName} ${lastName} successfully enrolled in AI playbook!`);
+      toast.success(`${selectedLead.first_name} ${selectedLead.last_name} successfully enrolled!`);
+      setShowPlaybookDialog(false);
+      setSelectedLead(null);
     } catch (error) {
       console.error('Failed to enroll in AI playbook:', error);
       toast.error('Failed to enroll in AI playbook');
+    } finally {
+      setIsEnrolling(false);
     }
+  };
+
+  const getAISuggestedPlaybook = (lead: HotLead) => {
+    // AI logic to suggest playbook based on lead data
+    const basePlaybook = {
+      id: 'hot-lead-nurture',
+      name: 'Hot Lead Nurture Sequence',
+      description: 'AI-optimized sequence for high-intent leads',
+      confidence: 94,
+      steps: [
+        { type: 'email', title: 'Welcome & Value Proposition', delay: '0 hours', description: 'Personalized welcome with program benefits' },
+        { type: 'call', title: 'Discovery Call', delay: '2 hours', description: 'Personal consultation to understand goals' },
+        { type: 'email', title: 'Program Details & Next Steps', delay: '1 day', description: 'Detailed curriculum and enrollment process' },
+        { type: 'sms', title: 'Application Reminder', delay: '3 days', description: 'Gentle reminder about application deadline' },
+        { type: 'call', title: 'Final Enrollment Call', delay: '5 days', description: 'Address final questions and close enrollment' }
+      ]
+    };
+
+    return basePlaybook;
   };
 
   if (loading) {
@@ -348,7 +374,7 @@ export function HotLeadsToday() {
                         className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAIPlayEnrollment(lead.id, lead.first_name, lead.last_name);
+                          handleAIPlayEnrollment(lead);
                         }}
                       >
                         <TrendingUp className="w-3 h-3 mr-1" />
@@ -368,6 +394,73 @@ export function HotLeadsToday() {
           </div>
         )}
       </CardContent>
+      
+      {/* AI Playbook Confirmation Dialog */}
+      <Dialog open={showPlaybookDialog} onOpenChange={setShowPlaybookDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-blue-500" />
+              AI-Suggested Playbook
+            </DialogTitle>
+            <DialogDescription>
+              AI has analyzed {selectedLead?.first_name} {selectedLead?.last_name}'s engagement and suggests the following playbook.
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedLead && (
+            <div className="space-y-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold text-blue-900">
+                    {getAISuggestedPlaybook(selectedLead).name}
+                  </h3>
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                    {getAISuggestedPlaybook(selectedLead).confidence}% Match
+                  </Badge>
+                </div>
+                <p className="text-sm text-blue-700 mb-3">
+                  {getAISuggestedPlaybook(selectedLead).description}
+                </p>
+                
+                <div className="space-y-2">
+                  <h4 className="font-medium text-blue-900 text-sm">Playbook Steps:</h4>
+                  {getAISuggestedPlaybook(selectedLead).steps.map((step, index) => (
+                    <div key={index} className="flex items-start gap-3 p-2 bg-white rounded border border-blue-100">
+                      <div className="flex items-center justify-center w-6 h-6 bg-blue-100 text-blue-600 rounded-full text-xs font-medium mt-0.5">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          {step.type === 'email' && <Mail className="w-3 h-3 text-orange-500" />}
+                          {step.type === 'call' && <Phone className="w-3 h-3 text-green-500" />}
+                          {step.type === 'sms' && <MousePointer className="w-3 h-3 text-blue-500" />}
+                          <span className="font-medium text-sm">{step.title}</span>
+                          <Badge variant="outline" className="text-xs">
+                            <Timer className="w-2 h-2 mr-1" />
+                            {step.delay}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{step.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPlaybookDialog(false)} disabled={isEnrolling}>
+              Cancel
+            </Button>
+            <Button onClick={confirmEnrollment} disabled={isEnrolling} className="bg-blue-600 hover:bg-blue-700">
+              <CheckCircle2 className="w-4 h-4 mr-1" />
+              {isEnrolling ? 'Enrolling...' : 'Confirm Enrollment'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -130,45 +129,32 @@ export function ReenquiryStudents() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <RotateCcw className="w-4 h-4" />
-            Re-enquiry Students
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-muted rounded-lg h-20"></div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-muted rounded-lg h-20"></div>
+        ))}
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <RotateCcw className="w-4 h-4" />
-          Re-enquiry Students
-          <Badge variant="secondary" className="ml-auto">{students.length}</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Badge variant="secondary" className="ml-auto">{students.length} re-enquiries</Badge>
+      </div>
+      
+      <div className="space-y-3">
         {students.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <RotateCcw className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No re-enquiries today</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <>
             {students.map((student) => (
               <div
                 key={student.id}
-                className="p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                className="p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors bg-white shadow-sm"
               >
                 <div className="flex items-start gap-3">
                   <Avatar className="w-8 h-8">
@@ -219,9 +205,9 @@ export function ReenquiryStudents() {
                 </div>
               </div>
             ))}
-          </div>
+          </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 }

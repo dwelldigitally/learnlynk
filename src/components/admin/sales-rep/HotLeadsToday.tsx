@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -274,45 +273,23 @@ export function HotLeadsToday() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Flame className="w-4 h-4" />
-            HOT Today
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-muted rounded-lg h-24"></div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-muted rounded-lg h-24"></div>
+        ))}
+      </div>
     );
   }
 
   return (
-    <Card className="bg-gradient-to-br from-orange-50 via-white to-red-50/30 border-orange-200/60 shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg flex items-center gap-3">
-          <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-md">
-            <Flame className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent font-bold">
-                HOT Today
-              </span>
-              <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 text-white border-none shadow-md">
-                {hotLeads.length} 🔥
-              </Badge>
-            </div>
-            <p className="text-sm text-gray-600 mt-1 font-normal">High-priority leads requiring immediate attention</p>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 text-white border-none shadow-md ml-auto">
+          {hotLeads.length} 🔥
+        </Badge>
+      </div>
+      
+      <div className="space-y-4">
         {hotLeads.length === 0 ? (
           <div className="text-center py-12">
             <div className="relative mb-6">
@@ -329,7 +306,7 @@ export function HotLeadsToday() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <>
             {hotLeads.slice(0, 3).map((lead) => {
               const heatLevel = getHeatLevel(lead.activity_score);
               
@@ -457,9 +434,9 @@ export function HotLeadsToday() {
                 </Button>
               </div>
             )}
-          </div>
+          </>
         )}
-      </CardContent>
+      </div>
       
       {/* AI Playbook Confirmation Dialog */}
       <Dialog open={showPlaybookDialog} onOpenChange={(open) => {
@@ -530,6 +507,6 @@ export function HotLeadsToday() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </>
   );
 }

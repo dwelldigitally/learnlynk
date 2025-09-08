@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -202,51 +201,38 @@ export function TodaysCallList() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Phone className="w-4 h-4" />
-            Today's Call List
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-muted rounded-lg h-20"></div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-muted rounded-lg h-20"></div>
+        ))}
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Phone className="w-4 h-4" />
-          Today's Call List
-          <Badge variant="secondary" className="ml-auto">{callList.length}</Badge>
-          {callList.length > 1 && (
-            <Button 
-              size="sm" 
-              className="h-7 px-3 text-xs gap-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transition-all duration-200 border-0"
-              onClick={handleBulkCall}
-            >
-              <Zap className="w-3 h-3" />
-              Start Bulk Calling
-            </Button>
-          )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <>
+      <div className="flex items-center gap-2 mb-4">
+        <Badge variant="secondary" className="ml-auto">{callList.length} calls</Badge>
+        {callList.length > 1 && (
+          <Button 
+            size="sm" 
+            className="h-7 px-3 text-xs gap-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transition-all duration-200 border-0"
+            onClick={handleBulkCall}
+          >
+            <Zap className="w-3 h-3" />
+            Start Bulk Calling
+          </Button>
+        )}
+      </div>
+      
+      <div className="space-y-3">
         {callList.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Phone className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">No calls scheduled</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <>
             {callList.map((call) => {
               const badgeProps = getCallTypeBadge(call.call_type);
               
@@ -254,7 +240,7 @@ export function TodaysCallList() {
                 <div
                   key={call.id}
                   className={cn(
-                    "p-3 rounded-lg border transition-colors",
+                    "p-3 rounded-lg border transition-colors bg-white shadow-sm",
                     call.call_type === 'overdue' 
                       ? "border-destructive/20 bg-destructive/5" 
                       : "border-border hover:bg-muted/50"
@@ -318,9 +304,9 @@ export function TodaysCallList() {
                 </div>
               );
             })}
-          </div>
+          </>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </>
   );
 }

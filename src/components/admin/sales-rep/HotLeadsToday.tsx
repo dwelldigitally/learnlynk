@@ -309,10 +309,20 @@ export function HotLeadsToday() {
                       </div>
                     </div>
 
-                    <Button size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md">
-                      <Phone className="w-3 h-3 mr-1" />
-                      Call Now
-                    </Button>
+                    <div className="flex flex-col gap-1">
+                      <Button size="sm" className="h-7 px-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md">
+                        <Phone className="w-3 h-3 mr-1" />
+                        Call
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-6 px-2 text-xs border-orange-200 text-orange-700 hover:bg-orange-50">
+                        <Mail className="w-3 h-3 mr-1" />
+                        Email
+                      </Button>
+                      <Button size="sm" variant="outline" className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50">
+                        <TrendingUp className="w-3 h-3 mr-1" />
+                        AI Play
+                      </Button>
+                    </div>
                   </div>
                 </div>
               );

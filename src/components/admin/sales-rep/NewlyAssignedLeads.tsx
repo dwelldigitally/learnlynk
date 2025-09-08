@@ -288,23 +288,19 @@ export function NewlyAssignedLeads() {
 
   return (
     <>
-      <Card className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <div className="p-1.5 bg-blue-500 rounded-lg">
-            <User className="w-4 h-4 text-white" />
+      <div className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 rounded-lg border">
+        <div className="pb-3 p-6">
+          <div className="text-base flex items-center gap-2">
+            <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 border-blue-300">
+              {leads.length} new
+            </Badge>
+            {isGenerating && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                AI analyzing...
+              </div>
+            )}
           </div>
-          Newly Assigned Leads
-          <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 border-blue-300">
-            {leads.length} new
-          </Badge>
-          {isGenerating && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Loader2 className="w-3 h-3 animate-spin" />
-              AI analyzing...
-            </div>
-          )}
-        </CardTitle>
         
         {showBulkActions && (
           <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
@@ -328,8 +324,8 @@ export function NewlyAssignedLeads() {
             </div>
           </div>
         )}
-      </CardHeader>
-      <CardContent>
+        </div>
+        <div className="p-6 pt-0">
         {leads.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <div className="p-3 bg-blue-100 rounded-full w-12 h-12 mx-auto mb-3">
@@ -480,8 +476,8 @@ export function NewlyAssignedLeads() {
             )}
           </div>
         )}
-      </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Action Preview Dialog */}
     <Dialog open={!!previewAction} onOpenChange={() => setPreviewAction(null)}>

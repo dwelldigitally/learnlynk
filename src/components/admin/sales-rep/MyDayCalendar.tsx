@@ -158,19 +158,13 @@ export function MyDayCalendar() {
   }
 
   return (
-    <Card className="col-span-full">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
-          My Day - {new Date().toLocaleDateString('en-US', { 
-            weekday: 'long', 
-            month: 'short', 
-            day: 'numeric' 
-          })}
+    <div className="col-span-full rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="pb-3 p-6">
+        <div className="text-base flex items-center gap-2">
           <Badge variant="secondary" className="ml-auto">{events.length} events</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </div>
+      </div>
+      <div className="p-6 pt-0">
         <div className={cn("grid gap-6", isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2")}>
           {/* Timeline View */}
           <div className="space-y-4">
@@ -299,7 +293,7 @@ export function MyDayCalendar() {
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

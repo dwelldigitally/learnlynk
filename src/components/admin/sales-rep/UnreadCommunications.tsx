@@ -160,11 +160,9 @@ export function UnreadCommunications() {
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Mail className="w-4 h-4" />
-          Unread Communications
+    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+      <div className="pb-3 p-6">
+        <div className="text-base flex items-center gap-2">
           <Badge variant="destructive" className="ml-auto">{communications.length}</Badge>
           {communications.length > 1 && (
             <Button 
@@ -177,9 +175,9 @@ export function UnreadCommunications() {
               Auto Reply All
             </Button>
           )}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </div>
+      </div>
+      <div className="p-6 pt-0">
         {communications.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
@@ -286,7 +284,7 @@ export function UnreadCommunications() {
             );
           }}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

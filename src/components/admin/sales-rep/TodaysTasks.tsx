@@ -191,13 +191,9 @@ export function TodaysTasks() {
   }
 
   return (
-    <Card className="h-fit bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <div className="p-1.5 bg-green-500 rounded-lg">
-            <CheckSquare className="w-4 h-4 text-white" />
-          </div>
-          Today's Tasks
+    <div className="h-fit bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 rounded-lg border">
+      <div className="pb-3 p-6">
+        <div className="text-base flex items-center gap-2">
           <div className="ml-auto flex items-center gap-2">
             <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300">
               {pendingTasks.length}
@@ -206,9 +202,9 @@ export function TodaysTasks() {
               {completedToday} done
             </Badge>
           </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </div>
+      </div>
+      <div className="p-6 pt-0">
         {pendingTasks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <div className="p-3 bg-green-100 rounded-full w-12 h-12 mx-auto mb-3">
@@ -295,7 +291,7 @@ export function TodaysTasks() {
           <Plus className="w-3 h-3 mr-1" />
           Add New Task
         </Button>
-      </CardContent>
+      </div>
 
       <Dialog open={showExecutionDialog} onOpenChange={setShowExecutionDialog}>
         <DialogContent className="sm:max-w-[425px]">
@@ -374,6 +370,6 @@ export function TodaysTasks() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 }

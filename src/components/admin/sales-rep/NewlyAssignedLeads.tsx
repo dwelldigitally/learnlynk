@@ -3,22 +3,42 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Phone, Mail, Eye, Star, Clock, User } from 'lucide-react';
+import { Phone, Mail, Eye, Star, Clock, User, Brain, Play, CheckSquare, Loader2, Zap } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
+import { useLeadAIActions } from '@/hooks/useLeadAIActions';
 
 export function NewlyAssignedLeads() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
+  const [showBulkActions, setShowBulkActions] = useState(false);
+  
+  const {
+    isGenerating,
+    isExecuting,
+    leadActions,
+    generateActionsForLeads,
+    executeAction,
+    executeBulkActions,
+  } = useLeadAIActions();
 
   useEffect(() => {
     loadNewlyAssignedLeads();
   }, []);
+
+  useEffect(() => {
+    if (leads.length > 0) {
+      const leadIds = leads.map(lead => lead.id);
+      generateActionsForLeads(leadIds);
+    }
+  }, [leads]);
 
   const loadNewlyAssignedLeads = async () => {
     try {
@@ -182,6 +202,62 @@ export function NewlyAssignedLeads() {
     return `${Math.floor(hours / 24)}d ago`;
   };
 
+  const handleLeadSelect = (leadId: string, checked: boolean) => {
+    setSelectedLeads(prev => {
+      const newSet = new Set(prev);
+      if (checked) {
+        newSet.add(leadId);
+      } else {
+        newSet.delete(leadId);
+      }
+      setShowBulkActions(newSet.size > 0);
+      return newSet;
+    });
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedLeads(new Set(leads.slice(0, 3).map(lead => lead.id)));
+      setShowBulkActions(true);
+    } else {
+      setSelectedLeads(new Set());
+      setShowBulkActions(false);
+    }
+  };
+
+  const handleBulkExecute = async () => {
+    if (selectedLeads.size === 0) return;
+    
+    await executeBulkActions(Array.from(selectedLeads));
+    setSelectedLeads(new Set());
+    setShowBulkActions(false);
+  };
+
+  const getActionIcon = (actionType: string) => {
+    switch (actionType) {
+      case 'call': return <Phone className="w-3 h-3" />;
+      case 'email': return <Mail className="w-3 h-3" />;
+      case 'follow_up': return <Clock className="w-3 h-3" />;
+      case 'document': return <Eye className="w-3 h-3" />;
+      default: return <Zap className="w-3 h-3" />;
+    }
+  };
+
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
+    if (confidence >= 60) return 'text-amber-600 bg-amber-50 border-amber-200';
+    return 'text-blue-600 bg-blue-50 border-blue-200';
+  };
+
+  const getUrgencyColor = (urgency: string) => {
+    switch (urgency) {
+      case 'critical': return 'text-red-600 bg-red-50 border-red-200';
+      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'medium': return 'text-blue-600 bg-blue-50 border-blue-200';
+      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -213,7 +289,36 @@ export function NewlyAssignedLeads() {
           <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 border-blue-300">
             {leads.length} new
           </Badge>
+          {isGenerating && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              AI analyzing...
+            </div>
+          )}
         </CardTitle>
+        
+        {showBulkActions && (
+          <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-blue-700">
+                {selectedLeads.size} leads selected
+              </span>
+              <Button 
+                size="sm" 
+                onClick={handleBulkExecute}
+                disabled={isExecuting}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {isExecuting ? (
+                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                ) : (
+                  <Play className="w-3 h-3 mr-1" />
+                )}
+                Execute All Actions
+              </Button>
+            </div>
+          </div>
+        )}
       </CardHeader>
       <CardContent>
         {leads.length === 0 ? (
@@ -226,55 +331,128 @@ export function NewlyAssignedLeads() {
           </div>
         ) : (
           <div className="space-y-3">
-            {leads.slice(0, 3).map((lead) => (
-              <div
-                key={lead.id}
-                className="flex items-center gap-3 p-3 rounded-lg bg-white border border-blue-100 hover:bg-blue-50/50 transition-colors cursor-pointer shadow-sm"
-                onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
-              >
-                <Avatar className="w-10 h-10">
-                  <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
-                    {lead.first_name[0]}{lead.last_name[0]}
-                  </AvatarFallback>
-                </Avatar>
+            {/* Select All Header */}
+            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
+              <Checkbox 
+                checked={selectedLeads.size === leads.slice(0, 3).length && leads.length > 0}
+                onCheckedChange={handleSelectAll}
+              />
+              <Brain className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">AI Actions Available</span>
+              <Badge variant="outline" className="ml-auto text-xs">
+                Select for bulk execution
+              </Badge>
+            </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <p className="font-medium text-sm truncate">
-                      {lead.first_name} {lead.last_name}
-                    </p>
-                    <Badge 
-                      variant="outline" 
-                      className={cn("text-xs", getPriorityColor(lead.priority))}
-                    >
-                      {lead.priority}
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    {getSourceIcon(lead.source)}
-                    <span>{lead.source.replace('_', ' ')}</span>
-                    <span>•</span>
-                    <Clock className="w-3 h-3" />
-                    <span>{formatTimeAgo(lead.assigned_at || lead.created_at)}</span>
-                  </div>
-                  
-                  <div className="flex items-center gap-1 mt-1">
-                    <Star className="w-3 h-3 text-orange-500" />
-                    <span className="text-xs font-medium">{lead.lead_score}/100</span>
+            {leads.slice(0, 3).map((lead) => {
+              const aiAction = leadActions.get(lead.id);
+              return (
+                <div
+                  key={lead.id}
+                  className="relative p-3 rounded-lg bg-white border border-blue-100 shadow-sm"
+                >
+                  <div className="flex items-start gap-3">
+                    <Checkbox 
+                      checked={selectedLeads.has(lead.id)}
+                      onCheckedChange={(checked) => handleLeadSelect(lead.id, !!checked)}
+                      className="mt-2"
+                    />
+                    
+                    <Avatar className="w-10 h-10 mt-1">
+                      <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
+                        {lead.first_name[0]}{lead.last_name[0]}
+                      </AvatarFallback>
+                    </Avatar>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p 
+                          className="font-medium text-sm truncate cursor-pointer hover:text-blue-600"
+                          onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
+                        >
+                          {lead.first_name} {lead.last_name}
+                        </p>
+                        <Badge 
+                          variant="outline" 
+                          className={cn("text-xs", getPriorityColor(lead.priority))}
+                        >
+                          {lead.priority}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
+                        {getSourceIcon(lead.source)}
+                        <span>{lead.source.replace('_', ' ')}</span>
+                        <span>•</span>
+                        <Clock className="w-3 h-3" />
+                        <span>{formatTimeAgo(lead.assigned_at || lead.created_at)}</span>
+                        <span>•</span>
+                        <Star className="w-3 h-3 text-orange-500" />
+                        <span className="font-medium">{lead.lead_score}/100</span>
+                      </div>
+
+                      {/* AI Action Section */}
+                      {aiAction ? (
+                        <div className="mt-2 p-2 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Brain className="w-3 h-3 text-purple-600" />
+                            <span className="text-xs font-medium text-purple-700">AI Recommendation</span>
+                            <Badge 
+                              variant="outline" 
+                              className={cn("text-xs", getConfidenceColor(aiAction.confidence))}
+                            >
+                              {aiAction.confidence}% confident
+                            </Badge>
+                            <Badge 
+                              variant="outline" 
+                              className={cn("text-xs", getUrgencyColor(aiAction.urgency))}
+                            >
+                              {aiAction.urgency}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-gray-700 mb-2">{aiAction.description}</p>
+                          
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              className="h-6 text-xs px-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                executeAction(lead.id, aiAction);
+                              }}
+                              disabled={isExecuting}
+                            >
+                              {getActionIcon(aiAction.actionType)}
+                              <span className="ml-1">Execute</span>
+                            </Button>
+                            <span className="text-xs text-muted-foreground">
+                              Impact: {aiAction.estimatedImpact}%
+                            </span>
+                          </div>
+                        </div>
+                      ) : isGenerating ? (
+                        <div className="mt-2 p-2 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
+                            <span className="text-xs text-muted-foreground">Generating AI action...</span>
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="flex gap-1 mt-2">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
+                        <Phone className="w-3 h-3" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
+                        <Mail className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex gap-1">
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
-                    <Phone className="w-3 h-3" />
-                  </Button>
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
-                    <Mail className="w-3 h-3" />
-                  </Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
             
             {leads.length > 3 && (
               <Button variant="ghost" size="sm" className="w-full mt-2">

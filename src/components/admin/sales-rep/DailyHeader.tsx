@@ -170,60 +170,60 @@ export function DailyHeader() {
               <h3 className="text-white/90 font-semibold text-sm uppercase tracking-wide">Today's Performance</h3>
             </div>
             
-            <div className={cn("grid gap-4", isMobile ? "grid-cols-2" : "grid-cols-4")}>
+            <div className={cn("grid gap-3", isMobile ? "grid-cols-2" : "grid-cols-4")}>
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-xl"></div>
-                <div className="relative p-4 border border-white/20 rounded-xl hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 bg-blue-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                      <Phone className="w-5 h-5 text-blue-200" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-blue-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                      <Phone className="w-4 h-4 text-blue-200" />
                     </div>
-                    <div className="text-xs text-white/60 font-medium">+2 vs yesterday</div>
+                    <div className="text-xs text-white/60 font-medium">+2</div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-1">{todaysMetrics.callsMade}</div>
-                  <div className="text-sm text-white/80">Calls Made</div>
+                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.callsMade}</div>
+                  <div className="text-xs text-white/80">Calls Made</div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-xl"></div>
-                <div className="relative p-4 border border-white/20 rounded-xl hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 bg-purple-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                      <Mail className="w-5 h-5 text-purple-200" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-purple-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                      <Mail className="w-4 h-4 text-purple-200" />
                     </div>
-                    <div className="text-xs text-white/60 font-medium">+1 vs yesterday</div>
+                    <div className="text-xs text-white/60 font-medium">+1</div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-1">{todaysMetrics.emailsSent}</div>
-                  <div className="text-sm text-white/80">Emails Sent</div>
+                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.emailsSent}</div>
+                  <div className="text-xs text-white/80">Emails Sent</div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-xl"></div>
-                <div className="relative p-4 border border-white/20 rounded-xl hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 bg-green-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-green-200" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-green-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-green-200" />
                     </div>
                     <div className="text-xs text-white/60 font-medium">On track</div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-1">{todaysMetrics.tasksCompleted}</div>
-                  <div className="text-sm text-white/80">Tasks Done</div>
+                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.tasksCompleted}</div>
+                  <div className="text-xs text-white/80">Tasks Done</div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-xl"></div>
-                <div className="relative p-4 border border-white/20 rounded-xl hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 bg-orange-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-orange-200" />
+                <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
+                <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-orange-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                      <Calendar className="w-4 h-4 text-orange-200" />
                     </div>
-                    <div className="text-xs text-white/60 font-medium">+1 vs yesterday</div>
+                    <div className="text-xs text-white/60 font-medium">+1</div>
                   </div>
-                  <div className="text-2xl font-bold text-white mb-1">{todaysMetrics.appointmentsBooked}</div>
-                  <div className="text-sm text-white/80">Meetings</div>
+                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.appointmentsBooked}</div>
+                  <div className="text-xs text-white/80">Meetings</div>
                 </div>
               </div>
             </div>

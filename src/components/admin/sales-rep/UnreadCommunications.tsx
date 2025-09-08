@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Mail, MessageSquare, Phone, Clock, AlertCircle, Reply } from 'lucide-react';
+import { Mail, MessageSquare, Phone, Clock, AlertCircle, Reply, Sparkles, Zap } from 'lucide-react';
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
+import { AutoReplyDialog } from './AutoReplyDialog';
 
 interface Communication {
   id: string;
@@ -24,6 +25,8 @@ export function UnreadCommunications() {
   const isMobile = useIsMobile();
   const [communications, setCommunications] = useState<Communication[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCommunication, setSelectedCommunication] = useState<Communication | null>(null);
+  const [autoReplyOpen, setAutoReplyOpen] = useState(false);
 
   useEffect(() => {
     loadUnreadCommunications();
@@ -118,6 +121,16 @@ export function UnreadCommunications() {
     console.log('Reply to:', comm);
   };
 
+  const handleAutoReply = (comm: Communication) => {
+    setSelectedCommunication(comm);
+    setAutoReplyOpen(true);
+  };
+
+  const handleBulkAutoReply = () => {
+    console.log('Bulk auto-reply for all communications');
+    // TODO: Implement bulk auto-reply functionality
+  };
+
   if (loading) {
     return (
       <Card>
@@ -145,6 +158,17 @@ export function UnreadCommunications() {
           <Mail className="w-4 h-4" />
           Unread Communications
           <Badge variant="destructive" className="ml-auto">{communications.length}</Badge>
+          {communications.length > 1 && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-6 px-2 text-xs gap-1"
+              onClick={handleBulkAutoReply}
+            >
+              <Zap className="w-3 h-3" />
+              Auto Reply All
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -199,21 +223,42 @@ export function UnreadCommunications() {
                       {comm.content}
                     </p>
 
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => handleReply(comm)}
-                    >
-                      <Reply className="w-3 h-3 mr-1" />
-                      Reply
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 px-2 text-xs"
+                        onClick={() => handleReply(comm)}
+                      >
+                        <Reply className="w-3 h-3 mr-1" />
+                        Reply
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        variant="default"
+                        className="h-7 px-2 text-xs gap-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+                        onClick={() => handleAutoReply(comm)}
+                      >
+                        <Sparkles className="w-3 h-3" />
+                        AI Reply
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        <AutoReplyDialog
+          open={autoReplyOpen}
+          onOpenChange={setAutoReplyOpen}
+          communication={selectedCommunication}
+          onReplyGenerated={(reply) => {
+            console.log('Reply generated:', reply);
+          }}
+        />
       </CardContent>
     </Card>
   );

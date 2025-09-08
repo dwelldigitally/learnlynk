@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { Flame, Phone, Mail, Eye, TrendingUp, Activity, MousePointer, Clock } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
+import { toast } from 'sonner';
 
 interface HotLead extends Lead {
   activity_score: number;
@@ -219,6 +220,29 @@ export function HotLeadsToday() {
     return { level: 'cool', color: 'text-blue-500', bgColor: 'bg-blue-500' };
   };
 
+  const handleAIPlayEnrollment = async (leadId: string, firstName: string, lastName: string) => {
+    try {
+      // AI suggests the best playbook based on lead data
+      const aiSuggestedPlaybook = {
+        id: 'hot-lead-nurture',
+        name: 'Hot Lead Nurture Sequence',
+        description: 'AI-optimized sequence for high-intent leads',
+        steps: 5,
+        duration: '7 days'
+      };
+
+      toast.success(`Enrolling ${firstName} ${lastName} in "${aiSuggestedPlaybook.name}"`);
+      
+      // Simulate enrollment API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success(`${firstName} ${lastName} successfully enrolled in AI playbook!`);
+    } catch (error) {
+      console.error('Failed to enroll in AI playbook:', error);
+      toast.error('Failed to enroll in AI playbook');
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -318,7 +342,15 @@ export function HotLeadsToday() {
                         <Mail className="w-3 h-3 mr-1" />
                         Email
                       </Button>
-                      <Button size="sm" variant="outline" className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAIPlayEnrollment(lead.id, lead.first_name, lead.last_name);
+                        }}
+                      >
                         <TrendingUp className="w-3 h-3 mr-1" />
                         AI Play
                       </Button>

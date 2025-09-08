@@ -31,9 +31,6 @@ export function HotLeadsToday() {
   const [showPlaybookDialog, setShowPlaybookDialog] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
 
-  // Debug logging for dialog state
-  console.log('Dialog state:', { showPlaybookDialog, selectedLead: selectedLead?.first_name });
-
   useEffect(() => {
     loadHotLeads();
   }, []);
@@ -43,7 +40,7 @@ export function HotLeadsToday() {
       // Enhanced mock hot leads with more realistic activity data
       const mockHotLeads: HotLead[] = [
         {
-          id: 'hot-1',
+          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
           first_name: 'Sarah',
           last_name: 'Johnson',
           email: 'sarah.johnson@email.com',
@@ -72,7 +69,7 @@ export function HotLeadsToday() {
           engagement_indicators: ['Multiple email opens today', 'Visited pricing page 3x', 'Downloaded brochure', 'Clicked application link']
         },
         {
-          id: 'hot-2',
+          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
           first_name: 'Michael',
           last_name: 'Chen',
           email: 'michael.chen@email.com',
@@ -100,7 +97,7 @@ export function HotLeadsToday() {
           engagement_indicators: ['Frequent email engagement', 'Career outcomes page views', 'Salary calculator usage']
         },
         {
-          id: 'hot-3',
+          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
           first_name: 'Emily',
           last_name: 'Rodriguez',
           email: 'emily.rodriguez@email.com',
@@ -128,7 +125,7 @@ export function HotLeadsToday() {
           engagement_indicators: ['Social media engagement', 'Marketing curriculum views', 'Case study downloads']
         },
         {
-          id: 'hot-4',
+          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d482',
           first_name: 'David',
           last_name: 'Kim',
           email: 'david.kim@email.com',
@@ -156,7 +153,7 @@ export function HotLeadsToday() {
           engagement_indicators: ['Proposal opened multiple times', 'Leadership track interest', 'Schedule request pending']
         },
         {
-          id: 'hot-5',
+          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d483',
           first_name: 'Jennifer',
           last_name: 'Wilson',
           email: 'jennifer.wilson@email.com',

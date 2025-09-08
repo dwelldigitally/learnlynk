@@ -50,10 +50,11 @@ export function OutlookCalendarWidget() {
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(true);
 
   useEffect(() => {
-    checkConnection();
+    // Always start in demo mode
+    enableDemoMode();
   }, []);
 
   const checkConnection = async () => {

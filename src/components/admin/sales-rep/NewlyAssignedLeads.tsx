@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils';
 import { Phone, Mail, Eye, Star, Clock, User, Brain, Play, CheckSquare, Loader2, Zap } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
-import { useLeadAIActions } from '@/hooks/useLeadAIActions';
+import { useLeadAIActions, type LeadAIAction } from '@/hooks/useLeadAIActions';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 export function NewlyAssignedLeads() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export function NewlyAssignedLeads() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
+  const [previewAction, setPreviewAction] = useState<{ lead: Lead; action: LeadAIAction } | null>(null);
   const [showBulkActions, setShowBulkActions] = useState(false);
   
   const {
@@ -279,7 +281,8 @@ export function NewlyAssignedLeads() {
   }
 
   return (
-    <Card className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+    <>
+      <Card className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <div className="p-1.5 bg-blue-500 rounded-lg">
@@ -418,7 +421,7 @@ export function NewlyAssignedLeads() {
                               className="h-7 text-xs px-3 bg-primary hover:bg-primary/90"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                executeAction(lead.id, aiAction);
+                                setPreviewAction({ lead, action: aiAction });
                               }}
                               disabled={isExecuting}
                             >
@@ -472,6 +475,78 @@ export function NewlyAssignedLeads() {
           </div>
         )}
       </CardContent>
-    </Card>
+      </Card>
+
+      {/* Action Preview Dialog */}
+    <Dialog open={!!previewAction} onOpenChange={() => setPreviewAction(null)}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Brain className="w-5 h-5 text-primary" />
+            Preview AI Action
+          </DialogTitle>
+          <DialogDescription>
+            Review the action details before execution
+          </DialogDescription>
+        </DialogHeader>
+        
+        {previewAction && (
+          <div className="space-y-4">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <h4 className="font-medium mb-2">Lead: {previewAction.lead.first_name} {previewAction.lead.last_name}</h4>
+              <p className="text-sm text-muted-foreground">{previewAction.lead.email}</p>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Brain className="w-4 h-4 text-primary" />
+                <span className="font-medium">{previewAction.action.action}</span>
+                <Badge variant="outline" className="text-xs">
+                  {previewAction.action.confidence}% confidence
+                </Badge>
+              </div>
+              
+              <p className="text-sm text-muted-foreground">
+                {previewAction.action.description}
+              </p>
+              
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Priority: <span className="font-medium">{previewAction.action.urgency}</span></span>
+                <span>Expected Impact: <span className="font-medium">{previewAction.action.estimatedImpact}%</span></span>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        <DialogFooter className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => setPreviewAction(null)}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={() => {
+              if (previewAction) {
+                executeAction(previewAction.lead.id, previewAction.action);
+                setPreviewAction(null);
+              }
+            }}
+            disabled={isExecuting}
+            className="bg-primary hover:bg-primary/90"
+          >
+            {isExecuting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Executing...
+              </>
+            ) : (
+              'Execute Action'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+      </Dialog>
+    </>
   );
 }

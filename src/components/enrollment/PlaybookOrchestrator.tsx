@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { PlaybookCard } from './PlaybookCard';
 import { PolicyConfigurationService, type PolicyConfig } from '@/services/policyConfigurationService';
 import { PlaybookWizard, type PlaybookData } from './wizard/PlaybookWizard';
-
 interface PlaybookMeta {
   id: string;
   title: string;
@@ -19,14 +18,14 @@ interface PlaybookMeta {
   triggerCriteria: string;
   expectedActions: string;
 }
-
 export function PlaybookOrchestrator() {
   const [playbooks, setPlaybooks] = useState<PolicyConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const [showWizard, setShowWizard] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const playbookMeta: Record<string, PlaybookMeta> = {
     '5-minute-callback': {
       id: '5-minute-callback',
@@ -69,11 +68,9 @@ export function PlaybookOrchestrator() {
       expectedActions: '35 document follow-ups'
     }
   };
-
   useEffect(() => {
     loadPlaybookConfigurations();
   }, []);
-
   const loadPlaybookConfigurations = async () => {
     try {
       const data = await PolicyConfigurationService.getPlaybooks();
@@ -89,33 +86,26 @@ export function PlaybookOrchestrator() {
       setLoading(false);
     }
   };
-
   const handlePlaybookToggle = async (playbookId: string, enabled: boolean) => {
     setUpdating(playbookId);
-    
     try {
       // Find existing configuration
       const existingConfig = playbooks.find(p => p.policy_name === playbookId);
-      
       if (existingConfig) {
         // Update existing
         const updatedConfig = await PolicyConfigurationService.toggleEnabled(existingConfig.id, enabled);
-        setPlaybooks(prev => 
-          prev.map(p => 
-            p.id === existingConfig.id ? updatedConfig : p
-          )
-        );
+        setPlaybooks(prev => prev.map(p => p.id === existingConfig.id ? updatedConfig : p));
       } else {
         // Create new configuration
         const meta = playbookMeta[playbookId];
         if (!meta) throw new Error('Playbook configuration not found');
-
         const newConfig = await PolicyConfigurationService.upsertConfiguration(playbookId, {
           enabled,
-          settings: { playbook_type: playbookId },
+          settings: {
+            playbook_type: playbookId
+          },
           expected_lift: parseFloat(meta.expectedActions.match(/\d+/)?.[0] || '0')
         });
-        
         setPlaybooks(prev => [...prev, newConfig]);
       }
 
@@ -124,15 +114,14 @@ export function PlaybookOrchestrator() {
       if (enabled && meta) {
         toast({
           title: "Playbook Activated",
-          description: `${meta.expectedActions} created`,
+          description: `${meta.expectedActions} created`
         });
       } else {
         toast({
           title: "Playbook Deactivated",
-          description: "Automation sequence stopped",
+          description: "Automation sequence stopped"
         });
       }
-
     } catch (error) {
       console.error('Error updating playbook:', error);
       toast({
@@ -144,37 +133,27 @@ export function PlaybookOrchestrator() {
       setUpdating(null);
     }
   };
-
   const getPlaybookStatus = (playbookId: string) => {
     const config = playbooks.find(p => p.policy_name === playbookId);
     return config?.enabled || false;
   };
 
   // Get all unique playbook IDs from database and metadata
-  const allPlaybookIds = [...new Set([
-    ...playbooks.map(p => p.policy_name),
-    ...Object.keys(playbookMeta)
-  ])];
-
+  const allPlaybookIds = [...new Set([...playbooks.map(p => p.policy_name), ...Object.keys(playbookMeta)])];
   const activePlaybooks = playbooks.filter(p => p.enabled).length;
-
   if (loading) {
-    return (
-      <div className="p-6">
+    return <div className="p-6">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-1/3"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {Array.from({ length: 3 }, (_, i) => (
-              <div key={i} className="h-64 bg-muted rounded"></div>
-            ))}
+            {Array.from({
+            length: 3
+          }, (_, i) => <div key={i} className="h-64 bg-muted rounded"></div>)}
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="p-6 space-y-6">
+  return <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Orchestrator → Playbooks</h1>
@@ -250,78 +229,15 @@ export function PlaybookOrchestrator() {
       </div>
 
       {/* Navigation Hints */}
-      <Card className="border-blue-200 bg-blue-50/50">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Workflow className="h-5 w-5 text-blue-600" />
-            How Playbooks, Policies & Automation Rules Work Together
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <Workflow className="h-6 w-6 text-blue-600" />
-              </div>
-              <h4 className="font-medium text-foreground mb-2">Playbooks (This Page)</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Manager-friendly business recipes. Simple on/off switches for enrollment sequences.
-              </p>
-              <Badge variant="default" className="text-xs">You Are Here</Badge>
-            </div>
-            
-            <div className="text-center">
-              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <Shield className="h-6 w-6 text-orange-600" />
-              </div>
-              <h4 className="font-medium text-foreground mb-2">Policies</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Safety rules that all playbooks must follow (quiet hours, pacing, stop triggers).
-              </p>
-              <a href="/admin/enrollment/policies" className="text-sm text-blue-600 hover:underline">
-                Configure Policies →
-              </a>
-            </div>
-            
-            <div className="text-center">
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                <Settings className="h-6 w-6 text-purple-600" />
-              </div>
-              <h4 className="font-medium text-foreground mb-2">Automation Rules</h4>
-              <p className="text-sm text-muted-foreground mb-3">
-                Technical/advanced interface for custom triggers and complex conditions.
-              </p>
-              <a href="/admin/enrollment/automation-rules" className="text-sm text-blue-600 hover:underline">
-                Advanced Rules →
-              </a>
-            </div>
-          </div>
-          
-          <div className="mt-6 p-4 bg-background border rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              <strong>Recommended flow:</strong> Start with Playbooks for 80% of needs. Configure Policies to set guardrails. 
-              Use Automation Rules only for complex scenarios that don't fit standard playbook templates.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      
 
       {/* Playbook Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {allPlaybookIds.map((playbookId) => {
-          const meta = playbookMeta[playbookId];
-          if (!meta) return null;
-          
-          return (
-            <PlaybookCard
-              key={playbookId}
-              {...meta}
-              enabled={getPlaybookStatus(playbookId)}
-              updating={updating === playbookId}
-              onToggle={(enabled) => handlePlaybookToggle(playbookId, enabled)}
-            />
-          );
-        })}
+        {allPlaybookIds.map(playbookId => {
+        const meta = playbookMeta[playbookId];
+        if (!meta) return null;
+        return <PlaybookCard key={playbookId} {...meta} enabled={getPlaybookStatus(playbookId)} updating={updating === playbookId} onToggle={enabled => handlePlaybookToggle(playbookId, enabled)} />;
+      })}
       </div>
 
       {/* Implementation Notes */}
@@ -365,36 +281,28 @@ export function PlaybookOrchestrator() {
       </Card>
 
       {/* Playbook Wizard */}
-      {showWizard && (
-        <PlaybookWizard
-          onClose={() => setShowWizard(false)}
-          onSave={async (playbookData: PlaybookData) => {
-            try {
-              await PolicyConfigurationService.upsertConfiguration(`custom-${Date.now()}`, {
-                enabled: playbookData.isActive,
-                settings: { 
-                  playbook_type: 'custom',
-                  playbook_data: JSON.parse(JSON.stringify(playbookData))
-                } as any,
-                expected_lift: playbookData.expectedMetrics.estimatedActions
-              });
-              
-              toast({
-                title: "Custom Playbook Created",
-                description: `${playbookData.name} has been created successfully`,
-              });
-              
-              loadPlaybookConfigurations();
-            } catch (error) {
-              toast({
-                title: "Error",
-                description: "Failed to create custom playbook",
-                variant: "destructive"
-              });
-            }
-          }}
-        />
-      )}
-    </div>
-  );
+      {showWizard && <PlaybookWizard onClose={() => setShowWizard(false)} onSave={async (playbookData: PlaybookData) => {
+      try {
+        await PolicyConfigurationService.upsertConfiguration(`custom-${Date.now()}`, {
+          enabled: playbookData.isActive,
+          settings: {
+            playbook_type: 'custom',
+            playbook_data: JSON.parse(JSON.stringify(playbookData))
+          } as any,
+          expected_lift: playbookData.expectedMetrics.estimatedActions
+        });
+        toast({
+          title: "Custom Playbook Created",
+          description: `${playbookData.name} has been created successfully`
+        });
+        loadPlaybookConfigurations();
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to create custom playbook",
+          variant: "destructive"
+        });
+      }
+    }} />}
+    </div>;
 }

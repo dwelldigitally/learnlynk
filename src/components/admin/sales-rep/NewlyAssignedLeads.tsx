@@ -287,8 +287,7 @@ export function NewlyAssignedLeads() {
 
   return (
     <>
-      <div className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 rounded-lg border">
-        <div className="pb-3 p-6">
+      <div className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 rounded-lg border pb-3 p-6">
           <div className="text-base flex items-center gap-2">
             <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 border-blue-300">
               {leads.length} new
@@ -475,7 +474,6 @@ export function NewlyAssignedLeads() {
             )}
           </div>
         )}
-        </div>
       </div>
 
       {/* Action Preview Dialog */}

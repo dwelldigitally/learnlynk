@@ -3,12 +3,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProfile } from '@/hooks/useProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Phone, Mail, CheckCircle, Target, Calendar } from 'lucide-react';
 
 export function DailyHeader() {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const isMobile = useIsMobile();
   const [todaysMetrics, setTodaysMetrics] = useState({
     callsMade: 12,
@@ -40,13 +42,20 @@ export function DailyHeader() {
     });
   };
 
+  const getDisplayName = () => {
+    if (profile?.first_name) {
+      return `${profile.first_name} ${profile.last_name || ''}`.trim();
+    }
+    return user?.email?.split('@')[0] || 'Sales Rep';
+  };
+
   return (
     <div className="bg-gradient-primary border-b border-border">
       <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
         <div className={cn("flex gap-4", isMobile ? "flex-col" : "flex-col lg:flex-row lg:items-center lg:justify-between")}>
           <div className="text-primary-foreground">
             <h1 className={cn("font-bold", isMobile ? "text-xl" : "text-2xl")}>
-              {getGreeting()}, {user?.email?.split('@')[0] || 'Sales Rep'}! 👋
+              {getGreeting()}, {getDisplayName()}! 👋
             </h1>
             <p className={cn("opacity-90 mt-1", isMobile ? "text-sm" : "")}>
               {formatDate(currentTime)} • Let's make today count!

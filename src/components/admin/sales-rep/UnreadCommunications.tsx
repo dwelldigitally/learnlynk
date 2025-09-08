@@ -128,6 +128,11 @@ export function UnreadCommunications() {
     setAutoReplyOpen(true);
   };
 
+  const handleSingleReplySuccess = (communicationId: string) => {
+    // Remove the replied communication from the list
+    setCommunications(prev => prev.filter(comm => comm.id !== communicationId));
+  };
+
   const handleBulkAutoReply = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -261,6 +266,11 @@ export function UnreadCommunications() {
           onReplyGenerated={(reply) => {
             console.log('Reply generated:', reply);
           }}
+          onReplySent={() => {
+            if (selectedCommunication) {
+              handleSingleReplySuccess(selectedCommunication.id);
+            }
+          }}
         />
 
         <BulkAutoReplyDialog
@@ -269,8 +279,11 @@ export function UnreadCommunications() {
           communications={communications}
           onRepliesSent={(sentReplies) => {
             console.log('Bulk replies sent:', sentReplies);
-            // Optionally refresh communications or update UI
-            loadUnreadCommunications();
+            // Remove replied communications from the list
+            const repliedCommunicationIds = sentReplies.map(reply => reply.communicationId);
+            setCommunications(prev => 
+              prev.filter(comm => !repliedCommunicationIds.includes(comm.id))
+            );
           }}
         />
       </CardContent>

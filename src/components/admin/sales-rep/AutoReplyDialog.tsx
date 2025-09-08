@@ -27,9 +27,10 @@ interface AutoReplyDialogProps {
   onOpenChange: (open: boolean) => void;
   communication: Communication | null;
   onReplyGenerated?: (reply: { subject?: string; content: string }) => void;
+  onReplySent?: () => void;
 }
 
-export function AutoReplyDialog({ open, onOpenChange, communication, onReplyGenerated }: AutoReplyDialogProps) {
+export function AutoReplyDialog({ open, onOpenChange, communication, onReplyGenerated, onReplySent }: AutoReplyDialogProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [generatedSubject, setGeneratedSubject] = useState('');
@@ -104,6 +105,9 @@ export function AutoReplyDialog({ open, onOpenChange, communication, onReplyGene
         description: `${communication.type === 'email' ? 'Email' : 'Message'} reply sent successfully.`,
       });
 
+      // Call the onReplySent callback to update parent component
+      onReplySent?.();
+      
       onOpenChange(false);
       
       // Reset form

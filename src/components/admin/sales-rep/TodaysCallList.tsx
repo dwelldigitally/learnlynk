@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 import { cn } from '@/lib/utils';
-import { Phone, Clock, AlertTriangle, Star, PhoneCall, User } from 'lucide-react';
+import { Phone, Clock, AlertTriangle, Star, PhoneCall, User, Zap, Users } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 
@@ -167,6 +167,12 @@ export function TodaysCallList() {
     }
   };
 
+  const handleBulkCall = () => {
+    console.log('Starting bulk calling session for', callList.length, 'leads');
+    // Here you would implement bulk calling logic
+    // Could open a dedicated bulk calling interface
+  };
+
   const getCallTypeColor = (type: string) => {
     switch (type) {
       case 'overdue': return 'text-destructive';
@@ -221,6 +227,17 @@ export function TodaysCallList() {
           <Phone className="w-4 h-4" />
           Today's Call List
           <Badge variant="secondary" className="ml-auto">{callList.length}</Badge>
+          {callList.length > 1 && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              className="h-6 px-2 text-xs gap-1 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-700 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100"
+              onClick={handleBulkCall}
+            >
+              <Zap className="w-3 h-3" />
+              Start Bulk Calling
+            </Button>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent>

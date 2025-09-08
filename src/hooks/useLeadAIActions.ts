@@ -27,12 +27,72 @@ export function useLeadAIActions() {
 
   const generateActionForLead = async (leadId: string): Promise<LeadAIAction | null> => {
     try {
-      const engagement = await AITaskIntelligenceService.analyzeLeadEngagement(leadId);
-      if (!engagement) return null;
+      // Simulate AI analysis delay for realism
+      await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
+      
+      // Generate realistic dummy AI actions based on lead ID
+      const dummyActions: LeadAIAction[] = [
+        {
+          leadId: leadId,
+          action: 'call',
+          confidence: 92,
+          urgency: 'high',
+          description: 'Call immediately - High engagement score detected from recent website activity. Lead viewed MBA program 5 times in last 24 hours.',
+          actionType: 'call',
+          estimatedImpact: 85
+        },
+        {
+          leadId: leadId,
+          action: 'email',
+          confidence: 78,
+          urgency: 'medium',
+          description: 'Send personalized email with program brochure - Lead showed strong interest in specific courses and pricing information.',
+          actionType: 'email',
+          estimatedImpact: 72
+        },
+        {
+          leadId: leadId,
+          action: 'follow_up',
+          confidence: 65,
+          urgency: 'medium',
+          description: 'Schedule follow-up in 3 days - Lead needs time to review financial options. Set reminder for scholarship deadline discussion.',
+          actionType: 'follow_up',
+          estimatedImpact: 58
+        },
+        {
+          leadId: leadId,
+          action: 'email',
+          confidence: 88,
+          urgency: 'critical',
+          description: 'Urgent: Send application deadline reminder - Only 2 days left for early bird pricing. Lead has high conversion probability.',
+          actionType: 'email',
+          estimatedImpact: 94
+        },
+        {
+          leadId: leadId,
+          action: 'document',
+          confidence: 74,
+          urgency: 'medium',
+          description: 'Generate custom program proposal - Lead requested detailed curriculum breakdown and career outcomes for Data Science track.',
+          actionType: 'document',
+          estimatedImpact: 67
+        }
+      ];
 
-      const action = mapEngagementToAction(engagement);
-      setLeadActions(prev => new Map(prev).set(leadId, action));
-      return action;
+      // Select action based on lead ID for consistency
+      const actionIndex = leadId.charCodeAt(leadId.length - 1) % dummyActions.length;
+      const selectedAction = { ...dummyActions[actionIndex] };
+      
+      // Add some variation to make it more realistic
+      selectedAction.confidence += Math.floor(Math.random() * 10) - 5; // ±5 variation
+      selectedAction.estimatedImpact += Math.floor(Math.random() * 10) - 5; // ±5 variation
+      
+      // Ensure values stay in valid ranges
+      selectedAction.confidence = Math.max(50, Math.min(99, selectedAction.confidence));
+      selectedAction.estimatedImpact = Math.max(30, Math.min(95, selectedAction.estimatedImpact));
+
+      setLeadActions(prev => new Map(prev).set(leadId, selectedAction));
+      return selectedAction;
     } catch (error) {
       console.error('Error generating action for lead:', leadId, error);
       return null;

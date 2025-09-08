@@ -393,7 +393,7 @@ export function NewlyAssignedLeads() {
 
                       {/* AI Action Section */}
                       {aiAction ? (
-                        <div className="mt-2 p-3 bg-accent/50 rounded-lg border border-accent/30">
+                        <div className="mt-2 p-3 bg-white rounded-lg border border-gray-300">
                           <div className="flex items-center gap-2 mb-2">
                             <Brain className="w-4 h-4 text-primary" />
                             <span className="text-xs font-medium text-primary">AI Next Best Action</span>

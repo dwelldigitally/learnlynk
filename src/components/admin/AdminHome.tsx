@@ -102,7 +102,7 @@ const AdminHome: React.FC = () => {
       description: "See what needs your attention today",
       icon: Calendar,
       color: "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20",
-      onClick: () => navigate("/admin/overview")
+      onClick: () => navigate("/admin/sales-rep-dashboard")
     },
     {
       title: "Student Lookup",

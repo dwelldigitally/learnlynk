@@ -1,4 +1,4 @@
-interface DummyEmail {
+export interface DummyEmail {
   id: string;
   from_name: string;
   from_email: string;

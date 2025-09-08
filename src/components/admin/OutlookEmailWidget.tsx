@@ -18,6 +18,7 @@ import {
 import { toast } from 'sonner';
 import { MicrosoftGraphService } from '@/services/microsoftGraphService';
 import { format } from 'date-fns';
+import { generateDummyEmails, type DummyEmail } from '@/services/dummyEmailService';
 
 interface OutlookEmail {
   id: string;
@@ -45,6 +46,7 @@ export function OutlookEmailWidget() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEmail, setSelectedEmail] = useState<OutlookEmail | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
     checkConnection();
@@ -64,6 +66,44 @@ export function OutlookEmailWidget() {
       console.error('Error checking Outlook connection:', error);
       setLoading(false);
     }
+  };
+
+  const convertDummyEmailToOutlookEmail = (dummyEmail: DummyEmail): OutlookEmail => {
+    return {
+      id: dummyEmail.id,
+      subject: dummyEmail.subject,
+      sender: {
+        emailAddress: {
+          name: dummyEmail.from_name,
+          address: dummyEmail.from_email
+        }
+      },
+      receivedDateTime: dummyEmail.received_datetime,
+      bodyPreview: dummyEmail.body_preview,
+      importance: dummyEmail.importance,
+      isRead: dummyEmail.is_read,
+      hasAttachments: dummyEmail.has_attachments
+    };
+  };
+
+  const loadDemoEmails = () => {
+    setLoading(true);
+    try {
+      const dummyEmails = generateDummyEmails();
+      const convertedEmails = dummyEmails.map(convertDummyEmailToOutlookEmail);
+      setEmails(convertedEmails);
+    } catch (error) {
+      console.error('Error loading demo emails:', error);
+      toast.error('Failed to load demo emails');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const enableDemoMode = () => {
+    setDemoMode(true);
+    setIsConnected(true);
+    loadDemoEmails();
   };
 
   const connectOutlook = async () => {
@@ -120,12 +160,22 @@ export function OutlookEmailWidget() {
   };
 
   const refreshEmails = () => {
-    if (accessToken) {
+    if (demoMode) {
+      loadDemoEmails();
+    } else if (accessToken) {
       loadRecentEmails(accessToken);
     }
   };
 
   const markAsRead = async (emailId: string) => {
+    if (demoMode) {
+      // Demo mode - just update local state
+      setEmails(emails.map(email => 
+        email.id === emailId ? { ...email, isRead: true } : email
+      ));
+      return;
+    }
+    
     if (!accessToken) return;
     
     try {
@@ -176,10 +226,16 @@ export function OutlookEmailWidget() {
               View and manage your emails from Outlook
             </p>
           </div>
-          <Button onClick={connectOutlook} className="mt-4">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Connect Outlook
-          </Button>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={connectOutlook}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Connect Outlook
+            </Button>
+            <Button variant="outline" onClick={enableDemoMode}>
+              <Mail className="h-4 w-4 mr-2" />
+              Demo Mode
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -192,6 +248,11 @@ export function OutlookEmailWidget() {
           <div className="flex items-center space-x-2">
             <Mail className="h-5 w-5" />
             <CardTitle>Outlook Email</CardTitle>
+            {demoMode && (
+              <Badge variant="secondary" className="text-xs">
+                Demo Mode
+              </Badge>
+            )}
             {unreadCount > 0 && (
               <Badge variant="destructive" className="text-xs">
                 {unreadCount} unread
@@ -203,7 +264,7 @@ export function OutlookEmailWidget() {
           </Button>
         </div>
         <CardDescription>
-          Recent emails from your Outlook inbox
+          {demoMode ? 'Demo emails for product demonstration' : 'Recent emails from your Outlook inbox'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -296,7 +357,7 @@ export function OutlookEmailWidget() {
           </div>
         )}
 
-        {emails.length > 0 && (
+        {emails.length > 0 && !demoMode && (
           <div className="flex justify-center pt-2">
             <Button 
               variant="outline" 
@@ -305,6 +366,22 @@ export function OutlookEmailWidget() {
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Open in Outlook
+            </Button>
+          </div>
+        )}
+        
+        {demoMode && (
+          <div className="flex justify-center pt-2">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                setDemoMode(false);
+                setIsConnected(false);
+                setEmails([]);
+              }}
+            >
+              Exit Demo Mode
             </Button>
           </div>
         )}

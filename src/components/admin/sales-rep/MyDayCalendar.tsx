@@ -38,65 +38,91 @@ export function MyDayCalendar() {
           id: '1',
           title: 'Intake Meeting - Sarah Johnson',
           type: 'intake',
-          start_time: new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-          description: 'MBA program intake discussion - high priority lead',
+          start_time: new Date(Date.now() + 0.5 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 1.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Data Science Masters program inquiry - High priority lead with CS background',
           lead_name: 'Sarah Johnson',
           is_virtual: true,
-          meeting_link: 'https://zoom.us/j/123456789'
+          meeting_link: 'https://zoom.us/j/123456789',
+          location: 'Virtual Meeting Room'
         },
         {
           id: '2',
-          title: 'Follow-up Call - Michael Chen',
-          type: 'follow_up',
-          start_time: new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 3.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Discuss Business Analytics program and answer technical questions',
+          title: 'Application Review - Michael Chen',
+          type: 'meeting',
+          start_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(),
+          description: 'MBA application status review - GMAT score 720, all documents submitted',
           lead_name: 'Michael Chen',
-          is_virtual: false
+          attendees: ['Michael Chen', 'Admissions Team'],
+          is_virtual: false,
+          location: 'Conference Room B'
         },
         {
           id: '3',
-          title: 'Program Demo - Tech Bootcamp',
+          title: 'Corporate Training Demo - TechCorp',
           type: 'demo',
-          start_time: new Date(Date.now() + 5 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
-          description: 'Live demo of our coding bootcamp curriculum for prospective students',
-          attendees: ['Emily Rodriguez', 'James Wilson', 'Rachel Green'],
+          start_time: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Corporate training program demo for 150 employees - $200k-350k budget',
+          attendees: ['Jennifer Lopez', 'Business Dev Team', 'Training Coordinators'],
           is_virtual: true,
-          meeting_link: 'https://zoom.us/j/987654321'
+          meeting_link: 'https://zoom.us/j/corporatedemo',
+          location: 'Virtual Presentation Room'
         },
         {
           id: '4',
-          title: 'Team Standup',
-          type: 'meeting',
-          start_time: new Date(Date.now() + 6.5 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 7 * 60 * 60 * 1000).toISOString(),
-          description: 'Daily sales team standup - review progress and blocked items',
-          attendees: ['Sales Team'],
-          is_virtual: true,
-          meeting_link: 'https://zoom.us/j/teamstandup'
+          title: 'Document Verification - Alex Kumar',
+          type: 'follow_up',
+          start_time: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 6.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Help with student portal access issues - CS Year 2 student',
+          lead_name: 'Alex Kumar',
+          is_virtual: false,
+          location: 'IT Support Office'
         },
         {
           id: '5',
-          title: 'Decision Call - David Kim',
-          type: 'call',
-          start_time: new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString(),
+          title: 'Partnership Discussion - Dr. Emily Rodriguez',
+          type: 'meeting',
+          start_time: new Date(Date.now() + 7.5 * 60 * 60 * 1000).toISOString(),
           end_time: new Date(Date.now() + 8.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Executive MBA proposal review and decision discussion',
-          lead_name: 'David Kim',
-          is_virtual: false
+          description: 'Research collaboration & student exchange opportunities with State University',
+          attendees: ['Dr. Emily Rodriguez', 'Business Development', 'Academic Affairs'],
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/partnership'
         },
         {
           id: '6',
-          title: 'Application Support - Lisa Wang',
-          type: 'meeting',
+          title: 'Scholarship Follow-up - David Park',
+          type: 'follow_up',
           start_time: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString(),
           end_time: new Date(Date.now() + 9.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Help with application submission and document requirements',
-          lead_name: 'Lisa Wang',
+          description: 'Merit scholarship recipient orientation and welcome package delivery',
+          lead_name: 'David Park',
           is_virtual: true,
-          meeting_link: 'https://zoom.us/j/appsupport'
+          meeting_link: 'https://zoom.us/j/orientation'
+        },
+        {
+          id: '7',
+          title: 'Program Consultation - Jennifer Smith',
+          type: 'intake',
+          start_time: new Date(Date.now() + 10.5 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 11 * 60 * 60 * 1000).toISOString(),
+          description: 'Career transition consultation for Marketing Analytics program',
+          lead_name: 'Jennifer Smith',
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/consultation'
+        },
+        {
+          id: '8',
+          title: 'Application Deadline Reminder Calls',
+          type: 'call',
+          start_time: new Date(Date.now() + 11.5 * 60 * 60 * 1000).toISOString(),
+          end_time: new Date(Date.now() + 12.5 * 60 * 60 * 1000).toISOString(),
+          description: 'Call 15 prospects about upcoming Fall 2024 application deadline',
+          attendees: ['Prospect List - Fall 2024'],
+          is_virtual: false
         }
       ];
       

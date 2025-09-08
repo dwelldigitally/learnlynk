@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { PolicyConfigurationService, type PolicyConfig } from '@/services/policyConfigurationService';
-import { Shield, Clock, MessageSquare, StopCircle, Settings } from 'lucide-react';
+import { PolicyActivityCard } from './PolicyActivityCard';
+import { Shield, Clock, MessageSquare, StopCircle, Settings, TrendingUp } from 'lucide-react';
 
 export function PoliciesConfiguration() {
   const [policies, setPolicies] = useState<PolicyConfig[]>([]);
@@ -280,6 +281,9 @@ export function PoliciesConfiguration() {
         </CardContent>
       </Card>
 
+      {/* Demo Activity Section */}
+      <PolicyActivityCard />
+
       {/* Explanation */}
       <Card className="border-primary/20 bg-primary/5">
         <CardContent className="p-6">
@@ -311,11 +315,19 @@ export function PoliciesConfiguration() {
                     {getPolicyIcon(policy.policy_name)}
                   </div>
                   <div>
-                    <CardTitle className="text-lg">{policy.policy_name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-lg">{policy.policy_name.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</CardTitle>
+                      {policy.enabled && policy.expected_lift && (
+                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-xs">
+                          <TrendingUp className="h-3 w-3 mr-1" />
+                          +{policy.expected_lift}% lift
+                        </Badge>
+                      )}
+                    </div>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {policy.policy_name === 'quiet_hours' && 'Queue communications during quiet hours'}
-                      {policy.policy_name === 'message_pacing' && 'Limit the frequency of messages sent to students'}
-                      {policy.policy_name === 'stop_triggers' && 'Stop marketing communications based on student actions'}
+                      {policy.policy_name === 'quiet_hours' && 'Queue communications during quiet hours - improves response rates'}
+                      {policy.policy_name === 'message_pacing' && 'Limit the frequency of messages sent to students - reduces unsubscribes'}
+                      {policy.policy_name === 'stop_triggers' && 'Stop marketing communications based on student actions - prevents complaints'}
                     </p>
                   </div>
                 </div>

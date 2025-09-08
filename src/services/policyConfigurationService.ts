@@ -182,38 +182,70 @@ export class PolicyConfigurationService {
     const defaultPolicies = [
       {
         policy_name: 'quiet_hours',
-        enabled: false,
+        enabled: true,
         settings: {
-          enabled: false,
-          start_time: '21:00',
-          end_time: '08:00'
+          enabled: true,
+          start_time: '20:00',
+          end_time: '09:00'
         },
-        expected_lift: 0
+        expected_lift: 15
       },
       {
         policy_name: 'message_pacing',
-        enabled: false,
+        enabled: true,
         settings: {
-          enabled: false,
-          max_messages_per_day: 2,
-          min_hours_between: 3
+          enabled: true,
+          max_messages_per_day: 3,
+          min_hours_between: 4
         },
-        expected_lift: 0
+        expected_lift: 23
       },
       {
         policy_name: 'stop_triggers',
-        enabled: false,
+        enabled: true,
         settings: {
-          enabled: false,
+          enabled: true,
           stop_on_deposit: true,
           stop_on_enrollment: true
         },
-        expected_lift: 0
+        expected_lift: 41
       }
     ];
 
     for (const policy of defaultPolicies) {
       await this.upsertConfiguration(policy.policy_name, policy);
     }
+  }
+
+  // Demo policy activity data
+  static async getDemoPolicyActivity(): Promise<{
+    totalBlocked: number;
+    queuedMessages: number;
+    complianceRate: number;
+    weeklyActivity: Array<{ day: string; blocked: number; queued: number }>;
+    recentActions: Array<{ time: string; action: string; policy: string; reason: string }>;
+  }> {
+    // Simulate realistic demo data
+    return {
+      totalBlocked: 247,
+      queuedMessages: 52,
+      complianceRate: 98.5,
+      weeklyActivity: [
+        { day: 'Mon', blocked: 23, queued: 8 },
+        { day: 'Tue', blocked: 31, queued: 12 },
+        { day: 'Wed', blocked: 28, queued: 7 },
+        { day: 'Thu', blocked: 35, queued: 15 },
+        { day: 'Fri', blocked: 42, queued: 18 },
+        { day: 'Sat', blocked: 19, queued: 4 },
+        { day: 'Sun', blocked: 15, queued: 3 }
+      ],
+      recentActions: [
+        { time: '2 min ago', action: 'SMS blocked', policy: 'Quiet Hours', reason: 'Outside business hours' },
+        { time: '15 min ago', action: 'Email queued', policy: 'Message Pacing', reason: 'Too many recent messages' },
+        { time: '32 min ago', action: 'Call blocked', policy: 'Stop Triggers', reason: 'Student has deposited' },
+        { time: '1 hr ago', action: 'SMS queued', policy: 'Quiet Hours', reason: 'Weekend quiet period' },
+        { time: '2 hr ago', action: 'Email blocked', policy: 'Stop Triggers', reason: 'Enrollment complete' }
+      ]
+    };
   }
 }

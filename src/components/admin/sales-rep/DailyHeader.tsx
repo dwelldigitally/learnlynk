@@ -245,35 +245,6 @@ export function DailyHeader() {
             </div>
           </div>
 
-          {/* Smart Insights Section */}
-          <div className="mt-6 space-y-3">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-6 bg-primary/60 rounded-full"></div>
-              <h3 className="text-foreground font-semibold text-sm uppercase tracking-wide">Smart Insights</h3>
-            </div>
-            
-            <div className="flex flex-wrap gap-3">
-              <div className="flex items-center gap-3 bg-gradient-to-r from-emerald-100/80 to-emerald-50/60 dark:from-emerald-900/30 dark:to-emerald-800/20 backdrop-blur-sm border border-emerald-200 dark:border-emerald-700/40 rounded-lg px-4 py-3 hover:border-emerald-300 dark:hover:border-emerald-600/60 transition-all duration-300">
-                <div className="w-8 h-8 bg-emerald-200 dark:bg-emerald-800/50 rounded-lg flex items-center justify-center">
-                  <Target className="w-4 h-4 text-emerald-700 dark:text-emerald-300" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-foreground">AI Priority Alert</div>
-                  <div className="text-xs text-muted-foreground">3 high-value leads opened your emails yesterday</div>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-3 bg-gradient-to-r from-blue-100/80 to-blue-50/60 dark:from-blue-900/30 dark:to-blue-800/20 backdrop-blur-sm border border-blue-200 dark:border-blue-700/40 rounded-lg px-4 py-3 hover:border-blue-300 dark:hover:border-blue-600/60 transition-all duration-300">
-                <div className="w-8 h-8 bg-blue-200 dark:bg-blue-800/50 rounded-lg flex items-center justify-center">
-                  <Clock className="w-4 h-4 text-blue-700 dark:text-blue-300" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-foreground">Next Meeting</div>
-                  <div className="text-xs text-muted-foreground">Sales Review with Team in 1h 15m</div>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Mobile Time/Status Panel */}
           {isMobile && (

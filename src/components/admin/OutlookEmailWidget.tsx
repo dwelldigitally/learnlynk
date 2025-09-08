@@ -46,10 +46,11 @@ export function OutlookEmailWidget() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedEmail, setSelectedEmail] = useState<OutlookEmail | null>(null);
-  const [demoMode, setDemoMode] = useState(false);
+  const [demoMode, setDemoMode] = useState(true);
 
   useEffect(() => {
-    checkConnection();
+    // Always start in demo mode
+    enableDemoMode();
   }, []);
 
   const checkConnection = async () => {

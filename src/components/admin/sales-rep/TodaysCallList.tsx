@@ -230,8 +230,7 @@ export function TodaysCallList() {
           {callList.length > 1 && (
             <Button 
               size="sm" 
-              variant="outline" 
-              className="h-6 px-2 text-xs gap-1 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-700 hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100"
+              className="h-7 px-3 text-xs gap-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-lg transition-all duration-200 border-0"
               onClick={handleBulkCall}
             >
               <Zap className="w-3 h-3" />

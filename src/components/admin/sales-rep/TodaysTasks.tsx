@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -172,21 +171,21 @@ export function TodaysTasks() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="pb-3 p-6">
+          <div className="text-base flex items-center gap-2">
             <CheckSquare className="w-4 h-4" />
-            Today's Tasks
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+            Loading...
+          </div>
+        </div>
+        <div className="p-6 pt-0">
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse bg-muted rounded-lg h-16"></div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 

@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -268,21 +267,21 @@ export function NewlyAssignedLeads() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div className="pb-3 p-6">
+          <div className="text-base flex items-center gap-2">
             <User className="w-4 h-4" />
-            Newly Assigned Leads
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+            Loading...
+          </div>
+        </div>
+        <div className="p-6 pt-0">
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
               <div key={i} className="animate-pulse bg-muted rounded-lg h-16"></div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 

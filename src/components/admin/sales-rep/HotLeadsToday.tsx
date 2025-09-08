@@ -31,6 +31,9 @@ export function HotLeadsToday() {
   const [showPlaybookDialog, setShowPlaybookDialog] = useState(false);
   const [isEnrolling, setIsEnrolling] = useState(false);
 
+  // Debug logging for dialog state
+  console.log('Dialog state:', { showPlaybookDialog, selectedLead: selectedLead?.first_name });
+
   useEffect(() => {
     loadHotLeads();
   }, []);
@@ -225,6 +228,9 @@ export function HotLeadsToday() {
   };
 
   const handleAIPlayEnrollment = (lead: HotLead) => {
+    console.log('AI Play button clicked for lead:', lead.first_name, lead.last_name);
+    console.log('Setting selectedLead:', lead);
+    console.log('Setting showPlaybookDialog to true');
     setSelectedLead(lead);
     setShowPlaybookDialog(true);
   };
@@ -396,8 +402,11 @@ export function HotLeadsToday() {
       </CardContent>
       
       {/* AI Playbook Confirmation Dialog */}
-      <Dialog open={showPlaybookDialog} onOpenChange={setShowPlaybookDialog}>
-        <DialogContent className="max-w-lg">
+      <Dialog open={showPlaybookDialog} onOpenChange={(open) => {
+        console.log('Dialog onOpenChange called with:', open);
+        setShowPlaybookDialog(open);
+      }}>
+        <DialogContent className="max-w-lg z-50">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-blue-500" />

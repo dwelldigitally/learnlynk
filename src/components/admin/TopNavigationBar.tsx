@@ -21,13 +21,6 @@ import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
 import { UniversalTaskModal } from "./UniversalTaskModal";
 import { AIActionsMenu } from "./AIActionsMenu";
-import { 
-  RealTimeClock, 
-  QuickStats, 
-  UserContextInfo, 
-  SystemStatus, 
-  NextAppointmentReminder 
-} from "./TopNavEnhancements";
 
 interface TopNavigationBarProps {
   activeSection: string;
@@ -151,27 +144,7 @@ export function TopNavigationBar({
           </nav>
         </div>
 
-        {/* Center - Enhanced Info Section */}
-        <div className="hidden lg:flex items-center space-x-6 flex-shrink-0">
-          <RealTimeClock />
-          <div className="w-px h-8 bg-white/20" />
-          <QuickStats />
-          <div className="w-px h-8 bg-white/20" />
-          <SystemStatus />
-        </div>
-
-        {/* Right side - Search + Actions */}
         <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
-          {/* User Context - Mobile/Tablet */}
-          <div className="lg:hidden">
-            <UserContextInfo />
-          </div>
-
-          {/* Next Appointment - Desktop Only */}
-          <div className="hidden xl:block">
-            <NextAppointmentReminder />
-          </div>
-          {/* Mobile Search Toggle */}
           {isMobile && (
             <Button
               variant="ghost"
@@ -229,8 +202,8 @@ export function TopNavigationBar({
                     <User className="w-3 h-3 sm:w-4 sm:h-4" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden lg:block">
-                  <UserContextInfo />
+                <div className="hidden lg:block text-right">
+                  <div className="text-xs font-medium">Account</div>
                 </div>
                 {!isMobile && <ChevronDown className="w-2 h-2 sm:w-3 sm:h-3 text-white/60" />}
               </Button>

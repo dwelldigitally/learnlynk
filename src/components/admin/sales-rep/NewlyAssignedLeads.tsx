@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,7 @@ export function NewlyAssignedLeads() {
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
   const [previewAction, setPreviewAction] = useState<{ lead: Lead; action: LeadAIAction } | null>(null);
   const [showBulkActions, setShowBulkActions] = useState(false);
+  const [actionsGenerated, setActionsGenerated] = useState(false);
   
   const {
     isGenerating,
@@ -35,12 +36,17 @@ export function NewlyAssignedLeads() {
     loadNewlyAssignedLeads();
   }, []);
 
-  useEffect(() => {
-    if (leads.length > 0) {
+  const generateActions = useCallback(async () => {
+    if (leads.length > 0 && !actionsGenerated) {
       const leadIds = leads.map(lead => lead.id);
-      generateActionsForLeads(leadIds);
+      await generateActionsForLeads(leadIds);
+      setActionsGenerated(true);
     }
-  }, [leads]);
+  }, [leads, actionsGenerated, generateActionsForLeads]);
+
+  useEffect(() => {
+    generateActions();
+  }, [generateActions]);
 
   const loadNewlyAssignedLeads = async () => {
     try {

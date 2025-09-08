@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Phone, Mail, CheckCircle, Target, Calendar } from 'lucide-react';
+import { Phone, Mail, CheckCircle, Target, Calendar, Clock, Wifi, WifiOff, Users, AlertCircle } from 'lucide-react';
 
 export function DailyHeader() {
   const { user } = useAuth();
@@ -20,10 +20,30 @@ export function DailyHeader() {
   });
 
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [lastSync, setLastSync] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const syncTimer = setInterval(() => setLastSync(new Date()), 30000);
+    return () => clearInterval(syncTimer);
+  }, []);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
   }, []);
 
   const getGreeting = () => {
@@ -49,17 +69,81 @@ export function DailyHeader() {
     return user?.email?.split('@')[0] || 'Sales Rep';
   };
 
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
+
+  const formatRelativeTime = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="bg-gradient-primary border-b border-border">
       <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
         <div className={cn("flex gap-4", isMobile ? "flex-col" : "flex-col lg:flex-row lg:items-center lg:justify-between")}>
           <div className="text-primary-foreground">
-            <h1 className={cn("font-bold", isMobile ? "text-xl" : "text-2xl")}>
-              {getGreeting()}, {getDisplayName()}! 👋
-            </h1>
-            <p className={cn("opacity-90 mt-1", isMobile ? "text-sm" : "")}>
-              {formatDate(currentTime)} • Let's make today count!
-            </p>
+            <div className="flex items-center gap-4 mb-2">
+              <div>
+                <h1 className={cn("font-bold", isMobile ? "text-xl" : "text-2xl")}>
+                  {getGreeting()}, {getDisplayName()}! 👋
+                </h1>
+                {profile?.title && (
+                  <p className={cn("opacity-80 text-sm mt-0.5")}>
+                    {profile.title} {profile.department && `• ${profile.department}`}
+                  </p>
+                )}
+              </div>
+              
+              {!isMobile && (
+                <div className="ml-auto flex items-center gap-4">
+                  <div className="text-right">
+                    <div className="text-lg font-mono font-bold">
+                      {formatTime(currentTime)}
+                    </div>
+                    <div className="text-xs opacity-80">
+                      {currentTime.toLocaleDateString('en-US', { timeZoneName: 'short' }).split(', ')[1]}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    {isOnline ? (
+                      <Wifi className="w-4 h-4 text-green-400" />
+                    ) : (
+                      <WifiOff className="w-4 h-4 text-red-400" />
+                    )}
+                    <div className="text-xs opacity-80">
+                      {isOnline ? 'Online' : 'Offline'}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <p className={cn("opacity-90", isMobile ? "text-sm" : "")}>
+                {formatDate(currentTime)} • Let's make today count!
+              </p>
+              
+              {!isMobile && (
+                <div className="text-xs opacity-80">
+                  Last sync: {formatRelativeTime(lastSync)}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className={cn("grid gap-4", isMobile ? "grid-cols-2" : "grid-cols-4")}>
@@ -97,11 +181,16 @@ export function DailyHeader() {
           </div>
         </div>
 
-        {/* AI Priority Recommendation */}
-        <div className="mt-4">
+        {/* AI Priority Recommendation and Next Appointment */}
+        <div className="mt-4 flex flex-wrap items-center gap-4">
           <Badge variant="secondary" className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30">
             <Target className="w-3 h-3 mr-1" />
             AI Suggestion: Focus on 3 high-value leads from yesterday who opened your emails
+          </Badge>
+          
+          <Badge variant="outline" className="bg-primary-foreground/10 text-primary-foreground border-primary-foreground/30">
+            <Users className="w-3 h-3 mr-1" />
+            Next: Sales Review with Team in 1h 15m
           </Badge>
         </div>
       </div>

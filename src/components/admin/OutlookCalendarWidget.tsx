@@ -50,6 +50,7 @@ export function OutlookCalendarWidget() {
   const [loading, setLoading] = useState(true);
   const [isConnected, setIsConnected] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [demoMode, setDemoMode] = useState(false);
 
   useEffect(() => {
     checkConnection();
@@ -94,6 +95,130 @@ export function OutlookCalendarWidget() {
     }
   };
 
+  const generateDemoEvents = (): CalendarEvent[] => {
+    const now = new Date();
+    const startOfToday = startOfDay(now);
+    
+    return [
+      {
+        id: 'demo-1',
+        subject: 'Intake Meeting - Sarah Johnson',
+        start: {
+          dateTime: new Date(startOfToday.getTime() + 9 * 60 * 60 * 1000).toISOString(), // 9 AM
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: new Date(startOfToday.getTime() + 10 * 60 * 60 * 1000).toISOString(), // 10 AM
+          timeZone: 'UTC'
+        },
+        bodyPreview: 'Data Science Masters program inquiry - High priority lead with CS background',
+        location: { displayName: 'Virtual Meeting Room' },
+        attendees: [{ emailAddress: { name: 'Sarah Johnson', address: 'sarah.johnson@email.com' } }],
+        isOnlineMeeting: true,
+        onlineMeeting: { joinUrl: 'https://teams.microsoft.com/join/demo1' },
+        importance: 'high'
+      },
+      {
+        id: 'demo-2',
+        subject: 'Application Review - Michael Chen',
+        start: {
+          dateTime: new Date(startOfToday.getTime() + 11 * 60 * 60 * 1000).toISOString(), // 11 AM
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: new Date(startOfToday.getTime() + 11.5 * 60 * 60 * 1000).toISOString(), // 11:30 AM
+          timeZone: 'UTC'
+        },
+        bodyPreview: 'MBA application status review - GMAT score 720, all documents submitted',
+        location: { displayName: 'Conference Room B' },
+        attendees: [
+          { emailAddress: { name: 'Michael Chen', address: 'm.chen.dev@gmail.com' } },
+          { emailAddress: { name: 'Admissions Team', address: 'admissions@college.edu' } }
+        ],
+        isOnlineMeeting: false,
+        importance: 'normal'
+      },
+      {
+        id: 'demo-3',
+        subject: 'Corporate Training Demo - TechCorp',
+        start: {
+          dateTime: new Date(startOfToday.getTime() + 14 * 60 * 60 * 1000).toISOString(), // 2 PM
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: new Date(startOfToday.getTime() + 15.5 * 60 * 60 * 1000).toISOString(), // 3:30 PM
+          timeZone: 'UTC'
+        },
+        bodyPreview: 'Corporate training program demo for 150 employees - $200k-350k budget',
+        location: { displayName: 'Virtual Presentation Room' },
+        attendees: [
+          { emailAddress: { name: 'Jennifer Lopez', address: 'jlopez.finance@company.com' } },
+          { emailAddress: { name: 'Business Dev Team', address: 'bizdev@college.edu' } }
+        ],
+        isOnlineMeeting: true,
+        onlineMeeting: { joinUrl: 'https://teams.microsoft.com/join/demo3' },
+        importance: 'high'
+      },
+      {
+        id: 'demo-4',
+        subject: 'Student Support - Alex Kumar',
+        start: {
+          dateTime: new Date(startOfToday.getTime() + 16 * 60 * 60 * 1000).toISOString(), // 4 PM
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: new Date(startOfToday.getTime() + 16.5 * 60 * 60 * 1000).toISOString(), // 4:30 PM
+          timeZone: 'UTC'
+        },
+        bodyPreview: 'Help with student portal access issues - CS Year 2 student',
+        location: { displayName: 'IT Support Office' },
+        attendees: [{ emailAddress: { name: 'Alex Kumar', address: 'alex.kumar.2024@outlook.com' } }],
+        isOnlineMeeting: false,
+        importance: 'normal'
+      },
+      {
+        id: 'demo-5',
+        subject: 'Partnership Discussion - Dr. Emily Rodriguez',
+        start: {
+          dateTime: new Date(startOfToday.getTime() + 17 * 60 * 60 * 1000).toISOString(), // 5 PM
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: new Date(startOfToday.getTime() + 18 * 60 * 60 * 1000).toISOString(), // 6 PM
+          timeZone: 'UTC'
+        },
+        bodyPreview: 'Research collaboration & student exchange opportunities with State University',
+        location: { displayName: 'Virtual Conference Room' },
+        attendees: [
+          { emailAddress: { name: 'Dr. Emily Rodriguez', address: 'e.rodriguez@university.edu' } },
+          { emailAddress: { name: 'Academic Affairs', address: 'academic@college.edu' } }
+        ],
+        isOnlineMeeting: true,
+        onlineMeeting: { joinUrl: 'https://teams.microsoft.com/join/demo5' },
+        importance: 'normal'
+      }
+    ];
+  };
+
+  const loadDemoEvents = () => {
+    setLoading(true);
+    try {
+      const demoEvents = generateDemoEvents();
+      setEvents(demoEvents);
+    } catch (error) {
+      console.error('Error loading demo events:', error);
+      toast.error('Failed to load demo events');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const enableDemoMode = () => {
+    setDemoMode(true);
+    setIsConnected(true);
+    loadDemoEvents();
+  };
+
   const loadTodaysEvents = async (token: string) => {
     setLoading(true);
     try {
@@ -116,7 +241,9 @@ export function OutlookCalendarWidget() {
   };
 
   const refreshEvents = () => {
-    if (accessToken) {
+    if (demoMode) {
+      loadDemoEvents();
+    } else if (accessToken) {
       loadTodaysEvents(accessToken);
     }
   };
@@ -173,10 +300,16 @@ export function OutlookCalendarWidget() {
               View and manage your daily schedule from Outlook
             </p>
           </div>
-          <Button onClick={connectOutlook} className="mt-4">
-            <ExternalLink className="h-4 w-4 mr-2" />
-            Connect Outlook
-          </Button>
+          <div className="flex gap-2 mt-4">
+            <Button onClick={connectOutlook}>
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Connect Outlook
+            </Button>
+            <Button variant="outline" onClick={enableDemoMode}>
+              <Calendar className="h-4 w-4 mr-2" />
+              Demo Mode
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -189,6 +322,11 @@ export function OutlookCalendarWidget() {
           <div className="flex items-center space-x-2">
             <Calendar className="h-5 w-5" />
             <CardTitle>My Day Calendar</CardTitle>
+            {demoMode && (
+              <Badge variant="secondary" className="text-xs">
+                Demo Mode
+              </Badge>
+            )}
           </div>
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="sm" onClick={refreshEvents}>
@@ -200,10 +338,25 @@ export function OutlookCalendarWidget() {
           </div>
         </div>
         <CardDescription>
-          Today's schedule from Outlook
+          {demoMode ? 'Demo calendar events for product demonstration' : 'Today\'s schedule from Outlook'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
+        {demoMode && (
+          <div className="flex justify-end">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                setDemoMode(false);
+                setIsConnected(false);
+                setEvents([]);
+              }}
+            >
+              Exit Demo Mode
+            </Button>
+          </div>
+        )}
         {loading ? (
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (

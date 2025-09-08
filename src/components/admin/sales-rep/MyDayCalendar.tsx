@@ -32,7 +32,7 @@ export function MyDayCalendar() {
 
   const loadTodaysEvents = async () => {
     try {
-      // Enhanced mock calendar events for today
+      // Enhanced mock calendar events for today (reduced to 3 events)
       const mockEvents: CalendarEvent[] = [
         {
           id: '1',
@@ -69,60 +69,6 @@ export function MyDayCalendar() {
           is_virtual: true,
           meeting_link: 'https://zoom.us/j/corporatedemo',
           location: 'Virtual Presentation Room'
-        },
-        {
-          id: '4',
-          title: 'Document Verification - Alex Kumar',
-          type: 'follow_up',
-          start_time: new Date(Date.now() + 6 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 6.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Help with student portal access issues - CS Year 2 student',
-          lead_name: 'Alex Kumar',
-          is_virtual: false,
-          location: 'IT Support Office'
-        },
-        {
-          id: '5',
-          title: 'Partnership Discussion - Dr. Emily Rodriguez',
-          type: 'meeting',
-          start_time: new Date(Date.now() + 7.5 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 8.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Research collaboration & student exchange opportunities with State University',
-          attendees: ['Dr. Emily Rodriguez', 'Business Development', 'Academic Affairs'],
-          is_virtual: true,
-          meeting_link: 'https://zoom.us/j/partnership'
-        },
-        {
-          id: '6',
-          title: 'Scholarship Follow-up - David Park',
-          type: 'follow_up',
-          start_time: new Date(Date.now() + 9 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 9.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Merit scholarship recipient orientation and welcome package delivery',
-          lead_name: 'David Park',
-          is_virtual: true,
-          meeting_link: 'https://zoom.us/j/orientation'
-        },
-        {
-          id: '7',
-          title: 'Program Consultation - Jennifer Smith',
-          type: 'intake',
-          start_time: new Date(Date.now() + 10.5 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 11 * 60 * 60 * 1000).toISOString(),
-          description: 'Career transition consultation for Marketing Analytics program',
-          lead_name: 'Jennifer Smith',
-          is_virtual: true,
-          meeting_link: 'https://zoom.us/j/consultation'
-        },
-        {
-          id: '8',
-          title: 'Application Deadline Reminder Calls',
-          type: 'call',
-          start_time: new Date(Date.now() + 11.5 * 60 * 60 * 1000).toISOString(),
-          end_time: new Date(Date.now() + 12.5 * 60 * 60 * 1000).toISOString(),
-          description: 'Call 15 prospects about upcoming Fall 2024 application deadline',
-          attendees: ['Prospect List - Fall 2024'],
-          is_virtual: false
         }
       ];
       

@@ -244,17 +244,17 @@ export function NewlyAssignedLeads() {
   };
 
   const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-600 bg-green-50 border-green-200';
-    if (confidence >= 60) return 'text-amber-600 bg-amber-50 border-amber-200';
-    return 'text-blue-600 bg-blue-50 border-blue-200';
+    if (confidence >= 80) return 'text-green-700 bg-green-100 border-green-300';
+    if (confidence >= 60) return 'text-amber-700 bg-amber-100 border-amber-300';
+    return 'text-primary bg-primary/10 border-primary/30';
   };
 
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case 'critical': return 'text-red-600 bg-red-50 border-red-200';
-      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
-      case 'medium': return 'text-blue-600 bg-blue-50 border-blue-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'critical': return 'text-destructive bg-destructive/10 border-destructive/30';
+      case 'high': return 'text-warning bg-warning/10 border-warning/30';
+      case 'medium': return 'text-primary bg-primary/10 border-primary/30';
+      default: return 'text-muted-foreground bg-muted border-muted-foreground/30';
     }
   };
 
@@ -393,52 +393,62 @@ export function NewlyAssignedLeads() {
 
                       {/* AI Action Section */}
                       {aiAction ? (
-                        <div className="mt-2 p-2 bg-gray-50 rounded border">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Brain className="w-3 h-3 text-purple-600" />
-                            <span className="text-xs font-medium text-purple-700">AI Recommendation</span>
+                        <div className="mt-2 p-3 bg-accent/50 rounded-lg border border-accent/30">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Brain className="w-4 h-4 text-primary" />
+                            <span className="text-xs font-medium text-primary">AI Next Best Action</span>
                             <Badge 
                               variant="outline" 
-                              className={cn("text-xs", getConfidenceColor(aiAction.confidence))}
+                              className={cn("text-xs border", getConfidenceColor(aiAction.confidence))}
                             >
-                              {aiAction.confidence}% confident
+                              {aiAction.confidence}% confidence
                             </Badge>
                             <Badge 
                               variant="outline" 
-                              className={cn("text-xs", getUrgencyColor(aiAction.urgency))}
+                              className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}
                             >
-                              {aiAction.urgency}
+                              {aiAction.urgency} priority
                             </Badge>
                           </div>
-                          <p className="text-xs text-gray-700 mb-2">{aiAction.description}</p>
+                          <p className="text-xs text-foreground/80 mb-3 leading-relaxed">{aiAction.description}</p>
                           
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-between">
                             <Button 
                               size="sm" 
-                              variant="outline"
-                              className="h-6 text-xs px-2"
+                              className="h-7 text-xs px-3 bg-primary hover:bg-primary/90"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 executeAction(lead.id, aiAction);
                               }}
                               disabled={isExecuting}
                             >
-                              {getActionIcon(aiAction.actionType)}
-                              <span className="ml-1">Execute</span>
+                              {isExecuting ? (
+                                <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                              ) : (
+                                getActionIcon(aiAction.actionType)
+                              )}
+                              <span className="ml-1">Execute Action</span>
                             </Button>
-                            <span className="text-xs text-muted-foreground">
-                              Impact: {aiAction.estimatedImpact}%
+                            <span className="text-xs text-muted-foreground font-medium">
+                              Est. Impact: {aiAction.estimatedImpact}%
                             </span>
                           </div>
                         </div>
                       ) : isGenerating ? (
-                        <div className="mt-2 p-2 bg-gray-50 rounded border">
+                        <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-muted">
                           <div className="flex items-center gap-2">
-                            <Loader2 className="w-3 h-3 animate-spin text-blue-600" />
-                            <span className="text-xs text-muted-foreground">Generating AI action...</span>
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            <span className="text-xs text-muted-foreground">AI analyzing lead for next best action...</span>
                           </div>
                         </div>
-                      ) : null}
+                      ) : (
+                        <div className="mt-2 p-3 bg-muted/30 rounded-lg border border-muted/50">
+                          <div className="flex items-center gap-2">
+                            <Brain className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-xs text-muted-foreground">No AI action available</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-1 mt-2">

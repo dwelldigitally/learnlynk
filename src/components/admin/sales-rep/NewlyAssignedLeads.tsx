@@ -287,42 +287,6 @@ export function NewlyAssignedLeads() {
 
   return (
     <>
-      <div className="h-fit bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 rounded-lg border pb-3 p-6">
-          <div className="text-base flex items-center gap-2">
-            <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 border-blue-300">
-              {leads.length} new
-            </Badge>
-            {isGenerating && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Loader2 className="w-3 h-3 animate-spin" />
-                AI analyzing...
-              </div>
-            )}
-          </div>
-        
-        {showBulkActions && (
-          <div className="mt-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-blue-700">
-                {selectedLeads.size} leads selected
-              </span>
-              <Button 
-                size="sm" 
-                onClick={handleBulkExecute}
-                disabled={isExecuting}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {isExecuting ? (
-                  <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                ) : (
-                  <Play className="w-3 h-3 mr-1" />
-                )}
-                Execute All Actions
-              </Button>
-            </div>
-          </div>
-        )}
-        </div>
         <div className="p-6 pt-0">
         {leads.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">

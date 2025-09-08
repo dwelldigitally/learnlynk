@@ -174,56 +174,64 @@ export function DailyHeader() {
               <div className="group relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
                 <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 bg-blue-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-blue-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
                       <Phone className="w-4 h-4 text-blue-200" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">{todaysMetrics.callsMade}</div>
+                      <div className="text-xs text-white/80">Calls Made</div>
                     </div>
                     <div className="text-xs text-white/60 font-medium">+2</div>
                   </div>
-                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.callsMade}</div>
-                  <div className="text-xs text-white/80">Calls Made</div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
                 <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 bg-purple-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-purple-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
                       <Mail className="w-4 h-4 text-purple-200" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">{todaysMetrics.emailsSent}</div>
+                      <div className="text-xs text-white/80">Emails Sent</div>
                     </div>
                     <div className="text-xs text-white/60 font-medium">+1</div>
                   </div>
-                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.emailsSent}</div>
-                  <div className="text-xs text-white/80">Emails Sent</div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
                 <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 bg-green-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
                       <CheckCircle className="w-4 h-4 text-green-200" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">{todaysMetrics.tasksCompleted}</div>
+                      <div className="text-xs text-white/80">Tasks Done</div>
                     </div>
                     <div className="text-xs text-white/60 font-medium">On track</div>
                   </div>
-                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.tasksCompleted}</div>
-                  <div className="text-xs text-white/80">Tasks Done</div>
                 </div>
               </div>
 
               <div className="group relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-sm rounded-lg"></div>
                 <div className="relative p-3 border border-white/20 rounded-lg hover:border-white/40 transition-all duration-300">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 bg-orange-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-orange-500/20 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
                       <Calendar className="w-4 h-4 text-orange-200" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-lg font-bold text-white">{todaysMetrics.appointmentsBooked}</div>
+                      <div className="text-xs text-white/80">Meetings</div>
                     </div>
                     <div className="text-xs text-white/60 font-medium">+1</div>
                   </div>
-                  <div className="text-xl font-bold text-white mb-1">{todaysMetrics.appointmentsBooked}</div>
-                  <div className="text-xs text-white/80">Meetings</div>
                 </div>
               </div>
             </div>

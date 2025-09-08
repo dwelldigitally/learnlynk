@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Mail, MessageSquare, Phone, Clock, AlertCircle, Reply, Sparkles, Zap } from 'lucide-react';
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
 import { AutoReplyDialog } from './AutoReplyDialog';
+import { BulkAutoReplyDialog } from './BulkAutoReplyDialog';
 
 interface Communication {
   id: string;
@@ -27,6 +28,7 @@ export function UnreadCommunications() {
   const [loading, setLoading] = useState(true);
   const [selectedCommunication, setSelectedCommunication] = useState<Communication | null>(null);
   const [autoReplyOpen, setAutoReplyOpen] = useState(false);
+  const [bulkAutoReplyOpen, setBulkAutoReplyOpen] = useState(false);
 
   useEffect(() => {
     loadUnreadCommunications();
@@ -126,9 +128,10 @@ export function UnreadCommunications() {
     setAutoReplyOpen(true);
   };
 
-  const handleBulkAutoReply = () => {
-    console.log('Bulk auto-reply for all communications');
-    // TODO: Implement bulk auto-reply functionality
+  const handleBulkAutoReply = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setBulkAutoReplyOpen(true);
   };
 
   if (loading) {
@@ -257,6 +260,17 @@ export function UnreadCommunications() {
           communication={selectedCommunication}
           onReplyGenerated={(reply) => {
             console.log('Reply generated:', reply);
+          }}
+        />
+
+        <BulkAutoReplyDialog
+          open={bulkAutoReplyOpen}
+          onOpenChange={setBulkAutoReplyOpen}
+          communications={communications}
+          onRepliesSent={(sentReplies) => {
+            console.log('Bulk replies sent:', sentReplies);
+            // Optionally refresh communications or update UI
+            loadUnreadCommunications();
           }}
         />
       </CardContent>

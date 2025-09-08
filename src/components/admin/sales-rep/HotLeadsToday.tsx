@@ -293,106 +293,169 @@ export function HotLeadsToday() {
   }
 
   return (
-    <Card className="bg-gradient-to-br from-orange-50 to-red-50 border-orange-200">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          <div className="p-1.5 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg">
-            <Flame className="w-4 h-4 text-white" />
+    <Card className="bg-gradient-to-br from-orange-50 via-white to-red-50/30 border-orange-200/60 shadow-lg">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-lg flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl shadow-md">
+            <Flame className="w-5 h-5 text-white" />
           </div>
-          HOT Today
-          <Badge variant="destructive" className="ml-auto bg-red-100 text-red-700 border-red-300">
-            {hotLeads.length} 🔥
-          </Badge>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent font-bold">
+                HOT Today
+              </span>
+              <Badge variant="destructive" className="bg-gradient-to-r from-red-500 to-red-600 text-white border-none shadow-md">
+                {hotLeads.length} 🔥
+              </Badge>
+            </div>
+            <p className="text-sm text-gray-600 mt-1 font-normal">High-priority leads requiring immediate attention</p>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         {hotLeads.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <div className="p-3 bg-orange-100 rounded-full w-12 h-12 mx-auto mb-3">
-              <Flame className="w-6 h-6 text-orange-500 mx-auto mt-1.5" />
+          <div className="text-center py-12">
+            <div className="relative mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-red-100 rounded-full mx-auto flex items-center justify-center shadow-lg">
+                <Flame className="w-8 h-8 text-orange-500" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center shadow-md transform translate-x-6">
+                <span className="text-white text-xs font-bold">0</span>
+              </div>
             </div>
-            <p className="text-sm">No hot leads today</p>
-            <p className="text-xs text-muted-foreground mt-1">Keep nurturing your pipeline</p>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No hot leads today</h3>
+            <p className="text-sm text-gray-500 max-w-sm mx-auto leading-relaxed">
+              Keep nurturing your pipeline. Hot leads will appear here when high engagement is detected.
+            </p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {hotLeads.slice(0, 3).map((lead) => {
               const heatLevel = getHeatLevel(lead.activity_score);
               
               return (
                 <div
                   key={lead.id}
-                  className="p-3 rounded-lg bg-white border border-orange-100 hover:bg-orange-50/50 transition-colors cursor-pointer shadow-sm"
+                  className="group relative p-4 rounded-xl bg-gradient-to-r from-white to-orange-50/30 border border-orange-200/60 hover:border-orange-300 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
                   onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
                 >
-                  <div className="flex items-start gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarFallback className="text-sm bg-orange-100 text-orange-700">
-                        {lead.first_name[0]}{lead.last_name[0]}
-                      </AvatarFallback>
-                    </Avatar>
+                  {/* Heat indicator stripe */}
+                  <div className={cn("absolute left-0 top-0 w-1 h-full", heatLevel.bgColor)}></div>
+                  
+                  <div className="flex items-start gap-4">
+                    {/* Avatar Section */}
+                    <div className="relative">
+                      <Avatar className="w-12 h-12 ring-2 ring-orange-100 ring-offset-2">
+                        <AvatarFallback className="text-sm bg-gradient-to-br from-orange-100 to-orange-200 text-orange-800 font-semibold">
+                          {lead.first_name[0]}{lead.last_name[0]}
+                        </AvatarFallback>
+                      </Avatar>
+                      {/* Heat level indicator */}
+                      <div className="absolute -top-1 -right-1 flex items-center gap-1 bg-white rounded-full px-2 py-0.5 shadow-md border border-orange-200">
+                        <div className={cn("w-2 h-2 rounded-full animate-pulse", heatLevel.bgColor)}></div>
+                        <span className={cn("text-xs font-bold", heatLevel.color)}>
+                          {lead.activity_score}°
+                        </span>
+                      </div>
+                    </div>
 
+                    {/* Main Content */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm truncate">
-                          {lead.first_name} {lead.last_name}
-                        </p>
-                        <div className="flex items-center gap-1">
-                          <div className={cn("w-2 h-2 rounded-full animate-pulse", heatLevel.bgColor)}></div>
-                          <span className={cn("text-xs font-bold", heatLevel.color)}>
-                            {lead.activity_score}°
-                          </span>
+                      {/* Header with name and status */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <h3 className="font-semibold text-gray-900 text-base group-hover:text-orange-700 transition-colors">
+                            {lead.first_name} {lead.last_name}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-0.5">{lead.email}</p>
                         </div>
+                        <Badge 
+                          variant="outline" 
+                          className="bg-orange-50 text-orange-700 border-orange-200 text-xs font-medium px-2 py-1"
+                        >
+                          {lead.priority.toUpperCase()}
+                        </Badge>
                       </div>
                       
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {lead.recent_activities.slice(0, 2).map((activity, index) => (
-                          <div key={index} className="flex items-center gap-1 text-xs bg-orange-100 rounded px-1.5 py-0.5">
-                            {getActivityIcon(activity.type)}
-                            <span>{activity.count}</span>
+                      {/* Activity indicators */}
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {lead.recent_activities.slice(0, 3).map((activity, index) => (
+                          <div key={index} className="flex items-center gap-1.5 text-xs bg-white rounded-lg px-2.5 py-1.5 border border-orange-100 shadow-sm">
+                            <div className="text-orange-600">
+                              {getActivityIcon(activity.type)}
+                            </div>
+                            <span className="font-medium text-gray-700">{activity.count}</span>
+                            <span className="text-gray-500">{getActivityLabel(activity.type)}</span>
                           </div>
                         ))}
                       </div>
                       
-                      <div className="text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <TrendingUp className="w-3 h-3" />
-                          <span>{lead.engagement_indicators[0] || 'High engagement'}</span>
+                      {/* Engagement insight */}
+                      <div className="flex items-start gap-2 p-2.5 bg-orange-50/50 rounded-lg border border-orange-100/50">
+                        <TrendingUp className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium text-orange-800">Latest Insight</p>
+                          <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
+                            {lead.engagement_indicators[0] || 'High engagement detected'}
+                          </p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-1">
-                      <Button size="sm" className="h-7 px-2 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md">
-                        <Phone className="w-3 h-3 mr-1" />
+                    {/* Action Buttons */}
+                    <div className="flex flex-col gap-2 ml-2">
+                      <Button 
+                        size="sm" 
+                        className="h-8 px-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md hover:shadow-lg transition-all group/btn"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Phone className="w-3.5 h-3.5 mr-1.5" />
                         Call
                       </Button>
-                      <Button size="sm" variant="outline" className="h-6 px-2 text-xs border-orange-200 text-orange-700 hover:bg-orange-50">
-                        <Mail className="w-3 h-3 mr-1" />
-                        Email
-                      </Button>
+                      
                       <Button 
                         size="sm" 
                         variant="outline" 
-                        className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                        className="h-7 px-3 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300 transition-all"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Mail className="w-3 h-3 mr-1.5" />
+                        Email
+                      </Button>
+                      
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-7 px-3 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleAIPlayEnrollment(lead);
                         }}
                       >
-                        <TrendingUp className="w-3 h-3 mr-1" />
+                        <TrendingUp className="w-3 h-3 mr-1.5" />
                         AI Play
                       </Button>
                     </div>
                   </div>
+                  
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl pointer-events-none"></div>
                 </div>
               );
             })}
             
             {hotLeads.length > 3 && (
-              <Button variant="ghost" size="sm" className="w-full mt-2 text-orange-600 hover:bg-orange-100">
-                View all {hotLeads.length} hot leads
-              </Button>
+              <div className="pt-4 border-t border-orange-100">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full h-10 text-orange-600 hover:bg-orange-50 hover:text-orange-700 transition-all duration-200 font-medium"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View all {hotLeads.length} hot leads
+                  <TrendingUp className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
             )}
           </div>
         )}

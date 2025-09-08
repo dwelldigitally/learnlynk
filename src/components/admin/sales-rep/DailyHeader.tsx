@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,20 +23,27 @@ export function DailyHeader() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [lastSync, setLastSync] = useState(new Date());
 
+  // Optimize timer to update less frequently for non-essential updates
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  // Sync less frequently to reduce re-renders
   useEffect(() => {
-    const syncTimer = setInterval(() => setLastSync(new Date()), 30000);
+    const syncTimer = setInterval(() => {
+      setLastSync(new Date());
+    }, 60000); // Reduced from 30s to 60s
     return () => clearInterval(syncTimer);
   }, []);
 
+  // Memoize event handlers to prevent re-creation
+  const handleOnline = useCallback(() => setIsOnline(true), []);
+  const handleOffline = useCallback(() => setIsOnline(false), []);
+
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     
@@ -44,42 +51,43 @@ export function DailyHeader() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [handleOnline, handleOffline]);
 
-  const getGreeting = () => {
+  // Memoize expensive calculations to prevent unnecessary re-computations
+  const greeting = useMemo(() => {
     const hour = currentTime.getHours();
     if (hour < 12) return 'Good Morning';
     if (hour < 17) return 'Good Afternoon';
     return 'Good Evening';
-  };
+  }, [currentTime]);
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
+  const formattedDate = useMemo(() => {
+    return currentTime.toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-  };
+  }, [currentTime]);
 
-  const getDisplayName = () => {
+  const displayName = useMemo(() => {
     if (profile?.first_name) {
       return `${profile.first_name} ${profile.last_name || ''}`.trim();
     }
     return user?.email?.split('@')[0] || 'Sales Rep';
-  };
+  }, [profile?.first_name, profile?.last_name, user?.email]);
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
+  const formattedTime = useMemo(() => {
+    return currentTime.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
     });
-  };
+  }, [currentTime]);
 
-  const formatRelativeTime = (date: Date) => {
+  const relativeTime = useMemo(() => {
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
+    const diffMs = now.getTime() - lastSync.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     
     if (diffMins < 1) return 'just now';
@@ -88,8 +96,8 @@ export function DailyHeader() {
     const diffHours = Math.floor(diffMins / 60);
     if (diffHours < 24) return `${diffHours}h ago`;
     
-    return date.toLocaleDateString();
-  };
+    return lastSync.toLocaleDateString();
+  }, [lastSync]);
 
   return (
     <div className="relative overflow-hidden">
@@ -109,7 +117,7 @@ export function DailyHeader() {
                   <div className="flex items-center gap-3">
                     <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                     <h1 className={cn("font-bold tracking-tight", isMobile ? "text-xl" : "text-3xl")}>
-                      {getGreeting()}, {getDisplayName()}! 
+                      {greeting}, {displayName}! 
                       <span className="ml-2 text-2xl">👋</span>
                     </h1>
                   </div>
@@ -125,9 +133,9 @@ export function DailyHeader() {
                     </div>
                   )}
                   
-                  <p className="text-primary-foreground/90 text-base font-medium">
-                    {formatDate(currentTime)} • Ready to achieve your goals?
-                  </p>
+                   <p className="text-primary-foreground/90 text-base font-medium">
+                     {formattedDate} • Ready to achieve your goals?
+                   </p>
                 </div>
                 
                 {/* Real-time Info Panel - Desktop */}
@@ -135,7 +143,7 @@ export function DailyHeader() {
                   <div className="flex items-center gap-6 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
                     <div className="text-center">
                       <div className="text-2xl font-mono font-bold text-white">
-                        {formatTime(currentTime)}
+                        {formattedTime}
                       </div>
                       <div className="text-xs text-white/70 mt-1">
                         {currentTime.toLocaleDateString('en-US', { timeZoneName: 'short' }).split(', ')[1]}
@@ -155,7 +163,7 @@ export function DailyHeader() {
                     </div>
                     
                     <div className="text-xs text-white/70">
-                      Synced {formatRelativeTime(lastSync)}
+                      Synced {relativeTime}
                     </div>
                   </div>
                 )}
@@ -272,7 +280,7 @@ export function DailyHeader() {
             <div className="mt-4 flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20">
               <div className="flex items-center gap-3">
                 <div className="text-lg font-mono font-bold text-white">
-                  {formatTime(currentTime)}
+                  {formattedTime}
                 </div>
                 <div className="w-px h-4 bg-white/20"></div>
                 <div className="flex items-center gap-2">
@@ -284,7 +292,7 @@ export function DailyHeader() {
                 </div>
               </div>
               <div className="text-xs text-white/70">
-                Synced {formatRelativeTime(lastSync)}
+                Synced {relativeTime}
               </div>
             </div>
           )}

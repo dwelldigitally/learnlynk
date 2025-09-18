@@ -18,6 +18,8 @@ import { EnhancedApplicantHeader } from "@/components/admin/applicants/enhanced/
 import { AIInsightsDashboard } from "@/components/admin/applicants/enhanced/AIInsightsDashboard";
 import { SmartDocumentReview } from "@/components/admin/applicants/enhanced/SmartDocumentReview";
 import { HumanDecisionTracker } from "@/components/admin/applicants/enhanced/HumanDecisionTracker";
+// Comprehensive Student Information Components
+import { ComprehensiveApplicantOverview } from "@/components/admin/applicants/comprehensive/ComprehensiveApplicantOverview";
 import { Zap, Eye } from "lucide-react";
 
 const paymentStatuses = ["pending", "partial", "completed", "refunded"] as const;
@@ -304,10 +306,7 @@ const ApplicantDetailPage: React.FC = () => {
 
                 <div className="mt-6">
                   <TabsContent value="overview" className="space-y-6">
-                    <ApplicationTimeline 
-                      applicant={applicant} 
-                      onStageUpdate={handleStageUpdate}
-                    />
+                    <ComprehensiveApplicantOverview applicant={applicant} />
                   </TabsContent>
 
                   <TabsContent value="documents" className="space-y-6">
@@ -358,15 +357,7 @@ const ApplicantDetailPage: React.FC = () => {
 
                 <div className="mt-6">
                   <TabsContent value="overview" className="space-y-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <ApplicationTimeline
-                        applicant={applicant}
-                        onStageUpdate={handleStageUpdate}
-                      />
-                      <div className="space-y-6">
-                        <AISuggestionsCard onApply={handleAISuggestionApply} />
-                      </div>
-                    </div>
+                    <ComprehensiveApplicantOverview applicant={applicant} />
                   </TabsContent>
 
                   <TabsContent value="documents">

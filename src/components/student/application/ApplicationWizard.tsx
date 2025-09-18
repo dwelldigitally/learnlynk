@@ -56,7 +56,10 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
   // Load existing application data if editing
   useEffect(() => {
     if (editingApplication) {
-      setApplicationData(editingApplication);
+      setApplicationData({
+        ...editingApplication,
+        application_data: editingApplication.application_data || {}
+      });
       const stepIndex = steps.findIndex(step => step.id === editingApplication.stage);
       setCurrentStep(stepIndex >= 0 ? stepIndex : 0);
     }
@@ -178,7 +181,7 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
   };
 
   const renderStep = () => {
-    const stepData = applicationData.application_data[steps[currentStep].id] || {};
+    const stepData = applicationData.application_data?.[steps[currentStep].id] || {};
     
     switch (steps[currentStep].id) {
       case 'personal_info':
@@ -203,7 +206,7 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
   };
 
   const isStepValid = () => {
-    const stepData = applicationData.application_data[steps[currentStep].id] || {};
+    const stepData = applicationData.application_data?.[steps[currentStep].id] || {};
     
     switch (steps[currentStep].id) {
       case 'personal_info':

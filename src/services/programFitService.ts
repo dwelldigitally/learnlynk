@@ -299,7 +299,7 @@ export class ProgramFitService {
           .single();
 
         if (applicant) {
-          const { programFit, yieldPropensity, factors } = await this.calculateProgramFit(applicant);
+          const { programFit, yieldPropensity, factors } = await this.calculateProgramFit(applicant as any);
           
           const user = (await supabase.auth.getUser()).data.user;
           if (!user) continue;

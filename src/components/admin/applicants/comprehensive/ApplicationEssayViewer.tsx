@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   FileText, 
   Brain, 
@@ -34,19 +33,32 @@ export const ApplicationEssayViewer: React.FC<ApplicationEssayViewerProps> = ({ 
   const [expandedEssay, setExpandedEssay] = useState<string | null>(null);
   const [selectedEssay, setSelectedEssay] = useState<string>(essays[0]?.id || '');
   const [manualGrades, setManualGrades] = useState<Record<string, {
-    score: number;
+    totalScore: number;
+    rubricScores: {
+      content: number;
+      organization: number;
+      language: number;
+      relevance: number;
+      originality: number;
+    };
     feedback: string;
     gradedBy: string;
     gradedAt: Date;
   }>>({});
 
-  const handleManualGrade = (essayId: string, score: number, feedback: string) => {
+  const handleManualGrade = (essayId: string, rubricScores: any, feedback: string) => {
+    const totalScore = Math.round(
+      (rubricScores.content + rubricScores.organization + rubricScores.language + 
+       rubricScores.relevance + rubricScores.originality) / 5 * 25
+    );
+    
     setManualGrades(prev => ({
       ...prev,
       [essayId]: {
-        score,
+        totalScore,
+        rubricScores,
         feedback,
-        gradedBy: 'Current Evaluator', // In real app, this would be the logged-in user
+        gradedBy: 'Current Evaluator',
         gradedAt: new Date()
       }
     }));
@@ -196,8 +208,8 @@ export const ApplicationEssayViewer: React.FC<ApplicationEssayViewerProps> = ({ 
             </CardContent>
           </Card>
 
-          {/* Manual Grading Card */}
-          <ManualGradingCard 
+          {/* Rubric-Based Grading Card */}
+          <RubricBasedGradingCard 
             essayId={selectedEssayData.id}
             existingGrade={manualGrades[selectedEssayData.id]}
             onGrade={handleManualGrade}
@@ -327,31 +339,105 @@ export const ApplicationEssayViewer: React.FC<ApplicationEssayViewerProps> = ({ 
   );
 };
 
-// Manual Grading Component
-interface ManualGradingCardProps {
+// Rubric-Based Grading Component
+interface RubricBasedGradingCardProps {
   essayId: string;
   existingGrade?: {
-    score: number;
+    totalScore: number;
+    rubricScores: {
+      content: number;
+      organization: number;
+      language: number;
+      relevance: number;
+      originality: number;
+    };
     feedback: string;
     gradedBy: string;
     gradedAt: Date;
   };
-  onGrade: (essayId: string, score: number, feedback: string) => void;
+  onGrade: (essayId: string, rubricScores: any, feedback: string) => void;
 }
 
-const ManualGradingCard: React.FC<ManualGradingCardProps> = ({ 
+const RubricBasedGradingCard: React.FC<RubricBasedGradingCardProps> = ({ 
   essayId, 
   existingGrade, 
   onGrade 
 }) => {
-  const [score, setScore] = useState(existingGrade?.score?.toString() || '');
+  const [rubricScores, setRubricScores] = useState({
+    content: existingGrade?.rubricScores?.content?.toString() || '',
+    organization: existingGrade?.rubricScores?.organization?.toString() || '',
+    language: existingGrade?.rubricScores?.language?.toString() || '',
+    relevance: existingGrade?.rubricScores?.relevance?.toString() || '',
+    originality: existingGrade?.rubricScores?.originality?.toString() || ''
+  });
   const [feedback, setFeedback] = useState(existingGrade?.feedback || '');
-  const [gradeLevel, setGradeLevel] = useState('');
+
+  const rubricCriteria = [
+    {
+      key: 'content' as const,
+      title: 'Content Quality',
+      description: 'Depth of ideas, supporting evidence, critical thinking',
+      icon: MessageSquare
+    },
+    {
+      key: 'organization' as const,
+      title: 'Organization',
+      description: 'Structure, flow, logical progression, transitions',
+      icon: BarChart3
+    },
+    {
+      key: 'language' as const,
+      title: 'Language & Style',
+      description: 'Grammar, vocabulary, tone, clarity of expression',
+      icon: FileText
+    },
+    {
+      key: 'relevance' as const,
+      title: 'Relevance',
+      description: 'Addresses prompt, stays on topic, meets requirements',
+      icon: CheckCircle
+    },
+    {
+      key: 'originality' as const,
+      title: 'Originality',
+      description: 'Unique perspective, creativity, personal voice',
+      icon: Star
+    }
+  ];
+
+  const scoreDescriptions = {
+    4: { label: 'Excellent', description: 'Exceeds expectations significantly', color: 'text-green-600' },
+    3: { label: 'Good', description: 'Meets expectations well', color: 'text-blue-600' },
+    2: { label: 'Satisfactory', description: 'Meets basic expectations', color: 'text-yellow-600' },
+    1: { label: 'Needs Improvement', description: 'Below expectations', color: 'text-red-600' }
+  };
+
+  const handleScoreChange = (criterion: string, value: string) => {
+    setRubricScores(prev => ({
+      ...prev,
+      [criterion]: value
+    }));
+  };
+
+  const calculateTotalScore = () => {
+    const scores = Object.values(rubricScores).map(score => parseInt(score) || 0);
+    const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+    return Math.round((average / 4) * 100);
+  };
 
   const handleSave = () => {
-    const numericScore = parseInt(score);
-    if (numericScore >= 0 && numericScore <= 100 && feedback.trim()) {
-      onGrade(essayId, numericScore, feedback);
+    const numericScores = {
+      content: parseInt(rubricScores.content) || 0,
+      organization: parseInt(rubricScores.organization) || 0,
+      language: parseInt(rubricScores.language) || 0,
+      relevance: parseInt(rubricScores.relevance) || 0,
+      originality: parseInt(rubricScores.originality) || 0
+    };
+
+    const allScoresValid = Object.values(numericScores).every(score => score >= 1 && score <= 4);
+    
+    if (allScoresValid && feedback.trim()) {
+      onGrade(essayId, numericScores, feedback);
     }
   };
 
@@ -376,31 +462,49 @@ const ManualGradingCard: React.FC<ManualGradingCardProps> = ({
     return 'F';
   };
 
+  const totalScore = calculateTotalScore();
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserCheck className="h-5 w-5" />
-          Manual Evaluation
+          Rubric-Based Evaluation
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
         {existingGrade && (
           <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
                 <span className="font-medium">Current Grade</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className={`text-lg font-bold ${getGradeColor(existingGrade.score)}`}>
-                  {existingGrade.score}/100
+                <span className={`text-lg font-bold ${getGradeColor(existingGrade.totalScore)}`}>
+                  {existingGrade.totalScore}/100
                 </span>
                 <Badge variant="secondary">
-                  {getGradeLetter(existingGrade.score)}
+                  {getGradeLetter(existingGrade.totalScore)}
                 </Badge>
               </div>
             </div>
+            
+            {/* Existing Rubric Breakdown */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">
+              {rubricCriteria.map((criterion) => {
+                const score = existingGrade.rubricScores[criterion.key];
+                return (
+                  <div key={criterion.key} className="text-center p-2 bg-white rounded border">
+                    <div className="text-xs text-muted-foreground truncate">{criterion.title}</div>
+                    <div className={`text-sm font-semibold ${scoreDescriptions[score as keyof typeof scoreDescriptions]?.color}`}>
+                      {score}/4
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
             <p className="text-sm text-muted-foreground mb-2">
               Graded by {existingGrade.gradedBy} on {existingGrade.gradedAt.toLocaleDateString()}
             </p>
@@ -411,69 +515,88 @@ const ManualGradingCard: React.FC<ManualGradingCardProps> = ({
           </div>
         )}
 
+        {/* Rubric Scoring */}
         <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="score">Score (0-100)</Label>
-              <Input
-                id="score"
-                type="number"
-                min="0"
-                max="100"
-                value={score}
-                onChange={(e) => setScore(e.target.value)}
-                placeholder="Enter score"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="grade-level">Grade Level</Label>
-              <Select value={gradeLevel} onValueChange={setGradeLevel}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select grade" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="A+">A+ (97-100) - Exceptional</SelectItem>
-                  <SelectItem value="A">A (93-96) - Excellent</SelectItem>
-                  <SelectItem value="A-">A- (90-92) - Very Good</SelectItem>
-                  <SelectItem value="B+">B+ (87-89) - Good</SelectItem>
-                  <SelectItem value="B">B (83-86) - Above Average</SelectItem>
-                  <SelectItem value="B-">B- (80-82) - Average</SelectItem>
-                  <SelectItem value="C+">C+ (77-79) - Below Average</SelectItem>
-                  <SelectItem value="C">C (73-76) - Poor</SelectItem>
-                  <SelectItem value="C-">C- (70-72) - Very Poor</SelectItem>
-                  <SelectItem value="D">D (60-69) - Failing</SelectItem>
-                  <SelectItem value="F">F (0-59) - Unacceptable</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="feedback">Evaluator Feedback</Label>
-            <Textarea
-              id="feedback"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Provide detailed feedback on the essay's strengths, weaknesses, and areas for improvement..."
-              rows={4}
-            />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              onClick={handleSave} 
-              disabled={!score || !feedback.trim()}
-              className="flex-1"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              Save Grade
-            </Button>
-            <Button variant="outline" className="flex-1">
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Add Comment
-            </Button>
-          </div>
+          <h4 className="font-medium">Evaluation Criteria (4-Point Scale)</h4>
+          
+          {rubricCriteria.map((criterion) => {
+            const IconComponent = criterion.icon;
+            const currentScore = parseInt(rubricScores[criterion.key]) || 0;
+            
+            return (
+              <div key={criterion.key} className="space-y-3 p-4 border rounded-lg">
+                <div className="flex items-start gap-3">
+                  <IconComponent className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium">{criterion.title}</div>
+                    <div className="text-sm text-muted-foreground">{criterion.description}</div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-2">
+                  {[1, 2, 3, 4].map((score) => (
+                    <button
+                      key={score}
+                      type="button"
+                      onClick={() => handleScoreChange(criterion.key, score.toString())}
+                      className={`p-2 text-xs rounded border text-center transition-colors ${
+                        currentScore === score
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-background hover:bg-muted border-border'
+                      }`}
+                    >
+                      <div className="font-medium">{score}</div>
+                      <div className={scoreDescriptions[score as keyof typeof scoreDescriptions].color}>
+                        {scoreDescriptions[score as keyof typeof scoreDescriptions].label}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Total Score Preview */}
+        {Object.values(rubricScores).some(score => score !== '') && (
+          <div className="p-3 bg-muted rounded-lg">
+            <div className="flex items-center justify-between">
+              <span className="font-medium">Calculated Total Score:</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-lg font-bold ${getGradeColor(totalScore)}`}>
+                  {totalScore}/100
+                </span>
+                <Badge variant="outline">
+                  {getGradeLetter(totalScore)}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Feedback */}
+        <div className="space-y-2">
+          <Label htmlFor="feedback">Detailed Feedback</Label>
+          <Textarea
+            id="feedback"
+            value={feedback}
+            onChange={(e) => setFeedback(e.target.value)}
+            placeholder="Provide specific feedback addressing each criterion, strengths, and areas for improvement..."
+            rows={4}
+          />
+        </div>
+
+        <Button 
+          onClick={handleSave}
+          disabled={
+            Object.values(rubricScores).some(score => !score || parseInt(score) < 1 || parseInt(score) > 4) ||
+            !feedback.trim()
+          }
+          className="w-full"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Rubric Evaluation
+        </Button>
       </CardContent>
     </Card>
   );

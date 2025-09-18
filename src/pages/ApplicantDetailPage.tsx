@@ -13,6 +13,12 @@ import { CommunicationCenter } from "@/components/admin/applicants/Communication
 import { AssessmentPanel } from "@/components/admin/applicants/AssessmentPanel";
 import { CollaborationSidebar } from "@/components/admin/applicants/CollaborationSidebar";
 import { AISuggestionsCard } from "@/components/admin/applicants/AISuggestionsCard";
+// Enhanced AI Components
+import { EnhancedApplicantHeader } from "@/components/admin/applicants/enhanced/EnhancedApplicantHeader";
+import { AIInsightsDashboard } from "@/components/admin/applicants/enhanced/AIInsightsDashboard";
+import { SmartDocumentReview } from "@/components/admin/applicants/enhanced/SmartDocumentReview";
+import { HumanDecisionTracker } from "@/components/admin/applicants/enhanced/HumanDecisionTracker";
+import { Zap, Eye } from "lucide-react";
 
 const paymentStatuses = ["pending", "partial", "completed", "refunded"] as const;
 
@@ -24,6 +30,7 @@ const ApplicantDetailPage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [applicant, setApplicant] = useState<Applicant | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [aiViewMode, setAiViewMode] = useState(false);
 
   const getStageProgress = (substage: string): number => {
     const stageMap: Record<string, number> = {
@@ -222,91 +229,191 @@ const ApplicantDetailPage: React.FC = () => {
     ? `${applicant.master_records.first_name} ${applicant.master_records.last_name}`
     : "Applicant";
 
+  const handleAISuggestionApply = (suggestion: string) => {
+    toast({ title: "Action applied", description: suggestion });
+  };
+
   return (
     <ModernAdminLayout>
       <div className="p-6 space-y-6">
-        {/* Enhanced Header */}
-        <ApplicantHeader
-          applicant={applicant}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onScheduleInterview={handleScheduleInterview}
-          onSendEmail={handleSendEmail}
-          saving={saving}
-        />
+        {/* Header with view toggle */}
+        {aiViewMode ? (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">AI-Accelerated Review Mode</h2>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setAiViewMode(false)}
+                className="flex items-center gap-2"
+              >
+                <Eye className="h-4 w-4" />
+                Switch to Classic View
+              </Button>
+            </div>
+            <EnhancedApplicantHeader
+              applicant={applicant}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onScheduleInterview={handleScheduleInterview}
+              onSendEmail={handleSendEmail}
+              saving={saving}
+            />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center justify-end">
+              <Button 
+                onClick={() => setAiViewMode(true)}
+                className="flex items-center gap-2"
+              >
+                <Zap className="h-4 w-4" />
+                Switch to AI Mode
+              </Button>
+            </div>
+            <ApplicantHeader
+              applicant={applicant}
+              onApprove={handleApprove}
+              onReject={handleReject}
+              onScheduleInterview={handleScheduleInterview}
+              onSendEmail={handleSendEmail}
+              saving={saving}
+            />
+          </div>
+        )}
 
-        {/* Three-column layout */}
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-          {/* Main Content - 3 columns */}
-          <div className="xl:col-span-3">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
-                <TabsTrigger value="communication">Communication</TabsTrigger>
-                <TabsTrigger value="assessment">Assessment</TabsTrigger>
-                <TabsTrigger value="timeline">Timeline</TabsTrigger>
-              </TabsList>
+        {aiViewMode ? (
+          // AI-Accelerated Three-Column Layout
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* Left Column - AI Insights */}
+            <div className="xl:col-span-1 space-y-6">
+              <AIInsightsDashboard applicant={applicant} />
+            </div>
 
-              <div className="mt-6">
-                <TabsContent value="overview" className="space-y-6">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Center Column - Core Information */}
+            <div className="xl:col-span-2">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="documents">Smart Docs</TabsTrigger>
+                  <TabsTrigger value="assessment">AI Assessment</TabsTrigger>
+                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                </TabsList>
+
+                <div className="mt-6">
+                  <TabsContent value="overview" className="space-y-6">
+                    <ApplicationTimeline 
+                      applicant={applicant} 
+                      onStageUpdate={handleStageUpdate}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="documents" className="space-y-6">
+                    <SmartDocumentReview
+                      applicant={applicant}
+                      onDocumentAction={handleDocumentAction}
+                      onApproveAll={handleApproveAllDocs}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="assessment" className="space-y-6">
+                    <AssessmentPanel
+                      applicant={applicant}
+                      onScoreUpdate={handleScoreUpdate}
+                      onNotesUpdate={handleAssessmentNotesUpdate}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="timeline" className="space-y-6">
+                    <ApplicationTimeline 
+                      applicant={applicant} 
+                      onStageUpdate={handleStageUpdate}
+                    />
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </div>
+
+            {/* Right Column - Human Decision Tools */}
+            <div className="xl:col-span-1 space-y-6">
+              <HumanDecisionTracker applicant={applicant} />
+              <AISuggestionsCard onApply={handleAISuggestionApply} />
+            </div>
+          </div>
+        ) : (
+          // Classic Layout
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+            {/* Main Content - 3 columns */}
+            <div className="xl:col-span-3">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="grid w-full grid-cols-5">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="documents">Documents</TabsTrigger>
+                  <TabsTrigger value="communication">Communication</TabsTrigger>
+                  <TabsTrigger value="assessment">Assessment</TabsTrigger>
+                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                </TabsList>
+
+                <div className="mt-6">
+                  <TabsContent value="overview" className="space-y-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <ApplicationTimeline
+                        applicant={applicant}
+                        onStageUpdate={handleStageUpdate}
+                      />
+                      <div className="space-y-6">
+                        <AISuggestionsCard onApply={handleAISuggestionApply} />
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  <TabsContent value="documents">
+                    <DocumentManager
+                      applicant={applicant}
+                      onDocumentAction={handleDocumentAction}
+                      onApproveAll={handleApproveAllDocs}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="communication">
+                    <CommunicationCenter
+                      applicantId={applicant.id}
+                      applicantName={applicantName}
+                      applicantEmail={applicant.master_records?.email || ''}
+                      onSendMessage={handleSendMessage}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="assessment">
+                    <AssessmentPanel
+                      applicant={applicant}
+                      onScoreUpdate={handleScoreUpdate}
+                      onNotesUpdate={handleAssessmentNotesUpdate}
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="timeline">
                     <ApplicationTimeline
                       applicant={applicant}
                       onStageUpdate={handleStageUpdate}
                     />
-                    <div className="space-y-6">
-                      <AISuggestionsCard 
-                        onApply={(title) => toast({ title: "Action applied", description: title })} 
-                      />
-                    </div>
-                  </div>
-                </TabsContent>
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </div>
 
-                <TabsContent value="documents">
-                  <DocumentManager
-                    applicant={applicant}
-                    onDocumentAction={handleDocumentAction}
-                    onApproveAll={handleApproveAllDocs}
-                  />
-                </TabsContent>
-
-                <TabsContent value="communication">
-                  <CommunicationCenter
-                    applicantId={applicant.id}
-                    applicantName={applicantName}
-                    applicantEmail={applicant.master_records?.email || ''}
-                    onSendMessage={handleSendMessage}
-                  />
-                </TabsContent>
-
-                <TabsContent value="assessment">
-                  <AssessmentPanel
-                    applicant={applicant}
-                    onScoreUpdate={handleScoreUpdate}
-                    onNotesUpdate={handleAssessmentNotesUpdate}
-                  />
-                </TabsContent>
-
-                <TabsContent value="timeline">
-                  <ApplicationTimeline
-                    applicant={applicant}
-                    onStageUpdate={handleStageUpdate}
-                  />
-                </TabsContent>
-              </div>
-            </Tabs>
+            {/* Collaboration Sidebar - 1 column */}
+            <div className="xl:col-span-1">
+              <CollaborationSidebar
+                applicantId={applicant.id}
+                onAssign={handleAssign}
+                onComment={handleComment}
+              />
+            </div>
           </div>
-
-          {/* Collaboration Sidebar - 1 column */}
-          <div className="xl:col-span-1">
-            <CollaborationSidebar
-              applicantId={applicant.id}
-              onAssign={handleAssign}
-              onComment={handleComment}
-            />
-          </div>
-        </div>
+        )}
       </div>
     </ModernAdminLayout>
   );

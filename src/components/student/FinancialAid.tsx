@@ -1,373 +1,213 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { DollarSign, Calculator, FileText, Users, GraduationCap, AlertCircle } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import ScholarshipApplication from "./ScholarshipApplication";
-import { Calculator, DollarSign, GraduationCap, Clock, Award, MapPin } from "lucide-react";
-import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
+import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 
 const FinancialAid: React.FC = () => {
-  const { toast } = useToast();
-  const [selectedScholarship, setSelectedScholarship] = useState<any>(null);
-  const [selectedPaymentPlan, setSelectedPaymentPlan] = useState<string>("");
-  
-  // Animation hooks
   const isLoaded = usePageEntranceAnimation();
   const { visibleItems, ref: staggerRef } = useStaggeredReveal(6, 150);
-  const { count: scholarshipAmount, ref: scholarshipRef } = useCountUp(8500, 2000, 0, '$', '');
-  
-  // BC Student Loan Calculator state
-  const [legalStatus, setLegalStatus] = useState<string>("");
-  const [programLength, setProgramLength] = useState<string>("");
-  const [familyIncome, setFamilyIncome] = useState<number>(0);
-  const [dependents, setDependents] = useState<number>(0);
-  const [livingArrangement, setLivingArrangement] = useState<string>("");
 
-  const scholarships = [
+  const aidPrograms = [
     {
-      id: 1,
-      name: "Academic Excellence Scholarship",
-      amount: "$2,500",
-      deadline: "March 15, 2024",
-      requirements: "Minimum 85% average",
-      eligible: true
+      title: "Federal Pell Grant",
+      amount: "Up to $7,395",
+      description: "Need-based aid that doesn't need to be repaid",
+      status: "eligible",
+      requirements: ["Complete FAFSA", "Demonstrate financial need", "Maintain SAP"]
     },
     {
-      id: 2,
-      name: "Indigenous Student Bursary",
-      amount: "$1,500",
-      deadline: "April 1, 2024",
-      requirements: "Indigenous heritage verification",
-      eligible: false
+      title: "State Grant Program",
+      amount: "Up to $5,000",
+      description: "State-funded assistance for qualifying students",
+      status: "pending",
+      requirements: ["State residency", "Academic merit", "Income requirements"]
     },
     {
-      id: 3,
-      name: "Single Parent Support Fund",
-      amount: "$1,200",
-      deadline: "May 15, 2024",
-      requirements: "Single parent with dependents",
-      eligible: true
+      title: "Merit Scholarship",
+      amount: "$3,500",
+      description: "Academic achievement-based scholarship",
+      status: "awarded",
+      requirements: ["3.5+ GPA", "Community service", "Leadership activities"]
     },
     {
-      id: 4,
-      name: "Career Transition Grant",
-      amount: "$3,000",
-      deadline: "June 1, 2024",
-      requirements: "Career change documentation",
-      eligible: true
+      title: "Work-Study Program",
+      amount: "$2,000/semester",
+      description: "Part-time employment opportunities on campus",
+      status: "available",
+      requirements: ["FAFSA completion", "Financial need", "Available positions"]
     }
   ];
 
-  const paymentPlans = [
-    {
-      id: "full",
-      name: "Full Payment",
-      discount: "5% discount",
-      amount: "$14,250",
-      description: "Pay full tuition upfront",
-      dueDate: "September 1, 2024"
-    },
-    {
-      id: "3month",
-      name: "3-Month Plan",
-      discount: "2% discount",
-      amount: "$4,900 x 3",
-      description: "Split into 3 monthly payments",
-      dueDate: "September 1, October 1, November 1, 2024"
-    },
-    {
-      id: "6month",
-      name: "6-Month Plan",
-      discount: "No discount",
-      amount: "$2,500 x 6",
-      description: "Split into 6 monthly payments",
-      dueDate: "September 1 - February 1, 2025"
-    },
-    {
-      id: "12month",
-      name: "12-Month Plan",
-      discount: "2% interest",
-      amount: "$1,275 x 12",
-      description: "Extended payment plan",
-      dueDate: "September 1, 2024 - August 1, 2025"
-    }
+  const documents = [
+    { name: "FAFSA Application", status: "completed", dueDate: "March 1, 2024" },
+    { name: "Tax Returns (2023)", status: "submitted", dueDate: "March 15, 2024" },
+    { name: "Bank Statements", status: "pending", dueDate: "March 20, 2024" },
+    { name: "Verification Worksheet", status: "required", dueDate: "April 1, 2024" }
   ];
 
-  const calculateBCStudentLoan = () => {
-    if (!legalStatus || !programLength || !familyIncome || !livingArrangement) {
-      return { eligible: false, estimatedAmount: 0 };
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'eligible':
+      case 'awarded':
+      case 'completed':
+      case 'submitted':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'pending':
+      case 'available':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'required':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
-
-    if (legalStatus !== "citizen" && legalStatus !== "permanent") {
-      return { eligible: false, estimatedAmount: 0, reason: "Must be Canadian citizen or permanent resident" };
-    }
-
-    // Basic calculation based on program length and family income
-    let maxLoan = programLength === "6months" ? 8000 : programLength === "12months" ? 15000 : 0;
-    let needBasedReduction = Math.max(0, (familyIncome - 25000) * 0.1);
-    let estimatedAmount = Math.max(0, maxLoan - needBasedReduction);
-
-    if (livingArrangement === "athome") {
-      estimatedAmount *= 0.8; // Reduced amount for living at home
-    }
-
-    return { 
-      eligible: true, 
-      estimatedAmount: Math.round(estimatedAmount),
-      maxLoan 
-    };
   };
-
-  const loanEligibility = calculateBCStudentLoan();
-
-  const handlePaymentPlanSelect = (planId: string) => {
-    setSelectedPaymentPlan(planId);
-    const plan = paymentPlans.find(p => p.id === planId);
-    toast({
-      title: "Payment Plan Selected",
-      description: `Your preference for the ${plan?.name} has been communicated to our admissions team.`
-    });
-  };
-
-  if (selectedScholarship) {
-    return (
-      <ScholarshipApplication 
-        scholarship={selectedScholarship} 
-        onBack={() => setSelectedScholarship(null)} 
-      />
-    );
-  }
 
   return (
-    <div className={`space-y-6 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+      {/* Header */}
       <div className="animate-slide-down">
-        <h1 className="text-3xl font-bold">Financial Aid & Scholarships</h1>
-        <p className="text-gray-600 mt-2">Explore funding options to make your education more affordable</p>
+        <h1 className="text-2xl font-bold">Financial Aid</h1>
+        <p className="text-muted-foreground">Explore funding options and manage your financial aid applications</p>
       </div>
 
-      <Tabs defaultValue="scholarships" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="scholarships">Scholarships</TabsTrigger>
-          <TabsTrigger value="payment-plans">Payment Plans</TabsTrigger>
-          <TabsTrigger value="calculator">Cost Calculator</TabsTrigger>
-        </TabsList>
+      {/* Financial Aid Summary */}
+      <div ref={staggerRef} className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className={`p-6 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-green-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Total Aid Awarded</h3>
+              <p className="text-2xl font-bold text-green-600">$15,895</p>
+            </div>
+          </div>
+        </Card>
 
-        <TabsContent value="scholarships" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Available Scholarships
-              </CardTitle>
-              <CardDescription>
-                Scholarships you're eligible for based on your profile
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4" ref={staggerRef}>
-              {scholarships.map((scholarship, index) => (
-                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${visibleItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold">{scholarship.name}</h3>
-                      <p className="text-2xl font-bold text-green-600" ref={index === 0 ? scholarshipRef : undefined}>
-                        {index === 0 && scholarship.amount === '$8,500' ? scholarshipAmount : scholarship.amount}
-                      </p>
-                    </div>
-                    <Badge variant={scholarship.eligible ? "default" : "secondary"}>
-                      {scholarship.eligible ? "Eligible" : "Not Eligible"}
+        <Card className={`p-6 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Calculator className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Remaining Cost</h3>
+              <p className="text-2xl font-bold text-blue-600">$8,105</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className={`p-6 ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
+              <GraduationCap className="w-6 h-6 text-purple-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold">Total Cost of Attendance</h3>
+              <p className="text-2xl font-bold text-purple-600">$24,000</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* Aid Programs */}
+      <Card className={`p-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
+        <h2 className="text-xl font-semibold mb-4">Available Financial Aid Programs</h2>
+        <div className="space-y-4">
+          {aidPrograms.map((program, index) => (
+            <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold">{program.title}</h3>
+                    <Badge className={`${getStatusColor(program.status)} border text-xs`}>
+                      {program.status}
                     </Badge>
                   </div>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <span>Deadline: {scholarship.deadline}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4 text-gray-500" />
-                      <span>Requirements: {scholarship.requirements}</span>
-                    </div>
+                  <p className="text-muted-foreground text-sm mb-2">{program.description}</p>
+                  <div className="text-sm">
+                    <span className="font-medium">Requirements: </span>
+                    {program.requirements.join(", ")}
                   </div>
-                  {scholarship.eligible && (
-                    <Button 
-                      className="w-full"
-                      onClick={() => setSelectedScholarship(scholarship)}
-                    >
-                      Apply Now
-                    </Button>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-primary">{program.amount}</p>
+                  {program.status === 'available' && (
+                    <Button size="sm" className="mt-2">Apply Now</Button>
                   )}
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="payment-plans" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5" />
-                Payment Plans
-              </CardTitle>
-              <CardDescription>
-                Choose a payment schedule that works for your budget
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-4 md:grid-cols-2">
-              {paymentPlans.map((plan, index) => (
-                <div key={index} className={`border rounded-lg p-4 space-y-3 ${selectedPaymentPlan === plan.id ? 'border-blue-500 bg-blue-50' : ''}`}>
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold">{plan.name}</h3>
-                    <Badge variant="outline">{plan.discount}</Badge>
-                  </div>
-                  <p className="text-2xl font-bold">{plan.amount}</p>
-                  <p className="text-sm text-gray-600">{plan.description}</p>
-                  <div className="text-xs text-gray-500 space-y-1">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3" />
-                      Due: {plan.dueDate}
-                    </div>
-                  </div>
-                  <Button 
-                    variant={selectedPaymentPlan === plan.id ? "default" : "outline"} 
-                    className="w-full"
-                    onClick={() => handlePaymentPlanSelect(plan.id)}
-                  >
-                    {selectedPaymentPlan === plan.id ? "Selected" : "Select Plan"}
-                  </Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="calculator" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                BC Student Loan Calculator
-              </CardTitle>
-              <CardDescription>
-                Check your eligibility for BC student loans and estimate funding
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="legalStatus">Legal Status in Canada *</Label>
-                  <Select value={legalStatus} onValueChange={setLegalStatus}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="citizen">Canadian Citizen</SelectItem>
-                      <SelectItem value="permanent">Permanent Resident</SelectItem>
-                      <SelectItem value="protected">Protected Person</SelectItem>
-                      <SelectItem value="temporary">Temporary Resident</SelectItem>
-                      <SelectItem value="international">International Student</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="programLength">Program Length *</Label>
-                  <Select value={programLength} onValueChange={setProgramLength}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select length" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="6months">6 months</SelectItem>
-                      <SelectItem value="12months">12 months</SelectItem>
-                      <SelectItem value="24months">24 months</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
+            </div>
+          ))}
+        </div>
+      </Card>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="familyIncome">Family Income (Annual)</Label>
-                  <Input
-                    id="familyIncome"
-                    type="number"
-                    value={familyIncome || ""}
-                    onChange={(e) => setFamilyIncome(Number(e.target.value))}
-                    placeholder="50000"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="dependents">Number of Dependents</Label>
-                  <Input
-                    id="dependents"
-                    type="number"
-                    value={dependents || ""}
-                    onChange={(e) => setDependents(Number(e.target.value))}
-                    placeholder="0"
-                    min="0"
-                  />
-                </div>
+      {/* Required Documents */}
+      <Card className={`p-6 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <FileText className="w-5 h-5" />
+          <h2 className="text-xl font-semibold">Required Documents</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {documents.map((doc, index) => (
+            <div key={index} className="border rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-medium">{doc.name}</h3>
+                <Badge className={`${getStatusColor(doc.status)} border text-xs`}>
+                  {doc.status}
+                </Badge>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="livingArrangement">Living Arrangement *</Label>
-                <Select value={livingArrangement} onValueChange={setLivingArrangement}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select arrangement" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="athome">Living with parents/family</SelectItem>
-                    <SelectItem value="away">Living away from home</SelectItem>
-                    <SelectItem value="independent">Independent with dependents</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {loanEligibility.eligible === false && loanEligibility.reason && (
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h3 className="font-semibold text-red-900 mb-2">❌ Not Eligible</h3>
-                  <p className="text-red-800 text-sm">{loanEligibility.reason}</p>
-                </div>
+              <p className="text-sm text-muted-foreground">Due: {doc.dueDate}</p>
+              {doc.status === 'required' && (
+                <Button size="sm" variant="outline" className="mt-2">
+                  Upload Document
+                </Button>
               )}
+            </div>
+          ))}
+        </div>
+      </Card>
 
-              {loanEligibility.eligible && (
-                <div className="bg-green-50 p-4 rounded-lg space-y-4">
-                  <h3 className="font-semibold text-green-900">✅ Estimated Loan Eligibility</h3>
-                  <div className="grid gap-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Maximum loan available:</span>
-                      <span className="font-medium">${loanEligibility.maxLoan?.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Estimated loan amount:</span>
-                      <span className="font-medium text-green-600">${loanEligibility.estimatedAmount?.toLocaleString()}</span>
-                    </div>
-                  </div>
-                </div>
-              )}
+      {/* Action Items */}
+      <Card className={`p-6 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <AlertCircle className="w-5 h-5 text-orange-500" />
+          <h2 className="text-xl font-semibold">Action Items</h2>
+        </div>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <div>
+              <h4 className="font-medium">Complete Verification Worksheet</h4>
+              <p className="text-sm text-muted-foreground">Required to process your financial aid</p>
+            </div>
+            <Button size="sm">Complete Now</Button>
+          </div>
+          <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div>
+              <h4 className="font-medium">Schedule Financial Aid Appointment</h4>
+              <p className="text-sm text-muted-foreground">Meet with a counselor to discuss your options</p>
+            </div>
+            <Button size="sm" variant="outline">Schedule</Button>
+          </div>
+        </div>
+      </Card>
 
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">💡 BC Student Loan Information</h4>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• Interest-free while in studies</li>
-                  <li>• Repayment starts 6 months after graduation</li>
-                  <li>• Apply through StudentAidBC website</li>
-                  <li>• Additional grants may be available</li>
-                </ul>
-              </div>
-
-              <Button className="w-full" disabled={!loanEligibility.eligible}>
-                Apply for BC Student Loan
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Button className="h-16 flex flex-col items-center gap-2">
+          <Calculator className="w-5 h-5" />
+          Net Price Calculator
+        </Button>
+        <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
+          <Users className="w-5 h-5" />
+          Financial Aid Counseling
+        </Button>
+        <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
+          <FileText className="w-5 h-5" />
+          Appeal Process
+        </Button>
+      </div>
     </div>
   );
 };

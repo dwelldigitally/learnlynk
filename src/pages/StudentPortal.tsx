@@ -9,6 +9,8 @@ import MessageCentre from "@/components/student/MessageCentre";
 import AcademicPlanning from "@/components/student/AcademicPlanning";
 import DocumentUpload from "@/components/student/DocumentUpload";
 import PayYourFee from "@/components/student/PayYourFee";
+import FinancialAid from "@/components/student/FinancialAid";
+import CareerServices from "@/components/student/CareerServices";
 import WelcomeOnboarding from "@/components/student/WelcomeOnboarding";
 
 import NewsAndEvents from "./NewsAndEvents";
@@ -120,6 +122,12 @@ const StudentPortal: React.FC = () => {
       case "/student/academic-planning":
       case "/student-portal/academic-planning":
         return <AcademicPlanning />;
+      case "/student/financial-aid":
+      case "/student-portal/financial-aid":
+        return <FinancialAid />;
+      case "/student/career-services":
+      case "/student-portal/career-services":
+        return <CareerServices />;
       case "/student/documents":
       case "/student-portal/documents":
         return <DocumentUpload />;

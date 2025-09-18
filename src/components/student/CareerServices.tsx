@@ -1,354 +1,258 @@
-import React, { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React from "react";
+import { Briefcase, FileText, Users, Calendar, TrendingUp, MapPin, Clock, ExternalLink } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Briefcase, TrendingUp, Users, Calendar, Star, MapPin, Building } from "lucide-react";
-import { usePageEntranceAnimation, useStaggeredReveal, useCountUp, useProgressAnimation } from "@/hooks/useAnimations";
+import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 
 const CareerServices: React.FC = () => {
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
-  
-  // Animation hooks
   const isLoaded = usePageEntranceAnimation();
-  const { visibleItems: mentorItems, ref: mentorRef } = useStaggeredReveal(3, 150);
-  const { visibleItems: jobItems, ref: jobRef } = useStaggeredReveal(3, 150);
-  const { visibleItems: eventItems, ref: eventRef } = useStaggeredReveal(3, 150);
-  const { count: employmentRate, ref: employmentRef } = useCountUp(94, 2000);
-  const { count: avgSalary, ref: salaryRef } = useCountUp(45000, 2000, 0, '$', '');
-  const { progress: employmentProgress, ref: progressRef } = useProgressAnimation(94, 1500);
+  const { visibleItems, ref: staggerRef } = useStaggeredReveal(8, 150);
 
-  const jobPlacementStats = {
-    employmentRate: 94,
-    averageSalary: "$45,000",
-    placementTime: "3 months",
-    topEmployers: ["VGH", "BC Children's Hospital", "Richmond Hospital", "Fraser Health"]
-  };
-
-  const mentors = [
+  const careerResources = [
     {
-      name: "Sarah Chen",
-      title: "Senior Healthcare Administrator",
-      company: "Vancouver General Hospital",
-      experience: "8 years",
-      avatar: "/src/assets/advisor-nicole.jpg",
-      expertise: ["Healthcare Management", "Patient Care", "Team Leadership"],
-      rating: 4.9,
-      sessions: 45
+      title: "Resume Builder",
+      description: "Create professional resumes with industry-specific templates",
+      icon: FileText,
+      action: "Start Building",
+      color: "blue"
     },
     {
-      name: "Michael Rodriguez",
-      title: "Charge Nurse",
-      company: "BC Children's Hospital",
-      experience: "6 years",
-      avatar: "/src/assets/author-ahmed.jpg",
-      expertise: ["Pediatric Care", "Emergency Response", "Staff Training"],
-      rating: 4.8,
-      sessions: 32
+      title: "Interview Preparation",
+      description: "Practice with mock interviews and get feedback",
+      icon: Users,
+      action: "Schedule Session",
+      color: "green"
     },
     {
-      name: "Jennifer Kim",
-      title: "Care Coordinator",
-      company: "Fraser Health",
-      experience: "5 years",
-      avatar: "/src/assets/author-sarah.jpg",
-      expertise: ["Patient Advocacy", "Care Planning", "Communication"],
-      rating: 4.9,
-      sessions: 28
+      title: "Job Search Portal",
+      description: "Access exclusive job postings from our partner employers",
+      icon: Briefcase,
+      action: "Browse Jobs",
+      color: "purple"
+    },
+    {
+      title: "Career Assessment",
+      description: "Discover careers that match your interests and skills",
+      icon: TrendingUp,
+      action: "Take Assessment",
+      color: "orange"
+    }
+  ];
+
+  const upcomingEvents = [
+    {
+      title: "Career Fair 2024",
+      date: "March 15, 2024",
+      time: "10:00 AM - 4:00 PM",
+      location: "Student Center",
+      companies: "50+ Companies",
+      type: "career-fair"
+    },
+    {
+      title: "Resume Writing Workshop",
+      date: "March 8, 2024",
+      time: "2:00 PM - 3:30 PM",
+      location: "Career Services Office",
+      instructor: "Sarah Johnson",
+      type: "workshop"
+    },
+    {
+      title: "LinkedIn Optimization",
+      date: "March 12, 2024",
+      time: "1:00 PM - 2:00 PM",
+      location: "Virtual",
+      instructor: "Mike Davis",
+      type: "workshop"
     }
   ];
 
   const jobOpportunities = [
     {
-      title: "Healthcare Assistant",
-      company: "Richmond Hospital",
-      location: "Richmond, BC",
-      salary: "$22-26/hour",
-      type: "Full-time",
-      posted: "2 days ago",
-      requirements: ["HCA Certificate", "Clean Criminal Record", "First Aid/CPR"],
-      urgent: true
+      title: "Marketing Intern",
+      company: "TechStart Inc.",
+      location: "Remote",
+      type: "Internship",
+      salary: "$15/hour",
+      deadline: "March 20, 2024"
     },
     {
-      title: "Personal Care Assistant",
-      company: "Comfort Keepers",
-      location: "Vancouver, BC",
-      salary: "$20-24/hour",
-      type: "Part-time",
-      posted: "1 week ago",
-      requirements: ["HCA Certificate", "Valid Driver's License", "Compassionate Care"],
-      urgent: false
+      title: "Junior Developer",
+      company: "Web Solutions LLC",
+      location: "New York, NY",
+      type: "Full-time",
+      salary: "$55,000/year",
+      deadline: "March 25, 2024"
     },
     {
-      title: "Residential Care Aide",
-      company: "Revera",
-      location: "Burnaby, BC",
-      salary: "$24-28/hour",
+      title: "Business Analyst",
+      company: "Finance Corp",
+      location: "Boston, MA",
       type: "Full-time",
-      posted: "3 days ago",
-      requirements: ["HCA Certificate", "Experience Preferred", "Team Player"],
-      urgent: false
+      salary: "$60,000/year",
+      deadline: "April 1, 2024"
     }
   ];
 
-  const networkingEvents = [
-    {
-      title: "Healthcare Professionals Mixer",
-      date: "March 15, 2024",
-      time: "6:00 PM - 8:00 PM",
-      location: "Vancouver Convention Centre",
-      attendees: 120,
-      type: "Networking"
-    },
-    {
-      title: "Career Fair: Healthcare Opportunities",
-      date: "March 22, 2024",
-      time: "10:00 AM - 4:00 PM",
-      location: "WCC Main Campus",
-      attendees: 85,
-      type: "Career Fair"
-    },
-    {
-      title: "Industry Panel: Future of Healthcare",
-      date: "April 5, 2024",
-      time: "2:00 PM - 4:00 PM",
-      location: "Online Webinar",
-      attendees: 200,
-      type: "Industry Talk"
+  const getColorClasses = (color: string) => {
+    switch (color) {
+      case 'blue':
+        return 'bg-blue-100 text-blue-600';
+      case 'green':
+        return 'bg-green-100 text-green-600';
+      case 'purple':
+        return 'bg-purple-100 text-purple-600';
+      case 'orange':
+        return 'bg-orange-100 text-orange-600';
+      default:
+        return 'bg-gray-100 text-gray-600';
     }
-  ];
+  };
 
   return (
-    <div className={`space-y-6 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
+    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+      {/* Header */}
       <div className="animate-slide-down">
-        <h1 className="text-3xl font-bold">Career Services</h1>
-        <p className="text-gray-600 mt-2">Launch your career with expert guidance and industry connections</p>
+        <h1 className="text-2xl font-bold">Career Services</h1>
+        <p className="text-muted-foreground">Explore career opportunities, build professional skills, and connect with employers</p>
       </div>
 
-      {/* Job Placement Statistics */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Program Success Metrics
-          </CardTitle>
-          <CardDescription>Real outcomes from our graduates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-6 md:grid-cols-4">
-            <div className="text-center animate-stagger-1" ref={employmentRef}>
-              <div className="text-3xl font-bold text-green-600">{employmentRate}%</div>
-              <div className="text-sm text-gray-600">Employment Rate</div>
-              <Progress value={employmentProgress} className="mt-2" ref={progressRef} />
-            </div>
-            <div className="text-center animate-stagger-2" ref={salaryRef}>
-              <div className="text-3xl font-bold text-blue-600">{avgSalary}</div>
-              <div className="text-sm text-gray-600">Average Starting Salary</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-600">{jobPlacementStats.placementTime}</div>
-              <div className="text-sm text-gray-600">Avg. Time to Employment</div>
-            </div>
-            <div className="text-center">
-              <div className="text-sm font-medium mb-2">Top Employers</div>
-              <div className="space-y-1">
-                {jobPlacementStats.topEmployers.slice(0, 2).map((employer, index) => (
-                  <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">{employer}</div>
-                ))}
+      {/* Career Resources */}
+      <div ref={staggerRef}>
+        <h2 className="text-xl font-semibold mb-4">Career Resources</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {careerResources.map((resource, index) => (
+            <Card key={index} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getColorClasses(resource.color)}`}>
+                  <resource.icon className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-semibold mb-2">{resource.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{resource.description}</p>
+                </div>
+                <Button size="sm" className="w-full">{resource.action}</Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Upcoming Events */}
+      <Card className={`p-6 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-5 h-5" />
+          <h2 className="text-xl font-semibold">Upcoming Events</h2>
+        </div>
+        <div className="space-y-4">
+          {upcomingEvents.map((event, index) => (
+            <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold">{event.title}</h3>
+                    <Badge variant="outline" className="text-xs">
+                      {event.type}
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-4 h-4" />
+                      {event.date}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-4 h-4" />
+                      {event.time}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {event.location}
+                    </div>
+                  </div>
+                  {event.companies && (
+                    <p className="text-sm text-green-600 font-medium mt-1">{event.companies} attending</p>
+                  )}
+                  {event.instructor && (
+                    <p className="text-sm text-blue-600 mt-1">Instructor: {event.instructor}</p>
+                  )}
+                </div>
+                <Button size="sm">Register</Button>
               </div>
             </div>
-          </div>
-        </CardContent>
+          ))}
+        </div>
       </Card>
 
-      <Tabs defaultValue="mentorship" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="mentorship">Alumni Chat</TabsTrigger>
-          <TabsTrigger value="jobs">Job Board</TabsTrigger>
-          <TabsTrigger value="networking">Networking</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="mentorship" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Chat with Alumni
-              </CardTitle>
-              <CardDescription>
-                Connect and chat with successful graduates in your field
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4" ref={mentorRef}>
-              {mentors.map((mentor, index) => (
-                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${mentorItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-                  <div className="flex items-start gap-4">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={mentor.avatar} alt={mentor.name} />
-                      <AvatarFallback>{mentor.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="font-semibold">{mentor.name}</h3>
-                          <p className="text-sm text-gray-600">{mentor.title}</p>
-                          <p className="text-sm text-gray-500">{mentor.company}</p>
-                        </div>
-                        <div className="text-right text-xs text-gray-500">
-                          <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                            {mentor.rating}
-                          </div>
-                          <div>{mentor.sessions} sessions</div>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {mentor.expertise.map((skill, skillIndex) => (
-                          <Badge key={skillIndex} variant="secondary" className="text-xs">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">{mentor.experience} experience</p>
-                    </div>
-                  </div>
-                  <Button className="w-full">Start Chat</Button>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="jobs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Current Job Opportunities
-              </CardTitle>
-              <CardDescription>
-                Exclusive job postings for WCC students and graduates
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4" ref={jobRef}>
-              {jobOpportunities.map((job, index) => (
-                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${jobItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{job.title}</h3>
-                        {job.urgent && <Badge className="bg-red-100 text-red-800">Urgent</Badge>}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                        <div className="flex items-center gap-1">
-                          <Building className="h-3 w-3" />
-                          {job.company}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {job.location}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-green-600">{job.salary}</div>
-                      <Badge variant="outline">{job.type}</Badge>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-medium text-gray-700 mb-1">Requirements:</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {job.requirements.map((req, reqIndex) => (
-                        <Badge key={reqIndex} variant="secondary" className="text-xs">
-                          {req}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">Posted {job.posted}</span>
-                    <Button>Apply Now</Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="networking" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Upcoming Networking Events
-              </CardTitle>
-              <CardDescription>
-                Build connections and explore opportunities
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4" ref={eventRef}>
-              {networkingEvents.map((event, index) => (
-                <div key={index} className={`border rounded-lg p-4 space-y-3 hover-scale transition-all duration-300 ${eventItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold">{event.title}</h3>
-                      <div className="text-sm text-gray-600 mt-1">
-                        <div>{event.date} • {event.time}</div>
-                        <div className="flex items-center gap-1 mt-1">
-                          <MapPin className="h-3 w-3" />
-                          {event.location}
-                        </div>
-                      </div>
-                    </div>
-                    <Badge>{event.type}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">{event.attendees} registered</span>
-                    <Button>Register</Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="resources" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Resume Building</CardTitle>
-                <CardDescription>Create a standout healthcare resume</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  <li>• Healthcare-specific resume templates</li>
-                  <li>• Skills assessment and recommendations</li>
-                  <li>• Professional review and feedback</li>
-                </ul>
-                <Button className="w-full mt-4">Access Templates</Button>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Interview Preparation</CardTitle>
-                <CardDescription>Ace your healthcare interviews</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-2 text-sm">
-                  <li>• Common healthcare interview questions</li>
-                  <li>• Mock interview scheduling</li>
-                  <li>• Professional etiquette guide</li>
-                </ul>
-                <Button className="w-full mt-4">Start Prep</Button>
-              </CardContent>
-            </Card>
+      {/* Job Opportunities */}
+      <Card className={`p-6 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5" />
+            <h2 className="text-xl font-semibold">Featured Job Opportunities</h2>
           </div>
-        </TabsContent>
-      </Tabs>
+          <Button variant="outline" size="sm">
+            View All Jobs
+            <ExternalLink className="w-4 h-4 ml-2" />
+          </Button>
+        </div>
+        <div className="space-y-4">
+          {jobOpportunities.map((job, index) => (
+            <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-semibold">{job.title}</h3>
+                    <Badge variant="outline" className="text-xs">
+                      {job.type}
+                    </Badge>
+                  </div>
+                  <p className="text-muted-foreground mb-1">{job.company}</p>
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {job.location}
+                    </div>
+                    <div className="font-medium text-green-600">{job.salary}</div>
+                  </div>
+                  <p className="text-xs text-red-600 mt-1">Application Deadline: {job.deadline}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline">View Details</Button>
+                  <Button size="sm">Apply Now</Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className={`p-6 text-center ${visibleItems[6] ? 'animate-stagger-7' : 'opacity-0'}`}>
+          <h3 className="text-2xl font-bold text-primary">92%</h3>
+          <p className="text-muted-foreground">Graduate Employment Rate</p>
+        </Card>
+        <Card className={`p-6 text-center ${visibleItems[7] ? 'animate-stagger-8' : 'opacity-0'}`}>
+          <h3 className="text-2xl font-bold text-green-600">$58,000</h3>
+          <p className="text-muted-foreground">Average Starting Salary</p>
+        </Card>
+        <Card className={`p-6 text-center ${visibleItems[8] ? 'animate-stagger-9' : 'opacity-0'}`}>
+          <h3 className="text-2xl font-bold text-blue-600">200+</h3>
+          <p className="text-muted-foreground">Partner Employers</p>
+        </Card>
+      </div>
+
+      {/* Contact Career Services */}
+      <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Need Personalized Career Guidance?</h2>
+          <p className="text-muted-foreground mb-4">Schedule a one-on-one appointment with our career counselors</p>
+          <div className="flex justify-center gap-4">
+            <Button>Schedule Appointment</Button>
+            <Button variant="outline">Contact Us</Button>
+          </div>
+        </div>
+      </Card>
     </div>
   );
 };

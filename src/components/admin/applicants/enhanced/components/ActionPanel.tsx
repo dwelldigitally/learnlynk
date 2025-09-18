@@ -42,33 +42,31 @@ export const ActionPanel: React.FC<ActionPanelProps> = ({
   };
 
   return (
-    <div className="p-6 border-t bg-muted/20">
-      <div className="flex flex-col lg:flex-row gap-6 items-start">
+    <div className="px-6 py-4 border-t bg-muted/20">
+      <div className="flex flex-col lg:flex-row gap-4 items-center">
         
-        {/* AI Recommendation */}
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-4">
-            <Zap className="h-5 w-5 text-yellow-500" />
-            <span className="font-semibold">AI Recommendation</span>
+        {/* AI Recommendation - Compact */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-yellow-500" />
+            <span className="font-medium text-sm">AI Recommendation</span>
           </div>
-          <div className="space-y-2">
-            <Badge 
-              variant="outline" 
-              className={`${getRecommendationColor(aiRecommendation)} border-current text-sm px-3 py-1`}
-            >
-              {getRecommendationIcon(aiRecommendation)}
-              <span className="ml-2">{aiRecommendation}</span>
-            </Badge>
-            <p className="text-sm text-muted-foreground">{processingStatus}</p>
-          </div>
+          <Badge 
+            variant="outline" 
+            className={`${getRecommendationColor(aiRecommendation)} border-current text-sm px-3 py-1`}
+          >
+            {getRecommendationIcon(aiRecommendation)}
+            <span className="ml-2">{aiRecommendation}</span>
+          </Badge>
+          <span className="text-xs text-muted-foreground">{processingStatus}</span>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 ml-auto">
           <Button 
             onClick={onApprove}
             disabled={saving}
-            className="h-11 px-6 gap-2 bg-success hover:bg-success/90"
+            className="h-9 px-4 gap-2 bg-success hover:bg-success/90"
           >
             <CheckCircle className="h-4 w-4" />
             Approve
@@ -77,7 +75,7 @@ export const ActionPanel: React.FC<ActionPanelProps> = ({
             variant="outline"
             onClick={onReject}
             disabled={saving}
-            className="h-11 px-6 gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+            className="h-9 px-4 gap-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
           >
             <AlertTriangle className="h-4 w-4" />
             Reject
@@ -86,7 +84,7 @@ export const ActionPanel: React.FC<ActionPanelProps> = ({
             variant="outline"
             onClick={onSendEmail}
             disabled={saving}
-            className="h-11 px-4 gap-2"
+            className="h-9 px-3 gap-2"
           >
             <Mail className="h-4 w-4" />
             Email
@@ -95,7 +93,7 @@ export const ActionPanel: React.FC<ActionPanelProps> = ({
             variant="outline"
             onClick={onScheduleInterview}
             disabled={saving}
-            className="h-11 px-4 gap-2"
+            className="h-9 px-3 gap-2"
           >
             <Calendar className="h-4 w-4" />
             Interview

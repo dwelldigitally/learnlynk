@@ -30,7 +30,8 @@ const YourApplications: React.FC = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   
   // Application wizard state
-  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
+  const [editingApplication, setEditingApplication] = useState<ApplicationData | null>(null);
   const [applications, setApplications] = useState<ApplicationData[]>([]);
 
   // Convert studentApplications object to array for display
@@ -40,10 +41,17 @@ const YourApplications: React.FC = () => {
 
   const handleApplicationCreated = (newApplication: ApplicationData) => {
     setApplications(prev => [...prev, newApplication]);
+    setShowWizard(false);
+    setEditingApplication(null);
     toast({
       title: "Application Created!",
       description: "Your new application has been saved successfully."
     });
+  };
+
+  const handleCloseWizard = () => {
+    setShowWizard(false);
+    setEditingApplication(null);
   };
 
   const getStatusColor = (stage: string) => {
@@ -85,6 +93,17 @@ const YourApplications: React.FC = () => {
     }
   };
 
+  // Show wizard if showWizard is true
+  if (showWizard) {
+    return (
+      <ApplicationWizard
+        onClose={handleCloseWizard}
+        onApplicationCreated={handleApplicationCreated}
+        editingApplication={editingApplication}
+      />
+    );
+  }
+
   return (
     <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
@@ -94,7 +113,7 @@ const YourApplications: React.FC = () => {
             <h1 className="text-2xl font-bold">Your Applications</h1>
             <p className="text-muted-foreground">Track the status and progress of all your submitted applications</p>
           </div>
-          <Button onClick={() => setIsWizardOpen(true)} className="flex items-center gap-2">
+          <Button onClick={() => setShowWizard(true)} className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Start New Application
           </Button>
@@ -141,7 +160,10 @@ const YourApplications: React.FC = () => {
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setIsWizardOpen(true)}
+                onClick={() => {
+                  setEditingApplication(application);
+                  setShowWizard(true);
+                }}
               >
                 Continue Application
               </Button>
@@ -340,7 +362,7 @@ const YourApplications: React.FC = () => {
           <p className="text-muted-foreground mb-4">
             You haven't submitted any applications yet. Start your journey by submitting your first application.
           </p>
-          <Button onClick={() => setIsWizardOpen(true)}>Start New Application</Button>
+          <Button onClick={() => setShowWizard(true)}>Start New Application</Button>
         </Card>
       )}
 
@@ -515,12 +537,6 @@ const YourApplications: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Application Wizard */}
-      <ApplicationWizard
-        isOpen={isWizardOpen}
-        onClose={() => setIsWizardOpen(false)}
-        onApplicationCreated={handleApplicationCreated}
-      />
     </div>
   );
 };

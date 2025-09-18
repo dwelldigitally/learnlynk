@@ -18,7 +18,6 @@ import PaymentStep from "./steps/PaymentStep";
 import ReviewSubmitStep from "./steps/ReviewSubmitStep";
 
 interface ApplicationWizardProps {
-  isOpen: boolean;
   onClose: () => void;
   onApplicationCreated: (application: ApplicationData) => void;
   editingApplication?: ApplicationData | null;
@@ -36,7 +35,6 @@ const steps = [
 ];
 
 const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
-  isOpen,
   onClose,
   onApplicationCreated,
   editingApplication
@@ -228,13 +226,10 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header */}
-        <div className="p-6 border-b bg-gradient-to-r from-primary/10 to-secondary/10">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="p-6 border-b bg-gradient-to-r from-primary/10 to-secondary/10 rounded-lg">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">
               {editingApplication ? 'Edit Application' : 'New Application'}
@@ -286,7 +281,7 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
         </div>
 
         {/* Step Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="p-6 bg-background rounded-lg border">
           <div className="mb-4">
             <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
             <p className="text-muted-foreground">{steps[currentStep].description}</p>
@@ -295,7 +290,7 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t bg-muted/20">
+        <div className="p-6 border-t bg-muted/20 rounded-lg">
           <div className="flex justify-between">
             <Button
               variant="outline"
@@ -325,7 +320,6 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
             </div>
           </div>
         </div>
-      </Card>
     </div>
   );
 };

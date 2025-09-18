@@ -74,6 +74,11 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
     }
   }, [applicationData, currentStep]);
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
   const handleAutoSave = async () => {
     if (!applicationData.id) return;
     

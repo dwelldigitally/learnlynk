@@ -214,17 +214,14 @@ export const ApplicantManagement = () => {
       key: 'name',
       label: 'Name',
       sortable: true,
-      render: (item: any) => {
-        if (!item) return null;
-        
-        // Handle different possible data structures
-        const firstName = item.master_records?.first_name || item.first_name || 'N/A';
-        const lastName = item.master_records?.last_name || item.last_name || '';
-        const email = item.master_records?.email || item.email || 'No email';
-        
+      render: (_value: any, row: any) => {
+        if (!row) return null;
+        const firstName = row.master_records?.first_name || row.first_name || 'N/A';
+        const lastName = row.master_records?.last_name || row.last_name || '';
+        const email = row.master_records?.email || row.email || 'No email';
         return (
           <div>
-            <Link to={`/admin/applicants/detail/${item.id}`} className="font-medium hover:underline">
+            <Link to={`/admin/applicants/detail/${row.id}`} className="font-medium hover:underline">
               {firstName} {lastName}
             </Link>
             <div className="text-sm text-muted-foreground">{email}</div>
@@ -236,22 +233,15 @@ export const ApplicantManagement = () => {
       key: 'program',
       label: 'Program',
       sortable: true,
-      render: (item: Applicant) => {
-        console.log('Rendering program for item:', item);
-        if (!item) return null;
-        return (
-          <Badge variant="outline">
-            {item.program || 'No Program'}
-          </Badge>
-        );
-      }
+      render: (_: any, row: any) => (
+        <Badge variant="outline">{row?.program || 'No Program'}</Badge>
+      )
     },
     {
       key: 'substage',
       label: 'Stage',
-      render: (item: Applicant) => {
-        if (!item) return null;
-        const stage = (item.substage || 'application_started') as string;
+      render: (_: any, row: any) => {
+        const stage = (row?.substage || 'application_started') as string;
         return (
           <Badge variant={getSubstageBadgeVariant(stage)}>
             {stage.replace('_', ' ').toUpperCase()}
@@ -262,9 +252,8 @@ export const ApplicantManagement = () => {
     {
       key: 'application_type',
       label: 'Type',
-      render: (item: Applicant) => {
-        if (!item) return null;
-        const type = (item.application_type || 'direct_enrollment') as string;
+      render: (_: any, row: any) => {
+        const type = (row?.application_type || 'direct_enrollment') as string;
         return (
           <Badge variant="outline">
             {type.replace('_', ' ').toUpperCase()}
@@ -275,9 +264,8 @@ export const ApplicantManagement = () => {
     {
       key: 'decision',
       label: 'Decision',
-      render: (item: Applicant) => {
-        if (!item) return null;
-        const decision = item.decision || 'pending';
+      render: (_: any, row: any) => {
+        const decision = row?.decision || 'pending';
         return decision !== 'pending' ? (
           <Badge variant={getDecisionBadgeVariant(decision)}>
             {decision.toUpperCase()}
@@ -290,9 +278,8 @@ export const ApplicantManagement = () => {
     {
       key: 'payment_status',
       label: 'Payment',
-      render: (item: Applicant) => {
-        if (!item) return null;
-        const pay = (item.payment_status || 'pending') as string;
+      render: (_: any, row: any) => {
+        const pay = (row?.payment_status || 'pending') as string;
         return (
           <Badge variant={getPaymentStatusBadgeVariant(pay)}>
             {pay.toUpperCase()}
@@ -303,14 +290,13 @@ export const ApplicantManagement = () => {
     {
       key: 'program_fit_score',
       label: 'Program Fit',
-      render: (item: Applicant) => {
-        if (!item) return null;
-        // Get from assessment if available, otherwise show pending
+      render: (_: any, row: any) => {
+        const score = row?.program_fit_score as number | undefined;
         return (
           <div className="text-center">
             <Badge variant="outline">
               <Brain className="w-3 h-3 mr-1" />
-              Pending
+              {typeof score === 'number' ? `${score}` : 'Pending'}
             </Badge>
           </div>
         );
@@ -319,13 +305,13 @@ export const ApplicantManagement = () => {
     {
       key: 'yield_propensity',
       label: 'Yield Propensity', 
-      render: (item: Applicant) => {
-        if (!item) return null;
+      render: (_: any, row: any) => {
+        const score = row?.yield_propensity as number | undefined;
         return (
           <div className="text-center">
             <Badge variant="outline">
               <Target className="w-3 h-3 mr-1" />
-              Pending
+              {typeof score === 'number' ? `${score}` : 'Pending'}
             </Badge>
           </div>
         );
@@ -335,10 +321,11 @@ export const ApplicantManagement = () => {
       key: 'created_at',
       label: 'Applied',
       sortable: true,
-      render: (item: Applicant) => {
-        if (!item?.created_at) return 'No Date';
+      render: (_: any, row: any) => {
+        const dateVal = row?.created_at || row?.master_records?.created_at || null;
+        if (!dateVal) return 'No Date';
         try {
-          return new Date(item.created_at).toLocaleDateString();
+          return new Date(dateVal).toLocaleDateString();
         } catch {
           return 'Invalid Date';
         }
@@ -347,18 +334,18 @@ export const ApplicantManagement = () => {
     {
       key: 'actions',
       label: 'Actions',
-      render: (item: Applicant) => {
-        if (!item) return null;
+      render: (_: any, row: any) => {
+        if (!row) return null;
         return (
           <div className="flex space-x-2">
-            <Link to={`/admin/applicants/detail/${item.id}`}>
+            <Link to={`/admin/applicants/detail/${row.id}`}>
               <Button size="sm" variant="ghost" className="h-8">View</Button>
             </Link>
-            {(!item.decision || item.decision === 'pending') && (
+            {(!row.decision || row.decision === 'pending') && (
               <>
                 <Button
                   size="sm"
-                  onClick={() => handleApprove(item.id)}
+                  onClick={() => handleApprove(row.id)}
                   className="h-8"
                 >
                   Approve
@@ -366,7 +353,7 @@ export const ApplicantManagement = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleReject(item.id)}
+                  onClick={() => handleReject(row.id)}
                   className="h-8"
                 >
                   Reject

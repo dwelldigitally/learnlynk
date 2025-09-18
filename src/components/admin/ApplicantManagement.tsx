@@ -234,7 +234,15 @@ export const ApplicantManagement = () => {
     {
       key: 'program',
       label: 'Program',
-      sortable: true
+      sortable: true,
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return (
+          <Badge variant="outline">
+            {item.program || 'No Program'}
+          </Badge>
+        );
+      }
     },
     {
       key: 'substage',
@@ -326,8 +334,12 @@ export const ApplicantManagement = () => {
       label: 'Applied',
       sortable: true,
       render: (item: Applicant) => {
-        if (!item) return null;
-        return new Date(item.created_at).toLocaleDateString();
+        if (!item?.created_at) return 'No Date';
+        try {
+          return new Date(item.created_at).toLocaleDateString();
+        } catch {
+          return 'Invalid Date';
+        }
       }
     },
     {
@@ -340,7 +352,7 @@ export const ApplicantManagement = () => {
             <Link to={`/admin/applicants/detail/${item.id}`}>
               <Button size="sm" variant="ghost" className="h-8">View</Button>
             </Link>
-            {item.decision === 'pending' && (
+            {(!item.decision || item.decision === 'pending') && (
               <>
                 <Button
                   size="sm"

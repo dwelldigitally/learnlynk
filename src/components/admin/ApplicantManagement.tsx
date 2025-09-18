@@ -16,6 +16,7 @@ import { ProgramFitService } from "@/services/programFitService";
 import { supabase } from "@/integrations/supabase/client";
 import { Brain, Zap, Target } from "lucide-react";
 export const ApplicantManagement = () => {
+  console.log('ApplicantManagement component rendered');
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<ApplicantSearchFilters>({});
@@ -236,6 +237,7 @@ export const ApplicantManagement = () => {
       label: 'Program',
       sortable: true,
       render: (item: Applicant) => {
+        console.log('Rendering program for item:', item);
         if (!item) return null;
         return (
           <Badge variant="outline">

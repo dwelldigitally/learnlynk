@@ -27,6 +27,10 @@ export const ApplicantManagement = () => {
   const [activeStage, setActiveStage] = useState('all');
   const [selectedApplicantIds, setSelectedApplicantIds] = useState<string[]>([]);
   const [bulkAssessing, setBulkAssessing] = useState(false);
+  const missingAssessmentIds = useMemo(
+    () => applicants.filter((a: any) => a?.program_fit_score == null).map(a => a.id),
+    [applicants]
+  );
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -60,7 +64,26 @@ export const ApplicantManagement = () => {
         currentPage,
         pageSize
       );
-      setApplicants(data);
+
+      // Merge any existing program fit assessments
+      let merged = data as any[];
+      if (data.length > 0) {
+        const ids = data.map(a => a.id);
+        const { data: assessments } = await supabase
+          .from('program_fit_assessments')
+          .select('applicant_id, program_fit_score, yield_propensity_score')
+          .in('applicant_id', ids);
+
+        const byApplicant: Record<string, { program_fit_score?: number; yield_propensity_score?: number }> = {};
+        (assessments || []).forEach(a => { byApplicant[a.applicant_id] = a; });
+        merged = data.map(a => ({
+          ...a,
+          program_fit_score: byApplicant[a.id]?.program_fit_score,
+          yield_propensity: byApplicant[a.id]?.yield_propensity_score,
+        }));
+      }
+
+      setApplicants(merged as any);
       setTotalCount(total);
       
       // Debug: Log the first applicant to see the data structure
@@ -395,6 +418,27 @@ export const ApplicantManagement = () => {
                   Assess Program Fit ({selectedApplicantIds.length})
                 </>
               )}
+            </Button>
+          )}
+          {missingAssessmentIds.length > 0 && (
+            <Button
+              onClick={async () => {
+                try {
+                  setBulkAssessing(true);
+                  const assessments = await ProgramFitService.bulkAssessApplicants(missingAssessmentIds);
+                  toast({ title: "Assessed visible applicants", description: `${assessments.length} scored` });
+                  await loadApplicants();
+                } catch (e) {
+                  toast({ title: "Error", description: "Failed to assess visible applicants", variant: "destructive" });
+                } finally {
+                  setBulkAssessing(false);
+                }
+              }}
+              disabled={bulkAssessing}
+              variant="outline"
+            >
+              <Brain className="w-4 h-4 mr-2" />
+              Assess Visible ({missingAssessmentIds.length})
             </Button>
           )}
           <Button onClick={async () => {

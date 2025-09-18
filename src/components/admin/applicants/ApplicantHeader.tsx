@@ -91,15 +91,15 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
     : null;
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-emerald-600";
-    if (score >= 60) return "text-blue-600";
-    return "text-orange-600";
+    if (score >= 80) return "text-success";
+    if (score >= 60) return "text-primary";
+    return "text-warning";
   };
 
   const getScoreBg = (score: number) => {
-    if (score >= 80) return "bg-emerald-50 border-emerald-200";
-    if (score >= 60) return "bg-blue-50 border-blue-200";
-    return "bg-orange-50 border-orange-200";
+    if (score >= 80) return "bg-success/10 border-success/20";
+    if (score >= 60) return "bg-primary/10 border-primary/20";
+    return "bg-warning/10 border-warning/20";
   };
 
   // Mock program fit and yield scores based on available data
@@ -116,7 +116,7 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
       </div>
 
       {/* Main Header Card */}
-      <Card className="bg-gradient-to-br from-card to-muted/30 backdrop-blur border-0 shadow-lg">
+      <Card className="rounded-2xl bg-gradient-to-br from-primary/10 via-primary/5 to-background backdrop-blur-sm border shadow-lg">
         <CardContent className="p-8">
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Student Profile Section */}
@@ -140,24 +140,24 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
                 
                 {/* Tags Section */}
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-200">
-                    <GraduationCap className="h-4 w-4" />
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-muted text-foreground rounded-full border border-border">
+                    <GraduationCap className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium">{applicant.program}</span>
                   </div>
-                  <div className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full border border-purple-200">
-                    <Building className="h-4 w-4" />
+                  <div className="flex items-center gap-2 px-3 py-1.5 bg-muted text-foreground rounded-full border border-border">
+                    <Building className="h-4 w-4 text-primary" />
                     <span className="text-sm font-medium capitalize">{String(applicant.substage).replace(/_/g, ' ')}</span>
                   </div>
                   <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${
                     applicant.payment_status === 'completed' 
-                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200' 
-                      : 'bg-orange-50 text-orange-700 border-orange-200'
+                      ? 'bg-success/10 text-success border-success/20' 
+                      : 'bg-warning/10 text-warning border-warning/20'
                   }`}>
                     <CheckCircle className="h-4 w-4" />
                     <span className="text-sm font-medium capitalize">{applicant.payment_status}</span>
                   </div>
                   {applicant.priority === 'high' && (
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-red-50 text-red-700 rounded-full border border-red-200">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-destructive/10 text-destructive rounded-full border border-destructive/20">
                       <AlertTriangle className="h-4 w-4" />
                       <span className="text-sm font-medium">High Priority</span>
                     </div>
@@ -231,18 +231,18 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-card rounded-lg p-4 text-center hover:shadow-md transition-shadow border">
           <div className="text-2xl font-bold text-primary mb-1">
-            {Array.isArray(applicant.documents_submitted) ? applicant.documents_submitted.length : 0}/{Array.isArray(applicant.documents_approved) ? applicant.documents_approved.length : 0}
+            {Array.isArray(applicant.documents_approved) ? applicant.documents_approved.length : 0}/{Array.isArray(applicant.documents_submitted) ? applicant.documents_submitted.length : 0}
           </div>
-          <div className="text-sm text-muted-foreground">Documents Status</div>
+          <div className="text-sm text-muted-foreground">Documents Approved</div>
         </div>
         
         <div className="bg-card rounded-lg p-4 text-center hover:shadow-md transition-shadow border">
-          <div className="text-2xl font-bold text-blue-600 mb-1">{daysSinceApplication}</div>
+          <div className="text-2xl font-bold text-primary mb-1">{daysSinceApplication}</div>
           <div className="text-sm text-muted-foreground">Days in Process</div>
         </div>
         
         <div className="bg-card rounded-lg p-4 text-center hover:shadow-md transition-shadow border">
-          <div className="text-2xl font-bold text-purple-600 mb-1">3</div>
+          <div className="text-2xl font-bold text-primary mb-1">3</div>
           <div className="text-sm text-muted-foreground">Communications</div>
         </div>
         

@@ -25,6 +25,22 @@ import {
 } from 'lucide-react';
 import { ApplicationEssay } from '@/types/applicationData';
 
+interface RubricScores {
+  content: number;
+  organization: number;
+  language: number;
+  relevance: number;
+  originality: number;
+}
+
+interface ManualGrade {
+  totalScore: number;
+  rubricScores: RubricScores;
+  feedback: string;
+  gradedBy: string;
+  gradedAt: Date;
+}
+
 interface ApplicationEssayViewerProps {
   essays: ApplicationEssay[];
 }
@@ -32,21 +48,9 @@ interface ApplicationEssayViewerProps {
 export const ApplicationEssayViewer: React.FC<ApplicationEssayViewerProps> = ({ essays }) => {
   const [expandedEssay, setExpandedEssay] = useState<string | null>(null);
   const [selectedEssay, setSelectedEssay] = useState<string>(essays[0]?.id || '');
-  const [manualGrades, setManualGrades] = useState<Record<string, {
-    totalScore: number;
-    rubricScores: {
-      content: number;
-      organization: number;
-      language: number;
-      relevance: number;
-      originality: number;
-    };
-    feedback: string;
-    gradedBy: string;
-    gradedAt: Date;
-  }>>({});
+  const [manualGrades, setManualGrades] = useState<Record<string, ManualGrade>>({});
 
-  const handleManualGrade = (essayId: string, rubricScores: any, feedback: string) => {
+  const handleManualGrade = (essayId: string, rubricScores: RubricScores, feedback: string) => {
     const totalScore = Math.round(
       (rubricScores.content + rubricScores.organization + rubricScores.language + 
        rubricScores.relevance + rubricScores.originality) / 5 * 25
@@ -342,20 +346,8 @@ export const ApplicationEssayViewer: React.FC<ApplicationEssayViewerProps> = ({ 
 // Rubric-Based Grading Component
 interface RubricBasedGradingCardProps {
   essayId: string;
-  existingGrade?: {
-    totalScore: number;
-    rubricScores: {
-      content: number;
-      organization: number;
-      language: number;
-      relevance: number;
-      originality: number;
-    };
-    feedback: string;
-    gradedBy: string;
-    gradedAt: Date;
-  };
-  onGrade: (essayId: string, rubricScores: any, feedback: string) => void;
+  existingGrade?: ManualGrade;
+  onGrade: (essayId: string, rubricScores: RubricScores, feedback: string) => void;
 }
 
 const RubricBasedGradingCard: React.FC<RubricBasedGradingCardProps> = ({ 

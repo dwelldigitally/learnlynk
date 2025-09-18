@@ -248,31 +248,73 @@ export function EssayReviewPanel({ applicantId, session }: EssayReviewPanelProps
           </CardContent>
         </Card>
 
-        {/* Grading Criteria */}
+        {/* Rubric-Based Grading */}
         <Card className="mb-6">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm">Grading Criteria</CardTitle>
+            <CardTitle className="text-sm">Grading Rubric</CardTitle>
           </CardHeader>
           <CardContent className="pt-0 space-y-4">
-            {Object.entries(scores).map(([criterion, value]) => (
-              <div key={criterion}>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-medium capitalize">
-                    {criterion}
-                  </label>
-                  <span className="text-sm font-medium">{value[0]}%</span>
+            {Object.entries(scores).map(([criterion, value]) => {
+              const rubricDescriptions = {
+                content: {
+                  90: 'Exceptional depth and insight',
+                  80: 'Strong content with good examples',
+                  70: 'Adequate content, some gaps',
+                  60: 'Basic content, lacks depth'
+                },
+                structure: {
+                  90: 'Clear, logical flow throughout',
+                  80: 'Well-organized with minor issues',
+                  70: 'Generally organized, some confusion',
+                  60: 'Poor organization, hard to follow'
+                },
+                originality: {
+                  90: 'Highly original and creative',
+                  80: 'Some original thinking',
+                  70: 'Limited originality',
+                  60: 'Generic, lacks personal voice'
+                },
+                relevance: {
+                  90: 'Directly addresses all prompts',
+                  80: 'Mostly relevant with good focus',
+                  70: 'Generally relevant, some drift',
+                  60: 'Tangential or off-topic'
+                }
+              };
+
+              const getCurrentDescription = (score: number) => {
+                const descriptions = rubricDescriptions[criterion as keyof typeof rubricDescriptions];
+                if (score >= 90) return descriptions[90];
+                if (score >= 80) return descriptions[80];
+                if (score >= 70) return descriptions[70];
+                return descriptions[60];
+              };
+
+              return (
+                <div key={criterion} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-sm font-medium capitalize">
+                      {criterion}
+                    </label>
+                    <span className="text-sm font-medium">{value[0]}%</span>
+                  </div>
+                  
+                  <Slider
+                    value={value}
+                    onValueChange={(newValue) => 
+                      setScores(prev => ({ ...prev, [criterion]: newValue }))
+                    }
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                  
+                  <div className="text-xs text-muted-foreground">
+                    {getCurrentDescription(value[0])}
+                  </div>
                 </div>
-                <Slider
-                  value={value}
-                  onValueChange={(newValue) => 
-                    setScores(prev => ({ ...prev, [criterion]: newValue }))
-                  }
-                  max={100}
-                  step={1}
-                  className="w-full"
-                />
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
 

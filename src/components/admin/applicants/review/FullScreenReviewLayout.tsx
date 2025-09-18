@@ -12,13 +12,14 @@ import { BackgroundReviewPanel } from './BackgroundReviewPanel';
 import { AssessmentPanel } from './AssessmentPanel';
 import { FinalReviewPanel } from './FinalReviewPanel';
 import { QuickActionsSidebar } from './QuickActionsSidebar';
+import { StudentProfileSidebar } from './StudentProfileSidebar';
 import { useToast } from '@/hooks/use-toast';
 
 const REVIEW_SECTIONS: { key: ReviewSection; label: string }[] = [
   { key: 'documents', label: 'Documents' },
   { key: 'essays', label: 'Essays' },
   { key: 'background', label: 'Background' },
-  { key: 'assessment', label: 'Assessment' },
+  { key: 'assessment', label: 'AI Insights' },
   { key: 'final', label: 'Final Review' }
 ];
 
@@ -246,6 +247,8 @@ export function FullScreenReviewLayout() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
+        <StudentProfileSidebar applicantId={applicantId!} />
+        
         <div className="flex-1 overflow-auto">
           {renderCurrentPanel()}
         </div>

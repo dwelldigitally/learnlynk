@@ -30,6 +30,7 @@ import RecruiterSubmitApplication from "./pages/RecruiterSubmitApplication";
 import ApplicantManagementPage from "./pages/ApplicantManagementPage";
 import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
+import { FullScreenReviewLayout } from "./components/admin/applicants/review/FullScreenReviewLayout";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
 import StudentApplication from "./pages/StudentApplication";
@@ -106,6 +107,7 @@ const App = () => {
               
               <Route path="/admin/applicants" element={<ProtectedRoute element={<ApplicantManagementPage />} />} />
               <Route path="/admin/applicants/detail/:applicantId" element={<ProtectedRoute element={<ApplicantDetailPage />} />} />
+              <Route path="/admin/applicants/review/:applicantId" element={<ProtectedRoute element={<FullScreenReviewLayout />} />} />
               
               {/* Lead routing and scoring pages - remove these since they're now in configuration */}
               

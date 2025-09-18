@@ -20,7 +20,7 @@ import { SmartDocumentReview } from "@/components/admin/applicants/enhanced/Smar
 import { HumanDecisionTracker } from "@/components/admin/applicants/enhanced/HumanDecisionTracker";
 // Comprehensive Student Information Components
 import { ComprehensiveApplicantOverview } from "@/components/admin/applicants/comprehensive/ComprehensiveApplicantOverview";
-import { Zap, Eye } from "lucide-react";
+import { Zap, Eye, ClipboardCheck } from "lucide-react";
 
 const paymentStatuses = ["pending", "partial", "completed", "refunded"] as const;
 
@@ -246,14 +246,23 @@ const ApplicantDetailPage: React.FC = () => {
                 <Zap className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-semibold">AI-Accelerated Review Mode</h2>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setAiViewMode(false)}
-                className="flex items-center gap-2"
-              >
-                <Eye className="h-4 w-4" />
-                Switch to Classic View
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button 
+                  onClick={() => navigate(`/admin/applicants/review/${applicantId}`)}
+                  className="flex items-center gap-2"
+                >
+                  <ClipboardCheck className="h-4 w-4" />
+                  Enter Review Mode
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setAiViewMode(false)}
+                  className="flex items-center gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  Switch to Classic View
+                </Button>
+              </div>
             </div>
             <EnhancedApplicantHeader
               applicant={applicant}
@@ -266,7 +275,14 @@ const ApplicantDetailPage: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="flex items-center justify-end">
+            <div className="flex items-center justify-end gap-2">
+              <Button 
+                onClick={() => navigate(`/admin/applicants/review/${applicantId}`)}
+                className="flex items-center gap-2"
+              >
+                <ClipboardCheck className="h-4 w-4" />
+                Enter Review Mode
+              </Button>
               <Button 
                 onClick={() => setAiViewMode(true)}
                 className="flex items-center gap-2"

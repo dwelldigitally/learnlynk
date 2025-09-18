@@ -204,7 +204,6 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
                   {programFitScore}%
                 </span>
               </div>
-              <Progress value={programFitScore} className="h-2 mb-2" />
               <p className="text-xs text-gray-600">
                 Strong match for program requirements
               </p>
@@ -221,7 +220,6 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
                   {applicationScore}%
                 </span>
               </div>
-              <Progress value={applicationScore} className="h-2 mb-2" />
               <p className="text-xs text-gray-600">
                 Excellent application quality
               </p>
@@ -238,7 +236,6 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
                   {yieldPropensity}%
                 </span>
               </div>
-              <Progress value={yieldPropensity} className="h-2 mb-2" />
               <p className="text-xs text-gray-600">
                 High probability to enroll
               </p>

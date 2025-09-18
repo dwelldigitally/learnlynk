@@ -12,6 +12,9 @@ import { RefinedLeadTable } from "./RefinedLeadTable";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 import { Link, useNavigate } from "react-router-dom";
 import { ApplicantStageTracker } from "./applicants/ApplicantStageTracker";
+import { ProgramFitService } from "@/services/programFitService";
+import { supabase } from "@/integrations/supabase/client";
+import { Brain, Zap, Target } from "lucide-react";
 export const ApplicantManagement = () => {
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +25,7 @@ export const ApplicantManagement = () => {
   const [pageSize, setPageSize] = useState(50);
   const [activeStage, setActiveStage] = useState('all');
   const [selectedApplicantIds, setSelectedApplicantIds] = useState<string[]>([]);
+  const [bulkAssessing, setBulkAssessing] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 

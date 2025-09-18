@@ -904,6 +904,60 @@ export type Database = {
         }
         Relationships: []
       }
+      applicant_engagement_metrics: {
+        Row: {
+          applicant_id: string
+          application_velocity_days: number | null
+          created_at: string
+          email_open_rate: number | null
+          event_attendance_count: number | null
+          first_response_time_hours: number | null
+          id: string
+          interview_show_rate: number | null
+          last_activity_at: string | null
+          nudge_responsiveness_score: number | null
+          portal_login_count: number | null
+          portal_time_spent_minutes: number | null
+          self_scheduling_speed_hours: number | null
+          sms_response_rate: number | null
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          application_velocity_days?: number | null
+          created_at?: string
+          email_open_rate?: number | null
+          event_attendance_count?: number | null
+          first_response_time_hours?: number | null
+          id?: string
+          interview_show_rate?: number | null
+          last_activity_at?: string | null
+          nudge_responsiveness_score?: number | null
+          portal_login_count?: number | null
+          portal_time_spent_minutes?: number | null
+          self_scheduling_speed_hours?: number | null
+          sms_response_rate?: number | null
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          application_velocity_days?: number | null
+          created_at?: string
+          email_open_rate?: number | null
+          event_attendance_count?: number | null
+          first_response_time_hours?: number | null
+          id?: string
+          interview_show_rate?: number | null
+          last_activity_at?: string | null
+          nudge_responsiveness_score?: number | null
+          portal_login_count?: number | null
+          portal_time_spent_minutes?: number | null
+          self_scheduling_speed_hours?: number | null
+          sms_response_rate?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       applicants: {
         Row: {
           application_deadline: string | null
@@ -4545,6 +4599,57 @@ export type Database = {
         }
         Relationships: []
       }
+      program_capacity: {
+        Row: {
+          class_shaping_rules: Json | null
+          created_at: string
+          diversity_targets: Json | null
+          filled_seats: number
+          id: string
+          intake_period: string | null
+          program_name: string
+          target_domestic_ratio: number | null
+          target_gpa_max: number | null
+          target_gpa_min: number | null
+          target_international_ratio: number | null
+          total_seats: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          class_shaping_rules?: Json | null
+          created_at?: string
+          diversity_targets?: Json | null
+          filled_seats?: number
+          id?: string
+          intake_period?: string | null
+          program_name: string
+          target_domestic_ratio?: number | null
+          target_gpa_max?: number | null
+          target_gpa_min?: number | null
+          target_international_ratio?: number | null
+          total_seats?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          class_shaping_rules?: Json | null
+          created_at?: string
+          diversity_targets?: Json | null
+          filled_seats?: number
+          id?: string
+          intake_period?: string | null
+          program_name?: string
+          target_domestic_ratio?: number | null
+          target_gpa_max?: number | null
+          target_gpa_min?: number | null
+          target_international_ratio?: number | null
+          total_seats?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       program_configurations: {
         Row: {
           created_at: string
@@ -4575,6 +4680,69 @@ export type Database = {
           settings?: Json
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      program_fit_assessments: {
+        Row: {
+          academic_alignment_score: number | null
+          ai_confidence_score: number | null
+          applicant_id: string
+          assessed_at: string | null
+          assessed_by: string | null
+          assessment_data: Json | null
+          assessment_notes: string | null
+          behavioral_signals_score: number | null
+          created_at: string
+          engagement_intent_score: number | null
+          financial_readiness_score: number | null
+          hard_eligibility_passed: boolean
+          id: string
+          program_fit_score: number
+          risk_flags_count: number | null
+          updated_at: string
+          user_id: string
+          yield_propensity_score: number
+        }
+        Insert: {
+          academic_alignment_score?: number | null
+          ai_confidence_score?: number | null
+          applicant_id: string
+          assessed_at?: string | null
+          assessed_by?: string | null
+          assessment_data?: Json | null
+          assessment_notes?: string | null
+          behavioral_signals_score?: number | null
+          created_at?: string
+          engagement_intent_score?: number | null
+          financial_readiness_score?: number | null
+          hard_eligibility_passed?: boolean
+          id?: string
+          program_fit_score?: number
+          risk_flags_count?: number | null
+          updated_at?: string
+          user_id: string
+          yield_propensity_score?: number
+        }
+        Update: {
+          academic_alignment_score?: number | null
+          ai_confidence_score?: number | null
+          applicant_id?: string
+          assessed_at?: string | null
+          assessed_by?: string | null
+          assessment_data?: Json | null
+          assessment_notes?: string | null
+          behavioral_signals_score?: number | null
+          created_at?: string
+          engagement_intent_score?: number | null
+          financial_readiness_score?: number | null
+          hard_eligibility_passed?: boolean
+          id?: string
+          program_fit_score?: number
+          risk_flags_count?: number | null
+          updated_at?: string
+          user_id?: string
+          yield_propensity_score?: number
         }
         Relationships: []
       }

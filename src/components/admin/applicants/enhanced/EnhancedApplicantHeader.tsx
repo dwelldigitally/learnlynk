@@ -66,57 +66,55 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
   return (
     <Card className="border-l-4 border-l-primary">
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
           
-          {/* Left: Applicant Info */}
-          <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
-                {getInitials(applicant)}
-              </div>
-              <div className="flex-1">
-                <h1 className="text-2xl font-bold">
-                  {applicant.master_records 
-                    ? `${applicant.master_records.first_name} ${applicant.master_records.last_name}`
-                    : 'Applicant'
-                  }
-                </h1>
-                <p className="text-muted-foreground">{applicant.master_records?.email || 'No email'}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="outline">{applicant.program}</Badge>
-                  <Badge variant={applicant.payment_status === 'completed' ? 'default' : 'secondary'}>
-                    {applicant.payment_status}
-                  </Badge>
-                </div>
+          {/* Left: Student Info */}
+          <div className="flex items-start gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
+              {getInitials(applicant)}
+            </div>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold">
+                {applicant.master_records 
+                  ? `${applicant.master_records.first_name} ${applicant.master_records.last_name}`
+                  : 'Applicant'
+                }
+              </h1>
+              <p className="text-muted-foreground text-sm">{applicant.master_records?.email || 'No email'}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="outline">{applicant.program}</Badge>
+                <Badge variant={applicant.payment_status === 'completed' ? 'default' : 'secondary'}>
+                  {applicant.payment_status}
+                </Badge>
               </div>
             </div>
           </div>
 
-          {/* Center: AI Scores */}
-          <div className="space-y-4">
-            <div className="text-center">
+          {/* Center: AI Confidence & Scores */}
+          <div className="text-center space-y-4">
+            <div>
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Brain className="h-5 w-5 text-primary" />
-                <span className="text-sm font-medium">AI Confidence</span>
+                <span className="text-sm font-medium text-muted-foreground">AI Confidence</span>
               </div>
-              <div className="text-3xl font-bold text-primary">{aiConfidence}%</div>
-              <Progress value={aiConfidence} className="h-2 mt-2" />
+              <div className="text-4xl font-bold text-primary mb-2">{aiConfidence}%</div>
+              <Progress value={aiConfidence} className="h-3 w-full max-w-xs mx-auto" />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="grid grid-cols-2 gap-6 text-center">
               <div>
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <Target className="h-4 w-4 text-blue-600" />
-                  <span className="text-xs font-medium">Program Fit</span>
+                  <span className="text-xs font-medium text-muted-foreground">Program Fit</span>
                 </div>
-                <div className="text-xl font-bold text-blue-600">{programFitScore}%</div>
+                <div className="text-2xl font-bold text-blue-600">{programFitScore}%</div>
               </div>
               <div>
                 <div className="flex items-center justify-center gap-1 mb-1">
                   <TrendingUp className="h-4 w-4 text-purple-600" />
-                  <span className="text-xs font-medium">Yield Propensity</span>
+                  <span className="text-xs font-medium text-muted-foreground">Yield Propensity</span>
                 </div>
-                <div className="text-xl font-bold text-purple-600">{yieldPropensity}%</div>
+                <div className="text-2xl font-bold text-purple-600">{yieldPropensity}%</div>
               </div>
             </div>
           </div>
@@ -126,24 +124,24 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
             <div className="text-center">
               <div className="flex items-center justify-center gap-2 mb-2">
                 <Zap className="h-5 w-5 text-yellow-500" />
-                <span className="text-sm font-medium">AI Recommendation</span>
+                <span className="text-sm font-medium text-muted-foreground">AI Recommendation</span>
               </div>
               <Badge 
                 variant="outline" 
-                className={`${getRecommendationColor(aiRecommendation)} border-current`}
+                className={`${getRecommendationColor(aiRecommendation)} border-current mb-1`}
               >
                 {getRecommendationIcon(aiRecommendation)}
                 <span className="ml-1">{aiRecommendation}</span>
               </Badge>
-              <div className="text-xs text-muted-foreground mt-1">{processingStatus}</div>
+              <div className="text-xs text-muted-foreground">{processingStatus}</div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               <Button 
                 size="sm" 
                 onClick={onApprove}
                 disabled={saving}
-                className="h-auto p-3 flex-col gap-1"
+                className="h-12 flex-col gap-1"
               >
                 <CheckCircle className="h-4 w-4" />
                 <span className="text-xs">Approve</span>
@@ -153,7 +151,7 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
                 variant="outline"
                 onClick={onReject}
                 disabled={saving}
-                className="h-auto p-3 flex-col gap-1"
+                className="h-12 flex-col gap-1"
               >
                 <AlertTriangle className="h-4 w-4" />
                 <span className="text-xs">Reject</span>
@@ -163,7 +161,7 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
                 variant="outline"
                 onClick={onSendEmail}
                 disabled={saving}
-                className="h-auto p-3 flex-col gap-1"
+                className="h-12 flex-col gap-1"
               >
                 <Mail className="h-4 w-4" />
                 <span className="text-xs">Email</span>
@@ -173,7 +171,7 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
                 variant="outline"
                 onClick={onScheduleInterview}
                 disabled={saving}
-                className="h-auto p-3 flex-col gap-1"
+                className="h-12 flex-col gap-1"
               >
                 <Calendar className="h-4 w-4" />
                 <span className="text-xs">Interview</span>
@@ -183,21 +181,21 @@ export const EnhancedApplicantHeader: React.FC<EnhancedApplicantHeaderProps> = (
         </div>
 
         {/* Bottom: Quick Stats */}
-        <div className="grid grid-cols-4 gap-4 mt-6 pt-4 border-t">
+        <div className="grid grid-cols-4 gap-6 mt-6 pt-4 border-t">
           <div className="text-center">
-            <div className="text-lg font-bold text-primary">4/5</div>
+            <div className="text-2xl font-bold text-primary">4/5</div>
             <div className="text-xs text-muted-foreground">Docs Approved</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-success">23</div>
+            <div className="text-2xl font-bold text-blue-600">23</div>
             <div className="text-xs text-muted-foreground">Days in Process</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-blue-600">12</div>
+            <div className="text-2xl font-bold text-purple-600">12</div>
             <div className="text-xs text-muted-foreground">AI Interactions</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-purple-600">89%</div>
+            <div className="text-2xl font-bold text-success">89%</div>
             <div className="text-xs text-muted-foreground">Success Score</div>
           </div>
         </div>

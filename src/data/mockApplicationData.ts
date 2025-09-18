@@ -390,8 +390,64 @@ Ultimately, I want my career to be defined by the positive impact I have on orga
         phone: '+1-555-0000'
       }
     },
-    essays: [],
-    formResponses: [],
+    essays: [
+      {
+        id: 'default-essay-1',
+        type: 'personal_statement',
+        title: 'Personal Statement',
+        content: `My passion for healthcare began during my childhood when I watched my grandfather struggle with managing his diabetes. The complexity of his treatment regimen and the challenges he faced in understanding his medication schedule made me realize how important it is for healthcare systems to be both effective and accessible. This experience planted the seed for my interest in health informatics and my desire to improve healthcare delivery through technology.
+
+During my undergraduate studies in Computer Science, I focused on courses that combined technical skills with real-world applications. I was particularly drawn to database management, user experience design, and systems analysis. These subjects provided me with the foundation I needed to understand how technology can be leveraged to solve complex problems in healthcare settings.
+
+My internship at Regional Medical Center was a transformative experience that solidified my career goals. Working alongside nurses, physicians, and IT specialists, I gained firsthand insight into the daily challenges faced by healthcare professionals. I observed how fragmented information systems often led to inefficiencies and communication gaps that could impact patient care. This experience motivated me to pursue graduate studies in health informatics, where I can develop the expertise needed to design and implement solutions that truly serve patients and providers.
+
+What attracts me most to your program is its emphasis on practical application combined with rigorous academic foundation. The opportunity to work on real healthcare challenges while building theoretical knowledge aligns perfectly with my learning style and career aspirations. I am particularly interested in courses on clinical decision support systems and healthcare data analytics.
+
+My goal is to become a leader in health informatics who can bridge the gap between technology and clinical practice. I want to develop systems that not only improve efficiency but also enhance the quality of patient care and support healthcare professionals in their vital work.`,
+        wordCount: 285,
+        submittedAt: new Date('2024-01-10'),
+        aiAnalysis: {
+          grammarScore: 92,
+          clarityScore: 89,
+          relevanceScore: 95,
+          keyThemes: ['healthcare technology', 'patient care', 'systems improvement', 'career motivation'],
+          sentiment: 'positive',
+          flaggedConcerns: []
+        }
+      }
+    ],
+    formResponses: [
+      {
+        id: 'default-q1',
+        questionId: 'motivation-1',
+        question: 'Why are you interested in this specific program?',
+        answer: 'This program offers the perfect combination of technical rigor and practical application that I need to achieve my career goals in health informatics. The faculty expertise in clinical decision support and the strong industry partnerships provide opportunities for real-world experience that will prepare me for leadership roles in healthcare technology.',
+        questionType: 'text',
+        category: 'motivation',
+        submittedAt: new Date('2024-01-10'),
+        aiScore: 8.7
+      },
+      {
+        id: 'default-q2',
+        questionId: 'experience-1',
+        question: 'Describe your most significant professional experience.',
+        answer: 'My internship at Regional Medical Center was pivotal in shaping my understanding of healthcare technology challenges. I worked with interdisciplinary teams to analyze workflow inefficiencies and proposed technology solutions that could improve patient care coordination. This experience taught me the importance of user-centered design in healthcare applications.',
+        questionType: 'text',
+        category: 'professional',
+        submittedAt: new Date('2024-01-10'),
+        aiScore: 8.5
+      },
+      {
+        id: 'default-q3',
+        questionId: 'goals-1',
+        question: 'What are your long-term career goals?',
+        answer: 'I aspire to lead health informatics initiatives that improve patient outcomes and streamline healthcare delivery. My long-term goal is to work in a senior role where I can influence the strategic implementation of health technologies while ensuring they truly serve the needs of patients and healthcare providers.',
+        questionType: 'text',
+        category: 'professional',
+        submittedAt: new Date('2024-01-10'),
+        aiScore: 8.9
+      }
+    ],
     academicBackground: [
       {
         id: 'academic-1',
@@ -460,8 +516,8 @@ Ultimately, I want my career to be defined by the positive impact I have on orga
     }
   };
 
-  // Merge with specific profile data if available
-  const specificProfile = baseProfiles[applicantId];
+  // Merge with specific profile data if available, or use ID '1' as default
+  const specificProfile = baseProfiles[applicantId] || baseProfiles['1'];
   if (specificProfile) {
     return {
       ...defaultProfile,

@@ -176,6 +176,38 @@ export const ApplicantManagement = () => {
     }
   };
 
+  // Handle bulk program fit assessment
+  const handleBulkProgramFitAssessment = async () => {
+    if (selectedApplicantIds.length === 0) {
+      toast({
+        title: "No Selection",
+        description: "Please select applicants to assess",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setBulkAssessing(true);
+    try {
+      const assessments = await ProgramFitService.bulkAssessApplicants(selectedApplicantIds);
+      toast({
+        title: "Assessment Complete",
+        description: `Program fit assessed for ${assessments.length} applicants`,
+      });
+      setSelectedApplicantIds([]);
+      loadApplicants(); // Reload to show updated scores
+    } catch (error) {
+      console.error('Bulk assessment error:', error);
+      toast({
+        title: "Assessment Failed",
+        description: "Failed to assess program fit. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setBulkAssessing(false);
+    }
+  };
+
   const columns = [
     {
       key: 'name',
@@ -259,6 +291,37 @@ export const ApplicantManagement = () => {
       }
     },
     {
+      key: 'program_fit_score',
+      label: 'Program Fit',
+      render: (item: Applicant) => {
+        if (!item) return null;
+        // Get from assessment if available, otherwise show pending
+        return (
+          <div className="text-center">
+            <Badge variant="outline">
+              <Brain className="w-3 h-3 mr-1" />
+              Pending
+            </Badge>
+          </div>
+        );
+      }
+    },
+    {
+      key: 'yield_propensity',
+      label: 'Yield Propensity', 
+      render: (item: Applicant) => {
+        if (!item) return null;
+        return (
+          <div className="text-center">
+            <Badge variant="outline">
+              <Target className="w-3 h-3 mr-1" />
+              Pending
+            </Badge>
+          </div>
+        );
+      }
+    },
+    {
       key: 'created_at',
       label: 'Applied',
       sortable: true,
@@ -313,18 +376,39 @@ export const ApplicantManagement = () => {
             Manage applications and admission decisions
           </p>
         </div>
-        <Button onClick={async () => {
-          try {
-            const created = await ApplicantService.createSampleApplicant();
-            toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
-            navigate(`/admin/applicants/detail/${created.id}`);
-          } catch (e) {
-            toast({ title: "Error", description: "Failed to create sample applicant", variant: "destructive" });
-          }
-        }}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Applicant
-        </Button>
+        <div className="flex items-center gap-4">
+          {selectedApplicantIds.length > 0 && (
+            <Button
+              onClick={handleBulkProgramFitAssessment}
+              disabled={bulkAssessing}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
+              {bulkAssessing ? (
+                <>
+                  <Zap className="w-4 h-4 mr-2 animate-spin" />
+                  Assessing...
+                </>
+              ) : (
+                <>
+                  <Brain className="w-4 h-4 mr-2" />
+                  Assess Program Fit ({selectedApplicantIds.length})
+                </>
+              )}
+            </Button>
+          )}
+          <Button onClick={async () => {
+            try {
+              const created = await ApplicantService.createSampleApplicant();
+              toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
+              navigate(`/admin/applicants/detail/${created.id}`);
+            } catch (e) {
+              toast({ title: "Error", description: "Failed to create sample applicant", variant: "destructive" });
+            }
+          }}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Applicant
+          </Button>
+        </div>
       </div>
 
       {/* Application Pipeline */}

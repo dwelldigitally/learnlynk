@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Calendar, Clock, CheckCircle, AlertCircle, Eye, FileText, CalendarIcon } from "lucide-react";
+import { Calendar, Clock, CheckCircle, AlertCircle, Eye, FileText, CalendarIcon, Plus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +15,8 @@ import { toast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
 import { ProgramApplication } from "@/types/application";
 import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
+import ApplicationWizard from "./application/ApplicationWizard";
+import { ApplicationData } from "@/services/applicationService";
 
 const YourApplications: React.FC = () => {
   const navigate = useNavigate();
@@ -26,11 +28,23 @@ const YourApplications: React.FC = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
+  // Application wizard state
+  const [isWizardOpen, setIsWizardOpen] = useState(false);
+  const [applications, setApplications] = useState<ApplicationData[]>([]);
 
   // Convert studentApplications object to array for display
-  const applications: ProgramApplication[] = Object.values(studentApplications).filter(app => 
+  const existingApplications: ProgramApplication[] = Object.values(studentApplications).filter(app => 
     app.submissionDate || app.stage !== "LEAD_FORM" // Only show submitted applications or those in progress
   );
+
+  const handleApplicationCreated = (newApplication: ApplicationData) => {
+    setApplications(prev => [...prev, newApplication]);
+    toast({
+      title: "Application Created!",
+      description: "Your new application has been saved successfully."
+    });
+  };
 
   const getStatusColor = (stage: string) => {
     switch (stage) {
@@ -75,13 +89,82 @@ const YourApplications: React.FC = () => {
     <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <h1 className="text-2xl font-bold">Your Applications</h1>
-        <p className="text-muted-foreground">Track the status and progress of all your submitted applications</p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl font-bold">Your Applications</h1>
+            <p className="text-muted-foreground">Track the status and progress of all your submitted applications</p>
+          </div>
+          <Button onClick={() => setIsWizardOpen(true)} className="flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Start New Application
+          </Button>
+        </div>
       </div>
 
       {/* Applications List */}
       <div ref={staggerRef} className="space-y-6">
+        {/* New Applications */}
         {applications.map((application, index) => (
+          <Card key={application.id} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className="text-xl font-semibold">{application.program_name}</h3>
+                <p className="text-muted-foreground">Application ID: {application.id}</p>
+                {application.created_at && (
+                  <p className="text-sm text-muted-foreground">
+                    Created on {new Date(application.created_at).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+              
+              <div className="text-right">
+                <Badge className={`${getStatusColor(application.stage)} border`}>
+                  {getStatusIcon(application.stage)}
+                  <span className="ml-2">{getStatusText(application.stage)}</span>
+                </Badge>
+              </div>
+            </div>
+
+            <div className="mb-6">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Application Progress</span>
+                <span className="text-sm text-muted-foreground">{application.progress}%</span>
+              </div>
+              <Progress value={application.progress} className="h-2" />
+              <div className="flex justify-between mt-2">
+                <span className="text-sm text-muted-foreground">Current Stage: {getStatusText(application.stage)}</span>
+                <span className="text-sm text-blue-600">Status: {application.status}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3 pt-4 border-t">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsWizardOpen(true)}
+              >
+                Continue Application
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  toast({
+                    title: "Application Details",
+                    description: "Detailed view coming soon!"
+                  });
+                }}
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                View Details
+              </Button>
+            </div>
+          </Card>
+        ))}
+
+        {/* Existing Applications */}
+        {existingApplications.map((application, index) => (
           <Card key={application.id} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
             {/* Application Header */}
             <div className="flex justify-between items-start mb-4">
@@ -250,14 +333,14 @@ const YourApplications: React.FC = () => {
       </div>
 
       {/* No Applications State */}
-      {applications.length === 0 && (
+      {applications.length === 0 && existingApplications.length === 0 && (
         <Card className="p-12 text-center">
           <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="text-lg font-semibold mb-2">No Applications Yet</h3>
           <p className="text-muted-foreground mb-4">
             You haven't submitted any applications yet. Start your journey by submitting your first application.
           </p>
-          <Button>Start New Application</Button>
+          <Button onClick={() => setIsWizardOpen(true)}>Start New Application</Button>
         </Card>
       )}
 
@@ -431,6 +514,13 @@ const YourApplications: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Application Wizard */}
+      <ApplicationWizard
+        isOpen={isWizardOpen}
+        onClose={() => setIsWizardOpen(false)}
+        onApplicationCreated={handleApplicationCreated}
+      />
     </div>
   );
 };

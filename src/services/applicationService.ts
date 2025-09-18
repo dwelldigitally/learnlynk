@@ -1,5 +1,27 @@
 import { supabase } from '@/integrations/supabase/client';
 
+export interface ApplicationData {
+  id?: string;
+  user_id?: string;
+  student_id?: string;
+  application_number?: string;
+  program_id?: string | null;
+  program_name?: string; // For backward compatibility
+  status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
+  stage: 'personal_info' | 'education' | 'work_experience' | 'essays' | 'questions' | 'documents' | 'payment' | 'review';
+  progress: number | null;
+  documents?: any;
+  requirements?: any;
+  application_data?: Record<string, any>; // For storing step data
+  application_deadline?: string | null;
+  submission_date?: string | null;
+  next_step?: string | null;
+  acceptance_likelihood?: number | null;
+  estimated_decision?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export class ApplicationService {
   /**
    * Add dummy applications for the current user
@@ -127,5 +149,70 @@ export class ApplicationService {
     }
 
     return true;
+  }
+
+  /**
+   * Create a new application
+   */
+  static async createApplication(applicationData: ApplicationData) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      throw new Error('User not authenticated');
+    }
+
+    const { data, error } = await supabase
+      .from('student_applications')
+      .insert({
+        user_id: user.id,
+        student_id: user.id,
+        application_number: `APP-${Date.now()}`,
+        program_id: applicationData.program_id,
+        status: applicationData.status,
+        stage: applicationData.stage,
+        progress: applicationData.progress || 0,
+        documents: applicationData.application_data || {},
+        requirements: applicationData.requirements || {}
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return { data: null, error };
+    }
+
+    return { data, error: null };
+  }
+
+  /**
+   * Update an existing application
+   */
+  static async updateApplication(applicationId: string, applicationData: ApplicationData) {
+    const { error } = await supabase
+      .from('student_applications')
+      .update({
+        program_id: applicationData.program_id,
+        status: applicationData.status,
+        stage: applicationData.stage,
+        progress: applicationData.progress,
+        documents: applicationData.application_data,
+        requirements: applicationData.requirements,
+        submission_date: applicationData.submission_date,
+        next_step: applicationData.next_step
+      })
+      .eq('id', applicationId);
+
+    if (error) {
+      throw new Error(`Failed to update application: ${error.message}`);
+    }
+
+    return true;
+  }
+
+  /**
+   * Auto-save application (same as update but silent)
+   */
+  static async autoSaveApplication(applicationId: string, applicationData: ApplicationData) {
+    return this.updateApplication(applicationId, applicationData);
   }
 }

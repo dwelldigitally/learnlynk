@@ -59,9 +59,9 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 w-full">
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-16' : 'w-72'} bg-gradient-to-b from-background via-background/95 to-muted/30 border-r border-border/50 shadow-lg backdrop-blur-sm sticky top-0 h-full transition-all duration-300 flex flex-col`}>
+      <aside className={`${isCollapsed ? 'w-16' : 'w-72'} bg-gradient-to-b from-background via-background/95 to-muted/30 border-r border-border/50 shadow-lg backdrop-blur-sm fixed inset-y-0 left-0 z-50 h-screen transition-all duration-300 flex flex-col overflow-hidden`}>
         {/* Collapse/Expand Button */}
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           {!isCollapsed && (
@@ -126,7 +126,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         )}
 
         {/* Navigation Links - Sectioned */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4">
           <div className="space-y-6">
             {navSections.map((section) => (
               <div key={section.id} className="space-y-2">
@@ -226,7 +226,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1">
+      <main className={`flex-1 ${isCollapsed ? 'ml-16' : 'ml-72'} transition-all duration-300`}>
         <EnhancedTopBar 
           onToggleSidebar={() => setIsCollapsed(!isCollapsed)}
           useDummyData={useDummyData}

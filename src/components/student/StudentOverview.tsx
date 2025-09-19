@@ -315,6 +315,30 @@ const StudentOverview: React.FC = () => {
                   </div>
                 </PopoverContent>
               </Popover>
+
+              {/* Application Progress - moved from bottom */}
+              <div className="mt-6 pt-4 border-t border-border/30">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground text-sm">Application Progress</p>
+                      <p className="text-xs text-muted-foreground">Documents submitted • Financial aid applied</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-xs text-muted-foreground">Next Step</p>
+                      <p className="font-semibold text-foreground text-sm">Interview Scheduling</p>
+                    </div>
+                    <Button size="sm" className="px-4">
+                      Continue Application
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Program Details Grid */}
@@ -746,29 +770,6 @@ const StudentOverview: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Section - Application Status */}
-        <div className="mt-8 pt-6 border-t border-border/50">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">Application Progress</p>
-                <p className="text-sm text-muted-foreground">Documents submitted • Financial aid applied</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Next Step</p>
-                <p className="font-semibold text-foreground">Interview Scheduling</p>
-              </div>
-              <Button className="px-6">
-                Continue Application
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Quick Action Cards - Priority Actions */}

@@ -11,6 +11,7 @@ import NotificationCentre from "@/components/student/NotificationCentre";
 import FloatingMarketingMessages from "@/components/student/FloatingMarketingMessages";
 import CampusTourBooking from "@/components/student/CampusTourBooking";
 import ProfileSettings from "@/components/student/ProfileSettings";
+import { EnhancedTopBar } from "./EnhancedTopBar";
 import { Button } from "@/components/ui/button";
 
 interface StudentLayoutProps {
@@ -226,52 +227,11 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
 
       {/* Main Content */}
       <main className="flex-1">
-        {/* Header */}
-        <header className="bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          {/* Left Section */}
-          <div className="flex-1">
-            <h1 className="text-2xl font-semibold flex items-center">
-              Hey {useDummyData 
-                ? (profile?.first_name || 'Student')
-                : (session?.student_name?.split(' ')[0] || 'Student')
-              } <span className="ml-2">👋</span>
-            </h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setUseDummyData(!useDummyData)}
-              className="mt-2 text-xs"
-            >
-              {useDummyData ? 'Use Real Data' : 'Use Dummy Data'}
-            </Button>
-          </div>
-          
-          {/* Center Section - Marketing Messages */}
-          <div className="flex-1 flex justify-center">
-            <FloatingMarketingMessages />
-          </div>
-          
-          {/* Right Section */}
-          <div className="flex-1 flex items-center justify-end space-x-4">
-            <div className="text-right text-sm">
-              <div>Student Id: {useDummyData 
-                ? (profile?.student_id || 'WCC1047859')
-                : (session?.id?.slice(-8) || 'WCC' + Math.random().toString().slice(-6))
-              }</div>
-              <div className="text-gray-500">
-                {useDummyData 
-                  ? (profile?.email || 'student@wcc.ca')
-                  : (session?.email || 'student@wcc.ca')
-                }
-              </div>
-            </div>
-            <Link to="/student/messages" className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-              <Mail size={20} />
-            </Link>
-            <NotificationCentre />
-            <UserMenu />
-          </div>
-        </header>
+        <EnhancedTopBar 
+          onToggleSidebar={() => setIsCollapsed(!isCollapsed)}
+          useDummyData={useDummyData}
+          onToggleDummyData={() => setUseDummyData(!useDummyData)}
+        />
 
         {/* Content */}
         <div className="p-6">

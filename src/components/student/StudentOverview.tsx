@@ -621,6 +621,89 @@ const StudentOverview: React.FC = () => {
               <p className="text-sm text-orange-600 dark:text-orange-400">23 days remaining</p>
             </div>
 
+            {/* Application Stage Tracker */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-foreground">Application Progress</h4>
+              <div className="space-y-3">
+                {/* Complete Application */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Complete Application</p>
+                      <p className="text-sm text-muted-foreground">Submit your program application</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                      Complete
+                    </span>
+                  </div>
+                </div>
+
+                {/* Upload Documents */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Upload Documents</p>
+                      <p className="text-sm text-muted-foreground">3 documents pending upload</p>
+                      <p className="text-xs text-red-600 dark:text-red-400">Due in 5 days</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                      Urgent
+                    </span>
+                    <Button size="sm" className="ml-2">
+                      Upload Now
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Apply for Financial Aid */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                      <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Apply for Financial Aid</p>
+                      <p className="text-sm text-muted-foreground">FAFSA and aid applications</p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400">Due March 15</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      Continue
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Schedule Advisor Meeting */}
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">Schedule Advisor Meeting</p>
+                      <p className="text-sm text-muted-foreground">Plan your academic journey</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      Schedule
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Financial Information */}
             <div className="space-y-3">
               <h4 className="font-semibold text-foreground flex items-center gap-2">

@@ -3,9 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useStudentPortalContext } from '@/pages/StudentPortal';
 import { BreadcrumbNavigation } from './BreadcrumbNavigation';
-import { QuickActionsCenter } from './QuickActionsCenter';
 import { StreamlinedUserMenu } from './StreamlinedUserMenu';
-import { ContextualHelp } from './ContextualHelp';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
@@ -15,8 +13,7 @@ import {
   Calendar, 
   GraduationCap, 
   MessageSquare, 
-  Bell,
-  Clock
+  Bell
 } from 'lucide-react';
 
 interface EnhancedTopBarProps {
@@ -57,119 +54,86 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
 
   return (
     <header className="bg-background border-b border-border/50 backdrop-blur-sm sticky top-0 z-40">
-      {/* Main Header */}
       <div className="px-4 py-3">
-        {/* Top Row - Navigation and Actions */}
-        <div className="flex items-center justify-between mb-3">
-          {/* Left Section - Breadcrumb & Navigation */}
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          {/* Left Section - Student Info */}
+          <div className="flex items-center gap-4">
             <BreadcrumbNavigation onToggleSidebar={onToggleSidebar} />
-          </div>
-
-          {/* Right Section - Actions & User Menu */}
-          <div className="flex items-center gap-2">
-            <QuickActionsCenter />
-            <ContextualHelp />
-            <StreamlinedUserMenu 
-              useDummyData={useDummyData}
-              onToggleDummyData={onToggleDummyData}
-            />
-          </div>
-        </div>
-
-        {/* Bottom Row - Student Information */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pt-3 border-t border-border/30">
-          {/* Student Basic Info */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+            
+            {/* Student Avatar and Name */}
+            <div className="flex items-center gap-3 ml-4">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                 {profile?.avatar_url ? (
                   <img 
                     src={profile.avatar_url} 
                     alt="Profile" 
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-8 h-8 rounded-full object-cover"
                   />
                 ) : (
-                  <User className="w-5 h-5 text-primary-foreground" />
+                  <User className="w-4 h-4 text-primary-foreground" />
                 )}
               </div>
-              <div>
-                <h2 className="font-semibold text-foreground">{displayData.name}</h2>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>ID: {displayData.studentId}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {displayData.status}
-                  </Badge>
-                </div>
+              <div className="hidden sm:block">
+                <h2 className="font-medium text-foreground text-sm">{displayData.name}</h2>
               </div>
+            </div>
+          </div>
+
+          {/* Right Section - Student Details and Actions */}
+          <div className="flex items-center gap-6">
+            {/* Student ID and Status */}
+            <div className="hidden md:flex items-center gap-1 text-sm text-muted-foreground">
+              <span>ID: {displayData.studentId}</span>
+              <Badge variant="secondary" className="text-xs ml-2">
+                {displayData.status}
+              </Badge>
             </div>
 
             {/* Contact Info */}
-            <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Mail className="w-4 h-4" />
-                <span>{displayData.email}</span>
-              </div>
-              {displayData.phone !== 'Not provided' && (
-                <div className="flex items-center gap-1">
-                  <Phone className="w-4 h-4" />
-                  <span>{displayData.phone}</span>
-                </div>
-              )}
+            <div className="hidden lg:flex items-center gap-1 text-sm text-muted-foreground">
+              <Mail className="w-4 h-4" />
+              <span>{displayData.email}</span>
             </div>
-          </div>
 
-          {/* Academic Info & Quick Actions */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            {/* Phone */}
+            {displayData.phone !== 'Not provided' && (
+              <div className="hidden xl:flex items-center gap-1 text-sm text-muted-foreground">
+                <Phone className="w-4 h-4" />
+                <span>{displayData.phone}</span>
+              </div>
+            )}
+
             {/* Academic Info */}
-            <div className="hidden lg:flex items-center gap-6 text-sm">
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <GraduationCap className="w-4 h-4" />
-                <span>{displayData.program}</span>
-              </div>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                <span>{displayData.semester}</span>
-              </div>
+            <div className="hidden lg:flex items-center gap-1 text-sm text-muted-foreground">
+              <GraduationCap className="w-4 h-4" />
+              <span className="hidden xl:inline">{displayData.program}</span>
+              <span className="xl:hidden">Program</span>
             </div>
 
-            {/* Communication Quick Actions */}
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" className="h-8 px-3">
-                <MessageSquare className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Messages</span>
-                <Badge variant="destructive" className="ml-1 text-xs">2</Badge>
-              </Button>
-              
-              <Button variant="ghost" size="sm" className="h-8 px-3">
-                <Bell className="w-4 h-4 mr-1" />
-                <span className="hidden sm:inline">Alerts</span>
-                <Badge variant="secondary" className="ml-1 text-xs">5</Badge>
-              </Button>
-
-              <div className="hidden sm:flex items-center gap-1 text-xs text-muted-foreground ml-2">
-                <Clock className="w-3 h-3" />
-                <span>Last login: {displayData.lastLogin}</span>
-              </div>
+            <div className="hidden lg:flex items-center gap-1 text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4" />
+              <span>{displayData.semester}</span>
             </div>
-          </div>
-        </div>
 
-        {/* Mobile Contact Info */}
-        <div className="md:hidden mt-2 pt-2 border-t border-border/30 flex flex-wrap gap-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Mail className="w-4 h-4" />
-            <span>{displayData.email}</span>
-          </div>
-          {displayData.phone !== 'Not provided' && (
-            <div className="flex items-center gap-1">
-              <Phone className="w-4 h-4" />
-              <span>{displayData.phone}</span>
-            </div>
-          )}
-          <div className="flex items-center gap-1">
-            <GraduationCap className="w-4 h-4" />
-            <span>{displayData.program}</span>
+            {/* Messages */}
+            <Button variant="ghost" size="sm" className="h-8 px-3">
+              <MessageSquare className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Messages</span>
+              <Badge variant="destructive" className="ml-1 text-xs">2</Badge>
+            </Button>
+            
+            {/* Alerts */}
+            <Button variant="ghost" size="sm" className="h-8 px-3">
+              <Bell className="w-4 h-4" />
+              <span className="hidden sm:inline ml-1">Alerts</span>
+              <Badge variant="secondary" className="ml-1 text-xs">5</Badge>
+            </Button>
+
+            {/* User Menu */}
+            <StreamlinedUserMenu 
+              useDummyData={useDummyData}
+              onToggleDummyData={onToggleDummyData}
+            />
           </div>
         </div>
       </div>

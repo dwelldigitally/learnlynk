@@ -12,7 +12,9 @@ import {
   Calendar, 
   GraduationCap, 
   MessageSquare, 
-  Bell
+  Bell,
+  TrendingUp,
+  AlertTriangle
 } from 'lucide-react';
 
 interface EnhancedTopBarProps {
@@ -119,6 +121,33 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                       <div className="flex flex-col">
                         <span className="text-purple-900 dark:text-purple-100 font-semibold text-sm">{displayData.semester}</span>
                         <span className="text-purple-600 dark:text-purple-400 text-xs">Current Term</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Acceptance Likelihood & Urgency */}
+                <div className="hidden xl:flex items-center gap-4 ml-8">
+                  <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-3 border border-green-200/50 dark:border-green-800/50">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-800/50 flex items-center justify-center">
+                        <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-green-900 dark:text-green-100 font-bold text-sm">92%</span>
+                        <span className="text-green-600 dark:text-green-400 text-xs">Acceptance Likelihood</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3 border border-orange-200/50 dark:border-orange-800/50 animate-pulse">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-800/50 flex items-center justify-center">
+                        <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-orange-900 dark:text-orange-100 font-semibold text-sm">12 Seats Left</span>
+                        <span className="text-orange-600 dark:text-orange-400 text-xs font-medium">Apply Soon!</span>
                       </div>
                     </div>
                   </div>

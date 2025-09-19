@@ -6,6 +6,7 @@ import { BreadcrumbNavigation } from './BreadcrumbNavigation';
 import { StreamlinedUserMenu } from './StreamlinedUserMenu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   User, 
   Calendar, 
@@ -145,6 +146,24 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                   <span className="hidden sm:inline ml-2 font-medium">Alerts</span>
                   <Badge className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center border-2 border-white dark:border-slate-800">5</Badge>
                 </Button>
+                
+                {/* Profile Section */}
+                <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200/50 dark:border-gray-700/50">
+                  <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+                    <AvatarImage src={session?.avatar_url} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary/10 to-primary/20 text-primary font-semibold">
+                      {session?.student_name ? session.student_name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : <User className="w-4 h-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden md:flex flex-col">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {session?.student_name || 'Student'}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      Student Portal
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

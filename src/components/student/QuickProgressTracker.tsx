@@ -55,11 +55,11 @@ const QuickProgressTracker: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'text-green-600 bg-green-100';
-      case 'in-progress': return 'text-blue-600 bg-blue-100';
-      case 'urgent': return 'text-red-600 bg-red-100';
-      case 'pending': return 'text-gray-600 bg-gray-100';
-      default: return 'text-gray-600 bg-gray-100';
+      case 'completed': return 'text-success bg-success-light';
+      case 'in-progress': return 'text-primary bg-primary-light';
+      case 'urgent': return 'text-muted-foreground bg-muted';
+      case 'pending': return 'text-muted-foreground bg-muted';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -77,25 +77,25 @@ const QuickProgressTracker: React.FC = () => {
   const progressPercentage = (completedSteps / steps.length) * 100;
 
   return (
-    <Card className="p-6 bg-gradient-to-br from-background to-muted/20 border-0 shadow-lg">
+    <Card className="p-6 bg-card border shadow-medium">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold">Your Progress</h3>
         <div className="text-right">
           <div className="text-sm font-medium text-muted-foreground">
             {completedSteps} of {steps.length} completed
           </div>
-          <div className="text-lg font-bold text-primary">{Math.round(progressPercentage)}%</div>
+          <div className="text-lg font-bold text-foreground">{Math.round(progressPercentage)}%</div>
         </div>
       </div>
 
       {/* Application Deadline */}
-      <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+      <div className="mb-4 p-3 bg-muted/50 border rounded-lg">
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-orange-600" />
-          <span className="text-sm font-medium text-orange-900">Application Deadline</span>
+          <Calendar className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground">Application Deadline</span>
         </div>
-        <p className="text-lg font-bold text-orange-900 mt-1">March 1, 2024</p>
-        <p className="text-xs text-orange-700">15 days remaining</p>
+        <p className="text-lg font-bold text-foreground mt-1">March 1, 2024</p>
+        <p className="text-xs text-muted-foreground">15 days remaining</p>
       </div>
 
       <Progress value={progressPercentage} className="mb-6" />
@@ -110,7 +110,7 @@ const QuickProgressTracker: React.FC = () => {
               key={step.id}
               className={`flex items-center gap-4 p-4 rounded-lg border transition-all duration-300 hover:shadow-md ${
                 isUrgent 
-                  ? 'bg-red-50 border-red-200 shadow-sm' 
+                  ? 'bg-muted/70 border-border shadow-sm' 
                   : 'bg-muted/30 border-border/50'
               }`}
             >
@@ -122,19 +122,19 @@ const QuickProgressTracker: React.FC = () => {
                 <div className="flex items-center gap-2 mb-1">
                   <h4 className="font-medium text-sm">{step.title}</h4>
                   {step.status === 'completed' && (
-                    <Badge variant="outline" className="text-xs bg-green-100 text-green-700 border-green-300">
+                    <Badge variant="outline" className="text-xs bg-success-light text-success border-border">
                       Complete
                     </Badge>
                   )}
                   {step.status === 'urgent' && (
-                    <Badge variant="destructive" className="text-xs animate-pulse">
+                    <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">
                       Urgent
                     </Badge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">{step.description}</p>
                 {step.dueDate && (
-                  <p className={`text-xs mt-1 ${isUrgent ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
+                  <p className={`text-xs mt-1 ${isUrgent ? 'text-muted-foreground font-medium' : 'text-muted-foreground'}`}>
                     {step.dueDate}
                   </p>
                 )}
@@ -144,7 +144,6 @@ const QuickProgressTracker: React.FC = () => {
                 <Button 
                   size="sm" 
                   variant={isUrgent ? "default" : "outline"}
-                  className={isUrgent ? "bg-red-600 hover:bg-red-700" : ""}
                 >
                   {step.action}
                 </Button>
@@ -154,10 +153,10 @@ const QuickProgressTracker: React.FC = () => {
         })}
       </div>
 
-      <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+      <div className="mt-6 p-4 bg-muted/50 rounded-lg border">
         <div className="flex items-center gap-2 mb-2">
-          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-          <span className="text-sm font-medium text-primary">Next Priority</span>
+          <div className="w-2 h-2 bg-primary rounded-full" />
+          <span className="text-sm font-medium text-foreground">Next Priority</span>
         </div>
         <p className="text-sm text-muted-foreground">
           Complete your document uploads to move forward with your application review.

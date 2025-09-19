@@ -409,32 +409,32 @@ const StudentOverview: React.FC = () => {
         </Card>
 
         {/* Financial Aid */}
-        <Card className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <Card className="p-6 bg-card border hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer relative overflow-hidden group">
+          <div className="absolute inset-0 bg-muted/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-white/20 rounded-lg">
-                <DollarSign className="h-6 w-6" />
+              <div className="p-3 bg-muted rounded-lg">
+                <DollarSign className="h-6 w-6 text-muted-foreground" />
               </div>
-              <CheckCircle className="h-5 w-5 opacity-80" />
+              <CheckCircle className="h-5 w-5 text-success" />
             </div>
-            <h3 className="font-bold text-lg mb-1">Financial Aid</h3>
-            <p className="text-sm opacity-90">$15,895 available</p>
+            <h3 className="font-bold text-lg mb-1 text-foreground">Financial Aid</h3>
+            <p className="text-sm text-muted-foreground">$15,895 available</p>
           </div>
         </Card>
 
         {/* Schedule Advisor */}
-        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <Card className="p-6 bg-card border hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer relative overflow-hidden group">
+          <div className="absolute inset-0 bg-muted/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-white/20 rounded-lg">
-                <Calendar className="h-6 w-6" />
+              <div className="p-3 bg-muted rounded-lg">
+                <Calendar className="h-6 w-6 text-muted-foreground" />
               </div>
-              <Clock className="h-5 w-5 opacity-80" />
+              <Clock className="h-5 w-5 text-muted-foreground" />
             </div>
-            <h3 className="font-bold text-lg mb-1">Schedule Advisor</h3>
-            <p className="text-sm opacity-90">Get personalized guidance</p>
+            <h3 className="font-bold text-lg mb-1 text-foreground">Schedule Advisor</h3>
+            <p className="text-sm text-muted-foreground">Get personalized guidance</p>
           </div>
         </Card>
       </div>
@@ -444,7 +444,7 @@ const StudentOverview: React.FC = () => {
         {/* Left Column - Main Content */}
         <div className={`lg:col-span-2 space-y-10 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
           {/* Dynamic Marketing Hero Section */}
-          <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] border-0 shadow-2xl backdrop-blur-sm`}>
+          <Card className="relative overflow-hidden bg-primary text-primary-foreground transition-all duration-500 hover:shadow-xl hover:scale-[1.02] border shadow-large backdrop-blur-sm">
             {/* Background Image with Overlay */}
             <div className="absolute inset-0">
               <img 
@@ -452,7 +452,7 @@ const StudentOverview: React.FC = () => {
                 alt={`${selectedProgram} Career`}
                 className="w-full h-full object-cover opacity-30"
               />
-              <div className={`absolute inset-0 bg-gradient-to-r ${currentColors.secondary} transition-colors duration-500`}></div>
+              <div className="absolute inset-0 bg-primary/10 transition-colors duration-500"></div>
             </div>
             
             {/* Content */}

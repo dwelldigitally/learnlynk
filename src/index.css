@@ -8,58 +8,58 @@
  
 @layer base {
   :root {
-    /* Modern Apple-inspired color system */
+    /* Professional neutral color system */
     --background: 0 0% 99%;
-    --foreground: 220 14% 15%;
+    --foreground: 214 13% 20%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 14% 15%;
+    --card-foreground: 214 13% 20%;
  
     --popover: 0 0% 100%;
-    --popover-foreground: 220 14% 15%;
+    --popover-foreground: 214 13% 20%;
  
-    /* Primary - Deep blue */
-    --primary: 215 85% 35%;
+    /* Primary - Professional blue-gray */
+    --primary: 214 20% 30%;
     --primary-foreground: 0 0% 98%;
-    --primary-hover: 215 85% 30%;
-    --primary-light: 215 85% 95%;
+    --primary-hover: 214 20% 25%;
+    --primary-light: 214 20% 95%;
     
-    /* Secondary - Soft neutral */
-    --secondary: 220 9% 96%;
-    --secondary-foreground: 220 14% 25%;
-    --secondary-hover: 220 9% 93%;
+    /* Secondary - Neutral gray */
+    --secondary: 214 10% 96%;
+    --secondary-foreground: 214 13% 30%;
+    --secondary-hover: 214 10% 93%;
  
     /* Muted colors */
-    --muted: 220 9% 96%;
-    --muted-foreground: 220 9% 55%;
+    --muted: 214 10% 96%;
+    --muted-foreground: 214 10% 55%;
  
-    /* Accent - Complementary blue */
-    --accent: 215 70% 45%;
+    /* Accent - Subtle blue */
+    --accent: 214 15% 40%;
     --accent-foreground: 0 0% 98%;
-    --accent-light: 215 70% 95%;
+    --accent-light: 214 15% 95%;
  
-    /* Status colors */
-    --success: 142 76% 36%;
-    --success-light: 142 76% 95%;
-    --warning: 35 91% 65%;
-    --warning-light: 35 91% 95%;
-    --destructive: 0 84% 60%;
+    /* Status colors - more muted */
+    --success: 145 30% 35%;
+    --success-light: 145 30% 95%;
+    --warning: 35 40% 50%;
+    --warning-light: 35 40% 95%;
+    --destructive: 0 45% 50%;
     --destructive-foreground: 0 0% 100%;
-    --info: 217 91% 60%;
-    --info-light: 217 91% 95%;
+    --info: 214 25% 45%;
+    --info-light: 214 25% 95%;
     
-    /* Journey-specific status colors */
-    --journey-active: 142 76% 36%;
-    --journey-active-light: 142 76% 95%;
-    --journey-inactive: 220 9% 55%;
-    --journey-inactive-light: 220 9% 95%;
-    --journey-draft: 35 91% 65%;
-    --journey-draft-light: 35 91% 95%;
+    /* Professional status colors */
+    --journey-active: 145 30% 35%;
+    --journey-active-light: 145 30% 95%;
+    --journey-inactive: 214 10% 55%;
+    --journey-inactive-light: 214 10% 95%;
+    --journey-draft: 35 40% 50%;
+    --journey-draft-light: 35 40% 95%;
 
     /* Borders and inputs */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 215 85% 35%;
+    --border: 214 15% 91%;
+    --input: 214 15% 91%;
+    --ring: 214 20% 30%;
  
     /* Spacing */
     --radius: 0.75rem;
@@ -67,19 +67,19 @@
     --radius-lg: 1rem;
     --radius-xl: 1.5rem;
     
-    /* Shadows - Apple-style */
-    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    /* Shadows - Professional */
+    --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.05);
+    --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
     
-    /* Gradients */
+    /* Professional gradients */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(215 85% 95%) 0%, hsl(215 85% 97%) 50%, hsl(220 9% 98%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(30, 58, 138, 0.05) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(214 20% 97%) 0%, hsl(214 15% 98%) 50%, hsl(0 0% 99%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(214, 13%, 30%, 0.05) 0%, rgba(214, 13%, 30%, 0.02) 100%);
     
-    /* Journey card gradients */
+    /* Professional card gradients */
     --gradient-active: linear-gradient(135deg, hsl(var(--journey-active-light)) 0%, hsl(var(--success-light)) 100%);
     --gradient-inactive: linear-gradient(135deg, hsl(var(--journey-inactive-light)) 0%, hsl(var(--muted)) 100%);
     --gradient-draft: linear-gradient(135deg, hsl(var(--journey-draft-light)) 0%, hsl(var(--warning-light)) 100%);
@@ -87,10 +87,10 @@
     /* Elevated card gradient */
     --gradient-elevated: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
     
-    /* Neomorphism shadows */
-    --neo-shadow-light: 8px 8px 16px rgba(163, 177, 198, 0.15), -8px -8px 16px rgba(255, 255, 255, 0.7);
-    --neo-shadow-dark: inset 4px 4px 8px rgba(163, 177, 198, 0.1), inset -4px -4px 8px rgba(255, 255, 255, 0.5);
-    --neo-shadow-pressed: inset 6px 6px 12px rgba(163, 177, 198, 0.2), inset -6px -6px 12px rgba(255, 255, 255, 0.6);
+    /* Subtle neomorphism shadows */
+    --neo-shadow-light: 8px 8px 16px rgba(214, 13%, 30%, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.5);
+    --neo-shadow-dark: inset 4px 4px 8px rgba(214, 13%, 30%, 0.05), inset -4px -4px 8px rgba(255, 255, 255, 0.3);
+    --neo-shadow-pressed: inset 6px 6px 12px rgba(214, 13%, 30%, 0.1), inset -6px -6px 12px rgba(255, 255, 255, 0.4);
     
     /* Glass morphism */
     --glass-backdrop: backdrop-filter: blur(12px) saturate(200%);
@@ -98,13 +98,13 @@
     
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 14% 25%;
+    --sidebar-foreground: 214 13% 30%;
     --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 220 14% 25%;
-    --sidebar-accent: 220 9% 96%;
-    --sidebar-accent-foreground: 220 14% 25%;
-    --sidebar-border: 220 9% 93%;
-    --sidebar-ring: 215 85% 35%;
+    --sidebar-primary-foreground: 214 13% 30%;
+    --sidebar-accent: 214 10% 96%;
+    --sidebar-accent-foreground: 214 13% 30%;
+    --sidebar-border: 214 15% 91%;
+    --sidebar-ring: 214 20% 30%;
   }
  
   .dark {

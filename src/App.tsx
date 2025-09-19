@@ -28,6 +28,7 @@ import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
 import RecruiterSubmitApplication from "./pages/RecruiterSubmitApplication";
 import ApplicantManagementPage from "./pages/ApplicantManagementPage";
+import StartApplication from "./components/student/StartApplication";
 import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { FullScreenReviewLayout } from "./components/admin/applicants/review/FullScreenReviewLayout";
@@ -128,6 +129,7 @@ const App = () => {
               <Route path="/student-portal/campus-life" element={<StudentPortal />} />
 
               {/* Authenticated Student Portal Routes (For Admin Users) */}
+              <Route path="/student/start-application" element={<ProtectedRoute element={<StartApplication />} />} />
               <Route path="/student" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/dashboard" element={<ProtectedRoute element={<StudentPortal />} />} />
               <Route path="/student/applications" element={<ProtectedRoute element={<StudentPortal />} />} />

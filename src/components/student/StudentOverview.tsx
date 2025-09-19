@@ -335,7 +335,11 @@ const StudentOverview: React.FC = () => {
                       <p className="text-xs text-muted-foreground">Next Step</p>
                       <p className="font-semibold text-foreground text-sm">Interview Scheduling</p>
                     </div>
-                    <Button size="sm" className="px-4">
+                    <Button 
+                      size="sm" 
+                      className="px-4"
+                      onClick={() => window.location.href = '/student/start-application'}
+                    >
                       Continue Application
                     </Button>
                   </div>

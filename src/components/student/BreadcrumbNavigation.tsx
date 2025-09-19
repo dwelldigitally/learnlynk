@@ -56,39 +56,6 @@ export const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({ onTo
         <Menu className="w-4 h-4" />
       </Button>
 
-      {/* Current Page Title with Icon */}
-      <div className="flex items-center gap-2">
-        <div className="p-1.5 rounded-md bg-primary/10">
-          <CurrentIcon className="w-4 h-4 text-primary" />
-        </div>
-        <div>
-          <h1 className="font-semibold text-foreground text-sm">
-            {currentRoute?.title || 'Student Portal'}
-          </h1>
-          {breadcrumbs.length > 1 && (
-            <Breadcrumb className="hidden sm:block">
-              <BreadcrumbList className="text-xs">
-                {breadcrumbs.map((crumb, index) => (
-                  <React.Fragment key={index}>
-                    {index > 0 && <BreadcrumbSeparator />}
-                    <BreadcrumbItem>
-                      {index === breadcrumbs.length - 1 ? (
-                        <BreadcrumbPage className="text-muted-foreground">
-                          {crumb.title}
-                        </BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink className="text-muted-foreground hover:text-foreground">
-                          {crumb.title}
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                  </React.Fragment>
-                ))}
-              </BreadcrumbList>
-            </Breadcrumb>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

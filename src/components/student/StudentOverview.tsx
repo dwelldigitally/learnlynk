@@ -433,9 +433,10 @@ const StudentOverview: React.FC = () => {
                                   className={`h-2 rounded-full transition-all duration-300 ${
                                     option.seats > 15 ? 'bg-green-500' : 
                                     option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
-                                }`}
-                                style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
-                              ></div>
+                                  }`}
+                                  style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
+                                ></div>
+                              </div>
                             </div>
                           </div>
                         </div>

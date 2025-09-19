@@ -53,75 +53,80 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
   return (
     <header className="bg-background border-b border-border/50 backdrop-blur-sm sticky top-0 z-40">
       <div className="px-4 py-4 space-y-4">
-        {/* First Row - Navigation and User Menu */}
+        {/* Navigation Row */}
         <div className="flex items-center justify-between">
-          {/* Left Section - Breadcrumb & Student Avatar/Name */}
-          <div className="flex items-center gap-4">
-            <BreadcrumbNavigation onToggleSidebar={onToggleSidebar} />
-            
-            <div className="flex items-center gap-3 ml-4">
-              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                {profile?.avatar_url ? (
-                  <img 
-                    src={profile.avatar_url} 
-                    alt="Profile" 
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                ) : (
-                  <User className="w-4 h-4 text-primary-foreground" />
-                )}
-              </div>
-              <div className="hidden sm:block">
-                <h2 className="font-medium text-foreground text-sm">{displayData.name}</h2>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Section - User Menu */}
+          <BreadcrumbNavigation onToggleSidebar={onToggleSidebar} />
           <StreamlinedUserMenu 
             useDummyData={useDummyData}
             onToggleDummyData={onToggleDummyData}
           />
         </div>
 
-        {/* Second Row - Student Details and Actions */}
+        {/* Student Information Row */}
         <div className="flex items-center justify-between">
-          {/* Left Section - Student ID and Status */}
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>ID: {displayData.studentId}</span>
-              <Badge variant="secondary" className="text-xs">
-                {displayData.status}
-              </Badge>
+          {/* Left Section - Student Profile */}
+          <div className="flex items-center gap-4">
+            {/* Avatar and Name Section */}
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-primary to-primary/80 flex items-center justify-center ring-2 ring-primary/20">
+                {profile?.avatar_url ? (
+                  <img 
+                    src={profile.avatar_url} 
+                    alt="Profile" 
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="w-6 h-6 text-primary-foreground" />
+                )}
+              </div>
+              
+              <div className="flex flex-col">
+                <h1 className="text-lg font-semibold text-foreground">{displayData.name}</h1>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <span>ID: {displayData.studentId}</span>
+                  <Badge variant="secondary" className="text-xs h-5">
+                    {displayData.status}
+                  </Badge>
+                </div>
+              </div>
             </div>
 
-            {/* Academic Info */}
-            <div className="hidden md:flex items-center gap-4">
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <GraduationCap className="w-4 h-4" />
-                <span className="hidden lg:inline">{displayData.program}</span>
-                <span className="lg:hidden">Program</span>
+            {/* Academic Information */}
+            <div className="hidden lg:flex items-center gap-6 ml-6 pl-6 border-l border-border/50">
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-8 h-8 rounded-full bg-secondary/50 flex items-center justify-center">
+                  <GraduationCap className="w-4 h-4 text-secondary-foreground" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-foreground font-medium">{displayData.program}</span>
+                  <span className="text-muted-foreground text-xs">Program</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                <span>{displayData.semester}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <div className="w-8 h-8 rounded-full bg-secondary/50 flex items-center justify-center">
+                  <Calendar className="w-4 h-4 text-secondary-foreground" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-foreground font-medium">{displayData.semester}</span>
+                  <span className="text-muted-foreground text-xs">Current Term</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Right Section - Communication Actions */}
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="h-8 px-3">
+          {/* Right Section - Actions */}
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="sm" className="h-9 px-4 relative">
               <MessageSquare className="w-4 h-4" />
-              <span className="hidden sm:inline ml-1">Messages</span>
-              <Badge variant="destructive" className="ml-1 text-xs">2</Badge>
+              <span className="hidden sm:inline ml-2">Messages</span>
+              <Badge variant="destructive" className="absolute -top-1 -right-1 text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center">2</Badge>
             </Button>
             
-            <Button variant="ghost" size="sm" className="h-8 px-3">
+            <Button variant="ghost" size="sm" className="h-9 px-4 relative">
               <Bell className="w-4 h-4" />
-              <span className="hidden sm:inline ml-1">Alerts</span>
-              <Badge variant="secondary" className="ml-1 text-xs">5</Badge>
+              <span className="hidden sm:inline ml-2">Alerts</span>
+              <Badge variant="secondary" className="absolute -top-1 -right-1 text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center">5</Badge>
             </Button>
           </div>
         </div>

@@ -338,7 +338,7 @@ const StudentOverview: React.FC = () => {
                     <Button 
                       size="sm" 
                       className="px-4"
-                      onClick={() => window.location.href = '/student/start-application'}
+                      onClick={() => window.location.href = '/student/applications'}
                     >
                       Continue Application
                     </Button>

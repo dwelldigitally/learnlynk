@@ -30,6 +30,7 @@ const StudentOverview: React.FC = () => {
   const [isProgramPopoverOpen, setIsProgramPopoverOpen] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [pendingProgram, setPendingProgram] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Animation hooks
   const isLoaded = usePageEntranceAnimation();
@@ -918,13 +919,14 @@ const StudentOverview: React.FC = () => {
           </div>
         </div>
 
-      {/* Fixed Full Width Sidebar */}
+      {/* Fixed Full Width Sidebar - Only show when sidebarOpen is true */}
+      {sidebarOpen && (
       <div className="fixed top-0 right-0 w-full h-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-l border-border z-50 overflow-y-auto">
         <div className={`p-6 space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
           {/* Sidebar Header with Close Button */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-foreground">Student Dashboard</h2>
-            <Button variant="ghost" size="sm" className="hover:bg-muted">
+            <Button variant="ghost" size="sm" className="hover:bg-muted" onClick={() => setSidebarOpen(false)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 6L6 18"/>
                 <path d="M6 6l12 12"/>
@@ -1005,6 +1007,19 @@ const StudentOverview: React.FC = () => {
           </Card>
         </div>
       </div>
+      )}
+
+      {/* Sidebar Toggle Button */}
+      <Button 
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 p-0 shadow-lg"
+        size="sm"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+      </Button>
       </div>
 
       {/* Program Change Confirmation Dialog */}

@@ -919,9 +919,6 @@ const StudentOverview: React.FC = () => {
 
         {/* Right Column - Sidebar */}
         <div className={`space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
-          {/* Quick Progress Tracker */}
-          <QuickProgressTracker />
-          
           {/* Student Information */}
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
             <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">

@@ -56,14 +56,6 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
   return (
     <div className="bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 backdrop-blur-sm">
       <div className="px-6 py-5 space-y-4">
-        {/* Navigation Row */}
-        <div className="flex items-center justify-between">
-          <BreadcrumbNavigation onToggleSidebar={onToggleSidebar} />
-          <StreamlinedUserMenu 
-            useDummyData={useDummyData}
-            onToggleDummyData={onToggleDummyData}
-          />
-        </div>
 
         {/* Student Profile Card */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm">

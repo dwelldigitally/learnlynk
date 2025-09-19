@@ -147,9 +147,9 @@ const StudentDashboard: React.FC = () => {
   const totalDocuments = currentApplication.documents.length;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6">
       {/* Header with Program Selection */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-8 py-6 rounded-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-10 py-8 rounded-xl shadow-lg border border-blue-500/20">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
             <div>
@@ -203,11 +203,11 @@ const StudentDashboard: React.FC = () => {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FileText className="w-5 h-5 text-blue-600" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="p-6 bg-gradient-to-br from-white to-blue-50/30 hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-blue-100 rounded-xl shadow-sm">
+              <FileText className="w-6 h-6 text-blue-600" />
             </div>
             <div>
               <div className="text-2xl font-bold">{totalDocuments}</div>
@@ -216,10 +216,10 @@ const StudentDashboard: React.FC = () => {
           </div>
         </Card>
         
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+        <Card className="p-6 bg-gradient-to-br from-white to-green-50/30 hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-green-100 rounded-xl shadow-sm">
+              <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
             <div>
               <div className="text-2xl font-bold">{currentApplication.documents.filter(doc => doc.status === 'approved').length}</div>
@@ -228,10 +228,10 @@ const StudentDashboard: React.FC = () => {
           </div>
         </Card>
         
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="w-5 h-5 text-yellow-600" />
+        <Card className="p-6 bg-gradient-to-br from-white to-yellow-50/30 hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-yellow-100 rounded-xl shadow-sm">
+              <Clock className="w-6 h-6 text-yellow-600" />
             </div>
             <div>
               <div className="text-2xl font-bold">{currentApplication.documents.filter(doc => doc.status === 'under-review').length}</div>
@@ -240,10 +240,10 @@ const StudentDashboard: React.FC = () => {
           </div>
         </Card>
         
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-600" />
+        <Card className="p-6 bg-gradient-to-br from-white to-red-50/30 hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-red-100 rounded-xl shadow-sm">
+              <AlertCircle className="w-6 h-6 text-red-600" />
             </div>
             <div>
               <div className="text-2xl font-bold">{currentApplication.documents.filter(doc => doc.status === 'rejected').length}</div>
@@ -254,14 +254,14 @@ const StudentDashboard: React.FC = () => {
       </div>
 
       {/* Requirements List */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Program Requirements</h2>
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-gray-800">Program Requirements</h2>
         
         {currentApplication.requirements.map((requirement) => {
           const requirementDocuments = currentApplication.documents.filter(doc => doc.requirementId === requirement.id);
           
           return (
-            <Card key={requirement.id} className="p-6">
+            <Card key={requirement.id} className="p-8 bg-gradient-to-br from-white to-gray-50/50 hover:shadow-lg transition-all duration-300 border-0 shadow-md">
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <div className="flex items-center gap-2">
@@ -301,9 +301,9 @@ const StudentDashboard: React.FC = () => {
 
               {/* Document List */}
               {requirementDocuments.length > 0 && (
-                <div className="space-y-3 mt-4 border-t pt-4">
+                <div className="space-y-4 mt-6 border-t pt-6">
                   {requirementDocuments.map((document) => (
-                    <div key={document.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div key={document.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200">
                       <div className="flex items-center gap-3">
                         <FileText className="w-5 h-5 text-muted-foreground" />
                         <div>

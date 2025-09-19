@@ -49,101 +49,110 @@ export function SalesAdvisorCard({ advisor }: SalesAdvisorCardProps) {
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Your Sales Advisor</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Advisor Profile */}
-        <div className="flex items-center space-x-4">
-          <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
-            <img 
-              src={advisorData.photo} 
-              alt={advisorData.name}
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-foreground truncate">{advisorData.name}</h3>
-            <p className="text-sm text-muted-foreground">{advisorData.title}</p>
-          </div>
-        </div>
-
-        {/* Specialties */}
-        <div>
-          <h4 className="text-sm font-medium text-foreground mb-2">Specialties</h4>
-          <div className="flex flex-wrap gap-2">
-            {advisorData.specialties.map((specialty, index) => (
-              <span 
-                key={index}
-                className="px-2 py-1 text-xs bg-secondary text-secondary-foreground rounded-md"
-              >
-                {specialty}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-medium text-foreground">Contact Information</h4>
-          <div className="space-y-1 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-2">
-              <Phone className="w-4 h-4" />
-              <span>{advisorData.phone}</span>
+      <CardContent className="space-y-4">
+        {/* Two-column layout for compact design */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Left Column - Profile & Contact Info */}
+          <div className="space-y-4">
+            {/* Advisor Profile */}
+            <div className="flex items-center space-x-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                <img 
+                  src={advisorData.photo} 
+                  alt={advisorData.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-foreground text-sm truncate">{advisorData.name}</h3>
+                <p className="text-xs text-muted-foreground">{advisorData.title}</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Mail className="w-4 h-4" />
-              <span>{advisorData.email}</span>
+
+            {/* Contact Information */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-medium text-foreground">Contact</h4>
+              <div className="space-y-1 text-xs text-muted-foreground">
+                <div className="flex items-center space-x-2">
+                  <Phone className="w-3 h-3" />
+                  <span className="truncate">{advisorData.phone}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Mail className="w-3 h-3" />
+                  <span className="truncate">{advisorData.email}</span>
+                </div>
+              </div>
             </div>
           </div>
+
+          {/* Right Column - Specialties & Actions */}
+          <div className="space-y-4">
+            {/* Specialties */}
+            <div>
+              <h4 className="text-xs font-medium text-foreground mb-2">Specialties</h4>
+              <div className="flex flex-wrap gap-1">
+                {advisorData.specialties.map((specialty, index) => (
+                  <span 
+                    key={index}
+                    className="px-2 py-0.5 text-xs bg-secondary text-secondary-foreground rounded-md"
+                  >
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Compact Action Buttons */}
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleCall}
+                  className="flex items-center justify-center space-x-1 text-xs h-8"
+                >
+                  <Phone className="w-3 h-3" />
+                  <span>Call</span>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleEmail}
+                  className="flex items-center justify-center space-x-1 text-xs h-8"
+                >
+                  <Mail className="w-3 h-3" />
+                  <span>Email</span>
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleMessage}
+                  className="flex items-center justify-center space-x-1 text-xs h-8"
+                >
+                  <MessageCircle className="w-3 h-3" />
+                  <span>Message</span>
+                </Button>
+                <Button 
+                  size="sm" 
+                  onClick={handleScheduleAppointment}
+                  className="flex items-center justify-center space-x-1 text-xs h-8"
+                >
+                  <Calendar className="w-3 h-3" />
+                  <span>Schedule</span>
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleCall}
-              className="flex items-center justify-center space-x-2"
-            >
-              <Phone className="w-4 h-4" />
-              <span>Call</span>
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleEmail}
-              className="flex items-center justify-center space-x-2"
-            >
-              <Mail className="w-4 h-4" />
-              <span>Email</span>
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleMessage}
-              className="flex items-center justify-center space-x-2"
-            >
-              <MessageCircle className="w-4 h-4" />
-              <span>Message</span>
-            </Button>
-            <Button 
-              size="sm" 
-              onClick={handleScheduleAppointment}
-              className="flex items-center justify-center space-x-2"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Schedule</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="pt-4 border-t border-border">
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground mb-2">Need immediate assistance?</p>
-            <Button variant="ghost" size="sm" className="text-xs">
+        {/* Bottom row - Quick Actions (spans full width) */}
+        <div className="pt-3 border-t border-border">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">Need immediate assistance?</p>
+            <Button variant="ghost" size="sm" className="text-xs h-7 px-2">
               View Availability
             </Button>
           </div>

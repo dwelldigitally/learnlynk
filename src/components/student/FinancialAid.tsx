@@ -72,48 +72,56 @@ const FinancialAid: React.FC = () => {
         <p className="text-muted-foreground">Explore funding options and manage your financial aid applications</p>
       </div>
 
-      {/* Financial Aid Summary */}
+      {/* Financial Aid Summary - Enhanced */}
       <div ref={staggerRef} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className={`p-6 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        <Card className={`p-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-600" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
+              <DollarSign className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold">Total Aid Awarded</h3>
-              <p className="text-2xl font-bold text-green-600">$15,895</p>
+              <h3 className="font-semibold text-green-900 mb-1">Total Aid Awarded</h3>
+              <p className="text-3xl font-bold text-green-600 mb-1">$15,895</p>
+              <p className="text-sm text-green-700">66% of total cost covered</p>
             </div>
           </div>
         </Card>
 
-        <Card className={`p-6 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+        <Card className={`p-8 bg-gradient-to-br from-blue-50 to-blue-50 border-blue-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Calculator className="w-6 h-6 text-blue-600" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+              <Calculator className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold">Remaining Cost</h3>
-              <p className="text-2xl font-bold text-blue-600">$8,105</p>
+              <h3 className="font-semibold text-blue-900 mb-1">Remaining Cost</h3>
+              <p className="text-3xl font-bold text-blue-600 mb-1">$8,105</p>
+              <p className="text-sm text-blue-700">Payment plans available</p>
             </div>
           </div>
         </Card>
 
-        <Card className={`p-6 ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
+        <Card className={`p-8 bg-gradient-to-br from-purple-50 to-purple-50 border-purple-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center">
-              <GraduationCap className="w-6 h-6 text-purple-600" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+              <GraduationCap className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold">Total Cost of Attendance</h3>
-              <p className="text-2xl font-bold text-purple-600">$24,000</p>
+              <h3 className="font-semibold text-purple-900 mb-1">Total Cost</h3>
+              <p className="text-3xl font-bold text-purple-600 mb-1">$24,000</p>
+              <p className="text-sm text-purple-700">Includes tuition & fees</p>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Aid Programs */}
-      <Card className={`p-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
-        <h2 className="text-xl font-semibold mb-4">Available Financial Aid Programs</h2>
+      {/* Aid Programs - Enhanced */}
+      <Card className={`p-8 bg-gradient-to-br from-background to-muted/20 hover:shadow-xl transition-all duration-300 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold">Available Financial Aid Programs</h2>
+        </div>
         <div className="space-y-4">
           {aidPrograms.map((program, index) => (
             <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">

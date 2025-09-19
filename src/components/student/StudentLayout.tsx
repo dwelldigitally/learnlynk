@@ -26,23 +26,41 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
   const { profile } = useProfile();
   const { session } = useStudentPortalContext();
 
-  // Navigation items for the sidebar
-  const navItems = [
-    { name: "Overview", path: "/student", icon: Home },
-    { name: "Documents", path: "/student/dashboard", icon: FileText, hasUpdate: true },
-    { name: "Your Applications", path: "/student/applications", icon: ClipboardList },
-    { name: "Academic Planning", path: "/student/academic-planning", icon: Calendar },
-    { name: "Financial Aid", path: "/student/financial-aid", icon: DollarSign },
-    { name: "Career Services", path: "/student/career-services", icon: Briefcase },
-    { name: "Pay Your Fee", path: "/student/fee", icon: CreditCard },
-    { name: "News & Events", path: "/student/news-events", icon: Newspaper },
-    { name: "Life @ WCC", path: "/student/campus-life", icon: MapPin },
+  // Reorganized navigation into user-focused sections
+  const navSections = [
+    {
+      id: "getting-started",
+      title: "Getting Started",
+      items: [
+        { name: "Dashboard", path: "/student", icon: Home, description: "Your overview & next steps" },
+        { name: "Start Application", path: "/student/applications", icon: ClipboardList, description: "Begin or continue your application", isHighlighted: true }
+      ]
+    },
+    {
+      id: "my-progress",
+      title: "My Progress",
+      items: [
+        { name: "Documents", path: "/student/dashboard", icon: FileText, description: "Upload & track documents", hasUpdate: true },
+        { name: "Academic Planning", path: "/student/academic-planning", icon: Calendar, description: "Plan your academic journey" },
+        { name: "Financial Aid", path: "/student/financial-aid", icon: DollarSign, description: "Funding & financial support" },
+        { name: "Pay Your Fee", path: "/student/fee", icon: CreditCard, description: "Manage payments & fees" }
+      ]
+    },
+    {
+      id: "campus-life",
+      title: "Campus Life",
+      items: [
+        { name: "Career Services", path: "/student/career-services", icon: Briefcase, description: "Career guidance & opportunities" },
+        { name: "News & Events", path: "/student/news-events", icon: Newspaper, description: "Campus updates & activities" },
+        { name: "Life @ WCC", path: "/student/campus-life", icon: MapPin, description: "Explore campus facilities" }
+      ]
+    }
   ];
 
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-16' : 'w-64'} bg-sidebar border-r border-sidebar-border shadow-sm sticky top-0 h-full overflow-hidden transition-all duration-300`}>
+      <aside className={`${isCollapsed ? 'w-16' : 'w-72'} bg-gradient-to-b from-background via-background/95 to-muted/30 border-r border-border/50 shadow-lg backdrop-blur-sm sticky top-0 h-full transition-all duration-300 flex flex-col`}>
         {/* Collapse/Expand Button */}
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           {!isCollapsed && (
@@ -106,30 +124,86 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           </div>
         )}
 
-        <nav className="p-2">
-          {navItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <Link
-                key={index}
-                to={item.path}
-                className={`flex items-center ${isCollapsed ? 'justify-center px-2' : 'justify-between px-4'} py-2 rounded-md text-sm transition-colors mb-1 ${
-                  currentPath === item.path
-                    ? "bg-blue-50 text-blue-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-                title={isCollapsed ? item.name : undefined}
-              >
-                <div className="flex items-center">
-                  <Icon size={16} className={isCollapsed ? '' : 'mr-5'} />
-                  {!isCollapsed && <span>{item.name}</span>}
-                </div>
-                {!isCollapsed && item.hasUpdate && (
-                  <Plus className="w-4 h-4 text-blue-600 bg-blue-100 rounded-full p-0.5" />
+        {/* Navigation Links - Sectioned */}
+        <nav className="flex-1 px-3 py-4 overflow-y-auto">
+          <div className="space-y-6">
+            {navSections.map((section) => (
+              <div key={section.id} className="space-y-2">
+                {!isCollapsed && (
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 py-1">
+                    {section.title}
+                  </h3>
                 )}
-              </Link>
-            );
-          })}
+                <div className="space-y-1">
+                  {section.items.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Link
+                        key={item.name}
+                        to={item.path}
+                        title={isCollapsed ? `${item.name}: ${item.description}` : undefined}
+                        className={`group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-300 relative overflow-hidden ${
+                          isActive 
+                            ? 'bg-gradient-to-r from-primary/90 to-primary text-primary-foreground shadow-lg transform scale-[1.02] ring-2 ring-primary/20' 
+                            : 'text-muted-foreground hover:bg-muted/80 hover:text-foreground hover:transform hover:scale-[1.01] hover:shadow-sm'
+                        } ${item.isHighlighted ? 'ring-2 ring-primary/30 bg-primary/5' : ''}`}
+                      >
+                        {/* Highlight glow for important items */}
+                        {item.isHighlighted && !isActive && (
+                          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent opacity-50 rounded-xl" />
+                        )}
+                        
+                        <div className={`p-2 rounded-lg transition-colors duration-300 ${
+                          isActive 
+                            ? 'bg-white/20' 
+                            : item.isHighlighted 
+                              ? 'bg-primary/10' 
+                              : 'bg-muted/50 group-hover:bg-muted'
+                        }`}>
+                          <item.icon className={`h-4 w-4 flex-shrink-0 transition-colors duration-300 ${
+                            isActive 
+                              ? 'text-primary-foreground' 
+                              : item.isHighlighted 
+                                ? 'text-primary' 
+                                : 'text-muted-foreground group-hover:text-foreground'
+                          }`} />
+                        </div>
+                        
+                        {!isCollapsed && (
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-medium text-sm transition-colors duration-300 ${
+                              isActive 
+                                ? 'text-primary-foreground' 
+                                : item.isHighlighted 
+                                  ? 'text-primary' 
+                                  : 'text-foreground group-hover:text-foreground'
+                            }`}>
+                              {item.name}
+                            </div>
+                            <div className={`text-xs leading-tight truncate transition-colors duration-300 ${
+                              isActive 
+                                ? 'text-primary-foreground/80' 
+                                : 'text-muted-foreground group-hover:text-muted-foreground'
+                            }`}>
+                              {item.description}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {!isCollapsed && item.hasUpdate && (
+                          <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                        )}
+                        
+                        {item.isHighlighted && !isCollapsed && !isActive && (
+                          <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </nav>
 
         {!isCollapsed && (

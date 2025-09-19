@@ -106,15 +106,40 @@ const YourApplications: React.FC = () => {
 
   return (
     <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
-      {/* Header */}
-      <div className="animate-slide-down">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-2xl font-bold">Your Applications</h1>
-            <p className="text-muted-foreground">Track the status and progress of all your submitted applications</p>
+      {/* Header with Application Summary */}
+      <div className="animate-slide-down mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Main Header */}
+          <div className="lg:col-span-2">
+            <h1 className="text-3xl font-bold mb-2">Your Applications</h1>
+            <p className="text-muted-foreground text-lg">Track your journey and manage your applications in one place</p>
           </div>
-          <Button onClick={() => setShowWizard(true)} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
+          
+          {/* Quick Stats */}
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">{applications.length + existingApplications.length}</div>
+              <div className="text-sm text-muted-foreground">Total Applications</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{existingApplications.filter(app => app.stage === 'ACCEPTED').length}</div>
+              <div className="text-sm text-muted-foreground">Accepted</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-yellow-600">{existingApplications.filter(app => app.stage === 'DOCUMENT_APPROVAL').length}</div>
+              <div className="text-sm text-muted-foreground">In Review</div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Primary CTA */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-xl">
+          <div>
+            <h3 className="font-semibold text-lg text-primary mb-1">Ready to start your next application?</h3>
+            <p className="text-muted-foreground">Begin a new application or continue where you left off</p>
+          </div>
+          <Button onClick={() => setShowWizard(true)} size="lg" className="flex items-center gap-2 px-6 py-3">
+            <Plus className="w-5 h-5" />
             Start New Application
           </Button>
         </div>
@@ -122,9 +147,20 @@ const YourApplications: React.FC = () => {
 
       {/* Applications List */}
       <div ref={staggerRef} className="space-y-6">
+        {/* Application Status Filter */}
+        {(applications.length > 0 || existingApplications.length > 0) && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="bg-background">All Applications</Button>
+            <Button variant="ghost" size="sm">In Progress</Button>
+            <Button variant="ghost" size="sm">Under Review</Button>
+            <Button variant="ghost" size="sm">Accepted</Button>
+            <Button variant="ghost" size="sm">Pending Documents</Button>
+          </div>
+        )}
+
         {/* New Applications */}
         {applications.map((application, index) => (
-          <Card key={application.id} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+          <Card key={application.id} className={`p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 border-l-primary ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-xl font-semibold">{application.program_name}</h3>
@@ -187,7 +223,11 @@ const YourApplications: React.FC = () => {
 
         {/* Existing Applications */}
         {existingApplications.map((application, index) => (
-          <Card key={application.id} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.01] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+          <Card key={application.id} className={`p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 ${
+            application.stage === 'ACCEPTED' ? 'border-l-green-500' : 
+            application.stage === 'DOCUMENT_APPROVAL' ? 'border-l-yellow-500' :
+            application.stage === 'SEND_DOCUMENTS' ? 'border-l-orange-500' : 'border-l-gray-300'
+          } ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
             {/* Application Header */}
             <div className="flex justify-between items-start mb-4">
               <div>

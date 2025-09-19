@@ -117,21 +117,26 @@ const CareerServices: React.FC = () => {
         <p className="text-muted-foreground">Explore career opportunities, build professional skills, and connect with employers</p>
       </div>
 
-      {/* Career Resources */}
+      {/* Career Resources - Enhanced */}
       <div ref={staggerRef}>
-        <h2 className="text-xl font-semibold mb-4">Career Resources</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Briefcase className="w-5 h-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold">Career Resources</h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {careerResources.map((resource, index) => (
-            <Card key={index} className={`p-6 hover:shadow-lg transition-all duration-300 hover:scale-[1.02] ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+            <Card key={index} className={`p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.05] bg-gradient-to-br from-background to-muted/30 border-0 shadow-lg group cursor-pointer ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${getColorClasses(resource.color)}`}>
-                  <resource.icon className="w-6 h-6" />
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg ${getColorClasses(resource.color)}`}>
+                  <resource.icon className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="font-semibold mb-2">{resource.title}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{resource.description}</p>
+                  <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{resource.title}</h3>
+                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{resource.description}</p>
                 </div>
-                <Button size="sm" className="w-full">{resource.action}</Button>
+                <Button size="sm" className="w-full group-hover:shadow-md transition-shadow">{resource.action}</Button>
               </div>
             </Card>
           ))}
@@ -226,19 +231,31 @@ const CareerServices: React.FC = () => {
         </div>
       </Card>
 
-      {/* Quick Stats */}
+      {/* Quick Stats - Enhanced */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className={`p-6 text-center ${visibleItems[6] ? 'animate-stagger-7' : 'opacity-0'}`}>
-          <h3 className="text-2xl font-bold text-primary">92%</h3>
-          <p className="text-muted-foreground">Graduate Employment Rate</p>
+        <Card className={`p-8 text-center bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[6] ? 'animate-stagger-7' : 'opacity-0'}`}>
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="w-8 h-8 text-primary" />
+          </div>
+          <h3 className="text-4xl font-bold text-primary mb-2">92%</h3>
+          <p className="text-muted-foreground font-medium">Graduate Employment Rate</p>
+          <p className="text-xs text-muted-foreground mt-1">Within 6 months</p>
         </Card>
-        <Card className={`p-6 text-center ${visibleItems[7] ? 'animate-stagger-8' : 'opacity-0'}`}>
-          <h3 className="text-2xl font-bold text-green-600">$58,000</h3>
-          <p className="text-muted-foreground">Average Starting Salary</p>
+        <Card className={`p-8 text-center bg-gradient-to-br from-green-50 to-green-100/50 border-green-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[7] ? 'animate-stagger-8' : 'opacity-0'}`}>
+          <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+            <TrendingUp className="w-8 h-8 text-green-600" />
+          </div>
+          <h3 className="text-4xl font-bold text-green-600 mb-2">$58,000</h3>
+          <p className="text-muted-foreground font-medium">Average Starting Salary</p>
+          <p className="text-xs text-muted-foreground mt-1">Entry-level positions</p>
         </Card>
-        <Card className={`p-6 text-center ${visibleItems[8] ? 'animate-stagger-9' : 'opacity-0'}`}>
-          <h3 className="text-2xl font-bold text-blue-600">200+</h3>
-          <p className="text-muted-foreground">Partner Employers</p>
+        <Card className={`p-8 text-center bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[8] ? 'animate-stagger-9' : 'opacity-0'}`}>
+          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+            <Users className="w-8 h-8 text-blue-600" />
+          </div>
+          <h3 className="text-4xl font-bold text-blue-600 mb-2">200+</h3>
+          <p className="text-muted-foreground font-medium">Partner Employers</p>
+          <p className="text-xs text-muted-foreground mt-1">Hiring our graduates</p>
         </Card>
       </div>
 

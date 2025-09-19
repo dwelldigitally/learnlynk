@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle, AlertTriangle, AlertCircle, PenTool } from "lucide-react";
+import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle, AlertTriangle, AlertCircle, PenTool, ClipboardList, FileText, DollarSign } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -17,6 +17,7 @@ import { programAlumni } from "@/data/programAlumni";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
 import AdvisorContactActions from "@/components/student/AdvisorContactActions";
 import CampusExplorer from "@/components/student/CampusExplorer";
+import QuickProgressTracker from "@/components/student/QuickProgressTracker";
 import { toast } from "@/hooks/use-toast";
 import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
@@ -375,10 +376,73 @@ const StudentOverview: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Action Cards - Priority Actions */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        {/* Start Application - Primary CTA */}
+        <Card className="p-6 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <ClipboardList className="h-6 w-6" />
+              </div>
+              <ArrowRight className="h-5 w-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <h3 className="font-bold text-lg mb-1">Start Application</h3>
+            <p className="text-sm opacity-90">Begin your journey today</p>
+          </div>
+        </Card>
+
+        {/* Upload Documents */}
+        <Card className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <FileText className="h-6 w-6" />
+              </div>
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+            </div>
+            <h3 className="font-bold text-lg mb-1">Upload Documents</h3>
+            <p className="text-sm opacity-90">3 pending uploads</p>
+          </div>
+        </Card>
+
+        {/* Financial Aid */}
+        <Card className="p-6 bg-gradient-to-br from-green-500 to-green-600 text-white hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <DollarSign className="h-6 w-6" />
+              </div>
+              <CheckCircle className="h-5 w-5 opacity-80" />
+            </div>
+            <h3 className="font-bold text-lg mb-1">Financial Aid</h3>
+            <p className="text-sm opacity-90">$15,895 available</p>
+          </div>
+        </Card>
+
+        {/* Schedule Advisor */}
+        <Card className="p-6 bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="relative">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 bg-white/20 rounded-lg">
+                <Calendar className="h-6 w-6" />
+              </div>
+              <Clock className="h-5 w-5 opacity-80" />
+            </div>
+            <h3 className="font-bold text-lg mb-1">Schedule Advisor</h3>
+            <p className="text-sm opacity-90">Get personalized guidance</p>
+          </div>
+        </Card>
+      </div>
+
       {/* Main Dashboard Content */}
       <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Left Column - Main Content */}
-        <div className={`lg:col-span-2 space-y-10 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        <div className={`lg:col-span-2 space-y-10 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
           {/* Dynamic Marketing Hero Section */}
           <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] border-0 shadow-2xl backdrop-blur-sm`}>
             {/* Background Image with Overlay */}
@@ -485,7 +549,7 @@ const StudentOverview: React.FC = () => {
           )}
 
           {/* Admissions Progress */}
-          <Card className={`p-10 bg-gradient-to-br from-green-50 via-emerald-50/70 to-teal-50/50 border-0 shadow-2xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] backdrop-blur-sm ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+          <Card className={`p-8 bg-gradient-to-br from-green-50 via-emerald-50/70 to-teal-50/50 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] backdrop-blur-sm ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-green-900">Admissions Progress</h3>
               <div className="text-right">
@@ -589,7 +653,10 @@ const StudentOverview: React.FC = () => {
         </div>
 
         {/* Right Column - Sidebar */}
-        <div className={`space-y-6 ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
+        <div className={`space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
+          {/* Quick Progress Tracker */}
+          <QuickProgressTracker />
+          
           {/* Student Information */}
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
             <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">

@@ -548,30 +548,6 @@ const StudentOverview: React.FC = () => {
             </div>
           )}
 
-          {/* Admissions Progress */}
-          <Card className={`p-8 bg-gradient-to-br from-green-50 via-emerald-50/70 to-teal-50/50 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.01] backdrop-blur-sm ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold text-green-900">Admissions Progress</h3>
-              <div className="text-right">
-                <div className="text-sm font-medium text-green-700">Application Deadline</div>
-                <div className="text-lg font-bold text-green-900">
-                  {currentApplication.applicationDeadline}
-                </div>
-              </div>
-            </div>
-            <AdmissionsProgress currentStage={currentApplication.stage} />
-            
-            {/* Next Steps */}
-            <div className="mt-6 p-4 bg-white rounded-lg border-l-4 border-green-500">
-              <h4 className="font-semibold text-gray-900 mb-2">Next Steps Required:</h4>
-              <div className="space-y-2">
-                <div className="flex items-center text-sm text-gray-700">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-2 animate-pulse"></div>
-                  {currentApplication.nextStep}
-                </div>
-              </div>
-            </div>
-          </Card>
 
           {/* Campus Explorer */}
           <CampusExplorer />

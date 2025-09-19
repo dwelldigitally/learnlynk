@@ -875,48 +875,6 @@ const StudentOverview: React.FC = () => {
             </div>
           </div>
 
-          {/* Talk to Alumni */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Talk To Alumni</h3>
-            <div className="grid gap-4">
-              {Object.values(programAlumni).slice(0, 3).map((alumni, index) => (
-                <Card key={index} className={`p-4 hover:shadow-md transition-all duration-300 hover:scale-[1.02] ${visibleItems[3] ? `animate-stagger-${Math.min(index + 4, 5)}` : 'opacity-0'}`}>
-                  <div className="flex items-center space-x-4">
-                    <div className="w-16 h-16 overflow-hidden rounded-full flex-shrink-0">
-                      <img src={alumni.avatar} alt="Alumni" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 truncate">{alumni.name}</h4>
-                      <p className="text-sm text-blue-600 font-medium">{alumni.currentRole}</p>
-                      <p className="text-xs text-gray-500">{alumni.workplace} • Class of {alumni.graduationYear}</p>
-                      <p className="text-sm text-gray-600 mt-2 line-clamp-2">
-                        "{alumni.testimonial}"
-                      </p>
-                      <Button variant="outline" size="sm" className="mt-3 text-xs bg-blue-50 border-blue-200 hover:bg-blue-100">
-                        Schedule a Call
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              
-              {/* View All Alumni Button */}
-              <Card className="p-4 border-dashed border-2 border-gray-300 hover:border-blue-400 transition-colors cursor-pointer bg-gray-50 hover:bg-blue-50">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                      <circle cx="12" cy="7" r="4"/>
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium text-gray-700">View All Alumni</p>
-                  <p className="text-xs text-gray-500">Connect with {Object.keys(programAlumni).length} program graduates</p>
-                </div>
-              </Card>
-            </div>
-          </div>
         </div>
 
       {/* Fixed Full Width Sidebar - Only show when sidebarOpen is true */}

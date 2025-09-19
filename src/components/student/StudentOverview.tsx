@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import AdmissionsProgress from "@/components/student/AdmissionsProgress";
 import NewsCard from "@/components/student/NewsCard";
+import { SalesAdvisorCard } from "@/components/student/SalesAdvisorCard";
 import EventCard from "@/components/student/EventCard";
 import { Link } from "react-router-dom";
 import AdmissionForm from "@/components/student/AdmissionForm";
@@ -873,6 +874,11 @@ const StudentOverview: React.FC = () => {
                 ));
               })()}
             </div>
+          </div>
+
+          {/* Sales Advisor Section */}
+          <div>
+            <SalesAdvisorCard />
           </div>
 
         </div>

@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle, AlertTriangle, AlertCircle, PenTool, ClipboardList, FileText, DollarSign, GraduationCap } from "lucide-react";
+import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle, AlertTriangle, AlertCircle, PenTool, ClipboardList, FileText, DollarSign, GraduationCap, Award, TrendingUp, Users, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -245,151 +245,282 @@ const StudentOverview: React.FC = () => {
   return (
     <div className={`space-y-10 p-8 bg-background min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
 
-      {/* Program Header with Program and Intake Selection */}
+      {/* Enhanced Program Header */}
       <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-8 mb-10 transition-all duration-500 hover:shadow-xl hover:border-border/80 animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          {/* Program Selection Section */}
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Program</span>
-            </div>
-            
-            <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className="group h-auto p-0 text-left flex flex-col items-start gap-1 hover:bg-transparent transition-all duration-200"
-                >
-                  <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-                      {selectedProgram}
-                    </h2>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
-                      <ChevronDown className="w-4 h-4 text-primary group-hover:rotate-180 transition-transform duration-200" />
+        {/* Main Program Section */}
+        <div className="flex flex-col xl:flex-row gap-8">
+          {/* Left: Program Selection & Details */}
+          <div className="flex-1 space-y-6">
+            {/* Program Selection */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Program</span>
+              </div>
+              
+              <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="group h-auto p-0 text-left flex flex-col items-start gap-1 hover:bg-transparent transition-all duration-200"
+                  >
+                    <div className="flex items-center gap-3">
+                      <h2 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                        {selectedProgram}
+                      </h2>
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors duration-200">
+                        <ChevronDown className="w-4 h-4 text-primary group-hover:rotate-180 transition-transform duration-200" />
+                      </div>
+                    </div>
+                    <span className="text-sm text-muted-foreground group-hover:text-muted-foreground/80">
+                      Click to change program
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-96 p-0 bg-background/95 backdrop-blur-sm border border-border/50 z-50" align="start">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <GraduationCap className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-lg text-foreground">Available Programs</h3>
+                    </div>
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {Object.keys(allPrograms).map((program) => (
+                        <div 
+                          key={program}
+                          className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
+                            selectedProgram === program 
+                              ? 'border-primary bg-primary/5 shadow-sm' 
+                              : 'border-border hover:border-border/80 hover:bg-muted/50'
+                          }`}
+                          onClick={() => handleProgramChange(program)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                                {program}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {allPrograms[program as keyof typeof allPrograms].length} intake dates available
+                              </p>
+                            </div>
+                            {selectedProgram === program && (
+                              <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                                <div className="w-2 h-2 rounded-full bg-primary-foreground"></div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                  <span className="text-sm text-muted-foreground group-hover:text-muted-foreground/80">
-                    Click to change program
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-96 p-0 bg-background/95 backdrop-blur-sm border border-border/50 z-50" align="start">
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <GraduationCap className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-lg text-foreground">Available Programs</h3>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Program Details Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Duration */}
+              <div className="bg-blue-50/50 dark:bg-blue-950/20 rounded-lg p-4 border border-blue-200/50 dark:border-blue-800/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <div className="space-y-3 max-h-80 overflow-y-auto">
-                    {Object.keys(allPrograms).map((program) => (
-                      <div 
-                        key={program}
-                        className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
-                          selectedProgram === program 
-                            ? 'border-primary bg-primary/5 shadow-sm' 
-                            : 'border-border hover:border-border/80 hover:bg-muted/50'
-                        }`}
-                        onClick={() => handleProgramChange(program)}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                              {program}
-                            </p>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {allPrograms[program as keyof typeof allPrograms].length} intake dates available
-                            </p>
-                          </div>
-                          {selectedProgram === program && (
-                            <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                              <div className="w-2 h-2 rounded-full bg-primary-foreground"></div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                  <div>
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Duration</p>
+                    <p className="text-lg font-bold text-blue-900 dark:text-blue-100">18 months</p>
                   </div>
                 </div>
-              </PopoverContent>
-            </Popover>
+              </div>
+
+              {/* Program Type */}
+              <div className="bg-purple-50/50 dark:bg-purple-950/20 rounded-lg p-4 border border-purple-200/50 dark:border-purple-800/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Credential</p>
+                    <p className="text-lg font-bold text-purple-900 dark:text-purple-100">Diploma</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Employment Rate */}
+              <div className="bg-green-50/50 dark:bg-green-950/20 rounded-lg p-4 border border-green-200/50 dark:border-green-800/30">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Employment</p>
+                    <p className="text-lg font-bold text-green-900 dark:text-green-100">94%</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Program Description */}
+            <div className="bg-muted/30 rounded-lg p-4 border border-border/30">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Comprehensive program designed to prepare students for careers in {selectedProgram.toLowerCase()}. 
+                Industry-focused curriculum with hands-on experience and real-world applications.
+              </p>
+            </div>
           </div>
 
-          {/* Intake Selection Section */}
-          <div className="flex-shrink-0 space-y-3">
-            <div className="flex items-center gap-2 lg:justify-end">
-              <Calendar className="w-4 h-4 text-primary" />
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Intake Date</span>
-            </div>
-            
-            <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  className="group h-12 px-6 bg-background/50 border-border hover:bg-background hover:border-primary/50 transition-all duration-200 flex items-center gap-3"
-                >
-                  <div className="text-left">
-                    <div className="font-semibold text-foreground">{intake}</div>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:rotate-180 transition-all duration-200" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-96 p-0 bg-background/95 backdrop-blur-sm border border-border/50" align="end">
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <Calendar className="w-5 h-5 text-primary" />
-                    <h3 className="font-semibold text-lg text-foreground">Select Intake Date</h3>
-                  </div>
-                  <div className="space-y-3 max-h-80 overflow-y-auto">
-                    {availableIntakes.map((option) => (
-                      <div 
-                        key={option.date}
-                        className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
-                          intake === option.date 
-                            ? 'border-primary bg-primary/5 shadow-sm' 
-                            : 'border-border hover:border-border/80 hover:bg-muted/50'
-                        }`}
-                        onClick={() => {
-                          setIntake(option.date);
-                          setIsIntakePopoverOpen(false);
-                        }}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold text-foreground">{option.date}</p>
-                              {intake === option.date && (
-                                <div className="w-2 h-2 rounded-full bg-primary"></div>
-                              )}
+          {/* Right: Intake & Financial Information */}
+          <div className="xl:w-80 space-y-6">
+            {/* Intake Selection */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Intake Date</span>
+              </div>
+              
+              <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="outline" 
+                    className="group h-12 w-full px-4 bg-background/50 border-border hover:bg-background hover:border-primary/50 transition-all duration-200 flex items-center justify-between"
+                  >
+                    <div className="text-left">
+                      <div className="font-semibold text-foreground">{intake}</div>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:rotate-180 transition-all duration-200" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 p-0 bg-background/95 backdrop-blur-sm border border-border/50" align="end">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Calendar className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-lg text-foreground">Select Intake Date</h3>
+                    </div>
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {availableIntakes.map((option) => (
+                        <div 
+                          key={option.date}
+                          className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
+                            intake === option.date 
+                              ? 'border-primary bg-primary/5 shadow-sm' 
+                              : 'border-border hover:border-border/80 hover:bg-muted/50'
+                          }`}
+                          onClick={() => {
+                            setIntake(option.date);
+                            setIsIntakePopoverOpen(false);
+                          }}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-foreground">{option.date}</p>
+                                {intake === option.date && (
+                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground mt-1">
+                                {option.seats} seats available
+                              </p>
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {option.seats} seats available
-                            </p>
-                          </div>
-                          <div className="text-right space-y-2">
-                            <div className={`text-sm font-semibold px-2 py-1 rounded-md ${
-                              option.seats > 15 ? 'text-green-700 bg-green-100' : 
-                              option.seats > 5 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100'
-                            }`}>
-                              {option.seats}/{option.totalSeats}
-                            </div>
-                            <div className="w-20 bg-muted rounded-full h-2">
-                              <div 
-                                className={`h-2 rounded-full transition-all duration-300 ${
-                                  option.seats > 15 ? 'bg-green-500' : 
-                                  option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
+                            <div className="text-right space-y-2">
+                              <div className={`text-sm font-semibold px-2 py-1 rounded-md ${
+                                option.seats > 15 ? 'text-green-700 bg-green-100' : 
+                                option.seats > 5 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100'
+                              }`}>
+                                {option.seats}/{option.totalSeats}
+                              </div>
+                              <div className="w-20 bg-muted rounded-full h-2">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-300 ${
+                                    option.seats > 15 ? 'bg-green-500' : 
+                                    option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
                                 }`}
                                 style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
                               ></div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Deadline Card */}
+            <div className="bg-orange-50/50 dark:bg-orange-950/20 rounded-lg p-4 border border-orange-200/50 dark:border-orange-800/30">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center">
+                  <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
                 </div>
-              </PopoverContent>
-            </Popover>
+                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Application Deadline</p>
+              </div>
+              <p className="text-lg font-bold text-orange-900 dark:text-orange-100">March 15, 2025</p>
+              <p className="text-sm text-orange-600 dark:text-orange-400">23 days remaining</p>
+            </div>
+
+            {/* Financial Information */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-primary" />
+                Financial Overview
+              </h4>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                  <span className="text-sm text-muted-foreground">Tuition Fee</span>
+                  <span className="font-bold text-foreground">$35,000</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-green-50/50 dark:bg-green-950/20 rounded-lg border border-green-200/50 dark:border-green-800/30">
+                  <span className="text-sm text-green-700 dark:text-green-300">Scholarship Available</span>
+                  <span className="font-bold text-green-900 dark:text-green-100">Up to $5,000</span>
+                </div>
+                <Button variant="outline" size="sm" className="w-full">
+                  View Payment Plans
+                </Button>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-foreground">Quick Actions</h4>
+              <div className="space-y-2">
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <FileText className="w-4 h-4 mr-2" />
+                  Download Program Brochure
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <Users className="w-4 h-4 mr-2" />
+                  Connect with Alumni
+                </Button>
+                <Button variant="outline" size="sm" className="w-full justify-start">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Schedule Campus Tour
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Section - Application Status */}
+        <div className="mt-8 pt-6 border-t border-border/50">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Application Progress</p>
+                <p className="text-sm text-muted-foreground">Documents submitted • Financial aid applied</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Next Step</p>
+                <p className="font-semibold text-foreground">Interview Scheduling</p>
+              </div>
+              <Button className="px-6">
+                Continue Application
+              </Button>
+            </div>
           </div>
         </div>
       </div>

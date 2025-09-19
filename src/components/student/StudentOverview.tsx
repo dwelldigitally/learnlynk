@@ -836,9 +836,9 @@ const StudentOverview: React.FC = () => {
       </div>
 
       {/* Main Dashboard Content */}
-      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Left Column - Main Content */}
-        <div className={`lg:col-span-2 space-y-10 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+      <div ref={staggerRef} className="w-full">
+        {/* Main Content - Full Width */}
+        <div className={`w-full space-y-10 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
           {/* Campus Explorer */}
           <CampusExplorer />
 
@@ -918,8 +918,20 @@ const StudentOverview: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column - Sidebar */}
-        <div className={`space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
+      {/* Fixed Full Width Sidebar */}
+      <div className="fixed top-0 right-0 w-full h-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-l border-border z-50 overflow-y-auto">
+        <div className={`p-6 space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
+          {/* Sidebar Header with Close Button */}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-foreground">Student Dashboard</h2>
+            <Button variant="ghost" size="sm" className="hover:bg-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18"/>
+                <path d="M6 6l12 12"/>
+              </svg>
+            </Button>
+          </div>
+
           {/* Student Information */}
           <Card className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
             <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
@@ -991,10 +1003,8 @@ const StudentOverview: React.FC = () => {
               </div>
             </div>
           </Card>
-
-
-
         </div>
+      </div>
       </div>
 
       {/* Program Change Confirmation Dialog */}

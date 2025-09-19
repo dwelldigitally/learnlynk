@@ -70,7 +70,7 @@ const campuses: Campus[] = [
 
 const CampusExplorer: React.FC = () => {
   const [selectedCampus, setSelectedCampus] = useState<Campus>(campuses[0]);
-  const [mapboxToken, setMapboxToken] = useState<string>("");
+  const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbTJ3b21rbGkwanl6MmpxdGZvemMxNmJ2In0.WbcTkn8TyOPUh8E4Fg6GEQ");
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [distances, setDistances] = useState<Record<string, any>>({});
   const mapContainer = useRef<HTMLDivElement>(null);

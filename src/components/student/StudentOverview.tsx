@@ -281,9 +281,9 @@ const StudentOverview: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-8 p-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`space-y-10 p-8 bg-gradient-to-br from-slate-50/50 to-blue-50/30 min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Contract Signing Alert */}
-      <div className="bg-gradient-to-r from-orange-50 to-orange-100/50 border border-orange-200 rounded-xl p-6 shadow-md animate-bounce-in">
+      <div className="bg-gradient-to-r from-orange-50 via-orange-100/70 to-amber-50/80 border border-orange-300/50 rounded-2xl p-8 shadow-2xl animate-bounce-in backdrop-blur-sm">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-orange-600" />
@@ -311,7 +311,7 @@ const StudentOverview: React.FC = () => {
       </div>
 
       {/* Program Header with Program and Intake Selection */}
-      <div className={`${currentColors.headerBg} text-white px-10 py-6 rounded-xl mb-8 flex justify-between items-center transition-colors duration-300 animate-slide-down shadow-lg border border-white/20`}>
+      <div className={`${currentColors.headerBg} text-white px-12 py-8 rounded-2xl mb-10 flex justify-between items-center transition-colors duration-300 animate-slide-down shadow-2xl border border-white/30 backdrop-blur-sm`}>
         <div>
           <div className="text-sm text-white/70 mb-1">Select Program</div>
           <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
@@ -403,11 +403,11 @@ const StudentOverview: React.FC = () => {
       </div>
 
       {/* Main Dashboard Content */}
-      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-10">
         {/* Left Column - Main Content */}
-        <div className={`lg:col-span-2 space-y-8 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        <div className={`lg:col-span-2 space-y-10 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
           {/* Dynamic Marketing Hero Section */}
-          <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] border-0 shadow-xl`}>
+          <Card className={`relative overflow-hidden bg-gradient-to-br ${currentColors.primary} text-white transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] border-0 shadow-2xl backdrop-blur-sm`}>
             {/* Background Image with Overlay */}
             <div className="absolute inset-0">
               <img 
@@ -512,7 +512,7 @@ const StudentOverview: React.FC = () => {
           )}
 
           {/* Admissions Progress */}
-          <Card className={`p-8 bg-gradient-to-br from-green-50 to-emerald-50 border-0 shadow-lg hover:shadow-xl transition-all duration-300 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+          <Card className={`p-10 bg-gradient-to-br from-green-50 via-emerald-50/70 to-teal-50/50 border-0 shadow-2xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] backdrop-blur-sm ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold text-green-900">Admissions Progress</h3>
               <div className="text-right">

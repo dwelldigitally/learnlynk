@@ -69,36 +69,8 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
             <div className="flex items-center justify-between">
               {/* Left Section - Student Profile */}
               <div className="flex items-center gap-5">
-                {/* Avatar and Name Section */}
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center ring-2 ring-violet-200 dark:ring-violet-800 shadow-lg">
-                      {profile?.avatar_url ? (
-                        <img 
-                          src={profile.avatar_url} 
-                          alt="Profile" 
-                          className="w-14 h-14 rounded-full object-cover"
-                        />
-                      ) : (
-                        <User className="w-7 h-7 text-white" />
-                      )}
-                    </div>
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-slate-800"></div>
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">{displayData.name}</h1>
-                    <div className="flex items-center gap-3 mt-1">
-                      <span className="text-sm text-violet-600 dark:text-violet-400 font-medium">ID: {displayData.studentId}</span>
-                      <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800 text-xs px-2 py-1">
-                        {displayData.status}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Academic Information Cards */}
-                <div className="hidden lg:flex items-center gap-4 ml-8">
+                <div className="hidden lg:flex items-center gap-4">
                   <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200/50 dark:border-blue-800/50">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-800/50 flex items-center justify-center">

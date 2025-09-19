@@ -88,6 +88,16 @@ const QuickProgressTracker: React.FC = () => {
         </div>
       </div>
 
+      {/* Application Deadline */}
+      <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-orange-600" />
+          <span className="text-sm font-medium text-orange-900">Application Deadline</span>
+        </div>
+        <p className="text-lg font-bold text-orange-900 mt-1">March 1, 2024</p>
+        <p className="text-xs text-orange-700">15 days remaining</p>
+      </div>
+
       <Progress value={progressPercentage} className="mb-6" />
 
       <div className="space-y-4">

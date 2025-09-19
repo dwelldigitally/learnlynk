@@ -10,7 +10,7 @@ import AdmissionsProgress from "@/components/student/AdmissionsProgress";
 import NewsCard from "@/components/student/NewsCard";
 import { SalesAdvisorCard } from "@/components/student/SalesAdvisorCard";
 import EventCard from "@/components/student/EventCard";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import AdmissionForm from "@/components/student/AdmissionForm";
 import { studentApplications } from "@/data/studentApplications";
 import { programWelcomeContent, programNewsAndEvents } from "@/data/programContent";
@@ -23,6 +23,7 @@ import { toast } from "@/hooks/use-toast";
 import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 
 const StudentOverview: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
   const [intake, setIntake] = useState("15th March 2025");
   const [showAdmissionForm, setShowAdmissionForm] = useState(false);
@@ -338,7 +339,7 @@ const StudentOverview: React.FC = () => {
                     <Button 
                       size="sm" 
                       className="px-4"
-                      onClick={() => window.location.href = '/student/applications'}
+                      onClick={() => navigate('/student/applications')}
                     >
                       Continue Application
                     </Button>

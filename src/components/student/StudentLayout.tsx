@@ -86,7 +86,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               className="flex items-center cursor-pointer hover:bg-gray-50 p-2 rounded-lg transition-colors"
               onClick={() => setIsProfileOpen(true)}
             >
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium mr-3">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium mr-3">
                 {profile?.first_name?.[0] || 'S'}
               </div>
               <div className="flex-1">
@@ -116,7 +116,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
               className="h-8 w-8 object-contain"
             />
             <div 
-              className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-medium cursor-pointer"
+              className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-medium cursor-pointer"
               onClick={() => setIsProfileOpen(true)}
             >
               {profile?.first_name?.[0] || 'S'}
@@ -210,7 +210,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
           <div className="mt-auto p-4 border-t border-gray-200 space-y-3">
             <a 
               href="#" 
-              className="flex items-center justify-center gap-2 px-4 py-2 border border-blue-600 rounded-md text-blue-600 hover:bg-blue-50 text-sm"
+              className="flex items-center justify-center gap-2 px-4 py-2 border border-primary rounded-md text-primary hover:bg-primary-light text-sm"
               onClick={(e) => e.preventDefault()}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">

@@ -127,16 +127,16 @@ const CareerServices: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {careerResources.map((resource, index) => (
-            <Card key={index} className={`p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.05] bg-gradient-to-br from-background to-muted/30 border-0 shadow-lg group cursor-pointer ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+            <Card key={index} className="p-8 hover:shadow-md transition-shadow duration-200 bg-gradient-to-br from-background to-muted/30 border-0 shadow-lg group cursor-pointer">
               <div className="flex flex-col items-center text-center space-y-4">
-                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg ${getColorClasses(resource.color)}`}>
+                <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors duration-200 shadow-lg ${getColorClasses(resource.color)}`}>
                   <resource.icon className="w-8 h-8" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">{resource.title}</h3>
+                  <h3 className="font-bold text-lg mb-2 transition-colors">{resource.title}</h3>
                   <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{resource.description}</p>
                 </div>
-                <Button size="sm" className="w-full group-hover:shadow-md transition-shadow">{resource.action}</Button>
+                <Button size="sm" className="w-full">{resource.action}</Button>
               </div>
             </Card>
           ))}

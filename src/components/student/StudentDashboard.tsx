@@ -172,7 +172,7 @@ const StudentDashboard: React.FC = () => {
                     {availablePrograms.map((program) => (
                       <div 
                         key={program}
-                        className={`p-3 border rounded-lg cursor-pointer transition-all hover:bg-muted ${
+                        className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${
                           selectedProgram === program ? 'border-primary bg-primary/10' : 'border-border'
                         }`}
                         onClick={() => handleProgramChange(program)}
@@ -217,7 +217,7 @@ const StudentDashboard: React.FC = () => {
 
       {/* Quick Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-6 hover:shadow-md transition-all duration-200">
+        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-100 rounded-lg">
               <FileText className="w-5 h-5 text-blue-600" />
@@ -229,7 +229,7 @@ const StudentDashboard: React.FC = () => {
           </div>
         </Card>
         
-        <Card className="p-6 hover:shadow-md transition-all duration-200">
+        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <CheckCircle className="w-5 h-5 text-green-600" />
@@ -241,7 +241,7 @@ const StudentDashboard: React.FC = () => {
           </div>
         </Card>
         
-        <Card className="p-6 hover:shadow-md transition-all duration-200">
+        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-yellow-100 rounded-lg">
               <Clock className="w-5 h-5 text-yellow-600" />
@@ -253,7 +253,7 @@ const StudentDashboard: React.FC = () => {
           </div>
         </Card>
         
-        <Card className="p-6 hover:shadow-md transition-all duration-200">
+        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-lg">
               <AlertCircle className="w-5 h-5 text-red-600" />
@@ -284,7 +284,7 @@ const StudentDashboard: React.FC = () => {
             const hasApproved = requirementDocuments.some(doc => doc.status === 'approved');
             
             return (
-              <Card key={requirement.id} className={`p-6 transition-all hover:shadow-md ${hasApproved ? 'border-green-200 bg-green-50/30' : ''}`}>
+              <Card key={requirement.id} className={`p-6 transition-shadow hover:shadow-md ${hasApproved ? 'border-green-200 bg-green-50/30' : ''}`}>
                 <div className="space-y-4">
                   {/* Requirement Header */}
                   <div className="flex items-start justify-between">

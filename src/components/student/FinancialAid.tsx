@@ -74,7 +74,7 @@ const FinancialAid: React.FC = () => {
 
       {/* Financial Aid Summary - Enhanced */}
       <div ref={staggerRef} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className={`p-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        <Card className="p-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
               <DollarSign className="w-8 h-8 text-white" />
@@ -87,7 +87,7 @@ const FinancialAid: React.FC = () => {
           </div>
         </Card>
 
-        <Card className={`p-8 bg-gradient-to-br from-blue-50 to-blue-50 border-blue-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+        <Card className="p-8 bg-gradient-to-br from-blue-50 to-blue-50 border-blue-200 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
               <Calculator className="w-8 h-8 text-white" />
@@ -100,7 +100,7 @@ const FinancialAid: React.FC = () => {
           </div>
         </Card>
 
-        <Card className={`p-8 bg-gradient-to-br from-purple-50 to-purple-50 border-purple-200 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[2] ? 'animate-stagger-3' : 'opacity-0'}`}>
+        <Card className="p-8 bg-gradient-to-br from-purple-50 to-purple-50 border-purple-200 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
               <GraduationCap className="w-8 h-8 text-white" />
@@ -115,7 +115,7 @@ const FinancialAid: React.FC = () => {
       </div>
 
       {/* Aid Programs - Enhanced */}
-      <Card className={`p-8 bg-gradient-to-br from-background to-muted/20 hover:shadow-xl transition-all duration-300 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
+      <Card className="p-8 bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow duration-200">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
             <DollarSign className="w-5 h-5 text-primary" />

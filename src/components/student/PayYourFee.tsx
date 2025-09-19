@@ -117,7 +117,7 @@ const PayYourFee: React.FC = () => {
         {/* Invoice Section */}
         <div className={`lg:col-span-2 space-y-6 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
           {/* Invoice Card */}
-          <Card className="p-6 hover:shadow-lg transition-all duration-300 transform hover:scale-[1.02]">
+          <Card className="p-6 hover:shadow-md transition-shadow duration-200">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-xl font-semibold mb-2">Application Fee Invoice</h2>
@@ -383,7 +383,7 @@ const PayYourFee: React.FC = () => {
             </div>
 
             <Button 
-              className="w-full transform transition-all duration-200 hover:scale-105 active:scale-95" 
+              className="w-full transition-colors duration-200" 
               size="lg"
               onClick={handlePayment}
               disabled={!allVerificationsComplete || invoiceData.status !== "due"}

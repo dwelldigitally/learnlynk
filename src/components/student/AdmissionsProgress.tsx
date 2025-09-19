@@ -27,14 +27,14 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
         {stages.map((stage, index) => (
           <div 
             key={stage.id} 
-            className={`flex flex-col items-center animate-stagger-${Math.min(index + 1, 5)}`}
+            className="flex flex-col items-center"
           >
             <div 
-              className={`flex items-center justify-center w-12 h-12 rounded-full z-10 transition-all duration-500 transform hover:scale-110 ${
+              className={`flex items-center justify-center w-12 h-12 rounded-full z-10 transition-colors duration-200 ${
                 index < currentStageIndex 
-                  ? "bg-green-600 text-white shadow-lg animate-bounce-in" 
+                  ? "bg-green-600 text-white shadow-lg" 
                   : index === currentStageIndex
-                  ? "bg-orange-500 text-white shadow-lg animate-subtle-pulse ring-4 ring-orange-200"
+                  ? "bg-orange-500 text-white shadow-lg ring-2 ring-orange-200"
                   : "bg-gray-200 text-gray-600"
               }`}
             >
@@ -46,8 +46,8 @@ const AdmissionsProgress: React.FC<AdmissionsProgressProps> = ({ currentStage })
                 <span className="animate-counter">{stage.id}</span>
               )}
             </div>
-            <div className={`text-xs font-medium mt-2 text-center max-w-[80px] transition-all duration-300 ${
-              index === currentStageIndex ? 'text-orange-600 font-bold animate-pulse' : 
+            <div className={`text-xs font-medium mt-2 text-center max-w-[80px] transition-colors duration-200 ${
+              index === currentStageIndex ? 'text-orange-600 font-bold' :
               index < currentStageIndex ? 'text-green-600 font-semibold' : 'text-gray-500'
             }`}>
               {stage.label}

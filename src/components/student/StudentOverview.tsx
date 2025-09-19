@@ -366,6 +366,168 @@ const StudentOverview: React.FC = () => {
                 Industry-focused curriculum with hands-on experience and real-world applications.
               </p>
             </div>
+
+            {/* Course Curriculum */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary"></div>
+                <h4 className="font-semibold text-foreground">Course Curriculum</h4>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Core Courses */}
+                <div className="bg-gradient-to-br from-indigo-50/50 to-indigo-100/30 dark:from-indigo-950/20 dark:to-indigo-900/10 rounded-lg p-4 border border-indigo-200/50 dark:border-indigo-800/30">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
+                      <GraduationCap className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <h5 className="font-medium text-indigo-900 dark:text-indigo-100">Core Courses</h5>
+                  </div>
+                  <ul className="space-y-2 text-sm text-indigo-700 dark:text-indigo-300">
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 mt-2 flex-shrink-0"></div>
+                      <span>Fundamentals of {selectedProgram}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 mt-2 flex-shrink-0"></div>
+                      <span>Industry Standards & Practices</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 mt-2 flex-shrink-0"></div>
+                      <span>Professional Communication</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-indigo-500 mt-2 flex-shrink-0"></div>
+                      <span>Applied Technology</span>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Specialized Courses */}
+                <div className="bg-gradient-to-br from-emerald-50/50 to-emerald-100/30 dark:from-emerald-950/20 dark:to-emerald-900/10 rounded-lg p-4 border border-emerald-200/50 dark:border-emerald-800/30">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 rounded bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+                      <Award className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <h5 className="font-medium text-emerald-900 dark:text-emerald-100">Specialized Training</h5>
+                  </div>
+                  <ul className="space-y-2 text-sm text-emerald-700 dark:text-emerald-300">
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                      <span>Advanced {selectedProgram} Techniques</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                      <span>Clinical/Field Experience</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                      <span>Case Studies & Analysis</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <div className="w-1 h-1 rounded-full bg-emerald-500 mt-2 flex-shrink-0"></div>
+                      <span>Capstone Project</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Prerequisites & Requirements */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary"></div>
+                <h4 className="font-semibold text-foreground">Prerequisites & Requirements</h4>
+              </div>
+              
+              <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-lg p-4 border border-amber-200/50 dark:border-amber-800/30">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="font-medium text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      Academic Requirements
+                    </h5>
+                    <ul className="space-y-1 text-sm text-amber-700 dark:text-amber-300">
+                      <li>• High School Diploma or equivalent</li>
+                      <li>• Minimum 2.5 GPA</li>
+                      <li>• English Proficiency Test</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="font-medium text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      Additional Requirements
+                    </h5>
+                    <ul className="space-y-1 text-sm text-amber-700 dark:text-amber-300">
+                      <li>• Background Check</li>
+                      <li>• Health Clearance</li>
+                      <li>• Reference Letters (2)</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Learning Outcomes */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary"></div>
+                <h4 className="font-semibold text-foreground">Learning Outcomes</h4>
+              </div>
+              
+              <div className="bg-violet-50/50 dark:bg-violet-950/20 rounded-lg p-4 border border-violet-200/50 dark:border-violet-800/30">
+                <p className="text-sm text-violet-700 dark:text-violet-300 mb-3">
+                  Upon successful completion, graduates will be able to:
+                </p>
+                <ul className="space-y-2 text-sm text-violet-700 dark:text-violet-300">
+                  <li className="flex items-start gap-2">
+                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
+                    <span>Demonstrate professional competency in {selectedProgram.toLowerCase()} practices</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
+                    <span>Apply critical thinking and problem-solving skills in real-world scenarios</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
+                    <span>Communicate effectively with diverse populations and stakeholders</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
+                    <span>Maintain ethical standards and professional development</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Career Paths */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-1 rounded-full bg-primary"></div>
+                <h4 className="font-semibold text-foreground">Career Opportunities</h4>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="bg-teal-50/50 dark:bg-teal-950/20 rounded-lg p-3 border border-teal-200/50 dark:border-teal-800/30 text-center">
+                  <div className="w-8 h-8 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center mx-auto mb-2">
+                    <Users className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+                  </div>
+                  <p className="text-sm font-medium text-teal-900 dark:text-teal-100">Healthcare Facilities</p>
+                </div>
+                <div className="bg-pink-50/50 dark:bg-pink-950/20 rounded-lg p-3 border border-pink-200/50 dark:border-pink-800/30 text-center">
+                  <div className="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/50 flex items-center justify-center mx-auto mb-2">
+                    <MapPin className="w-4 h-4 text-pink-600 dark:text-pink-400" />
+                  </div>
+                  <p className="text-sm font-medium text-pink-900 dark:text-pink-100">Private Practice</p>
+                </div>
+                <div className="bg-orange-50/50 dark:bg-orange-950/20 rounded-lg p-3 border border-orange-200/50 dark:border-orange-800/30 text-center">
+                  <div className="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center mx-auto mb-2">
+                    <GraduationCap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                  </div>
+                  <p className="text-sm font-medium text-orange-900 dark:text-orange-100">Educational Institutions</p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Right: Intake & Financial Information */}

@@ -282,33 +282,6 @@ const StudentOverview: React.FC = () => {
 
   return (
     <div className={`space-y-10 p-8 bg-gradient-to-br from-slate-50/50 to-blue-50/30 min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
-      {/* Contract Signing Alert */}
-      <div className="bg-gradient-to-r from-orange-50 via-orange-100/70 to-amber-50/80 border border-orange-300/50 rounded-2xl p-8 shadow-2xl animate-bounce-in backdrop-blur-sm">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-orange-600" />
-            <div>
-              <h4 className="font-medium text-orange-900">Action Required</h4>
-              <p className="text-sm text-orange-800">
-                Your student enrollment contract is ready to sign.
-              </p>
-            </div>
-          </div>
-          <Button 
-            size="sm" 
-            className="bg-orange-600 hover:bg-orange-700 text-white flex items-center gap-2 shrink-0"
-            onClick={() => {
-              toast({
-                title: "Opening Contract",
-                description: "Redirecting to electronic signature portal..."
-              });
-            }}
-          >
-            <PenTool className="w-4 h-4" />
-            eSign Here
-          </Button>
-        </div>
-      </div>
 
       {/* Program Header with Program and Intake Selection */}
       <div className={`${currentColors.headerBg} text-white px-12 py-8 rounded-2xl mb-10 flex justify-between items-center transition-colors duration-300 animate-slide-down shadow-2xl border border-white/30 backdrop-blur-sm`}>

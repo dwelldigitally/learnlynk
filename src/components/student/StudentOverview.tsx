@@ -474,45 +474,47 @@ const StudentOverview: React.FC = () => {
             </div>
             
             {/* Content */}
-            <div className="relative p-8 lg:p-12">
-              <div className="flex flex-col lg:flex-row items-center gap-8">
+            <div className="relative p-6 sm:p-8 lg:p-12 xl:p-16 backdrop-blur-sm bg-gradient-to-br from-transparent via-white/5 to-white/10 rounded-2xl border border-white/10 shadow-2xl animate-fade-in">
+              <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
                 {/* Left Content */}
-                <div className="flex-1 text-center lg:text-left">
-                  <div className="mb-4 flex flex-wrap gap-2">
+                <div className="flex-1 text-center lg:text-left space-y-6">
+                  <div className="mb-6 flex flex-wrap gap-3 justify-center lg:justify-start">
                     {currentTags.map((tag, index) => (
-                      <span key={index} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur text-sm font-medium">
-                        <span>{tag.icon}</span>
-                        {tag.text}
+                      <span key={index} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 text-sm font-medium hover:bg-white/30 transition-all duration-300 hover:scale-105 shadow-lg">
+                        <span className="text-base">{tag.icon}</span>
+                        <span className="font-semibold">{tag.text}</span>
                       </span>
                     ))}
                   </div>
                   
-                  <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-6 leading-tight tracking-tight drop-shadow-lg">
                     {currentMarketing.headline}
                   </h1>
                   
-                  <p className="text-xl lg:text-2xl mb-6 text-white/90 leading-relaxed">
+                  <p className="text-lg sm:text-xl lg:text-2xl mb-8 text-white/95 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0 drop-shadow-md">
                     {currentMarketing.subheadline}
                   </p>
                   
                   {/* Benefits List */}
-                  <div className="space-y-3 mb-8">
+                  <div className="space-y-4 mb-10">
                     {currentMarketing.bulletPoints.map((point, index) => (
-                      <div key={index} className="flex items-center gap-3 text-lg">
-                        <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0" />
-                        <span>{point}</span>
+                      <div key={index} className="flex items-center gap-4 text-lg lg:text-xl group hover:transform hover:translate-x-2 transition-all duration-300">
+                        <div className="p-1 rounded-full bg-green-400/20 backdrop-blur-sm">
+                          <CheckCircle className="w-6 h-6 text-green-400 flex-shrink-0 drop-shadow-sm" />
+                        </div>
+                        <span className="font-medium drop-shadow-sm">{point}</span>
                       </div>
                     ))}
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex flex-col sm:flex-row gap-6 justify-center lg:justify-start">
                     <Button 
                       size="lg"
-                      className={`bg-white text-gray-900 hover:bg-gray-100 font-semibold text-lg px-8 py-4 flex items-center gap-3`}
+                      className="bg-white text-gray-900 hover:bg-gray-100 font-bold text-lg px-10 py-4 flex items-center gap-3 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 rounded-xl"
                       onClick={() => setIsFormExpanded(!isFormExpanded)}
                     >
                       {isFormExpanded ? 'Hide Application Form' : currentMarketing.ctaText}
-                      <ArrowRight className={`w-5 h-5 transition-transform ${isFormExpanded ? 'rotate-180' : ''}`} />
+                      <ArrowRight className={`w-5 h-5 transition-transform duration-300 ${isFormExpanded ? 'rotate-180' : 'group-hover:translate-x-1'}`} />
                     </Button>
                     
                     <Button 

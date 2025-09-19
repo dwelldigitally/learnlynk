@@ -889,7 +889,7 @@ const StudentOverview: React.FC = () => {
 
       {/* Fixed Full Width Sidebar - Only show when sidebarOpen is true */}
       {sidebarOpen && (
-      <div className="fixed top-0 right-0 w-full h-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-l border-border z-50 overflow-y-auto">
+      <div className="fixed inset-0 w-screen h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm z-[9999] overflow-y-auto">
         <div className={`p-6 space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
           {/* Sidebar Header with Close Button */}
           <div className="flex items-center justify-between mb-6">

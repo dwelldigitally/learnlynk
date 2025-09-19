@@ -147,53 +147,14 @@ const StudentOverview: React.FC = () => {
 
   const currentTags = programTags[selectedProgram as keyof typeof programTags] || programTags["Health Care Assistant"];
   
-  // Dynamic color schemes for each program
-  const programColorSchemes = {
-    "Health Care Assistant": {
-      primary: "from-emerald-800 to-teal-900",
-      secondary: "from-emerald-900/80 to-teal-900/60",
-      headerBg: "bg-emerald-800",
-      buttonBg: "bg-emerald-700 hover:bg-emerald-600",
-      accentColor: "emerald"
-    },
-    "Education Assistant": {
-      primary: "from-blue-800 to-indigo-900",
-      secondary: "from-blue-900/80 to-indigo-900/60",
-      headerBg: "bg-blue-800",
-      buttonBg: "bg-blue-700 hover:bg-blue-600",
-      accentColor: "blue"
-    },
-    "Aviation": {
-      primary: "from-sky-800 to-cyan-900",
-      secondary: "from-sky-900/80 to-cyan-900/60",
-      headerBg: "bg-sky-800",
-      buttonBg: "bg-sky-700 hover:bg-sky-600",
-      accentColor: "sky"
-    },
-    "Hospitality": {
-      primary: "from-amber-800 to-orange-900",
-      secondary: "from-amber-900/80 to-orange-900/60",
-      headerBg: "bg-amber-800",
-      buttonBg: "bg-amber-700 hover:bg-amber-600",
-      accentColor: "amber"
-    },
-    "ECE": {
-      primary: "from-pink-800 to-rose-900",
-      secondary: "from-pink-900/80 to-rose-900/60",
-      headerBg: "bg-pink-800",
-      buttonBg: "bg-pink-700 hover:bg-pink-600",
-      accentColor: "pink"
-    },
-    "MLA": {
-      primary: "from-purple-800 to-violet-900",
-      secondary: "from-purple-900/80 to-violet-900/60",
-      headerBg: "bg-purple-800",
-      buttonBg: "bg-purple-700 hover:bg-purple-600",
-      accentColor: "purple"
-    }
+  // Professional unified color scheme for all programs
+  const professionalColors = {
+    primary: "bg-primary",
+    secondary: "bg-card",
+    headerBg: "bg-card",
+    buttonBg: "bg-primary hover:bg-primary-hover",
+    accentColor: "primary"
   };
-
-  const currentColors = programColorSchemes[selectedProgram as keyof typeof programColorSchemes] || programColorSchemes["Health Care Assistant"];
   
   // Dynamic marketing messages based on program
   const programMarketingMessages = {
@@ -282,15 +243,15 @@ const StudentOverview: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-10 p-8 bg-gradient-to-br from-slate-50/50 to-blue-50/30 min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`space-y-10 p-8 bg-background min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
 
       {/* Program Header with Program and Intake Selection */}
-      <div className={`${currentColors.headerBg} text-white px-12 py-8 rounded-2xl mb-10 flex justify-between items-center transition-colors duration-300 animate-slide-down shadow-2xl border border-white/30 backdrop-blur-sm`}>
+      <div className="bg-card text-card-foreground px-12 py-8 rounded-2xl mb-10 flex justify-between items-center transition-colors duration-300 animate-slide-down shadow-large border border-border">
         <div>
-          <div className="text-sm text-white/70 mb-1">Select Program</div>
+          <div className="text-sm text-muted-foreground mb-1">Select Program</div>
           <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
             <PopoverTrigger asChild>
-              <Button variant="ghost" className="text-white hover:bg-white/10 p-0 text-xl font-bold flex items-center gap-2">
+              <Button variant="ghost" className="text-card-foreground hover:bg-muted p-0 text-xl font-bold flex items-center gap-2">
                 {selectedProgram}
                 <ChevronDown className="w-5 h-5" />
               </Button>
@@ -302,8 +263,8 @@ const StudentOverview: React.FC = () => {
                 {Object.keys(allPrograms).map((program) => (
                   <div 
                     key={program}
-                    className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
-                      selectedProgram === program ? 'border-purple-600 bg-purple-50' : 'border-gray-200'
+                    className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${
+                      selectedProgram === program ? 'border-primary bg-primary-light' : 'border-border'
                     }`}
                     onClick={() => handleProgramChange(program)}
                   >
@@ -319,10 +280,10 @@ const StudentOverview: React.FC = () => {
         </Popover>
         </div>
         <div className="flex items-center">
-          <span className="mr-2">Select Your Intake</span>
+          <span className="mr-2 text-muted-foreground">Select Your Intake</span>
           <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="bg-transparent border-white text-white flex items-center gap-2 hover:bg-white/10">
+              <Button variant="outline" className="bg-card border-border text-card-foreground flex items-center gap-2 hover:bg-muted">
                 {intake}
                 <ChevronDown className="w-4 h-4" />
               </Button>
@@ -334,8 +295,8 @@ const StudentOverview: React.FC = () => {
                   {availableIntakes.map((option) => (
                     <div 
                       key={option.date}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 ${
-                        intake === option.date ? 'border-purple-600 bg-purple-50' : 'border-gray-200'
+                      className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${
+                        intake === option.date ? 'border-primary bg-primary-light' : 'border-border'
                       }`}
                       onClick={() => {
                         setIntake(option.date);
@@ -351,16 +312,16 @@ const StudentOverview: React.FC = () => {
                         </div>
                         <div className="text-right">
                           <div className={`text-sm font-medium ${
-                            option.seats > 15 ? 'text-green-600' : 
-                            option.seats > 5 ? 'text-yellow-600' : 'text-red-600'
+                            option.seats > 15 ? 'text-success' : 
+                            option.seats > 5 ? 'text-warning' : 'text-destructive'
                           }`}>
                             {option.seats}/{option.totalSeats}
                           </div>
-                          <div className="w-16 bg-gray-200 rounded-full h-2 mt-1">
+                          <div className="w-16 bg-muted rounded-full h-2 mt-1">
                             <div 
                               className={`h-2 rounded-full ${
-                                option.seats > 15 ? 'bg-green-500' : 
-                                option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
+                                option.seats > 15 ? 'bg-success' : 
+                                option.seats > 5 ? 'bg-warning' : 'bg-destructive'
                               }`}
                               style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
                             ></div>
@@ -379,7 +340,7 @@ const StudentOverview: React.FC = () => {
       {/* Quick Action Cards - Priority Actions */}
       <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
         {/* Start Application - Primary CTA */}
-        <Card className="p-6 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
+        <Card className="p-6 bg-primary text-primary-foreground hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center justify-between mb-3">
@@ -394,7 +355,7 @@ const StudentOverview: React.FC = () => {
         </Card>
 
         {/* Upload Documents */}
-        <Card className="p-6 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
+        <Card className="p-6 bg-accent text-accent-foreground hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="relative">
             <div className="flex items-center justify-between mb-3">

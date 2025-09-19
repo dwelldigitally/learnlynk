@@ -8,53 +8,53 @@
  
 @layer base {
   :root {
-    /* Professional neutral color system */
-    --background: 0 0% 99%;
-    --foreground: 214 13% 20%;
+    /* Professional neutral color system - Grey backgrounds with white cards */
+    --background: 210 10% 96%;  /* Light grey background */
+    --foreground: 215 20% 17%;  /* Dark charcoal text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 214 13% 20%;
+    --card: 0 0% 100%;          /* Pure white cards */
+    --card-foreground: 215 20% 17%;
  
-    --popover: 0 0% 100%;
-    --popover-foreground: 214 13% 20%;
+    --popover: 0 0% 100%;       /* White popovers */
+    --popover-foreground: 215 20% 17%;
  
-    /* Primary - Professional blue-gray */
-    --primary: 214 20% 30%;
-    --primary-foreground: 0 0% 98%;
-    --primary-hover: 214 20% 25%;
-    --primary-light: 214 20% 95%;
+    /* Primary - Professional teal accent (replacing red) */
+    --primary: 200 85% 40%;     /* Professional teal */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 200 85% 35%;
+    --primary-light: 200 85% 95%;
     
-    /* Secondary - Neutral gray */
-    --secondary: 214 10% 96%;
-    --secondary-foreground: 214 13% 30%;
-    --secondary-hover: 214 10% 93%;
+    /* Secondary - Neutral greys */
+    --secondary: 210 10% 93%;   /* Light grey for secondary elements */
+    --secondary-foreground: 215 20% 25%;
+    --secondary-hover: 210 10% 90%;
  
-    /* Muted colors */
-    --muted: 214 10% 96%;
-    --muted-foreground: 214 10% 55%;
+    /* Muted colors - Professional greys */
+    --muted: 210 10% 93%;       /* Muted backgrounds */
+    --muted-foreground: 215 10% 55%; /* Muted text */
  
-    /* Accent - Subtle blue */
-    --accent: 214 15% 40%;
-    --accent-foreground: 0 0% 98%;
-    --accent-light: 214 15% 95%;
+    /* Accent - Professional slate (replacing red accents) */
+    --accent: 215 25% 27%;      /* Slate blue accent */
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 215 25% 95%;
  
-    /* Status colors - more muted */
-    --success: 145 30% 35%;
-    --success-light: 145 30% 95%;
-    --warning: 35 40% 50%;
-    --warning-light: 35 40% 95%;
-    --destructive: 0 45% 50%;
+    /* Status colors - Professional and muted */
+    --success: 152 69% 31%;     /* Forest green for success */
+    --success-light: 152 69% 95%;
+    --warning: 43 89% 38%;      /* Amber for warnings */
+    --warning-light: 43 89% 95%;
+    --destructive: 0 84% 60%;   /* Only for actual errors */
     --destructive-foreground: 0 0% 100%;
-    --info: 214 25% 45%;
-    --info-light: 214 25% 95%;
+    --info: 200 85% 40%;        /* Teal for info */
+    --info-light: 200 85% 95%;
     
-    /* Professional status colors */
-    --journey-active: 145 30% 35%;
-    --journey-active-light: 145 30% 95%;
-    --journey-inactive: 214 10% 55%;
-    --journey-inactive-light: 214 10% 95%;
-    --journey-draft: 35 40% 50%;
-    --journey-draft-light: 35 40% 95%;
+    /* Professional journey status colors */
+    --journey-active: 152 69% 31%;      /* Success green */
+    --journey-active-light: 152 69% 95%;
+    --journey-inactive: 215 10% 55%;    /* Muted grey */
+    --journey-inactive-light: 215 10% 95%;
+    --journey-draft: 43 89% 38%;        /* Warning amber */
+    --journey-draft-light: 43 89% 95%;
 
     /* Borders and inputs */
     --border: 214 15% 91%;
@@ -73,24 +73,24 @@
     --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
     --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
     
-    /* Professional gradients */
+    /* Professional gradients - Subtle and clean */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(214 20% 97%) 0%, hsl(214 15% 98%) 50%, hsl(0 0% 99%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(214, 13%, 30%, 0.05) 0%, rgba(214, 13%, 30%, 0.02) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(210 10% 98%) 0%, hsl(210 10% 96%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.95) 100%);
     
-    /* Professional card gradients */
-    --gradient-active: linear-gradient(135deg, hsl(var(--journey-active-light)) 0%, hsl(var(--success-light)) 100%);
-    --gradient-inactive: linear-gradient(135deg, hsl(var(--journey-inactive-light)) 0%, hsl(var(--muted)) 100%);
-    --gradient-draft: linear-gradient(135deg, hsl(var(--journey-draft-light)) 0%, hsl(var(--warning-light)) 100%);
+    /* Professional card gradients - Clean white on grey */
+    --gradient-active: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--success-light)) 100%);
+    --gradient-inactive: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+    --gradient-draft: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--warning-light)) 100%);
     
-    /* Elevated card gradient */
-    --gradient-elevated: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--background)) 100%);
+    /* Elevated card gradient - White with subtle shadow */
+    --gradient-elevated: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(0 0% 99%) 100%);
     
-    /* Subtle neomorphism shadows */
-    --neo-shadow-light: 8px 8px 16px rgba(214, 13%, 30%, 0.08), -8px -8px 16px rgba(255, 255, 255, 0.5);
-    --neo-shadow-dark: inset 4px 4px 8px rgba(214, 13%, 30%, 0.05), inset -4px -4px 8px rgba(255, 255, 255, 0.3);
-    --neo-shadow-pressed: inset 6px 6px 12px rgba(214, 13%, 30%, 0.1), inset -6px -6px 12px rgba(255, 255, 255, 0.4);
+    /* Professional shadows - Neutral greys */
+    --neo-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.04), -8px -8px 16px rgba(255, 255, 255, 0.8);
+    --neo-shadow-dark: inset 4px 4px 8px rgba(0, 0, 0, 0.03), inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+    --neo-shadow-pressed: inset 6px 6px 12px rgba(0, 0, 0, 0.05), inset -6px -6px 12px rgba(255, 255, 255, 0.7);
     
     /* Glass morphism */
     --glass-backdrop: backdrop-filter: blur(12px) saturate(200%);

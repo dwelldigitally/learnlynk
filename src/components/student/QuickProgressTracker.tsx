@@ -56,9 +56,9 @@ const QuickProgressTracker: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed': return 'text-success bg-success-light';
-      case 'in-progress': return 'text-primary bg-primary-light';
-      case 'urgent': return 'text-muted-foreground bg-muted';
-      case 'pending': return 'text-muted-foreground bg-muted';
+      case 'in-progress': return 'text-info bg-info-light';
+      case 'urgent': return 'text-destructive bg-destructive/10';
+      case 'pending': return 'text-warning bg-warning-light';
       default: return 'text-muted-foreground bg-muted';
     }
   };
@@ -127,7 +127,7 @@ const QuickProgressTracker: React.FC = () => {
                     </Badge>
                   )}
                   {step.status === 'urgent' && (
-                    <Badge variant="outline" className="text-xs bg-muted text-muted-foreground border-border">
+                    <Badge variant="outline" className="text-xs bg-destructive/10 text-destructive border-destructive/20">
                       Urgent
                     </Badge>
                   )}

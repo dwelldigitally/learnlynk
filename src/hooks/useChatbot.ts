@@ -6,40 +6,57 @@ import { AIAgentType, ChatMessage, ChatConversation, ChatContext } from '@/types
 import { useToast } from '@/components/ui/use-toast';
 
 export function useChatbot(leadId?: string) {
+  const [internalLeadId, setInternalLeadId] = useState<string | undefined>(leadId);
   const [activeAgent, setActiveAgent] = useState<AIAgentType>('general');
   const [isTyping, setIsTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  // Resolve effective leadId (prop or current user id)
+  useEffect(() => {
+    setInternalLeadId(leadId);
+  }, [leadId]);
+
+  useEffect(() => {
+    if (!leadId) {
+      supabase.auth.getUser()
+        .then(({ data }) => {
+          if (data?.user?.id) setInternalLeadId(data.user.id);
+        })
+        .catch(console.error);
+    }
+  }, [leadId]);
+
   // Get conversations
   const { data: conversations = [], isLoading: loadingConversations } = useQuery({
-    queryKey: ['chatbot-conversations', leadId],
-    queryFn: () => ChatbotService.getConversations(leadId),
+    queryKey: ['chatbot-conversations', internalLeadId],
+    queryFn: () => ChatbotService.getConversations(internalLeadId),
+    enabled: !!internalLeadId,
     staleTime: 30 * 1000, // 30 seconds
   });
 
   // Get messages for active conversation
   const { data: messages = [], isLoading: loadingMessages } = useQuery({
-    queryKey: ['chatbot-messages', leadId, activeAgent],
-    queryFn: () => leadId ? ChatbotService.getMessages(leadId, activeAgent) : Promise.resolve([]),
-    enabled: !!leadId,
+    queryKey: ['chatbot-messages', internalLeadId, activeAgent],
+    queryFn: () => internalLeadId ? ChatbotService.getMessages(internalLeadId, activeAgent) : Promise.resolve([]),
+    enabled: !!internalLeadId,
     staleTime: 10 * 1000, // 10 seconds
   });
 
   // Search messages
   const { data: searchResults = [] } = useQuery({
-    queryKey: ['chatbot-search', searchQuery, leadId],
-    queryFn: () => searchQuery ? ChatbotService.searchConversations(searchQuery, leadId) : Promise.resolve([]),
-    enabled: searchQuery.length > 2,
+    queryKey: ['chatbot-search', searchQuery, internalLeadId],
+    queryFn: () => searchQuery ? ChatbotService.searchConversations(searchQuery, internalLeadId) : Promise.resolve([]),
+    enabled: searchQuery.length > 2 && !!internalLeadId,
     staleTime: 60 * 1000, // 1 minute
   });
 
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: ({ message, context }: { message: string; context?: ChatContext }) => {
-      if (!leadId) throw new Error('Lead ID required');
-      return ChatbotService.sendMessage(leadId, activeAgent, message, context);
+      if (!internalLeadId) throw new Error('Lead ID required');
+      return ChatbotService.sendMessage(internalLeadId, activeAgent, message, context);
     },
     onMutate: async ({ message }) => {
       // Optimistic update - add user message immediately
@@ -52,10 +69,10 @@ export function useChatbot(leadId?: string) {
         messageType: 'text'
       };
 
-      await queryClient.cancelQueries({ queryKey: ['chatbot-messages', leadId, activeAgent] });
-      const previousMessages = queryClient.getQueryData<ChatMessage[]>(['chatbot-messages', leadId, activeAgent]);
+      await queryClient.cancelQueries({ queryKey: ['chatbot-messages', internalLeadId, activeAgent] });
+      const previousMessages = queryClient.getQueryData<ChatMessage[]>(['chatbot-messages', internalLeadId, activeAgent]);
       
-      queryClient.setQueryData<ChatMessage[]>(['chatbot-messages', leadId, activeAgent], old => [
+      queryClient.setQueryData<ChatMessage[]>(['chatbot-messages', internalLeadId, activeAgent], old => [
         ...(old || []),
         tempMessage
       ]);
@@ -67,12 +84,12 @@ export function useChatbot(leadId?: string) {
       setIsTyping(false);
       // Refresh conversations and messages
       queryClient.invalidateQueries({ queryKey: ['chatbot-conversations'] });
-      queryClient.invalidateQueries({ queryKey: ['chatbot-messages', leadId, activeAgent] });
+      queryClient.invalidateQueries({ queryKey: ['chatbot-messages', internalLeadId, activeAgent] });
     },
     onError: (error, variables, context) => {
       setIsTyping(false);
       if (context?.previousMessages) {
-        queryClient.setQueryData(['chatbot-messages', leadId, activeAgent], context.previousMessages);
+        queryClient.setQueryData(['chatbot-messages', internalLeadId, activeAgent], context.previousMessages);
       }
       toast({
         title: "Failed to send message",
@@ -112,32 +129,32 @@ export function useChatbot(leadId?: string) {
 
   // Auto-mark as read when viewing conversation
   useEffect(() => {
-    if (messages.length > 0 && leadId) {
+    if (messages.length > 0 && internalLeadId) {
       const timer = setTimeout(() => {
         markConversationAsRead();
       }, 2000); // Mark as read after 2 seconds of viewing
 
       return () => clearTimeout(timer);
     }
-  }, [messages, leadId, markConversationAsRead]);
+  }, [messages, internalLeadId, markConversationAsRead]);
 
   // Real-time updates via Supabase subscription
   useEffect(() => {
-    if (!leadId) return;
+    if (!internalLeadId) return;
 
     const channel = supabase
-      .channel(`chatbot-${leadId}`)
+      .channel(`chatbot-${internalLeadId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'student_portal_communications',
-          filter: `lead_id=eq.${leadId}`
+          filter: `lead_id=eq.${internalLeadId}`
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ['chatbot-conversations'] });
-          queryClient.invalidateQueries({ queryKey: ['chatbot-messages', leadId, activeAgent] });
+          queryClient.invalidateQueries({ queryKey: ['chatbot-messages', internalLeadId, activeAgent] });
         }
       )
       .subscribe();
@@ -145,7 +162,7 @@ export function useChatbot(leadId?: string) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [leadId, activeAgent, queryClient]);
+  }, [internalLeadId, activeAgent, queryClient]);
 
   return {
     // Data

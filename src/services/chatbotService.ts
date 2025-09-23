@@ -6,10 +6,11 @@ export class ChatbotService {
    * Get chat conversations for the current user
    */
   static async getConversations(leadId?: string): Promise<ChatConversation[]> {
+    if (!leadId) return [];
     const { data, error } = await supabase
       .from('student_portal_communications')
       .select('*')
-      .eq(leadId ? 'lead_id' : 'id', leadId || '')
+      .eq('lead_id', leadId)
       .order('created_at', { ascending: false });
 
     if (error) {

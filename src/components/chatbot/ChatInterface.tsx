@@ -82,17 +82,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   ] : messages;
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-gradient-to-b from-background to-muted/30">
       {/* Messages area */}
       <ScrollArea className="flex-1 p-4">
         <div className="space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent shadow-medium"></div>
             </div>
           ) : (
             displayMessages.map((message, index) => (
-              <div key={message.id} className="space-y-2">
+              <div key={message.id} className="space-y-3 animate-fade-up" style={{ animationDelay: `${index * 100}ms` }}>
                 <MessageBubble 
                   message={message} 
                   agent={agent}
@@ -115,16 +115,23 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Capabilities */}
       {messages.length === 0 && !isLoading && (
-        <div className="px-4 py-2 border-t bg-muted/30">
-          <p className="text-xs text-muted-foreground mb-2">I can help with:</p>
-          <div className="flex flex-wrap gap-1">
+        <div className="px-4 py-3 border-t border-border/50 bg-gradient-to-r from-muted/20 to-muted/40 backdrop-blur-sm animate-fade-in">
+          <p className="text-xs text-muted-foreground mb-3 font-medium">✨ I can help with:</p>
+          <div className="flex flex-wrap gap-2">
             {agent.capabilities.slice(0, 3).map((capability, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
+              <Badge 
+                key={index} 
+                variant="secondary" 
+                className="text-xs px-3 py-1 rounded-full shadow-soft hover:shadow-medium transition-all duration-200 hover:scale-105 border border-border/30"
+              >
                 {capability}
               </Badge>
             ))}
             {agent.capabilities.length > 3 && (
-              <Badge variant="outline" className="text-xs">
+              <Badge 
+                variant="outline" 
+                className="text-xs px-3 py-1 rounded-full shadow-soft hover:shadow-medium transition-all duration-200 hover:scale-105"
+              >
                 +{agent.capabilities.length - 3} more
               </Badge>
             )}
@@ -133,15 +140,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       )}
 
       {/* Input area */}
-      <div className="p-4 border-t bg-background">
-        <div className="flex items-end gap-2">
+      <div className="p-4 border-t border-border/50 bg-gradient-to-r from-card to-muted/20 backdrop-blur-sm">
+        <div className="flex items-end gap-3">
           <Button
             variant="ghost"
             size="sm"
-            className="shrink-0 h-10 w-10 p-0"
+            className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-soft hover:shadow-medium transition-all duration-200 hover:scale-105 bg-muted/50 hover:bg-muted/80"
             disabled
           >
-            <Paperclip size={18} />
+            <Paperclip size={18} className="text-muted-foreground" />
           </Button>
           
           <div className="flex-1 relative">
@@ -152,7 +159,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
               onKeyPress={handleKeyPress}
               placeholder={`Message ${agent.name}...`}
               disabled={isSending}
-              className="pr-12 resize-none min-h-[40px]"
+              className="pr-12 resize-none min-h-[44px] rounded-xl border-border/50 shadow-soft focus:shadow-medium transition-all duration-200 bg-card/80 backdrop-blur-sm"
             />
           </div>
 
@@ -160,7 +167,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             variant="ghost"
             size="sm"
             onClick={toggleRecording}
-            className={`shrink-0 h-10 w-10 p-0 ${isRecording ? 'text-red-500' : ''}`}
+            className={`shrink-0 h-11 w-11 p-0 rounded-xl shadow-soft hover:shadow-medium transition-all duration-200 hover:scale-105 bg-muted/50 hover:bg-muted/80 ${isRecording ? 'text-red-500' : 'text-muted-foreground'}`}
             disabled
           >
             {isRecording ? <MicOff size={18} /> : <Mic size={18} />}
@@ -170,10 +177,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onClick={handleSendMessage}
             disabled={!currentMessage.trim() || isSending}
             size="sm"
-            className="shrink-0 h-10 w-10 p-0"
+            className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-medium hover:shadow-large transition-all duration-200 hover:scale-105 bg-gradient-primary text-primary-foreground"
           >
             {isSending ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-foreground border-t-transparent"></div>
             ) : (
               <Send size={18} />
             )}

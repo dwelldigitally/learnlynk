@@ -8,8 +8,8 @@ interface TypingIndicatorProps {
 
 export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ agent }) => {
   return (
-    <div className="flex gap-2">
-      <Avatar className="h-8 w-8 shrink-0">
+    <div className="flex gap-2 animate-fade-in">
+      <Avatar className="h-9 w-9 shrink-0 ring-2 ring-border/30 shadow-medium">
         <AvatarFallback 
           className="text-sm text-white font-medium" 
           style={{ backgroundColor: agent.color }}
@@ -31,11 +31,11 @@ export const TypingIndicator: React.FC<TypingIndicatorProps> = ({ agent }) => {
         </AvatarFallback>
       </Avatar>
       
-      <div className="bg-muted rounded-lg rounded-bl-none px-4 py-3 flex items-center gap-1">
+      <div className="bg-card border border-border/30 rounded-2xl rounded-bl-lg px-4 py-3 flex items-center gap-1 shadow-soft">
         <div className="flex gap-1">
-          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-          <div className="w-2 h-2 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+          <div className="w-2.5 h-2.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+          <div className="w-2.5 h-2.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+          <div className="w-2.5 h-2.5 bg-muted-foreground/60 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
         </div>
       </div>
     </div>

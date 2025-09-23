@@ -21,7 +21,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     <div className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       {/* Avatar */}
       {showAvatar && !isUser && (
-        <Avatar className="h-8 w-8 shrink-0">
+        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-border/30 shadow-medium">
           <AvatarFallback 
             className="text-sm text-white font-medium" 
             style={{ backgroundColor: agent.color }}
@@ -44,22 +44,22 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         </Avatar>
       )}
       {showAvatar && isUser && (
-        <Avatar className="h-8 w-8 shrink-0">
-          <AvatarFallback className="text-sm bg-primary text-primary-foreground">
+        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-primary/30 shadow-medium">
+          <AvatarFallback className="text-sm bg-gradient-primary text-primary-foreground">
             👤
           </AvatarFallback>
         </Avatar>
       )}
-      {!showAvatar && <div className="w-8" />}
+      {!showAvatar && <div className="w-9" />}
 
       {/* Message content */}
       <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} max-w-[80%]`}>
         {/* Message bubble */}
         <div
-          className={`rounded-lg px-3 py-2 text-sm max-w-full break-words ${
+          className={`rounded-2xl px-4 py-3 text-sm max-w-full break-words shadow-soft transition-all duration-200 hover:shadow-medium ${
             isUser
-              ? 'bg-primary text-primary-foreground rounded-br-none'
-              : 'bg-muted text-foreground rounded-bl-none'
+              ? 'bg-gradient-primary text-primary-foreground rounded-br-lg'
+              : 'bg-card text-foreground rounded-bl-lg border border-border/30'
           }`}
         >
           {message.text}
@@ -81,7 +81,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         </div>
 
         {/* Timestamp */}
-        <span className={`text-xs text-muted-foreground mt-1 ${isUser ? 'text-right' : 'text-left'}`}>
+        <span className={`text-xs text-muted-foreground/70 mt-2 font-medium ${isUser ? 'text-right' : 'text-left'}`}>
           {formatDistanceToNow(message.timestamp, { addSuffix: true })}
         </span>
       </div>

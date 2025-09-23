@@ -67,21 +67,21 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
       {/* Floating chat button */}
       <Button
         onClick={toggleChatbot}
-        className={`fixed bottom-6 right-6 rounded-full h-14 w-14 shadow-lg z-50 transition-all duration-200 ${
+        className={`fixed bottom-6 right-6 rounded-full h-16 w-16 shadow-elevated z-50 transition-all duration-300 hover:scale-105 ${
           isOpen 
-            ? 'bg-muted hover:bg-muted/80' 
-            : 'bg-primary hover:bg-primary/90'
+            ? 'bg-card border-2 border-border hover:shadow-large animate-scale-in' 
+            : 'bg-gradient-primary hover:shadow-large animate-bounce-in'
         } ${className}`}
       >
         {isOpen ? (
-          <X size={24} className="text-primary-foreground" />
+          <X size={24} className="text-foreground transition-transform duration-200 hover:rotate-90" />
         ) : (
           <div className="relative">
-            <MessageCircle size={24} className="text-primary-foreground" />
+            <MessageCircle size={26} className="text-primary-foreground" />
             {unreadCount > 0 && (
               <Badge 
                 variant="destructive" 
-                className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                className="absolute -top-2 -right-2 h-6 w-6 flex items-center justify-center p-0 text-xs animate-bounce-in border-2 border-card"
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
               </Badge>
@@ -92,16 +92,17 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
 
       {/* Chat window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-xl flex flex-col z-50 overflow-hidden bg-background border">
+        <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-elevated flex flex-col z-50 overflow-hidden bg-card border-2 border-border/50 backdrop-blur-xl animate-modal-enter">
           {/* Header */}
           <div 
-            className="p-4 border-b flex justify-between items-center"
+            className="p-4 border-b border-border/30 flex justify-between items-center relative overflow-hidden"
             style={{ backgroundColor: view === 'chat' ? currentAgent.color : 'hsl(var(--muted))' }}
           >
-            <div className="flex items-center gap-3">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-30" />
+            <div className="flex items-center gap-3 relative z-10">
               {view === 'chat' && (
                 <>
-                  <Avatar className="h-8 w-8 shrink-0">
+                  <Avatar className="h-10 w-10 shrink-0 ring-2 ring-white/30 shadow-medium">
                     <AvatarFallback 
                       className="text-xs text-white font-medium" 
                       style={{ backgroundColor: currentAgent.color }}
@@ -122,32 +123,46 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                       </span>
                     </AvatarFallback>
                   </Avatar>
-                  <div>
-                    <h3 className="font-semibold text-sm text-background">
+                  <div className="animate-fade-in">
+                    <h3 className="font-semibold text-sm text-white drop-shadow-sm">
                       {currentAgent.name}
                     </h3>
-                    <p className="text-xs text-background/80">
-                      {isTyping ? 'Typing...' : 'Online'}
+                    <p className="text-xs text-white/90 flex items-center gap-1">
+                      {isTyping ? (
+                        <>
+                          <div className="w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse" />
+                          Typing...
+                        </>
+                      ) : (
+                        <>
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                          Online
+                        </>
+                      )}
                     </p>
                   </div>
                 </>
               )}
               {view === 'conversations' && (
-                <h3 className="font-semibold text-foreground">Chat History</h3>
+                <h3 className="font-semibold text-foreground flex items-center gap-2 animate-fade-in">
+                  📋 Chat History
+                </h3>
               )}
               {view === 'agents' && (
-                <h3 className="font-semibold text-foreground">Choose Your AI Assistant</h3>
+                <h3 className="font-semibold text-foreground flex items-center gap-2 animate-fade-in">
+                  🤖 Choose Your AI Assistant
+                </h3>
               )}
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 relative z-10">
               {view === 'chat' && (
                 <>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setView('conversations')}
-                    className="text-background hover:bg-background/20 h-8 w-8 p-0"
+                    className="text-white hover:bg-white/20 h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:scale-105 shadow-soft"
                   >
                     📋
                   </Button>
@@ -155,7 +170,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                     variant="ghost"
                     size="sm"
                     onClick={() => setView('agents')}
-                    className="text-background hover:bg-background/20 h-8 w-8 p-0"
+                    className="text-white hover:bg-white/20 h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:scale-105 shadow-soft"
                   >
                     🤖
                   </Button>
@@ -167,9 +182,9 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 onClick={toggleChatbot}
                 className={`${
                   view === 'chat' 
-                    ? 'text-background hover:bg-background/20' 
+                    ? 'text-white hover:bg-white/20' 
                     : 'text-foreground hover:bg-muted'
-                } h-8 w-8 p-0`}
+                } h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:scale-105 hover:rotate-90`}
               >
                 <X size={16} />
               </Button>
@@ -177,34 +192,40 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden bg-gradient-subtle">
             {view === 'chat' && (
-              <ChatInterface
-                messages={messages}
-                agent={currentAgent}
-                onSendMessage={sendMessage}
-                isTyping={isTyping}
-                isLoading={loadingMessages}
-                isSending={sendingMessage}
-                leadId={leadId}
-              />
+              <div className="animate-fade-in">
+                <ChatInterface
+                  messages={messages}
+                  agent={currentAgent}
+                  onSendMessage={sendMessage}
+                  isTyping={isTyping}
+                  isLoading={loadingMessages}
+                  isSending={sendingMessage}
+                  leadId={leadId}
+                />
+              </div>
             )}
             
             {view === 'conversations' && (
-              <ConversationList
-                conversations={conversations}
-                onSelectConversation={handleConversationSelect}
-                onBackToChat={() => setView('chat')}
-              />
+              <div className="animate-slide-in">
+                <ConversationList
+                  conversations={conversations}
+                  onSelectConversation={handleConversationSelect}
+                  onBackToChat={() => setView('chat')}
+                />
+              </div>
             )}
             
             {view === 'agents' && (
-              <AgentSelector
-                agents={AI_AGENTS}
-                activeAgent={activeAgent}
-                onSelectAgent={handleAgentSelect}
-                onBackToChat={() => setView('chat')}
-              />
+              <div className="animate-fade-up">
+                <AgentSelector
+                  agents={AI_AGENTS}
+                  activeAgent={activeAgent}
+                  onSelectAgent={handleAgentSelect}
+                  onBackToChat={() => setView('chat')}
+                />
+              </div>
             )}
           </div>
         </Card>

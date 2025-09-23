@@ -354,18 +354,6 @@ const AcademicPlanning: React.FC = () => {
                     ))}
                   </div>
                 </div>
-
-                <div className="pt-2">
-                  <Button 
-                    variant={course.status === "current" ? "default" : course.status === "completed" ? "secondary" : "outline"} 
-                    className="w-full"
-                    disabled={course.status === "upcoming"}
-                  >
-                    {course.status === "completed" ? "View Course Materials" : 
-                     course.status === "current" ? "Continue Learning" : 
-                     "Available Soon"}
-                  </Button>
-                </div>
               </CardContent>
             </Card>
           ))}

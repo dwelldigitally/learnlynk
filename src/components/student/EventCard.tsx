@@ -31,12 +31,12 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
-      case "info_session": return "bg-blue-100 text-blue-800";
-      case "workshop": return "bg-orange-100 text-orange-800";
-      case "campus_tour": return "bg-green-100 text-green-800";
-      case "networking": return "bg-purple-100 text-purple-800";
-      case "guest_lecture": return "bg-red-100 text-red-800";
-      default: return "bg-gray-100 text-gray-800";
+      case "info_session": return "bg-gradient-to-r from-blue-500 to-blue-600 text-white";
+      case "workshop": return "bg-gradient-to-r from-orange-500 to-orange-600 text-white";
+      case "campus_tour": return "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white";
+      case "networking": return "bg-gradient-to-r from-purple-500 to-purple-600 text-white";
+      case "guest_lecture": return "bg-gradient-to-r from-red-500 to-red-600 text-white";
+      default: return "bg-gradient-to-r from-slate-500 to-slate-600 text-white";
     }
   };
 
@@ -68,48 +68,66 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer flex flex-col h-[280px] sm:h-[300px]">
-          <div className="h-[140px] sm:h-[160px] overflow-hidden relative flex-shrink-0">
+        <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col h-[280px] sm:h-[300px]">
+          {/* Hero Image Section */}
+          <div className="relative h-[140px] sm:h-[160px] overflow-hidden flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
             <img 
               src={event.image} 
               alt={event.title} 
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-2 left-2">
-              <Badge className={`${getEventTypeColor(event.eventType)} text-xs px-2 py-1`}>
+            
+            {/* Floating Badge */}
+            <div className="absolute top-3 left-3 z-20">
+              <Badge className={`${getEventTypeColor(event.eventType)} text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg border-0`}>
                 {getEventTypeLabel(event.eventType)}
               </Badge>
             </div>
-            <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
-              {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+
+            {/* Date Badge */}
+            <div className="absolute top-3 right-3 z-20">
+              <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+                <div className="flex items-center gap-1 text-xs font-medium text-slate-700 dark:text-slate-300">
+                  <Calendar className="w-3 h-3" />
+                  {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </div>
             </div>
           </div>
-          <div className="p-3 flex-1 flex flex-col justify-between">
-            <div className="flex-1 space-y-1">
-              <h3 className="font-bold text-sm line-clamp-2 leading-tight">{event.title}</h3>
-              <p className="text-muted-foreground text-xs line-clamp-1 leading-tight">{event.description}</p>
+
+          {/* Content Section */}
+          <div className="p-4 flex-1 flex flex-col justify-between">
+            <div className="flex-1 space-y-2">
+              <h3 className="font-bold text-sm leading-tight text-slate-900 dark:text-slate-100 line-clamp-2 group-hover:text-primary transition-colors duration-300">{event.title}</h3>
+              <p className="text-slate-600 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed">{event.description}</p>
               
-              <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
-                <div className="flex items-center">
-                  <Clock className="w-3 h-3 mr-1" />
-                  <span>{event.time}</span>
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2">
+                <div className="flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  <span className="font-medium">{event.time}</span>
                 </div>
-                <div className="flex items-center">
-                  <Users className="w-3 h-3 mr-1" />
-                  <span>{currentRegistered}/{event.maxCapacity}</span>
+                <div className="flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5" />
+                  <span className="font-medium">{currentRegistered}/{event.maxCapacity}</span>
                 </div>
               </div>
             </div>
             
-            <Button 
-              onClick={handleRegister}
-              className="w-full text-xs h-7 mt-auto"
-              variant={isRegistered ? "outline" : "default"}
-              disabled={!isRegistered && isFull}
-            >
-              {isRegistered ? "Registered ✓" : isFull ? "Full" : "Register"}
-            </Button>
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
+              <Button 
+                onClick={handleRegister}
+                className="w-full text-xs h-8 font-semibold"
+                variant={isRegistered ? "outline" : "default"}
+                disabled={!isRegistered && isFull}
+              >
+                {isRegistered ? "Registered ✓" : isFull ? "Event Full" : "Register Now"}
+              </Button>
+            </div>
           </div>
+
+          {/* Hover Effect Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
         </Card>
       </DialogTrigger>
       

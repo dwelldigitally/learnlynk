@@ -17,6 +17,7 @@ import { ProgramApplication } from "@/types/application";
 import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 import ApplicationWizard from "./application/ApplicationWizard";
 import { ApplicationData } from "@/services/applicationService";
+import { dummyApplications, dummyStudentProfile } from "@/data/studentPortalDummyData";
 
 const YourApplications: React.FC = () => {
   const navigate = useNavigate();

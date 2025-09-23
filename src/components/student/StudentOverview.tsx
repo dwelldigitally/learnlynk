@@ -21,6 +21,7 @@ import CampusExplorer from "@/components/student/CampusExplorer";
 import QuickProgressTracker from "@/components/student/QuickProgressTracker";
 import { toast } from "@/hooks/use-toast";
 import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
+import { dummyStudentProfile, dummyApplications, dummyMessages, dummyNewsAndEvents } from "@/data/studentPortalDummyData";
 
 const StudentOverview: React.FC = () => {
   const navigate = useNavigate();

@@ -7,6 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { GlassCard } from "@/components/modern/GlassCard";
 import { motion } from "framer-motion";
 import { BookOpen, Clock, CheckCircle, AlertCircle, Calendar as CalendarIcon, GraduationCap, PlayCircle, FileText, Users, MapPin, Star, Target, ArrowRight, Trophy } from "lucide-react";
+import { dummyAcademicPlan } from "@/data/studentPortalDummyData";
 
 const AcademicPlanning: React.FC = () => {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(new Date());

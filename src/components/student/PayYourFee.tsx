@@ -8,6 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useToast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
 import { useCountUp, usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
+import { dummyFees, dummyStudentProfile } from "@/data/studentPortalDummyData";
 
 const PayYourFee: React.FC = () => {
   const { toast } = useToast();

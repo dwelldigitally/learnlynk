@@ -13,6 +13,7 @@ import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimati
 import { useStudentPortalContext } from "@/pages/StudentPortal";
 import { useDocumentUpload, useStudentDocuments } from "@/hooks/useStudentPortalIntegration";
 import { toast } from "@/hooks/use-toast";
+import { dummyDocuments, dummyStudentProfile } from "@/data/studentPortalDummyData";
 
 const DocumentUpload: React.FC = () => {
   const { sessionId, leadId, isLoading } = useStudentPortalContext();

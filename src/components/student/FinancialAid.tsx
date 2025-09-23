@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
+import { dummyFinancialAid } from "@/data/studentPortalDummyData";
 
 const FinancialAid: React.FC = () => {
   const isLoaded = usePageEntranceAnimation();

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
+import { dummyCareerServices } from "@/data/studentPortalDummyData";
 
 const CareerServices: React.FC = () => {
   const isLoaded = usePageEntranceAnimation();
@@ -40,59 +41,9 @@ const CareerServices: React.FC = () => {
     }
   ];
 
-  const upcomingEvents = [
-    {
-      title: "Career Fair 2024",
-      date: "March 15, 2024",
-      time: "10:00 AM - 4:00 PM",
-      location: "Student Center",
-      companies: "50+ Companies",
-      type: "career-fair"
-    },
-    {
-      title: "Resume Writing Workshop",
-      date: "March 8, 2024",
-      time: "2:00 PM - 3:30 PM",
-      location: "Career Services Office",
-      instructor: "Sarah Johnson",
-      type: "workshop"
-    },
-    {
-      title: "LinkedIn Optimization",
-      date: "March 12, 2024",
-      time: "1:00 PM - 2:00 PM",
-      location: "Virtual",
-      instructor: "Mike Davis",
-      type: "workshop"
-    }
-  ];
-
-  const jobOpportunities = [
-    {
-      title: "Marketing Intern",
-      company: "TechStart Inc.",
-      location: "Remote",
-      type: "Internship",
-      salary: "$15/hour",
-      deadline: "March 20, 2024"
-    },
-    {
-      title: "Junior Developer",
-      company: "Web Solutions LLC",
-      location: "New York, NY",
-      type: "Full-time",
-      salary: "$55,000/year",
-      deadline: "March 25, 2024"
-    },
-    {
-      title: "Business Analyst",
-      company: "Finance Corp",
-      location: "Boston, MA",
-      type: "Full-time",
-      salary: "$60,000/year",
-      deadline: "April 1, 2024"
-    }
-  ];
+  // Use dummy data for events and jobs
+  const upcomingEvents = dummyCareerServices.upcomingEvents;
+  const jobOpportunities = dummyCareerServices.jobOpportunities;
 
   const getColorClasses = (color: string) => {
     switch (color) {
@@ -160,26 +111,26 @@ const CareerServices: React.FC = () => {
                       {event.type}
                     </Badge>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="w-4 h-4" />
-                      {event.date}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="w-4 h-4" />
-                      {event.time}
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      {event.location}
-                    </div>
-                  </div>
-                  {event.companies && (
-                    <p className="text-sm text-green-600 font-medium mt-1">{event.companies} attending</p>
-                  )}
-                  {event.instructor && (
-                    <p className="text-sm text-blue-600 mt-1">Instructor: {event.instructor}</p>
-                  )}
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm text-muted-foreground">
+                     <div className="flex items-center gap-1">
+                       <Calendar className="w-4 h-4" />
+                       {event.date}
+                     </div>
+                     <div className="flex items-center gap-1">
+                       <Clock className="w-4 h-4" />
+                       {event.time}
+                     </div>
+                     <div className="flex items-center gap-1">
+                       <MapPin className="w-4 h-4" />
+                       {event.location}
+                     </div>
+                   </div>
+                   {event.employers && event.employers.length > 0 && (
+                     <p className="text-sm text-green-600 font-medium mt-1">{event.employers.length} employers attending</p>
+                   )}
+                   {event.description && (
+                     <p className="text-sm text-blue-600 mt-1">{event.description}</p>
+                   )}
                 </div>
                 <Button size="sm">Register</Button>
               </div>

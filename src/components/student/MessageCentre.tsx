@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import advisorNicole from "@/assets/advisor-nicole.jpg";
 import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
+import { dummyMessages, dummyStudentProfile } from "@/data/studentPortalDummyData";
 
 interface Message {
   id: string;

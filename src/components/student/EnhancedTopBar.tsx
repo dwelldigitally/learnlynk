@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useStudentPortalContext } from '@/pages/StudentPortal';
@@ -149,13 +150,16 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
               {/* Right Section - Action Buttons */}
               <div className="flex items-center gap-3">
                 <Button 
+                  asChild
                   variant="ghost" 
                   size="sm" 
                   className="h-10 px-4 relative bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50 rounded-lg transition-colors"
                 >
-                  <MessageSquare className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-2 font-medium">Messages</span>
-                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center border-2 border-white dark:border-slate-800">2</Badge>
+                  <Link to="/student/messages">
+                    <MessageSquare className="w-4 h-4" />
+                    <span className="hidden sm:inline ml-2 font-medium">Messages</span>
+                    <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center border-2 border-white dark:border-slate-800">2</Badge>
+                  </Link>
                 </Button>
                 
                 <Button 

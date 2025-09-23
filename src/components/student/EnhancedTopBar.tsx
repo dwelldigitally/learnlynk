@@ -8,6 +8,7 @@ import { StreamlinedUserMenu } from './StreamlinedUserMenu';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { NotificationCenter } from './NotificationCenter';
 import { 
   User, 
   Calendar, 
@@ -162,15 +163,17 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                   </Link>
                 </Button>
                 
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-10 px-4 relative bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/50 rounded-lg transition-colors"
-                >
-                  <Bell className="w-4 h-4" />
-                  <span className="hidden sm:inline ml-2 font-medium">Alerts</span>
-                  <Badge className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center border-2 border-white dark:border-slate-800">5</Badge>
-                </Button>
+                <NotificationCenter>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-10 px-4 relative bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/30 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 border border-purple-200/50 dark:border-purple-800/50 rounded-lg transition-colors"
+                  >
+                    <Bell className="w-4 h-4" />
+                    <span className="hidden sm:inline ml-2 font-medium">Alerts</span>
+                    <Badge className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center border-2 border-white dark:border-slate-800">5</Badge>
+                  </Button>
+                </NotificationCenter>
               </div>
             </div>
           </div>

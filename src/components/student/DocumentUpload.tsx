@@ -193,10 +193,17 @@ const DocumentUpload: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.4 }}
       >
-        <h1 className="text-3xl font-bold text-foreground">Document Upload</h1>
-        <p className="text-muted-foreground mt-2">
-          Upload your required documents for application review. All documents should be in PDF format.
-        </p>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <Upload className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Document Upload</h1>
+            <p className="text-muted-foreground mt-2">
+              Upload your required documents for application review. All documents should be in PDF format.
+            </p>
+          </div>
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

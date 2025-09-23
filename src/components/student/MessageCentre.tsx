@@ -458,14 +458,18 @@ Western Community College Admissions Office`,
     <div className={`max-w-4xl mx-auto ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-6 animate-slide-down">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Mail className="w-6 h-6 text-purple-600" />
-            Message Centre
-          </h1>
-          <p className="text-gray-600 mt-1">
-            All communications about your applications
-          </p>
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <Mail className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Message Centre
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              All communications about your applications
+            </p>
+          </div>
         </div>
         {totalUnreadCount > 0 && (
           <Badge className="bg-red-100 text-red-800 border-red-200">

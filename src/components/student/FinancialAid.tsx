@@ -69,8 +69,17 @@ const FinancialAid: React.FC = () => {
     <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <h1 className="text-2xl font-bold">Financial Aid</h1>
-        <p className="text-muted-foreground">Explore funding options and manage your financial aid applications</p>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <DollarSign className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Financial Aid
+            </h1>
+            <p className="text-muted-foreground">Explore funding options and manage your financial aid applications</p>
+          </div>
+        </div>
       </div>
 
       {/* Financial Aid Summary - Enhanced */}

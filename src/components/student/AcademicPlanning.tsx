@@ -245,16 +245,16 @@ const AcademicPlanning: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="p-3 bg-primary/10 rounded-xl">
-                  <BookOpen className="h-8 w-8 text-primary" />
+              <div className="flex items-center gap-4 mb-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                  <BookOpen className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground to-primary/70 bg-clip-text text-transparent">
-                    Course Catalog
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    Academic Planning
                   </h1>
                   <p className="text-muted-foreground text-lg mt-1">
-                    Explore your academic journey and course content
+                    Plan your academic journey and track your progress
                   </p>
                 </div>
               </div>

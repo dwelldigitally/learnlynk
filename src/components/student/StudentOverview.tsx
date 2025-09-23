@@ -248,6 +248,21 @@ const StudentOverview: React.FC = () => {
 
   return (
     <div className={`space-y-10 p-8 bg-background min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+      
+      {/* Header */}
+      <div className="animate-slide-down">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <GraduationCap className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Welcome back, {dummyStudentProfile.firstName}! 👋
+            </h1>
+            <p className="text-muted-foreground">Here's your academic journey at a glance</p>
+          </div>
+        </div>
+      </div>
 
       {/* Enhanced Program Header */}
       <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-8 mb-10 transition-all duration-500 hover:shadow-xl hover:border-border/80 animate-fade-in">

@@ -112,8 +112,15 @@ const YourApplications: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Main Header */}
           <div className="lg:col-span-2">
-            <h1 className="text-3xl font-bold mb-2">Your Applications</h1>
-            <p className="text-muted-foreground text-lg">Track your journey and manage your applications in one place</p>
+            <div className="flex items-center gap-4 mb-2">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                <FileText className="w-6 h-6 text-primary-foreground" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Your Applications</h1>
+                <p className="text-muted-foreground text-lg">Track your journey and manage your applications in one place</p>
+              </div>
+            </div>
           </div>
           
           {/* Quick Stats */}

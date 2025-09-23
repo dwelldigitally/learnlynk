@@ -68,11 +68,11 @@ const NewsAndEvents: React.FC = () => {
             className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
           >
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-primary/10 rounded-xl">
-                <Calendar className="h-8 w-8 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                <Calendar className="w-6 h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground to-primary/70 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
                   News & Events
                 </h1>
                 <p className="text-muted-foreground text-lg mt-1">

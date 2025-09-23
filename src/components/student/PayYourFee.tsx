@@ -108,10 +108,19 @@ const PayYourFee: React.FC = () => {
     <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <h1 className="text-2xl font-bold">Application Fee Payment</h1>
-        <p className="text-muted-foreground">
-          Complete your application fee payment to secure your spot
-        </p>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <CreditCard className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Application Fee Payment
+            </h1>
+            <p className="text-muted-foreground">
+              Complete your application fee payment to secure your spot
+            </p>
+          </div>
+        </div>
       </div>
 
       <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6">

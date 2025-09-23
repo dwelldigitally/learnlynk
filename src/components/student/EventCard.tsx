@@ -68,7 +68,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col h-[280px] sm:h-[300px]">
+        <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col h-[320px] sm:h-[340px]">
           {/* Hero Image Section */}
           <div className="relative h-[140px] sm:h-[160px] overflow-hidden flex-shrink-0">
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />

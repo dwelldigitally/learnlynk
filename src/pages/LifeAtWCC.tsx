@@ -1,23 +1,12 @@
 import React, { useState } from "react";
-import { Calendar, MapPin, Users, Heart, Clock, ChevronRight, Phone } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Calendar, MapPin, Users, Heart, Clock, ChevronRight, Phone, Star, Trophy, Building, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
+import { GlassCard } from "@/components/modern/GlassCard";
+import { motion } from "framer-motion";
 
 const LifeAtWCC: React.FC = () => {
   const [selectedEventType, setSelectedEventType] = useState<string>("all");
-  
-  // Animation hooks
-  const isLoaded = usePageEntranceAnimation();
-  const { visibleItems: eventItems, ref: eventRef } = useStaggeredReveal(8, 150);
-  const { visibleItems: featureItems, ref: featureRef } = useStaggeredReveal(3, 200);
-  const { visibleItems: supportItems, ref: supportRef } = useStaggeredReveal(4, 150);
-  const { visibleItems: locationItems, ref: locationRef } = useStaggeredReveal(6, 100);
-  const { count: studentsCount, ref: studentsRef } = useCountUp(2500, 2000, 0, '', '+');
-  const { count: employmentCount, ref: employmentRef } = useCountUp(95, 1500, 0, '', '%');
-  const { count: eventsCount, ref: eventsStatsRef } = useCountUp(50, 1800, 0, '', '+');
-  const { count: programsCount, ref: programsRef } = useCountUp(15, 1200);
 
   // Mock events data
   const events = [
@@ -171,269 +160,413 @@ const LifeAtWCC: React.FC = () => {
   ];
 
   return (
-    <div className={`space-y-8 ${isLoaded ? 'animate-fade-in' : 'opacity-0'}`}>
-      {/* Hero Section */}
-      <div className="relative h-96 rounded-xl overflow-hidden animate-scale-in">
-        <img 
-          src="https://images.unsplash.com/photo-1506744038136-46273834b3fb" 
-          alt="WCC Campus"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/80 to-blue-600/60 flex items-center">
-          <div className="px-8 text-white max-w-2xl">
-            <h1 className="text-4xl font-bold mb-4">Life at WCC</h1>
-            <p className="text-xl mb-6">
-              Experience a vibrant campus community where learning extends beyond the classroom.
-              Join us in creating memories, building connections, and growing together.
-            </p>
-            <Button size="lg" className="bg-white text-blue-900 hover:bg-gray-100">
-              Explore Campus Life
-            </Button>
-          </div>
+    <div className="min-h-screen hero-gradient">
+      {/* Modern Header */}
+      <div className="border-b border-border/40 bg-background/50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6"
+          >
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <Building className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground to-primary/70 bg-clip-text text-transparent">
+                  Life @ WCC
+                </h1>
+                <p className="text-muted-foreground text-lg mt-1">
+                  Experience a vibrant campus community where learning extends beyond the classroom
+                </p>
+              </div>
+            </div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <GlassCard className="p-6 min-w-[280px]">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Trophy className="h-5 w-5 text-primary" />
+                    <span className="text-2xl font-bold text-foreground">2500+</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">Active Students</p>
+                  <div className="mt-3 pt-3 border-t border-border/30">
+                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      <span>95% Employment Rate</span>
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6 text-center animate-stagger-1 hover-scale transition-all duration-300" ref={studentsRef}>
-          <div className="text-3xl font-bold text-blue-600">{studentsCount}</div>
-          <div className="text-sm text-muted-foreground">Active Students</div>
-        </Card>
-        <Card className="p-6 text-center animate-stagger-2 hover-scale transition-all duration-300" ref={employmentRef}>
-          <div className="text-3xl font-bold text-green-600">{employmentCount}</div>
-          <div className="text-sm text-muted-foreground">Employment Rate</div>
-        </Card>
-        <Card className="p-6 text-center animate-stagger-3 hover-scale transition-all duration-300" ref={eventsStatsRef}>
-          <div className="text-3xl font-bold text-purple-600">{eventsCount}</div>
-          <div className="text-sm text-muted-foreground">Campus Events/Year</div>
-        </Card>
-        <Card className="p-6 text-center animate-stagger-4 hover-scale transition-all duration-300" ref={programsRef}>
-          <div className="text-3xl font-bold text-orange-600">{programsCount}</div>
-          <div className="text-sm text-muted-foreground">Programs Offered</div>
-        </Card>
-      </div>
+      <div className="max-w-7xl mx-auto px-6 py-12 space-y-16">
+        {/* Stats Grid */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="grid grid-cols-2 lg:grid-cols-4 gap-6"
+        >
+          <GlassCard className="p-6 text-center hover-scale transition-all duration-300">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Users className="h-5 w-5 text-blue-500" />
+              <span className="text-3xl font-bold text-foreground">2500+</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Active Students</p>
+          </GlassCard>
+          
+          <GlassCard className="p-6 text-center hover-scale transition-all duration-300">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Trophy className="h-5 w-5 text-green-500" />
+              <span className="text-3xl font-bold text-foreground">95%</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Employment Rate</p>
+          </GlassCard>
+          
+          <GlassCard className="p-6 text-center hover-scale transition-all duration-300">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Calendar className="h-5 w-5 text-purple-500" />
+              <span className="text-3xl font-bold text-foreground">50+</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Campus Events/Year</p>
+          </GlassCard>
+          
+          <GlassCard className="p-6 text-center hover-scale transition-all duration-300">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <BookOpen className="h-5 w-5 text-orange-500" />
+              <span className="text-3xl font-bold text-foreground">15</span>
+            </div>
+            <p className="text-sm text-muted-foreground">Programs Offered</p>
+          </GlassCard>
+        </motion.div>
 
-      {/* Upcoming Events */}
-      <section>
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Upcoming Events</h2>
-          <div className="flex gap-2">
-            {eventTypes.map((type) => (
-              <Button
-                key={type.value}
-                variant={selectedEventType === type.value ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedEventType(type.value)}
+        {/* Featured Events Section */}
+        <section>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8"
+          >
+            <div>
+              <h2 className="text-3xl font-bold text-foreground mb-2">Upcoming Events</h2>
+              <p className="text-muted-foreground">Join our vibrant campus community events</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {eventTypes.map((type) => (
+                <Button
+                  key={type.value}
+                  variant={selectedEventType === type.value ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedEventType(type.value)}
+                  className="bg-background/50 backdrop-blur-sm border-border/30"
+                >
+                  {type.label}
+                </Button>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Featured Events Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {filteredEvents.filter(event => event.featured).map((event, index) => (
+              <motion.div
+                key={event.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * index }}
               >
-                {type.label}
-              </Button>
+                <GlassCard hover className="overflow-hidden h-full">
+                  <div className="relative h-56">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <Badge className="absolute top-4 right-4 bg-primary/90 text-primary-foreground backdrop-blur-sm">
+                      Featured
+                    </Badge>
+                    <div className="absolute bottom-4 left-4 text-white">
+                      <div className="flex items-center gap-2 text-sm mb-1">
+                        <Calendar className="w-4 h-4" />
+                        {event.date}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-foreground mb-2">{event.title}</h3>
+                    <p className="text-muted-foreground mb-4 line-clamp-2">{event.description}</p>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="w-4 h-4" />
+                          {event.time}
+                        </div>
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Users className="w-4 h-4" />
+                          {event.attendees} attending
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        {event.location}
+                      </div>
+                      
+                      <Button className="w-full mt-4">Register Now</Button>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
             ))}
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8" ref={eventRef}>
-          {filteredEvents.filter(event => event.featured).map((event, index) => (
-            <Card key={event.id} className={`overflow-hidden group hover:shadow-lg hover-scale transition-all duration-300 ${eventItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-              <div className="relative h-48">
-                <img 
-                  src={event.image} 
-                  alt={event.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <Badge className="absolute top-4 right-4 bg-white/90 text-gray-900">
-                  Featured
-                </Badge>
-              </div>
-              <div className="p-6">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                  <Calendar className="w-4 h-4" />
-                  {event.date} • {event.time}
-                </div>
-                <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
-                <p className="text-muted-foreground mb-4">{event.description}</p>
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="w-4 h-4" />
-                    {event.location}
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="w-4 h-4" />
-                    {event.attendees} attending
-                  </div>
-                </div>
-                <Button className="w-full mt-4">Register Now</Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredEvents.filter(event => !event.featured).map((event) => (
-            <Card key={event.id} className="p-4 hover:shadow-md transition-shadow">
-              <div className="flex items-start gap-4">
-                <img 
-                  src={event.image} 
-                  alt={event.title}
-                  className="w-16 h-16 rounded-lg object-cover"
-                />
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-1">{event.title}</h4>
-                  <div className="text-sm text-muted-foreground mb-2">
-                    {event.date} • {event.time}
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MapPin className="w-3 h-3" />
-                    {event.location}
-                  </div>
-                </div>
-                <Button size="sm" variant="outline">
-                  Join
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Student Life Features */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">Student Life at WCC</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8" ref={featureRef}>
-          {studentLifeFeatures.map((feature, index) => (
-            <Card key={index} className={`overflow-hidden group hover:shadow-lg hover-scale transition-all duration-300 ${featureItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-              <div className="relative h-48">
-                <img 
-                  src={feature.image} 
-                  alt={feature.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-muted-foreground mb-4">{feature.description}</p>
-                <div className="space-y-2">
-                  {feature.stats.map((stat, statIndex) => (
-                    <div key={statIndex} className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
-                      <span className="text-sm">{stat}</span>
+          {/* Smaller Events Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {filteredEvents.filter(event => !event.featured).map((event, index) => (
+              <motion.div
+                key={event.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * index }}
+              >
+                <GlassCard className="p-4 hover-scale transition-all duration-300">
+                  <div className="flex items-start gap-4">
+                    <img 
+                      src={event.image} 
+                      alt={event.title}
+                      className="w-16 h-16 rounded-xl object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-foreground mb-1 truncate">{event.title}</h4>
+                      <div className="text-sm text-muted-foreground mb-2">
+                        {event.date} • {event.time}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <MapPin className="w-3 h-3" />
+                        <span className="truncate">{event.location}</span>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* WCC Family Support */}
-      <section className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-8">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-4">WCC Family Support</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            At WCC, we believe that education is a family journey. We provide comprehensive support 
-            to ensure families feel welcomed, informed, and connected to our community.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" ref={supportRef}>
-          {familySupport.map((item, index) => (
-            <Card key={index} className={`p-6 text-center hover:shadow-md hover-scale transition-all duration-300 ${supportItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-              <div className="flex justify-center mb-4">
-                <div className="p-3 bg-blue-100 rounded-full">
-                  <item.icon className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-              <h3 className="font-semibold mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">{item.description}</p>
-            </Card>
-          ))}
-        </div>
-
-        <div className="text-center mt-8">
-          <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-            Learn More About Family Support
-          </Button>
-        </div>
-      </section>
-
-      {/* Campus Maps */}
-      <section>
-        <h2 className="text-2xl font-bold mb-6">Campus Locations</h2>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6" ref={locationRef}>
-          {campusLocations.map((location, index) => (
-            <Card key={index} className={`p-6 hover-scale transition-all duration-300 ${locationItems[index] ? 'animate-fade-in' : 'opacity-0'}`}>
-              <div className="flex items-start gap-4 mb-4">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <MapPin className="w-5 h-5 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold">{location.name}</h3>
-                  <p className="text-sm text-muted-foreground">{location.address}</p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <Phone className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">{location.phone}</span>
+                    <Button size="sm" variant="outline">
+                      Join
+                    </Button>
                   </div>
-                </div>
-              </div>
-              
-              <div className="space-y-2 mb-4">
-                <h4 className="font-medium text-sm">Facilities:</h4>
-                {location.facilities.map((facility, facilityIndex) => (
-                  <div key={facilityIndex} className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full"></div>
-                    <span className="text-sm text-muted-foreground">{facility}</span>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* Student Life Features */}
+        <section>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-foreground mb-4">Student Life at WCC</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Discover world-class facilities, vibrant campus life, and comprehensive support services
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {studentLifeFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * index }}
+              >
+                <GlassCard hover className="overflow-hidden h-full">
+                  <div className="relative h-56">
+                    <img 
+                      src={feature.image} 
+                      alt={feature.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                   </div>
+                  
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
+                    <p className="text-muted-foreground mb-6 leading-relaxed">{feature.description}</p>
+                    
+                    <div className="space-y-3">
+                      <h4 className="font-semibold text-foreground text-sm">Key Features:</h4>
+                      {feature.stats.map((stat, statIndex) => (
+                        <div key={statIndex} className="flex items-center gap-3">
+                          <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0"></div>
+                          <span className="text-sm text-muted-foreground">{stat}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+
+        {/* WCC Family Support */}
+        <section>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 }}
+          >
+            <GlassCard className="p-12">
+              <div className="text-center mb-12">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <div className="p-3 bg-primary/10 rounded-xl">
+                    <Heart className="h-8 w-8 text-primary" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-foreground">WCC Family Support</h2>
+                </div>
+                <p className="text-muted-foreground max-w-3xl mx-auto text-lg">
+                  At WCC, we believe that education is a family journey. We provide comprehensive support 
+                  to ensure families feel welcomed, informed, and connected to our community.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                {familySupport.map((item, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.1 * index }}
+                  >
+                    <div className="p-6 text-center bg-background/30 rounded-xl border border-border/30 hover:bg-background/50 transition-all duration-300">
+                      <div className="flex justify-center mb-4">
+                        <div className="p-3 bg-primary/10 rounded-full">
+                          <item.icon className="w-6 h-6 text-primary" />
+                        </div>
+                      </div>
+                      <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+                    </div>
+                  </motion.div>
                 ))}
               </div>
 
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Directions
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1">
-                  Virtual Tour
+              <div className="text-center">
+                <Button size="lg" className="bg-primary hover:bg-primary-hover">
+                  Learn More About Family Support
                 </Button>
               </div>
-            </Card>
-          ))}
-        </div>
+            </GlassCard>
+          </motion.div>
+        </section>
 
-        {/* Interactive Campus Map Placeholder */}
-        <Card className="mt-8 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">Interactive Campus Map</h3>
-            <Button variant="outline" size="sm">
-              <ChevronRight className="w-4 h-4 mr-2" />
-              Full Screen Map
-            </Button>
-          </div>
-          <div className="bg-gradient-to-br from-green-100 to-blue-100 rounded-lg h-96 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <h4 className="font-semibold text-lg mb-2">Interactive Campus Map</h4>
-              <p className="text-muted-foreground">
-                Click to explore our campus locations, buildings, and facilities in detail.
-              </p>
-              <Button className="mt-4">Launch Interactive Map</Button>
-            </div>
-          </div>
-        </Card>
-      </section>
+        {/* Campus Locations */}
+        <section>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl font-bold text-foreground mb-4">Campus Locations</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Explore our strategically located campuses across British Columbia
+            </p>
+          </motion.div>
 
-      {/* Call to Action */}
-      <Card className="p-8 text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <h2 className="text-2xl font-bold mb-4">Ready to Join the WCC Family?</h2>
-        <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-          Experience the vibrant community, world-class facilities, and comprehensive support 
-          that makes WCC the perfect place to pursue your healthcare career.
-        </p>
-        <div className="flex gap-4 justify-center">
-          <Button size="lg" variant="secondary">
-            Schedule a Campus Visit
-          </Button>
-        </div>
-      </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {campusLocations.map((location, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.1 * index }}
+              >
+                <GlassCard className="p-6 h-full hover-scale transition-all duration-300">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <MapPin className="w-5 h-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-foreground mb-1">{location.name}</h3>
+                      <p className="text-sm text-muted-foreground mb-2">{location.address}</p>
+                      <div className="flex items-center gap-1">
+                        <Phone className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">{location.phone}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3 mb-6">
+                    <h4 className="font-semibold text-sm text-foreground">Facilities:</h4>
+                    <div className="grid grid-cols-1 gap-2">
+                      {location.facilities.map((facility, facilityIndex) => (
+                        <div key={facilityIndex} className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                          <span className="text-sm text-muted-foreground">{facility}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button size="sm" variant="outline" className="text-xs">
+                      <MapPin className="w-3 h-3 mr-1" />
+                      Directions
+                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs">
+                      Virtual Tour
+                    </Button>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Interactive Map */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.3 }}
+          >
+            <GlassCard className="p-8">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Interactive Campus Map</h3>
+                  <p className="text-muted-foreground">Explore all our campus locations in one view</p>
+                </div>
+                <Button variant="outline">
+                  <ChevronRight className="w-4 h-4 mr-2" />
+                  Full Screen Map
+                </Button>
+              </div>
+              
+              <div className="bg-muted/30 rounded-xl h-64 flex items-center justify-center border border-border/30">
+                <div className="text-center">
+                  <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">Interactive campus map will be loaded here</p>
+                  <Button variant="outline" size="sm" className="mt-4">
+                    Load Map
+                  </Button>
+                </div>
+              </div>
+            </GlassCard>
+          </motion.div>
+        </section>
+      </div>
     </div>
   );
 };

@@ -82,10 +82,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   ] : messages;
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-background to-muted/30">
+    <div className="flex flex-col h-full">
       {/* Messages area */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-4">
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-t-transparent shadow-medium"></div>
@@ -108,14 +109,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             ))
           )}
           
-          {isTyping && <TypingIndicator agent={agent} />}
-          <div ref={messagesEndRef} />
-        </div>
-      </ScrollArea>
+            {isTyping && <TypingIndicator agent={agent} />}
+            <div ref={messagesEndRef} />
+          </div>
+        </ScrollArea>
+      </div>
 
       {/* Capabilities */}
       {messages.length === 0 && !isLoading && (
-        <div className="px-4 py-3 border-t border-border/50 bg-gradient-to-r from-muted/20 to-muted/40 backdrop-blur-sm animate-fade-in">
+        <div className="px-4 py-3 border-t border-border/50 bg-gradient-to-r from-muted/20 to-muted/40 backdrop-blur-sm animate-fade-in shrink-0">
           <p className="text-xs text-muted-foreground mb-3 font-medium">✨ I can help with:</p>
           <div className="flex flex-wrap gap-2">
             {agent.capabilities.slice(0, 3).map((capability, index) => (
@@ -140,7 +142,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       )}
 
       {/* Input area */}
-      <div className="p-4 border-t border-border/50 bg-gradient-to-r from-card to-muted/20 backdrop-blur-sm">
+      <div className="p-4 border-t border-border/50 bg-gradient-to-r from-card to-muted/20 backdrop-blur-sm shrink-0">
         <div className="flex items-end gap-3">
           <Button
             variant="ghost"

@@ -95,7 +95,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
         <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-elevated flex flex-col z-50 overflow-hidden bg-card border-2 border-border/50 backdrop-blur-xl animate-modal-enter">
           {/* Header */}
           <div 
-            className="p-4 border-b border-border/30 flex justify-between items-center relative overflow-hidden"
+            className="p-4 border-b border-border/30 flex justify-between items-center relative overflow-hidden shrink-0"
             style={{ backgroundColor: view === 'chat' ? currentAgent.color : 'hsl(var(--muted))' }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-30" />
@@ -192,9 +192,9 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden bg-gradient-subtle">
+          <div className="flex-1 overflow-hidden bg-gradient-subtle min-h-0">
             {view === 'chat' && (
-              <div className="animate-fade-in">
+              <div className="animate-fade-in h-full">
                 <ChatInterface
                   messages={messages}
                   agent={currentAgent}
@@ -208,7 +208,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
             )}
             
             {view === 'conversations' && (
-              <div className="animate-slide-in">
+              <div className="animate-slide-in h-full">
                 <ConversationList
                   conversations={conversations}
                   onSelectConversation={handleConversationSelect}
@@ -218,7 +218,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
             )}
             
             {view === 'agents' && (
-              <div className="animate-fade-up">
+              <div className="animate-fade-up h-full">
                 <AgentSelector
                   agents={AI_AGENTS}
                   activeAgent={activeAgent}

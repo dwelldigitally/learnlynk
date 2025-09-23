@@ -68,9 +68,9 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col h-[320px] sm:h-[340px]">
+        <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer flex flex-col h-[340px]">
           {/* Hero Image Section */}
-          <div className="relative h-[140px] sm:h-[160px] overflow-hidden flex-shrink-0">
+          <div className="relative h-[160px] overflow-hidden flex-shrink-0">
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
             <img 
               src={event.image} 
@@ -97,12 +97,12 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
           </div>
 
           {/* Content Section */}
-          <div className="p-4 flex-1 flex flex-col justify-between">
+          <div className="p-5 flex-1 flex flex-col justify-between">
             <div className="flex-1 space-y-2">
-              <h3 className="font-bold text-sm leading-tight text-slate-900 dark:text-slate-100 line-clamp-2 group-hover:text-primary transition-colors duration-300">{event.title}</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed">{event.description}</p>
+              <h3 className="font-bold text-base leading-tight text-slate-900 dark:text-slate-100 line-clamp-2 group-hover:text-primary transition-colors duration-300 mb-2">{event.title}</h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 leading-relaxed mb-3">{event.description}</p>
               
-              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2">
+              <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 pt-2">
                 <div className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
                   <span className="font-medium">{event.time}</span>
@@ -117,7 +117,7 @@ const EventCard: React.FC<EventCardProps> = ({ event, onRegisterToggle, isRegist
             <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
               <Button 
                 onClick={handleRegister}
-                className="w-full text-xs h-8 font-semibold"
+                className="w-full text-sm h-9 font-semibold"
                 variant={isRegistered ? "outline" : "default"}
                 disabled={!isRegistered && isFull}
               >

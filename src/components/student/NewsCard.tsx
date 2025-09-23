@@ -38,9 +38,9 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
   };
 
   return (
-    <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 h-full cursor-pointer">
+    <Card className="group overflow-hidden bg-white dark:bg-slate-800 border-0 shadow-sm hover:shadow-md transition-shadow duration-200 h-[340px] cursor-pointer flex flex-col">
       {/* Hero Image Section */}
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-[160px] overflow-hidden flex-shrink-0">
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10" />
         <img 
           src={news.image} 
@@ -68,29 +68,26 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
       </div>
 
       {/* Content Section */}
-      <div className="p-6 flex flex-col h-auto">
-        {/* Title */}
-        <h3 className="font-bold text-lg leading-tight text-slate-900 dark:text-slate-100 mb-3 line-clamp-2 group-hover:text-primary transition-colors duration-300">
-          {news.title}
-        </h3>
-        
-        {/* Description */}
-        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed line-clamp-3 mb-4 flex-grow">
-          {news.description}
-        </p>
-        
-        {/* Meta Information */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-700">
-          <div className="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
-            <Clock className="w-3.5 h-3.5" />
-            <span className="font-medium">{news.readTime}</span>
-          </div>
+      <div className="p-5 flex-1 flex flex-col justify-between">
+        <div className="flex-1 space-y-2">
+          <h3 className="font-bold text-base leading-tight text-slate-900 dark:text-slate-100 mb-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+            {news.title}
+          </h3>
+          <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 leading-relaxed">{news.description}</p>
           
-          {/* Read More Button */}
+          <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 pt-2">
+            <div className="flex items-center gap-1">
+              <Clock className="w-3.5 h-3.5" />
+              <span className="font-medium">{news.readTime}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div className="pt-3 border-t border-slate-100 dark:border-slate-700">
           <Button 
             variant="ghost" 
             size="sm" 
-            className="h-8 px-3 text-xs font-semibold text-primary hover:text-primary-foreground hover:bg-primary group/btn transition-all duration-300"
+            className="w-full text-sm h-9 font-semibold text-primary hover:text-primary-foreground hover:bg-primary group/btn transition-all duration-300"
           >
             Read More
             <ArrowRight className="w-3 h-3 ml-1 transition-transform duration-300 group-hover/btn:translate-x-0.5" />

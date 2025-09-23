@@ -41,16 +41,16 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
             {agents.map((agent, index) => (
               <div
                 key={agent.id}
-                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] shadow-soft hover:shadow-medium animate-stagger ${
+                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] shadow-soft hover:shadow-medium animate-stagger relative overflow-hidden ${
                   agent.id === activeAgent
-                    ? 'border-primary bg-gradient-primary text-primary-foreground shadow-large'
-                    : 'border-border/50 hover:border-primary/50 bg-card hover:bg-gradient-elevated'
+                    ? 'border-white/20 bg-gradient-chatbot text-white shadow-[0_8px_30px_hsl(var(--primary)/0.3)] ring-2 ring-white/30'
+                    : 'border-chatbot-border/50 hover:border-chatbot-primary/50 bg-card/95 hover:bg-gradient-chatbot-glow hover:text-chatbot-primary'
                 }`}
                 style={{ animationDelay: `${index * 100}ms` }}
                 onClick={() => onSelectAgent(agent.id)}
               >
                 <div className="flex items-start gap-4">
-                  <Avatar className="w-14 h-14 shrink-0 ring-2 ring-border/30 shadow-medium">
+                  <Avatar className="w-14 h-14 shrink-0 ring-2 ring-chatbot-primary/30 shadow-medium">
                     <AvatarFallback 
                       className="text-sm text-white font-medium" 
                       style={{ backgroundColor: agent.color }}
@@ -75,19 +75,19 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <h3 className={`font-semibold text-base ${
-                        agent.id === activeAgent ? 'text-primary-foreground' : 'text-foreground'
+                        agent.id === activeAgent ? 'text-white' : 'text-foreground'
                       }`}>
                         {agent.name}
                       </h3>
                       {agent.id === activeAgent && (
-                        <Badge variant="secondary" className="text-xs bg-white/20 text-primary-foreground border-white/30">
+                        <Badge variant="secondary" className="text-xs bg-white/20 text-white border-white/30">
                           ✨ Active
                         </Badge>
                       )}
                     </div>
                     
                     <p className={`text-sm mb-3 line-clamp-2 ${
-                      agent.id === activeAgent ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                      agent.id === activeAgent ? 'text-white/90' : 'text-muted-foreground'
                     }`}>
                       {agent.description}
                     </p>
@@ -99,8 +99,8 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                           variant="outline"
                           className={`text-xs px-2 py-1 transition-all duration-200 ${
                             agent.id === activeAgent 
-                              ? 'border-white/30 text-primary-foreground bg-white/10' 
-                              : 'border-border/50 bg-muted/50'
+                              ? 'border-white/30 text-white bg-white/10' 
+                              : 'border-chatbot-border/50 bg-muted/50'
                           }`}
                           style={agent.id !== activeAgent ? { borderColor: agent.color } : {}}
                         >
@@ -112,8 +112,8 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                           variant="outline" 
                           className={`text-xs px-2 py-1 ${
                             agent.id === activeAgent 
-                              ? 'border-white/30 text-primary-foreground bg-white/10' 
-                              : 'border-border/50 bg-muted/50'
+                              ? 'border-white/30 text-white bg-white/10' 
+                              : 'border-chatbot-border/50 bg-muted/50'
                           }`}
                         >
                           +{agent.capabilities.length - 2}

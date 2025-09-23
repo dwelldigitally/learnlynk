@@ -3,6 +3,7 @@ import { MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ChatInterface } from './ChatInterface';
 import { AgentSelector } from './AgentSelector';
 import { ConversationList } from './ConversationList';
@@ -21,7 +22,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
   className = ''
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [view, setView] = useState<'chat' | 'conversations' | 'agents'>('chat');
+  const [view, setView] = useState<'agents' | 'chat' | 'conversations'>('agents'); // Start with agent selection
   
   const {
     conversations,
@@ -40,7 +41,8 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
   const toggleChatbot = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
-      setView('chat');
+      // Reset to agent selection when opening
+      setView('agents');
     }
   };
 
@@ -99,7 +101,27 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
             <div className="flex items-center gap-3">
               {view === 'chat' && (
                 <>
-                  <span className="text-2xl">{currentAgent.avatar}</span>
+                  <Avatar className="h-8 w-8 shrink-0">
+                    <AvatarFallback 
+                      className="text-xs text-white font-medium" 
+                      style={{ backgroundColor: currentAgent.color }}
+                    >
+                      <img 
+                        src={currentAgent.avatar} 
+                        alt={currentAgent.name}
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.style.display = 'none';
+                          const fallback = target.nextElementSibling as HTMLElement;
+                          if (fallback) fallback.style.display = 'block';
+                        }}
+                      />
+                      <span style={{ display: 'none' }}>
+                        {currentAgent.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
                     <h3 className="font-semibold text-sm text-background">
                       {currentAgent.name}
@@ -114,7 +136,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 <h3 className="font-semibold text-foreground">Chat History</h3>
               )}
               {view === 'agents' && (
-                <h3 className="font-semibold text-foreground">Choose Assistant</h3>
+                <h3 className="font-semibold text-foreground">Choose Your AI Assistant</h3>
               )}
             </div>
             

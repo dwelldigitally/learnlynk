@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ChevronLeft } from 'lucide-react';
 import { AIAgent, AIAgentType } from '@/types/chatbot';
 
@@ -47,12 +48,27 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
               onClick={() => onSelectAgent(agent.id)}
             >
               <div className="flex items-start gap-3">
-                <div 
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0"
-                  style={{ backgroundColor: agent.color }}
-                >
-                  {agent.avatar}
-                </div>
+                <Avatar className="w-12 h-12 shrink-0">
+                  <AvatarFallback 
+                    className="text-sm text-white font-medium" 
+                    style={{ backgroundColor: agent.color }}
+                  >
+                    <img 
+                      src={agent.avatar} 
+                      alt={agent.name}
+                      className="w-full h-full object-cover rounded-full"
+                      onError={(e) => {
+                        const target = e.currentTarget as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'block';
+                      }}
+                    />
+                    <span style={{ display: 'none' }}>
+                      {agent.name.split(' ').map(n => n[0]).join('')}
+                    </span>
+                  </AvatarFallback>
+                </Avatar>
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

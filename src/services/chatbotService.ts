@@ -84,16 +84,21 @@ export class ChatbotService {
     message: string,
     context?: ChatContext
   ): Promise<ChatMessage> {
-    // Save user message
-    const userMessage = await this.saveMessage(leadId, agentId, message, 'student');
-    
-    // Generate AI response
-    const aiResponse = await this.generateAIResponse(agentId, message, context);
-    
-    // Save AI response
-    const aiMessage = await this.saveMessage(leadId, agentId, aiResponse, 'agent');
-    
-    return aiMessage;
+    try {
+      // Save user message first
+      const userMessage = await this.saveMessage(leadId, agentId, message, 'student');
+      
+      // Generate AI response
+      const aiResponse = await this.generateAIResponse(agentId, message, context);
+      
+      // Save AI response
+      const aiMessage = await this.saveMessage(leadId, agentId, aiResponse, 'agent');
+      
+      return aiMessage;
+    } catch (error) {
+      console.error('Error sending message:', error);
+      throw error;
+    }
   }
 
   /**
@@ -105,34 +110,39 @@ export class ChatbotService {
     message: string,
     senderType: 'student' | 'agent'
   ): Promise<ChatMessage> {
-    const { data, error } = await supabase
-      .from('student_portal_communications')
-      .insert({
-        lead_id: leadId,
-        message,
-        sender_type: senderType,
-        sender_name: senderType === 'agent' ? this.getAgentName(agentId) : 'Student',
-        recipient_type: senderType === 'student' ? 'agent' : 'student',
-        message_type: 'text',
-        priority: 'normal',
-        is_read: false
-      })
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('student_portal_communications')
+        .insert({
+          lead_id: leadId,
+          message,
+          sender_type: senderType,
+          sender_name: senderType === 'agent' ? this.getAgentName(agentId) : 'Student',
+          recipient_type: senderType === 'student' ? 'agent' : 'student',
+          message_type: 'text',
+          priority: 'normal',
+          is_read: false
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error saving message:', error);
+      if (error) {
+        console.error('Error saving message:', error);
+        throw error;
+      }
+
+      return {
+        id: data.id,
+        text: data.message,
+        isUser: data.sender_type === 'student',
+        timestamp: new Date(data.created_at || Date.now()),
+        agentId: agentId,
+        messageType: 'text' as const
+      };
+    } catch (error) {
+      console.error('Database save error:', error);
       throw error;
     }
-
-    return {
-      id: data.id,
-      text: data.message,
-      isUser: data.sender_type === 'student',
-      timestamp: new Date(data.created_at || Date.now()),
-      agentId: agentId,
-      messageType: 'text' as const
-    };
   }
 
   /**

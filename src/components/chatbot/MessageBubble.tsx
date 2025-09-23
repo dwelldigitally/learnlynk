@@ -22,8 +22,24 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       {/* Avatar */}
       {showAvatar && !isUser && (
         <Avatar className="h-8 w-8 shrink-0">
-          <AvatarFallback className="text-sm" style={{ backgroundColor: agent.color }}>
-            {agent.avatar}
+          <AvatarFallback 
+            className="text-sm text-white font-medium" 
+            style={{ backgroundColor: agent.color }}
+          >
+            <img 
+              src={agent.avatar} 
+              alt={agent.name}
+              className="w-full h-full object-cover rounded-full"
+              onError={(e) => {
+                const target = e.currentTarget as HTMLImageElement;
+                target.style.display = 'none';
+                const fallback = target.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'block';
+              }}
+            />
+            <span style={{ display: 'none' }}>
+              {agent.name.split(' ').map(n => n[0]).join('')}
+            </span>
           </AvatarFallback>
         </Avatar>
       )}

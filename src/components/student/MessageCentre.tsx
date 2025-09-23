@@ -1073,7 +1073,7 @@ Western Community College Admissions Office`,
             <Card
               key={stat.title}
               className={`p-4 transition-all duration-300 hover:shadow-md ${
-                threadItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                threadItems[index] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -1106,7 +1106,7 @@ Western Community College Admissions Office`,
               <div
                 key={thread.id}
                 className={`transition-all duration-300 ${
-                  messageItems.includes(index) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                  messageItems[index] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                 }`}
               >
                 <ThreadPreview

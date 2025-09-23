@@ -21,7 +21,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     <div className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
       {/* Avatar */}
       {showAvatar && !isUser && (
-        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-chatbot-primary/30 shadow-medium">
+        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-border/30 shadow-medium">
           <AvatarFallback 
             className="text-sm text-white font-medium" 
             style={{ backgroundColor: agent.color }}
@@ -44,8 +44,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         </Avatar>
       )}
       {showAvatar && isUser && (
-        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-chatbot-primary/30 shadow-medium">
-          <AvatarFallback className="text-sm bg-gradient-chatbot text-white">
+        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-primary/30 shadow-medium">
+          <AvatarFallback className="text-sm bg-gradient-primary text-primary-foreground">
             👤
           </AvatarFallback>
         </Avatar>
@@ -58,8 +58,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div
           className={`rounded-2xl px-4 py-3 text-sm max-w-full break-words shadow-soft transition-all duration-200 hover:shadow-medium ${
             isUser
-              ? 'bg-gradient-chatbot text-white rounded-br-lg shadow-[0_4px_20px_hsl(var(--primary)/0.3)]'
-              : 'bg-card/95 text-foreground rounded-bl-lg border border-chatbot-border/30'
+              ? 'bg-gradient-primary text-primary-foreground rounded-br-lg'
+              : 'bg-card text-foreground rounded-bl-lg border border-border/30'
           }`}
         >
           {message.text}

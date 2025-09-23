@@ -179,10 +179,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onClick={handleSendMessage}
             disabled={!currentMessage.trim() || isSending}
             size="sm"
-            className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-medium hover:shadow-[0_4px_20px_hsl(var(--primary)/0.4)] transition-all duration-200 hover:scale-105 bg-gradient-chatbot text-white border border-white/20"
+            className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-medium hover:shadow-large transition-all duration-200 hover:scale-105 bg-gradient-primary text-primary-foreground"
           >
             {isSending ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-2 border-white/30 border-t-white"></div>
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-foreground border-t-transparent"></div>
             ) : (
               <Send size={18} />
             )}

@@ -69,15 +69,15 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
         onClick={toggleChatbot}
         className={`fixed bottom-6 right-6 rounded-full h-16 w-16 shadow-elevated z-50 transition-all duration-300 hover:scale-105 ${
           isOpen 
-            ? 'bg-card border-2 border-chatbot-primary hover:shadow-large animate-scale-in' 
-            : 'bg-gradient-chatbot hover:shadow-[0_0_40px_hsl(var(--primary)/0.6)] animate-bounce-in'
+            ? 'bg-card border-2 border-border hover:shadow-large animate-scale-in' 
+            : 'bg-gradient-primary hover:shadow-large animate-bounce-in'
         } ${className}`}
       >
         {isOpen ? (
           <X size={24} className="text-foreground transition-transform duration-200 hover:rotate-90" />
         ) : (
           <div className="relative">
-            <MessageCircle size={26} className="text-white" />
+            <MessageCircle size={26} className="text-primary-foreground" />
             {unreadCount > 0 && (
               <Badge 
                 variant="destructive" 
@@ -92,12 +92,13 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
 
       {/* Chat window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-elevated flex flex-col z-50 overflow-hidden bg-gradient-chatbot-soft border-2 border-chatbot-border/50 backdrop-blur-xl animate-modal-enter">
+        <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-elevated flex flex-col z-50 overflow-hidden bg-card border-2 border-border/50 backdrop-blur-xl animate-modal-enter">
           {/* Header */}
           <div 
-            className="p-4 border-b border-chatbot-border/30 flex justify-between items-center relative overflow-hidden shrink-0 bg-gradient-chatbot"
+            className="p-4 border-b border-border/30 flex justify-between items-center relative overflow-hidden shrink-0"
+            style={{ backgroundColor: view === 'chat' ? currentAgent.color : 'hsl(var(--muted))' }}
           >
-            <div className="absolute inset-0 bg-gradient-chatbot-glow opacity-40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-30" />
             <div className="flex items-center gap-3 relative z-10">
               {view === 'chat' && (
                 <>
@@ -143,12 +144,12 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 </>
               )}
               {view === 'conversations' && (
-                <h3 className="font-semibold text-white flex items-center gap-2 animate-fade-in">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 animate-fade-in">
                   📋 Chat History
                 </h3>
               )}
               {view === 'agents' && (
-                <h3 className="font-semibold text-white flex items-center gap-2 animate-fade-in">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 animate-fade-in">
                   🤖 Choose Your AI Assistant
                 </h3>
               )}
@@ -179,7 +180,11 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 variant="ghost" 
                 size="sm" 
                 onClick={toggleChatbot}
-                className="text-white hover:bg-white/20 h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:scale-105 hover:rotate-90"
+                className={`${
+                  view === 'chat' 
+                    ? 'text-white hover:bg-white/20' 
+                    : 'text-foreground hover:bg-muted'
+                } h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:scale-105 hover:rotate-90`}
               >
                 <X size={16} />
               </Button>
@@ -187,7 +192,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden bg-gradient-chatbot-soft min-h-0">
+          <div className="flex-1 overflow-hidden bg-gradient-subtle min-h-0">
             {view === 'chat' && (
               <div className="animate-fade-in h-full">
                 <ChatInterface

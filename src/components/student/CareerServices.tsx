@@ -64,17 +64,25 @@ const CareerServices: React.FC = () => {
     <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <h1 className="text-2xl font-bold">Career Services</h1>
-        <p className="text-muted-foreground">Explore career opportunities, build professional skills, and connect with employers</p>
+        <div className="flex items-center gap-4 mb-2">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <Briefcase className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Career Services
+            </h1>
+            <p className="text-muted-foreground">Explore career opportunities, build professional skills, and connect with employers</p>
+          </div>
+        </div>
       </div>
 
       {/* Career Resources - Enhanced */}
       <div ref={staggerRef}>
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Briefcase className="w-5 h-5 text-primary" />
-          </div>
-          <h2 className="text-2xl font-bold">Career Resources</h2>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Career Resources
+          </h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {careerResources.map((resource, index) => (
@@ -96,9 +104,11 @@ const CareerServices: React.FC = () => {
 
       {/* Upcoming Events */}
       <Card className={`p-6 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
-        <div className="flex items-center gap-2 mb-4">
-          <Calendar className="w-5 h-5" />
-          <h2 className="text-xl font-semibold">Upcoming Events</h2>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-primary" />
+          </div>
+          <h2 className="text-xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Upcoming Events</h2>
         </div>
         <div className="space-y-4">
           {upcomingEvents.map((event, index) => (
@@ -142,9 +152,11 @@ const CareerServices: React.FC = () => {
       {/* Job Opportunities */}
       <Card className={`p-6 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Briefcase className="w-5 h-5" />
-            <h2 className="text-xl font-semibold">Featured Job Opportunities</h2>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Briefcase className="w-4 h-4 text-primary" />
+            </div>
+            <h2 className="text-xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Featured Job Opportunities</h2>
           </div>
           <Button variant="outline" size="sm">
             View All Jobs
@@ -213,7 +225,7 @@ const CareerServices: React.FC = () => {
       {/* Contact Career Services */}
       <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Need Personalized Career Guidance?</h2>
+          <h2 className="text-xl font-semibold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Need Personalized Career Guidance?</h2>
           <p className="text-muted-foreground mb-4">Schedule a one-on-one appointment with our career counselors</p>
           <div className="flex justify-center gap-4">
             <Button>Schedule Appointment</Button>

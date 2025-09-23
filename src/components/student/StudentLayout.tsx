@@ -66,7 +66,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         <div className="p-4 flex items-center justify-between border-b border-gray-200">
           {!isCollapsed && (
             <img 
-              src="/wcc-logo-red.png" 
+              src="/wcc-logo.png" 
               alt="Western Community College" 
               className="h-14"
             />

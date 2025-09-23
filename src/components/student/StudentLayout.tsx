@@ -1,7 +1,6 @@
 
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Chatbot from "@/components/Chatbot";
 import { Mail, Bell, Plus, Home, FileText, ClipboardList, Calendar, DollarSign, Briefcase, CreditCard, Newspaper, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { UserMenu } from "@/components/auth/UserMenu";
@@ -13,6 +12,7 @@ import CampusTourBooking from "@/components/student/CampusTourBooking";
 import ProfileSettings from "@/components/student/ProfileSettings";
 import { EnhancedTopBar } from "./EnhancedTopBar";
 import { Button } from "@/components/ui/button";
+import { ModernChatbot } from "@/components/chatbot/ModernChatbot";
 
 interface StudentLayoutProps {
   children: React.ReactNode;
@@ -295,8 +295,12 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         onOpenChange={setIsProfileOpen} 
       />
 
-      {/* Chatbot */}
-      <Chatbot mode="dashboard" />
+      {/* Modern AI Chatbot */}
+      <ModernChatbot 
+        leadId={session?.lead_id} 
+        mode="student"
+        className="z-50"
+      />
     </div>
   );
 };

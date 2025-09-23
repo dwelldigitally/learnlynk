@@ -234,7 +234,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({ children }) => {
         />
 
         {/* Content */}
-        <div className="p-6">
+        <div key={currentPath} className="p-6" data-scroll-container>
           {children}
         </div>
       </main>

@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Calendar, Clock, Mail, ChevronDown, Star, ArrowRight, CheckCircle, AlertTriangle, AlertCircle, PenTool, ClipboardList, FileText, DollarSign, GraduationCap, Award, TrendingUp, Users, MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -22,7 +21,6 @@ import QuickProgressTracker from "@/components/student/QuickProgressTracker";
 import { toast } from "@/hooks/use-toast";
 import { usePageEntranceAnimation, useStaggeredReveal, useCountUp } from "@/hooks/useAnimations";
 import { dummyStudentProfile, dummyApplications, dummyMessages, dummyNewsAndEvents } from "@/data/studentPortalDummyData";
-
 const StudentOverview: React.FC = () => {
   const navigate = useNavigate();
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
@@ -37,61 +35,123 @@ const StudentOverview: React.FC = () => {
 
   // Animation hooks
   const isLoaded = usePageEntranceAnimation();
-  const { visibleItems, ref: staggerRef } = useStaggeredReveal(6, 150);
-  
+  const {
+    visibleItems,
+    ref: staggerRef
+  } = useStaggeredReveal(6, 150);
+
   // Program list with their specific intake dates
   const allPrograms = {
-    "Health Care Assistant": [
-      { date: "15th March 2025", seats: 12, totalSeats: 30 },
-      { date: "20th May 2025", seats: 25, totalSeats: 30 },
-      { date: "15th September 2025", seats: 8, totalSeats: 30 },
-      { date: "10th November 2025", seats: 30, totalSeats: 30 }
-    ],
-    "Education Assistant": [
-      { date: "5th February 2025", seats: 18, totalSeats: 25 },
-      { date: "10th June 2025", seats: 20, totalSeats: 25 },
-      { date: "1st October 2025", seats: 15, totalSeats: 25 }
-    ],
-    "Aviation": [
-      { date: "20th January 2025", seats: 8, totalSeats: 20 },
-      { date: "15th April 2025", seats: 12, totalSeats: 20 },
-      { date: "10th August 2025", seats: 16, totalSeats: 20 },
-      { date: "5th December 2025", seats: 20, totalSeats: 20 }
-    ],
-    "Hospitality": [
-      { date: "1st March 2025", seats: 22, totalSeats: 35 },
-      { date: "1st July 2025", seats: 28, totalSeats: 35 },
-      { date: "1st November 2025", seats: 35, totalSeats: 35 }
-    ],
-    "ECE": [
-      { date: "10th February 2025", seats: 14, totalSeats: 30 },
-      { date: "25th May 2025", seats: 24, totalSeats: 30 },
-      { date: "20th September 2025", seats: 18, totalSeats: 30 }
-    ],
-    "MLA": [
-      { date: "1st January 2025", seats: 10, totalSeats: 15 },
-      { date: "1st May 2025", seats: 12, totalSeats: 15 },
-      { date: "1st September 2025", seats: 15, totalSeats: 15 }
-    ]
+    "Health Care Assistant": [{
+      date: "15th March 2025",
+      seats: 12,
+      totalSeats: 30
+    }, {
+      date: "20th May 2025",
+      seats: 25,
+      totalSeats: 30
+    }, {
+      date: "15th September 2025",
+      seats: 8,
+      totalSeats: 30
+    }, {
+      date: "10th November 2025",
+      seats: 30,
+      totalSeats: 30
+    }],
+    "Education Assistant": [{
+      date: "5th February 2025",
+      seats: 18,
+      totalSeats: 25
+    }, {
+      date: "10th June 2025",
+      seats: 20,
+      totalSeats: 25
+    }, {
+      date: "1st October 2025",
+      seats: 15,
+      totalSeats: 25
+    }],
+    "Aviation": [{
+      date: "20th January 2025",
+      seats: 8,
+      totalSeats: 20
+    }, {
+      date: "15th April 2025",
+      seats: 12,
+      totalSeats: 20
+    }, {
+      date: "10th August 2025",
+      seats: 16,
+      totalSeats: 20
+    }, {
+      date: "5th December 2025",
+      seats: 20,
+      totalSeats: 20
+    }],
+    "Hospitality": [{
+      date: "1st March 2025",
+      seats: 22,
+      totalSeats: 35
+    }, {
+      date: "1st July 2025",
+      seats: 28,
+      totalSeats: 35
+    }, {
+      date: "1st November 2025",
+      seats: 35,
+      totalSeats: 35
+    }],
+    "ECE": [{
+      date: "10th February 2025",
+      seats: 14,
+      totalSeats: 30
+    }, {
+      date: "25th May 2025",
+      seats: 24,
+      totalSeats: 30
+    }, {
+      date: "20th September 2025",
+      seats: 18,
+      totalSeats: 30
+    }],
+    "MLA": [{
+      date: "1st January 2025",
+      seats: 10,
+      totalSeats: 15
+    }, {
+      date: "1st May 2025",
+      seats: 12,
+      totalSeats: 15
+    }, {
+      date: "1st September 2025",
+      seats: 15,
+      totalSeats: 15
+    }]
   };
-  
+
   // Get current program's intake options
   const availableIntakes = allPrograms[selectedProgram as keyof typeof allPrograms] || allPrograms["Health Care Assistant"];
-  
+
   // Get current application data
   const currentApplication = studentApplications[selectedProgram];
 
   // Counter animations for key stats
-  const { count: employmentRate, ref: employmentRef } = useCountUp(97, 2000, 0, '', '%');
-  const { count: acceptanceLikelihood, ref: acceptanceRef } = useCountUp(currentApplication.acceptanceLikelihood, 1500, 0, '', '%');
-  
+  const {
+    count: employmentRate,
+    ref: employmentRef
+  } = useCountUp(97, 2000, 0, '', '%');
+  const {
+    count: acceptanceLikelihood,
+    ref: acceptanceRef
+  } = useCountUp(currentApplication.acceptanceLikelihood, 1500, 0, '', '%');
+
   // Handle program change with confirmation
   const handleProgramChange = (program: string) => {
     if (program === selectedProgram) {
       setIsProgramPopoverOpen(false);
       return;
     }
-    
     setPendingProgram(program);
     setShowConfirmDialog(true);
     setIsProgramPopoverOpen(false);
@@ -117,40 +177,56 @@ const StudentOverview: React.FC = () => {
     setShowConfirmDialog(false);
     setPendingProgram(null);
   };
-  
   const currentWelcomeContent = programWelcomeContent[selectedProgram];
   const currentAlumni = programAlumni[selectedProgram];
-  
+
   // Dynamic program tags (max 2 per program)
   const programTags = {
-    "Health Care Assistant": [
-      { text: "Most Popular", icon: "🔥" },
-      { text: "Study in Surrey Campus", icon: "📍" }
-    ],
-    "Education Assistant": [
-      { text: "PGWP Supported", icon: "✅" },
-      { text: "Finish Under 10 Months", icon: "⚡" }
-    ],
-    "Aviation": [
-      { text: "Study in Abbotsford Campus", icon: "📍" },
-      { text: "PGWP Supported", icon: "✅" }
-    ],
-    "Hospitality": [
-      { text: "Most Popular", icon: "🔥" },
-      { text: "Finish Under 8 Months", icon: "⚡" }
-    ],
-    "ECE": [
-      { text: "Study in Surrey Campus", icon: "📍" },
-      { text: "PGWP Supported", icon: "✅" }
-    ],
-    "MLA": [
-      { text: "Finish Under 12 Months", icon: "⚡" },
-      { text: "Study in Abbotsford Campus", icon: "📍" }
-    ]
+    "Health Care Assistant": [{
+      text: "Most Popular",
+      icon: "🔥"
+    }, {
+      text: "Study in Surrey Campus",
+      icon: "📍"
+    }],
+    "Education Assistant": [{
+      text: "PGWP Supported",
+      icon: "✅"
+    }, {
+      text: "Finish Under 10 Months",
+      icon: "⚡"
+    }],
+    "Aviation": [{
+      text: "Study in Abbotsford Campus",
+      icon: "📍"
+    }, {
+      text: "PGWP Supported",
+      icon: "✅"
+    }],
+    "Hospitality": [{
+      text: "Most Popular",
+      icon: "🔥"
+    }, {
+      text: "Finish Under 8 Months",
+      icon: "⚡"
+    }],
+    "ECE": [{
+      text: "Study in Surrey Campus",
+      icon: "📍"
+    }, {
+      text: "PGWP Supported",
+      icon: "✅"
+    }],
+    "MLA": [{
+      text: "Finish Under 12 Months",
+      icon: "⚡"
+    }, {
+      text: "Study in Abbotsford Campus",
+      icon: "📍"
+    }]
   };
-
   const currentTags = programTags[selectedProgram as keyof typeof programTags] || programTags["Health Care Assistant"];
-  
+
   // Professional unified color scheme for all programs
   const professionalColors = {
     primary: "bg-primary",
@@ -159,79 +235,54 @@ const StudentOverview: React.FC = () => {
     buttonBg: "bg-primary hover:bg-primary-hover",
     accentColor: "primary"
   };
-  
+
   // Dynamic marketing messages based on program
   const programMarketingMessages = {
     "Health Care Assistant": {
       headline: "Start Your Healthcare Journey",
       subheadline: "Transform lives while building a rewarding career in healthcare",
-      bulletPoints: [
-        "97% job placement rate within 6 months",
-        "Work in hospitals, clinics, and care facilities",
-        "Make a difference in people's lives every day"
-      ],
+      bulletPoints: ["97% job placement rate within 6 months", "Work in hospitals, clinics, and care facilities", "Make a difference in people's lives every day"],
       ctaText: "Begin Your Healthcare Career",
       backgroundImage: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
     },
     "Education Assistant": {
       headline: "Shape Tomorrow's Leaders",
       subheadline: "Inspire and support the next generation of learners",
-      bulletPoints: [
-        "Work alongside certified teachers",
-        "Make education accessible for all students",
-        "Build a fulfilling career in education"
-      ],
+      bulletPoints: ["Work alongside certified teachers", "Make education accessible for all students", "Build a fulfilling career in education"],
       ctaText: "Start Your Education Journey",
       backgroundImage: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
     },
     "Aviation": {
       headline: "Take Flight in Aviation",
       subheadline: "Soar to new heights with a career in the aviation industry",
-      bulletPoints: [
-        "High-demand industry with growth opportunities",
-        "Work with cutting-edge aviation technology",
-        "Global career opportunities"
-      ],
+      bulletPoints: ["High-demand industry with growth opportunities", "Work with cutting-edge aviation technology", "Global career opportunities"],
       ctaText: "Launch Your Aviation Career",
       backgroundImage: "https://images.unsplash.com/photo-1540962351504-03099e0a754b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
     },
     "Hospitality": {
       headline: "Create Exceptional Experiences",
       subheadline: "Build a career in the dynamic world of hospitality",
-      bulletPoints: [
-        "Work in luxury hotels and resorts",
-        "Develop customer service excellence",
-        "Global industry with diverse opportunities"
-      ],
+      bulletPoints: ["Work in luxury hotels and resorts", "Develop customer service excellence", "Global industry with diverse opportunities"],
       ctaText: "Start Your Hospitality Journey",
       backgroundImage: "https://images.unsplash.com/photo-1551632811-561732d1e306?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
     },
     "ECE": {
       headline: "Nurture Young Minds",
       subheadline: "Build the foundation for children's bright futures",
-      bulletPoints: [
-        "Work with children during crucial development years",
-        "Create engaging learning environments",
-        "High demand for qualified ECE professionals"
-      ],
+      bulletPoints: ["Work with children during crucial development years", "Create engaging learning environments", "High demand for qualified ECE professionals"],
       ctaText: "Begin Your ECE Journey",
       backgroundImage: "https://images.unsplash.com/photo-1587654780291-39c9404d746b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
     },
     "MLA": {
       headline: "Advance Healthcare Technology",
       subheadline: "Lead innovation in medical laboratory sciences",
-      bulletPoints: [
-        "Work with state-of-the-art lab equipment",
-        "Critical role in patient diagnosis and care",
-        "High-paying career with job security"
-      ],
+      bulletPoints: ["Work with state-of-the-art lab equipment", "Critical role in patient diagnosis and care", "High-paying career with job security"],
       ctaText: "Start Your MLA Career",
       backgroundImage: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
     }
   };
-
   const currentMarketing = programMarketingMessages[selectedProgram as keyof typeof programMarketingMessages] || programMarketingMessages["Health Care Assistant"];
-  
+
   // Mock advisor data
   const advisor = {
     name: "Nicole Ye",
@@ -245,9 +296,7 @@ const StudentOverview: React.FC = () => {
   if (showAdmissionForm) {
     return <AdmissionForm onBack={() => setShowAdmissionForm(false)} />;
   }
-
-  return (
-    <div className={`space-y-10 p-8 bg-background min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+  return <div className={`space-y-10 p-8 bg-background min-h-screen ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       
       {/* Header */}
       <div className="animate-slide-down">
@@ -279,10 +328,7 @@ const StudentOverview: React.FC = () => {
               
               <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button 
-                    variant="ghost" 
-                    className="group h-auto p-0 text-left flex flex-col items-start gap-1 hover:bg-transparent transition-all duration-200"
-                  >
+                  <Button variant="ghost" className="group h-auto p-0 text-left flex flex-col items-start gap-1 hover:bg-transparent transition-all duration-200">
                     <div className="flex items-center gap-3">
                       <h2 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
                         {selectedProgram}
@@ -303,16 +349,7 @@ const StudentOverview: React.FC = () => {
                       <h3 className="font-semibold text-lg text-foreground">Available Programs</h3>
                     </div>
                     <div className="space-y-3 max-h-80 overflow-y-auto">
-                      {Object.keys(allPrograms).map((program) => (
-                        <div 
-                          key={program}
-                          className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
-                            selectedProgram === program 
-                              ? 'border-primary bg-primary/5 shadow-sm' 
-                              : 'border-border hover:border-border/80 hover:bg-muted/50'
-                          }`}
-                          onClick={() => handleProgramChange(program)}
-                        >
+                      {Object.keys(allPrograms).map(program => <div key={program} className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${selectedProgram === program ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-border/80 hover:bg-muted/50'}`} onClick={() => handleProgramChange(program)}>
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
@@ -322,14 +359,11 @@ const StudentOverview: React.FC = () => {
                                 {allPrograms[program as keyof typeof allPrograms].length} intake dates available
                               </p>
                             </div>
-                            {selectedProgram === program && (
-                              <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                            {selectedProgram === program && <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
                                 <div className="w-2 h-2 rounded-full bg-primary-foreground"></div>
-                              </div>
-                            )}
+                              </div>}
                           </div>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
                   </div>
                 </PopoverContent>
@@ -352,11 +386,7 @@ const StudentOverview: React.FC = () => {
                       <p className="text-xs text-muted-foreground">Next Step</p>
                       <p className="font-semibold text-foreground text-sm">Interview Scheduling</p>
                     </div>
-                    <Button 
-                      size="sm" 
-                      className="px-4"
-                      onClick={() => navigate('/student/applications')}
-                    >
+                    <Button size="sm" className="px-4" onClick={() => navigate('/student/applications')}>
                       Continue Application
                     </Button>
                   </div>
@@ -481,71 +511,10 @@ const StudentOverview: React.FC = () => {
             </div>
 
             {/* Prerequisites & Requirements */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary"></div>
-                <h4 className="font-semibold text-foreground">Prerequisites & Requirements</h4>
-              </div>
-              
-              <div className="bg-amber-50/50 dark:bg-amber-950/20 rounded-lg p-4 border border-amber-200/50 dark:border-amber-800/30">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <h5 className="font-medium text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                      Academic Requirements
-                    </h5>
-                    <ul className="space-y-1 text-sm text-amber-700 dark:text-amber-300">
-                      <li>• High School Diploma or equivalent</li>
-                      <li>• Minimum 2.5 GPA</li>
-                      <li>• English Proficiency Test</li>
-                    </ul>
-                  </div>
-                  <div>
-                    <h5 className="font-medium text-amber-900 dark:text-amber-100 mb-2 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                      Additional Requirements
-                    </h5>
-                    <ul className="space-y-1 text-sm text-amber-700 dark:text-amber-300">
-                      <li>• Background Check</li>
-                      <li>• Health Clearance</li>
-                      <li>• Reference Letters (2)</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
 
             {/* Learning Outcomes */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-1 rounded-full bg-primary"></div>
-                <h4 className="font-semibold text-foreground">Learning Outcomes</h4>
-              </div>
-              
-              <div className="bg-violet-50/50 dark:bg-violet-950/20 rounded-lg p-4 border border-violet-200/50 dark:border-violet-800/30">
-                <p className="text-sm text-violet-700 dark:text-violet-300 mb-3">
-                  Upon successful completion, graduates will be able to:
-                </p>
-                <ul className="space-y-2 text-sm text-violet-700 dark:text-violet-300">
-                  <li className="flex items-start gap-2">
-                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
-                    <span>Demonstrate professional competency in {selectedProgram.toLowerCase()} practices</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
-                    <span>Apply critical thinking and problem-solving skills in real-world scenarios</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
-                    <span>Communicate effectively with diverse populations and stakeholders</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <TrendingUp className="w-4 h-4 text-violet-500 mt-0.5 flex-shrink-0" />
-                    <span>Maintain ethical standards and professional development</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            
 
             {/* Career Paths */}
             <div className="space-y-4">
@@ -588,10 +557,7 @@ const StudentOverview: React.FC = () => {
               
               <Popover open={isIntakePopoverOpen} onOpenChange={setIsIntakePopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className="group h-12 w-full px-4 bg-background/50 border-border hover:bg-background hover:border-primary/50 transition-all duration-200 flex items-center justify-between"
-                  >
+                  <Button variant="outline" className="group h-12 w-full px-4 bg-background/50 border-border hover:bg-background hover:border-primary/50 transition-all duration-200 flex items-center justify-between">
                     <div className="text-left">
                       <div className="font-semibold text-foreground">{intake}</div>
                     </div>
@@ -605,51 +571,32 @@ const StudentOverview: React.FC = () => {
                       <h3 className="font-semibold text-lg text-foreground">Select Intake Date</h3>
                     </div>
                     <div className="space-y-3 max-h-80 overflow-y-auto">
-                      {availableIntakes.map((option) => (
-                        <div 
-                          key={option.date}
-                          className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${
-                            intake === option.date 
-                              ? 'border-primary bg-primary/5 shadow-sm' 
-                              : 'border-border hover:border-border/80 hover:bg-muted/50'
-                          }`}
-                          onClick={() => {
-                            setIntake(option.date);
-                            setIsIntakePopoverOpen(false);
-                          }}
-                        >
+                      {availableIntakes.map(option => <div key={option.date} className={`group p-4 border rounded-xl cursor-pointer transition-all duration-200 hover:shadow-md ${intake === option.date ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-border/80 hover:bg-muted/50'}`} onClick={() => {
+                      setIntake(option.date);
+                      setIsIntakePopoverOpen(false);
+                    }}>
                           <div className="flex justify-between items-center">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <p className="font-semibold text-foreground">{option.date}</p>
-                                {intake === option.date && (
-                                  <div className="w-2 h-2 rounded-full bg-primary"></div>
-                                )}
+                                {intake === option.date && <div className="w-2 h-2 rounded-full bg-primary"></div>}
                               </div>
                               <p className="text-sm text-muted-foreground mt-1">
                                 {option.seats} seats available
                               </p>
                             </div>
                             <div className="text-right space-y-2">
-                              <div className={`text-sm font-semibold px-2 py-1 rounded-md ${
-                                option.seats > 15 ? 'text-green-700 bg-green-100' : 
-                                option.seats > 5 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100'
-                              }`}>
+                              <div className={`text-sm font-semibold px-2 py-1 rounded-md ${option.seats > 15 ? 'text-green-700 bg-green-100' : option.seats > 5 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100'}`}>
                                 {option.seats}/{option.totalSeats}
                               </div>
                               <div className="w-20 bg-muted rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full transition-all duration-300 ${
-                                    option.seats > 15 ? 'bg-green-500' : 
-                                    option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
-                                  }`}
-                                  style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
-                                ></div>
+                                <div className={`h-2 rounded-full transition-all duration-300 ${option.seats > 15 ? 'bg-green-500' : option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'}`} style={{
+                              width: `${option.seats / option.totalSeats * 100}%`
+                            }}></div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
                   </div>
                 </PopoverContent>
@@ -713,64 +660,15 @@ const StudentOverview: React.FC = () => {
                 </div>
 
                 {/* Apply for Financial Aid */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Apply for Financial Aid</p>
-                      <p className="text-sm text-muted-foreground">FAFSA and aid applications</p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">Due March 15</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      Continue
-                    </Button>
-                  </div>
-                </div>
+                
 
                 {/* Schedule Advisor Meeting */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Schedule Advisor Meeting</p>
-                      <p className="text-sm text-muted-foreground">Plan your academic journey</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      Schedule
-                    </Button>
-                  </div>
-                </div>
+                
               </div>
             </div>
 
             {/* Financial Information */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-foreground flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-primary" />
-                Financial Overview
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                  <span className="text-sm text-muted-foreground">Tuition Fee</span>
-                  <span className="font-bold text-foreground">$35,000</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-green-50/50 dark:bg-green-950/20 rounded-lg border border-green-200/50 dark:border-green-800/30">
-                  <span className="text-sm text-green-700 dark:text-green-300">Scholarship Available</span>
-                  <span className="font-bold text-green-900 dark:text-green-100">Up to $5,000</span>
-                </div>
-                <Button variant="outline" size="sm" className="w-full">
-                  View Payment Plans
-                </Button>
-              </div>
-            </div>
+            
 
             {/* Quick Actions */}
             <div className="space-y-3">
@@ -869,31 +767,24 @@ const StudentOverview: React.FC = () => {
           <div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">{currentWelcomeContent.newsTitle}</h3>
-              <Link 
-                to="/student/news-events"
-                className="text-primary hover:text-primary/80 text-sm font-medium"
-              >
+              <Link to="/student/news-events" className="text-primary hover:text-primary/80 text-sm font-medium">
                 View All →
               </Link>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {(() => {
-                const newsAndEvents = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
-                const combinedItems = [
-                  ...newsAndEvents.news.slice(0, 2).map(item => ({ ...item, itemType: 'news' as const })),
-                  ...newsAndEvents.events.slice(0, 1).map(item => ({ ...item, itemType: 'event' as const }))
-                ];
-                
-                return combinedItems.map((item, index) => (
-                  <div key={`${item.itemType}-${item.id}`} className={`${visibleItems[4] ? `animate-stagger-${Math.min(index + 4, 5)}` : 'opacity-0'}`}>
-                    {item.itemType === 'news' ? (
-                      <NewsCard news={item} />
-                    ) : (
-                      <EventCard event={item} />
-                    )}
-                  </div>
-                ));
-              })()}
+              const newsAndEvents = programNewsAndEvents[selectedProgram] || programNewsAndEvents["Health Care Assistant"];
+              const combinedItems = [...newsAndEvents.news.slice(0, 2).map(item => ({
+                ...item,
+                itemType: 'news' as const
+              })), ...newsAndEvents.events.slice(0, 1).map(item => ({
+                ...item,
+                itemType: 'event' as const
+              }))];
+              return combinedItems.map((item, index) => <div key={`${item.itemType}-${item.id}`} className={`${visibleItems[4] ? `animate-stagger-${Math.min(index + 4, 5)}` : 'opacity-0'}`}>
+                    {item.itemType === 'news' ? <NewsCard news={item} /> : <EventCard event={item} />}
+                  </div>);
+            })()}
             </div>
           </div>
 
@@ -905,16 +796,15 @@ const StudentOverview: React.FC = () => {
         </div>
 
       {/* Fixed Full Width Sidebar - Only show when sidebarOpen is true */}
-      {sidebarOpen && (
-      <div className="fixed inset-0 w-screen h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm z-[9999] overflow-y-auto">
+      {sidebarOpen && <div className="fixed inset-0 w-screen h-screen bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm z-[9999] overflow-y-auto">
         <div className={`p-6 space-y-6 ${visibleItems[3] ? 'animate-stagger-4' : 'opacity-0'}`}>
           {/* Sidebar Header with Close Button */}
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-foreground">Student Dashboard</h2>
             <Button variant="ghost" size="sm" className="hover:bg-muted" onClick={() => setSidebarOpen(false)}>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 6L6 18"/>
-                <path d="M6 6l12 12"/>
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
               </svg>
             </Button>
           </div>
@@ -924,8 +814,8 @@ const StudentOverview: React.FC = () => {
             <h3 className="text-lg font-bold text-purple-900 mb-4 flex items-center gap-2">
               <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
                 </svg>
               </div>
               Student Profile
@@ -957,10 +847,10 @@ const StudentOverview: React.FC = () => {
             <h3 className="text-lg font-bold text-blue-900 mb-4 flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-blue-600">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                  <circle cx="12" cy="7" r="4"/>
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </div>
               Your Advisor
@@ -991,18 +881,13 @@ const StudentOverview: React.FC = () => {
             </div>
           </Card>
         </div>
-      </div>
-      )}
+      </div>}
 
       {/* Sidebar Toggle Button */}
-      <Button 
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 p-0 shadow-lg"
-        size="sm"
-      >
+      <Button onClick={() => setSidebarOpen(!sidebarOpen)} className="fixed bottom-6 right-6 z-40 rounded-full w-14 h-14 p-0 shadow-lg" size="sm">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
       </Button>
       </div>
@@ -1030,8 +915,6 @@ const StudentOverview: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+    </div>;
 };
-
 export default StudentOverview;

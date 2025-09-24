@@ -6,8 +6,17 @@ import { ArrowLeft, ArrowRight, Save, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { ApplicationService, ApplicationData } from "@/services/applicationService";
 import { useStudentPortalContext } from "@/pages/StudentPortal";
+import { StandardizedProgram } from "@/constants/programs";
+import { ProgramIntakeDate } from "@/constants/intakeDates";
 
-// Import step components
+// Import enhanced step components
+import ProgramSelectionStep from "./ProgramSelectionStep";
+import ProgramDetailsView from "./ProgramDetailsView";
+import FinancialBreakdownView from "./FinancialBreakdownView";
+import RequirementsView from "./RequirementsView";
+import IntakeSelectionView from "./IntakeSelectionView";
+
+// Import original step components
 import PersonalInfoStep from "./steps/PersonalInfoStep";
 import EducationBackgroundStep from "./steps/EducationBackgroundStep";
 import WorkExperienceStep from "./steps/WorkExperienceStep";
@@ -24,6 +33,11 @@ interface ApplicationWizardProps {
 }
 
 const steps = [
+  { id: 'program_selection', title: 'Program Selection', description: 'Choose your program of study' },
+  { id: 'program_details', title: 'Program Overview', description: 'Learn about your chosen program' },
+  { id: 'financial_breakdown', title: 'Financial Information', description: 'Understand costs and payment options' },
+  { id: 'requirements', title: 'Requirements', description: 'Review entry requirements and documents' },
+  { id: 'intake_selection', title: 'Intake Selection', description: 'Choose your start date' },
   { id: 'personal_info', title: 'Personal Information', description: 'Basic contact and personal details' },
   { id: 'education', title: 'Education Background', description: 'Academic history and qualifications' },
   { id: 'work_experience', title: 'Experience', description: 'Work, volunteer, and other experiences' },
@@ -41,10 +55,12 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
 }) => {
   const { leadId } = useStudentPortalContext();
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedProgram, setSelectedProgram] = useState<StandardizedProgram | undefined>();
+  const [selectedIntake, setSelectedIntake] = useState<ProgramIntakeDate | undefined>();
   const [applicationData, setApplicationData] = useState<ApplicationData>({
     program_name: '',
     status: 'draft',
-    stage: 'personal_info',
+    stage: 'program_selection',
     progress: 0,
     application_data: {}
   });
@@ -100,9 +116,34 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
         [steps[currentStep].id]: stepData
       },
       stage: steps[currentStep].id as ApplicationData['stage'],
-      progress: Math.round(((currentStep + 1) / steps.length) * 100)
+      progress: Math.round(((currentStep + 1) / steps.length) * 100),
+      // Update program name when program is selected
+      ...(selectedProgram && { program_name: selectedProgram })
     };
     setApplicationData(updatedData);
+  };
+
+  const handleProgramSelection = (program: StandardizedProgram) => {
+    setSelectedProgram(program);
+    setApplicationData(prev => ({
+      ...prev,
+      program_name: program,
+      application_data: {
+        ...prev.application_data,
+        program_selection: { selectedProgram: program }
+      }
+    }));
+  };
+
+  const handleIntakeSelection = (intake: ProgramIntakeDate) => {
+    setSelectedIntake(intake);
+    setApplicationData(prev => ({
+      ...prev,
+      application_data: {
+        ...prev.application_data,
+        intake_selection: { selectedIntake: intake }
+      }
+    }));
   };
 
   const nextStep = () => {
@@ -187,6 +228,46 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
     const stepData = applicationData.application_data?.[steps[currentStep].id] || {};
     
     switch (steps[currentStep].id) {
+      case 'program_selection':
+        return (
+          <ProgramSelectionStep 
+            onSelect={handleProgramSelection} 
+            selectedProgram={selectedProgram}
+          />
+        );
+      case 'program_details':
+        return selectedProgram ? (
+          <ProgramDetailsView 
+            program={selectedProgram}
+            onContinue={nextStep}
+            onBack={prevStep}
+          />
+        ) : null;
+      case 'financial_breakdown':
+        return selectedProgram ? (
+          <FinancialBreakdownView 
+            program={selectedProgram}
+            onContinue={nextStep}
+            onBack={prevStep}
+          />
+        ) : null;
+      case 'requirements':
+        return selectedProgram ? (
+          <RequirementsView 
+            program={selectedProgram}
+            onContinue={nextStep}
+            onBack={prevStep}
+          />
+        ) : null;
+      case 'intake_selection':
+        return selectedProgram ? (
+          <IntakeSelectionView 
+            program={selectedProgram}
+            onSelect={handleIntakeSelection}
+            onBack={prevStep}
+            selectedIntake={selectedIntake}
+          />
+        ) : null;
       case 'personal_info':
         return <PersonalInfoStep data={stepData} onUpdate={updateApplicationData} />;
       case 'education':
@@ -212,6 +293,16 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
     const stepData = applicationData.application_data?.[steps[currentStep].id] || {};
     
     switch (steps[currentStep].id) {
+      case 'program_selection':
+        return selectedProgram !== undefined;
+      case 'program_details':
+        return true; // Information step, always valid
+      case 'financial_breakdown':
+        return true; // Information step, always valid
+      case 'requirements':
+        return true; // Information step, always valid
+      case 'intake_selection':
+        return selectedIntake !== undefined;
       case 'personal_info':
         return stepData.firstName && stepData.lastName && stepData.email;
       case 'education':
@@ -286,45 +377,59 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
         </div>
 
         {/* Step Content */}
-        <div className="p-6 bg-background rounded-lg border">
-          <div className="mb-4">
-            <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
-            <p className="text-muted-foreground">{steps[currentStep].description}</p>
-          </div>
-          {renderStep()}
+        <div className={`${
+          ['program_selection', 'program_details', 'financial_breakdown', 'requirements', 'intake_selection'].includes(steps[currentStep].id)
+            ? '' // No padding for enhanced steps that manage their own layout
+            : 'p-6 bg-background rounded-lg border'
+        }`}>
+          {['program_selection', 'program_details', 'financial_breakdown', 'requirements', 'intake_selection'].includes(steps[currentStep].id) ? (
+            renderStep()
+          ) : (
+            <>
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold">{steps[currentStep].title}</h3>
+                <p className="text-muted-foreground">{steps[currentStep].description}</p>
+              </div>
+              {renderStep()}
+            </>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t bg-muted/20 rounded-lg">
-          <div className="flex justify-between">
-            <Button
-              variant="outline"
-              onClick={prevStep}
-              disabled={currentStep === 0}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-            
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handleSaveAndExit} disabled={isLoading}>
-                <Save className="w-4 h-4 mr-2" />
-                Save & Exit
+        {/* Footer - Only show for form steps, not info steps */}
+        {!['program_details', 'financial_breakdown', 'requirements'].includes(steps[currentStep].id) && (
+          <div className="p-6 border-t bg-muted/20 rounded-lg">
+            <div className="flex justify-between">
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                disabled={currentStep === 0}
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Previous
               </Button>
               
-              {currentStep === steps.length - 1 ? (
-                <Button onClick={handleSubmitApplication} disabled={isLoading || !isStepValid()}>
-                  Submit Application
-                </Button>
-              ) : (
-                <Button onClick={nextStep} disabled={!isStepValid()}>
-                  Next
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {currentStep > 4 && ( // Only show save after intake selection
+                  <Button variant="outline" onClick={handleSaveAndExit} disabled={isLoading}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save & Exit
+                  </Button>
+                )}
+                
+                {currentStep === steps.length - 1 ? (
+                  <Button onClick={handleSubmitApplication} disabled={isLoading || !isStepValid()}>
+                    Submit Application
+                  </Button>
+                ) : (
+                  <Button onClick={nextStep} disabled={!isStepValid()}>
+                    {steps[currentStep].id === 'intake_selection' ? 'Start Application' : 'Next'}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
     </div>
   );
 };

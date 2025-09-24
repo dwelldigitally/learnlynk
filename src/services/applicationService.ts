@@ -8,7 +8,7 @@ export interface ApplicationData {
   program_id?: string | null;
   program_name?: string; // For backward compatibility
   status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
-  stage: 'personal_info' | 'education' | 'work_experience' | 'essays' | 'questions' | 'documents' | 'payment' | 'review';
+  stage: 'program_selection' | 'program_details' | 'financial_breakdown' | 'requirements' | 'intake_selection' | 'personal_info' | 'education' | 'work_experience' | 'essays' | 'questions' | 'documents' | 'payment' | 'review';
   progress: number | null;
   documents?: any;
   requirements?: any;

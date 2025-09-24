@@ -114,7 +114,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 : 'var(--chatbot-gradient-accent)'
             }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-300/20 to-transparent opacity-40" />
+            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
             <div className="flex items-center gap-3 relative z-10">
               {view === 'chat' && (
                 <>
@@ -140,22 +140,18 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                     </AvatarFallback>
                   </Avatar>
                   <div className="animate-fade-in">
-                    <h3 className="font-semibold text-sm text-white drop-shadow-lg" style={{
-                      textShadow: '0 2px 4px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3)'
-                    }}>
+                    <h3 className="font-semibold text-sm text-white">
                       {currentAgent.name}
                     </h3>
-                    <p className="text-xs text-white/95 flex items-center gap-1" style={{
-                      textShadow: '0 1px 3px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.2)'
-                    }}>
+                    <p className="text-xs text-white/95 flex items-center gap-1">
                       {isTyping ? (
                         <>
-                          <div className="w-1.5 h-1.5 bg-white/90 rounded-full animate-pulse shadow-sm" />
+                          <div className="w-1.5 h-1.5 bg-white/90 rounded-full animate-pulse" />
                           Typing...
                         </>
                       ) : (
                         <>
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-sm" />
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
                           Online
                         </>
                       )}

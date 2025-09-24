@@ -61,10 +61,10 @@ const CareerServices: React.FC = () => {
   };
 
   return (
-    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`p-8 max-w-7xl mx-auto space-y-8 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <div className="flex items-center gap-4 mb-2">
+        <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
             <Briefcase className="w-6 h-6 text-primary-foreground" />
           </div>
@@ -79,12 +79,12 @@ const CareerServices: React.FC = () => {
 
       {/* Career Resources - Enhanced */}
       <div ref={staggerRef}>
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-3 mb-8">
           <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
             Career Resources
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {careerResources.map((resource, index) => (
             <Card key={index} className="p-8 hover:shadow-md transition-shadow duration-200 bg-gradient-to-br from-background to-muted/30 border-0 shadow-lg group cursor-pointer">
               <div className="flex flex-col items-center text-center space-y-4">
@@ -103,16 +103,16 @@ const CareerServices: React.FC = () => {
       </div>
 
       {/* Upcoming Events */}
-      <Card className={`p-6 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
+      <Card className={`p-8 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
             <Calendar className="w-4 h-4 text-primary" />
           </div>
           <h2 className="text-xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Upcoming Events</h2>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {upcomingEvents.map((event, index) => (
-            <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+            <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -150,7 +150,7 @@ const CareerServices: React.FC = () => {
       </Card>
 
       {/* Job Opportunities */}
-      <Card className={`p-6 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
+      <Card className={`p-8 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -163,9 +163,9 @@ const CareerServices: React.FC = () => {
             <ExternalLink className="w-4 h-4 ml-2" />
           </Button>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {jobOpportunities.map((job, index) => (
-            <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+            <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -195,7 +195,7 @@ const CareerServices: React.FC = () => {
       </Card>
 
       {/* Quick Stats - Enhanced */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <Card className={`p-8 text-center bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] ${visibleItems[6] ? 'animate-stagger-7' : 'opacity-0'}`}>
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <TrendingUp className="w-8 h-8 text-primary" />
@@ -223,7 +223,7 @@ const CareerServices: React.FC = () => {
       </div>
 
       {/* Contact Career Services */}
-      <Card className="p-6 bg-gradient-to-r from-primary/10 to-secondary/10">
+      <Card className="p-8 bg-gradient-to-r from-primary/10 to-secondary/10">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Need Personalized Career Guidance?</h2>
           <p className="text-muted-foreground mb-4">Schedule a one-on-one appointment with our career counselors</p>

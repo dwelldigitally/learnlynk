@@ -105,10 +105,10 @@ const PayYourFee: React.FC = () => {
   );
 
   return (
-    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`p-8 max-w-7xl mx-auto space-y-8 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
             <CreditCard className="w-6 h-6 text-primary-foreground" />
           </div>
@@ -123,11 +123,11 @@ const PayYourFee: React.FC = () => {
         </div>
       </div>
 
-      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div ref={staggerRef} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Invoice Section */}
-        <div className={`lg:col-span-2 space-y-6 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        <div className={`lg:col-span-2 space-y-8 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
           {/* Invoice Card */}
-          <Card className="p-6 hover:shadow-md transition-shadow duration-200">
+          <Card className="p-8 hover:shadow-md transition-shadow duration-200">
             <div className="flex justify-between items-start mb-6">
               <div>
                 <h2 className="text-xl font-semibold mb-2">Application Fee Invoice</h2>
@@ -146,8 +146,8 @@ const PayYourFee: React.FC = () => {
             </div>
 
             {/* Student Information */}
-            <div className="mb-6 p-4 bg-muted/50 rounded-lg">
-              <h3 className="font-medium mb-3 flex items-center gap-2">
+            <div className="mb-8 p-6 bg-muted/50 rounded-lg">
+              <h3 className="font-medium mb-4 flex items-center gap-2">
                 <User className="w-4 h-4" />
                 Student Information
               </h3>
@@ -169,10 +169,10 @@ const PayYourFee: React.FC = () => {
 
             {/* Fee Breakdown */}
             <div className="border rounded-lg">
-              <div className="p-4 border-b bg-muted/25">
+              <div className="p-6 border-b bg-muted/25">
                 <h3 className="font-medium">Fee Breakdown</h3>
               </div>
-              <div className="p-4 space-y-3">
+              <div className="p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <span>Application Processing Fee - {selectedProgram}</span>
                   <span className="font-medium">${invoiceData.amount.toFixed(2)} {invoiceData.currency}</span>
@@ -235,7 +235,7 @@ const PayYourFee: React.FC = () => {
             </div>
 
             {/* Payment Terms */}
-            <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="mt-8 p-6 bg-blue-50 border border-blue-200 rounded-lg">
               <h4 className="font-medium text-blue-900 mb-2">Payment Terms & Conditions</h4>
               <ul className="text-sm text-blue-800 space-y-1">
                 <li>• Payment is due within 30 days of invoice date</li>
@@ -249,9 +249,9 @@ const PayYourFee: React.FC = () => {
         </div>
 
         {/* Payment Summary Sidebar */}
-        <div className={`space-y-6 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
+        <div className={`space-y-8 ${visibleItems[1] ? 'animate-stagger-2' : 'opacity-0'}`}>
           {/* Program Selection */}
-          <Card className="p-4 hover:shadow-md transition-all duration-300">
+          <Card className="p-6 hover:shadow-md transition-all duration-300">
             <h3 className="font-medium mb-3 text-sm">Select Program</h3>
             <Popover>
               <PopoverTrigger asChild>
@@ -297,7 +297,7 @@ const PayYourFee: React.FC = () => {
           </Card>
 
           {/* Verification Requirements */}
-          <Card className="p-4 hover:shadow-md transition-all duration-300">
+          <Card className="p-6 hover:shadow-md transition-all duration-300">
             <h3 className="font-medium mb-3 text-sm flex items-center gap-2">
               <Shield className="w-4 h-4" />
               Pre-Payment Verification

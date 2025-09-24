@@ -50,9 +50,7 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
     status: 'Active',
     lastLogin: new Date().toLocaleDateString()
   };
-  return <div className="bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 backdrop-blur-sm">
-      <div className="px-6 py-5 space-y-4">
-
+  return <div className="px-6 py-5 space-y-4 bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 backdrop-blur-sm">
         {/* Student Profile Card */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
           <div className="p-5">
@@ -135,6 +133,5 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
             </div>
           </div>
         </div>
-      </div>
     </div>;
 };

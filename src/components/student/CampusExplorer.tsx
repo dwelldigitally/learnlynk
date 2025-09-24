@@ -289,15 +289,23 @@ const CampusExplorer: React.FC = () => {
             
             {/* Map */}
             <div className="lg:col-span-2">
-              <Card className="p-0 overflow-hidden">
+              <Card className="p-0 overflow-hidden relative">
                 <div 
                   ref={mapContainer}
-                  className="w-full h-96 bg-gray-100 flex items-center justify-center"
+                  className="w-full h-96 bg-gray-100 flex items-center justify-center relative"
                 >
                   {!mapboxToken && (
                     <div className="text-center text-gray-500">
                       <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
                       <p>Enter Mapbox token to view interactive map</p>
+                    </div>
+                  )}
+                  {mapboxToken && (
+                    <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-white/20">
+                      <div className="flex items-center gap-2 text-sm text-gray-700">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                        <span className="font-medium">Touch to interact with map</span>
+                      </div>
                     </div>
                   )}
                 </div>

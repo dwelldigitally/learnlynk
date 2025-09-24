@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Upload, FileText, Eye, MessageSquare, Scan, Download, Trash2, CheckCircle, AlertCircle, Clock, ChevronDown, Info, Star, Target } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -12,9 +11,10 @@ import { useToast } from "@/hooks/use-toast";
 import { studentApplications } from "@/data/studentApplications";
 import { ApplicationDocument, DocumentComment } from "@/types/application";
 import { OCRResultsModal } from "./OCRResultsModal";
-
 const StudentDashboard: React.FC = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedProgram, setSelectedProgram] = useState("Health Care Assistant");
   const [selectedRequirement, setSelectedRequirement] = useState<string | null>(null);
@@ -28,18 +28,14 @@ const StudentDashboard: React.FC = () => {
   // Get current application data
   const currentApplication = studentApplications[selectedProgram];
   const availablePrograms = Object.keys(studentApplications);
-
   const handleProgramChange = (program: string) => {
     setSelectedProgram(program);
     setIsProgramPopoverOpen(false);
   };
-
   const handleFileUpload = (requirementId: string, files: FileList | null) => {
     if (!files || files.length === 0) return;
-
     const requirement = currentApplication.requirements.find(req => req.id === requirementId);
     if (!requirement) return;
-
     Array.from(files).forEach(file => {
       // Validate file format
       const fileExtension = file.name.split('.').pop()?.toUpperCase();
@@ -61,9 +57,8 @@ const StudentDashboard: React.FC = () => {
         });
         return;
       }
-
       setUploadingTo(requirementId);
-      
+
       // Simulate upload
       setTimeout(() => {
         toast({
@@ -74,10 +69,9 @@ const StudentDashboard: React.FC = () => {
       }, 2000);
     });
   };
-
   const performOCR = async (document: ApplicationDocument) => {
     setOcrLoading(document.id);
-    
+
     // Simulate OCR processing
     setTimeout(() => {
       setOcrLoading(null);
@@ -88,7 +82,6 @@ const StudentDashboard: React.FC = () => {
       });
     }, 3000);
   };
-
   const handleOCRSave = (extractedData: Record<string, string>) => {
     toast({
       title: "OCR data saved",
@@ -96,10 +89,8 @@ const StudentDashboard: React.FC = () => {
     });
     setOcrModalDocument(null);
   };
-
   const addComment = (documentId: string) => {
     if (!newComment.trim()) return;
-
     const comment: DocumentComment = {
       id: Date.now().toString(),
       author: "Tushar Malhotra",
@@ -107,47 +98,45 @@ const StudentDashboard: React.FC = () => {
       timestamp: new Date(),
       isAdvisor: false
     };
-
     setNewComment("");
     toast({
       title: "Comment added",
       description: "Your comment has been posted"
     });
   };
-
   const deleteDocument = (documentId: string) => {
     toast({
       title: "Document deleted",
       description: "The document has been removed"
     });
   };
-
   const getStatusColor = (status: ApplicationDocument['status']) => {
     switch (status) {
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      case 'under-review': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      case 'under-review':
+        return 'bg-yellow-100 text-yellow-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
-
   const getStatusIcon = (status: ApplicationDocument['status']) => {
     switch (status) {
-      case 'approved': return <CheckCircle className="w-4 h-4" />;
-      case 'rejected': return <AlertCircle className="w-4 h-4" />;
-      case 'under-review': return <Clock className="w-4 h-4" />;
-      default: return <Clock className="w-4 h-4" />;
+      case 'approved':
+        return <CheckCircle className="w-4 h-4" />;
+      case 'rejected':
+        return <AlertCircle className="w-4 h-4" />;
+      case 'under-review':
+        return <Clock className="w-4 h-4" />;
+      default:
+        return <Clock className="w-4 h-4" />;
     }
   };
-
-  const completedRequirements = currentApplication.requirements.filter(req => 
-    currentApplication.documents.some(doc => doc.requirementId === req.id && doc.status === 'approved')
-  ).length;
-
+  const completedRequirements = currentApplication.requirements.filter(req => currentApplication.documents.some(doc => doc.requirementId === req.id && doc.status === 'approved')).length;
   const totalDocuments = currentApplication.documents.length;
-
-  return (
-    <div className="space-y-8 p-6 bg-background min-h-screen">
+  return <div className="space-y-8 p-6 bg-background min-h-screen">
       {/* Header with Program Selection and Quick Actions */}
       <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground px-8 py-8 rounded-xl shadow-lg">
         <div className="flex justify-between items-start mb-6">
@@ -160,29 +149,18 @@ const StudentDashboard: React.FC = () => {
             
             <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
               <PopoverTrigger asChild>
-                <Button variant="secondary" className="mt-3 px-4 py-2 flex items-center gap-2 font-semibold">
-                  📋 {selectedProgram}
-                  <ChevronDown className="w-4 h-4" />
-                </Button>
+                
               </PopoverTrigger>
               <PopoverContent className="w-80 p-0 bg-background z-50" align="start">
                 <div className="p-4">
                   <h3 className="font-medium text-lg mb-3">Select Program</h3>
                   <div className="space-y-2">
-                    {availablePrograms.map((program) => (
-                      <div 
-                        key={program}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${
-                          selectedProgram === program ? 'border-primary bg-primary/10' : 'border-border'
-                        }`}
-                        onClick={() => handleProgramChange(program)}
-                      >
+                    {availablePrograms.map(program => <div key={program} className={`p-3 border rounded-lg cursor-pointer transition-colors hover:bg-muted ${selectedProgram === program ? 'border-primary bg-primary/10' : 'border-border'}`} onClick={() => handleProgramChange(program)}>
                         <p className="font-medium">{program}</p>
                         <p className="text-sm text-muted-foreground mt-1">
                           ID: {studentApplications[program].id}
                         </p>
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
                 </div>
               </PopoverContent>
@@ -195,10 +173,7 @@ const StudentDashboard: React.FC = () => {
               <div className="text-primary-foreground/80 text-sm">of {currentApplication.requirements.length} completed</div>
             </div>
             <div className="w-24">
-              <Progress 
-                value={(completedRequirements / currentApplication.requirements.length) * 100} 
-                className="bg-primary-foreground/20 h-2" 
-              />
+              <Progress value={completedRequirements / currentApplication.requirements.length * 100} className="bg-primary-foreground/20 h-2" />
             </div>
           </div>
         </div>
@@ -207,10 +182,7 @@ const StudentDashboard: React.FC = () => {
         <Alert className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground">
           <Star className="h-4 w-4" />
           <AlertDescription className="font-medium">
-            {completedRequirements === currentApplication.requirements.length 
-              ? "🎉 Excellent! All documents completed. Your application is ready for review."
-              : `📋 ${currentApplication.requirements.length - completedRequirements} more documents needed to complete your application.`
-            }
+            {completedRequirements === currentApplication.requirements.length ? "🎉 Excellent! All documents completed. Your application is ready for review." : `📋 ${currentApplication.requirements.length - completedRequirements} more documents needed to complete your application.`}
           </AlertDescription>
         </Alert>
       </div>
@@ -279,23 +251,17 @@ const StudentDashboard: React.FC = () => {
         </div>
         
         <div className="space-y-4">
-          {currentApplication.requirements.map((requirement) => {
-            const requirementDocuments = currentApplication.documents.filter(doc => doc.requirementId === requirement.id);
-            const hasApproved = requirementDocuments.some(doc => doc.status === 'approved');
-            
-            return (
-              <Card key={requirement.id} className={`p-6 transition-shadow hover:shadow-md ${hasApproved ? 'border-green-200 bg-green-50/30' : ''}`}>
+          {currentApplication.requirements.map(requirement => {
+          const requirementDocuments = currentApplication.documents.filter(doc => doc.requirementId === requirement.id);
+          const hasApproved = requirementDocuments.some(doc => doc.status === 'approved');
+          return <Card key={requirement.id} className={`p-6 transition-shadow hover:shadow-md ${hasApproved ? 'border-green-200 bg-green-50/30' : ''}`}>
                 <div className="space-y-4">
                   {/* Requirement Header */}
                   <div className="flex items-start justify-between">
                     <div className="space-y-2 flex-1">
                       <div className="flex items-center gap-3">
                         <div className={`p-2 rounded-full ${hasApproved ? 'bg-green-100' : 'bg-muted'}`}>
-                          {hasApproved ? (
-                            <CheckCircle className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <FileText className="w-4 h-4 text-muted-foreground" />
-                          )}
+                          {hasApproved ? <CheckCircle className="w-4 h-4 text-green-600" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
                         </div>
                         <div>
                           <h3 className="text-lg font-semibold">{requirement.name}</h3>
@@ -318,34 +284,23 @@ const StudentDashboard: React.FC = () => {
                       </div>
                     </div>
                     
-                    <Button
-                      onClick={() => {
-                        setSelectedRequirement(requirement.id);
-                        fileInputRef.current?.click();
-                      }}
-                      disabled={uploadingTo === requirement.id}
-                      size="sm"
-                      className="ml-4"
-                    >
-                      {uploadingTo === requirement.id ? (
-                        <>
+                    <Button onClick={() => {
+                  setSelectedRequirement(requirement.id);
+                  fileInputRef.current?.click();
+                }} disabled={uploadingTo === requirement.id} size="sm" className="ml-4">
+                      {uploadingTo === requirement.id ? <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                           Uploading...
-                        </>
-                      ) : (
-                        <>
+                        </> : <>
                           <Upload className="w-4 h-4 mr-2" />
                           {requirementDocuments.length === 0 ? "Upload" : "Add File"}
-                        </>
-                      )}
+                        </>}
                     </Button>
                   </div>
 
                   {/* Documents List */}
-                  {requirementDocuments.length > 0 && (
-                    <div className="ml-12 space-y-3 border-t pt-4">
-                      {requirementDocuments.map((document) => (
-                        <div key={document.id} className="flex items-center justify-between p-3 bg-background rounded-lg border border-border">
+                  {requirementDocuments.length > 0 && <div className="ml-12 space-y-3 border-t pt-4">
+                      {requirementDocuments.map(document => <div key={document.id} className="flex items-center justify-between p-3 bg-background rounded-lg border border-border">
                           <div className="flex items-center gap-3 flex-1">
                             <FileText className="w-4 h-4 text-muted-foreground" />
                             <div className="flex-1 min-w-0">
@@ -357,62 +312,38 @@ const StudentDashboard: React.FC = () => {
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            <Badge 
-                              variant="outline" 
-                              className={`text-xs ${getStatusColor(document.status)} border-0`}
-                            >
+                            <Badge variant="outline" className={`text-xs ${getStatusColor(document.status)} border-0`}>
                               {getStatusIcon(document.status)}
                               <span className="ml-1 capitalize">{document.status.replace('-', ' ')}</span>
                             </Badge>
                             
                             <div className="flex gap-1">
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => performOCR(document)}
-                                disabled={ocrLoading === document.id}
-                                className="h-8 w-8 p-0"
-                              >
-                                {ocrLoading === document.id ? (
-                                  <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                  <Eye className="w-3 h-3" />
-                                )}
+                              <Button size="sm" variant="ghost" onClick={() => performOCR(document)} disabled={ocrLoading === document.id} className="h-8 w-8 p-0">
+                                {ocrLoading === document.id ? <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <Eye className="w-3 h-3" />}
                               </Button>
                               
-                              <Button 
-                                size="sm" 
-                                variant="ghost"
-                                onClick={() => deleteDocument(document.id)}
-                                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                              >
+                              <Button size="sm" variant="ghost" onClick={() => deleteDocument(document.id)} className="h-8 w-8 p-0 text-destructive hover:text-destructive">
                                 <Trash2 className="w-3 h-3" />
                               </Button>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        </div>)}
+                    </div>}
 
-                  {requirementDocuments.length === 0 && (
-                    <Alert className="ml-12">
+                  {requirementDocuments.length === 0 && <Alert className="ml-12">
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
                         No documents uploaded yet. Click "Upload" to add your {requirement.name.toLowerCase()}.
                       </AlertDescription>
-                    </Alert>
-                  )}
+                    </Alert>}
                 </div>
-              </Card>
-            );
-          })}
+              </Card>;
+        })}
         </div>
       </div>
 
       {/* Document Communication Modal */}
-      {selectedDocument && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      {selectedDocument && <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="bg-background shadow-lg border max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-4">
@@ -420,10 +351,7 @@ const StudentDashboard: React.FC = () => {
                   <h3 className="text-lg font-semibold">{selectedDocument.name}</h3>
                   <p className="text-muted-foreground">Communication & OCR Results</p>
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setSelectedDocument(null)}
-                >
+                <Button variant="outline" onClick={() => setSelectedDocument(null)}>
                   ×
                 </Button>
               </div>
@@ -432,67 +360,37 @@ const StudentDashboard: React.FC = () => {
               <div className="mb-4">
                 <h4 className="font-medium mb-3">Comments & Communication</h4>
                 <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {selectedDocument.comments.length === 0 ? (
-                    <p className="text-muted-foreground text-sm">No comments yet. Start a conversation with your advisor.</p>
-                  ) : (
-                    selectedDocument.comments.map((comment) => (
-                      <div key={comment.id} className={`p-3 rounded-lg ${comment.isAdvisor ? 'bg-blue-50 ml-8' : 'bg-muted/50 mr-8'}`}>
+                  {selectedDocument.comments.length === 0 ? <p className="text-muted-foreground text-sm">No comments yet. Start a conversation with your advisor.</p> : selectedDocument.comments.map(comment => <div key={comment.id} className={`p-3 rounded-lg ${comment.isAdvisor ? 'bg-blue-50 ml-8' : 'bg-muted/50 mr-8'}`}>
                         <div className="flex justify-between items-start mb-1">
                           <span className="font-medium text-sm">{comment.author}</span>
                           <span className="text-xs text-muted-foreground">{comment.timestamp.toLocaleString()}</span>
                         </div>
                         <p className="text-sm">{comment.text}</p>
-                      </div>
-                    ))
-                  )}
+                      </div>)}
                 </div>
               </div>
 
               {/* Add Comment */}
               <div className="flex gap-2">
-                <Textarea
-                  value={newComment}
-                  onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Add a comment or question about this document..."
-                  className="flex-1"
-                />
-                <Button
-                  onClick={() => addComment(selectedDocument.id)}
-                  disabled={!newComment.trim()}
-                >
+                <Textarea value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment or question about this document..." className="flex-1" />
+                <Button onClick={() => addComment(selectedDocument.id)} disabled={!newComment.trim()}>
                   Send
                 </Button>
               </div>
             </div>
           </Card>
-        </div>
-      )}
+        </div>}
 
       {/* Hidden File Input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        multiple
-        className="hidden"
-        onChange={(e) => {
-          if (selectedRequirement) {
-            handleFileUpload(selectedRequirement, e.target.files);
-            e.target.value = '';
-          }
-        }}
-      />
+      <input ref={fileInputRef} type="file" multiple className="hidden" onChange={e => {
+      if (selectedRequirement) {
+        handleFileUpload(selectedRequirement, e.target.files);
+        e.target.value = '';
+      }
+    }} />
 
       {/* OCR Results Modal */}
-      {ocrModalDocument && (
-        <OCRResultsModal
-          isOpen={!!ocrModalDocument}
-          onClose={() => setOcrModalDocument(null)}
-          document={ocrModalDocument}
-          onSave={handleOCRSave}
-        />
-      )}
-    </div>
-  );
+      {ocrModalDocument && <OCRResultsModal isOpen={!!ocrModalDocument} onClose={() => setOcrModalDocument(null)} document={ocrModalDocument} onSave={handleOCRSave} />}
+    </div>;
 };
-
 export default StudentDashboard;

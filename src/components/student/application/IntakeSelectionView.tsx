@@ -21,6 +21,7 @@ interface IntakeSelectionViewProps {
   program: StandardizedProgram;
   onSelect: (intake: ProgramIntakeDate) => void;
   onBack: () => void;
+  onContinue?: () => void;
   selectedIntake?: ProgramIntakeDate;
 }
 
@@ -28,6 +29,7 @@ const IntakeSelectionView: React.FC<IntakeSelectionViewProps> = ({
   program,
   onSelect,
   onBack,
+  onContinue,
   selectedIntake
 }) => {
   const [hoveredIntake, setHoveredIntake] = useState<string | null>(null);
@@ -386,14 +388,17 @@ const IntakeSelectionView: React.FC<IntakeSelectionViewProps> = ({
           </Card>
 
           {/* Continue Button */}
-          <Button 
-            onClick={() => selectedIntake && console.log('Continue with application')} 
-            className="w-full py-6 text-lg"
-            size="lg"
-            disabled={!selectedIntake}
-          >
-            {selectedIntake ? 'Start Application' : 'Select an Intake Date'}
-          </Button>
+<Button 
+  onClick={() => {
+    if (!selectedIntake) return;
+    onContinue ? onContinue() : console.log('Continue with application');
+  }} 
+  className="w-full py-6 text-lg"
+  size="lg"
+  disabled={!selectedIntake}
+>
+  {selectedIntake ? 'Start Application' : 'Select an Intake Date'}
+</Button>
         </div>
       </div>
     </div>

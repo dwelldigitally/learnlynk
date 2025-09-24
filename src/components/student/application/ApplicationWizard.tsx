@@ -259,15 +259,16 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
             onBack={prevStep}
           />
         ) : null;
-      case 'intake_selection':
-        return selectedProgram ? (
-          <IntakeSelectionView 
-            program={selectedProgram}
-            onSelect={handleIntakeSelection}
-            onBack={prevStep}
-            selectedIntake={selectedIntake}
-          />
-        ) : null;
+case 'intake_selection':
+  return selectedProgram ? (
+    <IntakeSelectionView 
+      program={selectedProgram}
+      onSelect={handleIntakeSelection}
+      onBack={prevStep}
+      onContinue={nextStep}
+      selectedIntake={selectedIntake}
+    />
+  ) : null;
       case 'personal_info':
         return <PersonalInfoStep data={stepData} onUpdate={updateApplicationData} />;
       case 'education':

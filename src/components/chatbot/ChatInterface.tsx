@@ -194,7 +194,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-medium hover:shadow-large transition-all duration-200 hover:scale-105 text-white"
             style={{ 
               background: 'var(--chatbot-gradient-primary)',
-              boxShadow: '0 4px 15px rgba(59, 130, 246, 0.25)'
+              boxShadow: '0 4px 20px rgba(139, 92, 246, 0.3), var(--shadow-medium)'
             }}
           >
             {isSending ? (

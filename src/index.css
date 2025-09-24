@@ -96,20 +96,22 @@
     --glass-backdrop: backdrop-filter: blur(12px) saturate(200%);
     --glass-border: 1px solid rgba(255, 255, 255, 0.18);
     
-    /* Chatbot-specific color system - Professional and clean */
-    --chatbot-primary: 59 130 246;         /* Clean blue */
-    --chatbot-secondary: 71 85 105;        /* Neutral slate */
-    --chatbot-accent: 148 163 184;         /* Light slate */
+    /* Chatbot-specific color system */
+    --chatbot-primary: 250 84% 54%;      /* Electric purple */
+    --chatbot-secondary: 210 100% 56%;   /* Bright blue */
+    --chatbot-accent: 168 76% 42%;       /* Teal green */
+    --chatbot-glow: 270 100% 80%;        /* Light purple glow */
     
-    /* Chatbot gradients - Minimal and professional */
-    --chatbot-gradient-primary: linear-gradient(135deg, hsl(59 130 246) 0%, hsl(99 102 241) 100%);
-    --chatbot-gradient-accent: linear-gradient(135deg, hsl(248 250 252) 0%, hsl(241 245 249) 100%);
-    --chatbot-gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.9) 100%);
+    /* Chatbot gradients */
+    --chatbot-gradient-primary: linear-gradient(135deg, hsl(var(--chatbot-primary)) 0%, hsl(var(--chatbot-secondary)) 100%);
+    --chatbot-gradient-accent: linear-gradient(135deg, hsl(var(--chatbot-secondary)) 0%, hsl(var(--chatbot-accent)) 100%);
+    --chatbot-gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+    --chatbot-gradient-bubble: linear-gradient(135deg, hsl(var(--chatbot-primary)) 0%, hsl(260 84% 64%) 100%);
     
-    /* Chatbot glassmorphism - Clean and subtle */
-    --chatbot-glass-bg: rgba(255, 255, 255, 0.95);
-    --chatbot-glass-border: rgba(59, 130, 246, 0.1);
-    --chatbot-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    /* Chatbot glassmorphism */
+    --chatbot-glass-bg: rgba(255, 255, 255, 0.1);
+    --chatbot-glass-border: rgba(255, 255, 255, 0.2);
+    --chatbot-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
@@ -170,10 +172,10 @@
     --sidebar-border: 215 85% 20%;
     --sidebar-ring: 215 85% 45%;
     
-    /* Dark mode chatbot colors - Professional and clean */
-    --chatbot-primary: 99 102 241;         /* Lighter blue for dark mode */
-    --chatbot-secondary: 148 163 184;      /* Lighter slate for dark mode */
-    --chatbot-accent: 203 213 225;         /* Very light slate for dark mode */
+    /* Dark mode chatbot colors */
+    --chatbot-primary: 250 84% 64%;      /* Lighter purple for dark mode */
+    --chatbot-secondary: 210 100% 66%;   /* Lighter blue for dark mode */
+    --chatbot-accent: 168 76% 52%;       /* Lighter teal for dark mode */
     --chatbot-glass-bg: rgba(255, 255, 255, 0.05);
     --chatbot-glass-border: rgba(255, 255, 255, 0.1);
   }

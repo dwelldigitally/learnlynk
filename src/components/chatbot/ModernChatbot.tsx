@@ -114,7 +114,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 : 'var(--chatbot-gradient-accent)'
             }}
           >
-            <div className="absolute inset-0 bg-blue-600/30 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" />
             <div className="flex items-center gap-3 relative z-10">
               {view === 'chat' && (
                 <>

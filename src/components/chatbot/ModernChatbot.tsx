@@ -140,18 +140,22 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                     </AvatarFallback>
                   </Avatar>
                   <div className="animate-fade-in">
-                    <h3 className="font-semibold text-sm text-white drop-shadow-sm">
+                    <h3 className="font-semibold text-sm text-white drop-shadow-lg" style={{
+                      textShadow: '0 2px 4px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3)'
+                    }}>
                       {currentAgent.name}
                     </h3>
-                    <p className="text-xs text-white/90 flex items-center gap-1">
+                    <p className="text-xs text-white/95 flex items-center gap-1" style={{
+                      textShadow: '0 1px 3px rgba(0,0,0,0.4), 0 1px 1px rgba(0,0,0,0.2)'
+                    }}>
                       {isTyping ? (
                         <>
-                          <div className="w-1.5 h-1.5 bg-white/80 rounded-full animate-pulse" />
+                          <div className="w-1.5 h-1.5 bg-white/90 rounded-full animate-pulse shadow-sm" />
                           Typing...
                         </>
                       ) : (
                         <>
-                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                          <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-sm" />
                           Online
                         </>
                       )}

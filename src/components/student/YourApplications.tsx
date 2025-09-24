@@ -106,9 +106,9 @@ const YourApplications: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`space-y-8 p-6 md:p-8 lg:p-10 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header with Application Summary */}
-      <div className="animate-slide-down mb-8">
+      <div className="animate-slide-down mb-10 px-2">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Main Header */}
           <div className="lg:col-span-2">
@@ -154,7 +154,7 @@ const YourApplications: React.FC = () => {
       </div>
 
       {/* Applications List */}
-      <div ref={staggerRef} className="space-y-6">
+      <div ref={staggerRef} className="space-y-8 px-2">
         {/* Application Status Filter */}
         {(applications.length > 0 || existingApplications.length > 0) && (
           <div className="mb-6 flex flex-wrap gap-2">
@@ -168,7 +168,7 @@ const YourApplications: React.FC = () => {
 
         {/* New Applications */}
         {applications.map((application, index) => (
-          <Card key={application.id} className={`p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 border-l-primary ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+          <Card key={application.id} className={`p-10 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 border-l-primary mx-2 ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
             <div className="flex justify-between items-start mb-4">
               <div>
                 <h3 className="text-xl font-semibold">{application.program_name}</h3>
@@ -231,7 +231,7 @@ const YourApplications: React.FC = () => {
 
         {/* Existing Applications */}
         {existingApplications.map((application, index) => (
-          <Card key={application.id} className={`p-8 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 ${
+          <Card key={application.id} className={`p-10 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 mx-2 ${
             application.stage === 'ACCEPTED' ? 'border-l-green-500' : 
             application.stage === 'DOCUMENT_APPROVAL' ? 'border-l-yellow-500' :
             application.stage === 'SEND_DOCUMENTS' ? 'border-l-orange-500' : 'border-l-gray-300'

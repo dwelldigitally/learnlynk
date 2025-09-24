@@ -73,6 +73,7 @@ const CampusExplorer: React.FC = () => {
   const [mapboxToken, setMapboxToken] = useState<string>("pk.eyJ1IjoidHVzaGFyLXN1bW1pdHZpZXd0ZWNoIiwiYSI6ImNtZnI3NGozOTA2ZHoybnEzY280OGkyZTYifQ.1Uk06W8-5RgN1rJzaj3TOA");
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
   const [distances, setDistances] = useState<Record<string, any>>({});
+  const [mapInteractionEnabled, setMapInteractionEnabled] = useState(false);
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
@@ -300,11 +301,17 @@ const CampusExplorer: React.FC = () => {
                       <p>Enter Mapbox token to view interactive map</p>
                     </div>
                   )}
-                  {mapboxToken && (
-                    <div className="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-2 shadow-lg border border-white/20">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                        <span className="font-medium">Touch to interact with map</span>
+                  {mapboxToken && !mapInteractionEnabled && (
+                    <div 
+                      className="absolute inset-0 z-20 bg-black/10 backdrop-blur-[0.5px] flex items-center justify-center cursor-pointer transition-all duration-300 hover:bg-black/20"
+                      onClick={() => setMapInteractionEnabled(true)}
+                    >
+                      <div className="bg-white/95 backdrop-blur-sm rounded-xl px-6 py-4 shadow-xl border border-white/30 text-center">
+                        <div className="flex items-center justify-center gap-3 text-gray-700">
+                          <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                          <span className="font-medium text-lg">Click to activate map interaction</span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-2">Tap anywhere to explore the campus locations</p>
                       </div>
                     </div>
                   )}

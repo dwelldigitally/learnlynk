@@ -8,58 +8,58 @@
  
 @layer base {
   :root {
-    /* Professional neutral color system - Grey backgrounds with white cards */
-    --background: 210 10% 96%;  /* Light grey background */
-    --foreground: 215 20% 17%;  /* Dark charcoal text */
+    /* Professional minimal color system - Light grey with white cards and blue accents */
+    --background: 0 0% 98%;      /* Very light grey background */
+    --foreground: 210 11% 15%;   /* Dark grey text */
 
-    --card: 0 0% 100%;          /* Pure white cards */
-    --card-foreground: 215 20% 17%;
+    --card: 0 0% 100%;           /* Pure white cards */
+    --card-foreground: 210 11% 15%;
  
-    --popover: 0 0% 100%;       /* White popovers */
-    --popover-foreground: 215 20% 17%;
+    --popover: 0 0% 100%;        /* White popovers */
+    --popover-foreground: 210 11% 15%;
  
-    /* Primary - Professional teal accent (replacing red) */
-    --primary: 200 85% 40%;     /* Professional teal */
+    /* Primary - Professional blue (main CTA color) */
+    --primary: 217 91% 60%;      /* Professional blue */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 200 85% 35%;
-    --primary-light: 200 85% 95%;
+    --primary-hover: 217 91% 55%;
+    --primary-light: 217 91% 95%;
     
-    /* Secondary - Neutral greys */
-    --secondary: 210 10% 93%;   /* Light grey for secondary elements */
-    --secondary-foreground: 215 20% 25%;
-    --secondary-hover: 210 10% 90%;
+    /* Secondary - Light blue accent */
+    --secondary: 210 40% 90%;    /* Very light blue/grey */
+    --secondary-foreground: 210 11% 25%;
+    --secondary-hover: 210 40% 85%;
  
-    /* Muted colors - Professional greys */
-    --muted: 210 10% 93%;       /* Muted backgrounds */
-    --muted-foreground: 215 10% 55%; /* Muted text */
+    /* Muted colors - Clean greys */
+    --muted: 210 20% 96%;        /* Light grey sections */
+    --muted-foreground: 210 11% 45%; /* Medium grey text */
  
-    /* Accent - Professional slate (replacing red accents) */
-    --accent: 215 25% 27%;      /* Slate blue accent */
-    --accent-foreground: 0 0% 100%;
-    --accent-light: 215 25% 95%;
+    /* Accent - Secondary blue */
+    --accent: 210 40% 88%;       /* Light blue accent */
+    --accent-foreground: 210 11% 15%;
+    --accent-light: 210 40% 95%;
  
-    /* Status colors - Professional and muted */
-    --success: 152 69% 31%;     /* Forest green for success */
-    --success-light: 152 69% 95%;
-    --warning: 43 89% 38%;      /* Amber for warnings */
-    --warning-light: 43 89% 95%;
-    --destructive: 0 84% 60%;   /* Only for actual errors */
+    /* Status colors - Minimal and clean */
+    --success: 142 71% 45%;      /* Clean green */
+    --success-light: 142 71% 95%;
+    --warning: 38 92% 50%;       /* Clean orange */
+    --warning-light: 38 92% 95%;
+    --destructive: 0 84% 60%;    /* Clean red for errors */
     --destructive-foreground: 0 0% 100%;
-    --info: 200 85% 40%;        /* Teal for info */
-    --info-light: 200 85% 95%;
+    --info: 217 91% 60%;         /* Same as primary blue */
+    --info-light: 217 91% 95%;
     
-    /* Professional journey status colors */
-    --journey-active: 152 69% 31%;      /* Success green */
-    --journey-active-light: 152 69% 95%;
-    --journey-inactive: 215 10% 55%;    /* Muted grey */
-    --journey-inactive-light: 215 10% 95%;
-    --journey-draft: 43 89% 38%;        /* Warning amber */
-    --journey-draft-light: 43 89% 95%;
+    /* Journey status colors - Clean and minimal */
+    --journey-active: 142 71% 45%;      /* Clean green */
+    --journey-active-light: 142 71% 95%;
+    --journey-inactive: 210 11% 60%;    /* Medium grey */
+    --journey-inactive-light: 210 20% 95%;
+    --journey-draft: 38 92% 50%;        /* Clean orange */
+    --journey-draft-light: 38 92% 95%;
 
-    /* Borders and inputs */
-    --border: 214 15% 91%;
-    --input: 214 15% 91%;
-    --ring: 214 20% 30%;
+    /* Borders and inputs - Very subtle */
+    --border: 210 20% 90%;
+    --input: 210 20% 90%;
+    --ring: 217 91% 60%;
  
     /* Spacing */
     --radius: 0.75rem;
@@ -73,24 +73,24 @@
     --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
     --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
     
-    /* Professional gradients - Subtle and clean */
+    /* Minimal gradients - Clean and subtle */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary-hover)) 100%);
     --gradient-subtle: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(210 10% 98%) 0%, hsl(210 10% 96%) 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.95) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(0 0% 99%) 0%, hsl(0 0% 97%) 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.98) 100%);
     
-    /* Professional card gradients - Clean white on grey */
-    --gradient-active: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--success-light)) 100%);
-    --gradient-inactive: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
-    --gradient-draft: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--warning-light)) 100%);
+    /* Card gradients - Pure white focus */
+    --gradient-active: hsl(var(--card));
+    --gradient-inactive: hsl(var(--card));
+    --gradient-draft: hsl(var(--card));
     
-    /* Elevated card gradient - White with subtle shadow */
-    --gradient-elevated: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(0 0% 99%) 100%);
+    /* Elevated card - Clean white */
+    --gradient-elevated: hsl(var(--card));
     
-    /* Professional shadows - Neutral greys */
-    --neo-shadow-light: 8px 8px 16px rgba(0, 0, 0, 0.04), -8px -8px 16px rgba(255, 255, 255, 0.8);
-    --neo-shadow-dark: inset 4px 4px 8px rgba(0, 0, 0, 0.03), inset -4px -4px 8px rgba(255, 255, 255, 0.6);
-    --neo-shadow-pressed: inset 6px 6px 12px rgba(0, 0, 0, 0.05), inset -6px -6px 12px rgba(255, 255, 255, 0.7);
+    /* Minimal shadows - Very subtle */
+    --neo-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+    --neo-shadow-dark: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+    --neo-shadow-pressed: inset 0 2px 4px rgba(0, 0, 0, 0.04);
     
     /* Glass morphism */
     --glass-backdrop: backdrop-filter: blur(12px) saturate(200%);
@@ -113,48 +113,48 @@
     --chatbot-glass-border: rgba(255, 255, 255, 0.2);
     --chatbot-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     
-    /* Sidebar */
+    /* Sidebar - Clean white with subtle accents */
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 214 13% 30%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 214 13% 30%;
-    --sidebar-accent: 214 10% 96%;
-    --sidebar-accent-foreground: 214 13% 30%;
-    --sidebar-border: 214 15% 91%;
-    --sidebar-ring: 214 20% 30%;
+    --sidebar-foreground: 210 11% 25%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 95%;
+    --sidebar-accent-foreground: 210 11% 25%;
+    --sidebar-border: 210 20% 90%;
+    --sidebar-ring: 217 91% 60%;
   }
  
   .dark {
-    /* Dark mode - Apple-inspired */
-    --background: 220 27% 8%;
-    --foreground: 220 9% 90%;
+    /* Dark mode - Clean dark with blue accents */
+    --background: 210 11% 8%;
+    --foreground: 210 11% 90%;
  
-    --card: 220 27% 10%;
-    --card-foreground: 220 9% 90%;
+    --card: 210 11% 10%;
+    --card-foreground: 210 11% 90%;
  
-    --popover: 220 27% 10%;
-    --popover-foreground: 220 9% 90%;
+    --popover: 210 11% 10%;
+    --popover-foreground: 210 11% 90%;
  
-    --primary: 215 85% 45%;
+    --primary: 217 91% 65%;
     --primary-foreground: 0 0% 98%;
-    --primary-hover: 215 85% 50%;
+    --primary-hover: 217 91% 70%;
  
-    --secondary: 220 27% 16%;
-    --secondary-foreground: 220 9% 80%;
-    --secondary-hover: 220 27% 20%;
+    --secondary: 210 11% 16%;
+    --secondary-foreground: 210 11% 80%;
+    --secondary-hover: 210 11% 20%;
  
-    --muted: 220 27% 16%;
-    --muted-foreground: 220 9% 65%;
+    --muted: 210 11% 16%;
+    --muted-foreground: 210 11% 65%;
  
-    --accent: 215 70% 55%;
+    --accent: 210 40% 25%;
     --accent-foreground: 0 0% 98%;
  
     --destructive: 0 84% 65%;
-    --destructive-foreground: 220 27% 8%;
+    --destructive-foreground: 210 11% 8%;
  
-    --border: 220 27% 20%;
-    --input: 220 27% 20%;
-    --ring: 215 85% 45%;
+    --border: 210 11% 20%;
+    --input: 210 11% 20%;
+    --ring: 217 91% 65%;
     
     /* Dark mode shadows */
     --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -162,15 +162,15 @@
     --shadow-large: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
     --shadow-elevated: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
     
-    /* Dark sidebar */
-    --sidebar-background: 215 85% 25%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 215 85% 35%;
+    /* Dark sidebar - Clean dark with blue accents */
+    --sidebar-background: 210 11% 10%;
+    --sidebar-foreground: 210 11% 90%;
+    --sidebar-primary: 217 91% 65%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 70% 35%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 215 85% 20%;
-    --sidebar-ring: 215 85% 45%;
+    --sidebar-accent: 210 11% 20%;
+    --sidebar-accent-foreground: 210 11% 90%;
+    --sidebar-border: 210 11% 20%;
+    --sidebar-ring: 217 91% 65%;
     
     /* Dark mode chatbot colors */
     --chatbot-primary: 250 84% 64%;      /* Lighter purple for dark mode */

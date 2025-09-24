@@ -66,10 +66,10 @@ const FinancialAid: React.FC = () => {
   };
 
   return (
-    <div className={`space-y-6 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`p-8 max-w-7xl mx-auto space-y-8 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
-        <div className="flex items-center gap-4 mb-6">
+        <div className="flex items-center gap-4 mb-8">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
             <DollarSign className="w-6 h-6 text-primary-foreground" />
           </div>
@@ -83,8 +83,8 @@ const FinancialAid: React.FC = () => {
       </div>
 
       {/* Financial Aid Summary - Enhanced */}
-      <div ref={staggerRef} className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="p-8 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow duration-200">
+      <div ref={staggerRef} className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <Card className="p-10 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg">
               <DollarSign className="w-8 h-8 text-white" />
@@ -97,7 +97,7 @@ const FinancialAid: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-8 bg-gradient-to-br from-blue-50 to-blue-50 border-blue-200 hover:shadow-md transition-shadow duration-200">
+        <Card className="p-10 bg-gradient-to-br from-blue-50 to-blue-50 border-blue-200 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
               <Calculator className="w-8 h-8 text-white" />
@@ -110,7 +110,7 @@ const FinancialAid: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="p-8 bg-gradient-to-br from-purple-50 to-purple-50 border-purple-200 hover:shadow-md transition-shadow duration-200">
+        <Card className="p-10 bg-gradient-to-br from-purple-50 to-purple-50 border-purple-200 hover:shadow-md transition-shadow duration-200">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
               <GraduationCap className="w-8 h-8 text-white" />
@@ -125,16 +125,16 @@ const FinancialAid: React.FC = () => {
       </div>
 
       {/* Aid Programs - Enhanced */}
-      <Card className="p-8 bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow duration-200">
+      <Card className="p-10 bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow duration-200">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
             <DollarSign className="w-5 h-5 text-primary" />
           </div>
           <h2 className="text-2xl font-bold">Available Financial Aid Programs</h2>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-6">
           {aidPrograms.map((program, index) => (
-            <div key={index} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+            <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -162,14 +162,14 @@ const FinancialAid: React.FC = () => {
       </Card>
 
       {/* Required Documents */}
-      <Card className={`p-6 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
+      <Card className={`p-8 ${visibleItems[4] ? 'animate-stagger-5' : 'opacity-0'}`}>
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5" />
           <h2 className="text-xl font-semibold">Required Documents</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {documents.map((doc, index) => (
-            <div key={index} className="border rounded-lg p-4">
+            <div key={index} className="border rounded-lg p-6">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-medium">{doc.name}</h3>
                 <Badge className={`${getStatusColor(doc.status)} border text-xs`}>
@@ -188,20 +188,20 @@ const FinancialAid: React.FC = () => {
       </Card>
 
       {/* Action Items */}
-      <Card className={`p-6 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
+      <Card className={`p-8 ${visibleItems[5] ? 'animate-stagger-6' : 'opacity-0'}`}>
         <div className="flex items-center gap-2 mb-4">
           <AlertCircle className="w-5 h-5 text-orange-500" />
           <h2 className="text-xl font-semibold">Action Items</h2>
         </div>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between p-3 bg-orange-50 border border-orange-200 rounded-lg">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 bg-orange-50 border border-orange-200 rounded-lg">
             <div>
               <h4 className="font-medium">Complete Verification Worksheet</h4>
               <p className="text-sm text-muted-foreground">Required to process your financial aid</p>
             </div>
             <Button size="sm">Complete Now</Button>
           </div>
-          <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div>
               <h4 className="font-medium">Schedule Financial Aid Appointment</h4>
               <p className="text-sm text-muted-foreground">Meet with a counselor to discuss your options</p>
@@ -212,7 +212,7 @@ const FinancialAid: React.FC = () => {
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Button className="h-16 flex flex-col items-center gap-2">
           <Calculator className="w-5 h-5" />
           Net Price Calculator

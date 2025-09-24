@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NotificationCenter } from './NotificationCenter';
 import { User, Calendar, GraduationCap, MessageSquare, Bell, TrendingUp, AlertTriangle } from 'lucide-react';
+import defaultStudentAvatar from '@/assets/default-student-avatar.jpg';
 interface EnhancedTopBarProps {
   onToggleSidebar?: () => void;
   useDummyData?: boolean;
@@ -60,8 +61,12 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                 {/* Avatar and Name Section */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center ring-2 ring-violet-200 dark:ring-violet-800 shadow-lg">
-                      {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-14 h-14 rounded-full object-cover" /> : <User className="w-7 h-7 text-white" />}
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center ring-2 ring-violet-200 dark:ring-violet-800 shadow-lg overflow-hidden">
+                      <img 
+                        src={profile?.avatar_url || defaultStudentAvatar} 
+                        alt="Student Profile" 
+                        className="w-14 h-14 rounded-full object-cover" 
+                      />
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white dark:border-slate-800"></div>
                   </div>

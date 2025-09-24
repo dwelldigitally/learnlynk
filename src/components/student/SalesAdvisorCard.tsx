@@ -17,7 +17,7 @@ export function SalesAdvisorCard({ advisor }: SalesAdvisorCardProps) {
   // Default advisor data if none provided
   const defaultAdvisor = {
     name: "Sarah Johnson",
-    photo: "https://images.unsplash.com/photo-1494790108755-2616b79dfbbe?w=150&h=150&fit=crop&crop=face",
+    photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&h=150&fit=crop&crop=face",
     title: "Senior Sales Advisor",
     phone: "+1 (555) 123-4567",
     email: "sarah.johnson@university.edu",

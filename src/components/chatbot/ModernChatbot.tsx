@@ -74,7 +74,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
         } ${className}`}
         style={!isOpen ? { 
           background: 'var(--chatbot-gradient-primary)',
-          boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3), var(--shadow-elevated)'
+          boxShadow: '0 4px 20px rgba(59, 130, 246, 0.25)'
         } : {}}
       >
         {isOpen ? (
@@ -114,7 +114,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                 : 'var(--chatbot-gradient-accent)'
             }}
           >
-            <div className="absolute inset-0 bg-blue-900/40 backdrop-blur-sm" />
+            <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-sm" />
             <div className="flex items-center gap-3 relative z-10">
               {view === 'chat' && (
                 <>

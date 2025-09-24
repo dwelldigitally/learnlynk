@@ -70,8 +70,12 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
         className={`fixed bottom-6 right-6 rounded-full h-16 w-16 shadow-elevated z-50 transition-all duration-300 hover:scale-105 ${
           isOpen 
             ? 'bg-card border-2 border-border hover:shadow-large animate-scale-in' 
-            : 'bg-gradient-primary hover:shadow-large animate-bounce-in'
+            : 'hover:shadow-large animate-bounce-in'
         } ${className}`}
+        style={!isOpen ? { 
+          background: 'var(--chatbot-gradient-primary)',
+          boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3), var(--shadow-elevated)'
+        } : {}}
       >
         {isOpen ? (
           <X size={24} className="text-foreground transition-transform duration-200 hover:rotate-90" />
@@ -92,11 +96,23 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
 
       {/* Chat window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-6 w-96 h-[600px] shadow-elevated flex flex-col z-50 overflow-hidden bg-card border-2 border-border/50 backdrop-blur-xl animate-modal-enter">
+        <Card 
+          className="fixed bottom-24 right-6 w-96 h-[600px] shadow-elevated flex flex-col z-50 overflow-hidden border-2 backdrop-blur-xl animate-modal-enter"
+          style={{
+            background: 'var(--chatbot-glass-bg)',
+            borderColor: 'var(--chatbot-glass-border)',
+            backdropFilter: 'blur(20px) saturate(200%)',
+            boxShadow: 'var(--chatbot-glass-shadow), 0 0 40px rgba(139, 92, 246, 0.1)'
+          }}
+        >
           {/* Header */}
           <div 
             className="p-4 border-b border-border/30 flex justify-between items-center relative overflow-hidden shrink-0"
-            style={{ backgroundColor: view === 'chat' ? currentAgent.color : 'hsl(var(--muted))' }}
+            style={{ 
+              background: view === 'chat' 
+                ? `linear-gradient(135deg, ${currentAgent.color} 0%, hsl(var(--chatbot-primary)) 100%)`
+                : 'var(--chatbot-gradient-accent)'
+            }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-30" />
             <div className="flex items-center gap-3 relative z-10">
@@ -192,7 +208,13 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-hidden bg-gradient-subtle min-h-0">
+          <div 
+            className="flex-1 overflow-hidden min-h-0"
+            style={{
+              background: 'var(--chatbot-gradient-glass)',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
             {view === 'chat' && (
               <div className="animate-fade-in h-full">
                 <ChatInterface

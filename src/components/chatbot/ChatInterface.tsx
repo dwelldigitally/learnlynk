@@ -117,7 +117,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Capabilities */}
       {messages.length === 0 && !isLoading && (
-        <div className="px-4 py-3 border-t border-border/50 bg-gradient-to-r from-muted/20 to-muted/40 backdrop-blur-sm animate-fade-in shrink-0">
+        <div 
+          className="px-4 py-3 border-t backdrop-blur-sm animate-fade-in shrink-0"
+          style={{
+            background: 'var(--chatbot-gradient-glass)',
+            borderColor: 'var(--chatbot-glass-border)'
+          }}
+        >
           <p className="text-xs text-muted-foreground mb-3 font-medium">✨ I can help with:</p>
           <div className="flex flex-wrap gap-2">
             {agent.capabilities.slice(0, 3).map((capability, index) => (
@@ -142,7 +148,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
       )}
 
       {/* Input area */}
-      <div className="p-4 border-t border-border/50 bg-gradient-to-r from-card to-muted/20 backdrop-blur-sm shrink-0">
+      <div 
+        className="p-4 border-t backdrop-blur-sm shrink-0"
+        style={{
+          background: 'var(--chatbot-gradient-glass)',
+          borderColor: 'var(--chatbot-glass-border)'
+        }}
+      >
         <div className="flex items-end gap-3">
           <Button
             variant="ghost"
@@ -179,7 +191,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             onClick={handleSendMessage}
             disabled={!currentMessage.trim() || isSending}
             size="sm"
-            className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-medium hover:shadow-large transition-all duration-200 hover:scale-105 bg-gradient-primary text-primary-foreground"
+            className="shrink-0 h-11 w-11 p-0 rounded-xl shadow-medium hover:shadow-large transition-all duration-200 hover:scale-105 text-white"
+            style={{ 
+              background: 'var(--chatbot-gradient-primary)',
+              boxShadow: '0 4px 20px rgba(139, 92, 246, 0.3), var(--shadow-medium)'
+            }}
           >
             {isSending ? (
               <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary-foreground border-t-transparent"></div>

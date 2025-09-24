@@ -43,10 +43,20 @@ export const AgentSelector: React.FC<AgentSelectorProps> = ({
                 key={agent.id}
                 className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:scale-[1.02] shadow-soft hover:shadow-medium animate-stagger ${
                   agent.id === activeAgent
-                    ? 'border-primary bg-gradient-primary text-primary-foreground shadow-large'
-                    : 'border-border/50 hover:border-primary/50 bg-card hover:bg-gradient-elevated'
+                    ? 'text-white shadow-large'
+                    : 'hover:border-primary/50'
                 }`}
-                style={{ animationDelay: `${index * 100}ms` }}
+                style={agent.id === activeAgent ? {
+                  background: 'var(--chatbot-gradient-primary)',
+                  borderColor: 'hsl(var(--chatbot-primary))',
+                  boxShadow: '0 8px 32px rgba(139, 92, 246, 0.3), var(--shadow-large)',
+                  animationDelay: `${index * 100}ms`
+                } : {
+                  background: 'var(--chatbot-glass-bg)',
+                  borderColor: 'var(--chatbot-glass-border)',
+                  backdropFilter: 'blur(10px)',
+                  animationDelay: `${index * 100}ms`
+                }}
                 onClick={() => onSelectAgent(agent.id)}
               >
                 <div className="flex items-start gap-4">

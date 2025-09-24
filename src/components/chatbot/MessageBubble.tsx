@@ -44,8 +44,14 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         </Avatar>
       )}
       {showAvatar && isUser && (
-        <Avatar className="h-9 w-9 shrink-0 ring-2 ring-primary/30 shadow-medium">
-          <AvatarFallback className="text-sm bg-gradient-primary text-primary-foreground">
+        <Avatar 
+          className="h-9 w-9 shrink-0 ring-2 shadow-medium" 
+          style={{ '--tw-ring-color': 'hsl(var(--chatbot-primary) / 0.4)' } as React.CSSProperties}
+        >
+          <AvatarFallback 
+            className="text-sm text-white font-medium"
+            style={{ background: 'var(--chatbot-gradient-primary)' }}
+          >
             👤
           </AvatarFallback>
         </Avatar>
@@ -58,9 +64,17 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
         <div
           className={`rounded-2xl px-4 py-3 text-sm max-w-full break-words shadow-soft transition-all duration-200 hover:shadow-medium ${
             isUser
-              ? 'bg-gradient-primary text-primary-foreground rounded-br-lg'
-              : 'bg-card text-foreground rounded-bl-lg border border-border/30'
+              ? 'text-white rounded-br-lg'
+              : 'text-foreground rounded-bl-lg border'
           }`}
+          style={isUser ? {
+            background: 'var(--chatbot-gradient-bubble)',
+            boxShadow: '0 4px 20px rgba(139, 92, 246, 0.2), var(--shadow-soft)'
+          } : {
+            background: 'var(--chatbot-glass-bg)',
+            borderColor: 'var(--chatbot-glass-border)',
+            backdropFilter: 'blur(10px)'
+          }}
         >
           {message.text}
           

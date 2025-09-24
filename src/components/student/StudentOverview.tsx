@@ -577,7 +577,7 @@ const StudentOverview: React.FC = () => {
             </div>
           </div>
 
-          {/* Right: Intake & Financial Information */}
+          {/* Right: Simplified Intake & Deadline */}
           <div className="xl:w-80 space-y-6">
             {/* Intake Selection */}
             <div className="space-y-3">
@@ -590,7 +590,7 @@ const StudentOverview: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button 
                     variant="outline" 
-                    className="group h-12 w-full px-4 bg-background/50 border-border hover:bg-background hover:border-primary/50 transition-all duration-200 flex items-center justify-between"
+                    className="group h-12 w-full px-4 border-border hover:border-primary/50 transition-all duration-200 flex items-center justify-between"
                   >
                     <div className="text-left">
                       <div className="font-semibold text-foreground">{intake}</div>
@@ -598,7 +598,7 @@ const StudentOverview: React.FC = () => {
                     <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:rotate-180 transition-all duration-200" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-80 p-0 bg-background/95 backdrop-blur-sm border border-border/50" align="end">
+                <PopoverContent className="w-80 p-0 border border-border/50" align="end">
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-4">
                       <Calendar className="w-5 h-5 text-primary" />
@@ -630,23 +630,6 @@ const StudentOverview: React.FC = () => {
                                 {option.seats} seats available
                               </p>
                             </div>
-                            <div className="text-right space-y-2">
-                              <div className={`text-sm font-semibold px-2 py-1 rounded-md ${
-                                option.seats > 15 ? 'text-green-700 bg-green-100' : 
-                                option.seats > 5 ? 'text-yellow-700 bg-yellow-100' : 'text-red-700 bg-red-100'
-                              }`}>
-                                {option.seats}/{option.totalSeats}
-                              </div>
-                              <div className="w-20 bg-muted rounded-full h-2">
-                                <div 
-                                  className={`h-2 rounded-full transition-all duration-300 ${
-                                    option.seats > 15 ? 'bg-green-500' : 
-                                    option.seats > 5 ? 'bg-yellow-500' : 'bg-red-500'
-                                  }`}
-                                  style={{ width: `${(option.seats / option.totalSeats) * 100}%` }}
-                                ></div>
-                              </div>
-                            </div>
                           </div>
                         </div>
                       ))}
@@ -657,204 +640,43 @@ const StudentOverview: React.FC = () => {
             </div>
 
             {/* Deadline Card */}
-            <div className="bg-orange-50/50 dark:bg-orange-950/20 rounded-lg p-4 border border-orange-200/50 dark:border-orange-800/30">
+            <div className="bg-muted/50 rounded-lg p-4 border">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center">
-                  <AlertCircle className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                </div>
-                <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Application Deadline</p>
+                <AlertCircle className="w-5 h-5 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">Application Deadline</p>
               </div>
-              <p className="text-lg font-bold text-orange-900 dark:text-orange-100">March 15, 2025</p>
-              <p className="text-sm text-orange-600 dark:text-orange-400">23 days remaining</p>
-            </div>
-
-            {/* Application Stage Tracker */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-foreground">Application Progress</h4>
-              <div className="space-y-3">
-                {/* Complete Application */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Complete Application</p>
-                      <p className="text-sm text-muted-foreground">Submit your program application</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                      Complete
-                    </span>
-                  </div>
-                </div>
-
-                {/* Upload Documents */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Upload Documents</p>
-                      <p className="text-sm text-muted-foreground">3 documents pending upload</p>
-                      <p className="text-xs text-red-600 dark:text-red-400">Due in 5 days</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                      Urgent
-                    </span>
-                    <Button size="sm" className="ml-2">
-                      Upload Now
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Apply for Financial Aid */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-                      <DollarSign className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Apply for Financial Aid</p>
-                      <p className="text-sm text-muted-foreground">FAFSA and aid applications</p>
-                      <p className="text-xs text-blue-600 dark:text-blue-400">Due March 15</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      Continue
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Schedule Advisor Meeting */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-foreground">Schedule Advisor Meeting</p>
-                      <p className="text-sm text-muted-foreground">Plan your academic journey</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
-                      Schedule
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Financial Information */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-foreground flex items-center gap-2">
-                <DollarSign className="w-4 h-4 text-primary" />
-                Financial Overview
-              </h4>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
-                  <span className="text-sm text-muted-foreground">Tuition Fee</span>
-                  <span className="font-bold text-foreground">$35,000</span>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-green-50/50 dark:bg-green-950/20 rounded-lg border border-green-200/50 dark:border-green-800/30">
-                  <span className="text-sm text-green-700 dark:text-green-300">Scholarship Available</span>
-                  <span className="font-bold text-green-900 dark:text-green-100">Up to $5,000</span>
-                </div>
-                <Button variant="outline" size="sm" className="w-full">
-                  View Payment Plans
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="space-y-3">
-              <h4 className="font-semibold text-foreground">Quick Actions</h4>
-              <div className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Download Program Brochure
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Users className="w-4 h-4 mr-2" />
-                  Connect with Alumni
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Schedule Campus Tour
-                </Button>
-              </div>
+              <p className="text-lg font-bold text-foreground">March 15, 2025</p>
+              <p className="text-sm text-muted-foreground">23 days remaining</p>
             </div>
           </div>
         </div>
 
       </div>
 
-      {/* Quick Action Cards - Priority Actions */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
-        {/* Start Application - Primary CTA */}
-        <Card className="p-6 bg-primary text-primary-foreground hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-white/20 rounded-lg">
-                <ClipboardList className="h-6 w-6" />
-              </div>
-              <ArrowRight className="h-5 w-5 opacity-60 group-hover:opacity-100 transition-opacity" />
+      {/* Simplified Action Cards */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 ${visibleItems[0] ? 'animate-stagger-1' : 'opacity-0'}`}>
+        {/* Continue Application - Primary CTA */}
+        <Card className="p-6 bg-primary text-primary-foreground hover:shadow-lg transition-all duration-300 cursor-pointer border-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="p-3 bg-white/20 rounded-lg">
+              <ClipboardList className="h-6 w-6" />
             </div>
-            <h3 className="font-bold text-lg mb-1">Start Application</h3>
-            <p className="text-sm opacity-90">Begin your journey today</p>
+            <ArrowRight className="h-5 w-5" />
           </div>
+          <h3 className="font-bold text-lg mb-1">Continue Application</h3>
+          <p className="text-sm opacity-90">Complete your next step</p>
         </Card>
 
         {/* Upload Documents */}
-        <Card className="p-6 bg-accent text-accent-foreground hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer border-0 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-white/20 rounded-lg">
-                <FileText className="h-6 w-6" />
-              </div>
-              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+        <Card className="p-6 bg-card border hover:shadow-lg transition-all duration-300 cursor-pointer">
+          <div className="flex items-center justify-between mb-3">
+            <div className="p-3 bg-muted rounded-lg">
+              <FileText className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="font-bold text-lg mb-1">Upload Documents</h3>
-            <p className="text-sm opacity-90">3 pending uploads</p>
+            <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
           </div>
-        </Card>
-
-        {/* Financial Aid */}
-        <Card className="p-6 bg-card border hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer relative overflow-hidden group">
-          <div className="absolute inset-0 bg-muted/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-muted rounded-lg">
-                <DollarSign className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <CheckCircle className="h-5 w-5 text-success" />
-            </div>
-            <h3 className="font-bold text-lg mb-1 text-foreground">Financial Aid</h3>
-            <p className="text-sm text-muted-foreground">$15,895 available</p>
-          </div>
-        </Card>
-
-        {/* Schedule Advisor */}
-        <Card className="p-6 bg-card border hover:shadow-xl transition-all duration-300 hover:scale-[1.05] cursor-pointer relative overflow-hidden group">
-          <div className="absolute inset-0 bg-muted/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-3 bg-muted rounded-lg">
-                <Calendar className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <Clock className="h-5 w-5 text-muted-foreground" />
-            </div>
-            <h3 className="font-bold text-lg mb-1 text-foreground">Schedule Advisor</h3>
-            <p className="text-sm text-muted-foreground">Get personalized guidance</p>
-          </div>
+          <h3 className="font-bold text-lg mb-1 text-foreground">Upload Documents</h3>
+          <p className="text-sm text-muted-foreground">3 documents required</p>
         </Card>
       </div>
 

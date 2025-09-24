@@ -69,7 +69,11 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                   </div>
                   
                   <div className="flex flex-col">
-                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">{displayData.name}</h1>
+                    <h1 className="text-xl font-bold text-slate-900 dark:text-white">
+                      {profile?.first_name && profile?.last_name 
+                        ? `${profile.first_name} ${profile.last_name}` 
+                        : session?.student_name || user?.email?.split('@')[0] || 'Student'}
+                    </h1>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm text-violet-600 dark:text-violet-400 font-medium">ID: {displayData.studentId}</span>
                       <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800 text-xs px-2 py-1">

@@ -85,20 +85,44 @@ export class ChatbotService {
     message: string,
     context?: ChatContext
   ): Promise<ChatMessage> {
+    // Try to persist to DB, but fall back to in-memory so the chat never breaks
     try {
-      // Save user message first
-      const userMessage = await this.saveMessage(leadId, agentId, message, 'student');
-      
+      // Save user message first (best effort)
+      try {
+        await this.saveMessage(leadId, agentId, message, 'student');
+      } catch (err) {
+        console.warn('Non-blocking: failed to persist user message, continuing with AI response.', err);
+      }
+
       // Generate AI response
       const aiResponse = await this.generateAIResponse(agentId, message, context);
-      
-      // Save AI response
-      const aiMessage = await this.saveMessage(leadId, agentId, aiResponse, 'agent');
-      
-      return aiMessage;
+
+      // Try saving AI response; if it fails, return a transient message so UI can show it
+      try {
+        const aiMessage = await this.saveMessage(leadId, agentId, aiResponse, 'agent');
+        return aiMessage;
+      } catch (err) {
+        console.warn('Non-blocking: failed to persist AI message, returning transient message.', err);
+        return {
+          id: `temp-ai-${Date.now()}`,
+          text: aiResponse,
+          isUser: false,
+          timestamp: new Date(),
+          agentId,
+          messageType: 'text',
+        };
+      }
     } catch (error) {
       console.error('Error sending message:', error);
-      throw error;
+      // Return a minimal transient error message to avoid hard failure in UI
+      return {
+        id: `temp-error-${Date.now()}`,
+        text: 'Sorry, I ran into a problem. Please try again in a moment.',
+        isUser: false,
+        timestamp: new Date(),
+        agentId,
+        messageType: 'text',
+      };
     }
   }
 

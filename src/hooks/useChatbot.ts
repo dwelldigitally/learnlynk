@@ -80,9 +80,16 @@ export function useChatbot(leadId?: string) {
       setIsTyping(true);
       return { previousMessages };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setIsTyping(false);
-      // Refresh conversations and messages
+      // Ensure AI response appears immediately even if DB write fails
+      if (data) {
+        queryClient.setQueryData<ChatMessage[]>(['chatbot-messages', internalLeadId, activeAgent], old => [
+          ...(old || []),
+          data
+        ]);
+      }
+      // Refresh conversations and messages in background
       queryClient.invalidateQueries({ queryKey: ['chatbot-conversations'] });
       queryClient.invalidateQueries({ queryKey: ['chatbot-messages', internalLeadId, activeAgent] });
     },

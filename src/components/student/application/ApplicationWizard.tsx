@@ -11,10 +11,7 @@ import { ProgramIntakeDate } from "@/constants/intakeDates";
 
 // Import enhanced step components
 import ProgramSelectionStep from "./ProgramSelectionStep";
-import ProgramDetailsView from "./ProgramDetailsView";
-import FinancialBreakdownView from "./FinancialBreakdownView";
-import RequirementsView from "./RequirementsView";
-import IntakeSelectionView from "./IntakeSelectionView";
+import ProgramDetailsReview from "./ProgramDetailsReview";
 
 // Import original step components
 import PersonalInfoStep from "./steps/PersonalInfoStep";
@@ -34,10 +31,7 @@ interface ApplicationWizardProps {
 
 const steps = [
   { id: 'program_selection', title: 'Program Selection', description: 'Choose your program of study' },
-  { id: 'program_details', title: 'Program Overview', description: 'Learn about your chosen program' },
-  { id: 'financial_breakdown', title: 'Financial Information', description: 'Understand costs and payment options' },
-  { id: 'requirements', title: 'Requirements', description: 'Review entry requirements and documents' },
-  { id: 'intake_selection', title: 'Intake Selection', description: 'Choose your start date' },
+  { id: 'program_review', title: 'Program Details Review', description: 'Review program details, costs, requirements, and select intake' },
   { id: 'personal_info', title: 'Personal Information', description: 'Basic contact and personal details' },
   { id: 'education', title: 'Education Background', description: 'Academic history and qualifications' },
   { id: 'work_experience', title: 'Experience', description: 'Work, volunteer, and other experiences' },
@@ -235,40 +229,16 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
             selectedProgram={selectedProgram}
           />
         );
-      case 'program_details':
+      case 'program_review':
         return selectedProgram ? (
-          <ProgramDetailsView 
+          <ProgramDetailsReview 
             program={selectedProgram}
-            onContinue={nextStep}
             onBack={prevStep}
+            onContinue={nextStep}
+            onIntakeSelect={handleIntakeSelection}
+            selectedIntake={selectedIntake}
           />
         ) : null;
-      case 'financial_breakdown':
-        return selectedProgram ? (
-          <FinancialBreakdownView 
-            program={selectedProgram}
-            onContinue={nextStep}
-            onBack={prevStep}
-          />
-        ) : null;
-      case 'requirements':
-        return selectedProgram ? (
-          <RequirementsView 
-            program={selectedProgram}
-            onContinue={nextStep}
-            onBack={prevStep}
-          />
-        ) : null;
-case 'intake_selection':
-  return selectedProgram ? (
-    <IntakeSelectionView 
-      program={selectedProgram}
-      onSelect={handleIntakeSelection}
-      onBack={prevStep}
-      onContinue={nextStep}
-      selectedIntake={selectedIntake}
-    />
-  ) : null;
       case 'personal_info':
         return <PersonalInfoStep data={stepData} onUpdate={updateApplicationData} />;
       case 'education':
@@ -296,14 +266,8 @@ case 'intake_selection':
     switch (steps[currentStep].id) {
       case 'program_selection':
         return selectedProgram !== undefined;
-      case 'program_details':
-        return true; // Information step, always valid
-      case 'financial_breakdown':
-        return true; // Information step, always valid
-      case 'requirements':
-        return true; // Information step, always valid
-      case 'intake_selection':
-        return selectedIntake !== undefined;
+      case 'program_review':
+        return selectedProgram !== undefined && selectedIntake !== undefined;
       case 'personal_info':
         return stepData.firstName && stepData.lastName && stepData.email;
       case 'education':
@@ -378,7 +342,7 @@ case 'intake_selection':
         </div>
 
       {/* Navigation Footer - Moved to Top and Made Bigger */}
-      {!['program_details', 'financial_breakdown', 'requirements'].includes(steps[currentStep].id) && (
+      {!['program_review'].includes(steps[currentStep].id) && (
         <div className="p-8 border bg-muted/20 rounded-lg shadow-sm">
           <div className="flex justify-between items-center">
             <Button
@@ -393,7 +357,7 @@ case 'intake_selection':
             </Button>
             
             <div className="flex gap-4">
-              {currentStep > 4 && ( // Only show save after intake selection
+              {currentStep > 1 && ( // Only show save after program review
                 <Button variant="outline" onClick={handleSaveAndExit} disabled={isLoading} size="lg" className="px-6 py-3">
                   <Save className="w-5 h-5 mr-2" />
                   Save & Exit
@@ -406,7 +370,7 @@ case 'intake_selection':
                 </Button>
               ) : (
                 <Button onClick={nextStep} disabled={!isStepValid()} size="lg" className="px-6 py-3">
-                  {steps[currentStep].id === 'intake_selection' ? 'Start Application' : 'Next'}
+                  {steps[currentStep].id === 'program_review' ? 'Start Application' : 'Next'}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               )}
@@ -417,11 +381,11 @@ case 'intake_selection':
 
         {/* Step Content */}
         <div className={`${
-          ['program_selection', 'program_details', 'financial_breakdown', 'requirements', 'intake_selection'].includes(steps[currentStep].id)
+          ['program_selection', 'program_review'].includes(steps[currentStep].id)
             ? '' // No padding for enhanced steps that manage their own layout
             : 'p-6 bg-background rounded-lg border'
         }`}>
-          {['program_selection', 'program_details', 'financial_breakdown', 'requirements', 'intake_selection'].includes(steps[currentStep].id) ? (
+          {['program_selection', 'program_review'].includes(steps[currentStep].id) ? (
             renderStep()
           ) : (
             <>

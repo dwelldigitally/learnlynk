@@ -64,125 +64,193 @@ export function SalesCommandCenter() {
   ];
 
   return (
-    <div className="space-y-8 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-4xl font-bold text-foreground flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 border border-primary/20">
-              <Target className="h-8 w-8 text-primary" />
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Modern Hero Header with Glass Morphism */}
+      <div className="relative overflow-hidden aurora-hero">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="relative backdrop-blur-xl bg-white/10 border-b border-white/20">
+          <div className="container mx-auto px-8 py-12">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+              <div className="space-y-6">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+                    <div className="relative glass-card p-4 rounded-2xl">
+                      <Target className="h-10 w-10 text-primary" />
+                    </div>
+                  </div>
+                  <div>
+                    <h1 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+                      Sales Command Center
+                    </h1>
+                    <p className="text-xl text-muted-foreground mt-3 font-medium">
+                      Real-time monitoring and control of enrollment operations
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <div className="glass-card px-6 py-3 rounded-2xl">
+                  <Badge variant="outline" className="text-success border-success/30 bg-success/10 px-4 py-2 text-sm font-semibold">
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    System Operational
+                  </Badge>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  onClick={() => setShowBenchmarkDialog(true)} 
+                  className="glass-button border-white/30 hover:bg-white/20 px-6 py-3 text-sm font-semibold"
+                >
+                  <Settings className="h-5 w-5 mr-2" />
+                  Configure Settings
+                </Button>
+              </div>
             </div>
-            Sales Command Center
-          </h1>
-          <p className="text-muted-foreground mt-2 text-lg">
-            Real-time monitoring and control of enrollment operations
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <Badge variant="outline" className="text-success border-success/20 bg-success/5 px-3 py-1">
-            <CheckCircle className="h-4 w-4 mr-2" />
-            System Operational
-          </Badge>
-          <Button variant="outline" size="sm" onClick={() => setShowBenchmarkDialog(true)} className="gap-2">
-            <Settings className="h-4 w-4" />
-            Configure
-          </Button>
+          </div>
         </div>
       </div>
 
+      <div className="container mx-auto px-8 py-8 space-y-8">
 
-      {/* Critical Issues & Actions */}
-      <Card className="border-warning/20 bg-warning/5 border">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-3 text-foreground">
-            <div className="p-2 rounded-lg bg-warning/10 border border-warning/20">
-              <Zap className="h-5 w-5 text-warning" />
-            </div>
-            Critical Issues Requiring Action
-          </CardTitle>
-          <CardDescription className="text-muted-foreground">
-            High-priority items that need immediate attention to maintain performance
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {urgentItems.map((item) => (
-              <div key={item.id} className="flex items-center justify-between p-4 bg-card/80 rounded-xl border border-border hover:shadow-md transition-all duration-200">
-                <div className="flex items-center gap-4">
-                  <div className={`w-4 h-4 rounded-full flex-shrink-0 ${
-                    item.severity === 'critical' ? 'bg-destructive shadow-lg shadow-destructive/20' :
-                    item.severity === 'high' ? 'bg-warning shadow-lg shadow-warning/20' : 'bg-warning/60 shadow-lg shadow-warning/10'
-                  }`} />
-                  <div className="flex-grow">
-                    <p className="font-semibold text-foreground text-lg">{item.title}</p>
-                    <p className="text-muted-foreground mt-1">{item.description}</p>
-                  </div>
-                  <Badge variant="secondary" className="ml-3 px-3 py-1 text-sm font-medium">{item.count}</Badge>
+
+        {/* Critical Issues & Actions - Glass Morphism */}
+        <div className="glass-card border border-warning/30 bg-gradient-to-br from-warning/10 via-warning/5 to-transparent backdrop-blur-xl rounded-3xl shadow-2xl">
+          <div className="p-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="relative">
+                <div className="absolute inset-0 bg-warning/30 blur-lg rounded-full" />
+                <div className="relative glass-card p-3 rounded-2xl">
+                  <Zap className="h-7 w-7 text-warning" />
                 </div>
-                <Button size="sm" variant="outline" className="ml-4">
-                  {item.action}
-                </Button>
               </div>
-            ))}
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Critical Issues Requiring Action</h2>
+                <p className="text-muted-foreground text-lg mt-1">
+                  High-priority items that need immediate attention to maintain performance
+                </p>
+              </div>
+            </div>
+            
+            <div className="grid gap-4">
+              {urgentItems.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className="group glass-card p-6 rounded-2xl border border-white/20 hover:border-white/40 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] animate-fade-in"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-6">
+                      <div className="relative">
+                        <div className={`absolute inset-0 blur-md rounded-full ${
+                          item.severity === 'critical' ? 'bg-destructive/40' :
+                          item.severity === 'high' ? 'bg-warning/40' : 'bg-warning/20'
+                        }`} />
+                        <div className={`relative w-5 h-5 rounded-full ${
+                          item.severity === 'critical' ? 'bg-destructive' :
+                          item.severity === 'high' ? 'bg-warning' : 'bg-warning/60'
+                        }`} />
+                      </div>
+                      
+                      <div className="flex-grow">
+                        <h3 className="font-bold text-foreground text-xl group-hover:text-primary transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-muted-foreground mt-2 text-base">{item.description}</p>
+                      </div>
+                      
+                      <div className="glass-card px-4 py-2 rounded-xl">
+                        <Badge variant="secondary" className="text-base font-bold px-3 py-1">
+                          {item.count}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="glass-button border-primary/30 hover:bg-primary/10 hover:border-primary/50 ml-6 px-6 py-3 font-semibold"
+                    >
+                      {item.action}
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </CardContent>
-      </Card>
-
-
-      {/* Main Command Center Interface */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
-        <div className="bg-gradient-subtle p-2 rounded-2xl border-2 border-border shadow-lg">
-          <TabsList className="grid w-full grid-cols-4 bg-transparent gap-2 h-auto p-2">
-            <TabsTrigger 
-              value="alert-center" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-destructive/20 data-[state=active]:text-destructive data-[state=active]:bg-destructive/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
-            >
-              <div className="p-2 rounded-lg bg-destructive/10 data-[state=active]:bg-destructive/20">
-                <AlertTriangle className="h-6 w-6" />
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-sm">Critical Issues</div>
-                <div className="text-xs text-muted-foreground mt-1">Urgent alerts & escalations</div>
-              </div>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="flash-reports" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-primary/20 data-[state=active]:text-primary data-[state=active]:bg-primary/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
-            >
-              <div className="p-2 rounded-lg bg-primary/10 data-[state=active]:bg-primary/20">
-                <PieChart className="h-6 w-6" />
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-sm">Pipeline Analytics</div>
-                <div className="text-xs text-muted-foreground mt-1">Real-time metrics & forecasting</div>
-              </div>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="team-performance" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-success/20 data-[state=active]:text-success data-[state=active]:bg-success/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
-            >
-              <div className="p-2 rounded-lg bg-success/10 data-[state=active]:bg-success/20">
-                <Award className="h-6 w-6" />
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-sm">Team Dashboard</div>
-                <div className="text-xs text-muted-foreground mt-1">Performance & leaderboards</div>
-              </div>
-            </TabsTrigger>
-            <TabsTrigger 
-              value="workflow-automation" 
-              className="flex flex-col items-center gap-3 py-6 px-8 rounded-xl data-[state=active]:bg-card data-[state=active]:shadow-xl data-[state=active]:border-2 data-[state=active]:border-accent/20 data-[state=active]:text-accent data-[state=active]:bg-accent/5 hover:bg-card/70 hover:shadow-md transition-all duration-300"
-            >
-              <div className="p-2 rounded-lg bg-accent/10 data-[state=active]:bg-accent/20">
-                <Brain className="h-6 w-6" />
-              </div>
-              <div className="text-center">
-                <div className="font-bold text-sm">AI Automation</div>
-                <div className="text-xs text-muted-foreground mt-1">Workflow & agent management</div>
-              </div>
-            </TabsTrigger>
-          </TabsList>
         </div>
+
+
+        {/* Main Command Center Interface - Glass Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <div className="glass-card p-3 rounded-3xl border border-white/20 backdrop-blur-xl shadow-2xl">
+            <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-4 bg-transparent gap-3 h-auto p-0">
+              <TabsTrigger 
+                value="alert-center" 
+                className="group flex flex-col items-center gap-4 py-8 px-6 rounded-2xl data-[state=active]:glass-card data-[state=active]:shadow-2xl data-[state=active]:border-2 data-[state=active]:border-destructive/30 data-[state=active]:text-destructive data-[state=active]:bg-gradient-to-br data-[state=active]:from-destructive/10 data-[state=active]:to-destructive/5 hover:glass-card hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-destructive/20 blur-lg rounded-full group-data-[state=active]:bg-destructive/40" />
+                  <div className="relative glass-card p-4 rounded-2xl">
+                    <AlertTriangle className="h-8 w-8" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-base">Critical Issues</div>
+                  <div className="text-sm text-muted-foreground mt-2">Urgent alerts & escalations</div>
+                </div>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="flash-reports" 
+                className="group flex flex-col items-center gap-4 py-8 px-6 rounded-2xl data-[state=active]:glass-card data-[state=active]:shadow-2xl data-[state=active]:border-2 data-[state=active]:border-primary/30 data-[state=active]:text-primary data-[state=active]:bg-gradient-to-br data-[state=active]:from-primary/10 data-[state=active]:to-primary/5 hover:glass-card hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-primary/20 blur-lg rounded-full group-data-[state=active]:bg-primary/40" />
+                  <div className="relative glass-card p-4 rounded-2xl">
+                    <PieChart className="h-8 w-8" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-base">Pipeline Analytics</div>
+                  <div className="text-sm text-muted-foreground mt-2">Real-time metrics & forecasting</div>
+                </div>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="team-performance" 
+                className="group flex flex-col items-center gap-4 py-8 px-6 rounded-2xl data-[state=active]:glass-card data-[state=active]:shadow-2xl data-[state=active]:border-2 data-[state=active]:border-success/30 data-[state=active]:text-success data-[state=active]:bg-gradient-to-br data-[state=active]:from-success/10 data-[state=active]:to-success/5 hover:glass-card hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-success/20 blur-lg rounded-full group-data-[state=active]:bg-success/40" />
+                  <div className="relative glass-card p-4 rounded-2xl">
+                    <Award className="h-8 w-8" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-base">Team Dashboard</div>
+                  <div className="text-sm text-muted-foreground mt-2">Performance & leaderboards</div>
+                </div>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="workflow-automation" 
+                className="group flex flex-col items-center gap-4 py-8 px-6 rounded-2xl data-[state=active]:glass-card data-[state=active]:shadow-2xl data-[state=active]:border-2 data-[state=active]:border-accent/30 data-[state=active]:text-accent data-[state=active]:bg-gradient-to-br data-[state=active]:from-accent/10 data-[state=active]:to-accent/5 hover:glass-card hover:shadow-xl transition-all duration-300 hover:scale-105"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-accent/20 blur-lg rounded-full group-data-[state=active]:bg-accent/40" />
+                  <div className="relative glass-card p-4 rounded-2xl">
+                    <Brain className="h-8 w-8" />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="font-bold text-base">AI Automation</div>
+                  <div className="text-sm text-muted-foreground mt-2">Workflow & agent management</div>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
         <TabsContent value="flash-reports" className="space-y-4">
           <FlashReports />
@@ -196,34 +264,46 @@ export function SalesCommandCenter() {
           <TeamPerformance />
         </TabsContent>
 
-        <TabsContent value="workflow-automation" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="h-5 w-5" />
-                Workflow Automation
-              </CardTitle>
-              <CardDescription>
-                Automated sequences, lead routing, and task management
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Automation hub coming soon...</p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Manage lead sequences, auto-assignments, and workflow triggers
-                </p>
+          <TabsContent value="workflow-automation" className="space-y-4">
+            <div className="glass-card border border-white/20 backdrop-blur-xl rounded-3xl shadow-2xl">
+              <div className="p-8">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-accent/30 blur-lg rounded-full" />
+                    <div className="relative glass-card p-3 rounded-2xl">
+                      <Zap className="h-7 w-7 text-accent" />
+                    </div>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">Workflow Automation</h2>
+                    <p className="text-muted-foreground text-lg mt-1">
+                      Automated sequences, lead routing, and task management
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="glass-card p-12 rounded-2xl border border-white/10 bg-gradient-to-br from-accent/5 to-transparent">
+                  <div className="text-center space-y-4">
+                    <div className="mx-auto w-20 h-20 glass-card rounded-2xl flex items-center justify-center">
+                      <Brain className="h-10 w-10 text-accent" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-foreground">Automation Hub Coming Soon</h3>
+                    <p className="text-lg text-muted-foreground max-w-md mx-auto">
+                      Manage lead sequences, auto-assignments, and workflow triggers from a unified interface
+                    </p>
+                  </div>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </TabsContent>
       </Tabs>
 
-      {/* Benchmark Settings Dialog */}
-      <BenchmarkSettingsDialog 
-        open={showBenchmarkDialog} 
-        onOpenChange={setShowBenchmarkDialog} 
-      />
+        {/* Benchmark Settings Dialog */}
+        <BenchmarkSettingsDialog 
+          open={showBenchmarkDialog} 
+          onOpenChange={setShowBenchmarkDialog} 
+        />
+      </div>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MessageCircle, X } from 'lucide-react';
+import { MessageCircle, X, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -180,7 +180,7 @@ export const ModernChatbot: React.FC<ModernChatbotProps> = ({
                     onClick={() => setView('conversations')}
                     className="text-white hover:bg-white/20 h-9 w-9 p-0 rounded-lg transition-all duration-200 hover:scale-105 shadow-soft"
                   >
-                    📋
+                    <History className="h-4 w-4" />
                   </Button>
                   <Button
                     variant="ghost"

@@ -79,4 +79,6 @@ export type AdmissionStage =
   | "SEND_DOCUMENTS"
   | "DOCUMENT_APPROVAL"
   | "FEE_PAYMENT"
-  | "ACCEPTED";
+  | "ACCEPTED"
+  | "WAITLISTED"
+  | "DECLINED";

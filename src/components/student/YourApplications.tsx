@@ -58,6 +58,8 @@ const YourApplications: React.FC = () => {
   const getStatusColor = (stage: string) => {
     switch (stage) {
       case 'ACCEPTED': return 'bg-green-100 text-green-800 border-green-200';
+      case 'WAITLISTED': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'DECLINED': return 'bg-red-100 text-red-800 border-red-200';
       case 'FEE_PAYMENT': return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'DOCUMENT_APPROVAL': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       case 'SEND_DOCUMENTS': return 'bg-orange-100 text-orange-800 border-orange-200';
@@ -68,6 +70,8 @@ const YourApplications: React.FC = () => {
   const getStatusIcon = (stage: string) => {
     switch (stage) {
       case 'ACCEPTED': return <CheckCircle className="w-4 h-4" />;
+      case 'WAITLISTED': return <Clock className="w-4 h-4" />;
+      case 'DECLINED': return <AlertCircle className="w-4 h-4" />;
       case 'FEE_PAYMENT': return <CheckCircle className="w-4 h-4" />;
       case 'DOCUMENT_APPROVAL': return <Clock className="w-4 h-4" />;
       case 'SEND_DOCUMENTS': return <AlertCircle className="w-4 h-4" />;
@@ -78,8 +82,10 @@ const YourApplications: React.FC = () => {
   const getStatusText = (stage: string) => {
     switch (stage) {
       case 'ACCEPTED': return 'Accepted';
+      case 'WAITLISTED': return 'Waitlisted';
+      case 'DECLINED': return 'Declined';
       case 'FEE_PAYMENT': return 'Fee Payment Required';
-      case 'DOCUMENT_APPROVAL': return 'Document Review';
+      case 'DOCUMENT_APPROVAL': return 'Pending Decision';
       case 'SEND_DOCUMENTS': return 'Documents Required';
       default: return 'In Progress';
     }
@@ -134,8 +140,12 @@ const YourApplications: React.FC = () => {
               <div className="text-sm text-muted-foreground">Accepted</div>
             </div>
             <div className="text-center">
+              <div className="text-2xl font-bold text-amber-600">{existingApplications.filter(app => app.stage === 'WAITLISTED').length}</div>
+              <div className="text-sm text-muted-foreground">Waitlisted</div>
+            </div>
+            <div className="text-center">
               <div className="text-2xl font-bold text-yellow-600">{existingApplications.filter(app => app.stage === 'DOCUMENT_APPROVAL').length}</div>
-              <div className="text-sm text-muted-foreground">In Review</div>
+              <div className="text-sm text-muted-foreground">Pending</div>
             </div>
           </div>
         </div>
@@ -160,9 +170,10 @@ const YourApplications: React.FC = () => {
           <div className="mb-6 flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="bg-background">All Applications</Button>
             <Button variant="ghost" size="sm">In Progress</Button>
-            <Button variant="ghost" size="sm">Under Review</Button>
+            <Button variant="ghost" size="sm">Pending Decision</Button>
             <Button variant="ghost" size="sm">Accepted</Button>
-            <Button variant="ghost" size="sm">Pending Documents</Button>
+            <Button variant="ghost" size="sm">Waitlisted</Button>
+            <Button variant="ghost" size="sm">Declined</Button>
           </div>
         )}
 
@@ -233,6 +244,8 @@ const YourApplications: React.FC = () => {
         {existingApplications.map((application, index) => (
           <Card key={application.id} className={`p-10 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 mx-2 ${
             application.stage === 'ACCEPTED' ? 'border-l-green-500' : 
+            application.stage === 'WAITLISTED' ? 'border-l-amber-500' :
+            application.stage === 'DECLINED' ? 'border-l-red-500' :
             application.stage === 'DOCUMENT_APPROVAL' ? 'border-l-yellow-500' :
             application.stage === 'SEND_DOCUMENTS' ? 'border-l-orange-500' : 'border-l-gray-300'
           } ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
@@ -333,6 +346,20 @@ const YourApplications: React.FC = () => {
                 </Button>
               )}
               
+              {application.stage === 'WAITLISTED' && (
+                <Button variant="outline" size="sm">
+                  <Clock className="w-4 h-4 mr-2" />
+                  View Waitlist Status
+                </Button>
+              )}
+              
+              {application.stage === 'DECLINED' && (
+                <Button variant="outline" size="sm">
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Alternative Programs
+                </Button>
+              )}
+              
               <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -383,6 +410,42 @@ const YourApplications: React.FC = () => {
                 </div>
                 <p className="text-sm text-yellow-700 mt-1">
                   Please upload all required documents to proceed with your application.
+                </p>
+              </div>
+            )}
+
+            {application.stage === 'WAITLISTED' && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-amber-600" />
+                  <span className="font-medium text-amber-800">You're on the Waitlist</span>
+                </div>
+                <p className="text-sm text-amber-700 mt-1">
+                  {application.nextStep || "You're currently waitlisted for this program. We'll notify you if a spot becomes available."}
+                </p>
+              </div>
+            )}
+
+            {application.stage === 'DECLINED' && (
+              <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
+                  <span className="font-medium text-red-800">Application Not Successful</span>
+                </div>
+                <p className="text-sm text-red-700 mt-1">
+                  Unfortunately, your application was not successful this time. Consider exploring alternative programs or reapplying in the future.
+                </p>
+              </div>
+            )}
+
+            {application.stage === 'DOCUMENT_APPROVAL' && application.progress >= 80 && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                  <span className="font-medium text-blue-800">Decision Pending</span>
+                </div>
+                <p className="text-sm text-blue-700 mt-1">
+                  All required documents have been submitted and approved. Your application is under final review.
                 </p>
               </div>
             )}

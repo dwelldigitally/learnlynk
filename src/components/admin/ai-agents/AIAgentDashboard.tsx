@@ -295,122 +295,168 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
   const activeAgents = MOCK_AGENTS.filter(agent => agent.status === 'active').length;
 
   return (
-    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 bg-background min-h-screen">
-      {/* Modern Header with Gradient */}
-      <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground px-4 sm:px-6 lg:px-8 py-6 sm:py-8 rounded-xl shadow-lg">
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-4 space-y-4 lg:space-y-0">
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <Bot className="w-5 h-5 sm:w-6 sm:h-6" />
-              <h1 className="text-2xl sm:text-3xl font-bold">AI Agents</h1>
-            </div>
-            <p className="text-primary-foreground/80 text-base sm:text-lg">
-              Autonomous agents for admissions counseling and student journey management
-            </p>
-          </div>
-          
-          <div className="text-center lg:text-right">
-            <div className="mb-2">
-              <div className="text-3xl sm:text-4xl font-bold">{activeAgents}</div>
-              <div className="text-primary-foreground/80 text-sm">Active Agents</div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+      <div className="space-y-8 p-6 lg:p-8">
+        {/* Hero Header with Modern Design */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/95 to-primary/85 text-primary-foreground shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 opacity-50"></div>
+          <div className="relative px-8 py-12 lg:px-12 lg:py-16">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary-foreground/10 rounded-2xl backdrop-blur-sm">
+                    <Bot className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">AI Agents</h1>
+                    <p className="text-primary-foreground/80 text-lg mt-2">
+                      Autonomous intelligence for admissions & student success
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-8">
+                <div className="text-center">
+                  <div className="text-4xl font-bold">{activeAgents}</div>
+                  <div className="text-primary-foreground/80 text-sm">Active Agents</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-4xl font-bold">{totalStudentsManaged.toLocaleString()}</div>
+                  <div className="text-primary-foreground/80 text-sm">Students Managed</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Modern Agent Categories */}
-      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <TabsList className="grid w-full sm:w-auto grid-cols-2 bg-muted/50">
-            <TabsTrigger value="admission" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <UserCheck className="h-4 w-4" />
-              <span className="hidden sm:inline">AI Admission Advisors</span>
-              <span className="sm:hidden">Admission</span>
-            </TabsTrigger>
-            <TabsTrigger value="journey" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-              <Route className="h-4 w-4" />
-              <span className="hidden sm:inline">Journey AI Agents</span>
-              <span className="sm:hidden">Journey</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button 
-              onClick={handleCreateAdmissionAgent}
-              variant={activeCategory === 'admission' ? 'default' : 'outline'}
-              disabled={activeCategory !== 'admission'}
-              size="sm"
-              className="w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Create Admission Agent</span>
-              <span className="sm:hidden">Create Admission</span>
-            </Button>
-            <Button 
-              onClick={handleCreateJourneyAgent}
-              variant={activeCategory === 'journey' ? 'default' : 'outline'}
-              disabled={activeCategory !== 'journey'}
-              size="sm"
-              className="w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Create Journey Agent</span>
-              <span className="sm:hidden">Create Journey</span>
-            </Button>
+        {/* Enhanced Navigation Tabs */}
+        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="space-y-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <TabsList className="bg-card border border-border/50 shadow-lg rounded-xl p-1 grid grid-cols-2 w-full lg:w-auto">
+              <TabsTrigger 
+                value="admission" 
+                className="flex items-center gap-3 py-3 px-6 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              >
+                <UserCheck className="h-5 w-5" />
+                <div className="text-left hidden sm:block">
+                  <div className="font-semibold">Admission Advisors</div>
+                  <div className="text-xs opacity-80">AI-powered counseling</div>
+                </div>
+                <span className="sm:hidden font-medium">Admission</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="journey" 
+                className="flex items-center gap-3 py-3 px-6 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
+              >
+                <Route className="h-5 w-5" />
+                <div className="text-left hidden sm:block">
+                  <div className="font-semibold">Journey Agents</div>
+                  <div className="text-xs opacity-80">Student progression</div>
+                </div>
+                <span className="sm:hidden font-medium">Journey</span>
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="flex gap-3">
+              <Button 
+                onClick={handleCreateAdmissionAgent}
+                variant={activeCategory === 'admission' ? 'default' : 'outline'}
+                disabled={activeCategory !== 'admission'}
+                size="lg"
+                className="shadow-lg hover:shadow-xl transition-all"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Create {activeCategory === 'admission' ? 'Admission' : 'Journey'} Agent
+              </Button>
+              <Button 
+                onClick={handleCreateJourneyAgent}
+                variant={activeCategory === 'journey' ? 'default' : 'outline'}
+                disabled={activeCategory !== 'journey'}
+                size="lg"
+                className="shadow-lg hover:shadow-xl transition-all"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Create {activeCategory === 'journey' ? 'Journey' : 'Admission'} Agent
+              </Button>
+            </div>
           </div>
-        </div>
 
         <TabsContent value="admission" className="space-y-6">
-          {/* Modern Stats Overview */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-                  <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">{activeAgents}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Active Advisors</div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg">
-                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">{totalStudentsManaged.toLocaleString()}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Students Managed</div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg">
-                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">{totalTasksExecuted.toLocaleString()}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Tasks Executed</div>
-                </div>
-              </div>
-            </Card>
-            
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg">
-                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    {Math.round(MOCK_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.averageConfidence || 0), 0) / MOCK_AGENTS.length)}%
+          {/* Modern Analytics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/50 dark:to-blue-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Active Advisors</p>
+                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{activeAgents}</p>
+                    <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+12% this month</span>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Avg Confidence</div>
+                  <div className="p-3 bg-blue-500/10 rounded-2xl group-hover:bg-blue-500/20 transition-colors">
+                    <UserCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  </div>
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/50 dark:to-green-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Students Managed</p>
+                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">{totalStudentsManaged.toLocaleString()}</p>
+                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+8% this week</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-green-500/10 rounded-2xl group-hover:bg-green-500/20 transition-colors">
+                    <Users className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/50 dark:to-purple-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Tasks Executed</p>
+                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{totalTasksExecuted.toLocaleString()}</p>
+                    <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+15% today</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-purple-500/10 rounded-2xl group-hover:bg-purple-500/20 transition-colors">
+                    <MessageSquare className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/50 dark:to-orange-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Avg Confidence</p>
+                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
+                      {Math.round(MOCK_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.averageConfidence || 0), 0) / MOCK_AGENTS.length)}%
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
+                      <Target className="w-3 h-3" />
+                      <span>High accuracy</span>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-orange-500/10 rounded-2xl group-hover:bg-orange-500/20 transition-colors">
+                    <Target className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+                  </div>
+                </div>
+              </CardContent>
             </Card>
           </div>
 
@@ -426,94 +472,103 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
               </Badge>
             </div>
             
-            <div className="space-y-4">
-              {MOCK_AGENTS.map((agent) => (
-                <Card key={agent.id} className={`p-4 sm:p-6 transition-shadow hover:shadow-md ${agent.status === 'active' ? 'border-green-200 bg-green-50/30' : ''}`}>
-                  <div className="space-y-4">
-                    {/* Agent Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`p-1.5 sm:p-2 rounded-full ${agent.status === 'active' ? 'bg-green-100' : 'bg-muted'}`}>
-                            {agent.status === 'active' ? (
-                              <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
-                            ) : (
-                              <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                            )}
+            <div className="space-y-6">
+              {MOCK_AGENTS.map((agent, index) => (
+                <Card key={agent.id} className={`group relative overflow-hidden border-0 bg-gradient-to-r ${
+                  agent.status === 'active' 
+                    ? 'from-green-50 via-white to-green-50/50 dark:from-green-950/20 dark:via-background dark:to-green-950/10 shadow-lg shadow-green-100/50' 
+                    : 'from-gray-50 via-white to-gray-50/50 dark:from-gray-950/20 dark:via-background dark:to-gray-950/10'
+                } hover:shadow-2xl transition-all duration-500 hover:-translate-y-2`}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Status Indicator */}
+                  <div className={`absolute top-0 left-0 w-2 h-full ${
+                    agent.status === 'active' ? 'bg-gradient-to-b from-green-400 to-green-600' : 'bg-gradient-to-b from-gray-300 to-gray-500'
+                  }`}></div>
+                  
+                  <CardContent className="p-8 relative">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                      <div className="flex-1 space-y-6">
+                        {/* Agent Header */}
+                        <div className="flex items-start gap-4">
+                          <div className={`p-4 rounded-2xl ${
+                            agent.status === 'active' 
+                              ? 'bg-green-100 dark:bg-green-900/30 ring-2 ring-green-200 dark:ring-green-800' 
+                              : 'bg-gray-100 dark:bg-gray-800/30'
+                          } transition-all group-hover:scale-110`}>
+                            <Bot className={`w-8 h-8 ${
+                              agent.status === 'active' ? 'text-green-600 dark:text-green-400' : 'text-gray-500'
+                            }`} />
                           </div>
-                          <div>
-                            <h3 className="text-base sm:text-lg font-semibold">{agent.name}</h3>
-                            <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
-                              <Badge variant={
-                                agent.status === 'active' ? 'default' : 
-                                agent.status === 'shadow' ? 'secondary' : 
-                                'outline'
-                              } className="text-xs">
-                                {agent.status === 'active' ? 'Active' : 
-                                 agent.status === 'shadow' ? 'Shadow Mode' : 
-                                 'Paused'}
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-3 mb-3">
+                              <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">{agent.name}</h3>
+                              <Badge variant={agent.status === 'active' ? 'default' : agent.status === 'shadow' ? 'secondary' : 'outline'} 
+                                     className="px-3 py-1">
+                                {agent.status === 'active' ? 'Active' : agent.status === 'shadow' ? 'Shadow Mode' : 'Paused'}
                               </Badge>
                               {agent.status === 'active' && (
-                                <Badge variant="outline" className="text-xs bg-green-100 text-green-800 border-green-200">
+                                <Badge className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 px-3 py-1">
                                   {agent.metrics?.averageConfidence}% confidence
                                 </Badge>
                               )}
                             </div>
+                            <p className="text-muted-foreground text-lg leading-relaxed">{agent.description}</p>
                           </div>
                         </div>
                         
-                        <p className="text-muted-foreground ml-8 sm:ml-12 text-sm">{agent.description}</p>
-                        
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 ml-8 sm:ml-12 text-sm">
-                          <div>
-                            <p className="font-medium text-foreground">Students Managed</p>
-                            <p className="text-muted-foreground">{agent.metrics?.studentsManaged || 0}</p>
+                        {/* Metrics Grid */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                          <div className="text-center p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{agent.metrics?.studentsManaged || 0}</div>
+                            <div className="text-sm text-blue-600 dark:text-blue-400">Students Managed</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Tasks Executed</p>
-                            <p className="text-muted-foreground">{agent.metrics?.tasksExecuted || 0}</p>
+                          <div className="text-center p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{agent.metrics?.tasksExecuted || 0}</div>
+                            <div className="text-sm text-purple-600 dark:text-purple-400">Tasks Executed</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Escalations</p>
-                            <p className="text-muted-foreground">{agent.metrics?.escalations || 0}</p>
+                          <div className="text-center p-4 bg-orange-50/50 dark:bg-orange-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{agent.metrics?.escalations || 0}</div>
+                            <div className="text-sm text-orange-600 dark:text-orange-400">Escalations</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Yield Impact</p>
-                            <p className="text-muted-foreground">+{agent.metrics?.yieldImpact || 0}%</p>
+                          <div className="text-center p-4 bg-green-50/50 dark:bg-green-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">+{agent.metrics?.yieldImpact || 0}%</div>
+                            <div className="text-sm text-green-600 dark:text-green-400">Yield Impact</div>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      {/* Action Buttons */}
+                      <div className="flex lg:flex-col gap-3">
                         <Button 
                           variant="outline" 
-                          size="sm"
+                          size="lg"
                           onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
-                          className="h-8 sm:h-10"
+                          className="flex-1 lg:flex-none shadow-md hover:shadow-lg transition-all group/btn"
                         >
-                          <BarChart3 className="h-4 w-4 mr-2" />
-                          <span className="hidden sm:inline">Analytics</span>
+                          <BarChart3 className="h-5 w-5 mr-2 group-hover/btn:scale-110 transition-transform" />
+                          Analytics
                         </Button>
-                        <Button variant="outline" size="sm" className="h-8 sm:h-10 w-8 sm:w-auto p-0 sm:px-4">
-                          <Settings className="h-4 w-4" />
-                          <span className="hidden sm:inline ml-2">Settings</span>
+                        <Button variant="outline" size="lg" className="flex-1 lg:flex-none shadow-md hover:shadow-lg transition-all group/btn">
+                          <Settings className="h-5 w-5 mr-2 group-hover/btn:rotate-90 transition-transform" />
+                          Settings
                         </Button>
-                        <Button variant="outline" size="sm" className="h-8 sm:h-10 w-8 sm:w-auto p-0 sm:px-4">
+                        <Button variant="outline" size="lg" className="flex-1 lg:flex-none shadow-md hover:shadow-lg transition-all group/btn">
                           {agent.status === 'active' ? (
                             <>
-                              <Pause className="h-4 w-4" />
-                              <span className="hidden sm:inline ml-2">Pause</span>
+                              <Pause className="h-5 w-5 mr-2" />
+                              Pause
                             </>
                           ) : (
                             <>
-                              <Play className="h-4 w-4" />
-                              <span className="hidden sm:inline ml-2">Start</span>
+                              <Play className="h-5 w-5 mr-2" />
+                              Start
                             </>
                           )}
                         </Button>
                       </div>
                     </div>
-                  </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
@@ -521,62 +576,86 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
         </TabsContent>
 
         <TabsContent value="journey" className="space-y-6">
-          {/* Modern Journey Stats Overview */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
-                  <Route className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    {MOCK_JOURNEY_AGENTS.filter(agent => agent.status === 'active').length}
+          {/* Modern Journey Analytics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/50 dark:to-blue-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Active Agents</p>
+                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
+                      {MOCK_JOURNEY_AGENTS.filter(agent => agent.status === 'active').length}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+5% this month</span>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Active Agents</div>
+                  <div className="p-3 bg-blue-500/10 rounded-2xl group-hover:bg-blue-500/20 transition-colors">
+                    <Route className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
             
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg">
-                  <Target className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    {MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.studentsProgressed || 0), 0)}
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/50 dark:to-green-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Students Progressed</p>
+                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">
+                      {MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.studentsProgressed || 0), 0)}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+18% this week</span>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Students Progressed</div>
+                  <div className="p-3 bg-green-500/10 rounded-2xl group-hover:bg-green-500/20 transition-colors">
+                    <Target className="w-8 h-8 text-green-600 dark:text-green-400" />
+                  </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
             
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg">
-                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    {MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.stagesCompleted || 0), 0)}
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/50 dark:to-purple-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Stages Completed</p>
+                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">
+                      {MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.stagesCompleted || 0), 0)}
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
+                      <TrendingUp className="w-3 h-3" />
+                      <span>+22% today</span>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Stages Completed</div>
+                  <div className="p-3 bg-purple-500/10 rounded-2xl group-hover:bg-purple-500/20 transition-colors">
+                    <TrendingUp className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                  </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
             
-            <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg">
-                  <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-orange-600" />
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-foreground">
-                    {Math.round(MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.conversionRate || 0), 0) / MOCK_JOURNEY_AGENTS.length)}%
+            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/50 dark:to-orange-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Avg Conversion</p>
+                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
+                      {Math.round(MOCK_JOURNEY_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.conversionRate || 0), 0) / MOCK_JOURNEY_AGENTS.length)}%
+                    </p>
+                    <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
+                      <Target className="w-3 h-3" />
+                      <span>Above target</span>
+                    </div>
                   </div>
-                  <div className="text-xs sm:text-sm text-muted-foreground">Avg Conversion</div>
+                  <div className="p-3 bg-orange-500/10 rounded-2xl group-hover:bg-orange-500/20 transition-colors">
+                    <MessageSquare className="w-8 h-8 text-orange-600 dark:text-orange-400" />
+                  </div>
                 </div>
-              </div>
+              </CardContent>
             </Card>
           </div>
 
@@ -592,96 +671,105 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
               </Badge>
             </div>
             
-            <div className="space-y-4">
-              {MOCK_JOURNEY_AGENTS.map((agent) => (
-                <Card key={agent.id} className={`p-4 sm:p-6 transition-shadow hover:shadow-md ${agent.status === 'active' ? 'border-blue-200 bg-blue-50/30' : ''}`}>
-                  <div className="space-y-4">
-                    {/* Agent Header */}
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <div className={`p-1.5 sm:p-2 rounded-full ${agent.status === 'active' ? 'bg-blue-100' : 'bg-muted'}`}>
-                            {agent.status === 'active' ? (
-                              <Route className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                            ) : (
-                              <Route className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />
-                            )}
+            <div className="space-y-6">
+              {MOCK_JOURNEY_AGENTS.map((agent, index) => (
+                <Card key={agent.id} className={`group relative overflow-hidden border-0 bg-gradient-to-r ${
+                  agent.status === 'active' 
+                    ? 'from-blue-50 via-white to-blue-50/50 dark:from-blue-950/20 dark:via-background dark:to-blue-950/10 shadow-lg shadow-blue-100/50' 
+                    : 'from-gray-50 via-white to-gray-50/50 dark:from-gray-950/20 dark:via-background dark:to-gray-950/10'
+                } hover:shadow-2xl transition-all duration-500 hover:-translate-y-2`}>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  
+                  {/* Status Indicator */}
+                  <div className={`absolute top-0 left-0 w-2 h-full ${
+                    agent.status === 'active' ? 'bg-gradient-to-b from-blue-400 to-blue-600' : 'bg-gradient-to-b from-gray-300 to-gray-500'
+                  }`}></div>
+                  
+                  <CardContent className="p-8 relative">
+                    <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
+                      <div className="flex-1 space-y-6">
+                        {/* Agent Header */}
+                        <div className="flex items-start gap-4">
+                          <div className={`p-4 rounded-2xl ${
+                            agent.status === 'active' 
+                              ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-200 dark:ring-blue-800' 
+                              : 'bg-gray-100 dark:bg-gray-800/30'
+                          } transition-all group-hover:scale-110`}>
+                            <Route className={`w-8 h-8 ${
+                              agent.status === 'active' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500'
+                            }`} />
                           </div>
-                          <div>
-                            <h3 className="text-base sm:text-lg font-semibold">{agent.name}</h3>
-                            <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
-                              <Badge variant={
-                                agent.status === 'active' ? 'default' : 
-                                agent.status === 'shadow' ? 'secondary' : 
-                                'outline'
-                              } className="text-xs">
-                                {agent.status === 'active' ? 'Active' : 
-                                 agent.status === 'shadow' ? 'Shadow Mode' : 
-                                 'Paused'}
+                          <div className="flex-1">
+                            <div className="flex flex-wrap items-center gap-3 mb-3">
+                              <h3 className="text-2xl font-bold text-foreground group-hover:text-primary transition-colors">{agent.name}</h3>
+                              <Badge variant={agent.status === 'active' ? 'default' : agent.status === 'shadow' ? 'secondary' : 'outline'} 
+                                     className="px-3 py-1">
+                                {agent.status === 'active' ? 'Active' : agent.status === 'shadow' ? 'Shadow Mode' : 'Paused'}
                               </Badge>
-                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 border-blue-200">
+                              <Badge className="bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 px-3 py-1">
                                 {agent.purpose.replace('_', ' ')}
                               </Badge>
                             </div>
+                            <p className="text-muted-foreground text-lg leading-relaxed">{agent.description}</p>
                           </div>
                         </div>
                         
-                        <p className="text-muted-foreground ml-8 sm:ml-12 text-sm">{agent.description}</p>
-                        
-                        <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 ml-8 sm:ml-12 text-sm">
-                          <div>
-                            <p className="font-medium text-foreground">Students Progressed</p>
-                            <p className="text-muted-foreground">{agent.metrics?.studentsProgressed || 0}</p>
+                        {/* Metrics Grid */}
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                          <div className="text-center p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{agent.metrics?.studentsProgressed || 0}</div>
+                            <div className="text-sm text-blue-600 dark:text-blue-400">Students Progressed</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Stages Completed</p>
-                            <p className="text-muted-foreground">{agent.metrics?.stagesCompleted || 0}</p>
+                          <div className="text-center p-4 bg-purple-50/50 dark:bg-purple-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-purple-700 dark:text-purple-300">{agent.metrics?.stagesCompleted || 0}</div>
+                            <div className="text-sm text-purple-600 dark:text-purple-400">Stages Completed</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Acceleration</p>
-                            <p className="text-muted-foreground">{agent.metrics?.averageAcceleration || 0}x faster</p>
+                          <div className="text-center p-4 bg-orange-50/50 dark:bg-orange-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-orange-700 dark:text-orange-300">{agent.metrics?.averageAcceleration || 0}x</div>
+                            <div className="text-sm text-orange-600 dark:text-orange-400">Acceleration</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Conversion Rate</p>
-                            <p className="text-muted-foreground">{agent.metrics?.conversionRate || 0}%</p>
+                          <div className="text-center p-4 bg-green-50/50 dark:bg-green-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-green-700 dark:text-green-300">{agent.metrics?.conversionRate || 0}%</div>
+                            <div className="text-sm text-green-600 dark:text-green-400">Conversion Rate</div>
                           </div>
-                          <div>
-                            <p className="font-medium text-foreground">Engagement</p>
-                            <p className="text-muted-foreground">{agent.metrics?.engagementRate || 0}%</p>
+                          <div className="text-center p-4 bg-pink-50/50 dark:bg-pink-950/20 rounded-xl">
+                            <div className="text-2xl font-bold text-pink-700 dark:text-pink-300">{agent.metrics?.engagementRate || 0}%</div>
+                            <div className="text-sm text-pink-600 dark:text-pink-400">Engagement</div>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center gap-2">
+                      {/* Action Buttons */}
+                      <div className="flex lg:flex-col gap-3">
                         <Button 
                           variant="outline" 
-                          size="sm"
+                          size="lg"
                           onClick={() => navigate(`/admin/leads/ai/${agent.id}/analytics`)}
-                          className="h-8 sm:h-10"
+                          className="flex-1 lg:flex-none shadow-md hover:shadow-lg transition-all group/btn"
                         >
-                          <BarChart3 className="h-4 w-4 mr-2" />
-                          <span className="hidden sm:inline">Analytics</span>
+                          <BarChart3 className="h-5 w-5 mr-2 group-hover/btn:scale-110 transition-transform" />
+                          Analytics
                         </Button>
-                        <Button variant="outline" size="sm" className="h-8 sm:h-10 w-8 sm:w-auto p-0 sm:px-4">
-                          <Settings className="h-4 w-4" />
-                          <span className="hidden sm:inline ml-2">Settings</span>
+                        <Button variant="outline" size="lg" className="flex-1 lg:flex-none shadow-md hover:shadow-lg transition-all group/btn">
+                          <Settings className="h-5 w-5 mr-2 group-hover/btn:rotate-90 transition-transform" />
+                          Settings
                         </Button>
-                        <Button variant="outline" size="sm" className="h-8 sm:h-10 w-8 sm:w-auto p-0 sm:px-4">
+                        <Button variant="outline" size="lg" className="flex-1 lg:flex-none shadow-md hover:shadow-lg transition-all group/btn">
                           {agent.status === 'active' ? (
                             <>
-                              <Pause className="h-4 w-4" />
-                              <span className="hidden sm:inline ml-2">Pause</span>
+                              <Pause className="h-5 w-5 mr-2" />
+                              Pause
                             </>
                           ) : (
                             <>
-                              <Play className="h-4 w-4" />
-                              <span className="hidden sm:inline ml-2">Start</span>
+                              <Play className="h-5 w-5 mr-2" />
+                              Start
                             </>
                           )}
                         </Button>
                       </div>
                     </div>
-                  </div>
+                  </CardContent>
                 </Card>
               ))}
             </div>
@@ -831,6 +919,7 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
         </div>
       )}
       </Tabs>
+      </div>
     </div>
   );
 }

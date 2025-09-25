@@ -168,9 +168,11 @@ export class ApplicationService {
         student_id: user.id,
         application_number: `APP-${Date.now()}`,
         program_id: applicationData.program_id,
+        program_name: applicationData.program_name,
         status: applicationData.status,
         stage: applicationData.stage,
         progress: applicationData.progress || 0,
+        application_data: applicationData.application_data || {},
         documents: applicationData.application_data || {},
         requirements: applicationData.requirements || {}
       })
@@ -192,9 +194,11 @@ export class ApplicationService {
       .from('student_applications')
       .update({
         program_id: applicationData.program_id,
+        program_name: applicationData.program_name,
         status: applicationData.status,
         stage: applicationData.stage,
         progress: applicationData.progress,
+        application_data: applicationData.application_data,
         documents: applicationData.application_data,
         requirements: applicationData.requirements,
         submission_date: applicationData.submission_date,

@@ -135,7 +135,8 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
       ...prev,
       application_data: {
         ...prev.application_data,
-        intake_selection: { selectedIntake: intake }
+        intake_selection: { selectedIntake: intake },
+        intakeDate: intake.date // Store intake date at root level for easy access
       }
     }));
   };

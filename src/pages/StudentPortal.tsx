@@ -10,6 +10,11 @@ import AcademicPlanning from "@/components/student/AcademicPlanning";
 import DocumentUpload from "@/components/student/DocumentUpload";
 import PayYourFee from "@/components/student/PayYourFee";
 import FinancialAid from "@/components/student/FinancialAid";
+import { FinancialAidApplications } from '@/components/student/financial-aid/FinancialAidApplications';
+import { FinancialAidCalculator } from '@/components/student/financial-aid/FinancialAidCalculator';
+import { FinancialAidDocuments } from '@/components/student/financial-aid/FinancialAidDocuments';
+import { FinancialAidAwards } from '@/components/student/financial-aid/FinancialAidAwards';
+import { FinancialAidAppeals } from '@/components/student/financial-aid/FinancialAidAppeals';
 import CareerServices from "@/components/student/CareerServices";
 import WelcomeOnboarding from "@/components/student/WelcomeOnboarding";
 
@@ -135,6 +140,16 @@ const StudentPortal: React.FC = () => {
       case "/student/financial-aid":
       case "/student-portal/financial-aid":
         return <FinancialAid />;
+      case "/student/financial-aid/applications":
+        return <FinancialAidApplications />;
+      case "/student/financial-aid/calculator":
+        return <FinancialAidCalculator />;
+      case "/student/financial-aid/documents":
+        return <FinancialAidDocuments />;
+      case "/student/financial-aid/awards":
+        return <FinancialAidAwards />;
+      case "/student/financial-aid/appeals":
+        return <FinancialAidAppeals />;
       case "/student/career-services":
       case "/student-portal/career-services":
         return <CareerServices />;

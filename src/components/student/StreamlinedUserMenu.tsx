@@ -7,6 +7,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { User, Settings, LogOut, Moon, Sun, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
+import ProfileSettings from './ProfileSettings';
 
 interface StreamlinedUserMenuProps {
   useDummyData?: boolean;
@@ -21,6 +22,7 @@ export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
   const { profile } = useProfile();
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -34,7 +36,8 @@ export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
   const isDark = theme === 'dark';
 
   return (
-    <DropdownMenu>
+    <>
+      <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative">
           <div className="flex items-center gap-2">
@@ -68,7 +71,7 @@ export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>
           <Settings className="w-4 h-4 mr-2" />
           Profile Settings
         </DropdownMenuItem>
@@ -110,6 +113,12 @@ export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenu>
+      
+      <ProfileSettings 
+        open={isProfileOpen} 
+        onOpenChange={setIsProfileOpen}
+      />
+    </>
   );
 };

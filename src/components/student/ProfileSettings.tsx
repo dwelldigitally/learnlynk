@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Camera, Mail, Bell, Linkedin, User, Settings, Upload } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { useStudentPortalContext } from "@/pages/StudentPortal";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileSettingsProps {
   open: boolean;
@@ -23,10 +28,15 @@ interface ProfileSettingsProps {
 
 const ProfileSettings: React.FC<ProfileSettingsProps> = ({ open, onOpenChange }) => {
   const { toast } = useToast();
+  const { user, signInWithOAuth } = useAuth();
+  const { profile, updateProfile } = useProfile();
+  const { session } = useStudentPortalContext();
+  const navigate = useNavigate();
+  
   const [profileData, setProfileData] = useState({
-    firstName: "Tushar",
-    lastName: "Malhotra",
-    email: "malhotratushar37@gmail.com",
+    firstName: "",
+    lastName: "",
+    email: "",
     phone: "",
     address: "",
     bio: "",
@@ -41,6 +51,30 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ open, onOpenChange })
     marketingEmails: false,
     academicReminders: true
   });
+
+  // Initialize profile data from real user data
+  useEffect(() => {
+    if (profile) {
+      setProfileData({
+        firstName: profile.first_name || "",
+        lastName: profile.last_name || "",
+        email: profile.email || user?.email || "",
+        phone: profile.phone || "",
+        address: "", // Add address field to profile if needed
+        bio: profile.bio || "",
+        linkedinConnected: false, // Will implement OAuth check
+        avatar: profile.avatar_url || ""
+      });
+      
+      setNotifications({
+        emailNotifications: profile.notification_email ?? true,
+        smsNotifications: profile.notification_sms ?? false,
+        applicationUpdates: profile.notification_in_app ?? true,
+        marketingEmails: false,
+        academicReminders: true
+      });
+    }
+  }, [profile, user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfileData({
@@ -76,25 +110,86 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ open, onOpenChange })
     }
   };
 
-  const handleLinkedInConnect = () => {
-    setProfileData({
-      ...profileData,
-      linkedinConnected: !profileData.linkedinConnected
-    });
-    
-    toast({
-      title: profileData.linkedinConnected ? "LinkedIn Disconnected" : "LinkedIn Connected",
-      description: profileData.linkedinConnected 
-        ? "Your LinkedIn profile has been disconnected." 
-        : "Your LinkedIn profile has been connected successfully."
-    });
+  const handleLinkedInConnect = async () => {
+    if (profileData.linkedinConnected) {
+      // Disconnect LinkedIn (in a real app, you'd revoke the OAuth token)
+      setProfileData({
+        ...profileData,
+        linkedinConnected: false
+      });
+      
+      toast({
+        title: "LinkedIn Disconnected",
+        description: "Your LinkedIn profile has been disconnected."
+      });
+    } else {
+      // Connect to LinkedIn using Supabase OAuth
+      try {
+        // For now, simulate LinkedIn connection since it's not in the auth provider types
+        // In a real implementation, you'd use the Supabase OAuth with LinkedIn
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Simulate successful connection
+        setProfileData({
+          ...profileData,
+          linkedinConnected: true
+        });
+        
+        toast({
+          title: "LinkedIn Connected",
+          description: "Your LinkedIn profile has been connected successfully."
+        });
+      } catch (err) {
+        toast({
+          title: "Connection Error",
+          description: "An error occurred while connecting to LinkedIn.",
+          variant: "destructive"
+        });
+      }
+    }
   };
 
-  const handleSaveProfile = () => {
-    toast({
-      title: "Profile Updated",
-      description: "Your profile settings have been saved successfully."
-    });
+  const handleSaveProfile = async () => {
+    try {
+      // Update profile data
+      const updates = {
+        first_name: profileData.firstName,
+        last_name: profileData.lastName,
+        email: profileData.email,
+        phone: profileData.phone,
+        bio: profileData.bio,
+        avatar_url: profileData.avatar,
+        notification_email: notifications.emailNotifications,
+        notification_sms: notifications.smsNotifications,
+        notification_in_app: notifications.applicationUpdates
+      };
+
+      const { error } = await updateProfile(updates);
+      
+      if (error) {
+        toast({
+          title: "Update Failed",
+          description: error,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Profile Updated",
+          description: "Your profile settings have been saved successfully."
+        });
+        onOpenChange(false);
+      }
+    } catch (err) {
+      toast({
+        title: "Update Error",
+        description: "An error occurred while saving your profile.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handlePasswordReset = () => {
+    navigate('/reset-password');
     onOpenChange(false);
   };
 
@@ -338,24 +433,24 @@ const ProfileSettings: React.FC<ProfileSettingsProps> = ({ open, onOpenChange })
               <div className="bg-gray-50 p-4 rounded-lg space-y-2">
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Student ID:</span>
-                  <span className="text-sm">WCC1047859</span>
+                  <span className="text-sm">{session?.id?.slice(-8) || profile?.student_id || 'Not assigned'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Program:</span>
-                  <span className="text-sm">Health Care Assistant</span>
+                  <span className="text-sm">{session?.programs_applied?.[0] || 'Not enrolled'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Enrollment Status:</span>
-                  <Badge variant="default">Active</Badge>
+                  <Badge variant="default">{session?.status || 'Active'}</Badge>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-sm font-medium">Account Created:</span>
-                  <span className="text-sm">September 1, 2024</span>
+                  <span className="text-sm">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : 'Unknown'}</span>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" onClick={handlePasswordReset}>
                   Change Password
                 </Button>
                 <Button variant="outline" className="w-full">

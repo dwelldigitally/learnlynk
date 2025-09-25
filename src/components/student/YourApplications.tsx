@@ -184,6 +184,15 @@ const YourApplications: React.FC = () => {
               <div>
                 <h3 className="text-xl font-semibold">{application.program_name}</h3>
                 <p className="text-muted-foreground">Application ID: {application.id}</p>
+                {application.application_data?.intakeDate && (
+                  <p className="text-sm text-primary font-medium">
+                    Intake Date: {new Date(application.application_data.intakeDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </p>
+                )}
                 {application.created_at && (
                   <p className="text-sm text-muted-foreground">
                     Created on {new Date(application.created_at).toLocaleDateString()}

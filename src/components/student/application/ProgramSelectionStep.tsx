@@ -99,7 +99,9 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 text-primary" />
-                    <span>${details.tuition.toLocaleString()}</span>
+                    <span className="text-xs">
+                      ${details.domesticFee.toLocaleString()} - ${details.internationalFee.toLocaleString()}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" />

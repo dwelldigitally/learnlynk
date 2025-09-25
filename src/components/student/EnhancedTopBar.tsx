@@ -31,25 +31,19 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
     session
   } = useStudentPortalContext();
 
-  // Get display data based on dummy data setting
-  const displayData = useDummyData ? {
-    name: profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Sarah Johnson',
-    studentId: profile?.student_id || 'WCC1047859',
-    email: profile?.email || 'sarah.johnson@student.wcc.ca',
-    phone: profile?.phone || '+1 (604) 555-0123',
-    program: 'Computer Information Systems',
-    semester: 'Fall 2024 - Semester 3',
-    status: 'Active',
-    lastLogin: new Date().toLocaleDateString()
-  } : {
-    name: session?.student_name || user?.email?.split('@')[0] || 'Student',
-    studentId: session?.id?.slice(-8) || 'WCC' + Math.random().toString().slice(-6),
-    email: session?.email || user?.email || 'student@wcc.ca',
+  // Get consistent display data - prioritize real profile data over dummy data
+  const displayData = {
+    name: profile?.first_name && profile?.last_name 
+      ? `${profile.first_name} ${profile.last_name}`.trim()
+      : session?.student_name || user?.email?.split('@')[0] || 'Student',
+    studentId: profile?.student_id || session?.id?.slice(-8) || 'WCC' + Math.random().toString().slice(-6),
+    email: profile?.email || session?.email || user?.email || 'student@wcc.ca',
     phone: profile?.phone || 'Not provided',
-    program: session?.program || 'Not enrolled',
+    program: session?.programs_applied?.[0] || 'Not enrolled',
     semester: 'Current Term',
-    status: 'Active',
-    lastLogin: new Date().toLocaleDateString()
+    status: session?.status || 'Active',
+    lastLogin: new Date().toLocaleDateString(),
+    avatar: profile?.avatar_url || defaultStudentAvatar
   };
   return <div className="px-6 py-5 space-y-4 bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 backdrop-blur-sm">
         {/* Student Profile Card */}
@@ -63,7 +57,7 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                   <div className="relative">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center ring-2 ring-violet-200 dark:ring-violet-800 shadow-lg overflow-hidden">
                       <img 
-                        src={profile?.avatar_url || defaultStudentAvatar} 
+                        src={displayData.avatar} 
                         alt="Student Profile" 
                         className="w-14 h-14 rounded-full object-cover" 
                       />
@@ -73,9 +67,7 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                   
                   <div className="flex flex-col">
                     <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-                      {profile?.first_name && profile?.last_name 
-                        ? `${profile.first_name} ${profile.last_name}` 
-                        : session?.student_name || user?.email?.split('@')[0] || 'Student'}
+                      {displayData.name}
                     </h1>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-sm text-violet-600 dark:text-violet-400 font-medium">ID: {displayData.studentId}</span>

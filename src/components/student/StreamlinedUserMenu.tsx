@@ -7,50 +7,37 @@ import { useProfile } from '@/hooks/useProfile';
 import { User, Settings, LogOut, Moon, Sun, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from 'next-themes';
-import ProfileSettings from './ProfileSettings';
-
 interface StreamlinedUserMenuProps {
   useDummyData?: boolean;
   onToggleDummyData?: () => void;
 }
-
 export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
   useDummyData,
   onToggleDummyData
 }) => {
-  const { signOut } = useAuth();
-  const { profile } = useProfile();
+  const {
+    signOut
+  } = useAuth();
+  const {
+    profile
+  } = useProfile();
   const navigate = useNavigate();
-  const { theme, setTheme } = useTheme();
-  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
-
+  const {
+    theme,
+    setTheme
+  } = useTheme();
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
-
-  const displayName = profile?.first_name 
-    ? `${profile.first_name} ${profile.last_name || ''}`.trim()
-    : 'Student';
-
+  const displayName = profile?.first_name ? `${profile.first_name} ${profile.last_name || ''}`.trim() : 'Student';
   const isDark = theme === 'dark';
-
-  return (
-    <>
-      <DropdownMenu>
+  return <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="sm" className="relative">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-              {profile?.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt="Profile" 
-                  className="w-7 h-7 rounded-full object-cover"
-                />
-              ) : (
-                <User className="w-3 h-3 text-primary-foreground" />
-              )}
+              {profile?.avatar_url ? <img src={profile.avatar_url} alt="Profile" className="w-7 h-7 rounded-full object-cover" /> : <User className="w-3 h-3 text-primary-foreground" />}
             </div>
             <span className="hidden sm:block text-sm font-medium truncate max-w-24">
               {displayName}
@@ -71,40 +58,31 @@ export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
         
         <DropdownMenuSeparator />
         
-        <DropdownMenuItem onClick={() => setIsProfileOpen(true)}>
+        <DropdownMenuItem>
           <Settings className="w-4 h-4 mr-2" />
           Profile Settings
         </DropdownMenuItem>
         
         <DropdownMenuItem onClick={() => setTheme(isDark ? 'light' : 'dark')}>
-          {isDark ? (
-            <>
-              <Sun className="w-4 h-4 mr-2" />
+          {isDark ? <>
+              
               Light Mode
-            </>
-          ) : (
-            <>
+            </> : <>
               <Moon className="w-4 h-4 mr-2" />
               Dark Mode
-            </>
-          )}
+            </>}
         </DropdownMenuItem>
         
-        {onToggleDummyData && (
-          <>
+        {onToggleDummyData && <>
             <DropdownMenuSeparator />
             <div className="flex items-center justify-between px-2 py-1.5">
               <div className="flex items-center gap-2">
                 <Database className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm">Demo Data</span>
+                
               </div>
-              <Switch
-                checked={useDummyData}
-                onCheckedChange={onToggleDummyData}
-              />
+              <Switch checked={useDummyData} onCheckedChange={onToggleDummyData} />
             </div>
-          </>
-        )}
+          </>}
         
         <DropdownMenuSeparator />
         
@@ -113,12 +91,5 @@ export const StreamlinedUserMenu: React.FC<StreamlinedUserMenuProps> = ({
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
-      </DropdownMenu>
-      
-      <ProfileSettings 
-        open={isProfileOpen} 
-        onOpenChange={setIsProfileOpen}
-      />
-    </>
-  );
+    </DropdownMenu>;
 };

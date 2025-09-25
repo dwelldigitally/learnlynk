@@ -32,16 +32,16 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
     };
   };
 
-  const getPopularityScore = (program: StandardizedProgram) => {
-    const popularity = {
-      'Health Care Assistant': 95,
-      'Aviation': 88,
-      'ECE': 92,
-      'Hospitality': 78,
-      'Education Assistant': 85,
-      'MLA': 90
+  const getProgramHighlights = (program: StandardizedProgram) => {
+    const highlights = {
+      'Health Care Assistant': { employmentRate: 95, highlight: 'High Demand Field' },
+      'Aviation': { employmentRate: 88, highlight: 'Industry Partnerships' },
+      'ECE': { employmentRate: 92, highlight: 'Growing Sector' },
+      'Hospitality': { employmentRate: 85, highlight: 'Global Opportunities' },
+      'Education Assistant': { employmentRate: 90, highlight: 'Stable Career Path' },
+      'MLA': { employmentRate: 93, highlight: 'Healthcare Innovation' }
     };
-    return popularity[program] || 75;
+    return highlights[program] || { employmentRate: 85, highlight: 'Career Ready' };
   };
 
   return (
@@ -61,7 +61,7 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
         {STANDARDIZED_PROGRAMS.map((program) => {
           const details = PROGRAM_DETAILS[program];
           const stats = getProgramStats(program);
-          const popularity = getPopularityScore(program);
+          const highlights = getProgramHighlights(program);
           const isSelected = selectedProgram === program;
           const isHovered = hoveredProgram === program;
 
@@ -94,13 +94,17 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
                   )}
                 </div>
 
-                {/* Popularity Indicator */}
+                {/* Program Highlights */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Program Popularity</span>
-                    <span className="font-medium">{popularity}%</span>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">{highlights.highlight}</span>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {highlights.employmentRate}% Employment Rate
+                    </Badge>
                   </div>
-                  <Progress value={popularity} className="h-2" />
                 </div>
               </CardHeader>
 

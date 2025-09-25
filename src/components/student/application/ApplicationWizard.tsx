@@ -165,8 +165,13 @@ const ApplicationWizard: React.FC<ApplicationWizardProps> = ({
         });
         if (error) throw error;
         if (data) {
-          setApplicationData(data);
-          onApplicationCreated(data);
+          const merged = {
+            ...data,
+            program_name: applicationData.program_name || (data as any).program_name,
+            application_data: applicationData.application_data || (data as any).documents || {}
+          } as ApplicationData;
+          setApplicationData(merged);
+          onApplicationCreated(merged);
         }
       }
       

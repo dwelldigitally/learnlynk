@@ -100,8 +100,18 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
         />
       )}
       
-      {/* Sidebar */}
-      <aside className={`${isCollapsed ? 'w-16' : 'w-72'} bg-gradient-to-b from-background via-background/95 to-muted/30 border-r border-border/50 shadow-lg backdrop-blur-sm fixed inset-y-0 left-0 z-50 h-screen transition-all duration-300 flex flex-col overflow-hidden ${isCollapsed ? '' : 'lg:translate-x-0 translate-x-0'}`}>
+      {/* Sidebar - Hidden on mobile when collapsed, overlay when open */}
+      <aside className={`
+        ${isCollapsed ? 'w-16' : 'w-72'} 
+        bg-gradient-to-b from-background via-background/95 to-muted/30 
+        border-r border-border/50 shadow-lg backdrop-blur-sm 
+        fixed inset-y-0 left-0 z-50 h-screen 
+        transition-all duration-300 flex flex-col overflow-hidden
+        ${isCollapsed 
+          ? 'lg:translate-x-0 -translate-x-full lg:w-16' 
+          : 'lg:translate-x-0 translate-x-0'
+        }
+      `}>
         {/* Collapse/Expand Button */}
         <div className="p-2 sm:p-4 flex items-center justify-between border-b border-gray-200">
           {!isCollapsed ? <img src="/wcc-logo.png" alt="Western Community College" className="h-10 sm:h-14" /> : <div className="flex justify-center w-full">
@@ -188,8 +198,13 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
       </aside>
 
       {/* Main Content */}
-      <main key={currentPath} className={`flex-1 ${isCollapsed ? 'ml-16' : 'ml-0 lg:ml-72'} transition-all duration-300`}>
-        <EnhancedTopBar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} useDummyData={useDummyData} onToggleDummyData={() => setUseDummyData(!useDummyData)} />
+      <main key={currentPath} className={`flex-1 lg:ml-16 ${!isCollapsed ? 'lg:ml-72' : ''} transition-all duration-300`}>
+        <EnhancedTopBar 
+          onToggleSidebar={() => setIsCollapsed(!isCollapsed)} 
+          useDummyData={useDummyData} 
+          onToggleDummyData={() => setUseDummyData(!useDummyData)}
+          showMenuIcon={true}
+        />
 
         {/* Content */}
         <div key={currentPath} className="p-4 sm:p-6 md:p-8 lg:p-12 xl:p-16" data-scroll-container>

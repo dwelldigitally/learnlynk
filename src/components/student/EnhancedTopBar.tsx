@@ -9,19 +9,21 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NotificationCenter } from './NotificationCenter';
-import { User, Calendar, GraduationCap, MessageSquare, Bell, TrendingUp, AlertTriangle } from 'lucide-react';
+import { User, Calendar, GraduationCap, MessageSquare, Bell, TrendingUp, AlertTriangle, Menu } from 'lucide-react';
 import defaultStudentAvatar from '@/assets/default-student-avatar.jpg';
 
 interface EnhancedTopBarProps {
   onToggleSidebar?: () => void;
   useDummyData?: boolean;
   onToggleDummyData?: () => void;
+  showMenuIcon?: boolean;
 }
 
 export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
   onToggleSidebar,
   useDummyData,
-  onToggleDummyData
+  onToggleDummyData,
+  showMenuIcon = false
 }) => {
   const { user } = useAuth();
   const { profile, loading: profileLoading } = useProfile();
@@ -159,6 +161,18 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
 
               {/* Right Section - Action Buttons */}
               <div className="flex items-center gap-2 sm:gap-3">
+                {/* Mobile Menu Button - Only show on mobile */}
+                {showMenuIcon && onToggleSidebar && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={onToggleSidebar}
+                    className="lg:hidden h-8 w-8 p-0 hover:bg-muted"
+                  >
+                    <Menu className="w-4 h-4" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                )}
                 <Button asChild variant="ghost" size="sm" className="h-8 sm:h-10 px-2 sm:px-4 relative bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/50 dark:border-blue-800/50 rounded-lg transition-colors">
                   <Link to="/student/messages">
                     <MessageSquare className="w-4 h-4" />

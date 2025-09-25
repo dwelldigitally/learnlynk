@@ -39,14 +39,16 @@ export const navigationStructure = {
     },
     {
       id: 'practicum-management',
+      name: 'Practicum Management',
       title: 'Practicum Management',
       description: 'Manage practicum placements and student progress',
+      icon: ClipboardList,
       items: [
-        { label: 'Dashboard', href: '/admin/practicum', icon: BarChart3, description: 'Practicum overview and analytics' },
-        { label: 'Sites', href: '/admin/practicum/sites', icon: MapPin, description: 'Manage practicum sites' },
-        { label: 'Programs', href: '/admin/practicum/programs', icon: BookOpen, description: 'Configure practicum programs' },
-        { label: 'Journeys', href: '/admin/practicum/journeys', icon: ClipboardList, description: 'Setup practicum workflows' },
-        { label: 'Assignments', href: '/admin/practicum/assignments', icon: Users, description: 'Manage student assignments' }
+        { name: 'Dashboard', label: 'Dashboard', href: '/admin/practicum', icon: BarChart3, description: 'Practicum overview and analytics' },
+        { name: 'Sites', label: 'Sites', href: '/admin/practicum/sites', icon: MapPin, description: 'Manage practicum sites' },
+        { name: 'Programs', label: 'Programs', href: '/admin/practicum/programs', icon: BookOpen, description: 'Configure practicum programs' },
+        { name: 'Journeys', label: 'Journeys', href: '/admin/practicum/journeys', icon: ClipboardList, description: 'Setup practicum workflows' },
+        { name: 'Assignments', label: 'Assignments', href: '/admin/practicum/assignments', icon: Users, description: 'Manage student assignments' }
       ]
     },
     {

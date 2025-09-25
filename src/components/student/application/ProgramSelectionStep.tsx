@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Clock, MapPin, Calendar, Users, Star, TrendingUp } from "lucide-react";
+import { Clock, MapPin, Calendar, Users, Star, TrendingUp, Monitor, Building, RefreshCw } from "lucide-react";
 import { STANDARDIZED_PROGRAMS, PROGRAM_DETAILS, StandardizedProgram } from "@/constants/programs";
 import { getUpcomingIntakeDatesForProgram } from "@/constants/intakeDates";
 
@@ -125,20 +125,31 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
                   </div>
                 </div>
 
-                {/* Quick Requirements Preview */}
+                {/* Delivery Methods */}
                 <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Key Requirements:</h4>
+                  <h4 className="font-medium text-sm">Delivery Options:</h4>
                   <div className="flex flex-wrap gap-1">
-                    {details.requirements.slice(0, 2).map((req, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {req}
+                    {details.deliveryMethods.map((method, index) => (
+                      <Badge key={index} variant="outline" className="text-xs flex items-center gap-1">
+                        {method === 'Online' && <Monitor className="w-3 h-3" />}
+                        {method === 'In-class' && <Building className="w-3 h-3" />}
+                        {method === 'Hybrid' && <RefreshCw className="w-3 h-3" />}
+                        {method}
                       </Badge>
                     ))}
-                    {details.requirements.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{details.requirements.length - 2} more
+                  </div>
+                </div>
+
+                {/* Campus Locations */}
+                <div className="space-y-2">
+                  <h4 className="font-medium text-sm">Campus Locations:</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {details.campusLocations.map((campus, index) => (
+                      <Badge key={index} variant="outline" className="text-xs flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {campus}
                       </Badge>
-                    )}
+                    ))}
                   </div>
                 </div>
 

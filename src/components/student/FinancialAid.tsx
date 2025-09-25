@@ -1,5 +1,6 @@
 import React from "react";
-import { DollarSign, Calculator, FileText, Users, GraduationCap, AlertCircle } from "lucide-react";
+import { DollarSign, Calculator, FileText, Users, GraduationCap, AlertCircle, ArrowRight, Award, Upload } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -124,6 +125,85 @@ const FinancialAid: React.FC = () => {
         </Card>
       </div>
 
+      {/* Financial Aid Navigation */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Link to="/student/financial-aid/applications">
+          <Card className="p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group border-2 hover:border-primary/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Financial Aid Applications</h3>
+            <p className="text-muted-foreground text-sm">Manage your aid applications and track progress</p>
+          </Card>
+        </Link>
+
+        <Link to="/student/financial-aid/calculator">
+          <Card className="p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group border-2 hover:border-primary/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                <Calculator className="w-6 h-6 text-white" />
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Aid Calculator</h3>
+            <p className="text-muted-foreground text-sm">Estimate your financial aid eligibility</p>
+          </Card>
+        </Link>
+
+        <Link to="/student/financial-aid/documents">
+          <Card className="p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group border-2 hover:border-primary/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                <Upload className="w-6 h-6 text-white" />
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Documents Center</h3>
+            <p className="text-muted-foreground text-sm">Upload and manage required documents</p>
+          </Card>
+        </Link>
+
+        <Link to="/student/financial-aid/awards">
+          <Card className="p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group border-2 hover:border-primary/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center">
+                <Award className="w-6 h-6 text-white" />
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Awards & Disbursements</h3>
+            <p className="text-muted-foreground text-sm">View awards and payment schedules</p>
+          </Card>
+        </Link>
+
+        <Link to="/student/financial-aid/appeals">
+          <Card className="p-6 hover:shadow-lg transition-all duration-200 cursor-pointer group border-2 hover:border-primary/30">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center">
+                <AlertCircle className="w-6 h-6 text-white" />
+              </div>
+              <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Appeals & Special Circumstances</h3>
+            <p className="text-muted-foreground text-sm">Submit appeals and special requests</p>
+          </Card>
+        </Link>
+
+        <Card className="p-6 bg-gradient-to-br from-muted/50 to-muted/30 border-dashed border-2">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+              <Users className="w-6 h-6 text-muted-foreground" />
+            </div>
+          </div>
+          <h3 className="text-lg font-semibold mb-2 text-center">Need Help?</h3>
+          <p className="text-muted-foreground text-sm text-center">Contact our financial aid office for assistance</p>
+          <Button variant="outline" className="w-full mt-4" size="sm">Contact Support</Button>
+        </Card>
+      </div>
+
       {/* Aid Programs - Enhanced */}
       <Card className="p-10 bg-gradient-to-br from-background to-muted/20 hover:shadow-md transition-shadow duration-200">
         <div className="flex items-center gap-3 mb-6">
@@ -211,20 +291,24 @@ const FinancialAid: React.FC = () => {
         </div>
       </Card>
 
-      {/* Quick Actions */}
+      {/* Quick Actions - Updated */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Button className="h-16 flex flex-col items-center gap-2">
-          <Calculator className="w-5 h-5" />
-          Net Price Calculator
-        </Button>
+        <Link to="/student/financial-aid/calculator">
+          <Button className="h-16 flex flex-col items-center gap-2 w-full">
+            <Calculator className="w-5 h-5" />
+            Net Price Calculator
+          </Button>
+        </Link>
         <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
           <Users className="w-5 h-5" />
           Financial Aid Counseling
         </Button>
-        <Button variant="outline" className="h-16 flex flex-col items-center gap-2">
-          <FileText className="w-5 h-5" />
-          Appeal Process
-        </Button>
+        <Link to="/student/financial-aid/appeals">
+          <Button variant="outline" className="h-16 flex flex-col items-center gap-2 w-full">
+            <FileText className="w-5 h-5" />
+            Appeal Process
+          </Button>
+        </Link>
       </div>
     </div>
   );

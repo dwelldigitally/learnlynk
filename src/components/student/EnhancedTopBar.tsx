@@ -31,12 +31,30 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
     session
   } = useStudentPortalContext();
 
+  // Generate a stable student ID based on user's unique identifier
+  const generateStableStudentId = () => {
+    if (profile?.student_id) return profile.student_id;
+    if (session?.id) return session.id.slice(-8);
+    
+    // Generate stable ID based on user email or ID
+    const baseId = user?.id || user?.email || 'default';
+    // Create a simple hash of the base ID to get consistent numbers
+    let hash = 0;
+    for (let i = 0; i < baseId.length; i++) {
+      const char = baseId.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    const stableNumber = Math.abs(hash).toString().slice(-6).padStart(6, '0');
+    return `WCC${stableNumber}`;
+  };
+
   // Get consistent display data - prioritize real profile data over dummy data
   const displayData = {
     name: profile?.first_name && profile?.last_name 
       ? `${profile.first_name} ${profile.last_name}`.trim()
       : session?.student_name || user?.email?.split('@')[0] || 'Student',
-    studentId: profile?.student_id || session?.id?.slice(-8) || 'WCC' + Math.random().toString().slice(-6),
+    studentId: generateStableStudentId(),
     email: profile?.email || session?.email || user?.email || 'student@wcc.ca',
     phone: profile?.phone || 'Not provided',
     program: session?.programs_applied?.[0] || 'Not enrolled',

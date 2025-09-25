@@ -305,7 +305,7 @@ const StudentOverview: React.FC = () => {
             <GraduationCap className="w-6 h-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
               Welcome back, {dummyStudentProfile.firstName}! 👋
             </h1>
             <p className="text-muted-foreground">Here's your academic journey at a glance</p>
@@ -678,10 +678,7 @@ const StudentOverview: React.FC = () => {
                   <FileText className="w-4 h-4 mr-2" />
                   Download Program Brochure
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Users className="w-4 h-4 mr-2" />
-                  Connect with Alumni
-                </Button>
+                
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <MapPin className="w-4 h-4 mr-2" />
                   Schedule Campus Tour

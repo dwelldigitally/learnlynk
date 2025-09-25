@@ -97,9 +97,9 @@ export function SiteManagement() {
       contact_person: site.contact_person,
       contact_email: site.contact_email,
       contact_phone: site.contact_phone,
-      max_capacity_monthly: site.max_capacity_monthly,
-      max_capacity_yearly: site.max_capacity_yearly,
-      max_capacity_semester: site.max_capacity_semester,
+      max_capacity_per_month: site.max_capacity_per_month,
+      max_capacity_per_year: site.max_capacity_per_year,
+      max_capacity_per_semester: site.max_capacity_per_semester,
       is_active: site.is_active,
       specializations: site.specializations,
       requirements: site.requirements

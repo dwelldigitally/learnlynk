@@ -72,7 +72,18 @@ export default function AttendanceSubmission() {
 
   const onSubmit = async (data: AttendanceFormData) => {
     try {
-      await submitAttendance.mutateAsync(data);
+      // Ensure all fields are defined before submission
+      if (!data.assignment_id || !data.date || !data.time_in || !data.time_out || !data.activities) {
+        return; // Form validation will catch this
+      }
+      
+      await submitAttendance.mutateAsync({
+        assignment_id: data.assignment_id,
+        date: data.date,
+        time_in: data.time_in,
+        time_out: data.time_out,
+        activities: data.activities
+      });
       form.reset();
       setCalculatedHours(null);
     } catch (error) {
@@ -130,7 +141,7 @@ export default function AttendanceSubmission() {
                               <SelectItem value="loading" disabled>Loading assignments...</SelectItem>
                             ) : assignments?.map((assignment) => (
                               <SelectItem key={assignment.id} value={assignment.id}>
-                                {assignment.practicum_programs?.program_name} - {assignment.practicum_sites?.name}
+                                {(assignment.practicum_programs as any)?.program_name} - {(assignment.practicum_sites as any)?.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -277,10 +288,10 @@ export default function AttendanceSubmission() {
             <CardContent>
               {assignments?.[0] ? (
                 <div className="space-y-2">
-                  <p className="font-medium">{assignments[0].practicum_programs?.program_name}</p>
-                  <p className="text-sm text-muted-foreground">{assignments[0].practicum_sites?.name}</p>
+                  <p className="font-medium">{(assignments[0].practicum_programs as any)?.program_name}</p>
+                  <p className="text-sm text-muted-foreground">{(assignments[0].practicum_sites as any)?.name}</p>
                   <p className="text-sm text-muted-foreground">
-                    Required Hours: {assignments[0].practicum_programs?.total_hours_required || 'N/A'}
+                    Required Hours: {(assignments[0].practicum_programs as any)?.total_hours_required || 'N/A'}
                   </p>
                 </div>
               ) : (

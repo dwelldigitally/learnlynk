@@ -77,9 +77,17 @@ export default function WeeklyJournal() {
 
   const onSubmit = async (data: JournalFormData) => {
     try {
+      // Ensure all required fields are defined before submission
+      if (!data.assignment_id || !data.week_of || !data.reflection_content || !data.learning_objectives || data.learning_objectives.length === 0) {
+        return; // Form validation will catch this
+      }
+      
       // Filter out empty resource links
       const cleanData = {
-        ...data,
+        assignment_id: data.assignment_id,
+        week_of: data.week_of,
+        reflection_content: data.reflection_content,
+        learning_objectives: data.learning_objectives,
         resources_links: data.resources_links?.filter(link => link.trim() !== "")
       };
       

@@ -106,7 +106,16 @@ export default function CompetencyTracker() {
 
   const onSubmit = async (data: CompetencyFormData) => {
     try {
-      await submitCompetency.mutateAsync(data);
+      // Ensure all required fields are defined before submission
+      if (!data.assignment_id || !data.competency_ids || data.competency_ids.length === 0) {
+        return; // Form validation will catch this
+      }
+      
+      await submitCompetency.mutateAsync({
+        assignment_id: data.assignment_id,
+        competency_ids: data.competency_ids,
+        notes: data.notes
+      });
       form.setValue("competency_ids", []);
       form.setValue("notes", "");
     } catch (error) {

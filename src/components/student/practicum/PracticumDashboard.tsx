@@ -89,7 +89,7 @@ export default function PracticumDashboard() {
               Current Practicum Assignment
             </CardTitle>
             <CardDescription>
-              {activeAssignment.practicum_programs?.program_name} at {activeAssignment.practicum_sites?.name}
+              {(activeAssignment.practicum_programs as any)?.program_name} at {(activeAssignment.practicum_sites as any)?.name}
             </CardDescription>
           </CardHeader>
           <CardContent>

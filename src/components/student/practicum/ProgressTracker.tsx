@@ -84,7 +84,7 @@ export default function ProgressTracker() {
           <CardHeader>
             <CardTitle>Current Practicum Assignment</CardTitle>
             <CardDescription>
-              {activeAssignment.practicum_programs?.program_name} • {activeAssignment.practicum_sites?.name}
+              {(activeAssignment.practicum_programs as any)?.program_name} • {(activeAssignment.practicum_sites as any)?.name}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -217,7 +217,7 @@ export default function ProgressTracker() {
                       {getStatusIcon(record.completion_status)}
                       <div>
                         <p className="text-sm font-medium">
-                          {record.practicum_competencies?.name || 'Competency'}
+                          Competency {record.competency_id}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(record.created_at).toLocaleDateString()}

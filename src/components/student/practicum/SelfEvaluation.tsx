@@ -101,7 +101,33 @@ export default function SelfEvaluation() {
 
   const onSubmit = async (data: EvaluationFormData) => {
     try {
-      await submitEvaluation.mutateAsync(data);
+      // Ensure all required fields are defined before submission
+      if (!data.assignment_id || !data.evaluation_type || !data.competency_ratings || !data.overall_reflection || !data.learning_goals || data.learning_goals.length === 0) {
+        return; // Form validation will catch this
+      }
+      
+      // Validate competency ratings before submission
+      const validatedRatings: Record<string, {
+        self_rating: 'needs_improvement' | 'making_progress' | 'satisfactory' | 'competent';
+        comments: string;
+      }> = {};
+      
+      Object.entries(data.competency_ratings).forEach(([key, rating]) => {
+        if (rating.self_rating && rating.comments) {
+          validatedRatings[key] = {
+            self_rating: rating.self_rating,
+            comments: rating.comments
+          };
+        }
+      });
+      
+      await submitEvaluation.mutateAsync({
+        assignment_id: data.assignment_id,
+        evaluation_type: data.evaluation_type,
+        competency_ratings: validatedRatings,
+        overall_reflection: data.overall_reflection,
+        learning_goals: data.learning_goals
+      });
       form.reset({
         assignment_id: activeAssignment?.id || "",
         evaluation_type: "midterm",

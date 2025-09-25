@@ -38,6 +38,10 @@ import StudentApplication from "./pages/StudentApplication";
 import EmbedDocumentForm from "./pages/EmbedDocumentForm";
 import EmbedWebForm from "./pages/EmbedWebForm";
 import WebForm from "./pages/WebForm";
+import PreceptorLogin from "./pages/PreceptorLogin";
+import PreceptorDashboard from "./pages/PreceptorDashboard";
+import PreceptorReviewAttendance from "./pages/PreceptorReviewAttendance";
+import PreceptorReviewCompetency from "./pages/PreceptorReviewCompetency";
 
 const queryClient = new QueryClient();
 
@@ -114,8 +118,14 @@ const App = () => {
               
               {/* Sales rep dashboard is now handled by AdminDashboard */}
               
-              {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
-              <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
+               {/* Preceptor Portal Routes */}
+               <Route path="/preceptor/login" element={<PreceptorLogin />} />
+               <Route path="/preceptor/dashboard" element={<PreceptorDashboard />} />
+               <Route path="/preceptor/review-attendance/:id" element={<PreceptorReviewAttendance />} />
+               <Route path="/preceptor/review-competency/:id" element={<PreceptorReviewCompetency />} />
+               
+               {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
+               <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               
                {/* Token-Based Student Portal Routes (No Auth Required) */}
                <Route path="/student-portal" element={<StudentPortal />} />

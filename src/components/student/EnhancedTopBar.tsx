@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -11,28 +11,24 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { NotificationCenter } from './NotificationCenter';
 import { User, Calendar, GraduationCap, MessageSquare, Bell, TrendingUp, AlertTriangle } from 'lucide-react';
 import defaultStudentAvatar from '@/assets/default-student-avatar.jpg';
+
 interface EnhancedTopBarProps {
   onToggleSidebar?: () => void;
   useDummyData?: boolean;
   onToggleDummyData?: () => void;
 }
+
 export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
   onToggleSidebar,
   useDummyData,
   onToggleDummyData
 }) => {
-  const {
-    user
-  } = useAuth();
-  const {
-    profile
-  } = useProfile();
-  const {
-    session
-  } = useStudentPortalContext();
+  const { user } = useAuth();
+  const { profile, loading: profileLoading } = useProfile();
+  const { session, isLoading: sessionLoading } = useStudentPortalContext();
 
   // Generate a stable student ID based on user's unique identifier
-  const generateStableStudentId = () => {
+  const generateStableStudentId = useMemo(() => {
     if (profile?.student_id) return profile.student_id;
     if (session?.id) return session.id.slice(-8);
     
@@ -47,22 +43,42 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
     }
     const stableNumber = Math.abs(hash).toString().slice(-6).padStart(6, '0');
     return `WCC${stableNumber}`;
-  };
+  }, [profile?.student_id, session?.id, user?.id, user?.email]);
 
-  // Get consistent display data - prioritize real profile data over dummy data
-  const displayData = {
-    name: profile?.first_name && profile?.last_name 
-      ? `${profile.first_name} ${profile.last_name}`.trim()
-      : session?.student_name || user?.email?.split('@')[0] || 'Student',
-    studentId: generateStableStudentId(),
-    email: profile?.email || session?.email || user?.email || 'student@wcc.ca',
-    phone: profile?.phone || 'Not provided',
-    program: session?.programs_applied?.[0] || 'Not enrolled',
-    semester: 'Current Term',
-    status: session?.status || 'Active',
-    lastLogin: new Date().toLocaleDateString(),
-    avatar: profile?.avatar_url || defaultStudentAvatar
-  };
+  // Memoized display data to prevent flickering - wait for profile data to load
+  const displayData = useMemo(() => {
+    // If profile is still loading, show a consistent loading state
+    if (profileLoading && !profile) {
+      return {
+        name: 'Loading...',
+        studentId: generateStableStudentId,
+        email: user?.email || 'student@wcc.ca',
+        phone: 'Loading...',
+        program: 'Loading...',
+        semester: 'Current Term',
+        status: 'Active',
+        lastLogin: new Date().toLocaleDateString(),
+        avatar: user?.user_metadata?.avatar_url || defaultStudentAvatar,
+        isLoading: true
+      };
+    }
+
+    // Once profile data is available or loading is complete, show actual data
+    return {
+      name: profile?.first_name && profile?.last_name 
+        ? `${profile.first_name} ${profile.last_name}`.trim()
+        : session?.student_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Student',
+      studentId: generateStableStudentId,
+      email: profile?.email || session?.email || user?.email || 'student@wcc.ca',
+      phone: profile?.phone || 'Not provided',
+      program: session?.programs_applied?.[0] || 'Not enrolled',
+      semester: 'Current Term',
+      status: session?.status || 'Active',
+      lastLogin: new Date().toLocaleDateString(),
+      avatar: profile?.avatar_url || user?.user_metadata?.avatar_url || defaultStudentAvatar,
+      isLoading: false
+    };
+  }, [profile, session, user, generateStableStudentId, profileLoading]);
   return <div className="px-4 sm:px-6 py-3 sm:py-5 space-y-3 sm:space-y-4 bg-gradient-to-r from-slate-50 to-blue-50/30 dark:from-slate-900 dark:to-slate-800 border-b border-slate-200/60 dark:border-slate-700/60 sticky top-0 z-40 backdrop-blur-sm">
         {/* Student Profile Card */}
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl border border-slate-200/50 dark:border-slate-700/50 shadow-sm">
@@ -74,21 +90,35 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                 <div className="flex items-center gap-3 sm:gap-4">
                   <div className="relative">
                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center ring-2 ring-violet-200 dark:ring-violet-800 shadow-lg overflow-hidden">
-                      <img 
-                        src={displayData.avatar} 
-                        alt="Student Profile" 
-                        className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover" 
-                      />
+                      {displayData.isLoading ? (
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-200 dark:bg-slate-700 animate-pulse" />
+                      ) : (
+                        <img 
+                          src={displayData.avatar} 
+                          alt="Student Profile" 
+                          className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover" 
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = defaultStudentAvatar;
+                          }}
+                        />
+                      )}
                     </div>
                     <div className="absolute -bottom-0.5 -right-0.5 sm:-bottom-1 sm:-right-1 w-4 h-4 sm:w-5 sm:h-5 bg-green-500 rounded-full border-2 border-white dark:border-slate-800"></div>
                   </div>
                   
                   <div className="flex flex-col">
                     <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-                      {displayData.name}
+                      {displayData.isLoading ? (
+                        <div className="h-6 w-24 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                      ) : (
+                        displayData.name
+                      )}
                     </h1>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1">
-                      <span className="text-xs sm:text-sm text-violet-600 dark:text-violet-400 font-medium">ID: {displayData.studentId}</span>
+                      <span className="text-xs sm:text-sm text-violet-600 dark:text-violet-400 font-medium">
+                        ID: {displayData.studentId}
+                      </span>
                       <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800 text-xs px-2 py-1 self-start">
                         {displayData.status}
                       </Badge>

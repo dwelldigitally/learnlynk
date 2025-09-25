@@ -952,9 +952,9 @@ export function IntakePipelineManagement() {
                               </Badge>
                             </td>
                             <td className="p-4">
-                              <span className={`font-semibold ${student.gpa >= 3.5 ? 'text-success' : student.gpa >= 2.5 ? 'text-warning' : 'text-destructive'}`}>
-                                {student.gpa.toFixed(2)}
-                              </span>
+                               <span className={`font-semibold ${(student.gpa || 0) >= 3.5 ? 'text-success' : (student.gpa || 0) >= 2.5 ? 'text-warning' : 'text-destructive'}`}>
+                                 {(student.gpa || 0).toFixed(2)}
+                               </span>
                             </td>
                             <td className="p-4">
                               <div className="flex gap-2">

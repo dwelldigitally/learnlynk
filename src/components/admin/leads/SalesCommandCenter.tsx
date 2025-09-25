@@ -69,7 +69,7 @@ export function SalesCommandCenter() {
       <div className="relative overflow-hidden aurora-hero">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
         <div className="relative backdrop-blur-xl bg-white/10 border-b border-white/20">
-          <div className="container mx-auto px-4 py-6">
+          <div className="container mx-auto px-2 py-6">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ export function SalesCommandCenter() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-4 space-y-6">
+      <div className="container mx-auto px-2 py-4 space-y-6">
 
 
         {/* Critical Issues & Actions - Glass Morphism */}

@@ -1,11 +1,15 @@
 import { AIAgent } from '@/types/chatbot';
+import financialAidSpecialistPhoto from '@/assets/agents/financial-aid-specialist.jpg';
+import admissionsCounselorPhoto from '@/assets/agents/admissions-counselor.jpg';
+import academicAdvisorPhoto from '@/assets/agents/academic-advisor.jpg';
+import techSupportPhoto from '@/assets/agents/tech-support.jpg';
 
 export const AI_AGENTS: AIAgent[] = [
   {
     id: 'finance',
     name: 'Sarah Chen',
     description: 'AI Financial Advisor - Get help with tuition, payments, scholarships, and financial aid',
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+    avatar: financialAidSpecialistPhoto,
     color: 'hsl(var(--chart-1))',
     capabilities: [
       'Payment plans and options',
@@ -21,7 +25,7 @@ export const AI_AGENTS: AIAgent[] = [
     id: 'admissions',
     name: 'Marcus Rodriguez',
     description: 'AI Admissions Counselor - Application status, program info, and admission requirements',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    avatar: admissionsCounselorPhoto,
     color: 'hsl(var(--chart-2))',
     capabilities: [
       'Application status updates',
@@ -37,7 +41,7 @@ export const AI_AGENTS: AIAgent[] = [
     id: 'student-services',
     name: 'Emily Watson',
     description: 'AI Student Services Coordinator - Campus life, housing, events, and student support resources',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    avatar: academicAdvisorPhoto,
     color: 'hsl(var(--chart-3))',
     capabilities: [
       'Housing assistance',
@@ -53,7 +57,7 @@ export const AI_AGENTS: AIAgent[] = [
     id: 'academic-support',
     name: 'Dr. James Park',
     description: 'AI Academic Advisor - Course planning, academic guidance, and study resources',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    avatar: academicAdvisorPhoto,
     color: 'hsl(var(--chart-4))',
     capabilities: [
       'Course selection guidance',
@@ -69,7 +73,7 @@ export const AI_AGENTS: AIAgent[] = [
     id: 'general',
     name: 'Alex Kim',
     description: 'AI General Assistant - General questions and connecting you with the right specialist',
-    avatar: 'https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150&fit=crop&crop=face',
+    avatar: techSupportPhoto,
     color: 'hsl(var(--chart-5))',
     capabilities: [
       'General information',

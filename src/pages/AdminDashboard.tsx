@@ -38,6 +38,10 @@ import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementS
 import { IntegrationHub } from "@/components/admin/database/IntegrationHub";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
+import { PracticumDashboard } from './admin/practicum/PracticumDashboard';
+import { SiteManagement } from './admin/practicum/SiteManagement';
+import { ProgramManagement as PracticumProgramManagement } from './admin/practicum/ProgramManagement';
+import { JourneyConfiguration } from './admin/practicum/JourneyConfiguration';
 import AIEmailManagementPage from "./AIEmailManagementPage";
 import { HubSpotOAuthCallback } from "@/pages/HubSpotOAuthCallback";
 import RecruiterManagement from "@/components/admin/RecruiterManagement";
@@ -205,6 +209,16 @@ const AdminDashboard: React.FC = () => {
         return <OutcomesDashboard />;
       case "/admin/ai-intelligence":
         return <AIIntelligenceDashboard />;
+      
+      // Practicum Management routes
+      case "/admin/practicum":
+        return <PracticumDashboard />;
+      case "/admin/practicum/sites":
+        return <SiteManagement />;
+      case "/admin/practicum/programs":
+        return <PracticumProgramManagement />;
+      case "/admin/practicum/journeys":
+        return <JourneyConfiguration />;
       
       // Setup routes
       case "/admin/setup":

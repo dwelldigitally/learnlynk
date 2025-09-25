@@ -24,6 +24,7 @@ export type PracticumUserRoleInsert = Database['public']['Tables']['practicum_us
 
 // Custom business logic types
 export interface PracticumJourneyStep {
+  [key: string]: any; // Make it compatible with Json type
   id: string;
   name: string;
   description: string;

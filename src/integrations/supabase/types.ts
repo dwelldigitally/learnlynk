@@ -4530,6 +4530,526 @@ export type Database = {
         }
         Relationships: []
       }
+      practicum_assignments: {
+        Row: {
+          completion_percentage: number | null
+          created_at: string
+          current_step: number | null
+          end_date: string | null
+          hours_approved: number | null
+          hours_completed: number | null
+          id: string
+          instructor_id: string | null
+          journey_id: string | null
+          lead_id: string | null
+          notes: string | null
+          preceptor_id: string | null
+          program_id: string | null
+          site_id: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completion_percentage?: number | null
+          created_at?: string
+          current_step?: number | null
+          end_date?: string | null
+          hours_approved?: number | null
+          hours_completed?: number | null
+          id?: string
+          instructor_id?: string | null
+          journey_id?: string | null
+          lead_id?: string | null
+          notes?: string | null
+          preceptor_id?: string | null
+          program_id?: string | null
+          site_id?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completion_percentage?: number | null
+          created_at?: string
+          current_step?: number | null
+          end_date?: string | null
+          hours_approved?: number | null
+          hours_completed?: number | null
+          id?: string
+          instructor_id?: string | null
+          journey_id?: string | null
+          lead_id?: string | null
+          notes?: string | null
+          preceptor_id?: string | null
+          program_id?: string | null
+          site_id?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practicum_assignments_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practicum_assignments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practicum_assignments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practicum_assignments_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practicum_competencies: {
+        Row: {
+          category: string | null
+          competency_description: string | null
+          competency_name: string
+          created_at: string
+          id: string
+          is_required: boolean | null
+          order_index: number | null
+          program_id: string | null
+          required_occurrences: number | null
+          rubric_criteria: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          competency_description?: string | null
+          competency_name: string
+          created_at?: string
+          id?: string
+          is_required?: boolean | null
+          order_index?: number | null
+          program_id?: string | null
+          required_occurrences?: number | null
+          rubric_criteria?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          competency_description?: string | null
+          competency_name?: string
+          created_at?: string
+          id?: string
+          is_required?: boolean | null
+          order_index?: number | null
+          program_id?: string | null
+          required_occurrences?: number | null
+          rubric_criteria?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practicum_competencies_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practicum_evaluations: {
+        Row: {
+          areas_for_improvement: string | null
+          assignment_id: string | null
+          competencies_evaluation: Json | null
+          completed_date: string | null
+          created_at: string
+          due_date: string | null
+          evaluation_type: string
+          id: string
+          instructor_evaluation: Json | null
+          is_completed: boolean | null
+          overall_rating: string | null
+          preceptor_evaluation: Json | null
+          recommendations: string | null
+          strengths: string | null
+          student_id: string
+          student_self_evaluation: Json | null
+          updated_at: string
+        }
+        Insert: {
+          areas_for_improvement?: string | null
+          assignment_id?: string | null
+          competencies_evaluation?: Json | null
+          completed_date?: string | null
+          created_at?: string
+          due_date?: string | null
+          evaluation_type: string
+          id?: string
+          instructor_evaluation?: Json | null
+          is_completed?: boolean | null
+          overall_rating?: string | null
+          preceptor_evaluation?: Json | null
+          recommendations?: string | null
+          strengths?: string | null
+          student_id: string
+          student_self_evaluation?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          areas_for_improvement?: string | null
+          assignment_id?: string | null
+          competencies_evaluation?: Json | null
+          completed_date?: string | null
+          created_at?: string
+          due_date?: string | null
+          evaluation_type?: string
+          id?: string
+          instructor_evaluation?: Json | null
+          is_completed?: boolean | null
+          overall_rating?: string | null
+          preceptor_evaluation?: Json | null
+          recommendations?: string | null
+          strengths?: string | null
+          student_id?: string
+          student_self_evaluation?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practicum_evaluations_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practicum_journeys: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          journey_name: string
+          program_id: string | null
+          steps: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          journey_name: string
+          program_id?: string | null
+          steps?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          journey_name?: string
+          program_id?: string | null
+          steps?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practicum_journeys_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practicum_programs: {
+        Row: {
+          competencies_required: Json | null
+          created_at: string
+          documents_required: Json | null
+          evaluation_criteria: Json | null
+          id: string
+          is_active: boolean | null
+          program_name: string
+          total_hours_required: number
+          updated_at: string
+          user_id: string
+          weeks_duration: number | null
+        }
+        Insert: {
+          competencies_required?: Json | null
+          created_at?: string
+          documents_required?: Json | null
+          evaluation_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          program_name: string
+          total_hours_required?: number
+          updated_at?: string
+          user_id: string
+          weeks_duration?: number | null
+        }
+        Update: {
+          competencies_required?: Json | null
+          created_at?: string
+          documents_required?: Json | null
+          evaluation_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          program_name?: string
+          total_hours_required?: number
+          updated_at?: string
+          user_id?: string
+          weeks_duration?: number | null
+        }
+        Relationships: []
+      }
+      practicum_records: {
+        Row: {
+          assignment_id: string | null
+          competency_id: string | null
+          competency_name: string | null
+          created_at: string
+          evaluation_data: Json | null
+          final_status: string | null
+          hours_submitted: number | null
+          id: string
+          instructor_approved_at: string | null
+          instructor_feedback: string | null
+          instructor_id: string | null
+          instructor_status: string | null
+          journal_content: string | null
+          metadata: Json | null
+          preceptor_approved_at: string | null
+          preceptor_feedback: string | null
+          preceptor_id: string | null
+          preceptor_status: string | null
+          record_date: string
+          record_type: string
+          student_id: string
+          student_notes: string | null
+          time_in: string | null
+          time_out: string | null
+          updated_at: string
+        }
+        Insert: {
+          assignment_id?: string | null
+          competency_id?: string | null
+          competency_name?: string | null
+          created_at?: string
+          evaluation_data?: Json | null
+          final_status?: string | null
+          hours_submitted?: number | null
+          id?: string
+          instructor_approved_at?: string | null
+          instructor_feedback?: string | null
+          instructor_id?: string | null
+          instructor_status?: string | null
+          journal_content?: string | null
+          metadata?: Json | null
+          preceptor_approved_at?: string | null
+          preceptor_feedback?: string | null
+          preceptor_id?: string | null
+          preceptor_status?: string | null
+          record_date: string
+          record_type: string
+          student_id: string
+          student_notes?: string | null
+          time_in?: string | null
+          time_out?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assignment_id?: string | null
+          competency_id?: string | null
+          competency_name?: string | null
+          created_at?: string
+          evaluation_data?: Json | null
+          final_status?: string | null
+          hours_submitted?: number | null
+          id?: string
+          instructor_approved_at?: string | null
+          instructor_feedback?: string | null
+          instructor_id?: string | null
+          instructor_status?: string | null
+          journal_content?: string | null
+          metadata?: Json | null
+          preceptor_approved_at?: string | null
+          preceptor_feedback?: string | null
+          preceptor_id?: string | null
+          preceptor_status?: string | null
+          record_date?: string
+          record_type?: string
+          student_id?: string
+          student_notes?: string | null
+          time_in?: string | null
+          time_out?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practicum_records_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_assignments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practicum_sites: {
+        Row: {
+          address: string | null
+          city: string | null
+          contact_email: string | null
+          contact_person: string | null
+          contact_phone: string | null
+          country: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
+          max_capacity_per_month: number | null
+          max_capacity_per_semester: number | null
+          max_capacity_per_year: number | null
+          name: string
+          organization: string
+          postal_code: string | null
+          requirements: Json | null
+          specializations: string[] | null
+          state: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          max_capacity_per_month?: number | null
+          max_capacity_per_semester?: number | null
+          max_capacity_per_year?: number | null
+          name: string
+          organization: string
+          postal_code?: string | null
+          requirements?: Json | null
+          specializations?: string[] | null
+          state?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          contact_email?: string | null
+          contact_person?: string | null
+          contact_phone?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          max_capacity_per_month?: number | null
+          max_capacity_per_semester?: number | null
+          max_capacity_per_year?: number | null
+          name?: string
+          organization?: string
+          postal_code?: string | null
+          requirements?: Json | null
+          specializations?: string[] | null
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      practicum_user_roles: {
+        Row: {
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          is_active: boolean | null
+          last_name: string
+          max_students_per_semester: number | null
+          notification_preferences: Json | null
+          organization: string | null
+          phone: string | null
+          role_type: string
+          site_ids: string[] | null
+          specializations: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          is_active?: boolean | null
+          last_name: string
+          max_students_per_semester?: number | null
+          notification_preferences?: Json | null
+          organization?: string | null
+          phone?: string | null
+          role_type: string
+          site_ids?: string[] | null
+          specializations?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          is_active?: boolean | null
+          last_name?: string
+          max_students_per_semester?: number | null
+          notification_preferences?: Json | null
+          organization?: string | null
+          phone?: string | null
+          role_type?: string
+          site_ids?: string[] | null
+          specializations?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

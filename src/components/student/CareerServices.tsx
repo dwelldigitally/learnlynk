@@ -5,46 +5,41 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 import { dummyCareerServices } from "@/data/studentPortalDummyData";
-
 const CareerServices: React.FC = () => {
   const isLoaded = usePageEntranceAnimation();
-  const { visibleItems, ref: staggerRef } = useStaggeredReveal(8, 150);
-
-  const careerResources = [
-    {
-      title: "Resume Builder",
-      description: "Create professional resumes with industry-specific templates",
-      icon: FileText,
-      action: "Start Building",
-      color: "blue"
-    },
-    {
-      title: "Interview Preparation",
-      description: "Practice with mock interviews and get feedback",
-      icon: Users,
-      action: "Schedule Session",
-      color: "green"
-    },
-    {
-      title: "Job Search Portal",
-      description: "Access exclusive job postings from our partner employers",
-      icon: Briefcase,
-      action: "Browse Jobs",
-      color: "purple"
-    },
-    {
-      title: "Career Assessment",
-      description: "Discover careers that match your interests and skills",
-      icon: TrendingUp,
-      action: "Take Assessment",
-      color: "orange"
-    }
-  ];
+  const {
+    visibleItems,
+    ref: staggerRef
+  } = useStaggeredReveal(8, 150);
+  const careerResources = [{
+    title: "Resume Builder",
+    description: "Create professional resumes with industry-specific templates",
+    icon: FileText,
+    action: "Start Building",
+    color: "blue"
+  }, {
+    title: "Interview Preparation",
+    description: "Practice with mock interviews and get feedback",
+    icon: Users,
+    action: "Schedule Session",
+    color: "green"
+  }, {
+    title: "Job Search Portal",
+    description: "Access exclusive job postings from our partner employers",
+    icon: Briefcase,
+    action: "Browse Jobs",
+    color: "purple"
+  }, {
+    title: "Career Assessment",
+    description: "Discover careers that match your interests and skills",
+    icon: TrendingUp,
+    action: "Take Assessment",
+    color: "orange"
+  }];
 
   // Use dummy data for events and jobs
   const upcomingEvents = dummyCareerServices.upcomingEvents;
   const jobOpportunities = dummyCareerServices.jobOpportunities;
-
   const getColorClasses = (color: string) => {
     switch (color) {
       case 'blue':
@@ -59,9 +54,7 @@ const CareerServices: React.FC = () => {
         return 'bg-gray-100 text-gray-600';
     }
   };
-
-  return (
-    <div className={`p-8 max-w-7xl mx-auto space-y-8 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+  return <div className={`p-8 max-w-7xl mx-auto space-y-8 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header */}
       <div className="animate-slide-down">
         <div className="flex items-center gap-4 mb-8">
@@ -80,13 +73,10 @@ const CareerServices: React.FC = () => {
       {/* Career Resources - Enhanced */}
       <div ref={staggerRef}>
         <div className="flex items-center gap-3 mb-8">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-            Career Resources
-          </h2>
+          
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {careerResources.map((resource, index) => (
-            <Card key={index} className="p-8 hover:shadow-md transition-shadow duration-200 bg-gradient-to-br from-background to-muted/30 border-0 shadow-lg group cursor-pointer">
+          {careerResources.map((resource, index) => <Card key={index} className="p-8 hover:shadow-md transition-shadow duration-200 bg-gradient-to-br from-background to-muted/30 border-0 shadow-lg group cursor-pointer">
               <div className="flex flex-col items-center text-center space-y-4">
                 <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-colors duration-200 shadow-lg ${getColorClasses(resource.color)}`}>
                   <resource.icon className="w-8 h-8" />
@@ -97,8 +87,7 @@ const CareerServices: React.FC = () => {
                 </div>
                 <Button size="sm" className="w-full">{resource.action}</Button>
               </div>
-            </Card>
-          ))}
+            </Card>)}
         </div>
       </div>
 
@@ -111,8 +100,7 @@ const CareerServices: React.FC = () => {
           <h2 className="text-xl font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Upcoming Events</h2>
         </div>
         <div className="space-y-6">
-          {upcomingEvents.map((event, index) => (
-            <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
+          {upcomingEvents.map((event, index) => <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -135,17 +123,12 @@ const CareerServices: React.FC = () => {
                        {event.location}
                      </div>
                    </div>
-                   {event.employers && event.employers.length > 0 && (
-                     <p className="text-sm text-green-600 font-medium mt-1">{event.employers.length} employers attending</p>
-                   )}
-                   {event.description && (
-                     <p className="text-sm text-blue-600 mt-1">{event.description}</p>
-                   )}
+                   {event.employers && event.employers.length > 0 && <p className="text-sm text-green-600 font-medium mt-1">{event.employers.length} employers attending</p>}
+                   {event.description && <p className="text-sm text-blue-600 mt-1">{event.description}</p>}
                 </div>
                 <Button size="sm">Register</Button>
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
       </Card>
 
@@ -164,8 +147,7 @@ const CareerServices: React.FC = () => {
           </Button>
         </div>
         <div className="space-y-6">
-          {jobOpportunities.map((job, index) => (
-            <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
+          {jobOpportunities.map((job, index) => <div key={index} className="border rounded-lg p-6 hover:bg-muted/50 transition-colors">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-2">
@@ -189,8 +171,7 @@ const CareerServices: React.FC = () => {
                   <Button size="sm">Apply Now</Button>
                 </div>
               </div>
-            </div>
-          ))}
+            </div>)}
         </div>
       </Card>
 
@@ -233,8 +214,6 @@ const CareerServices: React.FC = () => {
           </div>
         </div>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default CareerServices;

@@ -40,8 +40,14 @@ import EmbedWebForm from "./pages/EmbedWebForm";
 import WebForm from "./pages/WebForm";
 import PreceptorLogin from "./pages/PreceptorLogin";
 import PreceptorDashboard from "./pages/PreceptorDashboard";
+import PreceptorStudents from "./pages/PreceptorStudents";
+import PreceptorEvaluations from "./pages/PreceptorEvaluations";
+import PreceptorCommunications from "./pages/PreceptorCommunications";
+import PreceptorProfile from "./pages/PreceptorProfile";
 import PreceptorReviewAttendance from "./pages/PreceptorReviewAttendance";
 import PreceptorReviewCompetency from "./pages/PreceptorReviewCompetency";
+import PreceptorReviewReflection from "./pages/PreceptorReviewReflection";
+import PreceptorReviewEvaluation from "./pages/PreceptorReviewEvaluation";
 
 const queryClient = new QueryClient();
 

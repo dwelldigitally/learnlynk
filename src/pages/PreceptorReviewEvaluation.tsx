@@ -168,8 +168,10 @@ const PreceptorReviewEvaluation = () => {
     });
   };
 
-  const averageStudentRating = Object.values(evaluation.studentSelfEvaluation).slice(0, 6).reduce((a, b) => a + b, 0) / 6;
-  const averagePreceptorRating = Object.values(preceptorRatings).reduce((a, b) => a + b, 0) / Object.values(preceptorRatings).filter(r => r > 0).length || 0;
+  const studentRatingValues = Object.values(evaluation.studentSelfEvaluation).slice(0, 6).filter(val => typeof val === 'number') as number[];
+  const averageStudentRating = studentRatingValues.reduce((a, b) => a + b, 0) / studentRatingValues.length;
+  const preceptorRatingValues = Object.values(preceptorRatings).filter(r => r > 0);
+  const averagePreceptorRating = preceptorRatingValues.length > 0 ? preceptorRatingValues.reduce((a, b) => a + b, 0) / preceptorRatingValues.length : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-indigo-50/30 to-purple-50/50">

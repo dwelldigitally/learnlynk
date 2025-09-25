@@ -136,16 +136,16 @@ const StudentDashboard: React.FC = () => {
   };
   const completedRequirements = currentApplication.requirements.filter(req => currentApplication.documents.some(doc => doc.requirementId === req.id && doc.status === 'approved')).length;
   const totalDocuments = currentApplication.documents.length;
-  return <div className="space-y-8 p-6 bg-background min-h-screen">
+  return <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 bg-background min-h-screen">
       {/* Header with Program Selection and Quick Actions */}
-      <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground px-8 py-8 rounded-xl shadow-lg">
-        <div className="flex justify-between items-start mb-6">
+      <div className="bg-gradient-to-r from-primary via-primary/90 to-primary/80 text-primary-foreground px-4 sm:px-6 lg:px-8 py-6 sm:py-8 rounded-xl shadow-lg">
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-4 sm:mb-6 space-y-4 lg:space-y-0">
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <Target className="w-6 h-6" />
-              <h1 className="text-3xl font-bold">Document Hub</h1>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6" />
+              <h1 className="text-2xl sm:text-3xl font-bold">Document Hub</h1>
             </div>
-            <p className="text-primary-foreground/80 text-lg">Track and manage your application documents</p>
+            <p className="text-primary-foreground/80 text-base sm:text-lg">Track and manage your application documents</p>
             
             <Popover open={isProgramPopoverOpen} onOpenChange={setIsProgramPopoverOpen}>
               <PopoverTrigger asChild>
@@ -167,12 +167,12 @@ const StudentDashboard: React.FC = () => {
             </Popover>
           </div>
           
-          <div className="text-center">
+          <div className="text-center lg:text-right">
             <div className="mb-2">
-              <div className="text-4xl font-bold">{completedRequirements}</div>
+              <div className="text-3xl sm:text-4xl font-bold">{completedRequirements}</div>
               <div className="text-primary-foreground/80 text-sm">of {currentApplication.requirements.length} completed</div>
             </div>
-            <div className="w-24">
+            <div className="w-20 sm:w-24 mx-auto lg:mx-0">
               <Progress value={completedRequirements / currentApplication.requirements.length * 100} className="bg-primary-foreground/20 h-2" />
             </div>
           </div>
@@ -181,71 +181,71 @@ const StudentDashboard: React.FC = () => {
         {/* Progress Message */}
         <Alert className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground">
           <Star className="h-4 w-4" />
-          <AlertDescription className="font-medium">
+          <AlertDescription className="font-medium text-sm sm:text-base">
             {completedRequirements === currentApplication.requirements.length ? "🎉 Excellent! All documents completed. Your application is ready for review." : `📋 ${currentApplication.requirements.length - completedRequirements} more documents needed to complete your application.`}
           </AlertDescription>
         </Alert>
       </div>
 
       {/* Quick Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <FileText className="w-5 h-5 text-blue-600" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg">
+              <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground">{totalDocuments}</div>
-              <div className="text-sm text-muted-foreground">Total Docs</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{totalDocuments}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Total Docs</div>
             </div>
           </div>
         </Card>
         
-        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+        <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg">
+              <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground">{currentApplication.documents.filter(doc => doc.status === 'approved').length}</div>
-              <div className="text-sm text-muted-foreground">Approved</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{currentApplication.documents.filter(doc => doc.status === 'approved').length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Approved</div>
             </div>
           </div>
         </Card>
         
-        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <Clock className="w-5 h-5 text-yellow-600" />
+        <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-yellow-100 rounded-lg">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground">{currentApplication.documents.filter(doc => doc.status === 'under-review').length}</div>
-              <div className="text-sm text-muted-foreground">In Review</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{currentApplication.documents.filter(doc => doc.status === 'under-review').length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">In Review</div>
             </div>
           </div>
         </Card>
         
-        <Card className="p-6 hover:shadow-md transition-shadow duration-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-red-600" />
+        <Card className="p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-1.5 sm:p-2 bg-red-100 rounded-lg">
+              <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground">{currentApplication.documents.filter(doc => doc.status === 'rejected').length}</div>
-              <div className="text-sm text-muted-foreground">Needs Action</div>
+              <div className="text-xl sm:text-2xl font-bold text-foreground">{currentApplication.documents.filter(doc => doc.status === 'rejected').length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Needs Action</div>
             </div>
           </div>
         </Card>
       </div>
 
       {/* Document Requirements */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-bold">Document Requirements</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Document Requirements</h2>
             <p className="text-muted-foreground mt-1">Upload and track your application documents</p>
           </div>
-          <Badge variant="outline" className="text-sm px-3 py-1">
+          <Badge variant="outline" className="text-sm px-3 py-1 self-start sm:self-auto">
             {currentApplication.requirements.length} requirements
           </Badge>
         </div>
@@ -254,32 +254,32 @@ const StudentDashboard: React.FC = () => {
           {currentApplication.requirements.map(requirement => {
           const requirementDocuments = currentApplication.documents.filter(doc => doc.requirementId === requirement.id);
           const hasApproved = requirementDocuments.some(doc => doc.status === 'approved');
-          return <Card key={requirement.id} className={`p-6 transition-shadow hover:shadow-md ${hasApproved ? 'border-green-200 bg-green-50/30' : ''}`}>
+          return <Card key={requirement.id} className={`p-4 sm:p-6 transition-shadow hover:shadow-md ${hasApproved ? 'border-green-200 bg-green-50/30' : ''}`}>
                 <div className="space-y-4">
                   {/* Requirement Header */}
-                  <div className="flex items-start justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-full ${hasApproved ? 'bg-green-100' : 'bg-muted'}`}>
-                          {hasApproved ? <CheckCircle className="w-4 h-4 text-green-600" /> : <FileText className="w-4 h-4 text-muted-foreground" />}
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className={`p-1.5 sm:p-2 rounded-full ${hasApproved ? 'bg-green-100' : 'bg-muted'}`}>
+                          {hasApproved ? <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" /> : <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-muted-foreground" />}
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold">{requirement.name}</h3>
-                          <div className="flex items-center gap-2 mt-1">
+                          <h3 className="text-base sm:text-lg font-semibold">{requirement.name}</h3>
+                          <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
                             {requirement.mandatory && <Badge variant="destructive" className="text-xs">Required</Badge>}
                             {hasApproved && <Badge variant="default" className="text-xs bg-green-100 text-green-800">Complete</Badge>}
                           </div>
                         </div>
                       </div>
                       
-                      <p className="text-muted-foreground ml-12">{requirement.description}</p>
+                      <p className="text-muted-foreground ml-8 sm:ml-12 text-sm">{requirement.description}</p>
                       
-                      <div className="flex items-center gap-4 ml-12 text-sm text-muted-foreground">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 ml-8 sm:ml-12 text-xs sm:text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Info className="w-3 h-3" />
                           <span>Formats: {requirement.acceptedFormats.join(', ')}</span>
                         </div>
-                        <span>•</span>
+                        <span className="hidden sm:inline">•</span>
                         <span>Max: {requirement.maxSize}MB</span>
                       </div>
                     </div>
@@ -287,7 +287,7 @@ const StudentDashboard: React.FC = () => {
                     <Button onClick={() => {
                   setSelectedRequirement(requirement.id);
                   fileInputRef.current?.click();
-                }} disabled={uploadingTo === requirement.id} size="sm" className="ml-4">
+                }} disabled={uploadingTo === requirement.id} size="sm" className="w-full sm:w-auto">
                       {uploadingTo === requirement.id ? <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                           Uploading...

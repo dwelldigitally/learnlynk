@@ -112,78 +112,78 @@ const YourApplications: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-12 max-w-7xl mx-auto ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`space-y-8 sm:space-y-12 max-w-7xl mx-auto ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header with Application Summary */}
-      <div className="animate-slide-down mb-10 px-2">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="animate-slide-down mb-6 sm:mb-10 px-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           {/* Main Header */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-4 mb-2">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-                <FileText className="w-6 h-6 text-primary-foreground" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-2">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Your Applications</h1>
-                <p className="text-muted-foreground text-lg">Track your journey and manage your applications in one place</p>
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Your Applications</h1>
+                <p className="text-muted-foreground text-base sm:text-lg">Track your journey and manage your applications in one place</p>
               </div>
             </div>
           </div>
           
           {/* Quick Stats */}
-          <div className="flex items-center gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:flex lg:items-center gap-3 sm:gap-4">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{applications.length + existingApplications.length}</div>
-              <div className="text-sm text-muted-foreground">Total Applications</div>
+              <div className="text-xl sm:text-2xl font-bold text-primary">{applications.length + existingApplications.length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Total Applications</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{existingApplications.filter(app => app.stage === 'ACCEPTED').length}</div>
-              <div className="text-sm text-muted-foreground">Accepted</div>
+              <div className="text-xl sm:text-2xl font-bold text-green-600">{existingApplications.filter(app => app.stage === 'ACCEPTED').length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Accepted</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-amber-600">{existingApplications.filter(app => app.stage === 'WAITLISTED').length}</div>
-              <div className="text-sm text-muted-foreground">Waitlisted</div>
+              <div className="text-xl sm:text-2xl font-bold text-amber-600">{existingApplications.filter(app => app.stage === 'WAITLISTED').length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Waitlisted</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-600">{existingApplications.filter(app => app.stage === 'DOCUMENT_APPROVAL').length}</div>
-              <div className="text-sm text-muted-foreground">Pending</div>
+              <div className="text-xl sm:text-2xl font-bold text-yellow-600">{existingApplications.filter(app => app.stage === 'DOCUMENT_APPROVAL').length}</div>
+              <div className="text-xs sm:text-sm text-muted-foreground">Pending</div>
             </div>
           </div>
         </div>
         
         {/* Primary CTA */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-xl">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6 bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-xl">
           <div>
-            <h3 className="font-semibold text-lg text-primary mb-1">Ready to start your next application?</h3>
-            <p className="text-muted-foreground">Begin a new application or continue where you left off</p>
+            <h3 className="font-semibold text-base sm:text-lg text-primary mb-1">Ready to start your next application?</h3>
+            <p className="text-muted-foreground text-sm sm:text-base">Begin a new application or continue where you left off</p>
           </div>
-          <Button onClick={() => setShowWizard(true)} size="lg" className="flex items-center gap-2 px-6 py-3">
-            <Plus className="w-5 h-5" />
-            Start New Application
+          <Button onClick={() => setShowWizard(true)} size="lg" className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 w-full sm:w-auto">
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-sm sm:text-base">Start New Application</span>
           </Button>
         </div>
       </div>
 
       {/* Applications List */}
-      <div ref={staggerRef} className="space-y-8 px-2">
+      <div ref={staggerRef} className="space-y-6 sm:space-y-8 px-2">
         {/* Application Status Filter */}
         {(applications.length > 0 || existingApplications.length > 0) && (
-          <div className="mb-6 flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" className="bg-background">All Applications</Button>
-            <Button variant="ghost" size="sm">In Progress</Button>
-            <Button variant="ghost" size="sm">Pending Decision</Button>
-            <Button variant="ghost" size="sm">Accepted</Button>
-            <Button variant="ghost" size="sm">Waitlisted</Button>
-            <Button variant="ghost" size="sm">Declined</Button>
+          <div className="mb-4 sm:mb-6 flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" className="bg-background text-xs sm:text-sm">All Applications</Button>
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">In Progress</Button>
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">Pending Decision</Button>
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">Accepted</Button>
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">Waitlisted</Button>
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">Declined</Button>
           </div>
         )}
 
         {/* New Applications */}
         {applications.map((application, index) => (
-          <Card key={application.id} className={`p-10 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 border-l-primary mx-2 ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
-            <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-xl font-semibold">{application.program_name}</h3>
-                <p className="text-muted-foreground">Application ID: {application.id}</p>
+          <Card key={application.id} className={`p-6 sm:p-8 lg:p-10 hover:shadow-xl transition-all duration-300 hover:scale-[1.01] border-l-4 border-l-primary mx-2 ${visibleItems[index] ? `animate-stagger-${Math.min(index + 1, 5)}` : 'opacity-0'}`}>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-4 gap-4">
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-xl font-semibold">{application.program_name}</h3>
+                <p className="text-muted-foreground text-sm">Application ID: {application.id}</p>
                 {application.application_data?.intakeDate && (
                   <p className="text-sm text-primary font-medium">
                     Intake Date: {new Date(application.application_data.intakeDate).toLocaleDateString('en-US', {
@@ -194,14 +194,14 @@ const YourApplications: React.FC = () => {
                   </p>
                 )}
                 {application.created_at && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Created on {new Date(application.created_at).toLocaleDateString()}
                   </p>
                 )}
               </div>
               
-              <div className="text-right">
-                <Badge className={`${getStatusColor(application.stage)} border`}>
+              <div className="text-right sm:text-left">
+                <Badge className={`${getStatusColor(application.stage)} border text-xs sm:text-sm`}>
                   {getStatusIcon(application.stage)}
                   <span className="ml-2">{getStatusText(application.stage)}</span>
                 </Badge>
@@ -214,13 +214,13 @@ const YourApplications: React.FC = () => {
                 <span className="text-sm text-muted-foreground">{application.progress}%</span>
               </div>
               <Progress value={application.progress} className="h-2" />
-              <div className="flex justify-between mt-2">
-                <span className="text-sm text-muted-foreground">Current Stage: {getStatusText(application.stage)}</span>
-                <span className="text-sm text-blue-600">Status: {application.status}</span>
+              <div className="flex flex-col sm:flex-row sm:justify-between mt-2 gap-1 sm:gap-0">
+                <span className="text-xs sm:text-sm text-muted-foreground">Current Stage: {getStatusText(application.stage)}</span>
+                <span className="text-xs sm:text-sm text-blue-600">Status: {application.status}</span>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t">
               <Button 
                 variant="outline" 
                 size="sm"
@@ -228,6 +228,7 @@ const YourApplications: React.FC = () => {
                   setEditingApplication(application);
                   setShowWizard(true);
                 }}
+                className="w-full sm:w-auto"
               >
                 Continue Application
               </Button>
@@ -241,6 +242,7 @@ const YourApplications: React.FC = () => {
                     description: "Detailed view coming soon!"
                   });
                 }}
+                className="w-full sm:w-auto"
               >
                 <Eye className="w-4 h-4 mr-2" />
                 View Details

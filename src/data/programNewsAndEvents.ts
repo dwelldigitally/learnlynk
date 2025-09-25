@@ -19,7 +19,33 @@ export const programNewsAndEvents: Record<string, ProgramNewsAndEvents> = {
         image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=400&h=400&fit=crop",
         type: "blog",
         date: "2024-01-15",
-        readTime: "5 min read"
+        readTime: "5 min read",
+        author: "Dr. Sarah Chen",
+        tags: ["Healthcare", "Career Development", "Patient Care"],
+        content: `
+          <p>The healthcare landscape is rapidly evolving, and Healthcare Assistants (HCAs) are at the forefront of this transformation. As our population ages and healthcare needs become more complex, the role of HCAs has expanded far beyond traditional boundaries.</p>
+          
+          <h2>The Growing Demand</h2>
+          <p>Healthcare systems worldwide are experiencing unprecedented demand for qualified healthcare support professionals. HCAs now provide 70% of direct patient care in many healthcare facilities, making them absolutely essential to day-to-day operations.</p>
+          
+          <h2>Expanding Responsibilities</h2>
+          <p>Modern HCAs are taking on increasingly complex responsibilities:</p>
+          <ul>
+            <li>Advanced patient monitoring and assessment</li>
+            <li>Medication administration and management</li>
+            <li>Patient education and health promotion</li>
+            <li>Care coordination and communication</li>
+            <li>Technology integration and digital health tools</li>
+          </ul>
+          
+          <h2>Career Growth Opportunities</h2>
+          <p>The HCA role serves as an excellent stepping stone to advanced healthcare careers. Many of our graduates have progressed to become registered nurses, therapy assistants, and healthcare team leaders within just a few years of graduation.</p>
+          
+          <h2>Why Choose Our Program?</h2>
+          <p>Our comprehensive HCA program combines theoretical knowledge with extensive practical experience, ensuring you're job-ready from day one. We maintain strong partnerships with local healthcare facilities, providing excellent placement opportunities and career support.</p>
+          
+          <p>Join the next generation of healthcare professionals who are making a real difference in their communities every day.</p>
+        `
       },
       {
         id: "hca-news-2",

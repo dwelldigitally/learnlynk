@@ -40,6 +40,10 @@ export interface NewsItem {
   type: "blog" | "alumni_story" | "instructor_profile";
   date: string;
   readTime: string;
+  content?: string;
+  author?: string;
+  tags?: string[];
+  slug?: string;
 }
 
 export interface Event {

@@ -88,6 +88,13 @@ const NewsCard: React.FC<NewsCardProps> = ({ news }) => {
             variant="ghost" 
             size="sm" 
             className="w-full text-sm h-10 font-semibold text-primary hover:text-primary-foreground hover:bg-primary group/btn transition-all duration-300"
+            onClick={() => {
+              const currentPath = window.location.pathname;
+              const blogPath = currentPath.includes('/student-portal') 
+                ? `/student-portal/news-events/blog/${news.id}`
+                : `/student/news-events/blog/${news.id}`;
+              window.location.href = blogPath;
+            }}
           >
             Read More
             <ArrowRight className="w-3 h-3 ml-1 transition-transform duration-300 group-hover/btn:translate-x-0.5" />

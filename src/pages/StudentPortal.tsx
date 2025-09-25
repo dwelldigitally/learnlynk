@@ -109,6 +109,16 @@ const StudentPortal: React.FC = () => {
   };
   
   const renderContent = () => {
+    // Handle blog detail routes
+    if (location.pathname.includes('/news-events/blog/')) {
+      const BlogDetailPage = React.lazy(() => import('@/components/student/BlogDetailPage'));
+      return (
+        <React.Suspense fallback={<div className="flex items-center justify-center h-64">Loading...</div>}>
+          <BlogDetailPage />
+        </React.Suspense>
+      );
+    }
+
     switch (location.pathname) {
       case "/student":
       case "/student-portal":

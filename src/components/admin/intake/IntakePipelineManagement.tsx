@@ -871,7 +871,7 @@ export function IntakePipelineManagement() {
                             </td>
                             <td className="p-4">
                               <Badge variant={getStatusBadgeVariant(applicant.status)}>
-                                {applicant.status.replace('_', ' ')}
+                                {applicant.status?.replace('_', ' ') || 'Unknown'}
                               </Badge>
                             </td>
                             <td className="p-4">

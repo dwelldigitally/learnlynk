@@ -1,38 +1,16 @@
 
-import React, { useEffect, useState, createContext, useContext } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import React, { createContext, useContext, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import StudentLayout from "@/components/student/StudentLayout";
-import StudentDashboard from "@/components/student/StudentDashboard";
-import StudentOverview from "@/components/student/StudentOverview";
-import YourApplications from "@/components/student/YourApplications";
-import MessageCentre from "@/components/student/MessageCentre";
-import AcademicPlanning from "@/components/student/AcademicPlanning";
-import DocumentUpload from "@/components/student/DocumentUpload";
-import PayYourFee from "@/components/student/PayYourFee";
-import FinancialAid from "@/components/student/FinancialAid";
-import { FinancialAidApplications } from '@/components/student/financial-aid/FinancialAidApplications';
-import { FinancialAidCalculator } from '@/components/student/financial-aid/FinancialAidCalculator';
-import { FinancialAidDocuments } from '@/components/student/financial-aid/FinancialAidDocuments';
-import { FinancialAidAwards } from '@/components/student/financial-aid/FinancialAidAwards';
-import { FinancialAidAppeals } from '@/components/student/financial-aid/FinancialAidAppeals';
-import CareerServices from "@/components/student/CareerServices";
 import WelcomeOnboarding from "@/components/student/WelcomeOnboarding";
-
-import NewsAndEvents from "./NewsAndEvents";
-import LifeAtWCC from "./LifeAtWCC";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
 import { useStudentSession, useStudentPortalRealtime, useActivityTracking } from "@/hooks/useStudentPortalIntegration";
+import { useTokenValidation } from "@/hooks/useTokenValidation";
+import { useWelcomeFlow } from "@/hooks/useWelcomeFlow";
+import { getRouteComponent } from "@/config/studentPortalRoutes";
+import { PortalLoadingState, AccessDeniedState } from "@/components/student/portal/LoadingStates";
+import type { StudentPortalContextType } from "@/types/studentPortal";
 
 // Student Portal Context
-interface StudentPortalContextType {
-  session: any;
-  accessToken: string | null;
-  leadId: string | null;
-  sessionId: string | null;
-  isLoading: boolean;
-}
-
 const StudentPortalContext = createContext<StudentPortalContextType>({
   session: null,
   accessToken: null,
@@ -43,13 +21,15 @@ const StudentPortalContext = createContext<StudentPortalContextType>({
 
 export const useStudentPortalContext = () => useContext(StudentPortalContext);
 
+/**
+ * Student Portal main component
+ * Manages authentication, routing, and context for the entire student portal experience
+ */
 const StudentPortal: React.FC = () => {
   const location = useLocation();
-  const [searchParams] = useSearchParams();
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [portalData, setPortalData] = useState<any>(null);
-  const [isValidating, setIsValidating] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
+  
+  // Token validation and portal data management
+  const { accessToken, portalData, isValidating } = useTokenValidation();
   
   // Get session data using the integration hook
   const { data: session, isLoading: sessionLoading } = useStudentSession(accessToken);
@@ -58,153 +38,49 @@ const StudentPortal: React.FC = () => {
   const { isConnected } = useStudentPortalRealtime(session?.lead_id || null);
   useActivityTracking(session?.id || null);
   
-  // Check for access token from webform redirect or URL params
-  useEffect(() => {
-    const token = searchParams.get('token');
-    if (token) {
-      setAccessToken(token);
-      validateAccessToken(token);
-    }
-  }, [searchParams]);
+  // Welcome flow management
+  const { showWelcome, handleWelcomeComplete } = useWelcomeFlow(portalData);
   
-  const validateAccessToken = async (token: string) => {
-    setIsValidating(true);
-    try {
-      const { data, error } = await supabase
-        .from('student_portal_access')
-        .select('*')
-        .eq('access_token', token)
-        .eq('status', 'active')
-        .gt('expires_at', new Date().toISOString())
-        .single();
-      
-      if (error || !data) {
-        toast({
-          title: "Invalid Access",
-          description: "Your access token is invalid or has expired.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      setPortalData(data);
-      
-      // Check if this is first time visiting
-      const hasSeenWelcome = localStorage.getItem(`welcome_seen_${data.access_token}`);
-      if (!hasSeenWelcome) {
-        setShowWelcome(true);
-      }
-      
-      toast({
-        title: "Welcome!",
-        description: `Welcome ${data.student_name}! Your application has been received.`
-      });
-    } catch (error) {
-      console.error('Error validating token:', error);
-    } finally {
-      setIsValidating(false);
-    }
-  };
-
-  const handleWelcomeComplete = () => {
-    if (portalData?.access_token) {
-      localStorage.setItem(`welcome_seen_${portalData.access_token}`, 'true');
-    }
-    setShowWelcome(false);
-  };
-  
+  /**
+   * Renders the appropriate content component based on current route
+   * Uses the route configuration for cleaner maintenance
+   */
   const renderContent = () => {
-    // Handle blog detail routes
+    const Component = getRouteComponent(location.pathname);
+    
+    if (!Component) {
+      return <div className="flex items-center justify-center h-64">Component not found</div>;
+    }
+
+    // Handle blog detail routes with lazy loading
     if (location.pathname.includes('/news-events/blog/')) {
-      const BlogDetailPage = React.lazy(() => import('@/components/student/BlogDetailPage'));
       return (
         <React.Suspense fallback={<div className="flex items-center justify-center h-64">Loading...</div>}>
-          <BlogDetailPage />
+          <Component />
         </React.Suspense>
       );
     }
 
-    switch (location.pathname) {
-      case "/student":
-      case "/student-portal":
-        return <StudentOverview />;
-      case "/student/dashboard":
-      case "/student-portal/dashboard":
-        return <StudentDashboard />;
-      case "/student/applications":
-      case "/student-portal/applications":
-        return <YourApplications />;
-      case "/student/academic-planning":
-      case "/student-portal/academic-planning":
-        return <AcademicPlanning />;
-      case "/student/financial-aid":
-      case "/student-portal/financial-aid":
-        return <FinancialAid />;
-      case "/student/financial-aid/applications":
-        return <FinancialAidApplications />;
-      case "/student/financial-aid/calculator":
-        return <FinancialAidCalculator />;
-      case "/student/financial-aid/documents":
-        return <FinancialAidDocuments />;
-      case "/student/financial-aid/awards":
-        return <FinancialAidAwards />;
-      case "/student/financial-aid/appeals":
-        return <FinancialAidAppeals />;
-      case "/student/career-services":
-      case "/student-portal/career-services":
-        return <CareerServices />;
-      case "/student/documents":
-      case "/student-portal/documents":
-        return <DocumentUpload />;
-      case "/student/fee":
-      case "/student-portal/fee":
-        return <PayYourFee />;
-      case "/student/messages":
-      case "/student-portal/messages":
-        return <MessageCentre />;
-      case "/student/news-events":
-      case "/student-portal/news-events":
-        return <NewsAndEvents />;
-      case "/student/campus-life":
-      case "/student-portal/campus-life":
-        return <LifeAtWCC />;
-      default:
-        return <StudentOverview />;
-    }
+    return <Component />;
   };
 
-  // Create context value
-  const contextValue: StudentPortalContextType = {
+  // Memoized context value to prevent unnecessary re-renders
+  const contextValue: StudentPortalContextType = useMemo(() => ({
     session,
     accessToken,
     leadId: session?.lead_id || null,
     sessionId: session?.id || null,
     isLoading: sessionLoading || isValidating,
-  };
+  }), [session, accessToken, sessionLoading, isValidating]);
 
+  // Loading state - show while validating token or loading session
   if (isValidating || sessionLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading your portal...</p>
-          {isConnected && (
-            <p className="mt-2 text-sm text-emerald-600">🔄 Real-time updates connected</p>
-          )}
-        </div>
-      </div>
-    );
+    return <PortalLoadingState isConnected={isConnected} />;
   }
 
+  // Access denied state - token exists but session is invalid
   if (!session && accessToken) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-destructive">Access Denied</h2>
-          <p className="mt-2 text-muted-foreground">Your session has expired or is invalid.</p>
-        </div>
-      </div>
-    );
+    return <AccessDeniedState />;
   }
 
   return (

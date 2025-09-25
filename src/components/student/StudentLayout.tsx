@@ -183,7 +183,7 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
         <EnhancedTopBar onToggleSidebar={() => setIsCollapsed(!isCollapsed)} useDummyData={useDummyData} onToggleDummyData={() => setUseDummyData(!useDummyData)} />
 
         {/* Content */}
-        <div key={currentPath} className="p-6" data-scroll-container>
+        <div key={currentPath} className="p-8 md:p-12 lg:p-16" data-scroll-container>
           {children}
         </div>
       </main>

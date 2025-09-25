@@ -106,7 +106,7 @@ const YourApplications: React.FC = () => {
   }
 
   return (
-    <div className={`space-y-8 p-6 md:p-8 lg:p-10 ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
+    <div className={`space-y-12 max-w-7xl mx-auto ${isLoaded ? 'animate-fade-up' : 'opacity-0'}`}>
       {/* Header with Application Summary */}
       <div className="animate-slide-down mb-10 px-2">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">

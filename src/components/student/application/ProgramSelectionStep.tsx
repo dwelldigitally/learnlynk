@@ -32,17 +32,6 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
     };
   };
 
-  const getProgramHighlights = (program: StandardizedProgram) => {
-    const highlights = {
-      'Health Care Assistant': { employmentRate: 95, highlight: 'High Demand Field' },
-      'Aviation': { employmentRate: 88, highlight: 'Industry Partnerships' },
-      'ECE': { employmentRate: 92, highlight: 'Growing Sector' },
-      'Hospitality': { employmentRate: 85, highlight: 'Global Opportunities' },
-      'Education Assistant': { employmentRate: 90, highlight: 'Stable Career Path' },
-      'MLA': { employmentRate: 93, highlight: 'Healthcare Innovation' }
-    };
-    return highlights[program] || { employmentRate: 85, highlight: 'Career Ready' };
-  };
 
   return (
     <div className="space-y-8">
@@ -61,7 +50,6 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
         {STANDARDIZED_PROGRAMS.map((program) => {
           const details = PROGRAM_DETAILS[program];
           const stats = getProgramStats(program);
-          const highlights = getProgramHighlights(program);
           const isSelected = selectedProgram === program;
           const isHovered = hoveredProgram === program;
 
@@ -94,17 +82,11 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
                   )}
                 </div>
 
-                {/* Program Highlights */}
+                {/* Program Description */}
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium">{highlights.highlight}</span>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {highlights.employmentRate}% Employment Rate
-                    </Badge>
-                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {details.description}
+                  </p>
                 </div>
               </CardHeader>
 

@@ -62,6 +62,15 @@ export const studentPortalRoutes: RouteConfig[] = [
   { path: "/student-portal/news-events", component: NewsAndEvents },
   { path: "/student/campus-life", component: LifeAtWCC },
   { path: "/student-portal/campus-life", component: LifeAtWCC },
+  
+  // Practicum routes
+  { path: "/student/practicum", component: React.lazy(() => import('@/components/student/practicum/PracticumDashboard')) },
+  { path: "/student/practicum/attendance", component: React.lazy(() => import('@/components/student/practicum/AttendanceSubmission')) },
+  { path: "/student/practicum/competencies", component: React.lazy(() => import('@/components/student/practicum/CompetencyTracker')) },
+  { path: "/student/practicum/journals", component: React.lazy(() => import('@/components/student/practicum/WeeklyJournal')) },
+  { path: "/student/practicum/evaluations", component: React.lazy(() => import('@/components/student/practicum/SelfEvaluation')) },
+  { path: "/student/practicum/progress", component: React.lazy(() => import('@/components/student/practicum/ProgressTracker')) },
+  { path: "/student/practicum/records", component: React.lazy(() => import('@/components/student/practicum/RecordsList')) },
 ];
 
 /**

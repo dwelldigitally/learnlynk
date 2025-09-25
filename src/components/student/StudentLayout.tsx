@@ -70,6 +70,11 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
       path: "/student/fee",
       icon: CreditCard,
       description: "Manage payments & fees"
+    }, {
+      name: "Practicum Hub",
+      path: "/student/practicum",
+      icon: ClipboardList,
+      description: "Track practicum progress"
     }]
   }, {
     id: "campus-life",

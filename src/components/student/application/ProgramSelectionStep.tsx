@@ -105,7 +105,7 @@ const ProgramSelectionStep: React.FC<ProgramSelectionStepProps> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="w-4 h-4 text-primary" />
-                    <span>{stats.nextIntake}</span>
+                    <span>Earliest: {stats.nextIntake}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4 text-primary" />

@@ -134,6 +134,11 @@ export const EnhancedTopBar: React.FC<EnhancedTopBarProps> = ({
                     <Badge className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs h-5 w-5 rounded-full p-0 flex items-center justify-center border-2 border-white dark:border-slate-800">5</Badge>
                   </Button>
                 </NotificationCenter>
+                
+                <StreamlinedUserMenu 
+                  useDummyData={useDummyData}
+                  onToggleDummyData={onToggleDummyData}
+                />
               </div>
             </div>
           </div>

@@ -361,821 +361,622 @@ export function IntakePipelineManagement() {
   }, [selectedIntake, activeTab, searchQuery]);
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Intake Pipeline Management</h1>
-          <p className="text-muted-foreground">
-            Manage your intake pipelines with AI-powered insights and bulk operations
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline">
-            <Brain className="h-4 w-4 mr-2" />
-            AI Insights
-          </Button>
-          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Intake
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md">
-              <DialogHeader>
-                <DialogTitle>Create New Intake</DialogTitle>
-                <DialogDescription>
-                  Add a new intake to manage your enrollment pipeline
-                </DialogDescription>
-              </DialogHeader>
+    <div className="min-h-screen bg-gradient-subtle">
+      {/* Modern Hero Header with Glass Morphism */}
+      <div className="relative overflow-hidden aurora-hero">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
+        <div className="relative backdrop-blur-xl bg-white/10 border-b border-white/20">
+          <div className="container mx-auto px-4 py-8">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Intake Name</Label>
-                  <Input
-                    id="name"
-                    value={newIntake.name}
-                    onChange={(e) => setNewIntake(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="e.g., Business Administration - Fall 2024"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="program">Program</Label>
-                  <Select value={newIntake.program} onValueChange={(value) => setNewIntake(prev => ({ ...prev, program: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select program" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
-                      <SelectItem value="Education Assistant">Education Assistant</SelectItem>
-                      <SelectItem value="Aviation">Aviation</SelectItem>
-                      <SelectItem value="Hospitality">Hospitality</SelectItem>
-                      <SelectItem value="ECE">ECE</SelectItem>
-                      <SelectItem value="MLA">MLA</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="campus">Campus</Label>
-                  <Select value={newIntake.campus} onValueChange={(value) => setNewIntake(prev => ({ ...prev, campus: value }))}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Surrey">Surrey</SelectItem>
-                      <SelectItem value="Vancouver">Vancouver</SelectItem>
-                      <SelectItem value="Richmond">Richmond</SelectItem>
-                      <SelectItem value="Burnaby">Burnaby</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="capacity">Capacity</Label>
-                  <Input
-                    id="capacity"
-                    type="number"
-                    value={newIntake.capacity}
-                    onChange={(e) => setNewIntake(prev => ({ ...prev, capacity: parseInt(e.target.value) || 25 }))}
-                    min="1"
-                    max="100"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="startDate">Start Date</Label>
-                    <Input
-                      id="startDate"
-                      type="date"
-                      value={newIntake.startDate}
-                      onChange={(e) => setNewIntake(prev => ({ ...prev, startDate: e.target.value }))}
-                    />
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full" />
+                    <div className="relative glass-card p-4 rounded-2xl">
+                      <Target className="h-10 w-10 text-primary" />
+                    </div>
                   </div>
                   <div>
-                    <Label htmlFor="endDate">End Date</Label>
-                    <Input
-                      id="endDate"
-                      type="date"
-                      value={newIntake.endDate}
-                      onChange={(e) => setNewIntake(prev => ({ ...prev, endDate: e.target.value }))}
-                    />
+                    <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
+                      Intake Pipeline Management
+                    </h1>
+                    <p className="text-lg text-muted-foreground mt-2 font-medium">
+                      Manage your intake pipelines with AI-powered insights and bulk operations
+                    </p>
                   </div>
-                </div>
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleCreateIntake}>
-                    Create Intake
-                  </Button>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <Button variant="outline" className="glass-button border-white/30 hover:bg-white/20 px-4 py-2">
+                  <Brain className="h-4 w-4 mr-2" />
+                  AI Insights
+                </Button>
+                <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="glass-button bg-primary/20 hover:bg-primary/30 border-primary/30 px-4 py-2">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Intake
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md glass-card backdrop-blur-xl border-white/20">
+                    <DialogHeader>
+                      <DialogTitle className="text-xl font-bold">Create New Intake</DialogTitle>
+                      <DialogDescription className="text-muted-foreground">
+                        Add a new intake to manage your enrollment pipeline
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="name" className="text-sm font-semibold">Intake Name</Label>
+                        <Input
+                          id="name"
+                          value={newIntake.name}
+                          onChange={(e) => setNewIntake(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder="e.g., Business Administration - Fall 2024"
+                          className="glass-card border-white/20 bg-white/5 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="program" className="text-sm font-semibold">Program</Label>
+                        <Select value={newIntake.program} onValueChange={(value) => setNewIntake(prev => ({ ...prev, program: value }))}>
+                          <SelectTrigger className="glass-card border-white/20 bg-white/5 mt-1">
+                            <SelectValue placeholder="Select program" />
+                          </SelectTrigger>
+                          <SelectContent className="glass-card backdrop-blur-xl border-white/20">
+                            <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
+                            <SelectItem value="Education Assistant">Education Assistant</SelectItem>
+                            <SelectItem value="Aviation">Aviation</SelectItem>
+                            <SelectItem value="Hospitality">Hospitality</SelectItem>
+                            <SelectItem value="ECE">ECE</SelectItem>
+                            <SelectItem value="MLA">MLA</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="campus" className="text-sm font-semibold">Campus</Label>
+                        <Select value={newIntake.campus} onValueChange={(value) => setNewIntake(prev => ({ ...prev, campus: value }))}>
+                          <SelectTrigger className="glass-card border-white/20 bg-white/5 mt-1">
+                            <SelectValue placeholder="Select campus" />
+                          </SelectTrigger>
+                          <SelectContent className="glass-card backdrop-blur-xl border-white/20">
+                            <SelectItem value="Surrey">Surrey</SelectItem>
+                            <SelectItem value="Vancouver">Vancouver</SelectItem>
+                            <SelectItem value="Richmond">Richmond</SelectItem>
+                            <SelectItem value="Burnaby">Burnaby</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="capacity" className="text-sm font-semibold">Capacity</Label>
+                        <Input
+                          id="capacity"
+                          type="number"
+                          value={newIntake.capacity}
+                          onChange={(e) => setNewIntake(prev => ({ ...prev, capacity: parseInt(e.target.value) || 25 }))}
+                          min="1"
+                          max="100"
+                          className="glass-card border-white/20 bg-white/5 mt-1"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="startDate" className="text-sm font-semibold">Start Date</Label>
+                          <Input
+                            id="startDate"
+                            type="date"
+                            value={newIntake.startDate}
+                            onChange={(e) => setNewIntake(prev => ({ ...prev, startDate: e.target.value }))}
+                            className="glass-card border-white/20 bg-white/5 mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="endDate" className="text-sm font-semibold">End Date</Label>
+                          <Input
+                            id="endDate"
+                            type="date"
+                            value={newIntake.endDate}
+                            onChange={(e) => setNewIntake(prev => ({ ...prev, endDate: e.target.value }))}
+                            className="glass-card border-white/20 bg-white/5 mt-1"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-3 pt-4">
+                        <Button variant="outline" onClick={() => setShowCreateDialog(false)} className="glass-button border-white/30">
+                          Cancel
+                        </Button>
+                        <Button onClick={handleCreateIntake} className="glass-button bg-primary/20 hover:bg-primary/30 border-primary/30">
+                          Create Intake
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {!selectedIntake ? (
-        <div className="space-y-6">
-          {/* Overview Cards */}
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Intakes</CardTitle>
-                <Target className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{intakes.length}</div>
-                <p className="text-xs text-muted-foreground">
-                  {intakes.filter(i => i.status === 'active').length} active
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Enrollment</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {intakes.reduce((sum, i) => sum + i.enrolled, 0)}
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {!selectedIntake ? (
+          <div className="space-y-6">
+            {/* Modern Overview Cards with Glass Effect */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <div className="glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Intakes</p>
+                    <p className="text-3xl font-bold text-foreground">{intakes.length}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {intakes.filter(i => i.status === 'active').length} active
+                    </p>
+                  </div>
+                  <div className="glass-card p-3 rounded-xl">
+                    <Target className="h-6 w-6 text-primary" />
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  of {intakes.reduce((sum, i) => sum + i.capacity, 0)} capacity
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Pipeline Strength</CardTitle>
-                <BarChart3 className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.round(intakes.reduce((sum, i) => sum + i.pipelineStrength, 0) / intakes.length)}%
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Across all active intakes
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Avg Conversion</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.round(intakes.reduce((sum, i) => sum + i.conversionRate, 0) / intakes.length)}%
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Lead to enrollment rate
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+              </div>
 
-          {/* Intakes Grid */}
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {intakes.map((intake) => (
-              <Card 
-                key={intake.id} 
-                className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => handleIntakeClick(intake)}
-              >
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="text-lg">{intake.name}</CardTitle>
-                      <CardDescription>
-                        {intake.program} • Starts {safeFormatDate(intake.startDate, 'MMM d, yyyy')}
-                      </CardDescription>
+              <div className="glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Enrollment</p>
+                    <p className="text-3xl font-bold text-foreground">
+                      {intakes.reduce((sum, i) => sum + i.enrolled, 0)}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      of {intakes.reduce((sum, i) => sum + i.capacity, 0)} capacity
+                    </p>
+                  </div>
+                  <div className="glass-card p-3 rounded-xl">
+                    <Users className="h-6 w-6 text-success" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Avg Pipeline Strength</p>
+                    <p className="text-3xl font-bold text-foreground">
+                      {Math.round(intakes.reduce((sum, i) => sum + i.pipelineStrength, 0) / intakes.length)}%
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Across all active intakes
+                    </p>
+                  </div>
+                  <div className="glass-card p-3 rounded-xl">
+                    <BarChart3 className="h-6 w-6 text-warning" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-xl">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Avg Conversion</p>
+                    <p className="text-3xl font-bold text-foreground">
+                      {Math.round(intakes.reduce((sum, i) => sum + i.conversionRate, 0) / intakes.length)}%
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Lead to enrollment rate
+                    </p>
+                  </div>
+                  <div className="glass-card p-3 rounded-xl">
+                    <TrendingUp className="h-6 w-6 text-accent" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modern Intakes Grid */}
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {intakes.map((intake) => (
+                <div 
+                  key={intake.id} 
+                  className="group glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-xl cursor-pointer hover:shadow-2xl hover:scale-105 transition-all duration-300 animate-fade-in"
+                  onClick={() => handleIntakeClick(intake)}
+                >
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+                          {intake.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {intake.program} • Starts {safeFormatDate(intake.startDate, 'MMM d, yyyy')}
+                        </p>
+                      </div>
+                      <Badge variant={getStatusBadgeVariant(intake.status)} className="px-3 py-1">
+                        {intake.status}
+                      </Badge>
                     </div>
-                    <Badge variant={getStatusBadgeVariant(intake.status)}>
-                      {intake.status}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Enrollment</span>
-                    <span className="font-medium">
-                      {intake.enrolled}/{intake.capacity}
-                    </span>
-                  </div>
-                  <Progress 
-                    variant="enrollment"
-                    value={(intake.enrolled / intake.capacity) * 100} 
-                    enrollmentPercentage={(intake.enrolled / intake.capacity) * 100}
-                    className="h-2"
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Pipeline Strength</span>
-                      <div className={`font-medium ${getPipelineStrengthColor(intake.pipelineStrength)}`}>
-                        {intake.pipelineStrength}%
+
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Enrollment</span>
+                        <span className="font-semibold text-foreground">
+                          {intake.enrolled}/{intake.capacity}
+                        </span>
+                      </div>
+                      <Progress 
+                        value={(intake.enrolled / intake.capacity) * 100} 
+                        className="h-2 bg-white/20"
+                      />
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div className="glass-card p-3 rounded-xl">
+                          <span className="text-xs text-muted-foreground block">Pipeline Strength</span>
+                          <span className={`font-bold ${getPipelineStrengthColor(intake.pipelineStrength)}`}>
+                            {intake.pipelineStrength}%
+                          </span>
+                        </div>
+                        <div className="glass-card p-3 rounded-xl">
+                          <span className="text-xs text-muted-foreground block">Conversion Rate</span>
+                          <span className="font-bold text-accent">
+                            {intake.conversionRate}%
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {intake.leads.length} leads
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            {intake.applicants.length} apps
+                          </Badge>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                       </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">Conversion Rate</span>
-                      <div className="font-medium">{intake.conversionRate}%</div>
-                    </div>
                   </div>
-                  
-                  <div className="flex justify-between items-center pt-2">
-                    <span className="text-sm text-muted-foreground">
-                      {intake.campus} Campus
-                    </span>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4 mr-2" />
-                      View Details
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {/* Back button and header */}
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedIntake(null)}
-            >
-              ← Back to Intakes
-            </Button>
-            <div>
-              <h2 className="text-2xl font-bold">{selectedIntake.name}</h2>
-              <p className="text-muted-foreground">{selectedIntake.program} • {selectedIntake.campus} Campus</p>
+                </div>
+              ))}
             </div>
           </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Back Button and Intake Header */}
+            <div className="glass-card p-6 rounded-2xl border border-white/20 backdrop-blur-xl">
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedIntake(null)}
+                  className="glass-button border-white/30"
+                >
+                  ← Back to Overview
+                </Button>
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-foreground">{selectedIntake.name}</h2>
+                  <p className="text-muted-foreground">{selectedIntake.program} • {selectedIntake.campus}</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="glass-button border-white/30">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                  <Button variant="outline" size="sm" className="glass-button border-white/30">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Configure
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-          {/* AI Recommendations */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Brain className="h-5 w-5" />
-                AI Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
+            {/* AI Recommendations Panel */}
+            <div className="glass-card p-6 rounded-2xl border border-primary/30 backdrop-blur-xl bg-gradient-to-br from-primary/10 to-primary/5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="glass-card p-3 rounded-xl">
+                  <Brain className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold text-foreground">AI Recommendations</h3>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {getAIRecommendations(selectedIntake).map((rec, index) => (
-                  <div key={index} className="p-4 border rounded-lg">
+                  <div key={index} className="glass-card p-4 rounded-xl border border-white/20">
                     <div className="flex items-center gap-2 mb-2">
-                      <Zap className="h-4 w-4 text-primary" />
-                      <span className="font-medium">{rec.title}</span>
-                      <Badge variant={rec.priority === 'high' ? 'destructive' : 'secondary'}>
+                      <Badge variant={rec.priority === 'high' ? 'destructive' : 'secondary'} className="text-xs">
                         {rec.priority}
                       </Badge>
                     </div>
+                    <h4 className="font-semibold text-foreground mb-2">{rec.title}</h4>
                     <p className="text-sm text-muted-foreground mb-3">{rec.description}</p>
-                    <Button size="sm" variant="outline" className="w-full">
+                    <Button size="sm" variant="outline" className="glass-button border-primary/30">
                       {rec.action}
                     </Button>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Sales Approach & Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Sales Approach & Pipeline Settings
-              </CardTitle>
-              <CardDescription>
-                Configure your sales strategy and monitor pipeline performance
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-6 lg:grid-cols-3">
-                {/* Sales Approach Section */}
-                <div className="lg:col-span-1">
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium">Sales Approach</Label>
-                    <div className="p-4 border rounded-lg bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <Badge variant="secondary" className="capitalize px-3 py-1">
-                          {selectedIntake.salesApproach}
-                        </Badge>
-                        <Dialog open={showSalesApproachDialog} onOpenChange={setShowSalesApproachDialog}>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Settings className="h-4 w-4 mr-2" />
-                              Modify
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-lg">
-                            <DialogHeader>
-                              <DialogTitle>Update Sales Approach</DialogTitle>
-                              <DialogDescription>
-                                Choose the sales approach that best fits your intake strategy and target audience
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-3">
-                              <div 
-                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
-                                  selectedIntake.salesApproach === 'aggressive' 
-                                    ? 'border-primary bg-primary/10 shadow-md' 
-                                    : 'border-border hover:border-primary/50'
-                                }`}
-                                onClick={() => handleUpdateSalesApproach('aggressive')}
-                              >
-                                <div className="flex items-center gap-3 mb-2">
-                                  <Zap className="h-5 w-5 text-orange-500" />
-                                  <div className="font-semibold">Aggressive</div>
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  High-frequency follow-ups, urgent messaging, immediate action focus
-                                </div>
-                                <div className="mt-2 text-xs text-primary font-medium">
-                                  ⚡ Fast results • High pressure • Quick decisions
-                                </div>
-                              </div>
-                              
-                              <div 
-                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
-                                  selectedIntake.salesApproach === 'balanced' 
-                                    ? 'border-primary bg-primary/10 shadow-md' 
-                                    : 'border-border hover:border-primary/50'
-                                }`}
-                                onClick={() => handleUpdateSalesApproach('balanced')}
-                              >
-                                <div className="flex items-center gap-3 mb-2">
-                                  <Target className="h-5 w-5 text-blue-500" />
-                                  <div className="font-semibold">Balanced</div>
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  Regular follow-ups, educational content, relationship building
-                                </div>
-                                <div className="mt-2 text-xs text-primary font-medium">
-                                  🎯 Steady growth • Professional • Relationship-focused
-                                </div>
-                              </div>
-                              
-                              <div 
-                                className={`p-4 border-2 rounded-xl cursor-pointer transition-all hover:shadow-md ${
-                                  selectedIntake.salesApproach === 'conservative' 
-                                    ? 'border-primary bg-primary/10 shadow-md' 
-                                    : 'border-border hover:border-primary/50'
-                                }`}
-                                onClick={() => handleUpdateSalesApproach('conservative')}
-                              >
-                                <div className="flex items-center gap-3 mb-2">
-                                  <CheckCircle className="h-5 w-5 text-green-500" />
-                                  <div className="font-semibold">Conservative</div>
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  Gentle nurturing, educational approach, long-term relationship focus
-                                </div>
-                                <div className="mt-2 text-xs text-primary font-medium">
-                                  🌱 Long-term • Gentle • Trust-building
-                                </div>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {selectedIntake.salesApproach === 'aggressive' && 'Fast-paced, high-pressure sales tactics'}
-                        {selectedIntake.salesApproach === 'balanced' && 'Professional, relationship-focused approach'}
-                        {selectedIntake.salesApproach === 'conservative' && 'Gentle, educational sales methodology'}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Pipeline Metrics */}
-                <div className="lg:col-span-2">
-                  <div className="grid gap-6 md:grid-cols-2">
-                    {/* Pipeline Strength */}
-                    <div className="space-y-3">
-                      <Label className="text-base font-medium">Pipeline Strength</Label>
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className={`text-2xl font-bold ${getPipelineStrengthColor(selectedIntake.pipelineStrength)}`}>
-                            {selectedIntake.pipelineStrength}%
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {selectedIntake.pipelineStrength >= 80 ? (
-                              <TrendingUp className="h-5 w-5 text-green-500" />
-                            ) : selectedIntake.pipelineStrength >= 60 ? (
-                              <Target className="h-5 w-5 text-yellow-500" />
-                            ) : (
-                              <TrendingDown className="h-5 w-5 text-red-500" />
-                            )}
-                          </div>
-                        </div>
-                        <Progress value={selectedIntake.pipelineStrength} className="h-2 mb-2" />
-                        <p className="text-xs text-muted-foreground">
-                          {selectedIntake.pipelineStrength >= 80 && 'Excellent pipeline health'}
-                          {selectedIntake.pipelineStrength >= 60 && selectedIntake.pipelineStrength < 80 && 'Good pipeline performance'}
-                          {selectedIntake.pipelineStrength < 60 && 'Pipeline needs attention'}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {/* Conversion Rate */}
-                    <div className="space-y-3">
-                      <Label className="text-base font-medium">Conversion Rate</Label>
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-2xl font-bold text-primary">
-                            {selectedIntake.conversionRate}%
-                          </span>
-                          <TrendingUp className="h-5 w-5 text-green-500" />
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Leads to Students</span>
-                            <span className="font-medium">{selectedIntake.conversionRate}%</span>
-                          </div>
-                          <div className="h-1 bg-muted rounded-full overflow-hidden">
-                            <div 
-                              className="h-full bg-primary transition-all duration-300"
-                              style={{ width: `${selectedIntake.conversionRate}%` }}
-                            />
-                          </div>
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Industry average: 18-25%
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pipeline Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex justify-between items-center">
-              <TabsList>
-                <TabsTrigger value="leads">
-                  Leads ({selectedIntake.leads.length})
-                </TabsTrigger>
-                <TabsTrigger value="applicants">
-                  Applicants ({selectedIntake.applicants.length})
-                </TabsTrigger>
-                <TabsTrigger value="students">
-                  Students ({selectedIntake.students.length})
-                </TabsTrigger>
-              </TabsList>
-              
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-64"
-                  />
-                </div>
-                <Button variant="outline">
-                  <Filter className="h-4 w-4 mr-2" />
-                  Filter
-                </Button>
-                <Button variant="outline">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
             </div>
 
-            {/* Bulk Actions Bar */}
-            {selectedRows.length > 0 && (
-              <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                <span className="text-sm font-medium">
-                  {selectedRows.length} item(s) selected
-                </span>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction('Email')}>
-                    <Mail className="h-4 w-4 mr-2" />
-                    Send Email
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction('Call')}>
-                    <Phone className="h-4 w-4 mr-2" />
-                    Schedule Call
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction('Update Status')}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Update Status
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => handleBulkAction('Assign')}>
+            {/* Intake Management Tabs */}
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <div className="glass-card p-2 rounded-2xl border border-white/20 backdrop-blur-xl">
+                <TabsList className="grid w-full grid-cols-3 bg-transparent gap-2">
+                  <TabsTrigger 
+                    value="leads" 
+                    className="glass-card rounded-xl data-[state=active]:bg-primary/20 data-[state=active]:text-primary"
+                  >
                     <Users className="h-4 w-4 mr-2" />
-                    Assign To
-                  </Button>
-                </div>
+                    Leads ({selectedIntake.leads.length})
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="applicants"
+                    className="glass-card rounded-xl data-[state=active]:bg-success/20 data-[state=active]:text-success"
+                  >
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Applicants ({selectedIntake.applicants.length})
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="students"
+                    className="glass-card rounded-xl data-[state=active]:bg-accent/20 data-[state=active]:text-accent"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Students ({selectedIntake.students.length})
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            )}
 
-            <TabsContent value="leads" className="space-y-4">
-              <LeadsTable 
-                data={filteredData as LeadData[]}
-                selectedRows={selectedRows}
-                onRowSelection={handleRowSelection}
-                onSelectAll={handleSelectAll}
-              />
-            </TabsContent>
+              {/* Search and Filters */}
+              <div className="glass-card p-4 rounded-2xl border border-white/20 backdrop-blur-xl">
+                <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                  <div className="flex-1 max-w-sm">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search by name or email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 glass-card border-white/20 bg-white/5"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="glass-button border-white/30">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter
+                    </Button>
+                    <Button variant="outline" size="sm" className="glass-button border-white/30">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </div>
+                </div>
 
-            <TabsContent value="applicants" className="space-y-4">
-              <ApplicantsTable 
-                data={filteredData as ApplicantData[]}
-                selectedRows={selectedRows}
-                onRowSelection={handleRowSelection}
-                onSelectAll={handleSelectAll}
-              />
-            </TabsContent>
-
-            <TabsContent value="students" className="space-y-4">
-              <StudentsTable 
-                data={filteredData as StudentData[]}
-                selectedRows={selectedRows}
-                onRowSelection={handleRowSelection}
-                onSelectAll={handleSelectAll}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Table components
-function LeadsTable({ 
-  data, 
-  selectedRows, 
-  onRowSelection, 
-  onSelectAll 
-}: {
-  data: LeadData[];
-  selectedRows: string[];
-  onRowSelection: (id: string, checked: boolean) => void;
-  onSelectAll: (checked: boolean, data: any[]) => void;
-}) {
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b">
-              <tr>
-                <th className="p-4 text-left">
-                  <Checkbox
-                    checked={selectedRows.length === data.length && data.length > 0}
-                    onCheckedChange={(checked) => onSelectAll(!!checked, data)}
-                  />
-                </th>
-                <th className="p-4 text-left font-medium">Name</th>
-                <th className="p-4 text-left font-medium">Email</th>
-                <th className="p-4 text-left font-medium">Source</th>
-                <th className="p-4 text-left font-medium">Stage</th>
-                <th className="p-4 text-left font-medium">Score</th>
-                <th className="p-4 text-left font-medium">Assigned To</th>
-                <th className="p-4 text-left font-medium">Last Contact</th>
-                <th className="p-4 text-left font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((lead) => (
-                <tr key={lead.id} className="border-b hover:bg-muted/50">
-                  <td className="p-4">
-                    <Checkbox
-                      checked={selectedRows.includes(lead.id)}
-                      onCheckedChange={(checked) => onRowSelection(lead.id, !!checked)}
-                    />
-                  </td>
-                  <td className="p-4 font-medium">{lead.name}</td>
-                  <td className="p-4">{lead.email}</td>
-                  <td className="p-4">
-                    <Badge variant="outline">{lead.source}</Badge>
-                  </td>
-                  <td className="p-4">
-                    <Badge variant="secondary">{lead.stage}</Badge>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-12 h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: `${lead.score}%` }}
-                        />
+                {selectedRows.length > 0 && (
+                  <div className="mt-4 p-3 glass-card rounded-xl border border-primary/30 bg-primary/10">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">
+                        {selectedRows.length} items selected
+                      </span>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="glass-button border-white/30">
+                          <Mail className="h-4 w-4 mr-2" />
+                          Email
+                        </Button>
+                        <Button size="sm" variant="outline" className="glass-button border-white/30">
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          SMS
+                        </Button>
+                        <Button size="sm" variant="outline" className="glass-button border-destructive/30">
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </Button>
                       </div>
-                      <span className="text-sm">{lead.score}</span>
                     </div>
-                  </td>
-                  <td className="p-4">{lead.assignedTo}</td>
-                  <td className="p-4">{safeFormatDate(lead.lastContact)}</td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Phone className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+                  </div>
+                )}
+              </div>
 
-function ApplicantsTable({ 
-  data, 
-  selectedRows, 
-  onRowSelection, 
-  onSelectAll 
-}: {
-  data: ApplicantData[];
-  selectedRows: string[];
-  onRowSelection: (id: string, checked: boolean) => void;
-  onSelectAll: (checked: boolean, data: any[]) => void;
-}) {
-  const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
-    switch (status) {
-      case 'approved': return 'default';
-      case 'under_review': case 'submitted': return 'secondary';
-      case 'rejected': return 'destructive';
-      default: return 'outline';
-    }
-  };
+              {/* Tab Content */}
+              <TabsContent value="leads" className="space-y-4">
+                <div className="glass-card rounded-2xl border border-white/20 backdrop-blur-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-white/10 border-b border-white/20">
+                        <tr>
+                          <th className="p-4 text-left">
+                            <Checkbox
+                              checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                              onCheckedChange={(checked) => handleSelectAll(!!checked, filteredData)}
+                            />
+                          </th>
+                          <th className="p-4 text-left font-semibold">Name</th>
+                          <th className="p-4 text-left font-semibold">Email</th>
+                          <th className="p-4 text-left font-semibold">Source</th>
+                          <th className="p-4 text-left font-semibold">Stage</th>
+                          <th className="p-4 text-left font-semibold">Score</th>
+                          <th className="p-4 text-left font-semibold">Assigned To</th>
+                          <th className="p-4 text-left font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(filteredData as LeadData[]).map((lead) => (
+                          <tr key={lead.id} className="border-b border-white/10 hover:bg-white/5">
+                            <td className="p-4">
+                              <Checkbox
+                                checked={selectedRows.includes(lead.id)}
+                                onCheckedChange={(checked) => handleRowSelection(lead.id, !!checked)}
+                              />
+                            </td>
+                            <td className="p-4 font-medium text-foreground">{lead.name}</td>
+                            <td className="p-4 text-muted-foreground">{lead.email}</td>
+                            <td className="p-4">
+                              <Badge variant="outline">{lead.source}</Badge>
+                            </td>
+                            <td className="p-4">
+                              <Badge variant="secondary">{lead.stage}</Badge>
+                            </td>
+                            <td className="p-4">
+                              <span className={`font-semibold ${lead.score >= 80 ? 'text-success' : lead.score >= 60 ? 'text-warning' : 'text-destructive'}`}>
+                                {lead.score}
+                              </span>
+                            </td>
+                            <td className="p-4 text-muted-foreground">{lead.assignedTo}</td>
+                            <td className="p-4">
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" className="glass-button border-white/30">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" className="glass-button border-white/30">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </TabsContent>
 
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b">
-              <tr>
-                <th className="p-4 text-left">
-                  <Checkbox
-                    checked={selectedRows.length === data.length && data.length > 0}
-                    onCheckedChange={(checked) => onSelectAll(!!checked, data)}
-                  />
-                </th>
-                <th className="p-4 text-left font-medium">Name</th>
-                <th className="p-4 text-left font-medium">Email</th>
-                <th className="p-4 text-left font-medium">Application Date</th>
-                <th className="p-4 text-left font-medium">Status</th>
-                <th className="p-4 text-left font-medium">Documents</th>
-                <th className="p-4 text-left font-medium">Interview</th>
-                <th className="p-4 text-left font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((applicant) => (
-                <tr key={applicant.id} className="border-b hover:bg-muted/50">
-                  <td className="p-4">
-                    <Checkbox
-                      checked={selectedRows.includes(applicant.id)}
-                      onCheckedChange={(checked) => onRowSelection(applicant.id, !!checked)}
-                    />
-                  </td>
-                  <td className="p-4 font-medium">{applicant.name}</td>
-                  <td className="p-4">{applicant.email}</td>
-                  <td className="p-4">{safeFormatDate(applicant.applicationDate, 'MMM d, yyyy')}</td>
-                  <td className="p-4">
-                    <Badge variant={getStatusBadgeVariant(applicant.status)}>
-                      {applicant.status.replace('_', ' ')}
-                    </Badge>
-                  </td>
-                  <td className="p-4">
-                    {applicant.documentsComplete ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <XCircle className="h-4 w-4 text-red-600" />
-                    )}
-                  </td>
-                  <td className="p-4">
-                    {applicant.interviewScheduled ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    ) : (
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <MessageSquare className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
+              <TabsContent value="applicants" className="space-y-4">
+                <div className="glass-card rounded-2xl border border-white/20 backdrop-blur-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-white/10 border-b border-white/20">
+                        <tr>
+                          <th className="p-4 text-left">
+                            <Checkbox
+                              checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                              onCheckedChange={(checked) => handleSelectAll(!!checked, filteredData)}
+                            />
+                          </th>
+                          <th className="p-4 text-left font-semibold">Name</th>
+                          <th className="p-4 text-left font-semibold">Email</th>
+                          <th className="p-4 text-left font-semibold">Application Date</th>
+                          <th className="p-4 text-left font-semibold">Status</th>
+                          <th className="p-4 text-left font-semibold">Documents</th>
+                          <th className="p-4 text-left font-semibold">Interview</th>
+                          <th className="p-4 text-left font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(filteredData as ApplicantData[]).map((applicant) => (
+                          <tr key={applicant.id} className="border-b border-white/10 hover:bg-white/5">
+                            <td className="p-4">
+                              <Checkbox
+                                checked={selectedRows.includes(applicant.id)}
+                                onCheckedChange={(checked) => handleRowSelection(applicant.id, !!checked)}
+                              />
+                            </td>
+                            <td className="p-4 font-medium text-foreground">{applicant.name}</td>
+                            <td className="p-4 text-muted-foreground">{applicant.email}</td>
+                            <td className="p-4 text-muted-foreground">
+                              {safeFormatDate(applicant.applicationDate, 'MMM d, yyyy')}
+                            </td>
+                            <td className="p-4">
+                              <Badge variant={getStatusBadgeVariant(applicant.status)}>
+                                {applicant.status.replace('_', ' ')}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
+                              {applicant.documentsComplete ? (
+                                <CheckCircle className="h-4 w-4 text-success" />
+                              ) : (
+                                <XCircle className="h-4 w-4 text-destructive" />
+                              )}
+                            </td>
+                            <td className="p-4">
+                              {applicant.interviewScheduled ? (
+                                <CheckCircle className="h-4 w-4 text-success" />
+                              ) : (
+                                <Calendar className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </td>
+                            <td className="p-4">
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" className="glass-button border-white/30">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" className="glass-button border-white/30">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </TabsContent>
 
-function StudentsTable({ 
-  data, 
-  selectedRows, 
-  onRowSelection, 
-  onSelectAll 
-}: {
-  data: StudentData[];
-  selectedRows: string[];
-  onRowSelection: (id: string, checked: boolean) => void;
-  onSelectAll: (checked: boolean, data: any[]) => void;
-}) {
-  const getStatusBadgeVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
-    switch (status) {
-      case 'enrolled': case 'paid': return 'default';
-      case 'deferred': case 'pending': return 'secondary';
-      case 'withdrawn': case 'overdue': return 'destructive';
-      default: return 'outline';
-    }
-  };
-
-  return (
-    <Card>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="border-b">
-              <tr>
-                <th className="p-4 text-left">
-                  <Checkbox
-                    checked={selectedRows.length === data.length && data.length > 0}
-                    onCheckedChange={(checked) => onSelectAll(!!checked, data)}
-                  />
-                </th>
-                <th className="p-4 text-left font-medium">Name</th>
-                <th className="p-4 text-left font-medium">Email</th>
-                <th className="p-4 text-left font-medium">Enrollment Date</th>
-                <th className="p-4 text-left font-medium">Status</th>
-                <th className="p-4 text-left font-medium">Payment</th>
-                <th className="p-4 text-left font-medium">GPA</th>
-                <th className="p-4 text-left font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((student) => (
-                <tr key={student.id} className="border-b hover:bg-muted/50">
-                  <td className="p-4">
-                    <Checkbox
-                      checked={selectedRows.includes(student.id)}
-                      onCheckedChange={(checked) => onRowSelection(student.id, !!checked)}
-                    />
-                  </td>
-                  <td className="p-4 font-medium">{student.name}</td>
-                  <td className="p-4">{student.email}</td>
-                  <td className="p-4">{safeFormatDate(student.enrollmentDate, 'MMM d, yyyy')}</td>
-                  <td className="p-4">
-                    <Badge variant={getStatusBadgeVariant(student.status)}>
-                      {student.status}
-                    </Badge>
-                  </td>
-                  <td className="p-4">
-                    <Badge variant={getStatusBadgeVariant(student.paymentStatus)}>
-                      {student.paymentStatus}
-                    </Badge>
-                  </td>
-                  <td className="p-4">{student.gpa ? student.gpa.toFixed(2) : 'N/A'}</td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <MessageSquare className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
+              <TabsContent value="students" className="space-y-4">
+                <div className="glass-card rounded-2xl border border-white/20 backdrop-blur-xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-white/10 border-b border-white/20">
+                        <tr>
+                          <th className="p-4 text-left">
+                            <Checkbox
+                              checked={selectedRows.length === filteredData.length && filteredData.length > 0}
+                              onCheckedChange={(checked) => handleSelectAll(!!checked, filteredData)}
+                            />
+                          </th>
+                          <th className="p-4 text-left font-semibold">Name</th>
+                          <th className="p-4 text-left font-semibold">Email</th>
+                          <th className="p-4 text-left font-semibold">Enrollment Date</th>
+                          <th className="p-4 text-left font-semibold">Status</th>
+                          <th className="p-4 text-left font-semibold">Payment</th>
+                          <th className="p-4 text-left font-semibold">GPA</th>
+                          <th className="p-4 text-left font-semibold">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(filteredData as StudentData[]).map((student) => (
+                          <tr key={student.id} className="border-b border-white/10 hover:bg-white/5">
+                            <td className="p-4">
+                              <Checkbox
+                                checked={selectedRows.includes(student.id)}
+                                onCheckedChange={(checked) => handleRowSelection(student.id, !!checked)}
+                              />
+                            </td>
+                            <td className="p-4 font-medium text-foreground">{student.name}</td>
+                            <td className="p-4 text-muted-foreground">{student.email}</td>
+                            <td className="p-4 text-muted-foreground">
+                              {safeFormatDate(student.enrollmentDate, 'MMM d, yyyy')}
+                            </td>
+                            <td className="p-4">
+                              <Badge variant={getStatusBadgeVariant(student.status)}>
+                                {student.status}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
+                              <Badge variant={getStatusBadgeVariant(student.paymentStatus)}>
+                                {student.paymentStatus}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
+                              <span className={`font-semibold ${student.gpa >= 3.5 ? 'text-success' : student.gpa >= 2.5 ? 'text-warning' : 'text-destructive'}`}>
+                                {student.gpa.toFixed(2)}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex gap-2">
+                                <Button size="sm" variant="outline" className="glass-button border-white/30">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button size="sm" variant="outline" className="glass-button border-white/30">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

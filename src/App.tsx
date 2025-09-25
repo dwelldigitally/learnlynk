@@ -121,8 +121,14 @@ const App = () => {
                {/* Preceptor Portal Routes */}
                <Route path="/preceptor/login" element={<PreceptorLogin />} />
                <Route path="/preceptor/dashboard" element={<PreceptorDashboard />} />
+               <Route path="/preceptor/students" element={<PreceptorStudents />} />
+               <Route path="/preceptor/evaluations" element={<PreceptorEvaluations />} />
+               <Route path="/preceptor/communications" element={<PreceptorCommunications />} />
+               <Route path="/preceptor/profile" element={<PreceptorProfile />} />
                <Route path="/preceptor/review-attendance/:id" element={<PreceptorReviewAttendance />} />
                <Route path="/preceptor/review-competency/:id" element={<PreceptorReviewCompetency />} />
+               <Route path="/preceptor/review-reflection/:id" element={<PreceptorReviewReflection />} />
+               <Route path="/preceptor/review-evaluation/:id" element={<PreceptorReviewEvaluation />} />
                
                {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
                <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

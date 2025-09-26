@@ -93,12 +93,17 @@ export function PracticumDashboard() {
   const [isSeeding, setIsSeeding] = useState(false);
   
   const handleAddDummyData = async () => {
+    console.log('🚀 Add Sample Data clicked');
+    console.log('User session:', session?.user?.id);
+    
     if (!session?.user?.id) {
+      console.error('❌ No user session found');
       toast.error('You must be logged in to add sample data');
       return;
     }
 
     setIsSeeding(true);
+    console.log('💾 Starting database operations...');
     try {
       // Create practicum sites
       const sites = [
@@ -155,12 +160,17 @@ export function PracticumDashboard() {
         }
       ];
 
+      console.log('📍 Inserting practicum sites...');
       const { data: siteData, error: siteError } = await supabase
         .from('practicum_sites')
         .insert(sites)
         .select();
 
-      if (siteError) throw siteError;
+      if (siteError) {
+        console.error('❌ Site insertion error:', siteError);
+        throw siteError;
+      }
+      console.log('✅ Sites inserted successfully:', siteData);
 
       // Create practicum programs
       const programs = [
@@ -211,12 +221,17 @@ export function PracticumDashboard() {
         }
       ];
 
+      console.log('📚 Inserting practicum programs...');
       const { data: programData, error: programError } = await supabase
         .from('practicum_programs')
         .insert(programs)
         .select();
 
-      if (programError) throw programError;
+      if (programError) {
+        console.error('❌ Program insertion error:', programError);
+        throw programError;
+      }
+      console.log('✅ Programs inserted successfully:', programData);
 
       // Create practicum journeys
       const journeys = [
@@ -281,11 +296,16 @@ export function PracticumDashboard() {
         }
       ];
 
+      console.log('🗺️ Inserting practicum journeys...');
       const { error: journeyError } = await supabase
         .from('practicum_journeys')
         .insert(journeys);
 
-      if (journeyError) throw journeyError;
+      if (journeyError) {
+        console.error('❌ Journey insertion error:', journeyError);
+        throw journeyError;
+      }
+      console.log('✅ Journeys inserted successfully');
 
       // Refresh the data
       await refetch();

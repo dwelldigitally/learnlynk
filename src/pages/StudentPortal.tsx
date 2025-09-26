@@ -1,6 +1,6 @@
 
-import React, { createContext, useContext, useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import React, { createContext, useContext, useMemo, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import StudentLayout from "@/components/student/StudentLayout";
 import WelcomeOnboarding from "@/components/student/WelcomeOnboarding";
 import { useStudentSession, useStudentPortalRealtime, useActivityTracking } from "@/hooks/useStudentPortalIntegration";
@@ -27,12 +27,24 @@ export const useStudentPortalContext = () => useContext(StudentPortalContext);
  */
 const StudentPortal: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   
   // Token validation and portal data management
   const { accessToken, portalData, isValidating } = useTokenValidation();
   
   // Get session data using the integration hook
   const { data: session, isLoading: sessionLoading } = useStudentSession(accessToken);
+  
+  // Ensure token persists across internal navigation within the student portal
+  useEffect(() => {
+    if (!accessToken) return;
+    const params = new URLSearchParams(location.search);
+    if (!params.get('token')) {
+      params.set('token', accessToken);
+      navigate({ pathname: location.pathname, search: params.toString() }, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [accessToken, location.pathname]);
   
   // Set up real-time updates and activity tracking
   const { isConnected } = useStudentPortalRealtime(session?.lead_id || null);
@@ -63,7 +75,7 @@ const StudentPortal: React.FC = () => {
 
     return <Component />;
   };
-
+  
   // Memoized context value to prevent unnecessary re-renders
   const contextValue: StudentPortalContextType = useMemo(() => ({
     session,
@@ -72,17 +84,17 @@ const StudentPortal: React.FC = () => {
     sessionId: session?.id || null,
     isLoading: sessionLoading || isValidating,
   }), [session, accessToken, sessionLoading, isValidating]);
-
+  
   // Loading state - show while validating token or loading session
   if (isValidating || sessionLoading) {
     return <PortalLoadingState isConnected={isConnected} />;
   }
-
+  
   // Access denied state - token exists but session is invalid
   if (!session && accessToken) {
     return <AccessDeniedState />;
   }
-
+  
   return (
     <StudentPortalContext.Provider value={contextValue}>
       <StudentLayout>

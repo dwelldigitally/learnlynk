@@ -52,8 +52,8 @@ const StudentPortal: React.FC = () => {
       return <div className="flex items-center justify-center h-64">Component not found</div>;
     }
 
-    // Handle blog detail routes with lazy loading
-    if (location.pathname.includes('/news-events/blog/')) {
+    // Handle lazy-loaded components (blog details and practicum routes)
+    if (location.pathname.includes('/news-events/blog/') || location.pathname.includes('/student/practicum')) {
       return (
         <React.Suspense fallback={<div className="flex items-center justify-center h-64">Loading...</div>}>
           <Component />

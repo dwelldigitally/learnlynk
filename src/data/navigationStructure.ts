@@ -28,7 +28,9 @@ import {
   Building2,
   Clock,
   AlertTriangle,
-  TrendingUp
+  TrendingUp,
+  MapPin,
+  ClipboardList
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -94,7 +96,12 @@ export const navigationStructure: NavigationStructure = {
         { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
         { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Recruiter Management", href: "/admin/recruiters", icon: Building2 },
-        { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileCheck }
+        { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileCheck },
+        { name: "Practicum Dashboard", href: "/admin/practicum", icon: BarChart3 },
+        { name: "Practicum Sites", href: "/admin/practicum/sites", icon: MapPin },
+        { name: "Practicum Programs", href: "/admin/practicum/programs", icon: BookOpen },
+        { name: "Practicum Journeys", href: "/admin/practicum/journeys", icon: ClipboardList },
+        { name: "Practicum Assignments", href: "/admin/practicum/assignments", icon: Users }
       ]
     },
     {

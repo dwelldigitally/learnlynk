@@ -71,6 +71,13 @@ export const studentPortalRoutes: RouteConfig[] = [
   { path: "/student/practicum/evaluations", component: React.lazy(() => import('@/components/student/practicum/SelfEvaluation')) },
   { path: "/student/practicum/progress", component: React.lazy(() => import('@/components/student/practicum/ProgressTracker')) },
   { path: "/student/practicum/records", component: React.lazy(() => import('@/components/student/practicum/RecordsList')) },
+  
+  // New screens
+  { path: "/student/course-catalog", component: React.lazy(() => import('@/components/student/CourseCatalog')) },
+  { path: "/student/grades", component: React.lazy(() => import('@/components/student/StudentGrades')) },
+  { path: "/student/support", component: React.lazy(() => import('@/components/student/StudentSupport')) },
+  { path: "/student/emergency-contacts", component: React.lazy(() => import('@/components/student/EmergencyContacts')) },
+  { path: "/student/housing", component: React.lazy(() => import('@/components/student/Housing')) },
 ];
 
 /**

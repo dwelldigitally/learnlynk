@@ -169,6 +169,11 @@ const App = () => {
                <Route path="/student/news-events" element={<ProtectedRoute element={<StudentPortal />} />} />
                <Route path="/student/news-events/blog/:blogId" element={<ProtectedRoute element={<StudentPortal />} />} />
                <Route path="/student/campus-life" element={<ProtectedRoute element={<StudentPortal />} />} />
+               <Route path="/student/support" element={<ProtectedRoute element={<StudentPortal />} />} />
+               <Route path="/student/emergency-contacts" element={<ProtectedRoute element={<StudentPortal />} />} />
+               <Route path="/student/housing" element={<ProtectedRoute element={<StudentPortal />} />} />
+               <Route path="/student/course-catalog" element={<ProtectedRoute element={<StudentPortal />} />} />
+               <Route path="/student/grades" element={<ProtectedRoute element={<StudentPortal />} />} />
 
                {/* Practicum Hub routes */}
                <Route path="/student/practicum" element={<ProtectedRoute element={<StudentPortal />} />} />

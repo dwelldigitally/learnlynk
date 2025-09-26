@@ -77,25 +77,6 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
       description: "Track practicum progress"
     }]
   }, {
-    id: "student-services",
-    title: "Student Services",
-    items: [{
-      name: "Student Support",
-      path: "/student/support",
-      icon: HelpCircle,
-      description: "Get help and assistance"
-    }, {
-      name: "Emergency Contacts",
-      path: "/student/emergency-contacts",
-      icon: Phone,
-      description: "Important contact information"
-    }, {
-      name: "Housing",
-      path: "/student/housing",
-      icon: Building,
-      description: "Accommodation information"
-    }]
-  }, {
     id: "campus-life",
     title: "Campus Life",
     items: [{

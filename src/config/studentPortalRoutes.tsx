@@ -15,6 +15,11 @@ import { FinancialAidAppeals } from '@/components/student/financial-aid/Financia
 import CareerServices from "@/components/student/CareerServices";
 import NewsAndEvents from "@/pages/NewsAndEvents";
 import LifeAtWCC from "@/pages/LifeAtWCC";
+import CourseCatalog from "@/components/student/CourseCatalog";
+import StudentGrades from "@/components/student/StudentGrades";
+import StudentSupport from "@/components/student/StudentSupport";
+import EmergencyContacts from "@/components/student/EmergencyContacts";
+import Housing from "@/components/student/Housing";
 
 // Route configuration for student portal
 // Maps paths to their corresponding components for cleaner routing logic
@@ -73,11 +78,11 @@ export const studentPortalRoutes: RouteConfig[] = [
   { path: "/student/practicum/records", component: React.lazy(() => import('@/components/student/practicum/RecordsList')) },
   
   // New screens
-  { path: "/student/course-catalog", component: React.lazy(() => import('@/components/student/CourseCatalog')) },
-  { path: "/student/grades", component: React.lazy(() => import('@/components/student/StudentGrades')) },
-  { path: "/student/support", component: React.lazy(() => import('@/components/student/StudentSupport')) },
-  { path: "/student/emergency-contacts", component: React.lazy(() => import('@/components/student/EmergencyContacts')) },
-  { path: "/student/housing", component: React.lazy(() => import('@/components/student/Housing')) },
+  { path: "/student/course-catalog", component: CourseCatalog },
+  { path: "/student/grades", component: StudentGrades },
+  { path: "/student/support", component: StudentSupport },
+  { path: "/student/emergency-contacts", component: EmergencyContacts },
+  { path: "/student/housing", component: Housing },
 ];
 
 /**

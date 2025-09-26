@@ -61,16 +61,6 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
       icon: Calendar,
       description: "Plan your academic journey"
     }, {
-      name: "Course Catalog",
-      path: "/student/course-catalog",
-      icon: BookOpen,
-      description: "Browse available courses"
-    }, {
-      name: "Grades",
-      path: "/student/grades",
-      icon: GraduationCap,
-      description: "View your academic progress"
-    }, {
       name: "Financial Aid",
       path: "/student/financial-aid",
       icon: DollarSign,

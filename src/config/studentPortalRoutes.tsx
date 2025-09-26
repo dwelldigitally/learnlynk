@@ -20,6 +20,7 @@ import StudentGrades from "@/components/student/StudentGrades";
 import StudentSupport from "@/components/student/StudentSupport";
 import EmergencyContacts from "@/components/student/EmergencyContacts";
 import Housing from "@/components/student/Housing";
+import StudentServices from "@/components/student/StudentServices";
 
 // Route configuration for student portal
 // Maps paths to their corresponding components for cleaner routing logic
@@ -77,9 +78,10 @@ export const studentPortalRoutes: RouteConfig[] = [
   { path: "/student/practicum/progress", component: React.lazy(() => import('@/components/student/practicum/ProgressTracker')) },
   { path: "/student/practicum/records", component: React.lazy(() => import('@/components/student/practicum/RecordsList')) },
   
-  // New screens
-  { path: "/student/course-catalog", component: CourseCatalog },
-  { path: "/student/grades", component: StudentGrades },
+  // Student Services (main page with links to sub-services)
+  { path: "/student/services", component: StudentServices },
+  
+  // Individual service pages (accessible from Student Services)
   { path: "/student/support", component: StudentSupport },
   { path: "/student/emergency-contacts", component: EmergencyContacts },
   { path: "/student/housing", component: Housing },

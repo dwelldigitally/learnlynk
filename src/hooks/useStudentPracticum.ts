@@ -8,9 +8,9 @@ export function useStudentAssignments() {
   const { leadId } = useStudentPortalContext();
   
   return useQuery({
-    queryKey: ['student-practicum-assignments', leadId],
-    queryFn: () => StudentPracticumService.getStudentAssignments(leadId!),
-    enabled: !!leadId,
+    queryKey: ['student-practicum-assignments', leadId || 'demo-lead'],
+    queryFn: () => StudentPracticumService.getStudentAssignments(leadId || 'demo-lead'),
+    enabled: true, // Always enabled, will use demo data if no leadId
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
@@ -18,9 +18,9 @@ export function useStudentAssignments() {
 // Get student practicum records
 export function useStudentRecords(assignmentId: string | undefined) {
   return useQuery({
-    queryKey: ['student-practicum-records', assignmentId],
-    queryFn: () => StudentPracticumService.getStudentRecords(assignmentId!),
-    enabled: !!assignmentId,
+    queryKey: ['student-practicum-records', assignmentId || 'demo-assignment-1'],
+    queryFn: () => StudentPracticumService.getStudentRecords(assignmentId || 'demo-assignment-1'),
+    enabled: true, // Always enabled, will use demo data
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
@@ -28,9 +28,9 @@ export function useStudentRecords(assignmentId: string | undefined) {
 // Get student progress
 export function useStudentProgress(assignmentId: string | undefined) {
   return useQuery({
-    queryKey: ['student-practicum-progress', assignmentId],
-    queryFn: () => StudentPracticumService.getStudentProgress(assignmentId!),
-    enabled: !!assignmentId,
+    queryKey: ['student-practicum-progress', assignmentId || 'demo-assignment-1'],
+    queryFn: () => StudentPracticumService.getStudentProgress(assignmentId || 'demo-assignment-1'),
+    enabled: true, // Always enabled, will use demo data
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }

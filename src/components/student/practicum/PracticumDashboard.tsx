@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useStudentAssignments, useStudentProgress } from "@/hooks/useStudentPracticum";
 import { Skeleton } from "@/components/ui/skeleton";
+import PracticumDemoNotice from "./PracticumDemoNotice";
 
 export default function PracticumDashboard() {
   const { data: assignments, isLoading: assignmentsLoading } = useStudentAssignments();
@@ -73,6 +74,9 @@ export default function PracticumDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Demo Notice for Admin Users */}
+      <PracticumDemoNotice />
+      
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Practicum Dashboard</h1>

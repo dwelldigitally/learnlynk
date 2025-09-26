@@ -54,60 +54,66 @@ export class StudentPracticumService {
   // Get student's practicum assignments with proper joins
   static async getStudentAssignments(leadId: string) {
     return supabaseWrapper.withRetry(async () => {
-      // For demo purposes, create a mock assignment since we don't have real data
-      const mockAssignment = {
-        id: 'demo-assignment-1',
-        lead_id: leadId,
-        site_id: 'demo-site-1',
-        program_id: 'demo-program-1',
-        journey_id: 'demo-journey-1',
-        instructor_id: 'demo-instructor-1',
-        start_date: '2024-01-01',
-        end_date: '2024-06-01',
-        hours_completed: 0,
-        hours_approved: 0,
-        completion_percentage: 0,
-        current_step: 1,
-        status: 'active',
-        is_active: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        user_id: 'demo-user',
-        practicum_sites: {
-          id: 'demo-site-1',
-          name: 'St. Mary\'s General Hospital',
-          address: '123 Medical Center Drive, Suite 400, Healthcare City, HC 12345',
-          contact_person: 'Dr. Sarah Johnson, RN',
-          contact_email: 'sarah.johnson@stmarys.hospital.com',
-          contact_phone: '(555) 123-4567'
-        },
-        practicum_programs: {
-          id: 'demo-program-1',
-          program_name: 'Clinical Nursing Program - Advanced Practice',
-          total_hours_required: 120
-        },
-        practicum_journeys: {
-          id: 'demo-journey-1',
-          journey_name: 'Nursing Clinical Experience',
-          steps: []
-        },
-        // Additional instructor/preceptor information
-        instructor: {
-          name: 'Prof. Michael Thompson, MSN',
-          email: 'mthompson@nursing.edu',
-          phone: '(555) 987-6543',
-          role: 'Clinical Instructor'
-        },
-        preceptor: {
-          name: 'Nurse Manager Lisa Rodriguez, BSN',
-          email: 'lrodriguez@stmarys.hospital.com', 
-          phone: '(555) 456-7890',
-          role: 'Clinical Preceptor',
-          department: 'Medical-Surgical Unit'
-        }
-      };
+      // If no leadId provided (demo/admin mode), return mock data
+      if (!leadId || leadId === 'demo-lead') {
+        const mockAssignment = {
+          id: 'demo-assignment-1',
+          lead_id: leadId,
+          site_id: 'demo-site-1',
+          program_id: 'demo-program-1',
+          journey_id: 'demo-journey-1',
+          instructor_id: 'demo-instructor-1',
+          start_date: '2024-01-01',
+          end_date: '2024-06-01',
+          hours_completed: 0,
+          hours_approved: 0,
+          completion_percentage: 0,
+          current_step: 1,
+          status: 'active',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user_id: 'demo-user',
+          practicum_sites: {
+            id: 'demo-site-1',
+            name: 'St. Mary\'s General Hospital',
+            address: '123 Medical Center Drive, Suite 400, Healthcare City, HC 12345',
+            contact_person: 'Dr. Sarah Johnson, RN',
+            contact_email: 'sarah.johnson@stmarys.hospital.com',
+            contact_phone: '(555) 123-4567'
+          },
+          practicum_programs: {
+            id: 'demo-program-1',
+            program_name: 'Clinical Nursing Program - Advanced Practice',
+            total_hours_required: 120
+          },
+          practicum_journeys: {
+            id: 'demo-journey-1',
+            journey_name: 'Nursing Clinical Experience',
+            steps: []
+          },
+          // Additional instructor/preceptor information
+          instructor: {
+            name: 'Prof. Michael Thompson, MSN',
+            email: 'mthompson@nursing.edu',
+            phone: '(555) 987-6543',
+            role: 'Clinical Instructor'
+          },
+          preceptor: {
+            name: 'Nurse Manager Lisa Rodriguez, BSN',
+            email: 'lrodriguez@stmarys.hospital.com', 
+            phone: '(555) 456-7890',
+            role: 'Clinical Preceptor',
+            department: 'Medical-Surgical Unit'
+          }
+        };
+        
+        return [mockAssignment];
+      }
       
-      return [mockAssignment];
+      // For real student access, we would query the database here
+      // This is a placeholder for future implementation
+      return [];
     });
   }
 

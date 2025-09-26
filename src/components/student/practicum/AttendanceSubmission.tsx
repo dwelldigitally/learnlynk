@@ -15,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import LocationMap from "./LocationMap";
+import PracticumDemoNotice from "./PracticumDemoNotice";
 
 // Geolocation interface
 interface LocationData {
@@ -252,6 +253,9 @@ export default function AttendanceSubmission() {
 
   return (
     <div className="space-y-6">
+      {/* Demo Notice */}
+      <PracticumDemoNotice />
+      
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link to="/student/practicum">

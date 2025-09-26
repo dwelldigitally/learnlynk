@@ -30,7 +30,8 @@ import {
   AlertTriangle,
   TrendingUp,
   MapPin,
-  ClipboardList
+  ClipboardList,
+  Award
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -102,7 +103,9 @@ export const navigationStructure: NavigationStructure = {
         { name: "Practicum Sites", href: "/admin/practicum/sites", icon: MapPin },
         { name: "Practicum Programs", href: "/admin/practicum/programs", icon: BookOpen },
         { name: "Practicum Journeys", href: "/admin/practicum/journeys", icon: ClipboardList },
-        { name: "Practicum Assignments", href: "/admin/practicum/assignments", icon: Users }
+        { name: "Student Progress", href: "/admin/practicum/progress", icon: Users },
+        { name: "Competency Tracker", href: "/admin/practicum/competencies", icon: Award },
+        { name: "Evaluation Center", href: "/admin/practicum/evaluations", icon: FileText }
       ]
     },
     {

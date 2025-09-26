@@ -42,6 +42,9 @@ import { PracticumDashboard } from './admin/practicum/PracticumDashboard';
 import { SiteManagement } from './admin/practicum/SiteManagement';
 import { ProgramManagement as PracticumProgramManagement } from './admin/practicum/ProgramManagement';
 import { JourneyConfiguration } from './admin/practicum/JourneyConfiguration';
+import { CompetencyTracker } from './admin/practicum/CompetencyTracker';
+import { StudentProgress } from './admin/practicum/StudentProgress';
+import { EvaluationCenter } from './admin/practicum/EvaluationCenter';
 import AIEmailManagementPage from "./AIEmailManagementPage";
 import { HubSpotOAuthCallback } from "@/pages/HubSpotOAuthCallback";
 import RecruiterManagement from "@/components/admin/RecruiterManagement";
@@ -222,6 +225,12 @@ const AdminDashboard: React.FC = () => {
         return <PracticumProgramManagement />;
       case "/admin/practicum/journeys":
         return <JourneyConfiguration />;
+      case "/admin/practicum/competencies":
+        return <CompetencyTracker />;
+      case "/admin/practicum/progress":
+        return <StudentProgress />;
+      case "/admin/practicum/evaluations":
+        return <EvaluationCenter />;
       
       // Setup routes
       case "/admin/setup":

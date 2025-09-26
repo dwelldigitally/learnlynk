@@ -10,7 +10,7 @@ import { useStudentAssignments, useStudentProgress } from "@/hooks/useStudentPra
 import { Skeleton } from "@/components/ui/skeleton";
 import PracticumDemoNotice from "./PracticumDemoNotice";
 
-export default function PracticumDashboard() {
+function PracticumDashboard() {
   const { data: assignments, isLoading: assignmentsLoading } = useStudentAssignments();
   const activeAssignment = assignments?.[0]; // For demo, use first assignment
   const { data: progress, isLoading: progressLoading } = useStudentProgress(activeAssignment?.id);
@@ -426,3 +426,5 @@ export default function PracticumDashboard() {
     </div>
   );
 }
+
+export default PracticumDashboard;

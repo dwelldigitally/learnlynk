@@ -4921,6 +4921,48 @@ export type Database = {
           },
         ]
       }
+      practicum_site_programs: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          program_id: string
+          site_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          program_id: string
+          site_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          program_id?: string
+          site_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "practicum_site_programs_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "practicum_site_programs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       practicum_sites: {
         Row: {
           address: string | null

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Clock, Calendar, MapPin, Send, Navigation } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, MapPin, Send, Navigation, Map } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useStudentAssignments, useSubmitAttendance } from "@/hooks/useStudentPracticum";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import LocationMap from "./LocationMap";
 
 // Geolocation interface
 interface LocationData {
@@ -20,6 +22,39 @@ interface LocationData {
   longitude: number;
   accuracy: number;
   timestamp: number;
+  address?: string;
+}
+
+// Reverse geocoding function
+async function reverseGeocode(lat: number, lng: number): Promise<string> {
+  try {
+    // Get Mapbox token from edge function
+    const { data, error } = await supabase.functions.invoke('get-mapbox-token');
+    
+    if (error || !data?.token) {
+      console.warn('Could not get Mapbox token for reverse geocoding');
+      return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    }
+
+    const response = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${data.token}&types=address`
+    );
+    
+    if (!response.ok) {
+      throw new Error('Geocoding request failed');
+    }
+    
+    const result = await response.json();
+    
+    if (result.features && result.features.length > 0) {
+      return result.features[0].place_name;
+    }
+    
+    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  } catch (error) {
+    console.warn('Reverse geocoding failed:', error);
+    return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+  }
 }
 
 const attendanceSchema = z.object({
@@ -115,7 +150,12 @@ export default function AttendanceSubmission() {
   const handleClockIn = async () => {
     try {
       const location = await getCurrentLocation();
-      setClockInLocation(location);
+      
+      // Get address for the location
+      const address = await reverseGeocode(location.latitude, location.longitude);
+      const locationWithAddress = { ...location, address };
+      
+      setClockInLocation(locationWithAddress);
       
       // Auto-set current time
       const now = new Date();
@@ -132,7 +172,12 @@ export default function AttendanceSubmission() {
   const handleClockOut = async () => {
     try {
       const location = await getCurrentLocation();
-      setClockOutLocation(location);
+      
+      // Get address for the location
+      const address = await reverseGeocode(location.latitude, location.longitude);
+      const locationWithAddress = { ...location, address };
+      
+      setClockOutLocation(locationWithAddress);
       
       // Auto-set current time
       const now = new Date();
@@ -311,11 +356,12 @@ export default function AttendanceSubmission() {
                             </Button>
                           </div>
                           <FormMessage />
-                          {clockInLocation && (
-                            <p className="text-xs text-muted-foreground">
-                              Location recorded (±{Math.round(clockInLocation.accuracy)}m accuracy)
-                            </p>
-                          )}
+                           {clockInLocation && (
+                             <div className="text-xs text-muted-foreground space-y-1">
+                               <p>Location recorded (±{Math.round(clockInLocation.accuracy)}m accuracy)</p>
+                               {clockInLocation.address && <p className="text-green-600">{clockInLocation.address}</p>}
+                             </div>
+                           )}
                         </FormItem>
                       )}
                     />
@@ -350,11 +396,12 @@ export default function AttendanceSubmission() {
                             </Button>
                           </div>
                           <FormMessage />
-                          {clockOutLocation && (
-                            <p className="text-xs text-muted-foreground">
-                              Location recorded (±{Math.round(clockOutLocation.accuracy)}m accuracy)
-                            </p>
-                          )}
+                           {clockOutLocation && (
+                             <div className="text-xs text-muted-foreground space-y-1">
+                               <p>Location recorded (±{Math.round(clockOutLocation.accuracy)}m accuracy)</p>
+                               {clockOutLocation.address && <p className="text-green-600">{clockOutLocation.address}</p>}
+                             </div>
+                           )}
                         </FormItem>
                       )}
                     />
@@ -420,7 +467,7 @@ export default function AttendanceSubmission() {
           </Card>
         </div>
 
-        {/* Instructions & Tips */}
+        {/* Instructions & Location Map */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
@@ -473,6 +520,14 @@ export default function AttendanceSubmission() {
               )}
             </CardContent>
           </Card>
+          
+          {/* Location Map - show when locations are available */}
+          {(clockInLocation || clockOutLocation) && (
+            <LocationMap 
+              clockInLocation={clockInLocation}
+              clockOutLocation={clockOutLocation}
+            />
+          )}
         </div>
       </div>
     </div>

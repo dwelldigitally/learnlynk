@@ -119,10 +119,12 @@ export class StudentPracticumService {
     time_out: string;
     activities: string;
     preceptor_id?: string;
-    location_data?: {
-      clock_in: any;
-      clock_out: any;
-    };
+    clock_in_latitude?: number;
+    clock_in_longitude?: number;
+    clock_in_address?: string;
+    clock_out_latitude?: number;
+    clock_out_longitude?: number;
+    clock_out_address?: string;
   }): Promise<StudentAttendanceRecord> {
     return supabaseWrapper.withRetry(async () => {
       // Calculate total hours
@@ -142,11 +144,13 @@ export class StudentPracticumService {
           hours_submitted: totalHours,
           student_notes: data.activities,
           final_status: 'pending_approval',
-          // Store location data in evaluation_data field as JSON
-          evaluation_data: data.location_data ? {
-            clock_in_location: data.location_data.clock_in,
-            clock_out_location: data.location_data.clock_out
-          } : null
+          // Store location data in the new geolocation fields
+          clock_in_latitude: data.clock_in_latitude,
+          clock_in_longitude: data.clock_in_longitude,
+          clock_in_address: data.clock_in_address,
+          clock_out_latitude: data.clock_out_latitude,
+          clock_out_longitude: data.clock_out_longitude,
+          clock_out_address: data.clock_out_address
         })
         .select()
         .single();

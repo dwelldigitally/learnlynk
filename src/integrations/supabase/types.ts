@@ -4946,6 +4946,12 @@ export type Database = {
       practicum_records: {
         Row: {
           assignment_id: string | null
+          clock_in_address: string | null
+          clock_in_latitude: number | null
+          clock_in_longitude: number | null
+          clock_out_address: string | null
+          clock_out_latitude: number | null
+          clock_out_longitude: number | null
           competency_id: string | null
           competency_name: string | null
           created_at: string
@@ -4973,6 +4979,12 @@ export type Database = {
         }
         Insert: {
           assignment_id?: string | null
+          clock_in_address?: string | null
+          clock_in_latitude?: number | null
+          clock_in_longitude?: number | null
+          clock_out_address?: string | null
+          clock_out_latitude?: number | null
+          clock_out_longitude?: number | null
           competency_id?: string | null
           competency_name?: string | null
           created_at?: string
@@ -5000,6 +5012,12 @@ export type Database = {
         }
         Update: {
           assignment_id?: string | null
+          clock_in_address?: string | null
+          clock_in_latitude?: number | null
+          clock_in_longitude?: number | null
+          clock_out_address?: string | null
+          clock_out_latitude?: number | null
+          clock_out_longitude?: number | null
           competency_id?: string | null
           competency_name?: string | null
           created_at?: string

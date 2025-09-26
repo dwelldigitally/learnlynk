@@ -41,7 +41,22 @@ export function useSubmitAttendance() {
   const { toast } = useToast();
   
   return useMutation({
-    mutationFn: StudentPracticumService.submitAttendanceRecord,
+    mutationFn: (data: any) => {
+      // Extract location data and add it to the submission
+      const { location_data, ...recordData } = data;
+      
+      const submissionData = {
+        ...recordData,
+        clock_in_latitude: location_data?.clock_in?.latitude,
+        clock_in_longitude: location_data?.clock_in?.longitude,
+        clock_in_address: location_data?.clock_in?.address,
+        clock_out_latitude: location_data?.clock_out?.latitude,
+        clock_out_longitude: location_data?.clock_out?.longitude,
+        clock_out_address: location_data?.clock_out?.address,
+      };
+      
+      return StudentPracticumService.submitAttendanceRecord(submissionData);
+    },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['student-practicum-records'] });
       queryClient.invalidateQueries({ queryKey: ['student-practicum-progress'] });

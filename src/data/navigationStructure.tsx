@@ -59,7 +59,12 @@ export const navigationStructure = {
         { label: 'Programs', href: '/admin/programs', icon: GraduationCap, description: 'Manage academic programs' },
         { label: 'Requirements', href: '/admin/requirements', icon: FileText, description: 'Configure program requirements' },
         { label: 'Workflows', href: '/admin/workflows', icon: Zap, description: 'Automate enrollment processes' },
-        { label: 'Events', href: '/admin/events', icon: Calendar, description: 'Manage events and schedules' }
+        { label: 'Events', href: '/admin/events', icon: Calendar, description: 'Manage events and schedules' },
+        { label: 'Practicum Dashboard', href: '/admin/practicum', icon: BarChart3, description: 'Practicum overview and analytics' },
+        { label: 'Practicum Sites', href: '/admin/practicum/sites', icon: MapPin, description: 'Manage practicum sites' },
+        { label: 'Practicum Programs', href: '/admin/practicum/programs', icon: BookOpen, description: 'Configure practicum programs' },
+        { label: 'Practicum Journeys', href: '/admin/practicum/journeys', icon: ClipboardList, description: 'Setup practicum workflows' },
+        { label: 'Practicum Assignments', href: '/admin/practicum/assignments', icon: Users, description: 'Manage student assignments' }
       ]
     },
     {

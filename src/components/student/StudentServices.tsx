@@ -9,16 +9,6 @@ import { motion } from "framer-motion";
 const StudentServices: React.FC = () => {
   const services = [
     {
-      title: "Student Support",
-      description: "Get help and assistance with academic, personal, and technical support",
-      icon: HelpCircle,
-      path: "/student/support",
-      gradient: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50/50",
-      borderColor: "border-blue-200/50",
-      features: ["Academic Help", "Personal Counseling", "Tech Support", "24/7 Available"]
-    },
-    {
       title: "Career Services",
       description: "Career guidance, job opportunities, resume help, and professional development",
       icon: Briefcase,

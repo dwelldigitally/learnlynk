@@ -115,28 +115,82 @@ export function TopNavigationBar({
                       <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-48 bg-background border border-border shadow-lg rounded-md z-50">
-                    {section.items.map((item) => (
-                      <DropdownMenuItem 
-                        key={item.href}
-                        asChild 
-                        className="px-3 py-2.5 transition-colors hover:bg-muted/50 cursor-pointer"
-                      >
-                        <Link 
-                          to={item.href} 
-                          className="flex items-center text-sm"
-                          onClick={() => onSectionChange(section.id)}
-                        >
-                          <item.icon className="mr-2 h-4 w-4 flex-shrink-0" />
-                          {item.name}
-                          {item.count !== undefined && (
-                            <Badge variant="secondary" className="ml-auto text-xs">
-                              {item.count}
-                            </Badge>
-                          )}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
+                  <DropdownMenuContent 
+                    align="start" 
+                    className="bg-background border border-border shadow-xl rounded-lg z-50 p-0 overflow-hidden"
+                    style={{ 
+                      width: section.items.length > 6 ? '720px' : section.items.length > 3 ? '480px' : '320px',
+                      maxWidth: '90vw'
+                    }}
+                  >
+                    <div className="p-6">
+                      <div className="mb-4">
+                        <h3 className="text-lg font-semibold text-foreground flex items-center">
+                          <section.icon className="w-5 h-5 mr-2 text-primary" />
+                          {section.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {section.id === 'leads-marketing' && 'Manage leads, campaigns, and marketing activities'}
+                          {section.id === 'students-applications' && 'Handle student records, applications, and academic processes'}
+                          {section.id === 'data-management' && 'Configure programs, workflows, and system data'}
+                          {section.id === 'configuration' && 'System settings, templates, and administrative tools'}
+                          {section.id === 'analytics-reports' && 'View analytics, reports, and performance metrics'}
+                        </p>
+                      </div>
+                      
+                      <div className={`grid gap-6 ${
+                        section.items.length > 6 ? 'grid-cols-3' : 
+                        section.items.length > 3 ? 'grid-cols-2' : 
+                        'grid-cols-1'
+                      }`}>
+                        {(() => {
+                          // Organize items into logical groups
+                          const itemsPerColumn = Math.ceil(section.items.length / (
+                            section.items.length > 6 ? 3 : 
+                            section.items.length > 3 ? 2 : 1
+                          ));
+                          
+                          const columns = [];
+                          for (let i = 0; i < section.items.length; i += itemsPerColumn) {
+                            columns.push(section.items.slice(i, i + itemsPerColumn));
+                          }
+                          
+                          return columns.map((columnItems, columnIndex) => (
+                            <div key={columnIndex} className="space-y-1">
+                              {columnItems.map((item) => (
+                                <Link
+                                  key={item.href}
+                                  to={item.href}
+                                  onClick={() => onSectionChange(section.id)}
+                                  className="group flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-muted/50 hover:shadow-sm border border-transparent hover:border-border/50"
+                                >
+                                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors mr-3 flex-shrink-0">
+                                    <item.icon className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between">
+                                      <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                                        {item.name}
+                                      </h4>
+                                      {item.count !== undefined && (
+                                        <Badge variant="secondary" className="text-xs ml-2 flex-shrink-0">
+                                          {item.count}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    {item.subItems && item.subItems.length > 0 && (
+                                      <p className="text-xs text-muted-foreground mt-1 truncate">
+                                        {item.subItems.length} sub-items available
+                                      </p>
+                                    )}
+                                  </div>
+                                </Link>
+                              ))}
+                            </div>
+                          ));
+                        })()}
+                      </div>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
               );

@@ -10,7 +10,8 @@ import {
   FileText,
   MapPin,
   BookOpen,
-  ClipboardList
+  ClipboardList,
+  CalendarDays
 } from 'lucide-react';
 
 export const navigationStructure = {
@@ -60,6 +61,7 @@ export const navigationStructure = {
         { label: 'Requirements', href: '/admin/requirements', icon: FileText, description: 'Configure program requirements' },
         { label: 'Workflows', href: '/admin/workflows', icon: Zap, description: 'Automate enrollment processes' },
         { label: 'Events', href: '/admin/events', icon: Calendar, description: 'Manage events and schedules' },
+        { label: 'Academic Terms & Schedules', href: '/admin/academic-terms', icon: CalendarDays, description: 'Manage academic terms and scheduling' },
         { label: 'Practicum Dashboard', href: '/admin/practicum', icon: BarChart3, description: 'Practicum overview and analytics' },
         { label: 'Practicum Sites', href: '/admin/practicum/sites', icon: MapPin, description: 'Manage practicum sites' },
         { label: 'Practicum Programs', href: '/admin/practicum/programs', icon: BookOpen, description: 'Configure practicum programs' },

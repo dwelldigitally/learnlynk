@@ -113,6 +113,120 @@ export type Database = {
           },
         ]
       }
+      academic_schedules: {
+        Row: {
+          created_at: string
+          days_of_week: Json
+          description: string | null
+          duration_weeks: number | null
+          id: string
+          is_active: boolean | null
+          is_template: boolean | null
+          location_requirements: string | null
+          max_capacity: number | null
+          metadata: Json | null
+          schedule_type: string
+          template_name: string
+          time_slots: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: Json
+          description?: string | null
+          duration_weeks?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_template?: boolean | null
+          location_requirements?: string | null
+          max_capacity?: number | null
+          metadata?: Json | null
+          schedule_type?: string
+          template_name: string
+          time_slots?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: Json
+          description?: string | null
+          duration_weeks?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_template?: boolean | null
+          location_requirements?: string | null
+          max_capacity?: number | null
+          metadata?: Json | null
+          schedule_type?: string
+          template_name?: string
+          time_slots?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      academic_terms: {
+        Row: {
+          academic_year: string
+          add_drop_deadline: string | null
+          created_at: string
+          description: string | null
+          end_date: string
+          id: string
+          is_current: boolean | null
+          metadata: Json | null
+          name: string
+          registration_end_date: string | null
+          registration_start_date: string | null
+          start_date: string
+          status: string
+          term_type: string
+          updated_at: string
+          user_id: string
+          withdrawal_deadline: string | null
+        }
+        Insert: {
+          academic_year: string
+          add_drop_deadline?: string | null
+          created_at?: string
+          description?: string | null
+          end_date: string
+          id?: string
+          is_current?: boolean | null
+          metadata?: Json | null
+          name: string
+          registration_end_date?: string | null
+          registration_start_date?: string | null
+          start_date: string
+          status?: string
+          term_type?: string
+          updated_at?: string
+          user_id: string
+          withdrawal_deadline?: string | null
+        }
+        Update: {
+          academic_year?: string
+          add_drop_deadline?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          id?: string
+          is_current?: boolean | null
+          metadata?: Json | null
+          name?: string
+          registration_end_date?: string | null
+          registration_start_date?: string | null
+          start_date?: string
+          status?: string
+          term_type?: string
+          updated_at?: string
+          user_id?: string
+          withdrawal_deadline?: string | null
+        }
+        Relationships: []
+      }
       action_execution_logs: {
         Row: {
           action_id: string
@@ -5305,6 +5419,60 @@ export type Database = {
           updated_at?: string
           user_id?: string
           yield_propensity_score?: number
+        }
+        Relationships: []
+      }
+      program_term_schedules: {
+        Row: {
+          capacity_limit: number | null
+          classroom_location: string | null
+          created_at: string
+          enrollment_count: number | null
+          id: string
+          instructor_assigned: string | null
+          notes: string | null
+          prerequisites: Json | null
+          program_id: string | null
+          schedule_id: string
+          special_requirements: string | null
+          status: string
+          term_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          capacity_limit?: number | null
+          classroom_location?: string | null
+          created_at?: string
+          enrollment_count?: number | null
+          id?: string
+          instructor_assigned?: string | null
+          notes?: string | null
+          prerequisites?: Json | null
+          program_id?: string | null
+          schedule_id: string
+          special_requirements?: string | null
+          status?: string
+          term_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          capacity_limit?: number | null
+          classroom_location?: string | null
+          created_at?: string
+          enrollment_count?: number | null
+          id?: string
+          instructor_assigned?: string | null
+          notes?: string | null
+          prerequisites?: Json | null
+          program_id?: string | null
+          schedule_id?: string
+          special_requirements?: string | null
+          status?: string
+          term_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

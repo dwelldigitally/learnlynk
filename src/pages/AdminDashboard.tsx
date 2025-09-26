@@ -48,6 +48,7 @@ import RecruiterManagement from "@/components/admin/RecruiterManagement";
 import RecruiterApplicationsManagement from "@/components/admin/RecruiterApplicationsManagement";
 import { RegistrarCommandCenter } from "@/components/admin/registrar/RegistrarCommandCenter";
 import { RegistrarAIFeatures } from "@/components/admin/registrar/RegistrarAIFeatures";
+import { AcademicTermsSchedules } from "@/components/admin/academic/AcademicTermsSchedules";
 import { RegistrarIntelligence } from "@/components/admin/registrar/RegistrarIntelligence";
 import { OverviewDashboard } from "@/components/admin/OverviewDashboard";
 import { HelpCenter } from "@/components/admin/HelpCenter";
@@ -155,6 +156,8 @@ const AdminDashboard: React.FC = () => {
         return <EnhancedDocumentManagement />;
       case "/admin/events":
         return <EventManagement />;
+      case "/admin/academic-terms":
+        return <AcademicTermsSchedules />;
       case "/admin/communication":
         return <CommunicationHub />;
       case "/admin/communication/ai-emails":

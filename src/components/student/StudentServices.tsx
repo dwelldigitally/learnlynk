@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { HelpCircle, Phone, Building, ExternalLink } from "lucide-react";
+import { HelpCircle, Phone, Building, ExternalLink, Briefcase } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const StudentServices: React.FC = () => {
@@ -11,6 +11,13 @@ const StudentServices: React.FC = () => {
       icon: HelpCircle,
       path: "/student/support",
       color: "bg-blue-50 hover:bg-blue-100 border-blue-200"
+    },
+    {
+      title: "Career Services",
+      description: "Career guidance, job opportunities, resume help, and professional development",
+      icon: Briefcase,
+      path: "/student/career-services",
+      color: "bg-purple-50 hover:bg-purple-100 border-purple-200"
     },
     {
       title: "Emergency Contacts",
@@ -37,7 +44,7 @@ const StudentServices: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
         {services.map((service) => (
           <Link key={service.title} to={service.path}>
             <Card className={`h-full transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer ${service.color}`}>

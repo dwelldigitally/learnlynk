@@ -89,11 +89,6 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
     id: "campus-life",
     title: "Campus Life",
     items: [{
-      name: "Career Services",
-      path: "/student/career-services",
-      icon: Briefcase,
-      description: "Career guidance & opportunities"
-    }, {
       name: "News & Events",
       path: "/student/news-events",
       icon: Newspaper,

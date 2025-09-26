@@ -638,22 +638,22 @@ const StudentOverview: React.FC = () => {
                 </div>
 
                 {/* Upload Documents */}
-                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+                <div className="bg-white dark:bg-slate-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0">
                       <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <p className="font-semibold text-foreground">Upload Documents</p>
                       <p className="text-sm text-muted-foreground">3 documents pending upload</p>
                       <p className="text-xs text-red-600 dark:text-red-400">Due in 5 days</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
                       Urgent
                     </span>
-                    <Button size="sm" className="ml-2">
+                    <Button size="sm">
                       Upload Now
                     </Button>
                   </div>

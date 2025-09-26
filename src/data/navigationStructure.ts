@@ -93,6 +93,7 @@ export const navigationStructure: NavigationStructure = {
         { name: "Programs", href: "/admin/programs", icon: BookOpen },
         { name: "Workflows", href: "/admin/workflows", icon: Workflow },
         { name: "Requirements", href: "/admin/requirements", icon: Shield },
+        { name: "Academic Terms & Schedules", href: "/admin/academic-terms", icon: Calendar },
         { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
         { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Recruiter Management", href: "/admin/recruiters", icon: Building2 },

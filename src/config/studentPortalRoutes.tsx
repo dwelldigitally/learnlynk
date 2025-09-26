@@ -15,7 +15,7 @@ import { FinancialAidAppeals } from '@/components/student/financial-aid/Financia
 import CareerServices from "@/components/student/CareerServices";
 import NewsAndEvents from "@/pages/NewsAndEvents";
 import LifeAtWCC from "@/pages/LifeAtWCC";
-import CourseCatalog from "@/components/student/CourseCatalog";
+import ProgramCatalog from "@/components/student/ProgramCatalog";
 import StudentGrades from "@/components/student/StudentGrades";
 import StudentSupport from "@/components/student/StudentSupport";
 import EmergencyContacts from "@/components/student/EmergencyContacts";
@@ -85,7 +85,7 @@ export const studentPortalRoutes: RouteConfig[] = [
   { path: "/student/support", component: StudentSupport },
   { path: "/student/emergency-contacts", component: EmergencyContacts },
   { path: "/student/housing", component: Housing },
-  { path: "/student/course-catalog", component: CourseCatalog },
+  { path: "/student/course-catalog", component: ProgramCatalog },
   { path: "/student/grades", component: StudentGrades },
 ];
 

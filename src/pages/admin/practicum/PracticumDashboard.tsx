@@ -297,17 +297,57 @@ export function PracticumDashboard() {
       ];
 
       console.log('🗺️ Inserting practicum journeys...');
-      const { error: journeyError } = await supabase
+      const { data: journeyInserted, error: journeyError } = await supabase
         .from('practicum_journeys')
-        .insert(journeys);
+        .insert(journeys)
+        .select('id');
 
       if (journeyError) {
         console.error('❌ Journey insertion error:', journeyError);
         throw journeyError;
       }
-      console.log('✅ Journeys inserted successfully');
+      console.log('✅ Journeys inserted successfully', journeyInserted);
+
+      // Create practicum assignments so the dashboard shows data
+      console.log('🧩 Inserting practicum assignments...');
+      const today = new Date();
+      const formatDate = (d: Date) => d.toISOString().slice(0, 10);
+      const assignments = [
+        {
+          user_id: session.user.id,
+          program_id: programData?.[0]?.id,
+          site_id: siteData?.[0]?.id,
+          status: 'active',
+          start_date: formatDate(new Date(today.getTime() - 60 * 24 * 60 * 60 * 1000)),
+          end_date: formatDate(new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000)),
+          completion_percentage: 85
+        },
+        {
+          user_id: session.user.id,
+          program_id: programData?.[1]?.id,
+          site_id: siteData?.[1]?.id,
+          status: 'assigned',
+          start_date: formatDate(new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000)),
+          end_date: formatDate(new Date(today.getTime() + 120 * 24 * 60 * 60 * 1000)),
+          completion_percentage: 0
+        }
+      ].filter((a) => a.program_id && a.site_id);
+
+      if (assignments.length > 0) {
+        const { error: assignError } = await supabase
+          .from('practicum_assignments')
+          .insert(assignments);
+        if (assignError) {
+          console.error('❌ Assignment insertion error:', assignError);
+          throw assignError;
+        }
+        console.log('✅ Assignments inserted successfully');
+      } else {
+        console.warn('⚠️ Skipping assignments insert due to missing IDs');
+      }
 
       // Refresh the data
+      await refetch();
       await refetch();
       
       toast.success('Sample practicum data added successfully!');

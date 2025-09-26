@@ -44,7 +44,9 @@ export function TopNavigationBar({
   const getActiveSectionFromPath = () => {
     const path = location.pathname;
     for (const section of navigationStructure.sections) {
-      if (section.items.some(item => path.startsWith(item.href))) {
+      // Sort items by href length in descending order to match most specific paths first
+      const sortedItems = [...section.items].sort((a, b) => b.href.length - a.href.length);
+      if (sortedItems.some(item => path.startsWith(item.href))) {
         return section.id;
       }
     }

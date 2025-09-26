@@ -35,6 +35,9 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
     if (path.startsWith('/admin/requirements/')) {
       return 'data-management';
     }
+    if (path.startsWith('/admin/academic-terms/')) {
+      return 'data-management';
+    }
     if (path.startsWith('/admin/analytics/')) {
       return 'analytics-reports';
     }

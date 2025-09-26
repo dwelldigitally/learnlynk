@@ -75,21 +75,35 @@ export class StudentPracticumService {
         user_id: 'demo-user',
         practicum_sites: {
           id: 'demo-site-1',
-          name: 'General Hospital',
-          address: '123 Medical Center Dr',
-          contact_person: 'Dr. Sarah Johnson',
-          contact_email: 'sarah.johnson@hospital.com',
+          name: 'St. Mary\'s General Hospital',
+          address: '123 Medical Center Drive, Suite 400, Healthcare City, HC 12345',
+          contact_person: 'Dr. Sarah Johnson, RN',
+          contact_email: 'sarah.johnson@stmarys.hospital.com',
           contact_phone: '(555) 123-4567'
         },
         practicum_programs: {
           id: 'demo-program-1',
-          program_name: 'Clinical Nursing Program',
+          program_name: 'Clinical Nursing Program - Advanced Practice',
           total_hours_required: 120
         },
         practicum_journeys: {
           id: 'demo-journey-1',
           journey_name: 'Nursing Clinical Experience',
           steps: []
+        },
+        // Additional instructor/preceptor information
+        instructor: {
+          name: 'Prof. Michael Thompson, MSN',
+          email: 'mthompson@nursing.edu',
+          phone: '(555) 987-6543',
+          role: 'Clinical Instructor'
+        },
+        preceptor: {
+          name: 'Nurse Manager Lisa Rodriguez, BSN',
+          email: 'lrodriguez@stmarys.hospital.com', 
+          phone: '(555) 456-7890',
+          role: 'Clinical Preceptor',
+          department: 'Medical-Surgical Unit'
         }
       };
       

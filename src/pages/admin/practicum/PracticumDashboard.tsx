@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { toast } from 'sonner';
 import { 
   GraduationCap, 
   MapPin, 
@@ -26,6 +27,7 @@ import { usePracticumOverview } from '@/hooks/usePracticum';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/modern/GlassCard';
 import { NeoCard } from '@/components/modern/NeoCard';
+import { supabase } from '@/integrations/supabase/client';
 
 // Dummy data for demonstration
 const dummyOverview = {
@@ -87,7 +89,215 @@ const dummyOverview = {
 
 export function PracticumDashboard() {
   const { session } = useAuth();
-  const { data: overview, isLoading } = usePracticumOverview(session?.user?.id || '');
+  const { data: overview, isLoading, refetch } = usePracticumOverview(session?.user?.id || '');
+  const [isSeeding, setIsSeeding] = useState(false);
+  
+  const handleAddDummyData = async () => {
+    if (!session?.user?.id) {
+      toast.error('You must be logged in to add sample data');
+      return;
+    }
+
+    setIsSeeding(true);
+    try {
+      // Create practicum sites
+      const sites = [
+        {
+          user_id: session.user.id,
+          name: 'General Hospital',
+          organization: 'City Medical Center',
+          contact_person: 'Dr. Sarah Johnson',
+          contact_email: 'sarah.johnson@generalhospital.com',
+          contact_phone: '(555) 123-4567',
+          address: '123 Medical Drive',
+          city: 'Metro City',
+          state: 'CA',
+          country: 'USA',
+          postal_code: '12345',
+          max_capacity_per_semester: 8,
+          specializations: ['Emergency Medicine', 'Internal Medicine', 'Surgery'],
+          requirements: { documents: ['Medical clearance', 'Background check', 'Immunizations'] },
+          is_active: true
+        },
+        {
+          user_id: session.user.id,
+          name: 'Mental Health Center',
+          organization: 'Community Health Services',
+          contact_person: 'Dr. Michael Chen',
+          contact_email: 'michael.chen@mhcenter.org',
+          contact_phone: '(555) 234-5678',
+          address: '456 Wellness Ave',
+          city: 'Metro City',
+          state: 'CA',
+          country: 'USA',
+          postal_code: '12346',
+          max_capacity_per_semester: 5,
+          specializations: ['Clinical Psychology', 'Counseling', 'Psychiatric Care'],
+          requirements: { documents: ['Psychology background', 'Certification', 'Training hours'] },
+          is_active: true
+        },
+        {
+          user_id: session.user.id,
+          name: 'Rehabilitation Center',
+          organization: 'Recovery Health Group',
+          contact_person: 'Dr. Emma Williams',
+          contact_email: 'emma.williams@rehabcenter.com',
+          contact_phone: '(555) 345-6789',
+          address: '789 Recovery Blvd',
+          city: 'Metro City',
+          state: 'CA',
+          country: 'USA',
+          postal_code: '12347',
+          max_capacity_per_semester: 6,
+          specializations: ['Physical Therapy', 'Occupational Therapy', 'Speech Therapy'],
+          requirements: { documents: ['Therapy certification', 'Health clearance', 'CPR certification'] },
+          is_active: true
+        }
+      ];
+
+      const { data: siteData, error: siteError } = await supabase
+        .from('practicum_sites')
+        .insert(sites)
+        .select();
+
+      if (siteError) throw siteError;
+
+      // Create practicum programs
+      const programs = [
+        {
+          user_id: session.user.id,
+          program_name: 'Nursing Practicum',
+          total_hours_required: 480,
+          weeks_duration: 12,
+          competencies_required: ['Patient care', 'Medication administration', 'Clinical documentation', 'Emergency procedures'],
+          documents_required: ['Medical clearance', 'CPR certification', 'Nursing license verification'],
+          evaluation_criteria: {
+            clinical_skills: 40,
+            communication: 20,
+            professionalism: 20,
+            documentation: 20
+          },
+          is_active: true
+        },
+        {
+          user_id: session.user.id,
+          program_name: 'Clinical Psychology',
+          total_hours_required: 600,
+          weeks_duration: 16,
+          competencies_required: ['Assessment', 'Therapy techniques', 'Case management', 'Ethics application'],
+          documents_required: ['Psychology degree verification', 'Ethics training certificate', 'Background check'],
+          evaluation_criteria: {
+            assessment_skills: 30,
+            therapeutic_techniques: 30,
+            ethics_application: 25,
+            documentation: 15
+          },
+          is_active: true
+        },
+        {
+          user_id: session.user.id,
+          program_name: 'Physical Therapy',
+          total_hours_required: 400,
+          weeks_duration: 10,
+          competencies_required: ['Exercise prescription', 'Manual therapy', 'Patient education', 'Treatment planning'],
+          documents_required: ['PT coursework transcript', 'Health clearance', 'CPR certification'],
+          evaluation_criteria: {
+            hands_on_skills: 40,
+            patient_interaction: 25,
+            treatment_planning: 20,
+            documentation: 15
+          },
+          is_active: true
+        }
+      ];
+
+      const { data: programData, error: programError } = await supabase
+        .from('practicum_programs')
+        .insert(programs)
+        .select();
+
+      if (programError) throw programError;
+
+      // Create practicum journeys
+      const journeys = [
+        {
+          user_id: session.user.id,
+          journey_name: 'Standard Clinical Practicum',
+          program_id: programData?.[0]?.id,
+          steps: [
+            {
+              id: '1',
+              name: 'Pre-placement Agreement',
+              description: 'Sign placement agreement and orientation materials',
+              type: 'agreement',
+              required: true,
+              approvers: ['instructor'],
+              order_index: 1,
+              configuration: { documents: ['placement_agreement', 'orientation_checklist'] }
+            },
+            {
+              id: '2',
+              name: 'Documentation Submission',
+              description: 'Submit required health and background documents',
+              type: 'document_upload',
+              required: true,
+              approvers: ['site_coordinator'],
+              order_index: 2,
+              configuration: { required_docs: ['health_clearance', 'background_check', 'immunizations'] }
+            },
+            {
+              id: '3',
+              name: 'Clinical Hours',
+              description: 'Complete required clinical hours at placement site',
+              type: 'attendance',
+              required: true,
+              approvers: ['preceptor'],
+              order_index: 3,
+              configuration: { min_hours: 480, tracking_method: 'daily_log' }
+            },
+            {
+              id: '4',
+              name: 'Competency Assessment',
+              description: 'Demonstrate clinical competencies',
+              type: 'competency',
+              required: true,
+              approvers: ['preceptor', 'instructor'],
+              order_index: 4,
+              configuration: { competencies: ['patient_care', 'documentation', 'communication'] }
+            },
+            {
+              id: '5',
+              name: 'Final Evaluation',
+              description: 'Complete final performance evaluation',
+              type: 'evaluation',
+              required: true,
+              approvers: ['instructor'],
+              order_index: 5,
+              configuration: { evaluation_type: 'comprehensive', scoring_method: 'rubric' }
+            }
+          ],
+          is_default: true,
+          is_active: true
+        }
+      ];
+
+      const { error: journeyError } = await supabase
+        .from('practicum_journeys')
+        .insert(journeys);
+
+      if (journeyError) throw journeyError;
+
+      // Refresh the data
+      await refetch();
+      
+      toast.success('Sample practicum data added successfully!');
+    } catch (error) {
+      console.error('Error adding sample data:', error);
+      toast.error('Failed to add sample data. Please try again.');
+    } finally {
+      setIsSeeding(false);
+    }
+  };
   
   // Use dummy data if no real data is available
   const data = overview || dummyOverview;
@@ -160,6 +370,15 @@ export function PracticumDashboard() {
             <p className="text-lg text-muted-foreground">Monitor student placements and progress with real-time insights</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
+            <Button 
+              variant="outline" 
+              className="neo-button group"
+              onClick={handleAddDummyData}
+              disabled={isSeeding}
+            >
+              <FileText className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
+              {isSeeding ? 'Adding Data...' : 'Add Sample Data'}
+            </Button>
             <Button variant="outline" className="neo-button group">
               <FileText className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
               Export Report

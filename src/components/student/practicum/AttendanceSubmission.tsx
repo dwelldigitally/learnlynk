@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ArrowLeft, Clock, Calendar, MapPin, Send } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, MapPin, Send, Navigation } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useStudentAssignments, useSubmitAttendance } from "@/hooks/useStudentPracticum";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "sonner";
+
+// Geolocation interface
+interface LocationData {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  timestamp: number;
+}
 
 const attendanceSchema = z.object({
   assignment_id: z.string().min(1, "Please select a practicum assignment"),
@@ -35,6 +44,11 @@ type AttendanceFormData = z.infer<typeof attendanceSchema>;
 
 export default function AttendanceSubmission() {
   const [calculatedHours, setCalculatedHours] = useState<number | null>(null);
+  const [clockInLocation, setClockInLocation] = useState<LocationData | null>(null);
+  const [clockOutLocation, setClockOutLocation] = useState<LocationData | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [locationPermissionDenied, setLocationPermissionDenied] = useState(false);
+  
   const { data: assignments, isLoading: assignmentsLoading } = useStudentAssignments();
   const submitAttendance = useSubmitAttendance();
 
@@ -48,6 +62,88 @@ export default function AttendanceSubmission() {
       activities: ""
     }
   });
+
+  // Function to get current location
+  const getCurrentLocation = (): Promise<LocationData> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser'));
+        return;
+      }
+
+      setIsGettingLocation(true);
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setIsGettingLocation(false);
+          resolve({
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: Date.now()
+          });
+        },
+        (error) => {
+          setIsGettingLocation(false);
+          let message = 'Unable to get location';
+          
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              message = 'Location permission denied. Please enable location access to record attendance.';
+              setLocationPermissionDenied(true);
+              break;
+            case error.POSITION_UNAVAILABLE:
+              message = 'Location information is unavailable.';
+              break;
+            case error.TIMEOUT:
+              message = 'Location request timed out.';
+              break;
+          }
+          
+          reject(new Error(message));
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
+        }
+      );
+    });
+  };
+
+  // Handle clock in - capture location when time_in is set
+  const handleClockIn = async () => {
+    try {
+      const location = await getCurrentLocation();
+      setClockInLocation(location);
+      
+      // Auto-set current time
+      const now = new Date();
+      const timeString = now.toTimeString().slice(0, 5); // HH:MM format
+      form.setValue('time_in', timeString);
+      
+      toast.success('Clocked in successfully with location recorded');
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  };
+
+  // Handle clock out - capture location when time_out is set
+  const handleClockOut = async () => {
+    try {
+      const location = await getCurrentLocation();
+      setClockOutLocation(location);
+      
+      // Auto-set current time
+      const now = new Date();
+      const timeString = now.toTimeString().slice(0, 5); // HH:MM format
+      form.setValue('time_out', timeString);
+      
+      toast.success('Clocked out successfully with location recorded');
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  };
 
   const watchTimeIn = form.watch("time_in");
   const watchTimeOut = form.watch("time_out");
@@ -77,17 +173,35 @@ export default function AttendanceSubmission() {
         return; // Form validation will catch this
       }
       
-      await submitAttendance.mutateAsync({
+      // Include location data in submission
+      const submissionData = {
         assignment_id: data.assignment_id,
         date: data.date,
         time_in: data.time_in,
         time_out: data.time_out,
-        activities: data.activities
+        activities: data.activities,
+        location_data: {
+          clock_in: clockInLocation,
+          clock_out: clockOutLocation
+        }
+      };
+      
+      await submitAttendance.mutateAsync(submissionData);
+      
+      // Reset form and location data
+      form.reset({
+        assignment_id: "",
+        date: new Date().toISOString().split('T')[0],
+        time_in: "",
+        time_out: "",
+        activities: ""
       });
-      form.reset();
+      setClockInLocation(null);
+      setClockOutLocation(null);
       setCalculatedHours(null);
+      
     } catch (error) {
-      console.error('Failed to submit attendance:', error);
+      console.error('Error submitting attendance:', error);
     }
   };
 
@@ -151,7 +265,7 @@ export default function AttendanceSubmission() {
                     )}
                   />
 
-                  {/* Date and Time */}
+                  {/* Date and Time with Location Tracking */}
                   <div className="grid gap-4 md:grid-cols-3">
                     <FormField
                       control={form.control}
@@ -172,11 +286,36 @@ export default function AttendanceSubmission() {
                       name="time_in"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Time In</FormLabel>
-                          <FormControl>
-                            <Input type="time" {...field} />
-                          </FormControl>
+                          <FormLabel className="flex items-center gap-2">
+                            Time In
+                            {clockInLocation && <MapPin className="h-4 w-4 text-green-600" />}
+                          </FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input type="time" {...field} />
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleClockIn}
+                              disabled={isGettingLocation}
+                              className="shrink-0"
+                            >
+                              {isGettingLocation ? (
+                                <Navigation className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Navigation className="h-4 w-4" />
+                              )}
+                              Clock In
+                            </Button>
+                          </div>
                           <FormMessage />
+                          {clockInLocation && (
+                            <p className="text-xs text-muted-foreground">
+                              Location recorded (±{Math.round(clockInLocation.accuracy)}m accuracy)
+                            </p>
+                          )}
                         </FormItem>
                       )}
                     />
@@ -186,15 +325,50 @@ export default function AttendanceSubmission() {
                       name="time_out"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Time Out</FormLabel>
-                          <FormControl>
-                            <Input type="time" {...field} />
-                          </FormControl>
+                          <FormLabel className="flex items-center gap-2">
+                            Time Out
+                            {clockOutLocation && <MapPin className="h-4 w-4 text-green-600" />}
+                          </FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input type="time" {...field} />
+                            </FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleClockOut}
+                              disabled={isGettingLocation}
+                              className="shrink-0"
+                            >
+                              {isGettingLocation ? (
+                                <Navigation className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Navigation className="h-4 w-4" />
+                              )}
+                              Clock Out
+                            </Button>
+                          </div>
                           <FormMessage />
+                          {clockOutLocation && (
+                            <p className="text-xs text-muted-foreground">
+                              Location recorded (±{Math.round(clockOutLocation.accuracy)}m accuracy)
+                            </p>
+                          )}
                         </FormItem>
                       )}
                     />
                   </div>
+
+                  {/* Location Permission Warning */}
+                  {locationPermissionDenied && (
+                    <Alert className="border-orange-200 bg-orange-50">
+                      <MapPin className="h-4 w-4" />
+                      <AlertDescription>
+                        Location access is required for attendance tracking. Please enable location permissions in your browser settings and refresh the page.
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
                   {/* Calculated Hours Display */}
                   {calculatedHours !== null && (

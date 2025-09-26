@@ -118,7 +118,7 @@ const mockPrograms: Program[] = [
   }
 ];
 
-export default function ProgramCatalog() {
+const ProgramCatalog = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [selectedLevel, setSelectedLevel] = useState('all');
@@ -308,3 +308,5 @@ export default function ProgramCatalog() {
     </div>
   );
 }
+
+export default ProgramCatalog;

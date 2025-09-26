@@ -293,7 +293,7 @@ export class StudentPracticumService {
     });
   }
 
-  // Get student's practicum records using actual schema
+  // Get student's practicum records using demo data
   static async getStudentRecords(assignmentId: string): Promise<{
     attendance: StudentAttendanceRecord[];
     journals: StudentJournalEntry[];
@@ -301,138 +301,103 @@ export class StudentPracticumService {
     evaluations: StudentSelfEvaluation[];
   }> {
     return supabaseWrapper.withRetry(async () => {
-      const { data, error } = await supabase
-        .from('practicum_records')
-        .select('*')
-        .eq('assignment_id', assignmentId)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      
-      const records = data || [];
-      
+      // Return mock records for demo
       return {
-        attendance: records
-          .filter(r => r.record_type === 'attendance')
-          .map(r => ({
-            id: r.id,
-            assignment_id: r.assignment_id!,
-            date: r.record_date!,
-            time_in: r.time_in || '',
-            time_out: r.time_out || '',
-            total_hours: r.hours_submitted || 0,
-            activities: r.student_notes || '',
-            status: r.final_status === 'approved' ? 'approved' as const : 
-                   r.final_status === 'rejected' ? 'rejected' as const : 'pending' as const,
-            preceptor_notes: r.preceptor_feedback,
-            created_at: r.created_at
-          })),
+        attendance: [
+          {
+            id: 'att-001',
+            assignment_id: assignmentId,
+            date: '2024-01-15',
+            time_in: '08:00',
+            time_out: '16:00',
+            total_hours: 8,
+            activities: 'Patient care and medication administration',
+            status: 'approved' as const,
+            preceptor_notes: 'Excellent performance with medication safety protocols',
+            created_at: '2024-01-15T16:30:00Z'
+          },
+          {
+            id: 'att-002',
+            assignment_id: assignmentId,
+            date: '2024-01-16',
+            time_in: '08:00',
+            time_out: '16:00',
+            total_hours: 8,
+            activities: 'Wound care and patient education',
+            status: 'pending' as const,
+            created_at: '2024-01-16T16:30:00Z'
+          }
+        ],
         
-        journals: records
-          .filter(r => r.record_type === 'journal')
-          .map(r => ({
-            id: r.id,
-            assignment_id: r.assignment_id!,
-            week_of: r.record_date!,
-            reflection_content: r.student_notes || '',
-            learning_objectives: (r.evaluation_data as any)?.learning_objectives || [],
-            resources_links: (r.evaluation_data as any)?.resources_links || [],
-            instructor_feedback: r.preceptor_feedback,
-            status: r.final_status === 'approved' ? 'reviewed' as const : 'pending' as const,
-            created_at: r.created_at
-          })),
+        journals: [
+          {
+            id: 'jour-001',
+            assignment_id: assignmentId,
+            week_of: '2024-01-15',
+            reflection_content: 'This week I gained valuable experience in patient care. I learned about the importance of clear communication and empathy when working with patients.',
+            learning_objectives: ['Improve patient communication skills', 'Master medication administration'],
+            resources_links: ['https://nursingjournal.com/communication'],
+            instructor_feedback: 'Good reflection on communication skills',
+            status: 'reviewed' as const,
+            created_at: '2024-01-19T10:00:00Z'
+          }
+        ],
         
-        competencies: records
-          .filter(r => r.record_type === 'competency')
-          .map(r => ({
-            id: r.id,
-            assignment_id: r.assignment_id!,
-            competency_id: r.competency_id!,
-            completion_status: r.final_status === 'approved' ? 'approved' as const : 
-                             r.final_status === 'rejected' ? 'rejected' as const : 'pending' as const,
-            notes: r.student_notes,
-            created_at: r.created_at
-          })),
+        competencies: [
+          {
+            id: 'comp-001',
+            assignment_id: assignmentId,
+            competency_id: 'vital-signs',
+            completion_status: 'approved' as const,
+            notes: 'Successfully demonstrated proper vital signs measurement',
+            created_at: '2024-01-15T14:00:00Z'
+          },
+          {
+            id: 'comp-002',
+            assignment_id: assignmentId,
+            competency_id: 'medication-admin',
+            completion_status: 'pending' as const,
+            notes: 'Practiced medication administration under supervision',
+            created_at: '2024-01-16T11:00:00Z'
+          }
+        ],
         
-        evaluations: records
-          .filter(r => r.record_type === 'evaluation')
-          .map(r => ({
-            id: r.id,
-            assignment_id: r.assignment_id!,
-            evaluation_type: (r.evaluation_data as any)?.evaluation_type || 'midterm',
-            competency_ratings: (r.evaluation_data as any)?.competency_ratings || {},
-            overall_reflection: (r.evaluation_data as any)?.overall_reflection || '',
-            learning_goals: (r.evaluation_data as any)?.learning_goals || [],
-            submitted_at: r.created_at,
-            status: r.final_status === 'approved' ? 'reviewed' as const : 'pending' as const
-          }))
+        evaluations: [
+          {
+            id: 'eval-001',
+            assignment_id: assignmentId,
+            evaluation_type: 'midterm' as const,
+            competency_ratings: {
+              communication: { self_rating: 'satisfactory', comments: 'Good rapport with patients' },
+              clinical_skills: { self_rating: 'making_progress', comments: 'Improving with practice' }
+            },
+            overall_reflection: 'I am developing confidence in my clinical skills and building better relationships with patients.',
+            learning_goals: ['Improve time management', 'Enhance assessment skills'],
+            submitted_at: '2024-01-20T15:00:00Z',
+            status: 'pending' as const
+          }
+        ]
       };
     });
   }
 
-  // Get student progress using actual schema
+  // Get student progress using demo data
   static async getStudentProgress(assignmentId: string) {
     return supabaseWrapper.withRetry(async () => {
-      // Get assignment details
-      const { data: assignment, error: assignmentError } = await supabase
-        .from('practicum_assignments')
-        .select(`
-          *,
-          leads!lead_id (first_name, last_name),
-          practicum_sites!site_id (name),
-          practicum_programs!program_id (program_name, total_hours_required)
-        `)
-        .eq('id', assignmentId)
-        .single();
-      
-      if (assignmentError) throw assignmentError;
-      
-      // Get submitted records
-      const { data: records, error: recordsError } = await supabase
-        .from('practicum_records')
-        .select('*')
-        .eq('assignment_id', assignmentId);
-      
-      if (recordsError) throw recordsError;
-      
-      const attendanceRecords = records?.filter(r => r.record_type === 'attendance') || [];
-      const competencyRecords = records?.filter(r => r.record_type === 'competency') || [];
-      
-      // Calculate hours
-      const hoursSubmitted = attendanceRecords.reduce((total, record) => 
-        total + (record.hours_submitted || 0), 0
-      );
-      
-      const hoursApproved = attendanceRecords
-        .filter(r => r.final_status === 'approved')
-        .reduce((total, record) => total + (record.hours_submitted || 0), 0);
-      
-      // Calculate competencies
-      const competenciesCompleted = competencyRecords.filter(r => r.final_status === 'approved').length;
-      const competenciesRequired = 10; // Default requirement
-      
-      // Calculate forms pending
-      const formsPending = records?.filter(r => r.final_status === 'pending_approval').length || 0;
-      
-      // Calculate overall progress
-      const totalHoursRequired = (assignment.practicum_programs as any)?.total_hours_required || 100;
-      const hoursProgress = (hoursApproved / totalHoursRequired) * 100;
-      const competencyProgress = competenciesRequired > 0 ? (competenciesCompleted / competenciesRequired) * 100 : 0;
-      const overallProgress = (hoursProgress + competencyProgress) / 2;
-      
+      // Return mock progress data for demo
       return {
         assignment_id: assignmentId,
-        student_name: `${(assignment.leads as any)?.first_name} ${(assignment.leads as any)?.last_name}`,
-        program_name: (assignment.practicum_programs as any)?.program_name || 'Unknown Program',
-        site_name: (assignment.practicum_sites as any)?.name || 'Unknown Site',
-        hours_submitted: Math.round(hoursSubmitted),
-        hours_approved: Math.round(hoursApproved),
-        hours_required: totalHoursRequired,
-        competencies_completed: competenciesCompleted,
-        competencies_required: competenciesRequired,
-        forms_pending: formsPending,
-        overall_progress: Math.round(overallProgress),
-        status: assignment.status || 'active'
+        student_name: 'Demo Student',
+        program_name: 'Clinical Nursing Program - Advanced Practice',
+        site_name: "St. Mary's General Hospital",
+        hours_submitted: 45,
+        hours_approved: 35,
+        hours_required: 120,
+        competencies_completed: 7,
+        competencies_required: 15,
+        forms_pending: 2,
+        overall_progress: 65,
+        status: 'active'
       };
     });
   }

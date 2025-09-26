@@ -6,7 +6,8 @@ import { Progress } from "@/components/ui/progress";
 import { Calendar } from "@/components/ui/calendar";
 import { GlassCard } from "@/components/modern/GlassCard";
 import { motion } from "framer-motion";
-import { BookOpen, Clock, CheckCircle, AlertCircle, Calendar as CalendarIcon, GraduationCap, PlayCircle, FileText, Users, MapPin, Star, Target, ArrowRight, Trophy } from "lucide-react";
+import { BookOpen, Clock, CheckCircle, AlertCircle, Calendar as CalendarIcon, GraduationCap, PlayCircle, FileText, Users, MapPin, Star, Target, ArrowRight, Trophy, ExternalLink, Info } from "lucide-react";
+import { Link } from "react-router-dom";
 import { dummyAcademicPlan } from "@/data/studentPortalDummyData";
 
 const AcademicPlanning: React.FC = () => {
@@ -301,8 +302,39 @@ const AcademicPlanning: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <h2 className="text-2xl font-bold text-foreground mb-2">Course Overview</h2>
-            <p className="text-muted-foreground">Detailed information about each course in your program</p>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground mb-2">Course Overview</h2>
+                <p className="text-muted-foreground">Detailed information about each course in your program</p>
+              </div>
+            </div>
+
+            {/* HCA Program Notice */}
+            <GlassCard className="mb-8 border border-primary/20 bg-primary/5">
+              <div className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
+                    <Info className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-foreground mb-2">
+                      Currently Viewing: Health Care Assistant (HCA) Program
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      You are currently applying for the HCA program, which is why you're seeing HCA-specific courses below. 
+                      This program is designed to prepare you for a rewarding career in healthcare assistance.
+                    </p>
+                    <Link to="/student/course-catalog">
+                      <Button variant="outline" size="sm" className="flex items-center gap-2">
+                        <BookOpen className="h-4 w-4" />
+                        Explore Other Programs
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </GlassCard>
           </motion.div>
 
           <div className="grid gap-8 lg:grid-cols-2">

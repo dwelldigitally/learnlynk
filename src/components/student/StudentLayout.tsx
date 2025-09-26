@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Mail, Bell, Plus, Home, FileText, ClipboardList, Calendar, DollarSign, Briefcase, CreditCard, Newspaper, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Mail, Bell, Plus, Home, FileText, ClipboardList, Calendar, DollarSign, Briefcase, CreditCard, Newspaper, MapPin, ChevronLeft, ChevronRight, BookOpen, GraduationCap, HelpCircle, Phone, Building } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { useProfile } from "@/hooks/useProfile";
@@ -61,6 +61,16 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
       icon: Calendar,
       description: "Plan your academic journey"
     }, {
+      name: "Course Catalog",
+      path: "/student/course-catalog",
+      icon: BookOpen,
+      description: "Browse available courses"
+    }, {
+      name: "Grades",
+      path: "/student/grades",
+      icon: GraduationCap,
+      description: "View your academic progress"
+    }, {
       name: "Financial Aid",
       path: "/student/financial-aid",
       icon: DollarSign,
@@ -75,6 +85,25 @@ const StudentLayout: React.FC<StudentLayoutProps> = ({
       path: "/student/practicum",
       icon: ClipboardList,
       description: "Track practicum progress"
+    }]
+  }, {
+    id: "student-services",
+    title: "Student Services",
+    items: [{
+      name: "Student Support",
+      path: "/student/support",
+      icon: HelpCircle,
+      description: "Get help and assistance"
+    }, {
+      name: "Emergency Contacts",
+      path: "/student/emergency-contacts",
+      icon: Phone,
+      description: "Important contact information"
+    }, {
+      name: "Housing",
+      path: "/student/housing",
+      icon: Building,
+      description: "Accommodation information"
     }]
   }, {
     id: "campus-life",

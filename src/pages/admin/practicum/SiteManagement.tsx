@@ -8,11 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Users, Building, Plus, Search, Edit, Trash2, Eye, Map as MapIcon, BookOpen } from 'lucide-react';
+import { MapPin, Users, Building, Plus, Search, Edit, Trash2, Eye, Map as MapIcon, BookOpen, UserCheck } from 'lucide-react';
 import { usePracticumSites, usePracticumSiteMutations, usePracticumPrograms } from '@/hooks/usePracticum';
 import { useAuth } from '@/contexts/AuthContext';
 import Map from '@/components/Map';
 import type { PracticumSiteInsert } from '@/types/practicum';
+import { PreceptorManagement } from '@/components/admin/practicum/PreceptorManagement';
 
 export function SiteManagement() {
   const { session } = useAuth();
@@ -24,6 +25,7 @@ export function SiteManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSite, setEditingSite] = useState<string | null>(null);
+  const [selectedSiteForPreceptors, setSelectedSiteForPreceptors] = useState<{id: string, name: string} | null>(null);
   const [selectedPrograms, setSelectedPrograms] = useState<string[]>([]);
   const [formData, setFormData] = useState<Partial<PracticumSiteInsert>>({
     name: '',
@@ -473,6 +475,14 @@ export function SiteManagement() {
                       <Eye className="h-3 w-3 mr-1" />
                       View
                     </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => setSelectedSiteForPreceptors({id: site.id, name: site.name})}
+                    >
+                      <UserCheck className="h-3 w-3 mr-1" />
+                      Preceptors
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -523,6 +533,24 @@ export function SiteManagement() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Preceptor Management Dialog */}
+      <Dialog 
+        open={!!selectedSiteForPreceptors} 
+        onOpenChange={(open) => !open && setSelectedSiteForPreceptors(null)}
+      >
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Preceptors</DialogTitle>
+          </DialogHeader>
+          {selectedSiteForPreceptors && (
+            <PreceptorManagement 
+              siteId={selectedSiteForPreceptors.id}
+              siteName={selectedSiteForPreceptors.name}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

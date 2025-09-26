@@ -5206,6 +5206,101 @@ export type Database = {
         }
         Relationships: []
       }
+      preceptors: {
+        Row: {
+          availability_notes: string | null
+          bio: string | null
+          communication_preferences: Json | null
+          created_at: string
+          current_students: number | null
+          department: string | null
+          email: string
+          emergency_contact_name: string | null
+          emergency_contact_phone: string | null
+          first_name: string
+          id: string
+          is_active: boolean | null
+          is_primary_contact: boolean | null
+          last_name: string
+          license_expiry: string | null
+          license_number: string | null
+          max_students: number | null
+          phone: string | null
+          qualifications: Json | null
+          schedule_preferences: Json | null
+          site_id: string
+          specialization: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          years_experience: number | null
+        }
+        Insert: {
+          availability_notes?: string | null
+          bio?: string | null
+          communication_preferences?: Json | null
+          created_at?: string
+          current_students?: number | null
+          department?: string | null
+          email: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name: string
+          id?: string
+          is_active?: boolean | null
+          is_primary_contact?: boolean | null
+          last_name: string
+          license_expiry?: string | null
+          license_number?: string | null
+          max_students?: number | null
+          phone?: string | null
+          qualifications?: Json | null
+          schedule_preferences?: Json | null
+          site_id: string
+          specialization?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          years_experience?: number | null
+        }
+        Update: {
+          availability_notes?: string | null
+          bio?: string | null
+          communication_preferences?: Json | null
+          created_at?: string
+          current_students?: number | null
+          department?: string | null
+          email?: string
+          emergency_contact_name?: string | null
+          emergency_contact_phone?: string | null
+          first_name?: string
+          id?: string
+          is_active?: boolean | null
+          is_primary_contact?: boolean | null
+          last_name?: string
+          license_expiry?: string | null
+          license_number?: string | null
+          max_students?: number | null
+          phone?: string | null
+          qualifications?: Json | null
+          schedule_preferences?: Json | null
+          site_id?: string
+          specialization?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_preceptors_site_id"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

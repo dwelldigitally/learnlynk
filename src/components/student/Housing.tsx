@@ -120,7 +120,7 @@ const mockApplications: HousingApplication[] = [
   }
 ];
 
-export default function Housing() {
+const Housing = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [priceRange, setPriceRange] = useState('all');
   const [housingType, setHousingType] = useState('all');
@@ -528,3 +528,5 @@ export default function Housing() {
     </div>
   );
 }
+
+export default Housing;

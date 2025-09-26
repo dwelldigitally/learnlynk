@@ -85,6 +85,8 @@ export const studentPortalRoutes: RouteConfig[] = [
   { path: "/student/support", component: StudentSupport },
   { path: "/student/emergency-contacts", component: EmergencyContacts },
   { path: "/student/housing", component: Housing },
+  { path: "/student/course-catalog", component: CourseCatalog },
+  { path: "/student/grades", component: StudentGrades },
 ];
 
 /**

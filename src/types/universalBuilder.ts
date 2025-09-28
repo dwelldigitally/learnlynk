@@ -1,4 +1,4 @@
-export type BuilderType = 'form' | 'workflow' | 'campaign' | 'journey';
+export type BuilderType = 'form' | 'workflow' | 'campaign' | 'journey' | 'practicum';
 
 export interface BaseElement {
   id: string;
@@ -55,7 +55,29 @@ export interface JourneyElement extends BaseElement {
   notificationType?: string;
 }
 
-export type UniversalElement = FormElement | WorkflowElement | CampaignElement | JourneyElement;
+export interface PracticumElement extends BaseElement {
+  elementType: 'practicum';
+  type: 'agreement-signing' | 'attendance-logging' | 'competency-assessment' | 'journal-entry' | 
+        'evaluation-form' | 'document-upload';
+  contractType?: string;
+  requiresDigitalSignature?: boolean;
+  expirationPeriod?: number;
+  clockInMethod?: string;
+  minimumHours?: number;
+  requiresSupervisorApproval?: boolean;
+  competencyFramework?: string;
+  evaluationMethod?: string;
+  passingScore?: number;
+  entryFrequency?: string;
+  minimumWordCount?: number;
+  evaluationType?: string;
+  evaluatorRole?: string;
+  documentType?: string;
+  requiresApproval?: boolean;
+  approvers?: string[];
+}
+
+export type UniversalElement = FormElement | WorkflowElement | CampaignElement | JourneyElement | PracticumElement;
 
 export interface BuilderConfig {
   id?: string;

@@ -279,6 +279,200 @@ export const campaignElementTypes: ElementTypeConfig[] = [
 ];
 
 // Journey Element Types - NEW!
+// Practicum Element Types - NEW!
+export const practicumElementTypes: ElementTypeConfig[] = [
+  // Agreement & Setup
+  {
+    type: 'agreement-signing',
+    label: 'Agreement Signing',
+    icon: 'FileSignature',
+    category: 'Setup',
+    defaultConfig: {
+      contractType: 'practicum',
+      requiresDigitalSignature: true,
+      expirationPeriod: 365,
+      approvers: ['preceptor', 'instructor']
+    },
+    configSchema: [
+      { 
+        key: 'contractType', 
+        label: 'Contract Type', 
+        type: 'select',
+        options: [
+          { label: 'Standard Practicum', value: 'practicum' },
+          { label: 'Clinical Rotation', value: 'clinical' },
+          { label: 'Internship', value: 'internship' }
+        ]
+      },
+      { key: 'requiresDigitalSignature', label: 'Digital Signature Required', type: 'checkbox' },
+      { key: 'expirationPeriod', label: 'Validity Period (days)', type: 'number' },
+      { key: 'instructions', label: 'Signing Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'attendance-logging',
+    label: 'Attendance Logging',
+    icon: 'Clock',
+    category: 'Tracking',
+    defaultConfig: {
+      clockInMethod: 'manual',
+      minimumHours: 40,
+      requiresSupervisorApproval: true,
+      trackingFrequency: 'daily'
+    },
+    configSchema: [
+      {
+        key: 'clockInMethod',
+        label: 'Clock-in Method',
+        type: 'select',
+        options: [
+          { label: 'Manual Entry', value: 'manual' },
+          { label: 'QR Code', value: 'qr' },
+          { label: 'GPS Location', value: 'gps' }
+        ]
+      },
+      { key: 'minimumHours', label: 'Minimum Hours Required', type: 'number' },
+      { key: 'requiresSupervisorApproval', label: 'Supervisor Approval Required', type: 'checkbox' },
+      { key: 'instructions', label: 'Attendance Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'competency-assessment',
+    label: 'Competency Assessment',
+    icon: 'CheckSquare',
+    category: 'Evaluation',
+    defaultConfig: {
+      competencyFramework: 'nursing',
+      evaluationMethod: 'checklist',
+      passingScore: 70,
+      allowMultipleAttempts: true
+    },
+    configSchema: [
+      {
+        key: 'competencyFramework',
+        label: 'Competency Framework',
+        type: 'select',
+        options: [
+          { label: 'Nursing Competencies', value: 'nursing' },
+          { label: 'Medical Assistant', value: 'medical' },
+          { label: 'Allied Health', value: 'allied' },
+          { label: 'Custom Framework', value: 'custom' }
+        ]
+      },
+      {
+        key: 'evaluationMethod',
+        label: 'Evaluation Method',
+        type: 'select',
+        options: [
+          { label: 'Checklist', value: 'checklist' },
+          { label: 'Rubric Scoring', value: 'rubric' },
+          { label: 'Narrative Assessment', value: 'narrative' }
+        ]
+      },
+      { key: 'passingScore', label: 'Passing Score (%)', type: 'number' },
+      { key: 'allowMultipleAttempts', label: 'Allow Multiple Attempts', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'journal-entry',
+    label: 'Journal Entry',
+    icon: 'BookOpen',
+    category: 'Reflection',
+    defaultConfig: {
+      entryFrequency: 'weekly',
+      minimumWordCount: 250,
+      reflectionPrompts: [],
+      requiresFeedback: true
+    },
+    configSchema: [
+      {
+        key: 'entryFrequency',
+        label: 'Entry Frequency',
+        type: 'select',
+        options: [
+          { label: 'Daily', value: 'daily' },
+          { label: 'Weekly', value: 'weekly' },
+          { label: 'Bi-weekly', value: 'biweekly' },
+          { label: 'As Needed', value: 'flexible' }
+        ]
+      },
+      { key: 'minimumWordCount', label: 'Minimum Word Count', type: 'number' },
+      { key: 'requiresFeedback', label: 'Instructor Feedback Required', type: 'checkbox' },
+      { key: 'instructions', label: 'Journal Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'evaluation-form',
+    label: 'Evaluation Form',
+    icon: 'Award',
+    category: 'Evaluation',
+    defaultConfig: {
+      evaluationType: 'midterm',
+      evaluatorRole: 'preceptor',
+      scoringMethod: 'numerical',
+      weightedScore: 100
+    },
+    configSchema: [
+      {
+        key: 'evaluationType',
+        label: 'Evaluation Type',
+        type: 'select',
+        options: [
+          { label: 'Initial Assessment', value: 'initial' },
+          { label: 'Midterm Evaluation', value: 'midterm' },
+          { label: 'Final Evaluation', value: 'final' },
+          { label: 'Continuous Assessment', value: 'continuous' }
+        ]
+      },
+      {
+        key: 'evaluatorRole',
+        label: 'Primary Evaluator',
+        type: 'select',
+        options: [
+          { label: 'Preceptor', value: 'preceptor' },
+          { label: 'Instructor', value: 'instructor' },
+          { label: 'Site Coordinator', value: 'coordinator' },
+          { label: 'Multiple Evaluators', value: 'multiple' }
+        ]
+      },
+      { key: 'weightedScore', label: 'Weight in Final Grade (%)', type: 'number' },
+      { key: 'instructions', label: 'Evaluation Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'document-upload',
+    label: 'Document Upload',
+    icon: 'FileText',
+    category: 'Requirements',
+    defaultConfig: {
+      documentType: 'general',
+      required: true,
+      acceptedFormats: ['.pdf', '.doc', '.docx'],
+      maxFileSize: 10,
+      requiresApproval: true
+    },
+    configSchema: [
+      {
+        key: 'documentType',
+        label: 'Document Type',
+        type: 'select',
+        options: [
+          { label: 'Health Records', value: 'health' },
+          { label: 'Immunization Records', value: 'immunization' },
+          { label: 'Background Check', value: 'background' },
+          { label: 'Liability Insurance', value: 'insurance' },
+          { label: 'Skills Checklist', value: 'skills' },
+          { label: 'Other', value: 'general' }
+        ]
+      },
+      { key: 'required', label: 'Required Document', type: 'checkbox' },
+      { key: 'requiresApproval', label: 'Requires Approval', type: 'checkbox' },
+      { key: 'maxFileSize', label: 'Max File Size (MB)', type: 'number' },
+      { key: 'instructions', label: 'Upload Instructions', type: 'textarea' }
+    ]
+  }
+];
+
 export const journeyElementTypes: ElementTypeConfig[] = [
   // Interview Steps
   {

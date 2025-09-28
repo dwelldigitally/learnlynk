@@ -17,7 +17,7 @@ import { PreviewPanel } from './PreviewPanel';
 import { JourneyElementPalette } from '@/components/journey-builder/JourneyElementPalette';
 import { JourneyPropertyPanel } from '@/components/journey-builder/JourneyPropertyPanel';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
-import { getElementTypesForBuilder } from '@/config/elementTypes';
+import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
 import { 
   Play, 
   Save, 
@@ -74,8 +74,25 @@ function UniversalBuilderContent({
     }
   }, [initialConfig, builderType, dispatch]);
 
+  const getElementTypes = () => {
+    switch (state.config.type) {
+      case 'form':
+        return formElementTypes;
+      case 'workflow':
+        return workflowElementTypes;
+      case 'campaign':
+        return campaignElementTypes;
+      case 'journey':
+        return journeyElementTypes;
+      case 'practicum':
+        return practicumElementTypes;
+      default:
+        return [];
+    }
+  };
+
   const handleAddElement = (elementType: string) => {
-    const elementTypes = getElementTypesForBuilder(state.config.type);
+    const elementTypes = getElementTypes();
     const elementTypeConfig = elementTypes.find(type => type.type === elementType);
     
     if (!elementTypeConfig) return;
@@ -145,6 +162,8 @@ function UniversalBuilderContent({
         return 'Campaign Builder';
       case 'journey':
         return 'Journey Builder';
+      case 'practicum':
+        return 'Practicum Journey Builder';
       default:
         return 'Universal Builder';
     }

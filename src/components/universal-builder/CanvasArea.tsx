@@ -182,6 +182,8 @@ function getDefaultElementType(builderType: string): string {
       return 'email';
     case 'journey':
       return 'phone-interview';
+    case 'practicum':
+      return 'agreement-signing';
     default:
       return 'text';
   }

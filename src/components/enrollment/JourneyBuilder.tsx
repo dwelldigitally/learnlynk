@@ -1,10 +1,10 @@
 import React from 'react';
-import { ModernJourneyBuilder } from './ModernJourneyBuilder';
+import { HubSpotJourneyBuilder } from './HubSpotJourneyBuilder';
 
 interface JourneyBuilderProps {
   onBack: () => void;
 }
 
 export function JourneyBuilder({ onBack }: JourneyBuilderProps) {
-  return <ModernJourneyBuilder onBack={onBack} />;
+  return <HubSpotJourneyBuilder onBack={onBack} />;
 }

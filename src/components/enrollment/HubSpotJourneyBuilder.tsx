@@ -10,13 +10,20 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { 
   ArrowLeft, Plus, Trash2, Edit3, GripVertical, 
   Phone, Video, Users, FileText, CheckSquare, 
   Keyboard, Brain, Target, Eye, Bell, Clock,
   Save, Play, Settings, Users2, BookOpen,
   ArrowDown, ArrowRight, Zap, Filter,
-  MoreHorizontal, Copy, TestTube, Calendar
+  MoreHorizontal, Copy, TestTube, Calendar as CalendarIcon,
+  AlertTriangle, Timer,
+  CheckCircle, SkipForward, Mail, Sparkles
 } from 'lucide-react';
 import { BuilderConfig, JourneyElement, UniversalElement } from '@/types/universalBuilder';
 import { journeyElementTypes } from '@/config/elementTypes';
@@ -534,85 +541,393 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
             
             <ScrollArea className="flex-1">
               <div className="p-4 space-y-6">
-                <div>
-                  <Label htmlFor="stepTitle" className="text-sm font-medium text-slate-700">Step name</Label>
-                  <Input
-                    id="stepTitle"
-                    value={selectedStep.title}
-                    onChange={(e) => dispatch({
-                      type: 'UPDATE_ELEMENT',
-                      payload: { 
-                        id: selectedStep.id, 
-                        updates: { title: e.target.value } 
-                      }
-                    })}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="stepDescription" className="text-sm font-medium text-slate-700">Description</Label>
-                  <Textarea
-                    id="stepDescription"
-                    value={selectedStep.description || ''}
-                    onChange={(e) => dispatch({
-                      type: 'UPDATE_ELEMENT',
-                      payload: { 
-                        id: selectedStep.id, 
-                        updates: { description: e.target.value } 
-                      }
-                    })}
-                    rows={3}
-                    className="mt-1"
-                  />
-                </div>
-
-                <div>
-                  <Label className="text-sm font-medium text-slate-700">Required step</Label>
-                  <div className="mt-2">
-                    <Select
-                      value={selectedStep.config?.required !== false ? 'true' : 'false'}
-                      onValueChange={(value) => dispatch({
-                        type: 'UPDATE_ELEMENT',
-                        payload: { 
-                          id: selectedStep.id, 
-                          updates: { 
-                            config: { ...selectedStep.config, required: value === 'true' } 
-                          } 
-                        }
-                      })}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="true">Required</SelectItem>
-                        <SelectItem value="false">Optional</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {selectedStep.config?.duration !== undefined && (
+                {/* Basic Information */}
+                <div className="space-y-4">
                   <div>
-                    <Label htmlFor="stepDuration" className="text-sm font-medium text-slate-700">Duration (minutes)</Label>
+                    <Label htmlFor="stepTitle" className="text-sm font-medium text-slate-700">Step name</Label>
                     <Input
-                      id="stepDuration"
-                      type="number"
-                      value={selectedStep.config.duration || ''}
+                      id="stepTitle"
+                      value={selectedStep.title}
                       onChange={(e) => dispatch({
                         type: 'UPDATE_ELEMENT',
                         payload: { 
                           id: selectedStep.id, 
-                          updates: { 
-                            config: { ...selectedStep.config, duration: parseInt(e.target.value) || 0 } 
-                          } 
+                          updates: { title: e.target.value } 
                         }
                       })}
                       className="mt-1"
                     />
                   </div>
-                )}
+
+                  <div>
+                    <Label htmlFor="stepDescription" className="text-sm font-medium text-slate-700">Description</Label>
+                    <Textarea
+                      id="stepDescription"
+                      value={selectedStep.description || ''}
+                      onChange={(e) => dispatch({
+                        type: 'UPDATE_ELEMENT',
+                        payload: { 
+                          id: selectedStep.id, 
+                          updates: { description: e.target.value } 
+                        }
+                      })}
+                      rows={3}
+                      className="mt-1"
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Timing & Benchmarks */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Timer className="h-4 w-4 text-slate-600" />
+                    <h4 className="font-medium text-slate-900">Timing & Benchmarks</h4>
+                    <Button variant="ghost" size="sm" className="text-xs text-blue-600 hover:text-blue-700 ml-auto">
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      AI Suggest
+                    </Button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-sm text-slate-600">Expected Duration</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          type="number"
+                          value={selectedStep.config?.expectedDuration || '3'}
+                          onChange={(e) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, expectedDuration: parseInt(e.target.value) || 3 } 
+                              } 
+                            }
+                          })}
+                          className="flex-1"
+                          min="1"
+                        />
+                        <span className="text-sm text-slate-500">days</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm text-slate-600">Maximum Duration</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          type="number"
+                          value={selectedStep.config?.maximumDuration || '7'}
+                          onChange={(e) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, maximumDuration: parseInt(e.target.value) || 7 } 
+                              } 
+                            }
+                          })}
+                          className="flex-1"
+                          min="1"
+                        />
+                        <span className="text-sm text-slate-500">days</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-sm text-slate-600">Step Deadline</Label>
+                      <div className="mt-1">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className="w-full justify-start text-left font-normal"
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {selectedStep.config?.deadline ? format(new Date(selectedStep.config.deadline), "PPP") : "Set step deadline"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedStep.config?.deadline ? new Date(selectedStep.config.deadline) : undefined}
+                              onSelect={(date) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, deadline: date?.toISOString() } 
+                                  } 
+                                }
+                              })}
+                              disabled={(date) => date < new Date()}
+                              initialFocus
+                              className={cn("p-3 pointer-events-auto")}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm text-slate-600">Priority Level</Label>
+                      <Select
+                        value={selectedStep.config?.priority || 'medium'}
+                        onValueChange={(value) => dispatch({
+                          type: 'UPDATE_ELEMENT',
+                          payload: { 
+                            id: selectedStep.id, 
+                            updates: { 
+                              config: { ...selectedStep.config, priority: value } 
+                            } 
+                          }
+                        })}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low Priority</SelectItem>
+                          <SelectItem value="medium">Medium Priority</SelectItem>
+                          <SelectItem value="high">High Priority</SelectItem>
+                          <SelectItem value="urgent">Urgent Priority</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-sm text-slate-600">Stall Alert After</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          type="number"
+                          value={selectedStep.config?.stallAlert || '5'}
+                          onChange={(e) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, stallAlert: parseInt(e.target.value) || 5 } 
+                              } 
+                            }
+                          })}
+                          className="flex-1"
+                          min="1"
+                        />
+                        <span className="text-sm text-slate-500">days</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label className="text-sm text-slate-600">Escalation After</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Input
+                          type="number"
+                          value={selectedStep.config?.escalationAfter || '10'}
+                          onChange={(e) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, escalationAfter: parseInt(e.target.value) || 10 } 
+                              } 
+                            }
+                          })}
+                          className="flex-1"
+                          min="1"
+                        />
+                        <span className="text-sm text-slate-500">days</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Step Behavior */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-slate-600" />
+                    <h4 className="font-medium text-slate-900">Step Behavior</h4>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium text-slate-700">Required Step</Label>
+                        <p className="text-xs text-slate-500">Students cannot progress until this step is completed</p>
+                      </div>
+                      <Switch
+                        checked={selectedStep.config?.required !== false}
+                        onCheckedChange={(checked) => dispatch({
+                          type: 'UPDATE_ELEMENT',
+                          payload: { 
+                            id: selectedStep.id, 
+                            updates: { 
+                              config: { ...selectedStep.config, required: checked } 
+                            } 
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium text-slate-700">Auto-advance</Label>
+                        <p className="text-xs text-slate-500">Automatically advance when step is completed</p>
+                      </div>
+                      <Switch
+                        checked={selectedStep.config?.autoAdvance || false}
+                        onCheckedChange={(checked) => dispatch({
+                          type: 'UPDATE_ELEMENT',
+                          payload: { 
+                            id: selectedStep.id, 
+                            updates: { 
+                              config: { ...selectedStep.config, autoAdvance: checked } 
+                            } 
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium text-slate-700">Allow Skip</Label>
+                        <p className="text-xs text-slate-500">Allow administrators to skip this step</p>
+                      </div>
+                      <Switch
+                        checked={selectedStep.config?.allowSkip || false}
+                        onCheckedChange={(checked) => dispatch({
+                          type: 'UPDATE_ELEMENT',
+                          payload: { 
+                            id: selectedStep.id, 
+                            updates: { 
+                              config: { ...selectedStep.config, allowSkip: checked } 
+                            } 
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <Label className="text-sm font-medium text-slate-700">Send Reminders</Label>
+                        <p className="text-xs text-slate-500">Send automated reminders for this step</p>
+                      </div>
+                      <Switch
+                        checked={selectedStep.config?.sendReminders !== false}
+                        onCheckedChange={(checked) => dispatch({
+                          type: 'UPDATE_ELEMENT',
+                          payload: { 
+                            id: selectedStep.id, 
+                            updates: { 
+                              config: { ...selectedStep.config, sendReminders: checked } 
+                            } 
+                          }
+                        })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Step-Specific Configuration */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Settings className="h-4 w-4 text-slate-600" />
+                    <h4 className="font-medium text-slate-900">Step-Specific Configuration</h4>
+                  </div>
+
+                  {/* Dynamic configuration based on step type */}
+                  {selectedStep.type === 'document-upload' && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-sm text-slate-600">Document Type</Label>
+                        <Select
+                          value={selectedStep.config?.documentType || 'resume'}
+                          onValueChange={(value) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, documentType: value } 
+                              } 
+                            }
+                          })}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="resume">Resume/CV</SelectItem>
+                            <SelectItem value="transcript">Transcript</SelectItem>
+                            <SelectItem value="portfolio">Portfolio</SelectItem>
+                            <SelectItem value="certification">Certification</SelectItem>
+                            <SelectItem value="other">Other Documents</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedStep.type === 'verification' && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-sm text-slate-600">Verification Type</Label>
+                        <Select
+                          value={selectedStep.config?.verificationType || 'identity'}
+                          onValueChange={(value) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, verificationType: value } 
+                              } 
+                            }
+                          })}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="identity">Identity Verification</SelectItem>
+                            <SelectItem value="background">Background Check</SelectItem>
+                            <SelectItem value="reference">Reference Check</SelectItem>
+                            <SelectItem value="credential">Credential Verification</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+
+                  {(selectedStep.type.includes('interview') || selectedStep.type.includes('test')) && (
+                    <div className="space-y-3">
+                      <div>
+                        <Label className="text-sm text-slate-600">Duration (minutes)</Label>
+                        <Input
+                          type="number"
+                          value={selectedStep.config?.duration || '30'}
+                          onChange={(e) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, duration: parseInt(e.target.value) || 30 } 
+                              } 
+                            }
+                          })}
+                          className="mt-1"
+                          min="1"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </ScrollArea>
           </div>

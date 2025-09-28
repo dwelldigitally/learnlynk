@@ -30,6 +30,23 @@ export interface Program {
   // Intake dates
   intakes: ProgramIntake[];
   
+  // Practicum configuration
+  practicum?: {
+    enabled: boolean;
+    duration_weeks: number;
+    total_hours_required: number;
+    start_timing: string;
+    document_requirements: string[];
+    assigned_sites: string[]; // site IDs
+    journey_id?: string;
+    competencies_required: Array<{
+      name: string;
+      category: string;
+      assessment_method: string;
+      required: boolean;
+    }>;
+  };
+  
   // Metadata
   createdAt: string;
   updatedAt: string;

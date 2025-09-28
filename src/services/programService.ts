@@ -44,6 +44,7 @@ export class ProgramService {
       document_requirements: program.documentRequirements || [],
       fee_structure: program.feeStructure || {},
       custom_questions: program.customQuestions || [],
+      practicum_config: program.practicum || null,
       metadata: {
         images: program.images || [],
         campus: program.campus || [],
@@ -72,6 +73,8 @@ export class ProgramService {
       throw error;
     }
 
+    // TODO: Handle practicum program creation in future enhancement
+
     return data;
   }
 
@@ -94,6 +97,7 @@ export class ProgramService {
       document_requirements: program.documentRequirements || program.document_requirements,
       fee_structure: program.feeStructure || program.fee_structure,
       custom_questions: program.customQuestions || program.custom_questions,
+      practicum_config: program.practicum !== undefined ? program.practicum : undefined,
       metadata: {
         ...(program.metadata || {}),
         images: program.images || [],
@@ -127,6 +131,8 @@ export class ProgramService {
       console.error('Error updating program:', error);
       throw error;
     }
+
+    // TODO: Handle practicum program updates in future enhancement
 
     return data;
   }

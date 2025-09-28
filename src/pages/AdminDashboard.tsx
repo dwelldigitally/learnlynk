@@ -40,7 +40,7 @@ import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
 import { PracticumDashboard } from './admin/practicum/PracticumDashboard';
 import { SiteManagement } from './admin/practicum/SiteManagement';
-import { ProgramManagement as PracticumProgramManagement } from './admin/practicum/ProgramManagement';
+
 import { JourneyConfiguration } from './admin/practicum/JourneyConfiguration';
 import { CompetencyTracker } from './admin/practicum/CompetencyTracker';
 import { StudentProgress } from './admin/practicum/StudentProgress';
@@ -221,8 +221,6 @@ const AdminDashboard: React.FC = () => {
         return <PracticumDashboard />;
       case "/admin/practicum/sites":
         return <SiteManagement />;
-      case "/admin/practicum/programs":
-        return <PracticumProgramManagement />;
       case "/admin/practicum/journeys":
         return <JourneyConfiguration />;
       case "/admin/practicum/competencies":

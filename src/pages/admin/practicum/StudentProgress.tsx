@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Clock, 
   Calendar, 
@@ -31,9 +32,24 @@ import {
   Mail,
   Phone,
   BookOpen,
-  Settings
+  Settings,
+  ChevronDown,
+  ChevronRight,
+  Users,
+  GraduationCap
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { PROGRAM_INTAKE_DATES } from '@/constants/intakeDates';
+
+interface StudentBatch {
+  intakeId: string;
+  intakeDate: string;
+  intakeLabel: string;
+  programName: string;
+  capacity: number;
+  enrolled: number;
+  students: StudentProgress[];
+}
 
 interface StudentProgress {
   id: string;
@@ -42,6 +58,8 @@ interface StudentProgress {
   phone?: string;
   avatar?: string;
   programName: string;
+  intakeId: string;
+  intakeDate: string;
   siteName: string;
   siteLocation: string;
   startDate: string;
@@ -51,19 +69,18 @@ interface StudentProgress {
   attendanceRate: number;
   competenciesCompleted: number;
   totalCompetencies: number;
-  currentStatus: 'active' | 'completed' | 'at_risk' | 'pending';
+  currentStatus: 'active' | 'at_risk' | 'completed' | 'on_hold';
   lastActivity: string;
   preceptorName: string;
   preceptorEmail: string;
   overallProgress: number;
-  gpa?: number;
+  gpa: number;
   midtermGrade?: number;
-  finalGrade?: number;
   upcomingDeadlines: Array<{
     type: string;
     description: string;
     dueDate: string;
-    priority: 'high' | 'medium' | 'low';
+    priority: 'low' | 'medium' | 'high';
   }>;
   recentActivities: Array<{
     type: string;
@@ -76,7 +93,7 @@ interface StudentProgress {
     evaluator: string;
     score: number;
     date: string;
-    feedback?: string;
+    feedback: string;
   }>;
   competencyDetails: Array<{
     category: string;
@@ -87,343 +104,165 @@ interface StudentProgress {
   }>;
 }
 
-const dummyStudentProgress: StudentProgress[] = [
-  {
-    id: '1',
-    studentName: 'Sarah Johnson',
-    email: 'sarah.johnson@email.com',
-    phone: '(555) 123-4567',
-    programName: 'Nursing Practicum',
-    siteName: 'General Hospital',
-    siteLocation: 'Metro City, CA',
-    startDate: '2024-08-15',
-    endDate: '2024-12-15',
-    totalHours: 480,
-    completedHours: 360,
-    attendanceRate: 95,
-    competenciesCompleted: 12,
-    totalCompetencies: 15,
-    currentStatus: 'active',
-    lastActivity: '2024-09-25',
-    preceptorName: 'Dr. Michael Chen',
-    preceptorEmail: 'michael.chen@hospital.com',
-    overallProgress: 75,
-    gpa: 3.8,
-    midtermGrade: 88,
-    upcomingDeadlines: [
-      {
-        type: 'competency',
-        description: 'Emergency Response Assessment',
-        dueDate: '2024-10-05',
-        priority: 'high'
-      },
-      {
-        type: 'evaluation',
-        description: 'Mid-term Evaluation',
-        dueDate: '2024-10-15',
-        priority: 'medium'
-      }
-    ],
-    recentActivities: [
-      {
-        type: 'attendance',
-        description: 'Submitted weekly hours log - 40 hours',
-        date: '2024-09-25',
-        status: 'approved'
-      },
-      {
-        type: 'competency',
-        description: 'Completed Patient Care Competency',
-        date: '2024-09-22',
-        status: 'passed'
-      },
-      {
-        type: 'evaluation',
-        description: 'Weekly check-in with preceptor',
-        date: '2024-09-20'
-      }
-    ],
-    evaluations: [
-      {
-        type: 'Weekly Evaluation',
-        evaluator: 'Dr. Michael Chen',
-        score: 92,
-        date: '2024-09-20',
-        feedback: 'Excellent patient interaction skills. Shows great improvement in clinical procedures.'
-      },
-      {
-        type: 'Peer Review',
-        evaluator: 'Nursing Staff',
-        score: 87,
-        date: '2024-09-15',
-        feedback: 'Works well with team, demonstrates professionalism.'
-      }
-    ],
-    competencyDetails: [
-      { category: 'Patient Care', name: 'Basic Patient Assessment', status: 'completed', score: 95, completedDate: '2024-09-01' },
-      { category: 'Patient Care', name: 'Medication Administration', status: 'completed', score: 88, completedDate: '2024-09-08' },
-      { category: 'Emergency', name: 'Emergency Response', status: 'in_progress' },
-      { category: 'Documentation', name: 'Patient Records', status: 'completed', score: 92, completedDate: '2024-09-15' },
-      { category: 'Communication', name: 'Patient Communication', status: 'completed', score: 94, completedDate: '2024-09-22' }
-    ]
-  },
-  {
-    id: '2',
-    studentName: 'Michael Rodriguez',
-    email: 'michael.rodriguez@email.com',
-    phone: '(555) 234-5678',
-    programName: 'Physical Therapy',
-    siteName: 'Rehabilitation Center',
-    siteLocation: 'Metro City, CA',
-    startDate: '2024-09-01',
-    endDate: '2024-11-30',
-    totalHours: 400,
-    completedHours: 120,
-    attendanceRate: 88,
-    competenciesCompleted: 4,
-    totalCompetencies: 12,
-    currentStatus: 'at_risk',
-    lastActivity: '2024-09-20',
-    preceptorName: 'Dr. Emma Williams',
-    preceptorEmail: 'emma.williams@rehab.com',
-    overallProgress: 30,
-    gpa: 3.2,
-    upcomingDeadlines: [
-      {
-        type: 'attendance',
-        description: 'Weekly Hours Log',
-        dueDate: '2024-09-30',
-        priority: 'high'
-      },
-      {
-        type: 'competency',
-        description: 'Manual Therapy Assessment',
-        dueDate: '2024-10-10',
-        priority: 'high'
-      }
-    ],
-    recentActivities: [
-      {
-        type: 'attendance',
-        description: 'Missed 2 days this week',
-        date: '2024-09-20',
-        status: 'flagged'
-      },
-      {
-        type: 'evaluation',
-        description: 'Concerns raised about punctuality',
-        date: '2024-09-18'
-      }
-    ],
-    evaluations: [
-      {
-        type: 'Weekly Evaluation',
-        evaluator: 'Dr. Emma Williams',
-        score: 72,
-        date: '2024-09-18',
-        feedback: 'Needs improvement in time management and attendance. Clinical skills are developing well.'
-      }
-    ],
-    competencyDetails: [
-      { category: 'Assessment', name: 'Patient Evaluation', status: 'completed', score: 78, completedDate: '2024-09-10' },
-      { category: 'Treatment', name: 'Exercise Prescription', status: 'in_progress' },
-      { category: 'Documentation', name: 'Treatment Notes', status: 'not_started' }
-    ]
-  },
-  {
-    id: '3',
-    studentName: 'Emily Chen',
-    email: 'emily.chen@email.com',
-    phone: '(555) 345-6789',
-    programName: 'Clinical Psychology',
-    siteName: 'Mental Health Center',
-    siteLocation: 'Metro City, CA',
-    startDate: '2024-07-01',
-    endDate: '2024-12-31',
-    totalHours: 600,
-    completedHours: 580,
-    attendanceRate: 98,
-    competenciesCompleted: 18,
-    totalCompetencies: 18,
-    currentStatus: 'completed',
-    lastActivity: '2024-09-24',
-    preceptorName: 'Dr. Lisa Rodriguez',
-    preceptorEmail: 'lisa.rodriguez@mhc.com',
-    overallProgress: 97,
-    gpa: 3.9,
-    midtermGrade: 94,
-    finalGrade: 96,
-    upcomingDeadlines: [],
-    recentActivities: [
-      {
-        type: 'completion',
-        description: 'Successfully completed all practicum requirements',
-        date: '2024-09-24',
-        status: 'completed'
-      },
-      {
-        type: 'evaluation',
-        description: 'Final evaluation completed',
-        date: '2024-09-20',
-        status: 'excellent'
-      }
-    ],
-    evaluations: [
-      {
-        type: 'Final Evaluation',
-        evaluator: 'Dr. Lisa Rodriguez',
-        score: 96,
-        date: '2024-09-20',
-        feedback: 'Outstanding performance throughout the practicum. Demonstrates excellent clinical judgment and interpersonal skills.'
-      }
-    ],
-    competencyDetails: [
-      { category: 'Assessment', name: 'Clinical Interview', status: 'completed', score: 96, completedDate: '2024-08-15' },
-      { category: 'Assessment', name: 'Psychological Testing', status: 'completed', score: 94, completedDate: '2024-08-30' },
-      { category: 'Treatment', name: 'Individual Therapy', status: 'completed', score: 98, completedDate: '2024-09-10' },
-      { category: 'Treatment', name: 'Group Therapy', status: 'completed', score: 92, completedDate: '2024-09-15' }
-    ]
+// Generate student batches from intake dates
+const generateStudentBatches = (): StudentBatch[] => {
+  const batches: StudentBatch[] = [];
+  
+  Object.entries(PROGRAM_INTAKE_DATES).forEach(([programName, intakes]) => {
+    intakes.forEach((intake) => {
+      const enrolledCount = Math.min(intake.enrolled + Math.floor(Math.random() * 5), intake.capacity);
+      const students = generateStudentsForIntake(intake.id, programName, intake.date, enrolledCount);
+      
+      batches.push({
+        intakeId: intake.id,
+        intakeDate: intake.date,
+        intakeLabel: intake.label,
+        programName,
+        capacity: intake.capacity,
+        enrolled: students.length,
+        students
+      });
+    });
+  });
+  
+  return batches.sort((a, b) => new Date(a.intakeDate).getTime() - new Date(b.intakeDate).getTime());
+};
+
+const generateStudentsForIntake = (intakeId: string, programName: string, intakeDate: string, count: number): StudentProgress[] => {
+  const firstNames = ['Sarah', 'Michael', 'Emily', 'David', 'Jessica', 'Robert', 'Ashley', 'Christopher', 'Amanda', 'Matthew'];
+  const lastNames = ['Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez'];
+  const sites = [
+    { name: 'General Hospital', location: 'Metro City, CA' },
+    { name: 'Community Health Center', location: 'Downtown, CA' },
+    { name: 'Children\'s Medical Center', location: 'Westside, CA' },
+    { name: 'Regional Medical Center', location: 'Northfield, CA' },
+    { name: 'Valley Health Clinic', location: 'Valley View, CA' }
+  ];
+
+  const students: StudentProgress[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+    const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+    const site = sites[Math.floor(Math.random() * sites.length)];
+    const completedHours = Math.floor(Math.random() * 400) + 50;
+    const totalHours = 480;
+    
+    students.push({
+      id: `${intakeId}-${i + 1}`,
+      studentName: `${firstName} ${lastName}`,
+      email: `${firstName.toLowerCase()}.${lastName.toLowerCase()}@email.com`,
+      phone: `(555) ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
+      programName,
+      intakeId,
+      intakeDate,
+      siteName: site.name,
+      siteLocation: site.location,
+      startDate: intakeDate,
+      endDate: new Date(new Date(intakeDate).getTime() + 120 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      totalHours,
+      completedHours,
+      attendanceRate: Math.floor(Math.random() * 15) + 85,
+      competenciesCompleted: Math.floor(Math.random() * 8) + 4,
+      totalCompetencies: 15,
+      currentStatus: Math.random() > 0.8 ? 'at_risk' : Math.random() > 0.1 ? 'active' : 'completed',
+      lastActivity: new Date(Date.now() - Math.floor(Math.random() * 10) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      preceptorName: `Dr. ${['Michael Chen', 'Sarah Wilson', 'David Thompson', 'Emily Rodriguez', 'Robert Johnson'][Math.floor(Math.random() * 5)]}`,
+      preceptorEmail: 'preceptor@site.com',
+      overallProgress: Math.floor((completedHours / totalHours) * 100),
+      gpa: Math.round((Math.random() * 1.5 + 2.5) * 10) / 10,
+      midtermGrade: Math.floor(Math.random() * 30) + 70,
+      upcomingDeadlines: [],
+      recentActivities: [],
+      evaluations: [],
+      competencyDetails: []
+    });
   }
-];
+  
+  return students;
+};
 
 export function StudentProgress() {
-  const { session } = useAuth();
-  const [students] = useState<StudentProgress[]>(dummyStudentProgress);
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [programFilter, setProgramFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [programFilter, setProgramFilter] = useState('all');
   const [selectedStudent, setSelectedStudent] = useState<StudentProgress | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [expandedBatches, setExpandedBatches] = useState<Set<string>>(new Set());
 
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.programName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         student.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || student.currentStatus === statusFilter;
-    const matchesProgram = programFilter === 'all' || student.programName === programFilter;
-    return matchesSearch && matchesStatus && matchesProgram;
+  const studentBatches = generateStudentBatches();
+
+  const toggleBatch = (batchId: string) => {
+    const newExpanded = new Set(expandedBatches);
+    if (newExpanded.has(batchId)) {
+      newExpanded.delete(batchId);
+    } else {
+      newExpanded.add(batchId);
+    }
+    setExpandedBatches(newExpanded);
+  };
+
+  const filteredBatches = studentBatches.filter(batch => {
+    if (programFilter !== 'all' && batch.programName !== programFilter) return false;
+    
+    return batch.students.some(student => {
+      const matchesSearch = student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           student.email.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || student.currentStatus === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'at_risk': return 'bg-red-100 text-red-800 border-red-200';
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'active': return 'bg-success text-success-foreground';
+      case 'at_risk': return 'bg-destructive text-destructive-foreground';
+      case 'completed': return 'bg-primary text-primary-foreground';
+      case 'on_hold': return 'bg-warning text-warning-foreground';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-800 border-green-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  const getBatchStatusSummary = (batch: StudentBatch) => {
+    const statusCounts = batch.students.reduce((acc, student) => {
+      acc[student.currentStatus] = (acc[student.currentStatus] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
 
-  const getCompetencyStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800 border-green-200';
-      case 'in_progress': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'not_started': return 'bg-gray-100 text-gray-800 border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
+    return statusCounts;
   };
-
-  const statusCounts = {
-    active: students.filter(s => s.currentStatus === 'active').length,
-    completed: students.filter(s => s.currentStatus === 'completed').length,
-    at_risk: students.filter(s => s.currentStatus === 'at_risk').length,
-    pending: students.filter(s => s.currentStatus === 'pending').length,
-  };
-
-  const programs = [...new Set(students.map(s => s.programName))];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Student Progress</h1>
-          <p className="text-muted-foreground">
-            Monitor individual student progress across all practicum placements
-          </p>
+          <h1 className="text-3xl font-bold text-foreground">Student Progress Management</h1>
+          <p className="text-muted-foreground">Manage student progress organized by intake batches</p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Progress Report
+          <Button variant="outline" className="flex items-center gap-2">
+            <Download className="h-4 w-4" />
+            Export Reports
           </Button>
-          <Button variant="outline">
-            <Bell className="h-4 w-4 mr-2" />
-            Send Reminders
-          </Button>
-          <Button variant="outline">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Analytics
+          <Button className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Send Notifications
           </Button>
         </div>
       </div>
 
-      {/* Overview Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Students</CardTitle>
-            <User className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.active}</div>
-            <p className="text-xs text-muted-foreground">Currently in practicum</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Completed</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.completed}</div>
-            <p className="text-xs text-muted-foreground">Successfully completed</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">At Risk</CardTitle>
-            <AlertCircle className="h-4 w-4 text-red-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.at_risk}</div>
-            <p className="text-xs text-muted-foreground">Need immediate attention</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending</CardTitle>
-            <Clock className="h-4 w-4 text-yellow-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusCounts.pending}</div>
-            <p className="text-xs text-muted-foreground">Starting soon</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filters and Search */}
+      {/* Filters */}
       <Card>
         <CardHeader>
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-            <div>
-              <CardTitle>Student Progress Overview</CardTitle>
-              <CardDescription>Track individual student progress and performance</CardDescription>
-            </div>
-            <div className="flex gap-3 w-full sm:w-auto">
-              <div className="relative flex-1 sm:w-64">
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filters & Search
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search students..."
@@ -432,435 +271,318 @@ export function StudentProgress() {
                   className="pl-10"
                 />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="at_risk">At Risk</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={programFilter} onValueChange={setProgramFilter}>
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Program" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Programs</SelectItem>
-                  {programs.map(program => (
-                    <SelectItem key={program} value={program}>{program}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="at_risk">At Risk</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="on_hold">On Hold</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={programFilter} onValueChange={setProgramFilter}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filter by program" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Programs</SelectItem>
+                {Object.keys(PROGRAM_INTAKE_DATES).map(program => (
+                  <SelectItem key={program} value={program}>{program}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {filteredStudents.map((student) => (
-              <div
-                key={student.id}
-                className="flex flex-col lg:flex-row lg:items-center gap-4 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+        </CardContent>
+      </Card>
+
+      {/* Student Batches */}
+      <div className="space-y-4">
+        {filteredBatches.map((batch) => {
+          const statusSummary = getBatchStatusSummary(batch);
+          const isExpanded = expandedBatches.has(batch.intakeId);
+          
+          return (
+            <Card key={batch.intakeId} className="overflow-hidden">
+              <Collapsible 
+                open={isExpanded} 
+                onOpenChange={() => toggleBatch(batch.intakeId)}
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={student.avatar} />
-                    <AvatarFallback>
-                      {student.studentName.split(' ').map(n => n[0]).join('')}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">{student.studentName}</h3>
-                      <Badge className={getStatusColor(student.currentStatus)}>
-                        {student.currentStatus.replace('_', ' ')}
-                      </Badge>
-                      {student.gpa && (
-                        <Badge variant="outline">
-                          GPA: {student.gpa}
-                        </Badge>
-                      )}
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-accent transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        {isExpanded ? (
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                        )}
+                        <div>
+                          <CardTitle className="flex items-center gap-3">
+                            <GraduationCap className="h-5 w-5 text-primary" />
+                            {batch.programName} - {batch.intakeLabel}
+                          </CardTitle>
+                          <CardDescription className="flex items-center gap-4 mt-1">
+                            <span className="flex items-center gap-2">
+                              <Calendar className="h-4 w-4" />
+                              Intake: {new Date(batch.intakeDate).toLocaleDateString()}
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <Users className="h-4 w-4" />
+                              {batch.enrolled}/{batch.capacity} enrolled
+                            </span>
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {Object.entries(statusSummary).map(([status, count]) => (
+                          <Badge key={status} variant="outline" className="flex items-center gap-1">
+                            <span className={`w-2 h-2 rounded-full ${getStatusColor(status).split(' ')[0]}`} />
+                            {count} {status.replace('_', ' ')}
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">{student.email}</p>
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {student.siteName}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {student.startDate} - {student.endDate}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {student.preceptorName}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:w-96">
-                  <div className="text-center">
-                    <div className="text-sm font-medium">Hours</div>
-                    <div className="text-xs text-muted-foreground">
-                      {student.completedHours}/{student.totalHours}
-                    </div>
-                    <Progress 
-                      value={(student.completedHours / student.totalHours) * 100} 
-                      className="h-2 mt-1"
-                    />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-medium">Attendance</div>
-                    <div className="text-xs text-muted-foreground">{student.attendanceRate}%</div>
-                    <Progress value={student.attendanceRate} className="h-2 mt-1" />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-medium">Competencies</div>
-                    <div className="text-xs text-muted-foreground">
-                      {student.competenciesCompleted}/{student.totalCompetencies}
-                    </div>
-                    <Progress 
-                      value={(student.competenciesCompleted / student.totalCompetencies) * 100} 
-                      className="h-2 mt-1"
-                    />
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-medium">Overall</div>
-                    <div className="text-xs text-muted-foreground">{student.overallProgress}%</div>
-                    <Progress value={student.overallProgress} className="h-2 mt-1" />
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedStudent(student)}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarImage src={student.avatar} />
-                            <AvatarFallback>
-                              {student.studentName.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              {student.studentName}
-                              <Badge className={getStatusColor(student.currentStatus)}>
-                                {student.currentStatus.replace('_', ' ')}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground font-normal">
-                              {student.programName} at {student.siteName}
-                            </p>
-                          </div>
-                        </DialogTitle>
-                      </DialogHeader>
-                      
-                      <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-                        <TabsList className="grid w-full grid-cols-5">
-                          <TabsTrigger value="overview">Overview</TabsTrigger>
-                          <TabsTrigger value="competencies">Competencies</TabsTrigger>
-                          <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
-                          <TabsTrigger value="activities">Activities</TabsTrigger>
-                          <TabsTrigger value="contact">Contact</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="overview" className="space-y-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Hours Progress</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="text-2xl font-bold">
-                                  {student.completedHours}/{student.totalHours}
-                                </div>
-                                <Progress 
-                                  value={(student.completedHours / student.totalHours) * 100} 
-                                  className="mt-2"
-                                />
-                              </CardContent>
-                            </Card>
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Attendance Rate</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="text-2xl font-bold">{student.attendanceRate}%</div>
-                                <Progress value={student.attendanceRate} className="mt-2" />
-                              </CardContent>
-                            </Card>
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Academic Performance</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="space-y-1">
-                                  {student.gpa && <div className="text-sm">GPA: <span className="font-semibold">{student.gpa}</span></div>}
-                                  {student.midtermGrade && <div className="text-sm">Midterm: <span className="font-semibold">{student.midtermGrade}%</span></div>}
-                                  {student.finalGrade && <div className="text-sm">Final: <span className="font-semibold">{student.finalGrade}%</span></div>}
-                                </div>
-                              </CardContent>
-                            </Card>
-                            <Card>
-                              <CardHeader className="pb-2">
-                                <CardTitle className="text-sm">Overall Progress</CardTitle>
-                              </CardHeader>
-                              <CardContent>
-                                <div className="text-2xl font-bold">{student.overallProgress}%</div>
-                                <Progress value={student.overallProgress} className="mt-2" />
-                              </CardContent>
-                            </Card>
-                          </div>
-                          
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Practicum Details</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                  <h4 className="font-medium mb-2">Placement Information</h4>
-                                  <div className="space-y-2 text-sm">
-                                    <div><span className="font-medium">Site:</span> {student.siteName}</div>
-                                    <div><span className="font-medium">Location:</span> {student.siteLocation}</div>
-                                    <div><span className="font-medium">Duration:</span> {student.startDate} - {student.endDate}</div>
-                                    <div><span className="font-medium">Total Hours:</span> {student.totalHours}</div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent>
+                  <CardContent className="pt-0">
+                    <div className="grid gap-4">
+                      {batch.students
+                        .filter(student => {
+                          const matchesSearch = student.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                               student.email.toLowerCase().includes(searchTerm.toLowerCase());
+                          const matchesStatus = statusFilter === 'all' || student.currentStatus === statusFilter;
+                          return matchesSearch && matchesStatus;
+                        })
+                        .map((student) => (
+                          <Card key={student.id} className="border-l-4 border-l-primary/20">
+                            <CardContent className="p-4">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-4">
+                                  <Avatar className="h-12 w-12">
+                                    <AvatarImage src={student.avatar} />
+                                    <AvatarFallback>
+                                      {student.studentName.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <h3 className="font-semibold text-lg">{student.studentName}</h3>
+                                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                      <MapPin className="h-3 w-3" />
+                                      {student.siteName} - {student.siteLocation}
+                                    </p>
+                                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                      <User className="h-3 w-3" />
+                                      Preceptor: {student.preceptorName}
+                                    </p>
                                   </div>
                                 </div>
-                                <div>
-                                  <h4 className="font-medium mb-2">Supervision</h4>
-                                  <div className="space-y-2 text-sm">
-                                    <div><span className="font-medium">Preceptor:</span> {student.preceptorName}</div>
-                                    <div><span className="font-medium">Email:</span> {student.preceptorEmail}</div>
-                                    <div><span className="font-medium">Last Activity:</span> {student.lastActivity}</div>
-                                  </div>
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                        
-                        <TabsContent value="competencies" className="space-y-4">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Competency Progress</CardTitle>
-                              <CardDescription>
-                                Track completion of required competencies
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-3">
-                                {student.competencyDetails.map((competency, index) => (
-                                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                                    <div>
-                                      <div className="font-medium">{competency.name}</div>
-                                      <div className="text-sm text-muted-foreground">{competency.category}</div>
+                                
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Progress value={student.overallProgress} className="w-24" />
+                                      <span className="text-sm font-medium">{student.overallProgress}%</span>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                      {competency.score && (
-                                        <span className="text-sm font-medium">{competency.score}%</span>
-                                      )}
-                                      <Badge className={getCompetencyStatusColor(competency.status)}>
-                                        {competency.status.replace('_', ' ')}
-                                      </Badge>
-                                      {competency.completedDate && (
-                                        <span className="text-xs text-muted-foreground">
-                                          {competency.completedDate}
-                                        </span>
-                                      )}
+                                    <div className="text-xs text-muted-foreground">
+                                      {student.completedHours}/{student.totalHours} hours
                                     </div>
                                   </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                        
-                        <TabsContent value="evaluations" className="space-y-4">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Evaluations & Feedback</CardTitle>
-                              <CardDescription>
-                                Review evaluation scores and feedback
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-4">
-                                {student.evaluations.map((evaluation, index) => (
-                                  <div key={index} className="border rounded-lg p-4">
-                                    <div className="flex items-center justify-between mb-2">
-                                      <div>
-                                        <h4 className="font-medium">{evaluation.type}</h4>
-                                        <p className="text-sm text-muted-foreground">by {evaluation.evaluator}</p>
-                                      </div>
-                                      <div className="text-right">
-                                        <div className="text-lg font-bold">{evaluation.score}%</div>
-                                        <div className="text-xs text-muted-foreground">{evaluation.date}</div>
-                                      </div>
-                                    </div>
-                                    {evaluation.feedback && (
-                                      <>
-                                        <Separator className="my-3" />
-                                        <p className="text-sm">{evaluation.feedback}</p>
-                                      </>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                        
-                        <TabsContent value="activities" className="space-y-4">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Recent Activities</CardTitle>
-                              <CardDescription>
-                                Timeline of student activities and submissions
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-3">
-                                {student.recentActivities.map((activity, index) => (
-                                  <div key={index} className="flex items-start gap-3 p-3 border rounded-lg">
-                                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2"></div>
-                                    <div className="flex-1">
-                                      <div className="font-medium">{activity.description}</div>
-                                      <div className="text-sm text-muted-foreground">{activity.date}</div>
-                                    </div>
-                                    {activity.status && (
-                                      <Badge variant="outline">{activity.status}</Badge>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                        
-                        <TabsContent value="contact" className="space-y-4">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Contact Information</CardTitle>
-                              <CardDescription>
-                                Communication details and quick actions
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                  <h4 className="font-medium mb-3">Student</h4>
-                                  <div className="space-y-2">
-                                    <div className="flex items-center gap-2">
-                                      <Mail className="h-4 w-4" />
-                                      <span className="text-sm">{student.email}</span>
-                                    </div>
-                                    {student.phone && (
-                                      <div className="flex items-center gap-2">
-                                        <Phone className="h-4 w-4" />
-                                        <span className="text-sm">{student.phone}</span>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex gap-2 mt-4">
-                                    <Button size="sm" variant="outline">
-                                      <Mail className="h-4 w-4 mr-2" />
-                                      Email
-                                    </Button>
-                                    {student.phone && (
-                                      <Button size="sm" variant="outline">
-                                        <Phone className="h-4 w-4 mr-2" />
-                                        Call
+                                  
+                                  <Badge className={getStatusColor(student.currentStatus)}>
+                                    {student.currentStatus.replace('_', ' ')}
+                                  </Badge>
+                                  
+                                  <Dialog>
+                                    <DialogTrigger asChild>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => setSelectedStudent(student)}
+                                      >
+                                        <Eye className="h-4 w-4" />
                                       </Button>
-                                    )}
-                                  </div>
-                                </div>
-                                <div>
-                                  <h4 className="font-medium mb-3">Preceptor</h4>
-                                  <div className="space-y-2">
-                                    <div><span className="font-medium">Name:</span> {student.preceptorName}</div>
-                                    <div className="flex items-center gap-2">
-                                      <Mail className="h-4 w-4" />
-                                      <span className="text-sm">{student.preceptorEmail}</span>
-                                    </div>
-                                  </div>
-                                  <div className="flex gap-2 mt-4">
-                                    <Button size="sm" variant="outline">
-                                      <Mail className="h-4 w-4 mr-2" />
-                                      Email Preceptor
-                                    </Button>
-                                  </div>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                                      <DialogHeader>
+                                        <DialogTitle className="flex items-center gap-3">
+                                          <Avatar className="h-10 w-10">
+                                            <AvatarFallback>
+                                              {student.studentName.split(' ').map(n => n[0]).join('')}
+                                            </AvatarFallback>
+                                          </Avatar>
+                                          {student.studentName} - Progress Details
+                                        </DialogTitle>
+                                      </DialogHeader>
+                                      
+                                      <Tabs defaultValue="overview" className="w-full">
+                                        <TabsList className="grid w-full grid-cols-5">
+                                          <TabsTrigger value="overview">Overview</TabsTrigger>
+                                          <TabsTrigger value="competencies">Competencies</TabsTrigger>
+                                          <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
+                                          <TabsTrigger value="activities">Activities</TabsTrigger>
+                                          <TabsTrigger value="contact">Contact</TabsTrigger>
+                                        </TabsList>
+                                        
+                                        <TabsContent value="overview" className="space-y-4">
+                                          <div className="grid grid-cols-2 gap-4">
+                                            <Card>
+                                              <CardHeader className="pb-3">
+                                                <CardTitle className="text-base">Basic Information</CardTitle>
+                                              </CardHeader>
+                                              <CardContent className="space-y-2">
+                                                <div><strong>Program:</strong> {student.programName}</div>
+                                                <div><strong>Site:</strong> {student.siteName}</div>
+                                                <div><strong>Start Date:</strong> {new Date(student.startDate).toLocaleDateString()}</div>
+                                                <div><strong>End Date:</strong> {new Date(student.endDate).toLocaleDateString()}</div>
+                                                <div><strong>Status:</strong> 
+                                                  <Badge className={`ml-2 ${getStatusColor(student.currentStatus)}`}>
+                                                    {student.currentStatus.replace('_', ' ')}
+                                                  </Badge>
+                                                </div>
+                                              </CardContent>
+                                            </Card>
+                                            
+                                            <Card>
+                                              <CardHeader className="pb-3">
+                                                <CardTitle className="text-base">Progress Metrics</CardTitle>
+                                              </CardHeader>
+                                              <CardContent className="space-y-3">
+                                                <div className="space-y-1">
+                                                  <div className="flex justify-between text-sm">
+                                                    <span>Overall Progress</span>
+                                                    <span>{student.overallProgress}%</span>
+                                                  </div>
+                                                  <Progress value={student.overallProgress} />
+                                                </div>
+                                                <div><strong>Hours:</strong> {student.completedHours}/{student.totalHours}</div>
+                                                <div><strong>Attendance:</strong> {student.attendanceRate}%</div>
+                                                <div><strong>GPA:</strong> {student.gpa}</div>
+                                                <div><strong>Competencies:</strong> {student.competenciesCompleted}/{student.totalCompetencies}</div>
+                                              </CardContent>
+                                            </Card>
+                                          </div>
+                                        </TabsContent>
+                                        
+                                        <TabsContent value="competencies">
+                                          <Card>
+                                            <CardHeader>
+                                              <CardTitle>Competency Progress</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                              <div className="text-center py-8 text-muted-foreground">
+                                                <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                                <p>Competency details would be displayed here</p>
+                                              </div>
+                                            </CardContent>
+                                          </Card>
+                                        </TabsContent>
+                                        
+                                        <TabsContent value="evaluations">
+                                          <Card>
+                                            <CardHeader>
+                                              <CardTitle>Evaluations & Feedback</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                              <div className="text-center py-8 text-muted-foreground">
+                                                <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                                <p>Evaluation details would be displayed here</p>
+                                              </div>
+                                            </CardContent>
+                                          </Card>
+                                        </TabsContent>
+                                        
+                                        <TabsContent value="activities">
+                                          <Card>
+                                            <CardHeader>
+                                              <CardTitle>Recent Activities</CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                              <div className="text-center py-8 text-muted-foreground">
+                                                <Clock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                                                <p>Activity timeline would be displayed here</p>
+                                              </div>
+                                            </CardContent>
+                                          </Card>
+                                        </TabsContent>
+                                        
+                                        <TabsContent value="contact">
+                                          <Card>
+                                            <CardHeader>
+                                              <CardTitle>Contact Information</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="space-y-4">
+                                              <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                  <h4 className="font-medium mb-2">Student</h4>
+                                                  <div className="space-y-1 text-sm">
+                                                    <div className="flex items-center gap-2">
+                                                      <Mail className="h-4 w-4" />
+                                                      {student.email}
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                      <Phone className="h-4 w-4" />
+                                                      {student.phone}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                                <div>
+                                                  <h4 className="font-medium mb-2">Preceptor</h4>
+                                                  <div className="space-y-1 text-sm">
+                                                    <div>{student.preceptorName}</div>
+                                                    <div className="flex items-center gap-2">
+                                                      <Mail className="h-4 w-4" />
+                                                      {student.preceptorEmail}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div className="flex gap-2 pt-4">
+                                                <Button className="flex items-center gap-2">
+                                                  <MessageSquare className="h-4 w-4" />
+                                                  Send Message
+                                                </Button>
+                                                <Button variant="outline" className="flex items-center gap-2">
+                                                  <Phone className="h-4 w-4" />
+                                                  Schedule Call
+                                                </Button>
+                                              </div>
+                                            </CardContent>
+                                          </Card>
+                                        </TabsContent>
+                                      </Tabs>
+                                    </DialogContent>
+                                  </Dialog>
                                 </div>
                               </div>
                             </CardContent>
                           </Card>
-                        </TabsContent>
-                      </Tabs>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Upcoming Deadlines */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Upcoming Deadlines</CardTitle>
-          <CardDescription>Important deadlines requiring attention</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {students
-              .flatMap(student => 
-                student.upcomingDeadlines.map(deadline => ({
-                  ...deadline,
-                  studentName: student.studentName,
-                  studentId: student.id
-                }))
-              )
-              .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-              .slice(0, 10)
-              .map((deadline, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col">
-                      <span className="font-medium">{deadline.description}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {deadline.studentName}
-                      </span>
+                        ))}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Badge className={getPriorityColor(deadline.priority)}>
-                      {deadline.priority}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      Due: {deadline.dueDate}
-                    </span>
-                  </div>
-                </div>
-              ))}
-          </div>
-        </CardContent>
-      </Card>
+                  </CardContent>
+                </CollapsibleContent>
+              </Collapsible>
+            </Card>
+          );
+        })}
+      </div>
+
+      {filteredBatches.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-8">
+            <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <h3 className="text-lg font-medium text-muted-foreground">No student batches found</h3>
+            <p className="text-sm text-muted-foreground mt-1">
+              Try adjusting your filters or search criteria
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

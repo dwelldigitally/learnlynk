@@ -101,15 +101,6 @@ export const navigationStructure: NavigationStructure = {
         { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileCheck },
         { name: "Practicum Dashboard", href: "/admin/practicum", icon: BarChart3 },
         { name: "Practicum Sites", href: "/admin/practicum/sites", icon: MapPin },
-        { 
-          name: "Practicum Journeys", 
-          href: "/admin/enrollment/program-journeys?type=practicum", 
-          icon: ClipboardList,
-          subItems: [
-            { name: "Journey Manager", href: "/admin/enrollment/program-journeys?type=practicum", icon: ClipboardList },
-            { name: "Journey Builder", href: "/admin/practicum/journeys/builder", icon: Route }
-          ]
-        },
         { name: "Student Progress", href: "/admin/practicum/progress", icon: Users },
         { name: "Competency Tracker", href: "/admin/practicum/competencies", icon: Award },
         { name: "Evaluation Center", href: "/admin/practicum/evaluations", icon: FileText }

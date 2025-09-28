@@ -302,9 +302,20 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
                 />
               </div>
               
-              {/* Filter sites based on search term */}
+              {/* Filter and deduplicate sites based on search term */}
               {(() => {
-                const filteredSites = sites?.filter(site => {
+                // First deduplicate sites by ID
+                const uniqueSites = sites?.reduce((acc, site) => {
+                  if (!acc.find(existingSite => existingSite.id === site.id)) {
+                    acc.push(site);
+                  }
+                  return acc;
+                }, [] as typeof sites) || [];
+
+                // Then filter based on search term
+                const filteredSites = uniqueSites.filter(site => {
+                  if (!siteSearchTerm) return true;
+                  
                   const searchLower = siteSearchTerm.toLowerCase();
                   return (
                     site.organization?.toLowerCase().includes(searchLower) ||
@@ -315,7 +326,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
                       spec.toLowerCase().includes(searchLower)
                     )
                   );
-                }) || [];
+                });
 
                 return filteredSites.length > 0 ? (
                 <div className="grid gap-3">

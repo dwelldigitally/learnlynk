@@ -409,11 +409,12 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
 
                         {/* Step Card */}
                         <Card 
-                          className={`max-w-lg mx-auto transition-all duration-200 ${
+                          className={`max-w-lg mx-auto transition-all duration-200 cursor-pointer ${
                             isSelected 
                               ? 'ring-2 ring-orange-500 shadow-lg' 
-                              : 'hover:shadow-md border-slate-200'
+                              : 'hover:shadow-md hover:border-slate-300 border-slate-200'
                           }`}
+                          onClick={() => dispatch({ type: 'SELECT_ELEMENT', payload: step.id })}
                         >
                           <CardContent className="p-6">
                             <div className="flex items-start gap-4">
@@ -451,7 +452,12 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
                               <div className="flex items-center">
                                 <Dialog>
                                   <DialogTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
                                       <MoreHorizontal className="h-4 w-4" />
                                     </Button>
                                   </DialogTrigger>
@@ -462,7 +468,10 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
                                     <div className="grid gap-2">
                                       <Button 
                                         variant="outline" 
-                                        onClick={() => dispatch({ type: 'SELECT_ELEMENT', payload: step.id })}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          dispatch({ type: 'SELECT_ELEMENT', payload: step.id });
+                                        }}
                                         className="justify-start gap-2"
                                       >
                                         <Edit3 className="h-4 w-4" />
@@ -470,7 +479,10 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
                                       </Button>
                                       <Button 
                                         variant="outline" 
-                                        onClick={() => duplicateStep(step)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          duplicateStep(step);
+                                        }}
                                         className="justify-start gap-2"
                                       >
                                         <Copy className="h-4 w-4" />
@@ -479,7 +491,10 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
                                       <Separator />
                                       <Button 
                                         variant="outline" 
-                                        onClick={() => removeStep(step.id)}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          removeStep(step.id);
+                                        }}
                                         className="justify-start gap-2 text-red-600 hover:text-red-700"
                                       >
                                         <Trash2 className="h-4 w-4" />

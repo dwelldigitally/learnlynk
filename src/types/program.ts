@@ -1,3 +1,5 @@
+import type { PracticumJourneyStep } from './practicum';
+
 export interface Program {
   id: string;
   name: string;
@@ -39,6 +41,10 @@ export interface Program {
     document_requirements: string[];
     assigned_sites: string[]; // site IDs
     journey_id?: string;
+    journey?: {
+      name: string;
+      steps: PracticumJourneyStep[];
+    };
     competencies_required: Array<{
       name: string;
       category: string;

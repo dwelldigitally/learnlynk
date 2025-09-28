@@ -42,6 +42,7 @@ import { PracticumDashboard } from './admin/practicum/PracticumDashboard';
 import { SiteManagement } from './admin/practicum/SiteManagement';
 
 
+import { JourneyConfiguration } from './admin/practicum/JourneyConfiguration';
 import { CompetencyTracker } from './admin/practicum/CompetencyTracker';
 import { StudentProgress } from './admin/practicum/StudentProgress';
 import { EvaluationCenter } from './admin/practicum/EvaluationCenter';
@@ -226,6 +227,8 @@ const AdminDashboard: React.FC = () => {
         return <PracticumDashboard />;
       case "/admin/practicum/sites":
         return <SiteManagement />;
+      case "/admin/practicum/journeys":
+        return <JourneyConfiguration />;
       case "/admin/practicum/competencies":
         return <CompetencyTracker />;
       case "/admin/practicum/progress":

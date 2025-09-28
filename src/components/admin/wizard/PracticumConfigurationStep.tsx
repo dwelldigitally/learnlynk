@@ -17,9 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Program } from "@/types/program";
 import { usePracticumSites, usePracticumJourneys } from "@/hooks/usePracticum";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, MapPin, Clock, FileText, Award, X, Search, Edit, ClipboardList } from "lucide-react";
-import type { PracticumJourneyStep } from '@/types/practicum';
-import { PracticumJourneyBuilder } from './PracticumJourneyBuilder';
+import { Plus, MapPin, Clock, FileText, X, Search } from "lucide-react";
 
 interface PracticumConfigurationStepProps {
   data: Partial<Program>;
@@ -39,27 +37,6 @@ const COMMON_DOCUMENTS = [
   "Drug Screening"
 ];
 
-const COMPETENCY_CATEGORIES = [
-  "Clinical Skills",
-  "Patient Care", 
-  "Communication",
-  "Critical Thinking",
-  "Professional Behavior",
-  "Safety Protocols",
-  "Documentation",
-  "Team Collaboration"
-];
-
-const ASSESSMENT_METHODS = [
-  "Direct Observation",
-  "Portfolio Review",
-  "Practical Exam",
-  "Case Study",
-  "Peer Assessment",
-  "Self-Assessment",
-  "Supervisor Evaluation"
-];
-
 const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
   data,
   onDataChange,
@@ -68,17 +45,9 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
 }) => {
   const { session } = useAuth();
   const { data: sites, isLoading: sitesLoading } = usePracticumSites(session?.user?.id || '');
-  const { data: journeys, isLoading: journeysLoading } = usePracticumJourneys(session?.user?.id || '');
   
-  const [newCompetency, setNewCompetency] = useState({
-    name: '',
-    category: '',
-    assessment_method: '',
-    required: true
-  });
   const [customDocument, setCustomDocument] = useState('');
   const [siteSearchTerm, setSiteSearchTerm] = useState('');
-  const [showJourneyBuilder, setShowJourneyBuilder] = useState(false);
 
   const practicumData = data.practicum || {
     enabled: false,
@@ -86,10 +55,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
     total_hours_required: 200,
     start_timing: 'After completing 75% of coursework',
     document_requirements: [],
-    assigned_sites: [],
-    journey_id: '',
-    competencies_required: [],
-    journey: undefined
+    assigned_sites: []
   };
 
   const updatePracticumData = (updates: Partial<typeof practicumData>) => {
@@ -97,18 +63,6 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
       ...data,
       practicum: { ...practicumData, ...updates }
     });
-  };
-
-  const handleJourneySave = (journey: { name: string; steps: PracticumJourneyStep[] }) => {
-    const updatedPracticum = {
-      ...practicumData,
-      journey: journey
-    };
-    onDataChange({
-      ...data,
-      practicum: updatedPracticum
-    });
-    setShowJourneyBuilder(false);
   };
 
   const toggleDocumentRequirement = (document: string) => {
@@ -134,21 +88,6 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
     });
   };
 
-  const addCompetency = () => {
-    if (newCompetency.name && newCompetency.category && newCompetency.assessment_method) {
-      updatePracticumData({
-        competencies_required: [...practicumData.competencies_required, { ...newCompetency }]
-      });
-      setNewCompetency({ name: '', category: '', assessment_method: '', required: true });
-    }
-  };
-
-  const removeCompetency = (index: number) => {
-    updatePracticumData({
-      competencies_required: practicumData.competencies_required.filter((_, i) => i !== index)
-    });
-  };
-
   const toggleSiteAssignment = (siteId: string) => {
     const current = practicumData.assigned_sites;
     const updated = current.includes(siteId)
@@ -157,17 +96,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
     updatePracticumData({ assigned_sites: updated });
   };
 
-  if (showJourneyBuilder) {
-    return (
-      <PracticumJourneyBuilder 
-        onBack={() => setShowJourneyBuilder(false)}
-        onSave={handleJourneySave}
-        initialJourney={practicumData.journey}
-      />
-    );
-  }
-
-  if (sitesLoading || journeysLoading) {
+  if (sitesLoading) {
     return <div className="animate-pulse">Loading practicum configuration...</div>;
   }
 
@@ -405,132 +334,6 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
                 </div>
               );
               })()}
-            </CardContent>
-          </Card>
-
-          {/* Journey Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Practicum Journey</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Configure the workflow steps students must complete during their practicum
-              </p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {practicumData.journey ? (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
-                    <div>
-                      <h4 className="font-medium">{practicumData.journey.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {practicumData.journey.steps.length} steps configured
-                      </p>
-                    </div>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setShowJourneyBuilder(true)}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Journey
-                    </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Journey Steps:</Label>
-                    <div className="space-y-1">
-                      {practicumData.journey.steps.map((step, index) => (
-                        <div key={step.id} className="text-sm p-2 bg-background border rounded">
-                          {index + 1}. {step.name} 
-                          {step.required && <Badge variant="secondary" className="ml-2 text-xs">Required</Badge>}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-8 border-2 border-dashed border-muted-foreground/25 rounded-lg">
-                  <ClipboardList className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="text-muted-foreground mb-4">No practicum journey configured</p>
-                  <Button onClick={() => setShowJourneyBuilder(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Practicum Journey
-                  </Button>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Competency Requirements */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5" />
-                Competency Requirements
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Add New Competency */}
-              <div className="grid grid-cols-4 gap-2">
-                <Input
-                  placeholder="Competency name..."
-                  value={newCompetency.name}
-                  onChange={(e) => setNewCompetency({ ...newCompetency, name: e.target.value })}
-                />
-                <Select
-                  value={newCompetency.category}
-                  onValueChange={(value) => setNewCompetency({ ...newCompetency, category: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {COMPETENCY_CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={newCompetency.assessment_method}
-                  onValueChange={(value) => setNewCompetency({ ...newCompetency, assessment_method: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Assessment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ASSESSMENT_METHODS.map((method) => (
-                      <SelectItem key={method} value={method}>{method}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button onClick={addCompetency} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Competency List */}
-              {practicumData.competencies_required.length > 0 && (
-                <div className="space-y-2">
-                  {practicumData.competencies_required.map((competency, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="font-medium">{competency.name}</p>
-                        <div className="flex gap-2 text-sm text-muted-foreground">
-                          <Badge variant="outline">{competency.category}</Badge>
-                          <Badge variant="outline">{competency.assessment_method}</Badge>
-                          {competency.required && <Badge variant="secondary">Required</Badge>}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => removeCompetency(index)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
             </CardContent>
           </Card>
         </>

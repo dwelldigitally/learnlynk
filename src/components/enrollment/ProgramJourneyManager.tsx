@@ -63,21 +63,27 @@ export function ProgramJourneyManager() {
   useEffect(() => {
     const checkAndSeed = async () => {
       try {
+        console.log('Checking master templates...');
         const hasMasterTemplates = await MasterJourneyService.checkMasterTemplatesExist();
         
         if (!hasMasterTemplates) {
+          console.log('No master templates found, showing setup');
           setShowMasterSetup(true);
           return;
         }
 
-        // Seed dummy data if no academic journeys exist
+        console.log('Master templates exist, checking journey data...', { 
+          academicJourneys: academicJourneys?.length,
+          journeysLoading 
+        });
+        
+        // Check if no academic journeys exist - just show success message
         if (academicJourneys && academicJourneys.length === 0 && !journeysLoading) {
-          // await enrollmentDemoSeedService.seedDummyData();
-          refetchJourneys();
+          console.log('No academic journeys found, showing success message');
           toast.success('Master templates are ready!');
         }
       } catch (error) {
-        console.error('Error checking master templates or seeding data:', error);
+        console.error('Error checking master templates:', error);
       }
     };
 

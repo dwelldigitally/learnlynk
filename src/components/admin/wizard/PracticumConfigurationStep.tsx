@@ -17,7 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Program } from "@/types/program";
 import { usePracticumSites, usePracticumJourneys } from "@/hooks/usePracticum";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, MapPin, Clock, FileText, Award, X } from "lucide-react";
+import { Plus, MapPin, Clock, FileText, Award, X, Search } from "lucide-react";
 
 interface PracticumConfigurationStepProps {
   data: Partial<Program>;
@@ -75,6 +75,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
     required: true
   });
   const [customDocument, setCustomDocument] = useState('');
+  const [siteSearchTerm, setSiteSearchTerm] = useState('');
 
   const practicumData = data.practicum || {
     enabled: false,
@@ -290,9 +291,35 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {sites && sites.length > 0 ? (
+              {/* Search Input */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search sites by name, organization, or location..."
+                  value={siteSearchTerm}
+                  onChange={(e) => setSiteSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              
+              {/* Filter sites based on search term */}
+              {(() => {
+                const filteredSites = sites?.filter(site => {
+                  const searchLower = siteSearchTerm.toLowerCase();
+                  return (
+                    site.organization?.toLowerCase().includes(searchLower) ||
+                    site.address?.toLowerCase().includes(searchLower) ||
+                    site.city?.toLowerCase().includes(searchLower) ||
+                    site.state?.toLowerCase().includes(searchLower) ||
+                    site.specializations?.some(spec => 
+                      spec.toLowerCase().includes(searchLower)
+                    )
+                  );
+                }) || [];
+
+                return filteredSites.length > 0 ? (
                 <div className="grid gap-3">
-                  {sites.map((site) => (
+                  {filteredSites.map((site) => (
                     <div key={site.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <Checkbox
@@ -312,13 +339,20 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
                     </div>
                   ))}
                 </div>
+              ) : siteSearchTerm ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>No sites found matching "{siteSearchTerm}".</p>
+                  <p className="text-sm">Try adjusting your search terms.</p>
+                </div>
               ) : (
                 <div className="text-center py-6 text-muted-foreground">
                   <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p>No practicum sites available.</p>
                   <p className="text-sm">Create sites in the Practicum Sites section first.</p>
                 </div>
-              )}
+              );
+              })()}
             </CardContent>
           </Card>
 

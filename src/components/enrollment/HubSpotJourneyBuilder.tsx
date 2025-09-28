@@ -623,6 +623,7 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
 }
 
 export function HubSpotJourneyBuilder({ onBack }: HubSpotJourneyBuilderProps) {
+  // Force refresh marker: v2.0-hubspot-style
   return (
     <BuilderProvider>
       <JourneyBuilderContent onBack={onBack} />

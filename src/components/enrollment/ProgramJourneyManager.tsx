@@ -4,9 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity, ChevronDown } from 'lucide-react';
 import { usePrograms } from '@/services/programService';
 import { useAcademicJourneys } from '@/services/academicJourneyService';
+import { usePracticumJourneys } from '@/hooks/usePracticum';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { JourneyBuilder } from './JourneyBuilder';
 import { JourneyEditor } from './JourneyEditor';
 import { MasterJourneySetupWizard } from './MasterJourneySetupWizard';
@@ -15,15 +19,45 @@ import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService'
 import { MasterJourneyService } from '@/services/masterJourneyService';
 import { toast } from 'sonner';
 
+type JourneyType = 'all' | 'academic' | 'practicum';
+
+interface CombinedJourney {
+  id: string;
+  type: 'academic' | 'practicum';
+  name: string;
+  description?: string;
+  is_active: boolean;
+  created_at: string;
+  stagesCount: number;
+  program_id?: string;
+  version?: number;
+  raw: any;
+}
+
 export function ProgramJourneyManager() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { session } = useAuth();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProgram, setSelectedProgram] = useState<string>('all');
+  const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType>('all');
   const [showJourneyBuilder, setShowJourneyBuilder] = useState(false);
   const [showMasterSetup, setShowMasterSetup] = useState(false);
   const [editingJourneyId, setEditingJourneyId] = useState<string | null>(null);
 
   const { data: programs, isLoading: programsLoading, error: programsError } = usePrograms();
-  const { data: journeys, isLoading: journeysLoading, error: journeysError, refetch: refetchJourneys } = useAcademicJourneys();
+  const { data: academicJourneys, isLoading: journeysLoading, error: journeysError, refetch: refetchJourneys } = useAcademicJourneys();
+  const { data: practicumJourneys, isLoading: practicumLoading } = usePracticumJourneys(session?.user?.id || '');
+
+  // Set initial filter from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const typeParam = params.get('type');
+    if (typeParam === 'practicum') {
+      setSelectedJourneyType('practicum');
+    }
+  }, [location.search]);
 
   // Check master templates and seed dummy data if needed
   useEffect(() => {
@@ -36,8 +70,8 @@ export function ProgramJourneyManager() {
           return;
         }
 
-        // Seed dummy data if no journeys exist
-        if (journeys && journeys.length === 0 && !journeysLoading) {
+        // Seed dummy data if no academic journeys exist
+        if (academicJourneys && academicJourneys.length === 0 && !journeysLoading) {
           // await enrollmentDemoSeedService.seedDummyData();
           refetchJourneys();
           toast.success('Master templates are ready!');
@@ -50,22 +84,79 @@ export function ProgramJourneyManager() {
     if (!journeysLoading) {
       checkAndSeed();
     }
-  }, [journeys, journeysLoading, refetchJourneys]);
+  }, [academicJourneys, journeysLoading, refetchJourneys]);
 
-  // Filter journeys based on search and program selection
-  const filteredJourneys = journeys?.filter(journey => {
+  // Combine and normalize journeys
+  const combinedJourneys: CombinedJourney[] = [
+    ...(academicJourneys?.map(journey => ({
+      id: journey.id,
+      type: 'academic' as const,
+      name: journey.name,
+      description: journey.description,
+      is_active: journey.is_active,
+      created_at: journey.created_at,
+      stagesCount: journey.stages?.length || 0,
+      program_id: journey.program_id,
+      version: journey.version,
+      raw: journey
+    })) || []),
+    ...(practicumJourneys?.map(journey => ({
+      id: journey.id,
+      type: 'practicum' as const,
+      name: journey.journey_name,
+      description: '',
+      is_active: journey.is_active,
+      created_at: journey.created_at,
+      stagesCount: Array.isArray(journey.steps) ? journey.steps.length : 0,
+      program_id: journey.program_id,
+      version: undefined,
+      raw: journey
+    })) || [])
+  ];
+
+  // Filter journeys based on search, program, and type selection
+  const filteredJourneys = combinedJourneys.filter(journey => {
     const matchesSearch = journey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (journey.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
     const matchesProgram = selectedProgram === 'all' || journey.program_id === selectedProgram;
-    return matchesSearch && matchesProgram;
-  }) || [];
+    const matchesType = selectedJourneyType === 'all' || journey.type === selectedJourneyType;
+    return matchesSearch && matchesProgram && matchesType;
+  });
 
   if (programsError || journeysError) {
     console.error('Error loading data:', { programsError, journeysError });
   }
 
-  const handleCreateJourney = () => {
+  const handleCreateAcademicJourney = () => {
     setShowJourneyBuilder(true);
+  };
+
+  const handleCreatePracticumJourney = () => {
+    navigate('/admin/practicum/journeys/builder');
+  };
+
+  const handleEditJourney = (journey: CombinedJourney) => {
+    if (journey.type === 'academic') {
+      setEditingJourneyId(journey.id);
+    } else {
+      // Convert practicum journey to builder config format
+      const builderConfig = {
+        id: journey.id,
+        name: journey.name,
+        description: journey.description || '',
+        type: 'practicum',
+        elements: journey.raw.steps || [],
+        settings: {},
+        metadata: {
+          created_at: journey.created_at,
+          updated_at: journey.raw.updated_at
+        }
+      };
+      
+      navigate(`/admin/practicum/journeys/builder/${journey.id}`, {
+        state: { journey: builderConfig }
+      });
+    }
   };
 
   const handleMasterSetupComplete = () => {
@@ -143,24 +234,39 @@ export function ProgramJourneyManager() {
                 <BarChart3 className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Academic Journey Manager
+                 <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Journey Manager
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Design and manage student enrollment journeys with advanced analytics
+                  Design and manage academic and practicum journeys with advanced analytics
                 </p>
               </div>
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowMasterSetup(true)} className="action-button">
-              <Settings className="h-4 w-4 mr-2" />
-              Master Templates
-            </Button>
-            <Button onClick={handleCreateJourney} className="gap-2 action-button bg-gradient-primary hover:shadow-lg">
-              <Plus className="h-4 w-4" />
-              Create Journey
-            </Button>
+            {(selectedJourneyType === 'all' || selectedJourneyType === 'academic') && (
+              <Button variant="outline" onClick={() => setShowMasterSetup(true)} className="action-button">
+                <Settings className="h-4 w-4 mr-2" />
+                Master Templates
+              </Button>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="gap-2 action-button bg-gradient-primary hover:shadow-lg">
+                  <Plus className="h-4 w-4" />
+                  Create Journey
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleCreateAcademicJourney}>
+                  Create Academic Journey
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCreatePracticumJourney}>
+                  Create Practicum Journey
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -177,7 +283,21 @@ export function ProgramJourneyManager() {
               className="pl-12 h-12 text-base rounded-xl border-border/50 focus:ring-2 focus:ring-primary/20"
             />
           </div>
-          <Select value={selectedProgram} onValueChange={setSelectedProgram}>
+          <Select value={selectedJourneyType} onValueChange={(value) => setSelectedJourneyType(value as JourneyType)}>
+            <SelectTrigger className="w-full sm:w-[200px] h-12 rounded-xl border-border/50">
+              <SelectValue placeholder="Journey Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="academic">Academic</SelectItem>
+              <SelectItem value="practicum">Practicum</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select 
+            value={selectedProgram} 
+            onValueChange={setSelectedProgram}
+            disabled={selectedJourneyType === 'practicum'}
+          >
             <SelectTrigger className="w-full sm:w-[240px] h-12 rounded-xl border-border/50">
               <SelectValue placeholder="Filter by program" />
             </SelectTrigger>
@@ -194,7 +314,7 @@ export function ProgramJourneyManager() {
       </div>
 
       {/* Enhanced Journeys Grid */}
-      {journeysLoading ? (
+      {(journeysLoading || practicumLoading) ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="journey-card p-6 animate-pulse">
@@ -222,7 +342,7 @@ export function ProgramJourneyManager() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredJourneys.map((journey, index) => {
             const StatusIcon = getJourneyStatusIcon(journey.is_active);
-            const completionPercentage = getStagesCompletionPercentage(journey.stages);
+            const completionPercentage = journey.type === 'academic' ? getStagesCompletionPercentage(journey.raw.stages) : 0;
             
             return (
               <div 
@@ -233,9 +353,14 @@ export function ProgramJourneyManager() {
                 {/* Card Header */}
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-200 truncate">
-                      {journey.name}
-                    </h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-200 truncate">
+                        {journey.name}
+                      </h3>
+                      <Badge variant={journey.type === 'academic' ? 'default' : 'secondary'} className="text-xs">
+                        {journey.type === 'academic' ? 'Academic' : 'Practicum'}
+                      </Badge>
+                    </div>
                     <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                       {journey.description || 'No description provided'}
                     </p>
@@ -246,8 +371,8 @@ export function ProgramJourneyManager() {
                   </div>
                 </div>
 
-                {/* Progress Indicator */}
-                {journey.stages && journey.stages.length > 0 && (
+                {/* Progress Indicator - Only for Academic journeys */}
+                {journey.type === 'academic' && journey.raw.stages && journey.raw.stages.length > 0 && (
                   <div className="mb-4">
                     <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                       <span>Stage Progress</span>
@@ -267,19 +392,21 @@ export function ProgramJourneyManager() {
                   <div className="flex items-center gap-2 text-sm">
                     <BookOpen className="h-4 w-4 text-muted-foreground" />
                     <span className="truncate text-foreground">
-                      {getProgramName(journey.program_id)}
+                      {journey.type === 'academic' ? getProgramName(journey.program_id) : 'Practicum'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Activity className="h-4 w-4 text-muted-foreground" />
                     <span className="text-foreground">
-                      {journey.stages?.length || 0} stages
+                      {journey.stagesCount} {journey.type === 'academic' ? 'stages' : 'steps'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-foreground">v{journey.version}</span>
-                  </div>
+                  {journey.version && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-foreground">v{journey.version}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-foreground">
@@ -294,7 +421,7 @@ export function ProgramJourneyManager() {
                     variant="outline" 
                     size="sm" 
                     className="flex-1 action-button hover:border-primary/30 hover:bg-primary/5"
-                    onClick={() => setEditingJourneyId(journey.id)}
+                    onClick={() => handleEditJourney(journey)}
                   >
                     <Settings className="h-4 w-4 mr-2" />
                     Edit
@@ -325,34 +452,45 @@ export function ProgramJourneyManager() {
               </div>
             </div>
             <h3 className="text-2xl font-bold text-foreground mb-3">
-              No Academic Journeys Found
+              No Journeys Found
             </h3>
             <p className="text-muted-foreground mb-8 leading-relaxed">
-              {searchTerm || selectedProgram !== 'all' 
+              {searchTerm || selectedProgram !== 'all' || selectedJourneyType !== 'all'
                 ? 'No journeys match your current filters. Try adjusting your search criteria or clear filters to see all journeys.'
-                : 'Transform your enrollment process by creating structured academic journeys. Guide students through each step from application to enrollment with intelligent workflows.'
+                : 'Transform your enrollment process by creating structured academic and practicum journeys. Guide students through each step with intelligent workflows.'
               }
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              {(searchTerm || selectedProgram !== 'all') && (
+              {(searchTerm || selectedProgram !== 'all' || selectedJourneyType !== 'all') && (
                 <Button 
                   variant="outline" 
                   onClick={() => {
                     setSearchTerm('');
                     setSelectedProgram('all');
+                    setSelectedJourneyType('all');
                   }}
                   className="action-button"
                 >
                   Clear Filters
                 </Button>
               )}
-              <Button 
-                onClick={handleCreateJourney} 
-                className="gap-2 action-button bg-gradient-primary hover:shadow-lg"
-              >
-                <Plus className="h-4 w-4" />
-                Create Your First Journey
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="gap-2 action-button bg-gradient-primary hover:shadow-lg">
+                    <Plus className="h-4 w-4" />
+                    Create Your First Journey
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center">
+                  <DropdownMenuItem onClick={handleCreateAcademicJourney}>
+                    Create Academic Journey
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleCreatePracticumJourney}>
+                    Create Practicum Journey
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

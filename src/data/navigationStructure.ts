@@ -103,10 +103,10 @@ export const navigationStructure: NavigationStructure = {
         { name: "Practicum Sites", href: "/admin/practicum/sites", icon: MapPin },
         { 
           name: "Practicum Journeys", 
-          href: "/admin/practicum/journeys", 
+          href: "/admin/enrollment/program-journeys?type=practicum", 
           icon: ClipboardList,
           subItems: [
-            { name: "Journey Manager", href: "/admin/practicum/journeys", icon: ClipboardList },
+            { name: "Journey Manager", href: "/admin/enrollment/program-journeys?type=practicum", icon: ClipboardList },
             { name: "Journey Builder", href: "/admin/practicum/journeys/builder", icon: Route }
           ]
         },

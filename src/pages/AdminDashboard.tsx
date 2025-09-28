@@ -230,7 +230,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/practicum/sites":
         return <SiteManagement />;
       case "/admin/practicum/journeys":
-        return <PracticumJourneyManager />;
+        return <ProgramJourneyManager />;
       case "/admin/practicum/journeys/builder":
         return <PracticumJourneyBuilder />;
       case "/admin/practicum/journeys/builder/:journeyId":

@@ -73,6 +73,7 @@ import { ApplicationSetup } from "./admin/setup/ApplicationSetup";
 import { BusinessSetup } from "./admin/setup/BusinessSetup";
 import { TeamSetup } from "./admin/setup/TeamSetup";
 import { DataSetup } from "./admin/setup/DataSetup";
+import ProgramWizardPage from "./admin/ProgramWizardPage";
 
 const AdminDashboard: React.FC = () => {
   const location = useLocation();
@@ -97,6 +98,7 @@ const AdminDashboard: React.FC = () => {
       // Render the analytics page directly (no layout wrapper needed as it's already in ModernAdminLayout)
       return <AIAdvisorAnalytics />;
     }
+    
     
     switch (location.pathname) {
       case "/admin":
@@ -153,6 +155,9 @@ const AdminDashboard: React.FC = () => {
         return <StudentPortalManagement />;
       case "/admin/programs":
         return <ProgramManagement />;
+      case "/admin/programs/new":
+      case "/admin/programs/edit":
+        return <ProgramWizardPage />;
       case "/admin/workflows":
         return <WorkflowManagement />;
       case "/admin/documents":

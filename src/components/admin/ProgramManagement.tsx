@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { DemoDataService } from '@/services/demoDataService';
 import { ProgramService } from '@/services/programService';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import ProgramWizard from "./ProgramWizard";
+
 import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
 import { ProgramSettingsModal } from "./modals/ProgramSettingsModal";
@@ -39,8 +40,8 @@ import {
 
 const ProgramManagement: React.FC = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [showWizard, setShowWizard] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -158,8 +159,7 @@ const ProgramManagement: React.FC = () => {
   };
 
   const handleEditProgram = (program: any) => {
-    setSelectedProgram(program);
-    setEditModalOpen(true);
+    navigate(`/admin/programs/edit?edit=${program.id}`);
   };
 
   const handleSettingsProgram = (program: any) => {
@@ -229,7 +229,7 @@ const ProgramManagement: React.FC = () => {
             <RefreshCw className="h-4 w-4 mr-2" />
             Refresh Data
           </Button>
-          <Button onClick={() => setShowWizard(true)}>
+          <Button onClick={() => navigate('/admin/programs/new')}>
             <Plus className="h-4 w-4 mr-2" />
             Create Program
           </Button>
@@ -323,14 +323,7 @@ const ProgramManagement: React.FC = () => {
       {/* Pipeline Planner */}
       <EnhancedPipelinePlanner />
 
-      <ProgramWizard 
-        open={showWizard} 
-        onOpenChange={setShowWizard}
-        onSave={(program) => {
-          console.log('Program created:', program);
-          // The wizard now handles database saving and query invalidation
-        }}
-      />
+      {/* No longer using ProgramWizard dialog - now navigates to separate page */}
 
       {/* View Program Modal */}
       <ProgramViewModal

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { BookOpen, Plus, Edit, Check, ArrowRight } from 'lucide-react';
-import ProgramWizard from '@/components/admin/ProgramWizard';
+import { useNavigate } from 'react-router-dom';
 
 interface ProgramSetupScreenProps {
   data: any;
@@ -21,19 +21,20 @@ const ProgramSetupScreen: React.FC<ProgramSetupScreenProps> = ({
   onNext,
   onSkip
 }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [programs, setPrograms] = useState(data?.programs || websiteData?.programs || []);
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [editingProgram, setEditingProgram] = useState(null);
 
   const handleAddProgram = () => {
-    setEditingProgram(null);
-    setIsWizardOpen(true);
+    // For onboarding, we might want to handle this differently
+    // For now, we'll navigate to the wizard page
+    navigate('/admin/programs/new');
   };
 
   const handleEditProgram = (program: any) => {
-    setEditingProgram(program);
-    setIsWizardOpen(true);
+    navigate(`/admin/programs/edit?edit=${program.id}`);
   };
 
   const handleProgramSaved = (programData: any) => {
@@ -210,14 +211,6 @@ const ProgramSetupScreen: React.FC<ProgramSetupScreenProps> = ({
           Continue with {programs.length} Program{programs.length !== 1 ? 's' : ''}
         </Button>
       </div>
-
-      {/* Program Wizard */}
-      <ProgramWizard
-        open={isWizardOpen}
-        onOpenChange={setIsWizardOpen}
-        editingProgram={editingProgram}
-        onSave={handleProgramSaved}
-      />
     </div>
   );
 };

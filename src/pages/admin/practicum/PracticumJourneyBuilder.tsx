@@ -26,7 +26,7 @@ import {
   CheckCircle, SkipForward, Mail, Sparkles
 } from 'lucide-react';
 import { BuilderConfig, JourneyElement, UniversalElement } from '@/types/universalBuilder';
-import { journeyElementTypes } from '@/config/elementTypes';
+import { practicumElementTypes } from '@/config/elementTypes';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -137,22 +137,22 @@ function PracticumJourneyBuilderContent({ onBack }: PracticumJourneyBuilderProps
   };
 
   const getCategorySteps = () => {
-    return journeyElementTypes.reduce((acc, element) => {
+    return practicumElementTypes.reduce((acc, element) => {
       if (!acc[element.category]) {
         acc[element.category] = [];
       }
       acc[element.category].push(element);
       return acc;
-    }, {} as Record<string, typeof journeyElementTypes>);
+    }, {} as Record<string, typeof practicumElementTypes>);
   };
 
   const filteredSteps = () => {
-    if (selectedCategory === 'all') return journeyElementTypes;
-    return journeyElementTypes.filter(step => step.category === selectedCategory);
+    if (selectedCategory === 'all') return practicumElementTypes;
+    return practicumElementTypes.filter(step => step.category === selectedCategory);
   };
 
   const addStep = (elementType: string) => {
-    const elementConfig = journeyElementTypes.find(e => e.type === elementType);
+    const elementConfig = practicumElementTypes.find(e => e.type === elementType);
     if (!elementConfig) return;
 
     const newStep: UniversalElement = {

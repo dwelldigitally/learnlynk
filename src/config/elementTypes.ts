@@ -281,173 +281,56 @@ export const campaignElementTypes: ElementTypeConfig[] = [
 // Journey Element Types - NEW!
 // Practicum Element Types - NEW!
 export const practicumElementTypes: ElementTypeConfig[] = [
-  // Agreement & Setup
+  // Interview Steps
   {
-    type: 'agreement-signing',
-    label: 'Agreement Signing',
-    icon: 'FileSignature',
-    category: 'Setup',
+    type: 'in-person-interview',
+    label: 'In-Person Interview',
+    icon: 'Users',
+    category: 'Interviews',
     defaultConfig: {
-      contractType: 'practicum',
-      requiresDigitalSignature: true,
-      expirationPeriod: 365,
-      approvers: ['preceptor', 'instructor']
+      duration: 60,
+      location: 'Practicum Site',
+      instructions: 'Meet with site supervisor for initial assessment',
+      required: true,
+      schedulingRequired: true
     },
     configSchema: [
-      { 
-        key: 'contractType', 
-        label: 'Contract Type', 
-        type: 'select',
-        options: [
-          { label: 'Standard Practicum', value: 'practicum' },
-          { label: 'Clinical Rotation', value: 'clinical' },
-          { label: 'Internship', value: 'internship' }
-        ]
-      },
-      { key: 'requiresDigitalSignature', label: 'Digital Signature Required', type: 'checkbox' },
-      { key: 'expirationPeriod', label: 'Validity Period (days)', type: 'number' },
-      { key: 'instructions', label: 'Signing Instructions', type: 'textarea' }
+      { key: 'duration', label: 'Duration (minutes)', type: 'number' },
+      { key: 'location', label: 'Location', type: 'text' },
+      { key: 'instructions', label: 'Instructions', type: 'textarea' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'schedulingRequired', label: 'Requires Scheduling', type: 'checkbox' }
     ]
   },
   {
-    type: 'attendance-logging',
-    label: 'Attendance Logging',
-    icon: 'Clock',
-    category: 'Tracking',
+    type: 'phone-interview',
+    label: 'Phone Interview',
+    icon: 'Phone',
+    category: 'Interviews',
     defaultConfig: {
-      clockInMethod: 'manual',
-      minimumHours: 40,
-      requiresSupervisorApproval: true,
-      trackingFrequency: 'daily'
+      duration: 30,
+      instructions: 'Pre-practicum phone screening with supervisor',
+      required: true,
+      schedulingRequired: true
     },
     configSchema: [
-      {
-        key: 'clockInMethod',
-        label: 'Clock-in Method',
-        type: 'select',
-        options: [
-          { label: 'Manual Entry', value: 'manual' },
-          { label: 'QR Code', value: 'qr' },
-          { label: 'GPS Location', value: 'gps' }
-        ]
-      },
-      { key: 'minimumHours', label: 'Minimum Hours Required', type: 'number' },
-      { key: 'requiresSupervisorApproval', label: 'Supervisor Approval Required', type: 'checkbox' },
-      { key: 'instructions', label: 'Attendance Instructions', type: 'textarea' }
+      { key: 'duration', label: 'Duration (minutes)', type: 'number' },
+      { key: 'instructions', label: 'Instructions', type: 'textarea' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'schedulingRequired', label: 'Requires Scheduling', type: 'checkbox' }
     ]
   },
-  {
-    type: 'competency-assessment',
-    label: 'Competency Assessment',
-    icon: 'CheckSquare',
-    category: 'Evaluation',
-    defaultConfig: {
-      competencyFramework: 'nursing',
-      evaluationMethod: 'checklist',
-      passingScore: 70,
-      allowMultipleAttempts: true
-    },
-    configSchema: [
-      {
-        key: 'competencyFramework',
-        label: 'Competency Framework',
-        type: 'select',
-        options: [
-          { label: 'Nursing Competencies', value: 'nursing' },
-          { label: 'Medical Assistant', value: 'medical' },
-          { label: 'Allied Health', value: 'allied' },
-          { label: 'Custom Framework', value: 'custom' }
-        ]
-      },
-      {
-        key: 'evaluationMethod',
-        label: 'Evaluation Method',
-        type: 'select',
-        options: [
-          { label: 'Checklist', value: 'checklist' },
-          { label: 'Rubric Scoring', value: 'rubric' },
-          { label: 'Narrative Assessment', value: 'narrative' }
-        ]
-      },
-      { key: 'passingScore', label: 'Passing Score (%)', type: 'number' },
-      { key: 'allowMultipleAttempts', label: 'Allow Multiple Attempts', type: 'checkbox' }
-    ]
-  },
-  {
-    type: 'journal-entry',
-    label: 'Journal Entry',
-    icon: 'BookOpen',
-    category: 'Reflection',
-    defaultConfig: {
-      entryFrequency: 'weekly',
-      minimumWordCount: 250,
-      reflectionPrompts: [],
-      requiresFeedback: true
-    },
-    configSchema: [
-      {
-        key: 'entryFrequency',
-        label: 'Entry Frequency',
-        type: 'select',
-        options: [
-          { label: 'Daily', value: 'daily' },
-          { label: 'Weekly', value: 'weekly' },
-          { label: 'Bi-weekly', value: 'biweekly' },
-          { label: 'As Needed', value: 'flexible' }
-        ]
-      },
-      { key: 'minimumWordCount', label: 'Minimum Word Count', type: 'number' },
-      { key: 'requiresFeedback', label: 'Instructor Feedback Required', type: 'checkbox' },
-      { key: 'instructions', label: 'Journal Instructions', type: 'textarea' }
-    ]
-  },
-  {
-    type: 'evaluation-form',
-    label: 'Evaluation Form',
-    icon: 'Award',
-    category: 'Evaluation',
-    defaultConfig: {
-      evaluationType: 'midterm',
-      evaluatorRole: 'preceptor',
-      scoringMethod: 'numerical',
-      weightedScore: 100
-    },
-    configSchema: [
-      {
-        key: 'evaluationType',
-        label: 'Evaluation Type',
-        type: 'select',
-        options: [
-          { label: 'Initial Assessment', value: 'initial' },
-          { label: 'Midterm Evaluation', value: 'midterm' },
-          { label: 'Final Evaluation', value: 'final' },
-          { label: 'Continuous Assessment', value: 'continuous' }
-        ]
-      },
-      {
-        key: 'evaluatorRole',
-        label: 'Primary Evaluator',
-        type: 'select',
-        options: [
-          { label: 'Preceptor', value: 'preceptor' },
-          { label: 'Instructor', value: 'instructor' },
-          { label: 'Site Coordinator', value: 'coordinator' },
-          { label: 'Multiple Evaluators', value: 'multiple' }
-        ]
-      },
-      { key: 'weightedScore', label: 'Weight in Final Grade (%)', type: 'number' },
-      { key: 'instructions', label: 'Evaluation Instructions', type: 'textarea' }
-    ]
-  },
+
+  // Requirements & Documents
   {
     type: 'document-upload',
     label: 'Document Upload',
     icon: 'FileText',
     category: 'Requirements',
     defaultConfig: {
-      documentType: 'general',
+      documentType: 'health_records',
       required: true,
-      acceptedFormats: ['.pdf', '.doc', '.docx'],
+      acceptedFormats: ['.pdf', '.doc', '.docx', '.jpg', '.png'],
       maxFileSize: 10,
       requiresApproval: true
     },
@@ -457,18 +340,354 @@ export const practicumElementTypes: ElementTypeConfig[] = [
         label: 'Document Type',
         type: 'select',
         options: [
-          { label: 'Health Records', value: 'health' },
+          { label: 'Health Records', value: 'health_records' },
           { label: 'Immunization Records', value: 'immunization' },
-          { label: 'Background Check', value: 'background' },
+          { label: 'Background Check', value: 'background_check' },
           { label: 'Liability Insurance', value: 'insurance' },
-          { label: 'Skills Checklist', value: 'skills' },
-          { label: 'Other', value: 'general' }
+          { label: 'Skills Checklist', value: 'skills_checklist' },
+          { label: 'Resume/CV', value: 'resume' },
+          { label: 'Other', value: 'other' }
         ]
       },
       { key: 'required', label: 'Required Document', type: 'checkbox' },
       { key: 'requiresApproval', label: 'Requires Approval', type: 'checkbox' },
       { key: 'maxFileSize', label: 'Max File Size (MB)', type: 'number' },
       { key: 'instructions', label: 'Upload Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'verification',
+    label: 'Verification',
+    icon: 'CheckSquare',
+    category: 'Requirements',
+    defaultConfig: {
+      verificationType: 'background_check',
+      required: true,
+      instructions: 'Complete background verification process',
+      processingTime: 5
+    },
+    configSchema: [
+      { 
+        key: 'verificationType', 
+        label: 'Verification Type', 
+        type: 'select', 
+        options: [
+          { label: 'Background Check', value: 'background_check' },
+          { label: 'Drug Screening', value: 'drug_screening' },
+          { label: 'Health Clearance', value: 'health_clearance' },
+          { label: 'Academic Records', value: 'academic_records' },
+          { label: 'License Verification', value: 'license_verification' }
+        ]
+      },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'processingTime', label: 'Processing Time (days)', type: 'number' },
+      { key: 'instructions', label: 'Instructions', type: 'textarea' }
+    ]
+  },
+
+  // Tests & Assessments
+  {
+    type: 'typing-test',
+    label: 'Typing Test',
+    icon: 'Keyboard',
+    category: 'Tests',
+    defaultConfig: {
+      minimumWPM: 35,
+      duration: 10,
+      required: true,
+      retries: 2,
+      testProvider: 'internal'
+    },
+    configSchema: [
+      { key: 'minimumWPM', label: 'Minimum WPM', type: 'number' },
+      { key: 'duration', label: 'Test Duration (minutes)', type: 'number' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'retries', label: 'Number of Retries', type: 'number' },
+      { key: 'instructions', label: 'Test Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'aptitude-test',
+    label: 'Aptitude Test',
+    icon: 'Brain',
+    category: 'Tests',
+    defaultConfig: {
+      testType: 'healthcare_aptitude',
+      duration: 90,
+      passingScore: 75,
+      required: true,
+      allowMultipleAttempts: false
+    },
+    configSchema: [
+      { 
+        key: 'testType', 
+        label: 'Test Type', 
+        type: 'select', 
+        options: [
+          { label: 'Healthcare Aptitude', value: 'healthcare_aptitude' },
+          { label: 'Clinical Reasoning', value: 'clinical_reasoning' },
+          { label: 'Medical Terminology', value: 'medical_terminology' },
+          { label: 'Patient Care Skills', value: 'patient_care' },
+          { label: 'General Aptitude', value: 'general' }
+        ]
+      },
+      { key: 'duration', label: 'Duration (minutes)', type: 'number' },
+      { key: 'passingScore', label: 'Passing Score (%)', type: 'number' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'allowMultipleAttempts', label: 'Allow Multiple Attempts', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'skills-assessment',
+    label: 'Skills Assessment',
+    icon: 'Target',
+    category: 'Tests',
+    defaultConfig: {
+      skillArea: 'clinical_skills',
+      duration: 120,
+      required: true,
+      practicalComponent: true,
+      evaluationType: 'competency_based'
+    },
+    configSchema: [
+      { 
+        key: 'skillArea', 
+        label: 'Skill Area', 
+        type: 'select',
+        options: [
+          { label: 'Clinical Skills', value: 'clinical_skills' },
+          { label: 'Patient Communication', value: 'patient_communication' },
+          { label: 'Technical Procedures', value: 'technical_procedures' },
+          { label: 'Documentation Skills', value: 'documentation' },
+          { label: 'Emergency Response', value: 'emergency_response' }
+        ]
+      },
+      { key: 'duration', label: 'Duration (minutes)', type: 'number' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'practicalComponent', label: 'Practical Component', type: 'checkbox' },
+      { key: 'assessmentCriteria', label: 'Assessment Criteria', type: 'textarea' }
+    ]
+  },
+
+  // Review & Evaluation
+  {
+    type: 'application-review',
+    label: 'Application Review',
+    icon: 'Eye',
+    category: 'Review',
+    defaultConfig: {
+      reviewType: 'practicum_readiness',
+      reviewers: 1,
+      timeframe: 3,
+      autoAssign: true,
+      criteriaChecklist: true
+    },
+    configSchema: [
+      { 
+        key: 'reviewType', 
+        label: 'Review Type', 
+        type: 'select', 
+        options: [
+          { label: 'Practicum Readiness', value: 'practicum_readiness' },
+          { label: 'Site Compatibility', value: 'site_compatibility' },
+          { label: 'Academic Preparation', value: 'academic_preparation' },
+          { label: 'Clinical Prerequisites', value: 'clinical_prerequisites' }
+        ]
+      },
+      { key: 'reviewers', label: 'Number of Reviewers', type: 'number' },
+      { key: 'timeframe', label: 'Review Timeframe (days)', type: 'number' },
+      { key: 'autoAssign', label: 'Auto Assign Reviewers', type: 'checkbox' },
+      { key: 'criteriaChecklist', label: 'Use Criteria Checklist', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'committee-review',
+    label: 'Committee Review',
+    icon: 'Users2',
+    category: 'Review',
+    defaultConfig: {
+      committeeSize: 3,
+      consensusRequired: true,
+      timeframe: 7,
+      includesExternalReviewer: false
+    },
+    configSchema: [
+      { key: 'committeeSize', label: 'Committee Size', type: 'number' },
+      { key: 'consensusRequired', label: 'Consensus Required', type: 'checkbox' },
+      { key: 'timeframe', label: 'Review Timeframe (days)', type: 'number' },
+      { key: 'includesExternalReviewer', label: 'Include External Reviewer', type: 'checkbox' },
+      { 
+        key: 'votingMethod', 
+        label: 'Voting Method', 
+        type: 'select', 
+        options: [
+          { label: 'Majority Vote', value: 'majority' },
+          { label: 'Unanimous', value: 'unanimous' },
+          { label: 'Weighted Score', value: 'weighted' }
+        ]
+      }
+    ]
+  },
+
+  // Communications & Notifications
+  {
+    type: 'notification',
+    label: 'Notification',
+    icon: 'Bell',
+    category: 'Communications',
+    defaultConfig: {
+      notificationType: 'email',
+      template: 'practicum_notification',
+      autoSend: true,
+      recipientType: 'student_and_site'
+    },
+    configSchema: [
+      { 
+        key: 'notificationType', 
+        label: 'Notification Type', 
+        type: 'select', 
+        options: [
+          { label: 'Email', value: 'email' },
+          { label: 'SMS', value: 'sms' },
+          { label: 'Portal Message', value: 'portal' },
+          { label: 'Phone Call', value: 'phone' }
+        ]
+      },
+      { 
+        key: 'recipientType', 
+        label: 'Recipients', 
+        type: 'select', 
+        options: [
+          { label: 'Student Only', value: 'student' },
+          { label: 'Site Supervisor Only', value: 'site' },
+          { label: 'Student and Site', value: 'student_and_site' },
+          { label: 'All Stakeholders', value: 'all' }
+        ]
+      },
+      { key: 'template', label: 'Template', type: 'text' },
+      { key: 'autoSend', label: 'Auto Send', type: 'checkbox' },
+      { key: 'customMessage', label: 'Custom Message', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'reminder',
+    label: 'Reminder',
+    icon: 'Clock',
+    category: 'Communications',
+    defaultConfig: {
+      reminderTime: 24,
+      reminderUnit: 'hours',
+      reminderType: 'email',
+      escalation: false
+    },
+    configSchema: [
+      { key: 'reminderTime', label: 'Reminder Time', type: 'number' },
+      { 
+        key: 'reminderUnit', 
+        label: 'Time Unit', 
+        type: 'select', 
+        options: [
+          { label: 'Hours', value: 'hours' },
+          { label: 'Days', value: 'days' },
+          { label: 'Weeks', value: 'weeks' }
+        ]
+      },
+      { 
+        key: 'reminderType', 
+        label: 'Reminder Type', 
+        type: 'select', 
+        options: [
+          { label: 'Email', value: 'email' },
+          { label: 'SMS', value: 'sms' },
+          { label: 'Push', value: 'push' },
+          { label: 'Phone Call', value: 'phone' }
+        ]
+      },
+      { key: 'escalation', label: 'Escalate if No Response', type: 'checkbox' },
+      { key: 'customMessage', label: 'Custom Message', type: 'textarea' }
+    ]
+  },
+
+  // Practicum-Specific Steps
+  {
+    type: 'site-orientation',
+    label: 'Site Orientation',
+    icon: 'MapPin',
+    category: 'Practicum Setup',
+    defaultConfig: {
+      duration: 240,
+      includesHandbook: true,
+      requiresCompletion: true,
+      orientationComponents: ['facility_tour', 'policies_review', 'safety_training']
+    },
+    configSchema: [
+      { key: 'duration', label: 'Duration (minutes)', type: 'number' },
+      { key: 'includesHandbook', label: 'Includes Site Handbook', type: 'checkbox' },
+      { key: 'requiresCompletion', label: 'Requires Completion Certificate', type: 'checkbox' },
+      { key: 'orientationNotes', label: 'Orientation Notes', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'preceptor-assignment',
+    label: 'Preceptor Assignment',
+    icon: 'UserCheck',
+    category: 'Practicum Setup',
+    defaultConfig: {
+      matchingCriteria: 'experience_specialty',
+      requiresApproval: true,
+      allowStudentPreference: false
+    },
+    configSchema: [
+      { 
+        key: 'matchingCriteria', 
+        label: 'Matching Criteria', 
+        type: 'select', 
+        options: [
+          { label: 'Experience & Specialty', value: 'experience_specialty' },
+          { label: 'Availability Only', value: 'availability' },
+          { label: 'Student Preference', value: 'preference' },
+          { label: 'Random Assignment', value: 'random' }
+        ]
+      },
+      { key: 'requiresApproval', label: 'Requires Academic Approval', type: 'checkbox' },
+      { key: 'allowStudentPreference', label: 'Allow Student Preference', type: 'checkbox' },
+      { key: 'specialRequirements', label: 'Special Requirements', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'learning-objectives',
+    label: 'Learning Objectives',
+    icon: 'Target',
+    category: 'Academic',
+    defaultConfig: {
+      objectiveType: 'clinical_competency',
+      requiresApproval: true,
+      trackingMethod: 'weekly_checkin'
+    },
+    configSchema: [
+      { 
+        key: 'objectiveType', 
+        label: 'Objective Type', 
+        type: 'select', 
+        options: [
+          { label: 'Clinical Competency', value: 'clinical_competency' },
+          { label: 'Professional Development', value: 'professional_development' },
+          { label: 'Skill Acquisition', value: 'skill_acquisition' },
+          { label: 'Knowledge Application', value: 'knowledge_application' }
+        ]
+      },
+      { key: 'requiresApproval', label: 'Requires Preceptor Approval', type: 'checkbox' },
+      { 
+        key: 'trackingMethod', 
+        label: 'Progress Tracking', 
+        type: 'select', 
+        options: [
+          { label: 'Weekly Check-in', value: 'weekly_checkin' },
+          { label: 'Milestone Based', value: 'milestone' },
+          { label: 'Continuous Assessment', value: 'continuous' }
+        ]
+      },
+      { key: 'objectives', label: 'Learning Objectives', type: 'textarea' }
     ]
   }
 ];
@@ -755,6 +974,8 @@ export function getElementTypesForBuilder(builderType: string): ElementTypeConfi
       return campaignElementTypes;
     case 'journey':
       return journeyElementTypes;
+    case 'practicum':
+      return practicumElementTypes;
     default:
       return [];
   }

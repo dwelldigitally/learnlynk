@@ -331,9 +331,23 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
               
               {/* Filter and deduplicate sites based on search term */}
               {(() => {
-                // First deduplicate sites by ID
+                // First deduplicate sites by ID, then by content (organization + address)
                 const uniqueSites = sites?.reduce((acc, site) => {
-                  if (!acc.find(existingSite => existingSite.id === site.id)) {
+                  // Check if site already exists by ID
+                  const existsById = acc.find(existingSite => existingSite.id === site.id);
+                  if (existsById) {
+                    return acc;
+                  }
+                  
+                  // Check if site already exists by content (organization + address)
+                  const existsByContent = acc.find(existingSite => 
+                    existingSite.organization === site.organization && 
+                    existingSite.address === site.address &&
+                    existingSite.city === site.city &&
+                    existingSite.state === site.state
+                  );
+                  
+                  if (!existsByContent) {
                     acc.push(site);
                   }
                   return acc;

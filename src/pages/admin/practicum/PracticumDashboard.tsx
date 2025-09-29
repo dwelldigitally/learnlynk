@@ -72,12 +72,110 @@ const generateBatchData = (): BatchData[] => {
   const batches: BatchData[] = [];
   const now = new Date();
   
+  // First, add some guaranteed active practicum batches
+  const activePracticumBatches: BatchData[] = [
+    {
+      id: 'active-hca-1',
+      program: 'Health Care Assistant',
+      intakeDate: new Date(now.getTime() - 45 * 24 * 60 * 60 * 1000).toISOString(), // 45 days ago
+      studentCount: 24,
+      capacity: 30,
+      status: 'active',
+      urgencyLevel: 'medium',
+      completionRate: 67,
+      attendanceRate: 94,
+      documentComplianceRate: 89,
+      site: 'General Hospital',
+      startDate: new Date(now.getTime() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      endDate: new Date(now.getTime() + 75 * 24 * 60 * 60 * 1000).toISOString(),
+      students: Array.from({ length: 24 }, (_, i) => ({
+        id: `active-hca-1-student-${i}`,
+        name: `HCA Student ${i + 1}`,
+        progress: Math.floor(50 + Math.random() * 40), // 50-90% progress
+        lastActivity: new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000).toISOString()
+      }))
+    },
+    {
+      id: 'active-ece-1',
+      program: 'ECE',
+      intakeDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
+      studentCount: 18,
+      capacity: 20,
+      status: 'active',
+      urgencyLevel: 'medium',
+      completionRate: 78,
+      attendanceRate: 96,
+      documentComplianceRate: 92,
+      site: 'Children Development Center',
+      startDate: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      endDate: new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString(),
+      students: Array.from({ length: 18 }, (_, i) => ({
+        id: `active-ece-1-student-${i}`,
+        name: `ECE Student ${i + 1}`,
+        progress: Math.floor(60 + Math.random() * 35), // 60-95% progress
+        lastActivity: new Date(Date.now() - Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString()
+      }))
+    },
+    {
+      id: 'missing-attendance-av-1',
+      program: 'Aviation',
+      intakeDate: new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000).toISOString(), // 60 days ago
+      studentCount: 35,
+      capacity: 40,
+      status: 'missing-attendance',
+      urgencyLevel: 'high',
+      completionRate: 45,
+      attendanceRate: 78, // Lower attendance rate
+      documentComplianceRate: 85,
+      site: 'Regional Airport Training Center',
+      startDate: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      endDate: new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+      students: Array.from({ length: 35 }, (_, i) => ({
+        id: `missing-attendance-av-1-student-${i}`,
+        name: `Aviation Student ${i + 1}`,
+        progress: Math.floor(30 + Math.random() * 50), // 30-80% progress (more variation)
+        missingItems: Math.random() > 0.6 ? ['Attendance Log', 'Flight Hours'] : undefined,
+        lastActivity: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString()
+      }))
+    },
+    {
+      id: 'active-hosp-1',
+      program: 'Hospitality',
+      intakeDate: new Date(now.getTime() - 25 * 24 * 60 * 60 * 1000).toISOString(), // 25 days ago
+      studentCount: 28,
+      capacity: 35,
+      status: 'active',
+      urgencyLevel: 'medium',
+      completionRate: 85,
+      attendanceRate: 98,
+      documentComplianceRate: 95,
+      site: 'Grand Hotel & Resort',
+      startDate: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+      endDate: new Date(now.getTime() + 95 * 24 * 60 * 60 * 1000).toISOString(),
+      students: Array.from({ length: 28 }, (_, i) => ({
+        id: `active-hosp-1-student-${i}`,
+        name: `Hospitality Student ${i + 1}`,
+        progress: Math.floor(70 + Math.random() * 25), // 70-95% progress
+        lastActivity: new Date(Date.now() - Math.random() * 1 * 24 * 60 * 60 * 1000).toISOString()
+      }))
+    }
+  ];
+  
+  batches.push(...activePracticumBatches);
+  
+  // Then add the original logic for other batches
   programs.forEach(program => {
     const intakeDates = PROGRAM_INTAKE_DATES[program as keyof typeof PROGRAM_INTAKE_DATES];
     
     intakeDates.forEach(intake => {
       const intakeDate = new Date(intake.date);
       const daysDiff = Math.floor((intakeDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      
+      // Skip if we already have active batches for this program
+      if ((program === 'Health Care Assistant' || program === 'ECE' || program === 'Aviation' || program === 'Hospitality') && 
+          (daysDiff < -14 && daysDiff > -120)) {
+        return; // Skip to avoid duplicates with our manual active batches
+      }
       
       // Determine batch status based on timeline
       let status: BatchData['status'] = 'unscheduled';

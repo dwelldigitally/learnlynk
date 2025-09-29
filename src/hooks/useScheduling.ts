@@ -13,51 +13,51 @@ import {
 // Comprehensive dummy data for all scheduling components
 const getDummyStudentBatches = (): StudentBatch[] => [
   {
-    id: 'batch-1',
-    user_id: 'user-1',
+    id: '11111111-1111-1111-1111-111111111111',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
     batch_name: 'Fall 2024 - Health Care Assistant Cohort A',
     description: 'First intake for HCA program focusing on acute care settings',
-    program_id: 'hca-program-1',
+    program_id: '22222222-2222-2222-2222-222222222222',
     status: 'active',
     created_at: '2024-09-01T00:00:00.000Z',
     updated_at: '2024-09-15T00:00:00.000Z'
   },
   {
-    id: 'batch-2',
-    user_id: 'user-1',
+    id: '11111111-1111-1111-1111-111111111112',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
     batch_name: 'Fall 2024 - Early Childhood Education',
     description: 'ECE program batch with specialized focus on inclusive education',
-    program_id: 'ece-program-1',
+    program_id: '22222222-2222-2222-2222-222222222223',
     status: 'active',
     created_at: '2024-09-01T00:00:00.000Z',
     updated_at: '2024-09-10T00:00:00.000Z'
   },
   {
-    id: 'batch-3',
-    user_id: 'user-1',
+    id: '11111111-1111-1111-1111-111111111113',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
     batch_name: 'Winter 2024 - Aviation Technology',
     description: 'Advanced aviation maintenance and technology program',
-    program_id: 'aviation-program-1',
+    program_id: '22222222-2222-2222-2222-222222222224',
     status: 'draft',
     created_at: '2024-08-15T00:00:00.000Z',
     updated_at: '2024-08-20T00:00:00.000Z'
   },
   {
-    id: 'batch-4',
-    user_id: 'user-1',
+    id: '11111111-1111-1111-1111-111111111114',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
     batch_name: 'Spring 2024 - Hospitality Management',
     description: 'Completed cohort with excellent industry placements',
-    program_id: 'hospitality-program-1',
+    program_id: '22222222-2222-2222-2222-222222222225',
     status: 'completed',
     created_at: '2024-01-15T00:00:00.000Z',
     updated_at: '2024-06-01T00:00:00.000Z'
   },
   {
-    id: 'batch-5',
-    user_id: 'user-1',
+    id: '11111111-1111-1111-1111-111111111115',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
     batch_name: 'Fall 2024 - Nursing Assistant Program',
     description: 'Intensive nursing assistant training with clinical rotations',
-    program_id: 'nursing-program-1',
+    program_id: '22222222-2222-2222-2222-222222222226',
     status: 'active',
     created_at: '2024-08-20T00:00:00.000Z',
     updated_at: '2024-09-20T00:00:00.000Z'
@@ -66,9 +66,9 @@ const getDummyStudentBatches = (): StudentBatch[] => [
 
 const getDummySiteCapacity = (): SiteCapacityTracking[] => [
   {
-    id: 'capacity-1',
-    site_id: 'site-1',
-    program_id: 'hca-program-1',
+    id: '33333333-3333-3333-3333-333333333331',
+    site_id: '44444444-4444-4444-4444-444444444441',
+    program_id: '22222222-2222-2222-2222-222222222222',
     period_start: '2024-09-01',
     period_end: '2024-12-15',
     max_capacity: 12,
@@ -85,9 +85,9 @@ const getDummySiteCapacity = (): SiteCapacityTracking[] => [
     }
   },
   {
-    id: 'capacity-2',
-    site_id: 'site-2',
-    program_id: 'ece-program-1',
+    id: '33333333-3333-3333-3333-333333333332',
+    site_id: '44444444-4444-4444-4444-444444444442',
+    program_id: '22222222-2222-2222-2222-222222222223',
     period_start: '2024-09-01',
     period_end: '2024-12-15',
     max_capacity: 8,
@@ -104,9 +104,9 @@ const getDummySiteCapacity = (): SiteCapacityTracking[] => [
     }
   },
   {
-    id: 'capacity-3',
-    site_id: 'site-3',
-    program_id: 'aviation-program-1',
+    id: '33333333-3333-3333-3333-333333333333',
+    site_id: '44444444-4444-4444-4444-444444444443',
+    program_id: '22222222-2222-2222-2222-222222222224',
     period_start: '2024-10-01',
     period_end: '2025-01-15',
     max_capacity: 15,
@@ -123,9 +123,9 @@ const getDummySiteCapacity = (): SiteCapacityTracking[] => [
     }
   },
   {
-    id: 'capacity-4',
-    site_id: 'site-4',
-    program_id: 'hospitality-program-1',
+    id: '33333333-3333-3333-3333-333333333334',
+    site_id: '44444444-4444-4444-4444-444444444444',
+    program_id: '22222222-2222-2222-2222-222222222225',
     period_start: '2024-09-01',
     period_end: '2024-11-30',
     max_capacity: 20,
@@ -142,9 +142,9 @@ const getDummySiteCapacity = (): SiteCapacityTracking[] => [
     }
   },
   {
-    id: 'capacity-5',
-    site_id: 'site-1',
-    program_id: 'nursing-program-1',
+    id: '33333333-3333-3333-3333-333333333335',
+    site_id: '44444444-4444-4444-4444-444444444441',
+    program_id: '22222222-2222-2222-2222-222222222226',
     period_start: '2024-09-15',
     period_end: '2024-12-30',
     max_capacity: 10,
@@ -161,9 +161,9 @@ const getDummySiteCapacity = (): SiteCapacityTracking[] => [
     }
   },
   {
-    id: 'capacity-6',
-    site_id: 'site-5',
-    program_id: 'hca-program-1',
+    id: '33333333-3333-3333-3333-333333333336',
+    site_id: '44444444-4444-4444-4444-444444444445',
+    program_id: '22222222-2222-2222-2222-222222222222',
     period_start: '2024-09-01',
     period_end: '2024-12-15',
     max_capacity: 6,
@@ -183,9 +183,9 @@ const getDummySiteCapacity = (): SiteCapacityTracking[] => [
 
 const getDummyUnassignedStudents = (): StudentAssignment[] => [
   {
-    id: 'assignment-1',
-    user_id: 'user-1',
-    batch_id: 'batch-1',
+    id: '55555555-5555-5555-5555-555555555551',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111111',
     site_id: null,
     status: 'unassigned',
     created_at: '2024-09-01T00:00:00.000Z',
@@ -195,14 +195,14 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
       last_name: 'Johnson'
     },
     practicum_programs: {
-      id: 'hca-program-1',
+      id: '22222222-2222-2222-2222-222222222222',
       program_name: 'Health Care Assistant'
     }
   },
   {
-    id: 'assignment-2',
-    user_id: 'user-1',
-    batch_id: 'batch-1',
+    id: '55555555-5555-5555-5555-555555555552',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111111',
     site_id: null,
     status: 'unassigned',
     created_at: '2024-09-01T00:00:00.000Z',
@@ -212,14 +212,14 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
       last_name: 'Chen'
     },
     practicum_programs: {
-      id: 'hca-program-1',
+      id: '22222222-2222-2222-2222-222222222222',
       program_name: 'Health Care Assistant'
     }
   },
   {
-    id: 'assignment-3',
-    user_id: 'user-1',
-    batch_id: 'batch-2',
+    id: '55555555-5555-5555-5555-555555555553',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111112',
     site_id: null,
     status: 'unassigned',
     created_at: '2024-09-01T00:00:00.000Z',
@@ -229,14 +229,14 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
       last_name: 'Rodriguez'
     },
     practicum_programs: {
-      id: 'ece-program-1',
+      id: '22222222-2222-2222-2222-222222222223',
       program_name: 'Early Childhood Education'
     }
   },
   {
-    id: 'assignment-4',
-    user_id: 'user-1',
-    batch_id: 'batch-3',
+    id: '55555555-5555-5555-5555-555555555554',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111113',
     site_id: null,
     status: 'unassigned',
     created_at: '2024-08-15T00:00:00.000Z',
@@ -246,14 +246,14 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
       last_name: 'Thompson'
     },
     practicum_programs: {
-      id: 'aviation-program-1',
+      id: '22222222-2222-2222-2222-222222222224',
       program_name: 'Aviation Technology'
     }
   },
   {
-    id: 'assignment-5',
-    user_id: 'user-1',
-    batch_id: 'batch-5',
+    id: '55555555-5555-5555-5555-555555555555',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111115',
     site_id: null,
     status: 'unassigned',
     created_at: '2024-08-20T00:00:00.000Z',
@@ -263,14 +263,14 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
       last_name: 'Williams'
     },
     practicum_programs: {
-      id: 'nursing-program-1',
+      id: '22222222-2222-2222-2222-222222222226',
       program_name: 'Nursing Assistant'
     }
   },
   {
-    id: 'assignment-6',
-    user_id: 'user-1',
-    batch_id: 'batch-2',
+    id: '55555555-5555-5555-5555-555555555556',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111112',
     site_id: null,
     status: 'unassigned',
     created_at: '2024-09-01T00:00:00.000Z',
@@ -280,7 +280,7 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
       last_name: 'Davis'
     },
     practicum_programs: {
-      id: 'ece-program-1',
+      id: '22222222-2222-2222-2222-222222222223',
       program_name: 'Early Childhood Education'
     }
   }
@@ -288,9 +288,9 @@ const getDummyUnassignedStudents = (): StudentAssignment[] => [
 
 const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] => {
   const batchAssignments: Record<string, SmartAssignmentSuggestion[]> = {
-    'batch-1': [
+    '11111111-1111-1111-1111-111111111111': [
       {
-        assignment_id: 'assignment-1',
+        assignment_id: '55555555-5555-5555-5555-555555555551',
         student_name: 'Sarah Johnson',
         program_name: 'Health Care Assistant',
         confidence_score: 92,
@@ -302,7 +302,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ],
         suggested_sites: [
           {
-            site_id: 'site-1',
+            site_id: '44444444-4444-4444-4444-444444444441',
             site_name: 'Metro General Hospital',
             overall_score: 92,
             max_capacity: 12,
@@ -312,7 +312,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
             capacity_score: 75
           },
           {
-            site_id: 'site-5',
+            site_id: '44444444-4444-4444-4444-444444444445',
             site_name: 'Community Care Center',
             overall_score: 78,
             max_capacity: 6,
@@ -324,7 +324,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ]
       },
       {
-        assignment_id: 'assignment-2',
+        assignment_id: '55555555-5555-5555-5555-555555555552',
         student_name: 'Michael Chen',
         program_name: 'Health Care Assistant',
         confidence_score: 88,
@@ -336,7 +336,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ],
         suggested_sites: [
           {
-            site_id: 'site-5',
+            site_id: '44444444-4444-4444-4444-444444444445',
             site_name: 'Community Care Center',
             overall_score: 88,
             max_capacity: 6,
@@ -346,7 +346,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
             capacity_score: 95
           },
           {
-            site_id: 'site-1',
+            site_id: '44444444-4444-4444-4444-444444444441',
             site_name: 'Metro General Hospital',
             overall_score: 85,
             max_capacity: 12,
@@ -358,9 +358,9 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ]
       }
     ],
-    'batch-2': [
+    '11111111-1111-1111-1111-111111111112': [
       {
-        assignment_id: 'assignment-3',
+        assignment_id: '55555555-5555-5555-5555-555555555553',
         student_name: 'Emily Rodriguez',
         program_name: 'Early Childhood Education',
         confidence_score: 95,
@@ -372,7 +372,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ],
         suggested_sites: [
           {
-            site_id: 'site-2',
+            site_id: '44444444-4444-4444-4444-444444444442',
             site_name: 'Sunshine Daycare Center',
             overall_score: 95,
             max_capacity: 8,
@@ -384,7 +384,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ]
       },
       {
-        assignment_id: 'assignment-6',
+        assignment_id: '55555555-5555-5555-5555-555555555556',
         student_name: 'Amanda Davis',
         program_name: 'Early Childhood Education',
         confidence_score: 87,
@@ -396,7 +396,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ],
         suggested_sites: [
           {
-            site_id: 'site-2',
+            site_id: '44444444-4444-4444-4444-444444444442',
             site_name: 'Sunshine Daycare Center',
             overall_score: 87,
             max_capacity: 8,
@@ -408,9 +408,9 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ]
       }
     ],
-    'batch-3': [
+    '11111111-1111-1111-1111-111111111113': [
       {
-        assignment_id: 'assignment-4',
+        assignment_id: '55555555-5555-5555-5555-555555555554',
         student_name: 'David Thompson',
         program_name: 'Aviation Technology',
         confidence_score: 89,
@@ -422,7 +422,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ],
         suggested_sites: [
           {
-            site_id: 'site-3',
+            site_id: '44444444-4444-4444-4444-444444444443',
             site_name: 'Regional Airport Maintenance Hub',
             overall_score: 89,
             max_capacity: 15,
@@ -434,9 +434,9 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ]
       }
     ],
-    'batch-5': [
+    '11111111-1111-1111-1111-111111111115': [
       {
-        assignment_id: 'assignment-5',
+        assignment_id: '55555555-5555-5555-5555-555555555555',
         student_name: 'Jessica Williams',
         program_name: 'Nursing Assistant',
         confidence_score: 91,
@@ -448,7 +448,7 @@ const getDummySmartAssignments = (batchId: string): SmartAssignmentSuggestion[] 
         ],
         suggested_sites: [
           {
-            site_id: 'site-1',
+            site_id: '44444444-4444-4444-4444-444444444441',
             site_name: 'Metro General Hospital',
             overall_score: 91,
             max_capacity: 10,
@@ -472,9 +472,9 @@ const getDummyBatchStudents = (batchId: string): StudentAssignment[] => {
 
 const getDummySchedulingSessions = (): SchedulingSession[] => [
   {
-    id: 'session-1',
-    user_id: 'user-1',
-    batch_id: 'batch-1',
+    id: '66666666-6666-6666-6666-666666666661',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111111',
     session_name: 'Fall 2024 HCA Initial Assignment',
     status: 'completed',
     total_students: 24,
@@ -488,9 +488,9 @@ const getDummySchedulingSessions = (): SchedulingSession[] => [
     completed_at: '2024-09-15T10:45:00.000Z'
   },
   {
-    id: 'session-2',
-    user_id: 'user-1',
-    batch_id: 'batch-2',
+    id: '66666666-6666-6666-6666-666666666662',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111112',
     session_name: 'ECE Program Site Assignments',
     status: 'completed',
     total_students: 16,
@@ -504,9 +504,9 @@ const getDummySchedulingSessions = (): SchedulingSession[] => [
     completed_at: '2024-09-10T14:30:00.000Z'
   },
   {
-    id: 'session-3',
-    user_id: 'user-1',
-    batch_id: 'batch-5',
+    id: '66666666-6666-6666-6666-666666666663',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111115',
     session_name: 'Nursing Assistant Rush Assignment',
     status: 'in_progress',
     total_students: 12,
@@ -520,9 +520,9 @@ const getDummySchedulingSessions = (): SchedulingSession[] => [
     completed_at: null
   },
   {
-    id: 'session-4',
-    user_id: 'user-1',
-    batch_id: 'batch-4',
+    id: '66666666-6666-6666-6666-666666666664',
+    user_id: '7a4165be-91e3-4fd9-b2da-19a4be0f2df1',
+    batch_id: '11111111-1111-1111-1111-111111111114',
     session_name: 'Spring 2024 Hospitality Final Placements',
     status: 'completed',
     total_students: 28,

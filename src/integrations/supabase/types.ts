@@ -4682,6 +4682,7 @@ export type Database = {
       }
       practicum_assignments: {
         Row: {
+          batch_id: string | null
           completion_percentage: number | null
           created_at: string
           current_step: number | null
@@ -4702,6 +4703,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          batch_id?: string | null
           completion_percentage?: number | null
           created_at?: string
           current_step?: number | null
@@ -4722,6 +4724,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          batch_id?: string | null
           completion_percentage?: number | null
           created_at?: string
           current_step?: number | null

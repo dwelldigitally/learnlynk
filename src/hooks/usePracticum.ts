@@ -66,11 +66,11 @@ export function usePracticumPrograms(userId: string) {
       } catch (error) {
         console.log('Using dummy data for practicum programs');
         return [
-          { id: 'hca-program-1', program_name: 'Health Care Assistant', user_id: userId },
-          { id: 'ece-program-1', program_name: 'Early Childhood Education', user_id: userId },
-          { id: 'aviation-program-1', program_name: 'Aviation Technology', user_id: userId },
-          { id: 'hospitality-program-1', program_name: 'Hospitality Management', user_id: userId },
-          { id: 'nursing-program-1', program_name: 'Nursing Assistant', user_id: userId }
+          { id: '22222222-2222-2222-2222-222222222222', program_name: 'Health Care Assistant', user_id: userId },
+          { id: '22222222-2222-2222-2222-222222222223', program_name: 'Early Childhood Education', user_id: userId },
+          { id: '22222222-2222-2222-2222-222222222224', program_name: 'Aviation Technology', user_id: userId },
+          { id: '22222222-2222-2222-2222-222222222225', program_name: 'Hospitality Management', user_id: userId },
+          { id: '22222222-2222-2222-2222-222222222226', program_name: 'Nursing Assistant', user_id: userId }
         ];
       }
     },

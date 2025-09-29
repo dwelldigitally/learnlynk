@@ -108,7 +108,11 @@ export function BatchDetailsModal({ batch, isOpen, onClose }: BatchDetailsModalP
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `practicum-report-${batch.program.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.${reportFormat}`);
+      
+      // Fix file extension
+      const fileExtension = reportFormat === 'csv' ? 'csv' : 'xlsx';
+      link.setAttribute('download', `practicum-report-${batch.program.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.${fileExtension}`);
+      
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();

@@ -54,6 +54,9 @@ import InstructorDashboard from "./pages/InstructorDashboard";
 import InstructorBatchOverview from "./pages/InstructorBatchOverview";
 import InstructorReviewJournal from "./pages/InstructorReviewJournal";
 import InstructorReviewEvaluation from "./pages/InstructorReviewEvaluation";
+import InstructorStudentDetail from "./pages/InstructorStudentDetail";
+import InstructorReviewAttendance from "./pages/InstructorReviewAttendance";
+import InstructorReviewCompetency from "./pages/InstructorReviewCompetency";
 
 const queryClient = new QueryClient();
 
@@ -147,6 +150,9 @@ const App = () => {
                <Route path="/instructor/login" element={<InstructorLogin />} />
                <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
                <Route path="/instructor/batches" element={<InstructorBatchOverview />} />
+               <Route path="/instructor/student/:studentId" element={<InstructorStudentDetail />} />
+               <Route path="/instructor/review/attendance/:attendanceId" element={<InstructorReviewAttendance />} />
+               <Route path="/instructor/review/competency/:competencyId" element={<InstructorReviewCompetency />} />
                <Route path="/instructor/review/journal/:journalId" element={<InstructorReviewJournal />} />
                <Route path="/instructor/review/evaluation/:evaluationId" element={<InstructorReviewEvaluation />} />
                

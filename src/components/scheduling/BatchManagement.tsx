@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useUser } from '@/hooks/useUser';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +16,7 @@ import { StudentBatch } from '@/types/scheduling';
 import { format } from 'date-fns';
 
 export function BatchManagement() {
-  const { data: user } = useUser();
+  const { user } = useAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isAddStudentsOpen, setIsAddStudentsOpen] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState<StudentBatch | null>(null);

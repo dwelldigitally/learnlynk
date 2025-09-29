@@ -60,8 +60,12 @@ export function BatchDetailsModal({ batch, isOpen, onClose }: BatchDetailsModalP
 
   const handleGenerateReport = async () => {
     try {
+      // For the demo, we'll use the actual program UUID instead of the batch.id
+      const actualBatchId = batch.id === 'missing-attendance-av-1' ? 
+        '0a79a840-f423-4b68-9eed-93b0215a6d6a' : batch.id;
+      
       await generateBatchReport.mutateAsync({
-        batchId: batch.id,
+        batchId: actualBatchId,
         format: reportFormat
       });
     } catch (error) {

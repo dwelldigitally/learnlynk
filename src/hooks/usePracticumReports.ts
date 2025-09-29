@@ -16,7 +16,7 @@ export const usePracticumReports = () => {
       const validation = await PracticumReportService.validateBatchForReporting(batchId);
       
       if (!validation.isValid) {
-        throw new Error(`No practicum assignments found for batch ${batchId}. Please ensure students are assigned to practicum sites before generating reports.`);
+        throw new Error(`No practicum assignments found for batch ${batchId}. Please ensure students are assigned to practicum sites, or contact support to enable demo data for testing.`);
       }
 
       // Generate the report

@@ -49,6 +49,11 @@ import PreceptorReviewCompetency from "./pages/PreceptorReviewCompetency";
 import PreceptorReviewReflection from "./pages/PreceptorReviewReflection";
 import PreceptorReviewEvaluation from "./pages/PreceptorReviewEvaluation";
 import { PracticumSchedulingPage } from "./pages/PracticumSchedulingPage";
+import InstructorLogin from "./pages/InstructorLogin";
+import InstructorDashboard from "./pages/InstructorDashboard";
+import InstructorBatchOverview from "./pages/InstructorBatchOverview";
+import InstructorReviewJournal from "./pages/InstructorReviewJournal";
+import InstructorReviewEvaluation from "./pages/InstructorReviewEvaluation";
 
 const queryClient = new QueryClient();
 
@@ -137,6 +142,13 @@ const App = () => {
                <Route path="/preceptor/review-competency/:id" element={<PreceptorReviewCompetency />} />
                <Route path="/preceptor/review-reflection/:id" element={<PreceptorReviewReflection />} />
                <Route path="/preceptor/review-evaluation/:id" element={<PreceptorReviewEvaluation />} />
+               
+               {/* Instructor Portal Routes */}
+               <Route path="/instructor/login" element={<InstructorLogin />} />
+               <Route path="/instructor/dashboard" element={<InstructorDashboard />} />
+               <Route path="/instructor/batches" element={<InstructorBatchOverview />} />
+               <Route path="/instructor/review/journal/:journalId" element={<InstructorReviewJournal />} />
+               <Route path="/instructor/review/evaluation/:evaluationId" element={<InstructorReviewEvaluation />} />
                
                {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
                <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

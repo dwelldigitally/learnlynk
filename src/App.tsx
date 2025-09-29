@@ -48,6 +48,7 @@ import PreceptorReviewAttendance from "./pages/PreceptorReviewAttendance";
 import PreceptorReviewCompetency from "./pages/PreceptorReviewCompetency";
 import PreceptorReviewReflection from "./pages/PreceptorReviewReflection";
 import PreceptorReviewEvaluation from "./pages/PreceptorReviewEvaluation";
+import { PracticumSchedulingPage } from "./pages/PracticumSchedulingPage";
 
 const queryClient = new QueryClient();
 
@@ -83,8 +84,9 @@ const App = () => {
               {/* HubSpot OAuth callback route - matches what HubSpot sends */}
               <Route path="/hubspot/oauth/callback" element={<HubSpotOAuthCallback />} />
               
-              {/* Specific admin routes first */}
-              <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
+               {/* Specific admin routes first */}
+               <Route path="/admin/practicum/scheduling" element={<ProtectedRoute element={<PracticumSchedulingPage />} />} />
+               <Route path="/admin/scholarships/:scholarshipId/applications" element={<ProtectedRoute element={<ScholarshipApplications />} />} />
               
               {/* Lead detail routes - New design is now default */}
               <Route path="/admin/leads/detail/:leadId" element={<ProtectedRoute element={<LeadDetailPage />} />} />

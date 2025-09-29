@@ -74,6 +74,80 @@ export function BatchDetailsModal({ batch, isOpen, onClose }: BatchDetailsModalP
     }
   };
 
+  const handleExportData = () => {
+    // Prepare comprehensive batch data for export
+    const exportData = {
+      batchInfo: {
+        id: batch.id,
+        program: batch.program,
+        intakeDate: batch.intakeDate,
+        startDate: batch.startDate,
+        endDate: batch.endDate,
+        site: batch.site,
+        status: batch.status,
+        studentCount: batch.studentCount,
+        capacity: batch.capacity,
+        urgencyLevel: batch.urgencyLevel
+      },
+      metrics: {
+        completionRate: batch.completionRate,
+        attendanceRate: batch.attendanceRate,
+        documentComplianceRate: batch.documentComplianceRate,
+        capacityUtilization: Math.round((batch.studentCount / batch.capacity) * 100)
+      },
+      students: batch.students.map(student => ({
+        id: student.id,
+        name: student.name,
+        progress: student.progress,
+        lastActivity: student.lastActivity,
+        missingItems: student.missingItems?.join(', ') || 'None'
+      }))
+    };
+
+    // Convert to CSV format
+    const csvContent = [
+      // Batch Information Header
+      'BATCH INFORMATION',
+      `Program,${exportData.batchInfo.program}`,
+      `Batch ID,${exportData.batchInfo.id}`,
+      `Intake Date,${new Date(exportData.batchInfo.intakeDate).toLocaleDateString()}`,
+      `Start Date,${exportData.batchInfo.startDate ? new Date(exportData.batchInfo.startDate).toLocaleDateString() : 'Not set'}`,
+      `End Date,${exportData.batchInfo.endDate ? new Date(exportData.batchInfo.endDate).toLocaleDateString() : 'Not set'}`,
+      `Site,${exportData.batchInfo.site || 'Not specified'}`,
+      `Status,${exportData.batchInfo.status}`,
+      `Student Count,${exportData.batchInfo.studentCount}`,
+      `Capacity,${exportData.batchInfo.capacity}`,
+      `Urgency Level,${exportData.batchInfo.urgencyLevel}`,
+      '',
+      
+      // Metrics Header
+      'PERFORMANCE METRICS',
+      `Completion Rate,${exportData.metrics.completionRate || 'N/A'}%`,
+      `Attendance Rate,${exportData.metrics.attendanceRate || 'N/A'}%`,
+      `Document Compliance,${exportData.metrics.documentComplianceRate || 'N/A'}%`,
+      `Capacity Utilization,${exportData.metrics.capacityUtilization}%`,
+      '',
+      
+      // Students Header
+      'STUDENT DATA',
+      'Student ID,Name,Progress (%),Last Activity,Missing Items',
+      ...exportData.students.map(student => 
+        `${student.id},${student.name},${student.progress},${student.lastActivity ? new Date(student.lastActivity).toLocaleDateString() : 'Never'},${student.missingItems}`
+      )
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `batch-${batch.program.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const statusConfig = {
     'about-to-start': { color: 'bg-blue-500', label: 'Starting Soon', variant: 'default' as const },
     'active': { color: 'bg-green-500', label: 'Active', variant: 'default' as const },
@@ -283,7 +357,7 @@ export function BatchDetailsModal({ batch, isOpen, onClose }: BatchDetailsModalP
                 <Send className="h-4 w-4 mr-2" />
                 Send Reminder
               </Button>
-              <Button variant="outline" className="flex-1">
+              <Button variant="outline" className="flex-1" onClick={handleExportData}>
                 <Download className="h-4 w-4 mr-2" />
                 Export Data
               </Button>

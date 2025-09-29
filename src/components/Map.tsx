@@ -95,9 +95,9 @@ const Map: React.FC<MapProps> = ({ sites = [], onSiteClick, className = "" }) =>
     };
   }, [mapboxToken]);
 
-  // Update markers when sites change
+  // Update markers when sites change or when the map becomes ready
   useEffect(() => {
-    if (!map.current || !sites) return;
+    if (!map.current || !sites || isLoading) return;
 
     // Clear existing markers
     markers.current.forEach(marker => marker.remove());
@@ -105,7 +105,7 @@ const Map: React.FC<MapProps> = ({ sites = [], onSiteClick, className = "" }) =>
 
     // Add markers for sites with coordinates
     sites.forEach(site => {
-      if (site.latitude && site.longitude) {
+      if (site.latitude != null && site.longitude != null) {
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
           <div class="p-2">
             <h3 class="font-semibold text-sm">${site.name}</h3>
@@ -133,19 +133,18 @@ const Map: React.FC<MapProps> = ({ sites = [], onSiteClick, className = "" }) =>
     });
 
     // Fit map to markers if we have sites with coordinates
-    const sitesWithCoords = sites.filter(site => site.latitude && site.longitude);
+    const sitesWithCoords = sites.filter(site => site.latitude != null && site.longitude != null);
     if (sitesWithCoords.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
       sitesWithCoords.forEach(site => {
         bounds.extend([site.longitude!, site.latitude!]);
       });
-      
       map.current.fitBounds(bounds, {
         padding: 50,
         maxZoom: 15
       });
     }
-  }, [sites, onSiteClick]);
+  }, [sites, onSiteClick, isLoading]);
 
   if (error) {
     return (

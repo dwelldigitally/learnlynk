@@ -58,8 +58,27 @@ export class PracticumReportService {
    * Fetch and aggregate student data for a batch
    */
   private static async fetchBatchStudentData(batchId: string): Promise<PracticumStudentReportData[]> {
-    // First, get assignments for demo data since we don't have actual batch_id field
-    // In this case, we'll use program_id as a proxy for batch
+    // First, find the program UUID by name/identifier if batchId is not a UUID
+    let programId = batchId;
+    
+    // Check if batchId is a UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(batchId)) {
+      // If not UUID, treat as program name or identifier and find the actual program
+      const { data: programs } = await supabase
+        .from('practicum_programs')
+        .select('id')
+        .or(`program_name.eq.${batchId},id.eq.${batchId}`)
+        .limit(1);
+      
+      if (!programs || programs.length === 0) {
+        throw new Error(`No practicum program found with identifier: ${batchId}`);
+      }
+      
+      programId = programs[0].id;
+    }
+
+    // Get assignments using the program UUID
     const { data: assignments, error } = await supabase
       .from('practicum_assignments')
       .select(`
@@ -80,7 +99,7 @@ export class PracticumReportService {
           program_name
         )
       `)
-      .eq('program_id', batchId); // Using program_id as batch identifier
+      .eq('program_id', programId);
 
     if (error) throw error;
     if (!assignments || assignments.length === 0) return [];
@@ -259,10 +278,30 @@ export class PracticumReportService {
    * Validate if batch has students before generating report
    */
   static async validateBatchForReporting(batchId: string): Promise<{ isValid: boolean; studentCount: number }> {
+    // Handle both UUID and string identifiers
+    let programId = batchId;
+    
+    // Check if batchId is a UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(batchId)) {
+      // If not UUID, find the program by name/identifier
+      const { data: programs } = await supabase
+        .from('practicum_programs')
+        .select('id')
+        .or(`program_name.eq.${batchId},id.eq.${batchId}`)
+        .limit(1);
+      
+      if (!programs || programs.length === 0) {
+        return { isValid: false, studentCount: 0 };
+      }
+      
+      programId = programs[0].id;
+    }
+
     const { data: assignments, error } = await supabase
       .from('practicum_assignments')
       .select('id')
-      .eq('program_id', batchId); // Using program_id as batch identifier
+      .eq('program_id', programId);
 
     if (error) {
       console.error('Database error validating batch:', error);

@@ -264,11 +264,17 @@ export class PracticumReportService {
       .select('id')
       .eq('program_id', batchId); // Using program_id as batch identifier
 
-    if (error) throw error;
+    if (error) {
+      console.error('Database error validating batch:', error);
+      throw new Error(`Database error: ${error.message}`);
+    }
+
+    const studentCount = assignments?.length || 0;
+    console.log(`Validation for batch ${batchId}: found ${studentCount} assignments`);
 
     return {
-      isValid: (assignments?.length || 0) > 0,
-      studentCount: assignments?.length || 0
+      isValid: studentCount > 0,
+      studentCount
     };
   }
 }

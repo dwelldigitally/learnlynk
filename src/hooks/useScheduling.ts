@@ -542,7 +542,8 @@ export function useStudentBatches(userId: string) {
     queryKey: ['student-batches', userId],
     queryFn: async () => {
       try {
-        return await SchedulingService.getBatches(userId);
+        const data = await SchedulingService.getBatches(userId);
+        return (Array.isArray(data) && data.length > 0) ? data : getDummyStudentBatches();
       } catch (error) {
         console.log('Using dummy data for student batches');
         return getDummyStudentBatches();
@@ -557,7 +558,8 @@ export function useBatchStudents(batchId: string) {
     queryKey: ['batch-students', batchId],
     queryFn: async () => {
       try {
-        return await SchedulingService.getBatchStudents(batchId);
+        const data = await SchedulingService.getBatchStudents(batchId);
+        return (Array.isArray(data) && data.length > 0) ? data : getDummyBatchStudents(batchId);
       } catch (error) {
         console.log('Using dummy data for batch students');
         return getDummyBatchStudents(batchId);
@@ -572,7 +574,8 @@ export function useUnassignedStudents(userId: string) {
     queryKey: ['unassigned-students', userId],
     queryFn: async () => {
       try {
-        return await SchedulingService.getUnassignedStudents(userId);
+        const data = await SchedulingService.getUnassignedStudents(userId);
+        return (Array.isArray(data) && data.length > 0) ? data : getDummyUnassignedStudents();
       } catch (error) {
         console.log('Using dummy data for unassigned students');
         return getDummyUnassignedStudents();
@@ -587,7 +590,8 @@ export function useSiteCapacity(userId: string) {
     queryKey: ['site-capacity', userId],
     queryFn: async () => {
       try {
-        return await SchedulingService.getSiteCapacity(userId);
+        const data = await SchedulingService.getSiteCapacity(userId);
+        return (Array.isArray(data) && data.length > 0) ? data : getDummySiteCapacity();
       } catch (error) {
         console.log('Using dummy data for site capacity');
         return getDummySiteCapacity();
@@ -602,7 +606,10 @@ export function useAvailableSites(programId: string, userId: string) {
     queryKey: ['available-sites', programId, userId],
     queryFn: async () => {
       try {
-        return await SchedulingService.getAvailableSites(programId, userId);
+        const data = await SchedulingService.getAvailableSites(programId, userId);
+        if (Array.isArray(data) && data.length > 0) return data;
+        const siteCapacity = getDummySiteCapacity();
+        return siteCapacity.filter(sc => sc.program_id === programId);
       } catch (error) {
         console.log('Using dummy data for available sites');
         const siteCapacity = getDummySiteCapacity();
@@ -618,7 +625,8 @@ export function useSchedulingSessions(userId: string) {
     queryKey: ['scheduling-sessions', userId],
     queryFn: async () => {
       try {
-        return await SchedulingService.getSchedulingSessions(userId);
+        const data = await SchedulingService.getSchedulingSessions(userId);
+        return (Array.isArray(data) && data.length > 0) ? data : getDummySchedulingSessions();
       } catch (error) {
         console.log('Using dummy data for scheduling sessions');
         return getDummySchedulingSessions();
@@ -633,7 +641,8 @@ export function useSmartAssignments(batchId: string) {
     queryKey: ['smart-assignments', batchId],
     queryFn: async () => {
       try {
-        return await SchedulingService.generateSmartAssignments(batchId);
+        const data = await SchedulingService.generateSmartAssignments(batchId);
+        return (Array.isArray(data) && data.length > 0) ? data : getDummySmartAssignments(batchId);
       } catch (error) {
         console.log('Using dummy data for smart assignments');
         return getDummySmartAssignments(batchId);

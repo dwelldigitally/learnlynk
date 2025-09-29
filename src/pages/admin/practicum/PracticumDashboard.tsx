@@ -476,6 +476,14 @@ export function PracticumDashboard() {
           <div className="flex flex-col sm:flex-row gap-3">
             <Button 
               variant="outline" 
+              onClick={() => window.location.href = '/admin/practicum/scheduling'}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0"
+            >
+              <Zap className="h-4 w-4 mr-2" />
+              Smart Scheduling
+            </Button>
+            <Button 
+              variant="outline" 
               onClick={() => handleBulkAction('export')}
               disabled={selectedBatches.size === 0}
             >

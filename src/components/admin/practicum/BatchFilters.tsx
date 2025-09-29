@@ -66,16 +66,16 @@ export function BatchFilters({
     if (key === 'dateRange') {
       updateFilter(key, { from: undefined, to: undefined });
     } else {
-      updateFilter(key, '');
+      updateFilter(key, 'all');
     }
   };
 
   const clearAllFilters = () => {
     onFiltersChange({
       search: '',
-      status: '',
-      program: '',
-      urgency: '',
+      status: 'all',
+      program: 'all',
+      urgency: 'all',
       dateRange: { from: undefined, to: undefined }
     });
   };
@@ -142,7 +142,7 @@ export function BatchFilters({
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Statuses</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
             {statusOptions.map((status) => (
               <SelectItem key={status.value} value={status.value}>
                 <div className="flex items-center gap-2">
@@ -160,7 +160,7 @@ export function BatchFilters({
             <SelectValue placeholder="Program" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Programs</SelectItem>
+            <SelectItem value="all">All Programs</SelectItem>
             {programs.map((program) => (
               <SelectItem key={program} value={program}>
                 {program}
@@ -175,7 +175,7 @@ export function BatchFilters({
             <SelectValue placeholder="Urgency" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Levels</SelectItem>
+            <SelectItem value="all">All Levels</SelectItem>
             {urgencyOptions.map((urgency) => (
               <SelectItem key={urgency.value} value={urgency.value}>
                 <div className="flex items-center gap-2">

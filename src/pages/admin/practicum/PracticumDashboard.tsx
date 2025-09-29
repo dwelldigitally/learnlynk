@@ -1,46 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from 'sonner';
 import { 
-  GraduationCap, 
-  MapPin, 
-  Clock, 
-  FileText, 
   Users, 
-  CheckCircle,
-  AlertCircle,
-  Calendar,
-  BookOpen,
-  Award,
-  TrendingUp,
-  Star,
-  Target,
   Activity,
-  ArrowRight,
-  Eye,
-  ChevronDown,
-  ChevronRight,
+  Target,
   AlertTriangle,
-  PlayCircle,
-  PauseCircle,
-  StopCircle,
-  BarChart3,
+  TrendingUp,
   Download,
   Send,
   Settings,
-  Filter,
-  Search
+  FileText,
+  Plus,
+  Zap
 } from 'lucide-react';
 import { usePracticumOverview } from '@/hooks/usePracticum';
 import { useAuth } from '@/contexts/AuthContext';
 import { GlassCard } from '@/components/modern/GlassCard';
-import { NeoCard } from '@/components/modern/NeoCard';
 import { supabase } from '@/integrations/supabase/client';
-import { PROGRAM_INTAKE_DATES, getUpcomingIntakeDatesForProgram } from '@/constants/intakeDates';
+import { PROGRAM_INTAKE_DATES } from '@/constants/intakeDates';
+import { BatchFilters } from '@/components/admin/practicum/BatchFilters';
+import { BatchTable } from '@/components/admin/practicum/BatchTable';
+import { BatchDetailsModal } from '@/components/admin/practicum/BatchDetailsModal';
 
 // Types for batch management
 interface BatchData {
@@ -233,16 +217,115 @@ export function PracticumDashboard() {
   const { data: overview, isLoading, refetch } = usePracticumOverview(session?.user?.id || '');
   const [isSeeding, setIsSeeding] = useState(false);
   const [batchData] = useState(() => generateBatchData());
-  const [expandedBatches, setExpandedBatches] = useState<Set<string>>(new Set());
+  const [selectedBatches, setSelectedBatches] = useState<Set<string>>(new Set());
+  const [selectedBatch, setSelectedBatch] = useState<BatchData | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
+  const [filters, setFilters] = useState({
+    search: '',
+    status: '',
+    program: '',
+    urgency: '',
+    dateRange: { from: undefined as Date | undefined, to: undefined as Date | undefined }
+  });
   
-  const toggleBatch = (batchId: string) => {
-    const newExpanded = new Set(expandedBatches);
-    if (newExpanded.has(batchId)) {
-      newExpanded.delete(batchId);
-    } else {
-      newExpanded.add(batchId);
+  // Filtered and sorted batches
+  const filteredBatches = useMemo(() => {
+    let result = [...batchData];
+    
+    // Apply search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      result = result.filter(batch => 
+        batch.program.toLowerCase().includes(searchLower) ||
+        batch.site?.toLowerCase().includes(searchLower) ||
+        batch.students.some(student => student.name.toLowerCase().includes(searchLower))
+      );
     }
-    setExpandedBatches(newExpanded);
+    
+    // Apply status filter
+    if (filters.status) {
+      result = result.filter(batch => batch.status === filters.status);
+    }
+    
+    // Apply program filter
+    if (filters.program) {
+      result = result.filter(batch => batch.program === filters.program);
+    }
+    
+    // Apply urgency filter
+    if (filters.urgency) {
+      result = result.filter(batch => batch.urgencyLevel === filters.urgency);
+    }
+    
+    // Apply date range filter
+    if (filters.dateRange.from || filters.dateRange.to) {
+      result = result.filter(batch => {
+        const batchDate = new Date(batch.intakeDate);
+        if (filters.dateRange.from && batchDate < filters.dateRange.from) return false;
+        if (filters.dateRange.to && batchDate > filters.dateRange.to) return false;
+        return true;
+      });
+    }
+    
+    // Sort by urgency and then by date
+    result.sort((a, b) => {
+      const urgencyOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      if (urgencyOrder[a.urgencyLevel] !== urgencyOrder[b.urgencyLevel]) {
+        return urgencyOrder[a.urgencyLevel] - urgencyOrder[b.urgencyLevel];
+      }
+      return new Date(a.intakeDate).getTime() - new Date(b.intakeDate).getTime();
+    });
+    
+    return result;
+  }, [batchData, filters]);
+  
+  // Priority batches for alert section
+  const priorityBatches = useMemo(() => {
+    return batchData
+      .filter(batch => 
+        batch.urgencyLevel === 'critical' || 
+        batch.status === 'missing-docs' || 
+        batch.status === 'missing-attendance'
+      )
+      .slice(0, 5);
+  }, [batchData]);
+  
+  const programs = useMemo(() => {
+    return Array.from(new Set(batchData.map(batch => batch.program))).sort();
+  }, [batchData]);
+  
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.search) count++;
+    if (filters.status) count++;
+    if (filters.program) count++;
+    if (filters.urgency) count++;
+    if (filters.dateRange.from || filters.dateRange.to) count++;
+    return count;
+  }, [filters]);
+  
+  const handleSelectBatch = (batchId: string, selected: boolean) => {
+    const newSelected = new Set(selectedBatches);
+    if (selected) {
+      newSelected.add(batchId);
+    } else {
+      newSelected.delete(batchId);
+    }
+    setSelectedBatches(newSelected);
+  };
+  
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedBatches(new Set(filteredBatches.map(batch => batch.id)));
+    } else {
+      setSelectedBatches(new Set());
+    }
+  };
+  
+  const handleBatchClick = (batch: BatchData) => {
+    setSelectedBatch(batch);
+    setIsDetailsModalOpen(true);
   };
   
   const handleAddDummyData = async () => {
@@ -301,20 +384,9 @@ export function PracticumDashboard() {
     }
   };
   
-  // Categorize batches
-  const categorizedBatches = {
-    aboutToStart: batchData.filter(b => b.status === 'about-to-start'),
-    unscheduled: batchData.filter(b => b.status === 'unscheduled'),
-    missingDocs: batchData.filter(b => b.status === 'missing-docs'),
-    active: batchData.filter(b => b.status === 'active'),
-    missingAttendance: batchData.filter(b => b.status === 'missing-attendance'),
-    aboutToEnd: batchData.filter(b => b.status === 'about-to-end'),
-    completed: batchData.filter(b => b.status === 'completed')
-  };
-
   // Calculate KPIs
   const totalStudents = batchData.reduce((sum, batch) => sum + batch.studentCount, 0);
-  const activePracticums = categorizedBatches.active.length + categorizedBatches.missingAttendance.length;
+  const activePracticums = batchData.filter(b => b.status === 'active' || b.status === 'missing-attendance').length;
   const averageCompletion = Math.round(
     batchData.reduce((sum, batch) => sum + (batch.completionRate || 0), 0) / batchData.length
   );
@@ -368,126 +440,31 @@ export function PracticumDashboard() {
     }
   ];
 
-  const BatchCard = ({ batch }: { batch: BatchData }) => {
-    const isExpanded = expandedBatches.has(batch.id);
-    const statusConfig = {
-      'about-to-start': { color: 'bg-blue-500', icon: PlayCircle, label: 'Starting Soon' },
-      'active': { color: 'bg-green-500', icon: Activity, label: 'Active' },
-      'about-to-end': { color: 'bg-orange-500', icon: StopCircle, label: 'Ending Soon' },
-      'unscheduled': { color: 'bg-gray-500', icon: Calendar, label: 'Unscheduled' },
-      'missing-docs': { color: 'bg-red-500', icon: FileText, label: 'Missing Docs' },
-      'missing-attendance': { color: 'bg-amber-500', icon: AlertCircle, label: 'Missing Attendance' },
-      'completed': { color: 'bg-emerald-500', icon: CheckCircle, label: 'Completed' }
-    };
+  const handleBulkAction = (action: string) => {
+    const selectedCount = selectedBatches.size;
+    if (selectedCount === 0) {
+      toast.error('Please select at least one batch');
+      return;
+    }
     
-    const config = statusConfig[batch.status];
-    const Icon = config.icon;
-    
-    return (
-      <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
-        <Collapsible open={isExpanded} onOpenChange={() => toggleBatch(batch.id)}>
-          <CollapsibleTrigger asChild>
-            <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${config.color} text-white`}>
-                    <Icon className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold">{batch.program}</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(batch.intakeDate).toLocaleDateString()}
-                    </CardDescription>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Badge variant={batch.urgencyLevel === 'critical' ? 'destructive' : 'secondary'}>
-                    {config.label}
-                  </Badge>
-                  {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between mt-4">
-                <div className="flex items-center gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">{batch.studentCount}</div>
-                    <div className="text-xs text-muted-foreground">Students</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold">{Math.round((batch.studentCount / batch.capacity) * 100)}%</div>
-                    <div className="text-xs text-muted-foreground">Capacity</div>
-                  </div>
-                  {batch.completionRate && (
-                    <div className="text-center">
-                      <div className="text-lg font-semibold">{batch.completionRate}%</div>
-                      <div className="text-xs text-muted-foreground">Progress</div>
-                    </div>
-                  )}
-                </div>
-                <Progress value={(batch.studentCount / batch.capacity) * 100} className="w-24" />
-              </div>
-            </CardHeader>
-          </CollapsibleTrigger>
-          
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <div className="space-y-4 border-t pt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {batch.attendanceRate && (
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
-                      <div className="text-lg font-semibold">{batch.attendanceRate}%</div>
-                      <div className="text-xs text-muted-foreground">Attendance</div>
-                    </div>
-                  )}
-                  {batch.documentComplianceRate && (
-                    <div className="text-center p-3 bg-muted/50 rounded-lg">
-                      <div className="text-lg font-semibold">{batch.documentComplianceRate}%</div>
-                      <div className="text-xs text-muted-foreground">Compliance</div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <h4 className="font-medium">Students ({batch.students.length})</h4>
-                  <div className="space-y-2 max-h-32 overflow-y-auto">
-                    {batch.students.map(student => (
-                      <div key={student.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                        <span className="text-sm font-medium">{student.name}</span>
-                        <div className="flex items-center gap-2">
-                          <Progress value={student.progress} className="w-16 h-2" />
-                          <span className="text-xs text-muted-foreground">{student.progress}%</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Details
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Send className="h-4 w-4 mr-2" />
-                    Send Reminder
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
-    );
+    switch (action) {
+      case 'email':
+        toast.success(`Sending email to ${selectedCount} batch(es)`);
+        break;
+      case 'export':
+        toast.success(`Exporting data for ${selectedCount} batch(es)`);
+        break;
+      case 'archive':
+        toast.success(`Archiving ${selectedCount} batch(es)`);
+        break;
+      default:
+        break;
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="space-y-8 animate-fade-in p-6 max-w-7xl mx-auto">
+      <div className="space-y-6 animate-fade-in p-6 max-w-[1600px] mx-auto">
         {/* Header Section */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
@@ -497,20 +474,63 @@ export function PracticumDashboard() {
             <p className="text-lg text-muted-foreground">Monitor and manage student batches across all practicum stages</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button variant="outline" className="neo-button group">
-              <Filter className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-              Filter Batches
+            <Button 
+              variant="outline" 
+              onClick={() => handleBulkAction('export')}
+              disabled={selectedBatches.size === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export ({selectedBatches.size})
             </Button>
-            <Button variant="outline" className="neo-button group">
-              <Download className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
-              Export Report
+            <Button 
+              variant="outline" 
+              onClick={() => handleBulkAction('email')}
+              disabled={selectedBatches.size === 0}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Email Selected
             </Button>
-            <Button className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg">
-              <Users className="h-4 w-4 mr-2" />
-              Bulk Actions
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              New Batch
             </Button>
           </div>
         </div>
+
+        {/* Priority Alerts Section */}
+        {priorityBatches.length > 0 && (
+          <Card className="border-amber-200 bg-amber-50/50">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-amber-600" />
+                <CardTitle className="text-amber-800">Priority Actions Required</CardTitle>
+              </div>
+              <CardDescription className="text-amber-700">
+                {priorityBatches.length} batch(es) require immediate attention
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {priorityBatches.map((batch) => (
+                  <div
+                    key={batch.id}
+                    className="flex-shrink-0 p-3 bg-white border border-amber-200 rounded-lg cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => handleBatchClick(batch)}
+                  >
+                    <div className="font-medium text-sm">{batch.program}</div>
+                    <div className="text-xs text-muted-foreground">{batch.site}</div>
+                    <Badge 
+                      variant={batch.urgencyLevel === 'critical' ? 'destructive' : 'secondary'} 
+                      className="mt-1 text-xs"
+                    >
+                      {batch.status.replace('-', ' ')}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* KPI Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -538,107 +558,51 @@ export function PracticumDashboard() {
           ))}
         </div>
 
-        {/* Batch Categories */}
-        <div className="space-y-8">
-          {/* Pre-Practicum Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500 text-white">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <h2 className="text-2xl font-bold">Pre-Practicum Preparation</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {categorizedBatches.aboutToStart.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-blue-600">About to Start Practicum</h3>
-                  {categorizedBatches.aboutToStart.map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-              
-              {categorizedBatches.unscheduled.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-600">Unscheduled Batches</h3>
-                  {categorizedBatches.unscheduled.map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-              
-              {categorizedBatches.missingDocs.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-red-600">Missing Documents</h3>
-                  {categorizedBatches.missingDocs.map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Filters */}
+        <BatchFilters
+          filters={filters}
+          onFiltersChange={setFilters}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          programs={programs}
+          activeFilterCount={activeFilterCount}
+        />
 
-          {/* Active Practicum Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500 text-white">
-                <Activity className="h-5 w-5" />
-              </div>
-              <h2 className="text-2xl font-bold">Active Practicum</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {categorizedBatches.active.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-green-600">Currently Active</h3>
-                  {categorizedBatches.active.map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-              
-              {categorizedBatches.missingAttendance.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-amber-600">Missing Attendance/Grades</h3>
-                  {categorizedBatches.missingAttendance.map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-            </div>
+        {/* Results Summary */}
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <div>
+            Showing {filteredBatches.length} of {batchData.length} batches
+            {selectedBatches.size > 0 && (
+              <span className="ml-2 text-primary font-medium">
+                • {selectedBatches.size} selected
+              </span>
+            )}
           </div>
-
-          {/* Post-Practicum Section */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-purple-500 text-white">
-                <Award className="h-5 w-5" />
-              </div>
-              <h2 className="text-2xl font-bold">Post-Practicum</h2>
+          {activeFilterCount > 0 && (
+            <div>
+              {activeFilterCount} filter(s) applied
             </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {categorizedBatches.aboutToEnd.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-orange-600">About to Complete</h3>
-                  {categorizedBatches.aboutToEnd.map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-              
-              {categorizedBatches.completed.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-emerald-600">Recently Completed</h3>
-                  {categorizedBatches.completed.slice(0, 3).map(batch => (
-                    <BatchCard key={batch.id} batch={batch} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+          )}
         </div>
+
+        {/* Batch Table */}
+        <BatchTable
+          batches={filteredBatches}
+          selectedBatches={selectedBatches}
+          onSelectBatch={handleSelectBatch}
+          onSelectAll={handleSelectAll}
+          onBatchClick={handleBatchClick}
+        />
+
+        {/* Batch Details Modal */}
+        <BatchDetailsModal
+          batch={selectedBatch}
+          isOpen={isDetailsModalOpen}
+          onClose={() => {
+            setIsDetailsModalOpen(false);
+            setSelectedBatch(null);
+          }}
+        />
       </div>
     </div>
   );

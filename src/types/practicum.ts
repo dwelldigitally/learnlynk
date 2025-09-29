@@ -117,3 +117,22 @@ export interface PracticumFilters {
   };
   search_term?: string;
 }
+
+// Report-specific types
+export interface PracticumBatchReportData {
+  batchId: string;
+  batchName: string;
+  program: string;
+  studentCount: number;
+  generatedAt: string;
+  reportFormat: 'csv' | 'excel';
+}
+
+export interface PracticumStudentReportSummary {
+  totalStudents: number;
+  averageHoursCompleted: number;
+  averageAttendanceRate: number;
+  averageCompletionRate: number;
+  studentsAtRisk: number;
+  studentsReadyToGraduate: number;
+}

@@ -33,6 +33,30 @@ export const DQAB_INSTITUTIONAL_FIELDS: ReportField[] = [
   { key: 'complianceReviews', label: 'Compliance Reviews', type: 'string', required: true }
 ];
 
+export const PRACTICUM_BATCH_FIELDS: ReportField[] = [
+  { key: 'studentName', label: 'Student Name', type: 'string', required: true },
+  { key: 'studentEmail', label: 'Student Email', type: 'string', required: true },
+  { key: 'studentId', label: 'Student ID', type: 'string', required: true },
+  { key: 'practicumSite', label: 'Practicum Site', type: 'string', required: true },
+  { key: 'siteLocation', label: 'Site Location', type: 'string', required: false },
+  { key: 'preceptorName', label: 'Preceptor Name', type: 'string', required: false },
+  { key: 'preceptorEmail', label: 'Preceptor Email', type: 'string', required: false },
+  { key: 'preceptorPhone', label: 'Preceptor Phone', type: 'string', required: false },
+  { key: 'instructorName', label: 'Instructor Name', type: 'string', required: false },
+  { key: 'instructorEmail', label: 'Instructor Email', type: 'string', required: false },
+  { key: 'hoursSubmitted', label: 'Hours Submitted', type: 'number', required: true },
+  { key: 'hoursApproved', label: 'Hours Approved', type: 'number', required: true },
+  { key: 'hoursRequired', label: 'Hours Required', type: 'number', required: true },
+  { key: 'attendanceRate', label: 'Attendance Rate (%)', type: 'number', required: false },
+  { key: 'competenciesCompleted', label: 'Competencies Completed', type: 'number', required: true },
+  { key: 'competenciesRequired', label: 'Competencies Required', type: 'number', required: true },
+  { key: 'completionRate', label: 'Completion Rate (%)', type: 'number', required: false },
+  { key: 'startDate', label: 'Start Date', type: 'date', required: true },
+  { key: 'endDate', label: 'End Date', type: 'date', required: false },
+  { key: 'status', label: 'Status', type: 'string', required: true },
+  { key: 'lastActivity', label: 'Last Activity', type: 'date', required: false }
+];
+
 /**
  * Format data for CSV export
  */

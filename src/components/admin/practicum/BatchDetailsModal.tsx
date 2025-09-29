@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Loader2 } from 'lucide-react';
+import { usePracticumReports } from '@/hooks/usePracticumReports';
 import { 
   Calendar, 
   MapPin, 
@@ -50,7 +53,22 @@ interface BatchDetailsModalProps {
 }
 
 export function BatchDetailsModal({ batch, isOpen, onClose }: BatchDetailsModalProps) {
+  const [reportFormat, setReportFormat] = useState<'csv' | 'excel'>('excel');
+  const { generateBatchReport, isGenerating } = usePracticumReports();
+  
   if (!batch) return null;
+
+  const handleGenerateReport = async () => {
+    try {
+      await generateBatchReport.mutateAsync({
+        batchId: batch.id,
+        format: reportFormat
+      });
+    } catch (error) {
+      // Error handled by the hook
+      console.error('Report generation failed:', error);
+    }
+  };
 
   const statusConfig = {
     'about-to-start': { color: 'bg-blue-500', label: 'Starting Soon', variant: 'default' as const },
@@ -224,11 +242,38 @@ export function BatchDetailsModal({ batch, isOpen, onClose }: BatchDetailsModalP
               </div>
             </div>
 
+            {/* Report Generation Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Generate Student Report</h3>
+                <Select value={reportFormat} onValueChange={(value: 'csv' | 'excel') => setReportFormat(value)}>
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excel">Excel</SelectItem>
+                    <SelectItem value="csv">CSV</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Export detailed report including student info, practicum sites, hours, attendance, and competencies for all students in this batch.
+              </p>
+            </div>
+
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4 border-t">
-              <Button className="flex-1">
-                <FileText className="h-4 w-4 mr-2" />
-                Generate Report
+            <div className="flex gap-3 pt-4">
+              <Button 
+                className="flex-1" 
+                onClick={handleGenerateReport}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <FileText className="h-4 w-4 mr-2" />
+                )}
+                {isGenerating ? 'Generating...' : 'Generate Report'}
               </Button>
               <Button variant="outline" className="flex-1">
                 <Send className="h-4 w-4 mr-2" />

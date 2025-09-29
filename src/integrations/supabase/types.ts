@@ -1341,6 +1341,42 @@ export type Database = {
         }
         Relationships: []
       }
+      batch_students: {
+        Row: {
+          added_at: string
+          assignment_id: string
+          batch_id: string
+          id: string
+        }
+        Insert: {
+          added_at?: string
+          assignment_id: string
+          batch_id: string
+          id?: string
+        }
+        Update: {
+          added_at?: string
+          assignment_id?: string
+          batch_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_students_assignment_id_fkey"
+            columns: ["assignment_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_assignments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "batch_students_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "student_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_executions: {
         Row: {
           campaign_id: string
@@ -5058,6 +5094,7 @@ export type Database = {
           created_at: string
           id: string
           is_active: boolean
+          max_students_per_term: number | null
           program_id: string
           site_id: string
           updated_at: string
@@ -5066,6 +5103,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          max_students_per_term?: number | null
           program_id: string
           site_id: string
           updated_at?: string
@@ -5074,6 +5112,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_active?: boolean
+          max_students_per_term?: number | null
           program_id?: string
           site_id?: string
           updated_at?: string
@@ -6239,6 +6278,80 @@ export type Database = {
           },
         ]
       }
+      scheduling_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          preference_type: string
+          preference_value: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          preference_type: string
+          preference_value?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          preference_type?: string
+          preference_value?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduling_sessions: {
+        Row: {
+          assigned_students: number
+          batch_id: string | null
+          completed_at: string | null
+          id: string
+          session_data: Json | null
+          session_name: string
+          started_at: string
+          status: string
+          total_students: number
+          user_id: string
+        }
+        Insert: {
+          assigned_students?: number
+          batch_id?: string | null
+          completed_at?: string | null
+          id?: string
+          session_data?: Json | null
+          session_name: string
+          started_at?: string
+          status?: string
+          total_students?: number
+          user_id: string
+        }
+        Update: {
+          assigned_students?: number
+          batch_id?: string | null
+          completed_at?: string | null
+          id?: string
+          session_data?: Json | null
+          session_name?: string
+          started_at?: string
+          status?: string
+          total_students?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scheduling_sessions_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "student_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       scholarship_applications: {
         Row: {
           amount: number
@@ -6361,6 +6474,60 @@ export type Database = {
           yield_score?: number | null
         }
         Relationships: []
+      }
+      site_capacity_tracking: {
+        Row: {
+          available_spots: number | null
+          created_at: string
+          current_assignments: number
+          id: string
+          max_capacity: number
+          period_end: string
+          period_start: string
+          program_id: string
+          site_id: string
+          updated_at: string
+        }
+        Insert: {
+          available_spots?: number | null
+          created_at?: string
+          current_assignments?: number
+          id?: string
+          max_capacity?: number
+          period_end: string
+          period_start: string
+          program_id: string
+          site_id: string
+          updated_at?: string
+        }
+        Update: {
+          available_spots?: number | null
+          created_at?: string
+          current_assignments?: number
+          id?: string
+          max_capacity?: number
+          period_end?: string
+          period_start?: string
+          program_id?: string
+          site_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "site_capacity_tracking_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "site_capacity_tracking_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stage_history: {
         Row: {
@@ -6680,6 +6847,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      student_batches: {
+        Row: {
+          batch_name: string
+          created_at: string
+          description: string | null
+          id: string
+          program_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          batch_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          program_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          batch_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          program_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_batches_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "practicum_programs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       student_communications: {
         Row: {

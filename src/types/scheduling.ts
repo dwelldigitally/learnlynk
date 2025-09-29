@@ -40,6 +40,36 @@ export interface SiteCapacityTracking {
   period_end: string;
   created_at: string;
   updated_at: string;
+  // Joined data from related tables (flexible for different data sources)
+  practicum_sites?: {
+    name: string;
+    organization?: string;
+    address?: string;
+    user_id?: string;
+    specializations?: string[];
+  };
+  practicum_programs?: {
+    program_name: string;
+  };
+}
+
+export interface StudentAssignment {
+  id: string;
+  user_id: string;
+  batch_id?: string;
+  site_id?: string | null;
+  status: 'unassigned' | 'assigned' | 'completed';
+  created_at: string;
+  updated_at: string;
+  // Joined data from related tables
+  leads?: {
+    first_name: string;
+    last_name: string;
+  };
+  practicum_programs?: {
+    id: string;
+    program_name: string;
+  };
 }
 
 export interface SchedulingPreference {
@@ -68,9 +98,10 @@ export interface SiteSuggestion {
   overall_score: number;
   available_spots: number;
   max_capacity: number;
-  specializations: string[];
+  specializations?: string[];
   distance?: number;
-  reasoning: string[];
+  distance_score?: number;
+  reasoning?: string[];
 }
 
 export interface BatchAssignmentRequest {

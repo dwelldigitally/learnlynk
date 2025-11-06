@@ -268,26 +268,6 @@ export function SmartLeadTable({
 
   return (
     <div className="space-y-4">
-      {/* Quick Filters Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
-        {quickFilters.map((filter) => (
-          <Button
-            key={filter.value}
-            variant={activeFilters[filter.value] ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              setActiveFilters(prev => ({
-                ...prev,
-                [filter.value]: !prev[filter.value]
-              }));
-            }}
-            className="whitespace-nowrap"
-          >
-            {filter.label}
-            <Badge variant="secondary" className="ml-2">{filter.count}</Badge>
-          </Button>
-        ))}
-      </div>
 
       {/* Bulk Actions Bar */}
       {selectedLeadIds.length > 0 && (

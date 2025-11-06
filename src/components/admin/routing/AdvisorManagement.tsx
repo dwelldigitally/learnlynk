@@ -7,8 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
-import { Search, Calendar, TrendingUp, Users } from 'lucide-react';
+import { Search, Calendar, TrendingUp, Users, CalendarRange } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface AdvisorManagementProps {
   onAdvisorUpdated?: () => void;
@@ -19,6 +23,8 @@ export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) 
   const [searchTerm, setSearchTerm] = useState('');
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [selectedAdvisor, setSelectedAdvisor] = useState<any>(null);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined);
   const { toast } = useToast();
 
   // Mock advisors for demonstration
@@ -167,7 +173,7 @@ export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) 
       </div>
 
       {/* Search and Stats */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="relative w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
@@ -177,10 +183,84 @@ export function AdvisorManagement({ onAdvisorUpdated }: AdvisorManagementProps) 
             className="pl-10"
           />
         </div>
-        <div className="flex items-center gap-4 text-sm">
+        
+        {/* Date Range Filter */}
+        <div className="flex items-center gap-2">
+          <CalendarRange className="h-4 w-4 text-muted-foreground" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !dateFrom && "text-muted-foreground"
+                )}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateFrom ? format(dateFrom, "MMM dd, yyyy") : "From date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={dateFrom}
+                onSelect={setDateFrom}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+          
+          <span className="text-muted-foreground">to</span>
+          
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !dateTo && "text-muted-foreground"
+                )}
+              >
+                <Calendar className="mr-2 h-4 w-4" />
+                {dateTo ? format(dateTo, "MMM dd, yyyy") : "To date"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <CalendarComponent
+                mode="single"
+                selected={dateTo}
+                onSelect={setDateTo}
+                disabled={(date) => dateFrom ? date < dateFrom : false}
+                initialFocus
+                className="p-3 pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+
+          {(dateFrom || dateTo) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setDateFrom(undefined);
+                setDateTo(undefined);
+              }}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-4 text-sm ml-auto">
           <span>Total: {advisors.length}</span>
           <span>Active: {advisors.filter(a => a.status === 'active').length}</span>
           <span>Capacity: {Math.round((advisors.reduce((sum, a) => sum + a.current_assignments, 0) / advisors.reduce((sum, a) => sum + a.max_assignments, 0)) * 100)}%</span>
+          {(dateFrom || dateTo) && (
+            <span className="text-primary font-medium">
+              {dateFrom && dateTo ? `${format(dateFrom, 'MMM dd')} - ${format(dateTo, 'MMM dd')}` : 'Custom Range'}
+            </span>
+          )}
         </div>
       </div>
 

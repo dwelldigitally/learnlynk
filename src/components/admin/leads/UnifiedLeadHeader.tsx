@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Download, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical } from 'lucide-react';
+import { Plus, Download, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X } from 'lucide-react';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -94,8 +94,12 @@ export function UnifiedLeadHeader({
   }];
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
+    // Debounce search for better performance
     if (onSearch) {
-      onSearch(value);
+      const timeoutId = setTimeout(() => {
+        onSearch(value);
+      }, 300);
+      return () => clearTimeout(timeoutId);
     }
   };
 
@@ -146,11 +150,26 @@ export function UnifiedLeadHeader({
           <div className="relative w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search leads..."
+              type="text"
+              placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-9"
+              maxLength={100}
             />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                onClick={() => {
+                  setSearchQuery('');
+                  if (onSearch) onSearch('');
+                }}
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
           </div>
           {columns.length > 0 && onColumnsChange && (
             <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>

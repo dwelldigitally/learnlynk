@@ -164,6 +164,11 @@ export function LeadManagement() {
     loadUnassignedCount();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Reload leads when filters, sorting, or pagination changes
+  useEffect(() => {
+    loadLeads();
+  }, [filters, sortBy, sortOrder, currentPage, pageSize]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const loadUnassignedCount = async () => {
     try {
       const count = await EnhancedLeadService.getUnassignedLeadsCount();

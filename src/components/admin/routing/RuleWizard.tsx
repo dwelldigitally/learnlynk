@@ -10,8 +10,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ConditionBuilder } from './ConditionBuilder';
+import { TargetSelector } from './TargetSelector';
 import { EnhancedRoutingRule, ConditionGroup } from '@/types/routing';
-import { ChevronLeft, ChevronRight, Check, Zap, Users, Settings, Eye } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Zap, Users, Settings, Eye, UserCheck } from 'lucide-react';
 
 interface RuleWizardProps {
   onSave: (rule: Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'>) => void;
@@ -23,7 +24,8 @@ const WIZARD_STEPS = [
   { id: 'basics', title: 'Rule Basics', icon: Settings },
   { id: 'sources', title: 'Lead Sources', icon: Zap },
   { id: 'conditions', title: 'Conditions', icon: Users },
-  { id: 'assignment', title: 'Assignment', icon: Users },
+  { id: 'assignment', title: 'Assignment', icon: Settings },
+  { id: 'targets', title: 'Select Targets', icon: UserCheck },
   { id: 'preview', title: 'Preview', icon: Eye }
 ];
 
@@ -65,7 +67,10 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
       method: 'round_robin',
       workload_balance: true,
       geographic_preference: false,
-      max_assignments_per_advisor: 10
+      max_assignments_per_advisor: 10,
+      target_type: 'teams',
+      advisors: [],
+      teams: []
     },
     schedule: editingRule?.schedule || {
       enabled: false,
@@ -109,6 +114,26 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
       toast({
         title: 'Error',
         description: 'At least one lead source must be selected',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate targets
+    const targetType = formData.assignment_config.target_type || 'teams';
+    if (targetType === 'teams' && (!formData.assignment_config.teams || formData.assignment_config.teams.length === 0)) {
+      toast({
+        title: 'Error',
+        description: 'At least one team must be selected',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (targetType === 'advisors' && (!formData.assignment_config.advisors || formData.assignment_config.advisors.length === 0)) {
+      toast({
+        title: 'Error',
+        description: 'At least one advisor must be selected',
         variant: 'destructive'
       });
       return;
@@ -320,6 +345,38 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
           </div>
         );
 
+      case 'targets':
+        return (
+          <TargetSelector
+            targetType={formData.assignment_config.target_type || 'teams'}
+            selectedAdvisors={formData.assignment_config.advisors || []}
+            selectedTeams={formData.assignment_config.teams || []}
+            onTargetTypeChange={(type) =>
+              setFormData(prev => ({
+                ...prev,
+                assignment_config: {
+                  ...prev.assignment_config,
+                  target_type: type,
+                  advisors: type === 'advisors' ? prev.assignment_config.advisors : [],
+                  teams: type === 'teams' ? prev.assignment_config.teams : []
+                }
+              }))
+            }
+            onAdvisorsChange={(advisors) =>
+              setFormData(prev => ({
+                ...prev,
+                assignment_config: { ...prev.assignment_config, advisors }
+              }))
+            }
+            onTeamsChange={(teams) =>
+              setFormData(prev => ({
+                ...prev,
+                assignment_config: { ...prev.assignment_config, teams }
+              }))
+            }
+          />
+        );
+
       case 'preview':
         return (
           <div className="space-y-6">
@@ -378,6 +435,35 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
                   <p className="text-sm">
                     {ASSIGNMENT_METHODS.find(m => m.value === formData.assignment_config.method)?.label || formData.assignment_config.method}
                   </p>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-medium">Assignment Targets</Label>
+                  {formData.assignment_config.target_type === 'teams' ? (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {formData.assignment_config.teams && formData.assignment_config.teams.length > 0 ? (
+                        formData.assignment_config.teams.map(teamId => (
+                          <Badge key={teamId} variant="outline">
+                            {teamId}
+                          </Badge>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No teams selected</p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 mt-1">
+                      {formData.assignment_config.advisors && formData.assignment_config.advisors.length > 0 ? (
+                        formData.assignment_config.advisors.map(advisorId => (
+                          <Badge key={advisorId} variant="outline">
+                            {advisorId}
+                          </Badge>
+                        ))
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No advisors selected</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

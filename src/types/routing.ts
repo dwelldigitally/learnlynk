@@ -82,6 +82,7 @@ export interface EnhancedRoutingRule {
   condition_groups: ConditionGroup[];
   assignment_config: {
     method: string;
+    target_type?: 'advisors' | 'teams';
     teams?: string[];
     advisors?: string[];
     fallback_method?: string;

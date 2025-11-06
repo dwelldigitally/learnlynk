@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { 
   Activity, 
   Mail, 
@@ -16,7 +17,8 @@ import {
   UserPlus,
   Globe,
   Bot,
-  Clock
+  Clock,
+  ChevronDown
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -39,6 +41,7 @@ interface ComprehensiveTimelineProps {
 export function ComprehensiveTimeline({ leadId, filter, onFilterChange }: ComprehensiveTimelineProps) {
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     loadTimelineData();
@@ -229,12 +232,19 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange }: Compre
   }
 
   return (
-    <div className="h-full">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="h-full flex flex-col">
       <div className="p-4 border-b">
-        <h3 className="font-semibold flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          Comprehensive Timeline
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Activity className="h-4 w-4" />
+            Comprehensive Timeline
+          </h3>
+          <CollapsibleTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+            </Button>
+          </CollapsibleTrigger>
+        </div>
         <div className="flex flex-col gap-2 mt-3">
           <div className="flex gap-1">
             <Button 
@@ -288,7 +298,8 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange }: Compre
         </div>
       </div>
       
-      <ScrollArea className="h-full p-4">
+      <CollapsibleContent className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full p-4">
         {filteredTimeline.length > 0 ? (
           <div className="space-y-4">
             {filteredTimeline.map((event, index) => (
@@ -331,7 +342,8 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange }: Compre
             <p className="text-sm text-muted-foreground">No timeline events found</p>
           </div>
         )}
-      </ScrollArea>
-    </div>
+        </ScrollArea>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

@@ -221,36 +221,42 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
     <div className="space-y-6">
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
+        <Card className="border-border">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Rules</p>
-                <p className="text-2xl font-bold">{rules.length}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Rules</p>
+                <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
               </div>
-              <Settings className="h-8 w-8 text-muted-foreground" />
+              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                <Settings className="h-6 w-6 text-muted-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="border-border">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Rules</p>
-                <p className="text-2xl font-bold">{rules.filter(r => r.is_active).length}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Active Rules</p>
+                <p className="text-2xl font-semibold text-foreground">{rules.filter(r => r.is_active).length}</p>
               </div>
-              <Zap className="h-8 w-8 text-green-500" />
+              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                <Zap className="h-6 w-6 text-muted-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
+        <Card className="border-border">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Rules Created</p>
-                <p className="text-2xl font-bold">{rules.length}</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Created</p>
+                <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
               </div>
-              <BarChart3 className="h-8 w-8 text-blue-500" />
+              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                <BarChart3 className="h-6 w-6 text-muted-foreground" />
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -259,42 +265,44 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       {/* Rules List */}
       <div className="grid gap-3">
         {rules.map(rule => {
-          const priorityColors = getPriorityColor(rule.priority);
-          
           return (
             <Card 
               key={rule.id} 
               className={`
-                relative border-l-4 ${priorityColors.border} 
-                transition-all duration-200 hover:shadow-md hover:-translate-y-0.5
-                ${!rule.is_active ? 'opacity-60' : ''}
+                transition-all duration-200 hover:shadow-sm
+                ${!rule.is_active ? 'opacity-50 bg-muted/30' : 'bg-card'}
+                border border-border
               `}
             >
-              <div className="p-4">
-                {/* Compact Header */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <h3 className="font-semibold text-sm truncate">{rule.name}</h3>
-                    <Badge className={`text-xs px-2 py-0 h-5 ${priorityColors.badge} border-0`}>
-                      P{rule.priority}
-                    </Badge>
-                    {rule.is_active ? (
-                      <div className="flex items-center gap-1">
-                        <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-                        <span className="text-xs text-success font-medium">Active</span>
+              <div className="p-5">
+                {/* Header Row */}
+                <div className="flex items-start justify-between mb-4 pb-3 border-b border-border/50">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-semibold text-base text-foreground">{rule.name}</h3>
+                        <Badge variant="outline" className="text-xs px-2 py-0 h-5 bg-muted text-muted-foreground border-border">
+                          Priority {rule.priority}
+                        </Badge>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-1">
-                        <div className="h-2 w-2 rounded-full bg-muted-foreground/50" />
-                        <span className="text-xs text-muted-foreground font-medium">Inactive</span>
-                      </div>
-                    )}
+                      {rule.is_active ? (
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
+                          <span className="text-xs text-muted-foreground font-medium">Active</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                          <span className="text-xs text-muted-foreground/60 font-medium">Inactive</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
                   {/* Action Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -328,24 +336,24 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
                   </DropdownMenu>
                 </div>
 
-                {/* 3-Column Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                  {/* Sources Column */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium mb-2">
-                      <Filter className="h-3.5 w-3.5" />
-                      <span className="uppercase tracking-wide text-xs">Sources</span>
+                {/* Content Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {/* Sources Section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sources</span>
                     </div>
                     {rule.sources && rule.sources.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1.5">
                         {rule.sources.slice(0, 3).map((source: string) => (
-                          <Badge key={source} variant="outline" className="text-xs h-5 bg-accent/30">
+                          <Badge key={source} variant="outline" className="text-xs py-0.5 px-2 bg-muted/50 text-foreground border-border font-normal">
                             {source.replace('_', ' ')}
                           </Badge>
                         ))}
                         {rule.sources.length > 3 && (
-                          <Badge variant="outline" className="text-xs h-5">
-                            +{rule.sources.length - 3} more
+                          <Badge variant="outline" className="text-xs py-0.5 px-2 bg-muted/50 text-muted-foreground border-border font-normal">
+                            +{rule.sources.length - 3}
                           </Badge>
                         )}
                       </div>
@@ -354,20 +362,20 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
                     )}
                   </div>
 
-                  {/* Conditions Column */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium mb-2">
-                      <GitBranch className="h-3.5 w-3.5" />
-                      <span className="uppercase tracking-wide text-xs">Conditions</span>
+                  {/* Conditions Section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <GitBranch className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Conditions</span>
                     </div>
                     <ConditionGroupsDisplay groups={rule.condition_groups} maxVisible={3} />
                   </div>
 
-                  {/* Assignment Column */}
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium mb-2">
-                      <Users className="h-3.5 w-3.5" />
-                      <span className="uppercase tracking-wide text-xs">Assignment</span>
+                  {/* Assignment Section */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Assignment</span>
                     </div>
                     <AssignmentDisplay config={rule.assignment_config} />
                   </div>

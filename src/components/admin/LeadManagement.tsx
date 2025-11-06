@@ -23,7 +23,7 @@ import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
 import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
-import { UnifiedLeadHeader } from './leads/UnifiedLeadHeader';
+import { UnifiedLeadHeader, ColumnConfig } from './leads/UnifiedLeadHeader';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap, Search, Users, Phone, Mail, Calendar, Star, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock, User, Tag, ArrowRight } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
@@ -53,6 +53,19 @@ export function LeadManagement() {
   const [showLeadDetail, setShowLeadDetail] = useState(false);
   const [unassignedCount, setUnassignedCount] = useState(0);
   const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
+  const [tableColumns, setTableColumns] = useState<ColumnConfig[]>([
+    { id: 'name', label: 'Name', visible: true, sortable: true },
+    { id: 'email', label: 'Email', visible: true, sortable: true },
+    { id: 'phone', label: 'Phone', visible: true, sortable: false },
+    { id: 'source', label: 'Source', visible: true, sortable: true },
+    { id: 'created_at', label: 'Created', visible: true, sortable: true },
+    { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false },
+    { id: 'stage', label: 'Stage', visible: true, sortable: true },
+    { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true },
+    { id: 'priority', label: 'Priority', visible: true, sortable: true },
+    { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false },
+    { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false },
+  ]);
   
   const [filterOptions, setFilterOptions] = useState({
     sources: [] as string[],
@@ -538,6 +551,8 @@ export function LeadManagement() {
             onAddLead={() => setShowLeadForm(true)}
             onExport={handleExport}
             onSearch={handleSearch}
+            columns={tableColumns}
+            onColumnsChange={setTableColumns}
           />
         </div>
       </div>
@@ -566,21 +581,22 @@ export function LeadManagement() {
               onSelectAll={(selected) => {
                 setSelectedLeadIds(selected ? leads.map((l) => l.id) : []);
               }}
-              onLeadClick={(lead) => {
-                navigate(`/admin/leads/detail/${lead.id}`);
-              }}
-              onBulkAction={handleBulkAction}
-              onSort={handleSort}
-              onFilter={handleFilter}
-              onSearch={handleSearch}
-              onExport={handleExport}
-              onAddLead={() => setShowLeadForm(true)}
-              totalCount={totalCount}
-              currentPage={currentPage}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-            />
+               onLeadClick={(lead) => {
+                 navigate(`/admin/leads/detail/${lead.id}`);
+               }}
+               onBulkAction={handleBulkAction}
+               onSort={handleSort}
+               onFilter={handleFilter}
+               onSearch={handleSearch}
+               onExport={handleExport}
+               onAddLead={() => setShowLeadForm(true)}
+               totalCount={totalCount}
+               currentPage={currentPage}
+               pageSize={pageSize}
+               onPageChange={handlePageChange}
+               onPageSizeChange={handlePageSizeChange}
+               columns={tableColumns}
+             />
           </ConditionalDataWrapper>
         </div>
       </div>

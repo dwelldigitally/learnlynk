@@ -4,12 +4,21 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Download, FileX, Filter, Calendar, GraduationCap, Search, Settings2 } from 'lucide-react';
+import { Plus, Download, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical } from 'lucide-react';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
+export interface ColumnConfig {
+  id: string;
+  label: string;
+  visible: boolean;
+  sortable: boolean;
+  width?: string;
+}
 interface StageStats {
   key: string;
   label: string;
@@ -28,7 +37,8 @@ interface UnifiedLeadHeaderProps {
   onAddLead: () => void;
   onExport: () => void;
   onSearch?: (query: string) => void;
-  onColumnsClick?: () => void;
+  columns?: ColumnConfig[];
+  onColumnsChange?: (columns: ColumnConfig[]) => void;
 }
 export function UnifiedLeadHeader({
   stages,
@@ -42,10 +52,13 @@ export function UnifiedLeadHeader({
   onAddLead,
   onExport,
   onSearch,
-  onColumnsClick
+  columns = [],
+  onColumnsChange
 }: UnifiedLeadHeaderProps) {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showColumnSettings, setShowColumnSettings] = useState(false);
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
   const getTotalLeads = () => stages.reduce((sum, stage) => sum + stage.count, 0);
   const getStageColor = (stage: string) => {
     const stageData = stages.find(s => s.key === stage);
@@ -86,6 +99,39 @@ export function UnifiedLeadHeader({
     }
   };
 
+  const toggleColumnVisibility = (columnId: string) => {
+    if (onColumnsChange) {
+      const updatedColumns = columns.map(col =>
+        col.id === columnId ? { ...col, visible: !col.visible } : col
+      );
+      onColumnsChange(updatedColumns);
+    }
+  };
+
+  const handleDragStart = (columnId: string) => {
+    setDraggedColumn(columnId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault();
+    if (!draggedColumn || draggedColumn === columnId) return;
+
+    if (onColumnsChange) {
+      const draggedIndex = columns.findIndex(col => col.id === draggedColumn);
+      const targetIndex = columns.findIndex(col => col.id === columnId);
+      
+      const newColumns = [...columns];
+      const [removed] = newColumns.splice(draggedIndex, 1);
+      newColumns.splice(targetIndex, 0, removed);
+      
+      onColumnsChange(newColumns);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedColumn(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Title with Actions */}
@@ -106,11 +152,49 @@ export function UnifiedLeadHeader({
               className="pl-9"
             />
           </div>
-          {onColumnsClick && (
-            <Button variant="outline" onClick={onColumnsClick}>
-              <Settings2 className="w-4 h-4 mr-2" />
-              Columns
-            </Button>
+          {columns.length > 0 && onColumnsChange && (
+            <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Settings2 className="w-4 h-4 mr-2" />
+                  Columns
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64 bg-popover z-50">
+                <div className="p-2">
+                  <div className="text-sm font-medium mb-2">Manage Columns</div>
+                  <div className="space-y-2">
+                    {columns.map((column) => (
+                      <div 
+                        key={column.id}
+                        className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-move bg-popover"
+                        draggable
+                        onDragStart={() => handleDragStart(column.id)}
+                        onDragOver={(e) => handleDragOver(e, column.id)}
+                        onDragEnd={handleDragEnd}
+                      >
+                        <div className="flex items-center gap-2">
+                          <GripVertical className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{column.label}</span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={() => toggleColumnVisibility(column.id)}
+                        >
+                          {column.visible ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          )}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
           <Button variant="outline" onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />

@@ -56,6 +56,7 @@ interface SmartLeadTableProps {
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
+  columns?: ColumnConfig[];
 }
 
 // Column configuration
@@ -98,15 +99,15 @@ export function SmartLeadTable({
   currentPage,
   pageSize,
   onPageChange,
-  onPageSizeChange
+  onPageSizeChange,
+  columns: propColumns
 }: SmartLeadTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [sortColumn, setSortColumn] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
-  const [showColumnSettings, setShowColumnSettings] = useState(false);
-  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+  
+  const columns = propColumns || DEFAULT_COLUMNS;
 
   const getStatusColor = (status: LeadStatus) => {
     switch (status) {
@@ -166,33 +167,6 @@ export function SmartLeadTable({
     onSort(column, newOrder);
   };
 
-  const toggleColumnVisibility = (columnId: string) => {
-    setColumns(columns.map(col => 
-      col.id === columnId ? { ...col, visible: !col.visible } : col
-    ));
-  };
-
-  const handleDragStart = (columnId: string) => {
-    setDraggedColumn(columnId);
-  };
-
-  const handleDragOver = (e: React.DragEvent, columnId: string) => {
-    e.preventDefault();
-    if (!draggedColumn || draggedColumn === columnId) return;
-
-    const draggedIndex = columns.findIndex(col => col.id === draggedColumn);
-    const targetIndex = columns.findIndex(col => col.id === columnId);
-
-    const newColumns = [...columns];
-    const [removed] = newColumns.splice(draggedIndex, 1);
-    newColumns.splice(targetIndex, 0, removed);
-    
-    setColumns(newColumns);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedColumn(null);
-  };
 
   const visibleColumns = columns.filter(col => col.visible);
 

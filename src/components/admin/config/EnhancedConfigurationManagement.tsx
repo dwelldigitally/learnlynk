@@ -8,16 +8,14 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { 
-  Settings, Database, Workflow, Users,
-  Building2, MapPin, TrendingUp, Phone, Mail, 
-  FileText, ClipboardList, AlertTriangle, Calendar,
-  CreditCard, Upload, Target, Video,
-  Megaphone, GitBranch, Zap, Search, Brain, GraduationCap,
+  Settings, Database, Users,
+  Building2, MapPin, TrendingUp,
+  FileText, Target, 
+  Zap, Search, Brain, GraduationCap,
   Route, Menu
 } from "lucide-react";
 
 // Import configuration components
-import StageManagement from "../workflow/StageManagement";
 import { CustomFieldsManagement } from "../database/CustomFieldsManagement";
 import { TeamManagement } from "../routing/TeamManagement";
 
@@ -25,8 +23,6 @@ import { TeamManagement } from "../routing/TeamManagement";
 import { ProgramsConfiguration } from './sections/ProgramsConfiguration';
 import { CampusesConfiguration } from './sections/CampusesConfiguration';
 import { LeadStatusesConfiguration } from './sections/LeadStatusesConfiguration';
-import { CallTypesConfiguration } from './sections/CallTypesConfiguration';
-import { RequirementsConfiguration } from './sections/RequirementsConfiguration';
 import { LeadPrioritiesConfiguration } from './sections/LeadPrioritiesConfiguration';
 import { RoutingConfiguration } from './sections/RoutingConfiguration';
 import { CompanyProfileConfiguration } from './sections/CompanyProfileConfiguration';
@@ -106,18 +102,10 @@ const configurationSections: ConfigurationSection[] = [
 
   // System - Data & Database
   {
-    id: 'stages',
-    label: 'Stages & Substages',
-    icon: Workflow,
-    description: 'Configure lead, applicant, and student stages with substages',
-    category: 'System',
-    component: <StageManagement />
-  },
-  {
     id: 'custom-fields',
-    label: 'Custom Fields',
+    label: 'Custom Fields & Stages',
     icon: Database,
-    description: 'Manage custom fields for each stage',
+    description: 'Manage stages, substages, call types, and custom fields',
     category: 'System',
     component: <CustomFieldsManagement />
   },
@@ -137,24 +125,6 @@ const configurationSections: ConfigurationSection[] = [
     description: 'Configure campus locations and facilities',
     category: 'System',
     component: <CampusesConfiguration />,
-    isNew: true
-  },
-  {
-    id: 'call-types',
-    label: 'Call Types',
-    icon: Phone,
-    description: 'Configure call categories and templates',
-    category: 'System',
-    component: <CallTypesConfiguration />,
-    isNew: true
-  },
-  {
-    id: 'requirements',
-    label: 'Requirements',
-    icon: ClipboardList,
-    description: 'Academic and entry requirements',
-    category: 'System',
-    component: <RequirementsConfiguration />,
     isNew: true
   },
 

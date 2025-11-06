@@ -28,10 +28,18 @@ const CONDITION_STATES = [
   { value: 'is_one_of', label: 'is one of' }
 ];
 
+const NUMERIC_STATES = [
+  { value: 'is_known', label: 'is known' },
+  { value: 'is_unknown', label: 'is unknown' },
+  { value: 'equals', label: 'equals' },
+  { value: 'greater_than', label: 'bigger than' },
+  { value: 'less_than', label: 'smaller than' }
+];
+
 const FIELD_VALUES = {
   source: ['Web', 'Social Media', 'Event', 'Agent', 'Email', 'Referral', 'Phone', 'Walk-in', 'Chatbot', 'Ads', 'Forms'],
   program: ['Health Care Assistant', 'Aviation', 'Education Assistant', 'Hospitality', 'ECE', 'MLA'],
-  location: ['Country', 'State', 'City'],
+  location: ['Winnipeg Campus', 'Brandon Campus', 'Thompson Campus', 'Selkirk Campus', 'Steinbach Campus'],
   score: ['Lead Score', 'Priority'],
   time: ['Weekday', 'Weekend', 'Business Hours']
 };
@@ -86,11 +94,17 @@ export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilder
   const getStateFromOperator = (operator: string): string => {
     if (operator === 'in') return 'is_one_of';
     if (operator === 'equals') return 'is';
+    if (operator === 'greater_than') return 'greater_than';
+    if (operator === 'less_than') return 'less_than';
     return 'is_one_of';
   };
 
   const needsValue = (state: string) => {
-    return state === 'is' || state === 'is_one_of';
+    return state === 'is' || state === 'is_one_of' || state === 'equals' || state === 'greater_than' || state === 'less_than';
+  };
+
+  const getStatesForField = (fieldType: string) => {
+    return fieldType === 'score' ? NUMERIC_STATES : CONDITION_STATES;
   };
 
   const renderValueInput = (condition: RuleCondition, state: string) => {
@@ -98,6 +112,19 @@ export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilder
 
     const fieldType = condition.type;
     const options = FIELD_VALUES[fieldType as keyof typeof FIELD_VALUES] || [];
+
+    // Numeric input for score comparisons
+    if (fieldType === 'score' && (state === 'equals' || state === 'greater_than' || state === 'less_than')) {
+      return (
+        <input
+          type="number"
+          value={Array.isArray(condition.value) ? condition.value[0] : condition.value || ''}
+          onChange={(e) => updateCondition(condition.id, { value: e.target.value })}
+          placeholder="Enter value..."
+          className="flex h-10 w-[120px] rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        />
+      );
+    }
 
     if (state === 'is') {
       return (
@@ -267,7 +294,7 @@ export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilder
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {CONDITION_STATES.map(state => (
+                      {getStatesForField(condition.type).map(state => (
                         <SelectItem key={state.value} value={state.value}>
                           {state.label}
                         </SelectItem>

@@ -5,13 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { 
   Settings, Database, Workflow, Users, Filter, 
   Building2, MapPin, TrendingUp, Phone, Mail, 
   FileText, ClipboardList, AlertTriangle, Calendar,
   CreditCard, Upload, Target, MessageSquare, Video,
   Megaphone, GitBranch, Zap, Search, Brain, GraduationCap,
-  Route
+  Route, Menu
 } from "lucide-react";
 
 // Import configuration components
@@ -285,6 +287,7 @@ export const EnhancedConfigurationManagement = () => {
     if (path.includes('/company')) return 'Company Settings';
     return null;
   });
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Get unique categories
   const categories = [...new Set(configurationSections.map(section => section.category))];
@@ -300,108 +303,178 @@ export const EnhancedConfigurationManagement = () => {
   const activeConfig = configurationSections.find(section => section.id === activeSection);
 
   return (
-    <div className="flex h-[calc(100vh-120px)] bg-background">
-      {/* Sidebar */}
-      <div className="w-80 border-r bg-card">
-        <div className="p-6 border-b">
-          <h2 className="text-2xl font-bold">Configuration</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Manage all system configurations
-          </p>
-        </div>
-
-        {/* Search */}
-        <div className="p-4 border-b">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search configurations..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </div>
-
-        {/* Categories */}
-        <div className="p-4 border-b">
-          <div className="flex flex-wrap gap-2">
+    <TooltipProvider>
+      <div className="flex h-[calc(100vh-120px)] bg-background">
+        {/* Sidebar */}
+        <div className={cn(
+          "border-r bg-card transition-all duration-300 flex flex-col",
+          isCollapsed ? "w-20" : "w-80"
+        )}>
+          {/* Header */}
+          <div className={cn(
+            "border-b flex items-center",
+            isCollapsed ? "p-3 justify-center" : "p-6 justify-between"
+          )}>
+            {!isCollapsed && (
+              <div>
+                <h2 className="text-2xl font-bold">Configuration</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Manage all system configurations
+                </p>
+              </div>
+            )}
             <Button
-              variant={selectedCategory === null ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedCategory(null)}
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="flex-shrink-0"
             >
-              All
+              <Menu className="h-5 w-5" />
             </Button>
-            {categories.map((category) => (
-              <Button
-                key={category}
-                variant={selectedCategory === category ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </Button>
-            ))}
           </div>
-        </div>
 
-        {/* Configuration List */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-4 space-y-2">
-            {categories.map(category => {
-              const categoryItems = filteredSections.filter(section => section.category === category);
-              if (categoryItems.length === 0) return null;
+          {/* Search - Only show when expanded */}
+          {!isCollapsed && (
+            <div className="p-4 border-b">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search configurations..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          )}
 
-              return (
-                <div key={category}>
-                  {(!selectedCategory || selectedCategory === category) && (
-                    <>
-                      <h3 className="text-sm font-medium text-muted-foreground mb-2 px-2 truncate">
-                        {category}
-                      </h3>
-                      {categoryItems.map((section) => {
-                        const IconComponent = section.icon;
-                        return (
-                          <Button
-                            key={section.id}
-                            variant={activeSection === section.id ? "default" : "ghost"}
-                            className="w-full justify-start h-auto p-3 mb-2 text-left"
-                            onClick={() => setActiveSection(section.id)}
-                          >
-                            <div className="flex items-start gap-3 w-full min-w-0">
-                              <IconComponent className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-medium truncate">{section.label}</span>
-                                  {section.isNew && (
-                                    <Badge variant="secondary" className="text-xs px-1.5 py-0.5 flex-shrink-0">
-                                      New
-                                    </Badge>
-                                  )}
-                                  {section.badge && (
-                                    <Badge variant="outline" className="text-xs px-1.5 py-0.5 flex-shrink-0">
-                                      {section.badge}
-                                    </Badge>
-                                  )}
+          {/* Categories - Only show when expanded */}
+          {!isCollapsed && (
+            <div className="p-4 border-b">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={selectedCategory === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  All
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Configuration List */}
+          <div className="flex-1 overflow-y-auto">
+            <div className={cn("p-4 space-y-2", isCollapsed && "p-2")}>
+              {isCollapsed ? (
+                // Collapsed mode - icons only with tooltips
+                filteredSections.map((section) => {
+                  const IconComponent = section.icon;
+                  const isActive = activeSection === section.id;
+                  
+                  return (
+                    <Tooltip key={section.id}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className={cn(
+                            "w-full h-12 p-0 flex items-center justify-center rounded-lg transition-colors",
+                            isActive 
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                          )}
+                          onClick={() => setActiveSection(section.id)}
+                        >
+                          <IconComponent className="w-5 h-5" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent side="right" sideOffset={8} className="max-w-xs">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-semibold">{section.label}</p>
+                            {section.isNew && (
+                              <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                                New
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">{section.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1 opacity-70">
+                            Category: {section.category}
+                          </p>
+                        </div>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                })
+              ) : (
+                // Expanded mode - full cards
+                categories.map(category => {
+                  const categoryItems = filteredSections.filter(section => section.category === category);
+                  if (categoryItems.length === 0) return null;
+
+                  return (
+                    <div key={category}>
+                      {(!selectedCategory || selectedCategory === category) && (
+                        <>
+                          <h3 className="text-sm font-medium text-muted-foreground mb-2 px-2 truncate">
+                            {category}
+                          </h3>
+                          {categoryItems.map((section) => {
+                            const IconComponent = section.icon;
+                            const isActive = activeSection === section.id;
+                            
+                            return (
+                              <Button
+                                key={section.id}
+                                variant={isActive ? "default" : "ghost"}
+                                className="w-full justify-start h-auto p-3 mb-2 text-left"
+                                onClick={() => setActiveSection(section.id)}
+                              >
+                                <div className="flex items-start gap-3 w-full min-w-0">
+                                  <IconComponent className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="font-medium truncate">{section.label}</span>
+                                      {section.isNew && (
+                                        <Badge variant="secondary" className="text-xs px-1.5 py-0.5 flex-shrink-0">
+                                          New
+                                        </Badge>
+                                      )}
+                                      {section.badge && (
+                                        <Badge variant="outline" className="text-xs px-1.5 py-0.5 flex-shrink-0">
+                                          {section.badge}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                      {section.description}
+                                    </p>
+                                  </div>
                                 </div>
-                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                                  {section.description}
-                                </p>
-                              </div>
-                            </div>
-                          </Button>
-                        );
-                      })}
-                      <Separator className="my-4" />
-                    </>
-                  )}
-                </div>
-              );
-            })}
+                              </Button>
+                            );
+                          })}
+                          <Separator className="my-4" />
+                        </>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
@@ -431,5 +504,6 @@ export const EnhancedConfigurationManagement = () => {
         </div>
       </div>
     </div>
+    </TooltipProvider>
   );
 };

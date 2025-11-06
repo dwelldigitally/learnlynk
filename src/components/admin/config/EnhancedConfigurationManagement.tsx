@@ -8,10 +8,10 @@ import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { 
-  Settings, Database, Workflow, Users, Filter, 
+  Settings, Database, Workflow, Users,
   Building2, MapPin, TrendingUp, Phone, Mail, 
   FileText, ClipboardList, AlertTriangle, Calendar,
-  CreditCard, Upload, Target, MessageSquare, Video,
+  CreditCard, Upload, Target, Video,
   Megaphone, GitBranch, Zap, Search, Brain, GraduationCap,
   Route, Menu
 } from "lucide-react";
@@ -24,15 +24,10 @@ import { TeamManagement } from "../routing/TeamManagement";
 // New configuration components
 import { ProgramsConfiguration } from './sections/ProgramsConfiguration';
 import { CampusesConfiguration } from './sections/CampusesConfiguration';
-import { MarketingSourcesConfiguration } from './sections/MarketingSourcesConfiguration';
 import { LeadStatusesConfiguration } from './sections/LeadStatusesConfiguration';
 import { CallTypesConfiguration } from './sections/CallTypesConfiguration';
-import { CommunicationTemplatesConfiguration } from './sections/CommunicationTemplatesConfiguration';
-import { DocumentTemplatesConfiguration } from './sections/DocumentTemplatesConfiguration';
 import { RequirementsConfiguration } from './sections/RequirementsConfiguration';
 import { LeadPrioritiesConfiguration } from './sections/LeadPrioritiesConfiguration';
-import { TeamsConfiguration } from './sections/TeamsConfiguration';
-import { NotificationFiltersConfiguration } from './sections/NotificationFiltersConfiguration';
 import { RoutingConfiguration } from './sections/RoutingConfiguration';
 import { CompanyProfileConfiguration } from './sections/CompanyProfileConfiguration';
 import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
@@ -42,7 +37,6 @@ import { LeadScoringConfiguration } from './LeadScoringConfiguration';
 import { StudentManagementConfiguration } from './StudentManagementConfiguration';
 import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
 import { ApplicantAIAgentConfiguration } from './ApplicantAIAgentConfiguration';
-import { EnrollmentPipelineAnalytics } from '@/components/enrollment/EnrollmentPipelineAnalytics';
 
 interface ConfigurationSection {
   id: string;
@@ -146,50 +140,12 @@ const configurationSections: ConfigurationSection[] = [
     isNew: true
   },
   {
-    id: 'marketing-sources',
-    label: 'Marketing Sources',
-    icon: TrendingUp,
-    description: 'Track and manage lead sources',
-    category: 'System',
-    component: <MarketingSourcesConfiguration />,
-    isNew: true
-  },
-  
-  // System - Communication & Templates
-  {
-    id: 'communication-templates',
-    label: 'Communication Templates',
-    icon: MessageSquare,
-    description: 'Email, SMS, and meeting templates',
-    category: 'System',
-    component: <CommunicationTemplatesConfiguration />,
-    isNew: true
-  },
-  {
-    id: 'document-templates',
-    label: 'Document Templates',
-    icon: FileText,
-    description: 'Document requirements and templates',
-    category: 'System',
-    component: <DocumentTemplatesConfiguration />,
-    isNew: true
-  },
-  {
     id: 'call-types',
     label: 'Call Types',
     icon: Phone,
     description: 'Configure call categories and templates',
     category: 'System',
     component: <CallTypesConfiguration />,
-    isNew: true
-  },
-  {
-    id: 'notification-filters',
-    label: 'Notification Filters',
-    icon: Filter,
-    description: 'Configure notification rules and filters',
-    category: 'System',
-    component: <NotificationFiltersConfiguration />,
     isNew: true
   },
   {
@@ -211,15 +167,6 @@ const configurationSections: ConfigurationSection[] = [
     category: 'System',
     component: <TeamManagement />
   },
-  {
-    id: 'external-teams',
-    label: 'External Recruiters',
-    icon: Users,
-    description: 'Manage external recruiter teams',
-    category: 'System',
-    component: <TeamsConfiguration />,
-    isNew: true
-  },
 
   // System - Company & Integrations
   {
@@ -239,22 +186,6 @@ const configurationSections: ConfigurationSection[] = [
     category: 'System',
     component: <EnhancedIntegrationHub />,
     isNew: true
-  },
-  {
-    id: 'automation',
-    label: 'Automation',
-    icon: Workflow,
-    description: 'Automated processes and triggers',
-    category: 'System',
-    component: <div className="p-6 text-center text-muted-foreground">Automation configuration coming soon...</div>
-  },
-  {
-    id: 'pipeline-analytics',
-    label: 'Pipeline Analytics',
-    icon: TrendingUp,
-    description: 'Enrollment funnel analysis and conversion tracking',
-    category: 'Analytics',
-    component: <EnrollmentPipelineAnalytics />
   }
 ];
 

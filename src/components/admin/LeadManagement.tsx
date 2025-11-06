@@ -537,6 +537,7 @@ export function LeadManagement() {
             onClearFilters={() => setFilters({})}
             onAddLead={() => setShowLeadForm(true)}
             onExport={handleExport}
+            onSearch={handleSearch}
           />
         </div>
       </div>

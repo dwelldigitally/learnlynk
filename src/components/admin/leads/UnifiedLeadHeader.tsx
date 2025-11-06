@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Download, FileX, Filter, Calendar, GraduationCap } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, Download, FileX, Filter, Calendar, GraduationCap, Search, Settings2 } from 'lucide-react';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -26,6 +27,8 @@ interface UnifiedLeadHeaderProps {
   onClearFilters: () => void;
   onAddLead: () => void;
   onExport: () => void;
+  onSearch?: (query: string) => void;
+  onColumnsClick?: () => void;
 }
 export function UnifiedLeadHeader({
   stages,
@@ -37,9 +40,12 @@ export function UnifiedLeadHeader({
   onFilterChange,
   onClearFilters,
   onAddLead,
-  onExport
+  onExport,
+  onSearch,
+  onColumnsClick
 }: UnifiedLeadHeaderProps) {
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const getTotalLeads = () => stages.reduce((sum, stage) => sum + stage.count, 0);
   const getStageColor = (stage: string) => {
     const stageData = stages.find(s => s.key === stage);
@@ -73,9 +79,16 @@ export function UnifiedLeadHeader({
       }
     }
   }];
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    if (onSearch) {
+      onSearch(value);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Page Title */}
+      {/* Page Title with Actions */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Lead Management</h1>
@@ -83,7 +96,22 @@ export function UnifiedLeadHeader({
             Track and manage your leads through their journey
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
+          <div className="relative w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search leads..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          {onColumnsClick && (
+            <Button variant="outline" onClick={onColumnsClick}>
+              <Settings2 className="w-4 h-4 mr-2" />
+              Columns
+            </Button>
+          )}
           <Button variant="outline" onClick={onExport}>
             <Download className="w-4 h-4 mr-2" />
             Export

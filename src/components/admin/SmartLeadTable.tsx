@@ -293,138 +293,51 @@ export function SmartLeadTable({
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Modern Header with Search and Filters */}
-      <Card className="border-0 shadow-sm bg-gradient-to-r from-background to-muted/20">
-        <CardHeader className="pb-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Smart Lead Management
-              </CardTitle>
-              <p className="text-muted-foreground mt-1">
-                {totalCount} total leads • AI-powered insights and automation
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Settings2 className="h-4 w-4 mr-2" />
-                    Columns
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64">
-                  <div className="p-2">
-                    <div className="text-sm font-medium mb-2">Manage Columns</div>
-                    <div className="space-y-2">
-                      {columns.map((column) => (
-                        <div 
-                          key={column.id}
-                          className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-move"
-                          draggable
-                          onDragStart={() => handleDragStart(column.id)}
-                          onDragOver={(e) => handleDragOver(e, column.id)}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <div className="flex items-center gap-2">
-                            <GripVertical className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">{column.label}</span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0"
-                            onClick={() => toggleColumnVisibility(column.id)}
-                          >
-                            {column.visible ? (
-                              <Eye className="h-4 w-4" />
-                            ) : (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button onClick={onExport} variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button onClick={onAddLead} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Lead
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-4">
-          {/* Search and Quick Filters */}
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search by name, email, phone, or tag..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  onSearch(e.target.value);
-                }}
-                className="pl-10 bg-background"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Quick Filters:</span>
-            </div>
-          </div>
+    <div className="space-y-4">
+      {/* Quick Filters Bar */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        {quickFilters.map((filter) => (
+          <Button
+            key={filter.value}
+            variant={activeFilters[filter.value] ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              setActiveFilters(prev => ({
+                ...prev,
+                [filter.value]: !prev[filter.value]
+              }));
+            }}
+            className="whitespace-nowrap"
+          >
+            {filter.label}
+            <Badge variant="secondary" className="ml-2">{filter.count}</Badge>
+          </Button>
+        ))}
+      </div>
 
-          {/* Quick Filter Pills */}
-          <div className="flex flex-wrap gap-2">
-            {quickFilters.map((filter) => (
+      {/* Bulk Actions Bar */}
+      {selectedLeadIds.length > 0 && (
+        <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg">
+          <span className="text-sm font-medium">
+            {selectedLeadIds.length} lead{selectedLeadIds.length > 1 ? 's' : ''} selected
+          </span>
+          <div className="flex items-center gap-2">
+            {bulkActions.map((action) => (
               <Button
-                key={filter.value}
+                key={action}
                 variant="outline"
                 size="sm"
-                className="h-8 bg-background hover:bg-primary hover:text-primary-foreground"
-                onClick={() => onFilter({ quickFilter: filter.value })}
+                onClick={() => onBulkAction(action, selectedLeadIds)}
               >
-                {filter.label}
-                <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
-                  {filter.count}
-                </Badge>
+                {action}
               </Button>
             ))}
           </div>
-
-          {/* Bulk Actions Bar */}
-          {selectedLeadIds.length > 0 && (
-            <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg">
-              <span className="text-sm font-medium">
-                {selectedLeadIds.length} lead{selectedLeadIds.length > 1 ? 's' : ''} selected
-              </span>
-              <div className="flex items-center gap-2">
-                {bulkActions.map((action) => (
-                  <Button
-                    key={action}
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onBulkAction(action, selectedLeadIds)}
-                  >
-                    {action}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      )}
 
       {/* Smart Table */}
-      <Card className="border-0 shadow-sm">
+      <div className="border rounded-lg overflow-hidden bg-card">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -690,7 +603,7 @@ export function SmartLeadTable({
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

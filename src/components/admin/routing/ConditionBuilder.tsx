@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Plus, X, Move } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Plus, X, Check } from 'lucide-react';
 import { ConditionGroup, RuleCondition } from '@/types/routing';
 
 interface ConditionBuilderProps {
@@ -13,76 +13,44 @@ interface ConditionBuilderProps {
   onChange: (groups: ConditionGroup[]) => void;
 }
 
-const CONDITION_TYPES = [
+const FIELDS = [
   { value: 'source', label: 'Lead Source' },
-  { value: 'location', label: 'Location' },
   { value: 'program', label: 'Program Interest' },
+  { value: 'location', label: 'Location' },
   { value: 'score', label: 'Lead Score' },
-  { value: 'time', label: 'Time-based' },
-  { value: 'custom', label: 'Custom Field' }
+  { value: 'time', label: 'Time-based' }
 ];
 
-const OPERATORS = {
-  source: [
-    { value: 'in', label: 'Is one of' },
-    { value: 'not_in', label: 'Is not one of' }
-  ],
-  location: [
-    { value: 'equals', label: 'Equals' },
-    { value: 'in', label: 'Is one of' },
-    { value: 'contains', label: 'Contains' }
-  ],
-  program: [
-    { value: 'contains', label: 'Contains' },
-    { value: 'in', label: 'Is one of' }
-  ],
-  score: [
-    { value: 'greater_than', label: 'Greater than' },
-    { value: 'less_than', label: 'Less than' },
-    { value: 'between', label: 'Between' }
-  ],
-  time: [
-    { value: 'between', label: 'Between times' },
-    { value: 'in', label: 'On days' }
-  ],
-  custom: [
-    { value: 'equals', label: 'Equals' },
-    { value: 'contains', label: 'Contains' },
-    { value: 'greater_than', label: 'Greater than' },
-    { value: 'less_than', label: 'Less than' }
-  ]
-};
+const CONDITION_STATES = [
+  { value: 'is_known', label: 'is known' },
+  { value: 'is_unknown', label: 'is unknown' },
+  { value: 'is', label: 'is' },
+  { value: 'is_one_of', label: 'is one of' }
+];
 
-const FIELD_OPTIONS = {
-  source: ['web', 'social_media', 'event', 'agent', 'email', 'referral', 'phone', 'walk_in', 'chatbot', 'ads', 'forms'],
-  location: ['country', 'state', 'city'],
+const FIELD_VALUES = {
+  source: ['Web', 'Social Media', 'Event', 'Agent', 'Email', 'Referral', 'Phone', 'Walk-in', 'Chatbot', 'Ads', 'Forms'],
   program: ['Health Care Assistant', 'Aviation', 'Education Assistant', 'Hospitality', 'ECE', 'MLA'],
-  score: ['lead_score', 'priority'],
-  time: ['weekday', 'weekend', 'business_hours'],
-  custom: []
+  location: ['Country', 'State', 'City'],
+  score: ['Lead Score', 'Priority'],
+  time: ['Weekday', 'Weekend', 'Business Hours']
 };
 
 export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilderProps) {
-  const addConditionGroup = () => {
-    const newGroup: ConditionGroup = {
-      id: `group-${Date.now()}`,
-      operator: 'AND',
-      conditions: []
-    };
-    onChange([...conditionGroups, newGroup]);
+  // Flatten to single group with operator toggle
+  const mainGroup = conditionGroups[0] || { id: 'main', operator: 'OR' as const, conditions: [] };
+  const conditions = mainGroup.conditions || [];
+  const operator = mainGroup.operator;
+
+  const updateGroup = (updates: Partial<ConditionGroup>) => {
+    onChange([{ ...mainGroup, ...updates }]);
   };
 
-  const removeConditionGroup = (groupId: string) => {
-    onChange(conditionGroups.filter(group => group.id !== groupId));
+  const toggleOperator = () => {
+    updateGroup({ operator: operator === 'AND' ? 'OR' : 'AND' });
   };
 
-  const updateConditionGroup = (groupId: string, updates: Partial<ConditionGroup>) => {
-    onChange(conditionGroups.map(group => 
-      group.id === groupId ? { ...group, ...updates } : group
-    ));
-  };
-
-  const addCondition = (groupId: string) => {
+  const addCondition = () => {
     const newCondition: RuleCondition = {
       id: `condition-${Date.now()}`,
       type: 'source',
@@ -90,73 +58,96 @@ export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilder
       operator: 'in',
       value: []
     };
-    
-    updateConditionGroup(groupId, {
-      conditions: [
-        ...conditionGroups.find(g => g.id === groupId)?.conditions || [],
-        newCondition
-      ]
+    updateGroup({ conditions: [...conditions, newCondition] });
+  };
+
+  const removeCondition = (conditionId: string) => {
+    updateGroup({ conditions: conditions.filter(c => c.id !== conditionId) });
+  };
+
+  const updateCondition = (conditionId: string, updates: Partial<RuleCondition>) => {
+    updateGroup({
+      conditions: conditions.map(c => 
+        c.id === conditionId ? { ...c, ...updates } : c
+      )
     });
   };
 
-  const removeCondition = (groupId: string, conditionId: string) => {
-    const group = conditionGroups.find(g => g.id === groupId);
-    if (group) {
-      updateConditionGroup(groupId, {
-        conditions: group.conditions.filter(c => c.id !== conditionId)
-      });
+  const mapStateToOperator = (state: string): RuleCondition['operator'] => {
+    switch (state) {
+      case 'is_known': return 'contains';
+      case 'is_unknown': return 'contains';
+      case 'is': return 'equals';
+      case 'is_one_of': return 'in';
+      default: return 'equals';
     }
   };
 
-  const updateCondition = (groupId: string, conditionId: string, updates: Partial<RuleCondition>) => {
-    const group = conditionGroups.find(g => g.id === groupId);
-    if (group) {
-      updateConditionGroup(groupId, {
-        conditions: group.conditions.map(c => 
-          c.id === conditionId ? { ...c, ...updates } : c
-        )
-      });
-    }
+  const getStateFromOperator = (operator: string): string => {
+    if (operator === 'in') return 'is_one_of';
+    if (operator === 'equals') return 'is';
+    return 'is_one_of';
   };
 
-  const renderConditionValue = (groupId: string, condition: RuleCondition) => {
-    const { type, operator, field, value } = condition;
-    
-    if (type === 'source' || type === 'program') {
-      const options = FIELD_OPTIONS[type] || [];
+  const needsValue = (state: string) => {
+    return state === 'is' || state === 'is_one_of';
+  };
+
+  const renderValueInput = (condition: RuleCondition, state: string) => {
+    if (!needsValue(state)) return null;
+
+    const fieldType = condition.type;
+    const options = FIELD_VALUES[fieldType as keyof typeof FIELD_VALUES] || [];
+
+    if (state === 'is') {
       return (
-        <div className="space-y-2">
-          <Label>Values</Label>
-          <div className="flex flex-wrap gap-2">
-            {(value || []).map((v: string, idx: number) => (
-              <Badge key={idx} variant="secondary" className="flex items-center gap-1">
-                {v}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-4 w-4 p-0"
-                  onClick={() => {
-                    const newValue = value.filter((_: any, i: number) => i !== idx);
-                    updateCondition(groupId, condition.id, { value: newValue });
-                  }}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </Badge>
+        <Select
+          value={Array.isArray(condition.value) ? condition.value[0] : condition.value || ''}
+          onValueChange={(value) => updateCondition(condition.id, { value: [value] })}
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Select value..." />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map(option => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
             ))}
-          </div>
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (state === 'is_one_of') {
+      const selectedValues = Array.isArray(condition.value) ? condition.value : [];
+      
+      return (
+        <div className="flex flex-wrap gap-2 items-center">
+          {selectedValues.map((val, idx) => (
+            <Badge key={idx} variant="secondary" className="flex items-center gap-1">
+              {val}
+              <button
+                type="button"
+                onClick={() => {
+                  const newValue = selectedValues.filter((_, i) => i !== idx);
+                  updateCondition(condition.id, { value: newValue });
+                }}
+                className="ml-1 hover:text-destructive"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          ))}
           <Select
             value=""
-            onValueChange={(newValue) => {
-              if (newValue && !value?.includes(newValue)) {
-                updateCondition(groupId, condition.id, { 
-                  value: [...(value || []), newValue] 
-                });
+            onValueChange={(value) => {
+              if (!selectedValues.includes(value)) {
+                updateCondition(condition.id, { value: [...selectedValues, value] });
               }
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-[160px]">
               <SelectValue placeholder="Add value..." />
             </SelectTrigger>
             <SelectContent>
@@ -171,217 +162,150 @@ export function ConditionBuilder({ conditionGroups, onChange }: ConditionBuilder
       );
     }
 
-    if (type === 'score' && operator === 'between') {
-      return (
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label>Min Value</Label>
-            <Input
-              type="number"
-              value={value?.min || ''}
-              onChange={(e) => updateCondition(groupId, condition.id, { 
-                value: { ...value, min: e.target.value } 
-              })}
-            />
-          </div>
-          <div>
-            <Label>Max Value</Label>
-            <Input
-              type="number"
-              value={value?.max || ''}
-              onChange={(e) => updateCondition(groupId, condition.id, { 
-                value: { ...value, max: e.target.value } 
-              })}
-            />
-          </div>
-        </div>
-      );
-    }
-
-    if (type === 'location') {
-      return (
-        <div>
-          <Label>Value</Label>
-          <Input
-            value={value || ''}
-            onChange={(e) => updateCondition(groupId, condition.id, { value: e.target.value })}
-            placeholder="Enter location value..."
-          />
-        </div>
-      );
-    }
-
-    return (
-      <div>
-        <Label>Value</Label>
-        <Input
-          value={value || ''}
-          onChange={(e) => updateCondition(groupId, condition.id, { value: e.target.value })}
-          placeholder="Enter value..."
-        />
-      </div>
-    );
+    return null;
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">Routing Conditions</h3>
-        <Button onClick={addConditionGroup} variant="outline" size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Condition Group
-        </Button>
-      </div>
-
-      {conditionGroups.length === 0 && (
-        <Card className="border-dashed">
-          <CardContent className="py-8 text-center">
-            <p className="text-muted-foreground">No conditions defined. Click "Add Condition Group" to start.</p>
-          </CardContent>
-        </Card>
-      )}
-
-      {conditionGroups.map((group, groupIndex) => (
-        <Card key={group.id} className="relative">
-          <CardHeader className="pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <CardTitle className="text-sm">
-                  Condition Group {groupIndex + 1}
-                </CardTitle>
-                <Select
-                  value={group.operator}
-                  onValueChange={(value: 'AND' | 'OR') => 
-                    updateConditionGroup(group.id, { operator: value })
-                  }
-                >
-                  <SelectTrigger className="w-20">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="AND">AND</SelectItem>
-                    <SelectItem value="OR">OR</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      <Card>
+        <CardContent className="pt-6 space-y-4">
+          {/* AND/OR Toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Label className="text-sm font-medium">Match:</Label>
               <Button
-                onClick={() => removeConditionGroup(group.id)}
-                variant="ghost"
+                type="button"
+                variant={operator === 'OR' ? 'default' : 'outline'}
                 size="sm"
-                className="text-destructive"
+                onClick={toggleOperator}
+                className="gap-2"
               >
-                <X className="h-4 w-4" />
+                {operator === 'OR' ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    ANY of these
+                  </>
+                ) : (
+                  'ANY of these'
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant={operator === 'AND' ? 'default' : 'outline'}
+                size="sm"
+                onClick={toggleOperator}
+                className="gap-2"
+              >
+                {operator === 'AND' ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    ALL of these
+                  </>
+                ) : (
+                  'ALL of these'
+                )}
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {group.conditions.map((condition, conditionIndex) => (
-              <div key={condition.id} className="border rounded-lg p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Condition {conditionIndex + 1}</h4>
+            <Badge variant="secondary" className="text-xs">
+              {operator === 'OR' ? 'At least one condition must match' : 'All conditions must match'}
+            </Badge>
+          </div>
+
+          {/* Conditions List */}
+          {conditions.length === 0 && (
+            <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg">
+              No conditions defined. Click "Add Condition" below to start.
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {conditions.map((condition, index) => {
+              const currentState = getStateFromOperator(condition.operator);
+              
+              return (
+                <div 
+                  key={condition.id}
+                  className="flex items-center gap-3 p-4 border rounded-lg bg-card hover:bg-accent/5 transition-colors"
+                >
+                  <Check className="h-4 w-4 text-muted-foreground shrink-0" />
+                  
+                  {/* Field Select */}
+                  <Select
+                    value={condition.type}
+                    onValueChange={(value: any) => {
+                      updateCondition(condition.id, { 
+                        type: value,
+                        field: value,
+                        value: []
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {FIELDS.map(field => (
+                        <SelectItem key={field.value} value={field.value}>
+                          {field.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* State Select */}
+                  <Select
+                    value={currentState}
+                    onValueChange={(value) => {
+                      const operator = mapStateToOperator(value);
+                      updateCondition(condition.id, { 
+                        operator,
+                        value: needsValue(value) ? condition.value : null
+                      });
+                    }}
+                  >
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CONDITION_STATES.map(state => (
+                        <SelectItem key={state.value} value={state.value}>
+                          {state.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Value Input (conditional) */}
+                  {renderValueInput(condition, currentState)}
+
+                  {/* Remove Button */}
                   <Button
-                    onClick={() => removeCondition(group.id, condition.id)}
+                    type="button"
                     variant="ghost"
                     size="sm"
-                    className="text-destructive"
+                    onClick={() => removeCondition(condition.id)}
+                    className="ml-auto shrink-0 text-destructive hover:text-destructive"
                   >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
-                
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label>Condition Type</Label>
-                    <Select
-                      value={condition.type}
-                      onValueChange={(value: any) => {
-                        const operatorValue = OPERATORS[value as keyof typeof OPERATORS]?.[0]?.value || 'equals';
-                        updateCondition(group.id, condition.id, { 
-                          type: value,
-                          field: FIELD_OPTIONS[value as keyof typeof FIELD_OPTIONS]?.[0] || '',
-                          operator: operatorValue as 'equals' | 'in' | 'not_in' | 'greater_than' | 'less_than' | 'contains' | 'between',
-                          value: null
-                        });
-                      }}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {CONDITION_TYPES.map(type => (
-                          <SelectItem key={type.value} value={type.value}>
-                            {type.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label>Field</Label>
-                    <Select
-                      value={condition.field}
-                      onValueChange={(value) => 
-                        updateCondition(group.id, condition.id, { field: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(FIELD_OPTIONS[condition.type as keyof typeof FIELD_OPTIONS] || []).map(field => (
-                          <SelectItem key={field} value={field}>
-                            {field}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div>
-                    <Label>Operator</Label>
-                    <Select
-                      value={condition.operator}
-                      onValueChange={(value: any) => 
-                        updateCondition(group.id, condition.id, { operator: value })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(OPERATORS[condition.type as keyof typeof OPERATORS] || []).map(op => (
-                          <SelectItem key={op.value} value={op.value}>
-                            {op.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                {renderConditionValue(group.id, condition)}
-              </div>
-            ))}
-            
-            <Button 
-              onClick={() => addCondition(group.id)}
-              variant="outline" 
-              size="sm"
-              className="w-full border-dashed"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Condition
-            </Button>
-          </CardContent>
-        </Card>
-      ))}
-      
-      {conditionGroups.length > 1 && (
-        <div className="text-center text-sm text-muted-foreground">
-          Multiple condition groups are connected with OR logic
-        </div>
-      )}
+              );
+            })}
+          </div>
+
+          {/* Add Condition Button */}
+          <Button 
+            type="button"
+            onClick={addCondition}
+            variant="outline" 
+            size="sm"
+            className="w-full border-dashed"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Condition
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

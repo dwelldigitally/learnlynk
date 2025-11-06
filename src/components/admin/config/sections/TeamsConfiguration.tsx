@@ -10,12 +10,15 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { MasterTeam } from "@/types/masterData";
 import { useToast } from "@/hooks/use-toast";
+import { Users } from "lucide-react";
+import TeamMembersList from "@/components/team/TeamMembersList";
 
 export const TeamsConfiguration = () => {
   const [teams, setTeams] = useState<MasterTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTeam, setEditingTeam] = useState<MasterTeam | null>(null);
+  const [managingTeam, setManagingTeam] = useState<MasterTeam | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState<Partial<MasterTeam>>({
@@ -168,6 +171,16 @@ export const TeamsConfiguration = () => {
     { key: 'is_active', label: 'Active', type: 'boolean' as const }
   ];
 
+  const customActions = [
+    {
+      id: 'manage-members',
+      label: 'Manage Members',
+      icon: Users,
+      variant: 'outline' as const,
+      onClick: (team: MasterTeam) => setManagingTeam(team)
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <UniversalCRUDTable
@@ -175,6 +188,7 @@ export const TeamsConfiguration = () => {
         description="Configure internal teams and external recruiter partnerships"
         data={teams}
         columns={columns}
+        actions={customActions}
         loading={loading}
         onAdd={() => {
           resetForm();
@@ -295,6 +309,20 @@ export const TeamsConfiguration = () => {
               {editingTeam ? 'Update' : 'Create'} Team
             </Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!managingTeam} onOpenChange={() => setManagingTeam(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Team Members</DialogTitle>
+          </DialogHeader>
+          {managingTeam && (
+            <TeamMembersList
+              teamId={managingTeam.id}
+              teamName={managingTeam.name}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

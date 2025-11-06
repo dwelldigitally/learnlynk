@@ -345,11 +345,7 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Routing Rules</h1>
-          <p className="text-muted-foreground">Configure intelligent lead assignment and routing</p>
-        </div>
+      <div className="flex items-center justify-end">
         {activeView === 'rules' && (
           <Button onClick={() => { setEditingRule(null); setShowRuleWizard(true); }}>
             <Plus className="h-4 w-4 mr-2" />

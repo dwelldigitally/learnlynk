@@ -522,57 +522,7 @@ export function LeadManagement() {
     }
   ];
   return <div className="h-full flex flex-col bg-background">
-    {/* Mobile-Optimized Page Header */}
-    <div className="bg-background border-b border-border">
-      <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
-        <div className={cn("flex gap-4", isMobile ? "flex-col" : "flex-col lg:flex-row lg:items-center lg:justify-between")}>
-          <div>
-            <h1 className={cn("font-bold text-foreground", isMobile ? "text-xl" : "text-2xl")}>
-              Lead Management
-            </h1>
-            <p className={cn("text-muted-foreground mt-1", isMobile ? "text-sm" : "")}>
-              {showUnassignedOnly ? `${totalCount} unassigned leads` : `${totalCount} total leads`} 
-              {unassignedCount > 0 && !showUnassignedOnly && ` • ${unassignedCount} need claiming`}
-              {selectedLeadIds.length > 0 && ` • ${selectedLeadIds.length} selected`}
-            </p>
-          </div>
-          
-          <div className={cn("flex gap-3", isMobile ? "flex-col" : "")}>
-            {unassignedCount > 0 && (
-              <Button 
-                variant={showUnassignedOnly ? "default" : "outline"}
-                onClick={() => setShowUnassignedOnly(!showUnassignedOnly)}
-                size={isMobile ? "default" : "default"}
-                className={isMobile ? "min-h-[44px]" : ""}
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                {showUnassignedOnly ? "Show All Leads" : `Unclaimed (${unassignedCount})`}
-              </Button>
-            )}
-            <Button 
-              variant="outline" 
-              onClick={handleExport}
-              size={isMobile ? "default" : "default"}
-              className={isMobile ? "min-h-[44px]" : ""}
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button 
-              onClick={() => setShowLeadForm(true)}
-              size={isMobile ? "default" : "default"}
-              className={isMobile ? "min-h-[44px]" : ""}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Lead
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-    {/* Enhanced Filters and Actions Bar */}
+    {/* Unified Header with Filters */}
     <div className="bg-background border-b border-border">
       <div className="px-4 lg:px-6 xl:px-8 py-4">
         <UnifiedLeadHeader
@@ -580,7 +530,7 @@ export function LeadManagement() {
           activeStage={activeStage}
           selectedLeadsCount={selectedLeadIds.length}
           filters={filters}
-          programs={[]} // You might want to fetch this from your program service
+          programs={[]}
           onStageChange={setActiveStage}
           onFilterChange={setFilters}
           onClearFilters={() => setFilters({})}

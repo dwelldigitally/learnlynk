@@ -571,54 +571,6 @@ export function LeadManagement() {
       </div>
     </div>
 
-    {/* Mobile-Optimized Stats Overview Cards */}
-    <div className="bg-background">
-      <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
-        {isMobile ? (
-          // Mobile: Horizontal scroll for stats
-          <div className="overflow-x-auto">
-            <div className="flex gap-3 min-w-max pb-2">
-              {stageStats.map((stage) => (
-                <Card 
-                  key={stage.key}
-                  className={cn(
-                    "cursor-pointer transition-all duration-200 hover:shadow-md min-w-[120px] flex-shrink-0",
-                    activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/20"
-                  )}
-                  onClick={() => setActiveStage(stage.key)}
-                >
-                  <CardContent className="p-3 text-center">
-                    <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
-                    <div className="text-xl font-bold text-foreground">{stage.count}</div>
-                    <div className="text-xs text-muted-foreground font-medium leading-tight">{stage.label}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        ) : (
-          // Desktop: Grid layout
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
-            {stageStats.map((stage) => (
-              <Card 
-                key={stage.key}
-                className={cn(
-                  "cursor-pointer transition-all duration-200 hover:shadow-md",
-                  activeStage === stage.key ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/20"
-                )}
-                onClick={() => setActiveStage(stage.key)}
-              >
-                <CardContent className="p-4 text-center">
-                  <div className={cn("w-3 h-3 rounded-full mx-auto mb-2", stage.color)}></div>
-                  <div className="text-2xl font-bold text-foreground">{stage.count}</div>
-                  <div className="text-xs text-muted-foreground font-medium">{stage.label}</div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
 
     {/* Enhanced Filters and Actions Bar */}
     <div className="bg-background border-b border-border">

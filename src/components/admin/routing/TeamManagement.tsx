@@ -12,7 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorTeam, TeamMember } from '@/types/routing';
-import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp, UserCog } from 'lucide-react';
+import TeamMembersList from '@/components/team/TeamMembersList';
 
 interface TeamManagementProps {
   onTeamCreated?: () => void;
@@ -23,6 +24,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   const [advisors, setAdvisors] = useState<any[]>([]);
   const [showTeamForm, setShowTeamForm] = useState(false);
   const [editingTeam, setEditingTeam] = useState<AdvisorTeam | null>(null);
+  const [managingTeam, setManagingTeam] = useState<AdvisorTeam | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -510,6 +512,14 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                 </div>
                 <div className="flex gap-2">
                   <Button
+                    onClick={() => setManagingTeam(team)}
+                    variant="default"
+                    size="sm"
+                  >
+                    <UserCog className="h-4 w-4 mr-1" />
+                    Manage Members
+                  </Button>
+                  <Button
                     onClick={() => toggleTeamStatus(team.id)}
                     variant="outline"
                     size="sm"
@@ -594,6 +604,21 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
           </Card>
         )}
       </div>
+
+      {/* Team Member Management Dialog */}
+      <Dialog open={!!managingTeam} onOpenChange={() => setManagingTeam(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Manage Team Members</DialogTitle>
+          </DialogHeader>
+          {managingTeam && (
+            <TeamMembersList
+              teamId={managingTeam.id}
+              teamName={managingTeam.name}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

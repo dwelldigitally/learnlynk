@@ -26,7 +26,7 @@ interface CRUDAction {
 }
 
 interface UniversalCRUDTableProps {
-  title: string;
+  title?: string;
   description?: string;
   data: any[];
   columns: Column[];
@@ -172,10 +172,12 @@ export const UniversalCRUDTable: React.FC<UniversalCRUDTableProps> = ({
   if (loading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>{title}</CardTitle>
-          {description && <p className="text-sm text-muted-foreground">{description}</p>}
-        </CardHeader>
+        {title && (
+          <CardHeader>
+            <CardTitle>{title}</CardTitle>
+            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+          </CardHeader>
+        )}
         <CardContent>
           <div className="flex items-center justify-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -187,20 +189,32 @@ export const UniversalCRUDTable: React.FC<UniversalCRUDTableProps> = ({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>{title}</CardTitle>
-            {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      {title && (
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>{title}</CardTitle>
+              {description && <p className="text-sm text-muted-foreground">{description}</p>}
+            </div>
+            {showAddButton && onAdd && (
+              <Button onClick={onAdd}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add New
+              </Button>
+            )}
           </div>
-          {showAddButton && onAdd && (
+        </CardHeader>
+      )}
+      {!title && showAddButton && onAdd && (
+        <CardHeader>
+          <div className="flex justify-end">
             <Button onClick={onAdd}>
               <Plus className="w-4 h-4 mr-2" />
               Add New
             </Button>
-          )}
-        </div>
-      </CardHeader>
+          </div>
+        </CardHeader>
+      )}
       <CardContent>
         <div className="space-y-4">
           {/* Search and Filters */}

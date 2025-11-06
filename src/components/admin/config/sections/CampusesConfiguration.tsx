@@ -177,8 +177,6 @@ export const CampusesConfiguration = () => {
   return (
     <div className="space-y-6">
       <UniversalCRUDTable
-        title="Campus Locations"
-        description="Manage your institution's campus locations and facilities"
         data={campuses}
         columns={columns}
         loading={loading}

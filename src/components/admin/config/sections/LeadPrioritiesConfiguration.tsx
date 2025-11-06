@@ -162,8 +162,6 @@ export const LeadPrioritiesConfiguration = () => {
   return (
     <div className="space-y-6">
       <UniversalCRUDTable
-        title="Lead Priorities"
-        description="Configure priority levels and SLAs for lead management"
         data={priorities}
         columns={columns}
         loading={loading}

@@ -146,8 +146,6 @@ export const RoutingConfiguration = () => {
         </CardHeader>
         <CardContent>
           <UniversalCRUDTable
-            title="Routing Rules"
-            description="Configure how leads are automatically assigned to team members"
             data={routingRules}
             columns={columns}
             loading={loading}

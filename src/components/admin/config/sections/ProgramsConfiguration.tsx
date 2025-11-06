@@ -208,8 +208,6 @@ export const ProgramsConfiguration = () => {
   return (
     <div className="space-y-6">
       <UniversalCRUDTable
-        title="Academic Programs"
-        description="Manage academic programs offered by your institution"
         data={programs}
         columns={columns}
         loading={loading}

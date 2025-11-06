@@ -163,8 +163,6 @@ export const LeadStatusesConfiguration = () => {
   return (
     <div className="space-y-6">
       <UniversalCRUDTable
-        title="Lead Statuses"
-        description="Configure status options for leads at different stages"
         data={leadStatuses}
         columns={columns}
         loading={loading}

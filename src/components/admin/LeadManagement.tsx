@@ -521,71 +521,68 @@ export function LeadManagement() {
       variant: 'destructive' as const
     }
   ];
-  return <div className="h-full flex flex-col bg-background">
-    {/* Unified Header with Filters */}
-    <div className="bg-background border-b border-border">
-      <div className="px-4 lg:px-6 xl:px-8 py-4">
-        <UnifiedLeadHeader
-          stages={stageStats}
-          activeStage={activeStage}
-          selectedLeadsCount={selectedLeadIds.length}
-          filters={filters}
-          programs={[]}
-          onStageChange={setActiveStage}
-          onFilterChange={setFilters}
-          onClearFilters={() => setFilters({})}
-          onAddLead={() => setShowLeadForm(true)}
-          onExport={handleExport}
-        />
+  return (
+    <div className="h-full flex flex-col">
+      {/* Unified Header with Timeline */}
+      <div className="border-b bg-background">
+        <div className="px-6 py-6">
+          <UnifiedLeadHeader
+            stages={stageStats}
+            activeStage={activeStage}
+            selectedLeadsCount={selectedLeadIds.length}
+            filters={filters}
+            programs={[]}
+            onStageChange={setActiveStage}
+            onFilterChange={setFilters}
+            onClearFilters={() => setFilters({})}
+            onAddLead={() => setShowLeadForm(true)}
+            onExport={handleExport}
+          />
+        </div>
       </div>
-    </div>
 
-    {/* Main Content Area with Enhanced Data Table */}
-    <div className="flex-1 bg-background">
-      <div className="px-4 lg:px-6 xl:px-8 py-6 h-full">
-        <div className="bg-card border border-border rounded-lg shadow-sm h-full">
-          <ConditionalDataWrapper 
-            isLoading={loading} 
-            showEmptyState={!hasDemoAccess && leads.length === 0} 
-            hasDemoAccess={hasDemoAccess || false} 
-            hasRealData={leads.length > 0 && !leads.some(lead => lead.id.startsWith('demo-'))} 
-            emptyTitle="No Leads Yet" 
-            emptyDescription="Create your first lead to get started with lead management." 
+      {/* Main Content - Table */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full">
+          <ConditionalDataWrapper
+            isLoading={loading}
+            showEmptyState={!hasDemoAccess && leads.length === 0}
+            hasDemoAccess={hasDemoAccess || false}
+            hasRealData={leads.length > 0 && !leads.some((lead) => lead.id.startsWith('demo-'))}
+            emptyTitle="No Leads Yet"
+            emptyDescription="Create your first lead to get started with lead management."
             loadingRows={5}
           >
-            <SmartLeadTable 
-              leads={leads} 
-              loading={loading} 
-              selectedLeadIds={selectedLeadIds} 
+            <SmartLeadTable
+              leads={leads}
+              loading={loading}
+              selectedLeadIds={selectedLeadIds}
               onLeadSelect={(leadId) => {
-                setSelectedLeadIds(prev => 
-                  prev.includes(leadId) 
-                    ? prev.filter(id => id !== leadId)
-                    : [...prev, leadId]
+                setSelectedLeadIds((prev) =>
+                  prev.includes(leadId) ? prev.filter((id) => id !== leadId) : [...prev, leadId]
                 );
-              }} 
+              }}
               onSelectAll={(selected) => {
-                setSelectedLeadIds(selected ? leads.map(l => l.id) : []);
-              }} 
+                setSelectedLeadIds(selected ? leads.map((l) => l.id) : []);
+              }}
               onLeadClick={(lead) => {
                 navigate(`/admin/leads/detail/${lead.id}`);
               }}
-              onBulkAction={handleBulkAction} 
-              onSort={handleSort} 
-              onFilter={handleFilter} 
-              onSearch={handleSearch} 
-              onExport={handleExport} 
-              onAddLead={() => setShowLeadForm(true)} 
-              totalCount={totalCount} 
-              currentPage={currentPage} 
-              pageSize={pageSize} 
-              onPageChange={handlePageChange} 
-              onPageSizeChange={handlePageSizeChange} 
+              onBulkAction={handleBulkAction}
+              onSort={handleSort}
+              onFilter={handleFilter}
+              onSearch={handleSearch}
+              onExport={handleExport}
+              onAddLead={() => setShowLeadForm(true)}
+              totalCount={totalCount}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
             />
           </ConditionalDataWrapper>
         </div>
       </div>
-    </div>
     {/* Modals */}
     <LeadFormModal open={showLeadForm} onOpenChange={setShowLeadForm} onLeadCreated={handleLeadCreated} />
 
@@ -614,5 +611,6 @@ export function LeadManagement() {
         }} 
       />
     )}
-  </div>;
+    </div>
+  );
 }

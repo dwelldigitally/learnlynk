@@ -73,36 +73,69 @@ export function UnifiedLeadHeader({
       }
     }
   }];
-  return <div className="space-y-4">
-      {/* Stage Navigation with Tabs */}
-      <div className="mb-4">
-        <Tabs value={activeStage} onValueChange={onStageChange}>
-          <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:grid-cols-none lg:flex h-auto">
-            <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2">
-              All ({getTotalLeads()})
-            </TabsTrigger>
-            {stages.map(stage => <TabsTrigger key={stage.key} value={stage.key} className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground py-2">
-                {stage.label} ({stage.count})
-              </TabsTrigger>)}
-          </TabsList>
-        </Tabs>
+  return (
+    <div className="space-y-6">
+      {/* Page Title */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Lead Management</h1>
+          <p className="text-muted-foreground mt-1">
+            Track and manage your leads through their journey
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onExport}>
+            <Download className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button onClick={onAddLead}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Lead
+          </Button>
+        </div>
       </div>
 
-      {/* Horizontal Filter Bar */}
-      
-
-      {/* Quick Filters in a clean horizontal layout */}
-      
+      {/* Stage Timeline - Compact Horizontal */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+        <Button
+          variant={activeStage === "all" ? "default" : "outline"}
+          onClick={() => onStageChange("all")}
+          size="sm"
+          className="whitespace-nowrap"
+        >
+          All <Badge variant="secondary" className="ml-2">{getTotalLeads()}</Badge>
+        </Button>
+        {stages.map((stage, index) => (
+          <div key={stage.key} className="flex items-center gap-2">
+            {index > 0 && <div className="h-px w-8 bg-border" />}
+            <Button
+              variant={activeStage === stage.key ? "default" : "outline"}
+              onClick={() => onStageChange(stage.key)}
+              size="sm"
+              className="whitespace-nowrap"
+            >
+              <div className={`w-2 h-2 rounded-full mr-2 ${stage.color}`} />
+              {stage.label} <Badge variant="secondary" className="ml-2">{stage.count}</Badge>
+            </Button>
+          </div>
+        ))}
+      </div>
 
       {/* Advanced Filters Panel */}
-      {showAdvancedFilters && <div className="border-t pt-4">
+      {showAdvancedFilters && (
+        <div className="border-t pt-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Source Filter */}
             <div>
               <label className="text-sm font-medium mb-2 block">Source</label>
-              <Select value={filters.source?.[0] || "all"} onValueChange={value => onFilterChange({
-            source: value === "all" ? [] : [value as LeadSource]
-          })}>
+              <Select
+                value={filters.source?.[0] || "all"}
+                onValueChange={(value) =>
+                  onFilterChange({
+                    source: value === "all" ? [] : [value as LeadSource],
+                  })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Sources" />
                 </SelectTrigger>
@@ -120,9 +153,14 @@ export function UnifiedLeadHeader({
             {/* Priority Filter */}
             <div>
               <label className="text-sm font-medium mb-2 block">Priority</label>
-              <Select value={filters.priority?.[0] || "all"} onValueChange={value => onFilterChange({
-            priority: value === "all" ? [] : [value as LeadPriority]
-          })}>
+              <Select
+                value={filters.priority?.[0] || "all"}
+                onValueChange={(value) =>
+                  onFilterChange({
+                    priority: value === "all" ? [] : [value as LeadPriority],
+                  })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Priorities" />
                 </SelectTrigger>
@@ -139,25 +177,28 @@ export function UnifiedLeadHeader({
             {/* Lead Score Filter */}
             <div>
               <label className="text-sm font-medium mb-2 block">Lead Score</label>
-              <Select value={filters.lead_score_range?.min === 80 ? "high" : filters.lead_score_range?.min === 50 ? "medium" : filters.lead_score_range?.min === 20 ? "low" : "all"} onValueChange={value => {
-            const ranges = {
-              high: {
-                min: 80,
-                max: 100
-              },
-              medium: {
-                min: 50,
-                max: 79
-              },
-              low: {
-                min: 20,
-                max: 49
-              }
-            };
-            onFilterChange({
-              lead_score_range: value === "all" ? undefined : ranges[value as keyof typeof ranges]
-            });
-          }}>
+              <Select
+                value={
+                  filters.lead_score_range?.min === 80
+                    ? "high"
+                    : filters.lead_score_range?.min === 50
+                    ? "medium"
+                    : filters.lead_score_range?.min === 20
+                    ? "low"
+                    : "all"
+                }
+                onValueChange={(value) => {
+                  const ranges = {
+                    high: { min: 80, max: 100 },
+                    medium: { min: 50, max: 79 },
+                    low: { min: 20, max: 49 },
+                  };
+                  onFilterChange({
+                    lead_score_range:
+                      value === "all" ? undefined : ranges[value as keyof typeof ranges],
+                  });
+                }}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="All Scores" />
                 </SelectTrigger>
@@ -170,6 +211,8 @@ export function UnifiedLeadHeader({
               </Select>
             </div>
           </div>
-        </div>}
-    </div>;
+        </div>
+      )}
+    </div>
+  );
 }

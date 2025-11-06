@@ -25,7 +25,14 @@ import {
   User,
   Tag,
   TrendingUp,
-  Clock
+  Clock,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Settings2,
+  Eye,
+  EyeOff,
+  GripVertical
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
@@ -51,6 +58,29 @@ interface SmartLeadTableProps {
   onPageSizeChange: (size: number) => void;
 }
 
+// Column configuration
+interface ColumnConfig {
+  id: string;
+  label: string;
+  visible: boolean;
+  sortable: boolean;
+  width?: string;
+}
+
+const DEFAULT_COLUMNS: ColumnConfig[] = [
+  { id: 'name', label: 'Name', visible: true, sortable: true },
+  { id: 'email', label: 'Email', visible: true, sortable: true },
+  { id: 'phone', label: 'Phone', visible: true, sortable: false },
+  { id: 'source', label: 'Source', visible: true, sortable: true },
+  { id: 'created_at', label: 'Created', visible: true, sortable: true },
+  { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false },
+  { id: 'stage', label: 'Stage', visible: true, sortable: true },
+  { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true },
+  { id: 'priority', label: 'Priority', visible: true, sortable: true },
+  { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false },
+  { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false },
+];
+
 export function SmartLeadTable({
   leads,
   loading,
@@ -74,6 +104,9 @@ export function SmartLeadTable({
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [sortColumn, setSortColumn] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [columns, setColumns] = useState<ColumnConfig[]>(DEFAULT_COLUMNS);
+  const [showColumnSettings, setShowColumnSettings] = useState(false);
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
 
   const getStatusColor = (status: LeadStatus) => {
     switch (status) {
@@ -131,6 +164,45 @@ export function SmartLeadTable({
     setSortColumn(column);
     setSortOrder(newOrder);
     onSort(column, newOrder);
+  };
+
+  const toggleColumnVisibility = (columnId: string) => {
+    setColumns(columns.map(col => 
+      col.id === columnId ? { ...col, visible: !col.visible } : col
+    ));
+  };
+
+  const handleDragStart = (columnId: string) => {
+    setDraggedColumn(columnId);
+  };
+
+  const handleDragOver = (e: React.DragEvent, columnId: string) => {
+    e.preventDefault();
+    if (!draggedColumn || draggedColumn === columnId) return;
+
+    const draggedIndex = columns.findIndex(col => col.id === draggedColumn);
+    const targetIndex = columns.findIndex(col => col.id === columnId);
+
+    const newColumns = [...columns];
+    const [removed] = newColumns.splice(draggedIndex, 1);
+    newColumns.splice(targetIndex, 0, removed);
+    
+    setColumns(newColumns);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedColumn(null);
+  };
+
+  const visibleColumns = columns.filter(col => col.visible);
+
+  const renderSortIcon = (columnId: string) => {
+    if (sortColumn !== columnId) {
+      return <ArrowUpDown className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-50" />;
+    }
+    return sortOrder === 'asc' 
+      ? <ArrowUp className="h-3 w-3 ml-1" />
+      : <ArrowDown className="h-3 w-3 ml-1" />;
   };
 
   // Enhanced lead data processing with realistic values
@@ -208,6 +280,48 @@ export function SmartLeadTable({
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings2 className="h-4 w-4 mr-2" />
+                    Columns
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <div className="p-2">
+                    <div className="text-sm font-medium mb-2">Manage Columns</div>
+                    <div className="space-y-2">
+                      {columns.map((column) => (
+                        <div 
+                          key={column.id}
+                          className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-move"
+                          draggable
+                          onDragStart={() => handleDragStart(column.id)}
+                          onDragOver={(e) => handleDragOver(e, column.id)}
+                          onDragEnd={handleDragEnd}
+                        >
+                          <div className="flex items-center gap-2">
+                            <GripVertical className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{column.label}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => toggleColumnVisibility(column.id)}
+                          >
+                            {column.visible ? (
+                              <Eye className="h-4 w-4" />
+                            ) : (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button onClick={onExport} variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-2" />
                 Export
@@ -294,44 +408,34 @@ export function SmartLeadTable({
                     onCheckedChange={onSelectAll}
                   />
                 </th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('name')}>
-                  Name
-                </th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('email')}>
-                  Email
-                </th>
-                <th className="p-4 text-left font-semibold">Phone</th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('source')}>
-                  Source
-                </th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('created_at')}>
-                  Created
-                </th>
-                <th className="p-4 text-left font-semibold">Last Activity</th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('stage')}>
-                  Stage
-                </th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('lead_score')}>
-                  Lead Score
-                </th>
-                <th className="p-4 text-left font-semibold cursor-pointer hover:bg-muted/50" onClick={() => handleSort('priority')}>
-                  Priority
-                </th>
-                <th className="p-4 text-left font-semibold">Assigned To</th>
-                <th className="p-4 text-left font-semibold">Suggested Action</th>
+                {visibleColumns.map((column) => (
+                  <th 
+                    key={column.id}
+                    className={cn(
+                      "p-4 text-left font-semibold group",
+                      column.sortable && "cursor-pointer hover:bg-muted/50"
+                    )}
+                    onClick={column.sortable ? () => handleSort(column.id) : undefined}
+                  >
+                    <div className="flex items-center">
+                      {column.label}
+                      {column.sortable && renderSortIcon(column.id)}
+                    </div>
+                  </th>
+                ))}
                 <th className="p-4 text-left font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={13} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={visibleColumns.length + 2} className="p-8 text-center text-muted-foreground">
                     Loading leads...
                   </td>
                 </tr>
               ) : leads.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={visibleColumns.length + 2} className="p-8 text-center text-muted-foreground">
                     No leads found
                   </td>
                 </tr>
@@ -340,6 +444,133 @@ export function SmartLeadTable({
                   const lead = enhanceLeadData(originalLead, index);
                   const suggestedAction = getSuggestedAction(lead);
                   const ActionIcon = suggestedAction.icon;
+                  
+                  const renderCell = (columnId: string) => {
+                    switch (columnId) {
+                      case 'name':
+                        return (
+                          <td className="p-4">
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>
+                                  {lead.first_name?.[0]}{lead.last_name?.[0]}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium">{lead.first_name} {lead.last_name}</div>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger>
+                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Activity className="h-3 w-3" />
+                                        Last: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'MMM d') : 'Never'}
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Last contacted: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'PPP') : 'Never contacted'}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </div>
+                          </td>
+                        );
+                      case 'email':
+                        return (
+                          <td className="p-4">
+                            <div className="text-sm">{lead.email}</div>
+                            <div className="text-xs text-muted-foreground flex items-center gap-1">
+                              <div className={cn("w-2 h-2 rounded-full", "bg-green-500")} />
+                              Valid
+                            </div>
+                          </td>
+                        );
+                      case 'phone':
+                        return (
+                          <td className="p-4">
+                            <div className="text-sm">{lead.phone || '-'}</div>
+                          </td>
+                        );
+                      case 'source':
+                        return (
+                          <td className="p-4">
+                            <Badge variant="outline" className="text-xs">
+                              {lead.source.replace('_', ' ').toUpperCase()}
+                            </Badge>
+                          </td>
+                        );
+                      case 'created_at':
+                        return (
+                          <td className="p-4">
+                            <div className="text-sm">{format(new Date(lead.created_at), 'MMM d, yyyy')}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(new Date(lead.created_at), 'h:mm a')}
+                            </div>
+                          </td>
+                        );
+                      case 'last_activity':
+                        return (
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              {lead.last_contacted_at ? (
+                                <>
+                                  <Mail className="h-4 w-4 text-blue-500" />
+                                  <span className="text-sm">{Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (60 * 60 * 1000))}h ago</span>
+                                </>
+                              ) : (
+                                <span className="text-sm text-muted-foreground">No activity</span>
+                              )}
+                            </div>
+                          </td>
+                        );
+                      case 'stage':
+                        return (
+                          <td className="p-4">
+                            <Badge className={cn("text-white", getStatusColor(lead.status))}>
+                              {lead.status.toUpperCase()}
+                            </Badge>
+                          </td>
+                        );
+                      case 'lead_score':
+                        return (
+                          <td className="p-4">
+                            <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium", getScoreColor(lead.lead_score || 0))}>
+                              <TrendingUp className="h-3 w-3" />
+                              {lead.lead_score || 0}
+                            </div>
+                          </td>
+                        );
+                      case 'priority':
+                        return (
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              {getPriorityIcon(lead.priority)}
+                              <span className="text-sm capitalize">{lead.priority}</span>
+                            </div>
+                          </td>
+                        );
+                      case 'assigned_to':
+                        return (
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                              <span className="text-sm">{lead.assigned_to || 'Unassigned'}</span>
+                            </div>
+                          </td>
+                        );
+                      case 'suggested_action':
+                        return (
+                          <td className="p-4">
+                            <Badge className={cn("text-xs", suggestedAction.color)}>
+                              <ActionIcon className="h-3 w-3 mr-1" />
+                              {suggestedAction.action}
+                            </Badge>
+                          </td>
+                        );
+                      default:
+                        return <td className="p-4">-</td>;
+                    }
+                  };
                   
                   return (
                     <tr 
@@ -353,93 +584,11 @@ export function SmartLeadTable({
                           onCheckedChange={() => onLeadSelect(lead.id)}
                         />
                       </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback>
-                              {lead.first_name?.[0]}{lead.last_name?.[0]}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <div className="font-medium">{lead.first_name} {lead.last_name}</div>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger>
-                                  <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Activity className="h-3 w-3" />
-                                    Last: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'MMM d') : 'Never'}
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Last contacted: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'PPP') : 'Never contacted'}</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm">{lead.email}</div>
-                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                          <div className={cn("w-2 h-2 rounded-full", "bg-green-500")} />
-                          Valid
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm">{lead.phone || '-'}</div>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="outline" className="text-xs">
-                          {lead.source.replace('_', ' ').toUpperCase()}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className="text-sm">{format(new Date(lead.created_at), 'MMM d, yyyy')}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {format(new Date(lead.created_at), 'h:mm a')}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          {lead.last_contacted_at ? (
-                            <>
-                              <Mail className="h-4 w-4 text-blue-500" />
-                              <span className="text-sm">{Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (60 * 60 * 1000))}h ago</span>
-                            </>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">No activity</span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge className={cn("text-white", getStatusColor(lead.status))}>
-                          {lead.status.toUpperCase()}
-                        </Badge>
-                      </td>
-                      <td className="p-4">
-                        <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium", getScoreColor(lead.lead_score || 0))}>
-                          <TrendingUp className="h-3 w-3" />
-                          {lead.lead_score || 0}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          {getPriorityIcon(lead.priority)}
-                          <span className="text-sm capitalize">{lead.priority}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{lead.assigned_to || 'Unassigned'}</span>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge className={cn("text-xs", suggestedAction.color)}>
-                          <ActionIcon className="h-3 w-3 mr-1" />
-                          {suggestedAction.action}
-                        </Badge>
-                      </td>
+                      {visibleColumns.map((column) => (
+                        <React.Fragment key={column.id}>
+                          {renderCell(column.id)}
+                        </React.Fragment>
+                      ))}
                       <td className="p-4" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

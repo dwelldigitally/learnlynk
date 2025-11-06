@@ -32,7 +32,13 @@ import {
   Settings2,
   Eye,
   EyeOff,
-  GripVertical
+  GripVertical,
+  UserPlus,
+  Send,
+  MoveHorizontal,
+  Archive,
+  Zap,
+  X
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
@@ -258,12 +264,11 @@ export function SmartLeadTable({
   ];
 
   const bulkActions = [
-    'Assign to Counselor',
-    'Send Campaign',
-    'Move to Stage',
-    'Add Tag',
-    'Archive',
-    'Trigger Journey'
+    { label: 'Assign', icon: UserPlus, action: 'Assign to Counselor', variant: 'default' as const },
+    { label: 'Send Email', icon: Send, action: 'Send Campaign', variant: 'default' as const },
+    { label: 'Move Stage', icon: MoveHorizontal, action: 'Move to Stage', variant: 'outline' as const },
+    { label: 'Add Tag', icon: Tag, action: 'Add Tag', variant: 'outline' as const },
+    { label: 'Archive', icon: Archive, action: 'Archive', variant: 'outline' as const },
   ];
 
   return (
@@ -271,21 +276,57 @@ export function SmartLeadTable({
 
       {/* Bulk Actions Bar */}
       {selectedLeadIds.length > 0 && (
-        <div className="flex items-center justify-between p-3 bg-primary/5 border border-primary/20 rounded-lg">
-          <span className="text-sm font-medium">
-            {selectedLeadIds.length} lead{selectedLeadIds.length > 1 ? 's' : ''} selected
-          </span>
+        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-2 border-primary/30 rounded-lg shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-3">
+            <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-semibold text-sm">
+              {selectedLeadIds.length}
+            </div>
+            <span className="text-sm font-semibold">
+              {selectedLeadIds.length} lead{selectedLeadIds.length > 1 ? 's' : ''} selected
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onSelectAll(false)}
+              className="h-7 px-2 hover:bg-destructive/10"
+            >
+              <X className="h-3 w-3 mr-1" />
+              Clear
+            </Button>
+          </div>
           <div className="flex items-center gap-2">
-            {bulkActions.map((action) => (
-              <Button
-                key={action}
-                variant="outline"
-                size="sm"
-                onClick={() => onBulkAction(action, selectedLeadIds)}
-              >
-                {action}
-              </Button>
-            ))}
+            {bulkActions.map((bulkAction) => {
+              const Icon = bulkAction.icon;
+              return (
+                <Button
+                  key={bulkAction.action}
+                  variant={bulkAction.variant}
+                  size="sm"
+                  onClick={() => onBulkAction(bulkAction.action, selectedLeadIds)}
+                  className="gap-2"
+                >
+                  <Icon className="h-4 w-4" />
+                  {bulkAction.label}
+                </Button>
+              );
+            })}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-popover z-50">
+                <DropdownMenuItem onClick={() => onBulkAction('Trigger Journey', selectedLeadIds)}>
+                  <Zap className="h-4 w-4 mr-2" />
+                  Trigger Journey
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onBulkAction('Delete Selected', selectedLeadIds)} className="text-destructive">
+                  <X className="h-4 w-4 mr-2" />
+                  Delete Selected
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       )}

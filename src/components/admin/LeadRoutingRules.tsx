@@ -9,7 +9,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { RuleWizard } from './routing/RuleWizard';
 import { TeamManagement } from './routing/TeamManagement';
 import { AdvisorManagement } from './routing/AdvisorManagement';
-import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck } from 'lucide-react';
+import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck, MoreVertical, Filter, GitBranch, Power, PowerOff } from 'lucide-react';
+import { ConditionGroupsDisplay, AssignmentDisplay, getPriorityColor } from './routing/RuleCardHelpers';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface LeadRoutingRulesProps {
   onRuleCreated?: () => void;
@@ -249,87 +257,125 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       </div>
 
       {/* Rules List */}
-      <div className="grid gap-4">
-        {rules.map(rule => (
-          <Card key={rule.id} className={!rule.is_active ? 'opacity-75' : ''}>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    {getMethodIcon(rule.assignment_config.method)}
-                    {rule.name}
-                    <Badge variant={rule.is_active ? "default" : "secondary"}>
-                      Priority {rule.priority}
+      <div className="grid gap-3">
+        {rules.map(rule => {
+          const priorityColors = getPriorityColor(rule.priority);
+          
+          return (
+            <Card 
+              key={rule.id} 
+              className={`
+                relative border-l-4 ${priorityColors.border} 
+                transition-all duration-200 hover:shadow-md hover:-translate-y-0.5
+                ${!rule.is_active ? 'opacity-60' : ''}
+              `}
+            >
+              <div className="p-4">
+                {/* Compact Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm truncate">{rule.name}</h3>
+                    <Badge className={`text-xs px-2 py-0 h-5 ${priorityColors.badge} border-0`}>
+                      P{rule.priority}
                     </Badge>
-                    {!rule.is_active && (
-                      <Badge variant="secondary">Inactive</Badge>
+                    {rule.is_active ? (
+                      <div className="flex items-center gap-1">
+                        <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
+                        <span className="text-xs text-success font-medium">Active</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <div className="h-2 w-2 rounded-full bg-muted-foreground/50" />
+                        <span className="text-xs text-muted-foreground font-medium">Inactive</span>
+                      </div>
                     )}
-                  </CardTitle>
-                  {rule.description && (
-                    <p className="text-sm text-muted-foreground mt-1">{rule.description}</p>
-                  )}
+                  </div>
+                  
+                  {/* Action Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => toggleRuleStatus(rule.id)}>
+                        {rule.is_active ? (
+                          <>
+                            <PowerOff className="h-4 w-4 mr-2" />
+                            Disable Rule
+                          </>
+                        ) : (
+                          <>
+                            <Power className="h-4 w-4 mr-2" />
+                            Enable Rule
+                          </>
+                        )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEdit(rule)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Rule
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => handleDelete(rule.id)}
+                        className="text-destructive focus:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Rule
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => toggleRuleStatus(rule.id)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    {rule.is_active ? 'Disable' : 'Enable'}
-                  </Button>
-                  <Button
-                    onClick={() => handleEdit(rule)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    onClick={() => handleDelete(rule.id)}
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div>
-                  <span className="text-sm font-medium">Sources: </span>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {rule.sources.map((source: string) => (
-                      <Badge key={source} variant="outline">
-                        {source.replace('_', ' ')}
-                      </Badge>
-                    ))}
+
+                {/* 3-Column Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  {/* Sources Column */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium mb-2">
+                      <Filter className="h-3.5 w-3.5" />
+                      <span className="uppercase tracking-wide text-xs">Sources</span>
+                    </div>
+                    {rule.sources && rule.sources.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {rule.sources.slice(0, 3).map((source: string) => (
+                          <Badge key={source} variant="outline" className="text-xs h-5 bg-accent/30">
+                            {source.replace('_', ' ')}
+                          </Badge>
+                        ))}
+                        {rule.sources.length > 3 && (
+                          <Badge variant="outline" className="text-xs h-5">
+                            +{rule.sources.length - 3} more
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">All sources</p>
+                    )}
+                  </div>
+
+                  {/* Conditions Column */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium mb-2">
+                      <GitBranch className="h-3.5 w-3.5" />
+                      <span className="uppercase tracking-wide text-xs">Conditions</span>
+                    </div>
+                    <ConditionGroupsDisplay groups={rule.condition_groups} maxVisible={3} />
+                  </div>
+
+                  {/* Assignment Column */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-medium mb-2">
+                      <Users className="h-3.5 w-3.5" />
+                      <span className="uppercase tracking-wide text-xs">Assignment</span>
+                    </div>
+                    <AssignmentDisplay config={rule.assignment_config} />
                   </div>
                 </div>
-                
-                <div>
-                  <span className="text-sm font-medium">Conditions: </span>
-                  <p className="text-sm text-muted-foreground">
-                    {rule.condition_groups.length === 0 
-                      ? 'No specific conditions' 
-                      : `${rule.condition_groups.length} condition group(s)`
-                    }
-                  </p>
-                </div>
-                
-                <div>
-                  <span className="text-sm font-medium">Assignment: </span>
-                  <p className="text-sm text-muted-foreground">
-                    {rule.assignment_config.method.replace('_', ' ')} method
-                    {rule.assignment_config.workload_balance && ' • Workload balanced'}
-                    {rule.assignment_config.geographic_preference && ' • Geographic preference'}
-                  </p>
-                </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+            </Card>
+          );
+        })}
         
         {rules.length === 0 && (
           <Card className="border-dashed">

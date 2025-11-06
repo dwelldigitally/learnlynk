@@ -584,11 +584,7 @@ export function SmartLeadTable({
                           onCheckedChange={() => onLeadSelect(lead.id)}
                         />
                       </td>
-                      {visibleColumns.map((column) => (
-                        <React.Fragment key={column.id}>
-                          {renderCell(column.id)}
-                        </React.Fragment>
-                      ))}
+                      {visibleColumns.map((column) => renderCell(column.id))}
                       <td className="p-4" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

@@ -205,48 +205,75 @@ export function SmartLeadTable({
       : <ArrowDown className="h-3 w-3 ml-1" />;
   };
 
-  // Enhanced lead data processing with realistic values
-  const enhanceLeadData = (lead: Lead, index: number) => {
+  // Enhanced lead data processing with deterministic values
+  const enhanceLeadData = (lead: Lead) => {
     const salesReps = ['Sarah Johnson', 'Mike Chen', 'Emily Rodriguez', 'David Kim', 'Lisa Thompson', 'Alex Parker'];
-    const priorities: LeadPriority[] = ['low', 'medium', 'high', 'urgent'];
-    
-    // Generate realistic lead score based on factors
     const daysSinceCreated = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (24 * 60 * 60 * 1000));
-    const hasPhone = !!lead.phone;
-    const hasProgram = lead.program_interest && lead.program_interest.length > 0;
-    
-    let calculatedScore = 20; // Base score
-    if (hasPhone) calculatedScore += 15;
-    if (hasProgram) calculatedScore += 20;
-    if (daysSinceCreated < 1) calculatedScore += 25; // New leads
-    if (lead.source === 'webform') calculatedScore += 15;
-    
-    // Add some randomness but keep it realistic
-    calculatedScore += Math.floor(Math.random() * 20) - 10;
-    calculatedScore = Math.max(0, Math.min(100, calculatedScore));
-    
-    // Assign priority based on score and other factors
-    let assignedPriority: LeadPriority;
-    if (calculatedScore > 80 || daysSinceCreated > 7) assignedPriority = 'urgent';
-    else if (calculatedScore > 60) assignedPriority = 'high';
-    else if (calculatedScore > 40) assignedPriority = 'medium';
-    else assignedPriority = 'low';
-    
-    // Assign sales rep (80% of leads should be assigned)
-    const assignedRep = Math.random() < 0.8 ? salesReps[index % salesReps.length] : null;
-    
-    // Generate last activity
-    const lastActivityHours = Math.floor(Math.random() * 72) + 1; // 1-72 hours ago
-    const lastActivityTime = new Date(Date.now() - lastActivityHours * 60 * 60 * 1000);
-    
+
+    // Deterministic hash from lead.id for stable assignments
+    const hash = Array.from(lead.id || '').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+    const assignedRep = lead.assigned_to || salesReps[hash % salesReps.length];
+
+    // Deterministic score if missing
+    const baseScore = lead.lead_score ?? (() => {
+      let score = 20;
+      if (lead.phone) score += 15;
+      if (lead.program_interest && lead.program_interest.length > 0) score += 20;
+      if (daysSinceCreated < 1) score += 25;
+      if (lead.source === 'webform') score += 15;
+      return Math.max(0, Math.min(100, score));
+    })();
+
+    // Priority from explicit value or derived from score
+    const derivedPriority: LeadPriority = lead.priority || (baseScore > 80 ? 'urgent' : baseScore > 60 ? 'high' : baseScore > 40 ? 'medium' : 'low');
+
     return {
       ...lead,
-      lead_score: calculatedScore,
-      priority: assignedPriority,
+      lead_score: baseScore,
+      priority: derivedPriority,
       assigned_to: assignedRep,
-      last_contacted_at: Math.random() < 0.6 ? lastActivityTime.toISOString() : null,
-    };
+      last_contacted_at: lead.last_contacted_at || null,
+    } as Lead;
   };
+
+  const enhancedLeads = React.useMemo(() => leads.map(enhanceLeadData), [leads]);
+
+  const sortAccessor = (l: Lead, column: string): any => {
+    switch (column) {
+      case 'name':
+        return `${l.first_name || ''} ${l.last_name || ''}`.trim().toLowerCase();
+      case 'email':
+        return (l.email || '').toLowerCase();
+      case 'phone':
+        return l.phone || '';
+      case 'source':
+        return l.source || '';
+      case 'created_at':
+        return new Date(l.created_at).getTime();
+      case 'stage':
+        return l.status || '';
+      case 'lead_score':
+        return l.lead_score ?? 0;
+      case 'priority':
+        const order: Record<LeadPriority, number> = { low: 0, medium: 1, high: 2, urgent: 3 } as const;
+        return order[l.priority];
+      case 'assigned_to':
+        return (l.assigned_to || '').toLowerCase();
+      default:
+        return '';
+    }
+  };
+
+  const sortedLeads = React.useMemo(() => {
+    const arr = [...enhancedLeads];
+    return arr.sort((a, b) => {
+      const av = sortAccessor(a, sortColumn);
+      const bv = sortAccessor(b, sortColumn);
+      if (av < bv) return sortOrder === 'asc' ? -1 : 1;
+      if (av > bv) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [enhancedLeads, sortColumn, sortOrder]);
 
   const quickFilters = [
     { label: 'New Today', value: 'new_today', count: 12 },
@@ -433,15 +460,15 @@ export function SmartLeadTable({
                     Loading leads...
                   </td>
                 </tr>
-              ) : leads.length === 0 ? (
+              ) : sortedLeads.length === 0 ? (
                 <tr>
                   <td colSpan={visibleColumns.length + 2} className="p-8 text-center text-muted-foreground">
                     No leads found
                   </td>
                 </tr>
               ) : (
-                leads.map((originalLead, index) => {
-                  const lead = enhanceLeadData(originalLead, index);
+                sortedLeads.map((lead) => {
+                  
                   const suggestedAction = getSuggestedAction(lead);
                   const ActionIcon = suggestedAction.icon;
                   

@@ -2294,7 +2294,7 @@ export type Database = {
         Row: {
           form_id: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           lead_id: string | null
           student_portal_id: string | null
           submission_data: Json
@@ -2304,7 +2304,7 @@ export type Database = {
         Insert: {
           form_id: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           lead_id?: string | null
           student_portal_id?: string | null
           submission_data?: Json
@@ -2314,7 +2314,7 @@ export type Database = {
         Update: {
           form_id?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           lead_id?: string | null
           student_portal_id?: string | null
           submission_data?: Json
@@ -3550,7 +3550,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           last_contacted_at: string | null
           last_name: string
           lead_score: number | null
@@ -3593,7 +3593,7 @@ export type Database = {
           email: string
           first_name: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           last_contacted_at?: string | null
           last_name: string
           lead_score?: number | null
@@ -3636,7 +3636,7 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           last_contacted_at?: string | null
           last_name?: string
           lead_score?: number | null
@@ -4156,7 +4156,7 @@ export type Database = {
           email: string
           first_name: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           last_name: string
           phone: string | null
           program_interest: string[] | null
@@ -4184,7 +4184,7 @@ export type Database = {
           email: string
           first_name: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           last_name: string
           phone?: string | null
           program_interest?: string[] | null
@@ -4212,7 +4212,7 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           last_name?: string
           phone?: string | null
           program_interest?: string[] | null
@@ -4429,7 +4429,7 @@ export type Database = {
           email: string
           expires_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           max_attempts: number
           otp_hash: string
           user_agent: string | null
@@ -4441,7 +4441,7 @@ export type Database = {
           email: string
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           max_attempts?: number
           otp_hash: string
           user_agent?: string | null
@@ -4453,7 +4453,7 @@ export type Database = {
           email?: string
           expires_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           max_attempts?: number
           otp_hash?: string
           user_agent?: string | null
@@ -6408,7 +6408,7 @@ export type Database = {
           action: string
           created_at: string | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           record_id: string | null
           table_name: string | null
           user_agent: string | null
@@ -6418,7 +6418,7 @@ export type Database = {
           action: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           table_name?: string | null
           user_agent?: string | null
@@ -6428,7 +6428,7 @@ export type Database = {
           action?: string
           created_at?: string | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           table_name?: string | null
           user_agent?: string | null
@@ -8147,22 +8147,13 @@ export type Database = {
         Args: { demo_enabled?: boolean; target_email: string }
         Returns: boolean
       }
-      cleanup_expired_otps: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      has_role: {
-        Args: { _role: string; _user_id: string }
-        Returns: boolean
-      }
+      cleanup_expired_otps: { Args: never; Returns: undefined }
+      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       log_security_event: {
         Args: { p_action: string; p_record_id?: string; p_table_name?: string }
         Returns: undefined
       }
-      user_has_demo_data: {
-        Args: { user_email?: string }
-        Returns: boolean
-      }
+      user_has_demo_data: { Args: { user_email?: string }; Returns: boolean }
     }
     Enums: {
       assignment_method:

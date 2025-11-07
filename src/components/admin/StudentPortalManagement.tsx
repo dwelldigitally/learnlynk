@@ -224,7 +224,7 @@ export const StudentPortalManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="content" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Content
@@ -240,10 +240,6 @@ export const StudentPortalManagement = () => {
           <TabsTrigger value="students" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Student Access
-          </TabsTrigger>
-          <TabsTrigger value="preview" className="flex items-center gap-2">
-            <Monitor className="h-4 w-4" />
-            Preview
           </TabsTrigger>
           <TabsTrigger value="branding" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
@@ -955,81 +951,6 @@ export const StudentPortalManagement = () => {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="preview" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Portal Preview</CardTitle>
-              <CardDescription>
-                Preview how the student portal appears to students with current content and configuration
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="text-center py-8">
-                <Monitor className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h4 className="text-lg font-medium mb-2">Student Portal Preview</h4>
-                <p className="text-muted-foreground mb-4">
-                  See how your portal looks to students with the current content and settings.
-                </p>
-                <Button onClick={() => {
-                  console.log('Open Preview button clicked, setting showPreviewDialog to true');
-                  setShowPreviewDialog(true);
-                }}>
-                  <Eye className="mr-2 h-4 w-4" />
-                  Open Preview
-                </Button>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                <div className="p-4 border rounded-lg">
-                  <h5 className="font-medium mb-2">Current Configuration</h5>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>Portal Title:</span>
-                      <span className="text-muted-foreground">
-                        {portalConfig?.portal_title || 'Student Portal'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Published Content:</span>
-                      <span className="text-muted-foreground">
-                        {portalContent.filter(c => c.is_published).length} items
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Active Messages:</span>
-                      <span className="text-muted-foreground">
-                        {portalMessages.length} messages
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h5 className="font-medium mb-2">Enabled Features</h5>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.application_tracking ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span>Application Tracking</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.fee_payments ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span>Fee Payments</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.message_center ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span>Message Center</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className={`h-2 w-2 rounded-full ${portalConfig?.features?.document_upload ? 'bg-green-500' : 'bg-gray-300'}`} />
-                      <span>Document Upload</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>

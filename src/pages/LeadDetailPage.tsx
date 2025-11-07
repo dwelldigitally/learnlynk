@@ -183,14 +183,14 @@ export default function LeadDetailPage() {
       
 
       {/* Three-column layout */}
-      <div className="flex h-[calc(100vh-160px)]">
+      <div className="flex">
         {/* Left Sidebar - Enhanced Lead Details with AI Insights */}
         <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
         
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
               <TabsList className="grid w-full grid-cols-6 mb-6">
                 <TabsTrigger value="journey" className="flex items-center gap-2">
                   <Route className="h-4 w-4" />
@@ -218,27 +218,27 @@ export default function LeadDetailPage() {
                 </TabsTrigger>
               </TabsList>
 
-              <div className="flex-1 min-h-0">
-                <TabsContent value="journey" className="h-full m-0">
+              <div className="flex-1">
+                <TabsContent value="journey" className="m-0">
                   <AcademicJourneyTracker lead={lead} onUpdate={loadLead} />
                 </TabsContent>
 
-                <TabsContent value="ai-plays" className="h-full m-0">
+                <TabsContent value="ai-plays" className="m-0">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
                     <AIPlaysPanel lead={lead} onUpdate={loadLead} />
                     <AICommunicationDemo lead={lead} />
                   </div>
                 </TabsContent>
 
-                <TabsContent value="communication" className="h-full m-0">
+                <TabsContent value="communication" className="m-0">
                   <CommunicationHub lead={lead} onUpdate={loadLead} />
                 </TabsContent>
 
-                <TabsContent value="documents" className="h-full m-0">
+                <TabsContent value="documents" className="m-0">
                   <DocumentsSection lead={lead} onUpdate={loadLead} />
                 </TabsContent>
 
-                <TabsContent value="timeline" className="h-full m-0">
+                <TabsContent value="timeline" className="m-0">
                   <SegmentedTimeline 
                     leadId={lead.id}
                     communications={[]}
@@ -247,7 +247,7 @@ export default function LeadDetailPage() {
                   />
                 </TabsContent>
 
-                <TabsContent value="tasks" className="h-full m-0">
+                <TabsContent value="tasks" className="m-0">
                   <TasksAndNotes lead={lead} onUpdate={loadLead} />
                 </TabsContent>
               </div>

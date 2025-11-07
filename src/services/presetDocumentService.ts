@@ -30,6 +30,78 @@ export interface UploadedDocument {
 
 // Preset document requirements for each program
 const PRESET_REQUIREMENTS: Record<string, PresetDocumentRequirement[]> = {
+  'Aviation': [
+    {
+      id: 'passport',
+      name: 'Passport',
+      description: 'Valid passport copy (all pages)',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'high_school_diploma',
+      name: 'High School Diploma',
+      description: 'High school diploma or equivalent certificate',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'transcript',
+      name: 'Academic Transcripts',
+      description: 'Official transcripts from all educational institutions',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'english_test',
+      name: 'English Proficiency Test',
+      description: 'IELTS, TOEFL, or equivalent test results',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'medical_certificate',
+      name: 'Medical Certificate',
+      description: 'Aviation medical examination certificate (Class 1 or 2)',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'photos',
+      name: 'Passport Photos',
+      description: 'Recent passport-sized photographs (2x2 inches)',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'statement_purpose',
+      name: 'Statement of Purpose',
+      description: 'Personal statement explaining your aviation career goals',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'cv_resume',
+      name: 'CV/Resume',
+      description: 'Current curriculum vitae or resume',
+      required: false,
+      programName: 'Aviation'
+    },
+    {
+      id: 'financial_documents',
+      name: 'Financial Support Documents',
+      description: 'Bank statements or sponsorship letters showing financial capability',
+      required: true,
+      programName: 'Aviation'
+    },
+    {
+      id: 'criminal_background_check',
+      name: 'Criminal Background Check',
+      description: 'Clear criminal background check (required for aviation security clearance)',
+      required: true,
+      programName: 'Aviation'
+    }
+  ],
   'Master of Landscape Architecture': [
     {
       id: 'passport',

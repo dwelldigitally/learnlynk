@@ -250,13 +250,88 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const activeTasks = tasks.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
   const completedTasks = tasks.filter(task => task.status === 'completed' || task.status === 'cancelled');
 
+  // Demo tasks to show when no real tasks exist
+  const demoTasks = [
+    {
+      id: 'demo-1',
+      title: 'Follow up call with student',
+      description: 'Discuss program details and answer questions about curriculum',
+      status: 'pending',
+      priority: 'high',
+      task_type: 'call',
+      due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      assigned_to: 'current-user',
+      lead_id: leadId,
+      user_id: 'current-user'
+    },
+    {
+      id: 'demo-2',
+      title: 'Review application documents',
+      description: 'Check transcripts and recommendation letters for completeness',
+      status: 'in_progress',
+      priority: 'medium',
+      task_type: 'document_review',
+      due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      assigned_to: 'other-user',
+      lead_id: leadId,
+      user_id: 'other-user'
+    },
+    {
+      id: 'demo-3',
+      title: 'Send scholarship information',
+      description: 'Email details about merit-based scholarships and financial aid options',
+      status: 'pending',
+      priority: 'medium',
+      task_type: 'follow_up',
+      due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      assigned_to: 'current-user',
+      lead_id: leadId,
+      user_id: 'current-user'
+    },
+    {
+      id: 'demo-4',
+      title: 'Schedule campus tour',
+      description: 'Coordinate with admissions office for personalized campus visit',
+      status: 'completed',
+      priority: 'low',
+      task_type: 'interview',
+      due_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      completed_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      assigned_to: 'other-user',
+      lead_id: leadId,
+      user_id: 'other-user'
+    }
+  ];
+
+  // Use demo tasks if no real tasks exist
+  const displayTasks = tasks.length > 0 ? tasks : demoTasks;
+  const displayActiveTasks = displayTasks.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
+  const displayCompletedTasks = displayTasks.filter(task => task.status === 'completed' || task.status === 'cancelled');
+
+  // Get current user ID for highlighting
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
-            Tasks ({activeTasks.length} active, {completedTasks.length} completed)
+            Tasks ({displayActiveTasks.length} active, {displayCompletedTasks.length} completed)
           </CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -427,26 +502,31 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
         </div>
       </CardHeader>
       <CardContent>
-        {tasks.length === 0 ? (
-          <div className="text-center py-8">
-            <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No tasks yet</p>
-            <p className="text-sm text-muted-foreground">Create tasks to track follow-ups and actions</p>
-          </div>
-        ) : (
-          <ScrollArea className="h-[400px]">
-            <div className="space-y-4">
-              {/* Active Tasks */}
-              {activeTasks.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Active Tasks</h4>
-                  <div className="space-y-3">
-                    {activeTasks.map((task) => (
-                      <div key={task.id} className="border rounded-lg p-4">
+        <ScrollArea className="h-[400px]">
+          <div className="space-y-4">
+            {/* Active Tasks */}
+            {displayActiveTasks.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Active Tasks</h4>
+                <div className="space-y-3">
+                  {displayActiveTasks.map((task) => {
+                    const isAssignedToOther = task.assigned_to && task.assigned_to !== currentUserId && task.assigned_to !== 'current-user';
+                    
+                    return (
+                      <div 
+                        key={task.id} 
+                        className={`border rounded-lg p-4 ${isAssignedToOther ? 'border-blue-200 bg-blue-50/50' : ''}`}
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             {getStatusIcon(task.status)}
                             <span className="font-medium">{task.title}</span>
+                            {isAssignedToOther && (
+                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
+                                <User className="h-3 w-3 mr-1" />
+                                Other Team Member
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             {getPriorityBadge(task.priority)}
@@ -468,7 +548,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                           {task.assigned_to && (
                             <div className="flex items-center gap-1">
                               <User className="h-3 w-3" />
-                              <span>Assigned to user</span>
+                              <span>{isAssignedToOther ? 'Team member' : 'You'}</span>
                             </div>
                           )}
                         </div>
@@ -478,22 +558,35 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                           {task.task_type && ` • ${task.task_type}`}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Completed Tasks */}
-              {completedTasks.length > 0 && (
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Completed Tasks</h4>
-                  <div className="space-y-3">
-                    {completedTasks.map((task) => (
-                      <div key={task.id} className="border rounded-lg p-4 opacity-75">
+            {/* Completed Tasks */}
+            {displayCompletedTasks.length > 0 && (
+              <div>
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">Completed Tasks</h4>
+                <div className="space-y-3">
+                  {displayCompletedTasks.map((task) => {
+                    const isAssignedToOther = task.assigned_to && task.assigned_to !== currentUserId && task.assigned_to !== 'current-user';
+                    
+                    return (
+                      <div 
+                        key={task.id} 
+                        className={`border rounded-lg p-4 opacity-75 ${isAssignedToOther ? 'border-blue-200 bg-blue-50/30' : ''}`}
+                      >
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             {getStatusIcon(task.status)}
                             <span className="font-medium line-through">{task.title}</span>
+                            {isAssignedToOther && (
+                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
+                                <User className="h-3 w-3 mr-1" />
+                                Other Team Member
+                              </Badge>
+                            )}
                           </div>
                           <div className="flex items-center gap-2">
                             {getPriorityBadge(task.priority)}
@@ -514,13 +607,13 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                           {task.task_type && ` • ${task.task_type}`}
                         </div>
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
-            </div>
-          </ScrollArea>
-        )}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, CheckCircle, User, Users, Mail, Phone, MessageSquare, FileText, Clock, AlertTriangle, TrendingUp, Lightbulb, Brain, ShieldAlert, GraduationCap, BookOpenCheck, Activity, UserPlus, UserCheck, UserX, Briefcase, Building2, MapPin, Link, Tag, Edit, Save, Trash2 } from 'lucide-react';
+import { CalendarIcon, CheckCircle, User, Users, Mail, Phone, MessageSquare, FileText, Clock, AlertTriangle, TrendingUp, Lightbulb, Brain, ShieldAlert, GraduationCap, BookOpenCheck, Activity, UserPlus, UserCheck, UserX, Briefcase, Building2, MapPin, Link, Tag, Edit, Save, Trash2, Flag } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -639,12 +639,12 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* Recent Activity Timeline */}
-      <div className="p-6">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="p-6 pb-4 border-b border-border">
+        <div className="flex items-center gap-2 mb-3">
           <Activity className="h-5 w-5 text-gray-500" />
           <h3 className="text-lg font-semibold">Recent Activity</h3>
         </div>
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500"></div>
             <span className="text-sm text-muted-foreground">Email sent</span>
@@ -660,6 +660,29 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
             <span className="text-sm text-muted-foreground">Status updated</span>
             <span className="ml-auto text-xs">2 days ago</span>
           </div>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="p-4">
+        <h3 className="text-sm font-semibold mb-3">Quick Actions</h3>
+        <div className="space-y-2">
+          <Button variant="outline" size="sm" className="w-full justify-start">
+            <Phone className="h-4 w-4 mr-2" />
+            Schedule Call
+          </Button>
+          <Button variant="outline" size="sm" className="w-full justify-start">
+            <Mail className="h-4 w-4 mr-2" />
+            Send Email
+          </Button>
+          <Button variant="outline" size="sm" className="w-full justify-start">
+            <Calendar className="h-4 w-4 mr-2" />
+            Book Meeting
+          </Button>
+          <Button variant="outline" size="sm" className="w-full justify-start">
+            <Flag className="h-4 w-4 mr-2" />
+            Flag for Review
+          </Button>
         </div>
       </div>
     </div>

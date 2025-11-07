@@ -19,7 +19,8 @@ import {
   Image,
   FileType,
   CheckCircle,
-  Clock
+  Clock,
+  Edit
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
 
@@ -369,60 +370,99 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                           </div>
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             <span>{(uploadedDoc.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                            <span>{new Date(uploadedDoc.created_at).toLocaleDateString()}</span>
+                            <span>Uploaded: {new Date(uploadedDoc.created_at).toLocaleDateString()}</span>
                           </div>
                           {uploadedDoc.admin_comments && (
-                            <p className="text-xs text-muted-foreground mt-2 italic">
-                              Comment: {uploadedDoc.admin_comments}
-                            </p>
+                            <div className="mt-2 p-2 bg-background rounded border border-border">
+                              <p className="text-xs font-medium text-foreground">Admin Comment:</p>
+                              <p className="text-xs text-muted-foreground italic">
+                                {uploadedDoc.admin_comments}
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>
 
                       {/* Document Actions */}
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex items-center gap-2 flex-wrap pt-2 border-t">
                         <Button 
                           size="sm" 
                           variant="outline"
                           onClick={() => handleViewDocument(uploadedDoc.file_path)}
                           title="View document"
+                          className="flex-1 sm:flex-none"
                         >
-                          <Eye className="h-4 w-4 mr-1" />
+                          <Eye className="h-4 w-4 sm:mr-1" />
                           <span className="hidden sm:inline">View</span>
                         </Button>
                         
-                        {uploadedDoc.admin_status !== 'approved' && (
+                        {uploadedDoc.admin_status === 'pending' && (
+                          <>
+                            <Button 
+                              size="sm" 
+                              variant="default"
+                              className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
+                              onClick={() => handleQuickApprove(uploadedDoc.id)}
+                              title="Approve document"
+                            >
+                              <Check className="h-4 w-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Approve</span>
+                            </Button>
+                            
+                            <Button 
+                              size="sm" 
+                              variant="destructive"
+                              className="flex-1 sm:flex-none"
+                              onClick={() => handleQuickReject(uploadedDoc.id)}
+                              title="Reject document"
+                            >
+                              <X className="h-4 w-4 sm:mr-1" />
+                              <span className="hidden sm:inline">Reject</span>
+                            </Button>
+                          </>
+                        )}
+                        
+                        {uploadedDoc.admin_status === 'approved' && (
                           <Button 
                             size="sm" 
                             variant="outline"
-                            className="text-green-600 hover:bg-green-50"
-                            onClick={() => handleQuickApprove(uploadedDoc.id)}
-                            title="Quick approve"
+                            className="text-red-600 hover:bg-red-50 flex-1 sm:flex-none"
+                            onClick={() => {
+                              setReviewingDoc(uploadedDoc.id);
+                              setReviewStatus('rejected');
+                            }}
+                            title="Change to rejected"
                           >
-                            <Check className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">Approve</span>
+                            <X className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Reject</span>
                           </Button>
                         )}
                         
-                        {uploadedDoc.admin_status !== 'rejected' && (
+                        {uploadedDoc.admin_status === 'rejected' && (
                           <Button 
                             size="sm" 
                             variant="outline"
-                            className="text-red-600 hover:bg-red-50"
-                            onClick={() => handleQuickReject(uploadedDoc.id)}
-                            title="Quick reject"
+                            className="text-green-600 hover:bg-green-50 flex-1 sm:flex-none"
+                            onClick={() => handleQuickApprove(uploadedDoc.id)}
+                            title="Change to approved"
                           >
-                            <X className="h-4 w-4 mr-1" />
-                            <span className="hidden sm:inline">Reject</span>
+                            <Check className="h-4 w-4 sm:mr-1" />
+                            <span className="hidden sm:inline">Approve</span>
                           </Button>
                         )}
                         
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => setReviewingDoc(uploadedDoc.id)}
+                          onClick={() => {
+                            setReviewingDoc(uploadedDoc.id);
+                            setReviewStatus(uploadedDoc.admin_status);
+                            setReviewComments(uploadedDoc.admin_comments || '');
+                          }}
+                          className="flex-1 sm:flex-none"
                         >
-                          Review
+                          <Edit className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Review</span>
                         </Button>
                         
                         <Button 
@@ -430,6 +470,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                           variant="outline"
                           onClick={() => handleDeleteDocument(uploadedDoc.id)}
                           title="Delete document"
+                          className="text-destructive hover:bg-destructive/10"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

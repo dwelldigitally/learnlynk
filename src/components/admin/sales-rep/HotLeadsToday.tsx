@@ -313,7 +313,7 @@ export function HotLeadsToday() {
               return (
                 <div
                   key={lead.id}
-                  className="group relative p-5 rounded-lg border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
+                  className="group relative p-3 rounded-lg border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer"
                   onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
                 >
                   {/* Heat indicator stripe */}
@@ -323,22 +323,21 @@ export function HotLeadsToday() {
                     lead.activity_score >= 80 ? "bg-orange-500" : "bg-yellow-500"
                   )}></div>
                   
-                  <div className="flex items-start gap-4">
-                    {/* Avatar Section */}
+                  <div className="flex items-center gap-3">
+                    {/* Avatar with heat indicator */}
                     <div className="relative flex-shrink-0">
-                      <Avatar className="w-12 h-12 border-2 border-border">
-                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                      <Avatar className="w-10 h-10 border-2 border-border">
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold text-sm">
                           {lead.first_name[0]}{lead.last_name[0]}
                         </AvatarFallback>
                       </Avatar>
-                      {/* Heat level indicator */}
-                      <div className="absolute -top-1 -right-1 flex items-center gap-1 bg-background rounded-full px-1.5 py-0.5 shadow-sm border border-border">
+                      <div className="absolute -top-1 -right-1 flex items-center gap-0.5 bg-background rounded-full px-1 py-0.5 shadow-sm border border-border">
                         <Flame className={cn(
-                          "w-3 h-3",
+                          "w-2.5 h-2.5",
                           lead.activity_score >= 90 ? "text-destructive" : 
                           lead.activity_score >= 80 ? "text-orange-500" : "text-yellow-500"
                         )} />
-                        <span className="text-xs font-bold text-foreground">
+                        <span className="text-[10px] font-bold text-foreground">
                           {lead.activity_score}
                         </span>
                       </div>
@@ -346,18 +345,18 @@ export function HotLeadsToday() {
 
                     {/* Main Content */}
                     <div className="flex-1 min-w-0">
-                      {/* Header with name and status */}
-                      <div className="flex items-start justify-between mb-3">
+                      {/* Name and Priority */}
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors truncate">
+                          <h3 className="font-semibold text-sm text-foreground group-hover:text-primary transition-colors truncate">
                             {lead.first_name} {lead.last_name}
                           </h3>
-                          <p className="text-sm text-muted-foreground truncate">{lead.email}</p>
+                          <p className="text-xs text-muted-foreground truncate">{lead.email}</p>
                         </div>
                         <Badge 
                           variant="outline" 
                           className={cn(
-                            "ml-2 flex-shrink-0",
+                            "text-xs flex-shrink-0",
                             lead.priority === 'urgent' && "bg-destructive/10 text-destructive border-destructive/20"
                           )}
                         >
@@ -366,61 +365,50 @@ export function HotLeadsToday() {
                       </div>
                       
                       {/* Activity indicators */}
-                      <div className="flex flex-wrap gap-2 mb-3">
+                      <div className="flex flex-wrap gap-1.5">
                         {lead.recent_activities.slice(0, 3).map((activity, index) => (
-                          <div key={index} className="flex items-center gap-1.5 text-xs bg-muted/50 rounded-md px-2 py-1 border border-border/50">
+                          <div key={index} className="flex items-center gap-1 text-xs bg-muted/50 rounded px-1.5 py-0.5">
                             <div className="text-primary">
                               {getActivityIcon(activity.type)}
                             </div>
                             <span className="font-semibold text-foreground">{activity.count}</span>
-                            <span className="text-muted-foreground">{getActivityLabel(activity.type)}</span>
+                            <span className="text-muted-foreground text-[10px]">{getActivityLabel(activity.type)}</span>
                           </div>
                         ))}
                       </div>
-                      
-                      {/* Engagement insight */}
-                      <div className="flex items-start gap-2 p-2.5 bg-primary/5 rounded-md border border-primary/10">
-                        <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-xs font-medium text-foreground">Latest Insight</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                            {lead.engagement_indicators[0] || 'High engagement detected'}
-                          </p>
-                        </div>
-                      </div>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex flex-col gap-2 flex-shrink-0">
+                    {/* Action Buttons - Horizontal */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <Button 
                         size="sm" 
                         variant="default"
-                        className="h-8 px-3 shadow-sm"
+                        className="h-8 px-2.5 text-xs"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Phone className="w-3.5 h-3.5 mr-1.5" />
+                        <Phone className="w-3 h-3 mr-1" />
                         Call
                       </Button>
                       <Button 
                         size="sm" 
                         variant="outline"
-                        className="h-8 px-3"
+                        className="h-8 px-2.5 text-xs"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Mail className="w-3.5 h-3.5 mr-1.5" />
+                        <Mail className="w-3 h-3 mr-1" />
                         Email
                       </Button>
                       <Button 
                         size="sm" 
                         variant="secondary"
-                        className="h-8 px-3"
+                        className="h-8 px-2.5 text-xs"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleAIPlayEnrollment(lead);
                         }}
                       >
-                        <Zap className="w-3.5 h-3.5 mr-1.5" />
-                        AI Play
+                        <Zap className="w-3 h-3 mr-1" />
+                        AI
                       </Button>
                     </div>
                   </div>

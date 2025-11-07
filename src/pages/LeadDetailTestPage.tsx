@@ -585,70 +585,32 @@ export default function LeadDetailTestPage() {
 
       {/* Main Content Layout */}
       <div className="flex h-[calc(100vh-300px)]">
-        {/* Left Sidebar - Vertical Tabs Navigation */}
-        <div className="w-64 border-r bg-card">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full" orientation="vertical">
-            <div className="p-4 space-y-1">
-              <TabsList className="flex flex-col h-auto w-full space-y-1 bg-transparent">
-                <TabsTrigger 
-                  value="summary" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <PieChart className="h-4 w-4" />
-                  Summary
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="comms" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <MessageSquare className="h-4 w-4" />
-                  Comms
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="docs" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <FileText className="h-4 w-4" />
-                  Docs
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="ai" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Bot className="h-4 w-4" />
-                  AI
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tasks" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <CheckCircle className="h-4 w-4" />
-                  Tasks
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="notes" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Edit className="h-4 w-4" />
-                  Notes
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="journey" 
-                  className="w-full justify-start gap-3 data-[state=active]:bg-primary/10 data-[state=active]:text-primary"
-                >
-                  <Route className="h-4 w-4" />
-                  Journey
-                </TabsTrigger>
-              </TabsList>
-            </div>
-          </Tabs>
+        {/* Left Panel - Enhanced Engagement Timeline */}
+        <div className="w-80 border-r bg-card">
+          <ComprehensiveTimeline 
+            leadId={leadId || ''}
+            filter={timelineFilter}
+            onFilterChange={setTimelineFilter}
+          />
         </div>
 
-        {/* Center Content Area */}
-        <div className="flex-1 overflow-y-auto">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-            <div className="p-6 space-y-6">
-              <TabsContent value="summary" className="mt-0 space-y-6">
+        {/* Center Content - Tabs */}
+        <div className="flex-1 flex flex-col">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <div className="border-b p-4">
+              <TabsList className="grid w-full grid-cols-7">
+                <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="comms">Comms</TabsTrigger>
+                <TabsTrigger value="docs">Docs</TabsTrigger>
+                <TabsTrigger value="ai">AI</TabsTrigger>
+                <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                <TabsTrigger value="notes">Notes</TabsTrigger>
+                <TabsTrigger value="journey">Journey</TabsTrigger>
+              </TabsList>
+            </div>
+
+            <div className="flex-1 p-6">
+              <TabsContent value="summary" className="h-full space-y-6">
                 {/* AI Summary Section - First */}
                 <AILeadSummary 
                   leadId={leadId}
@@ -763,7 +725,7 @@ export default function LeadDetailTestPage() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="comms" className="mt-0">
+              <TabsContent value="comms" className="h-full">
                 <CommunicationCenter 
                   applicantId={leadId || ''}
                   applicantName={`${lead.first_name} ${lead.last_name}`}
@@ -775,7 +737,7 @@ export default function LeadDetailTestPage() {
                 />
               </TabsContent>
 
-              <TabsContent value="docs" className="mt-0">
+              <TabsContent value="docs" className="h-full">
                 <PresetDocumentUpload
                   leadId={leadId || ''}
                   programName="Computer Science"
@@ -786,11 +748,11 @@ export default function LeadDetailTestPage() {
                 />
               </TabsContent>
 
-              <TabsContent value="notes" className="mt-0">
+              <TabsContent value="notes" className="h-full">
                 <NotesSystemPanel leadId={leadId || ''} />
               </TabsContent>
 
-              <TabsContent value="ai" className="mt-0">
+              <TabsContent value="ai" className="h-full">
                 {showDemoData ? (
                   <div className="space-y-6">
                     <div className="flex items-center justify-between">
@@ -860,104 +822,94 @@ export default function LeadDetailTestPage() {
                 )}
               </TabsContent>
 
-              <TabsContent value="tasks" className="mt-0">
+              <TabsContent value="tasks" className="h-full">
                 <RealDataTasks leadId={leadId || ''} />
               </TabsContent>
 
-              <TabsContent value="journey" className="mt-0">
+              <TabsContent value="journey" className="h-full">
                 <RealDataJourney leadId={leadId || ''} />
               </TabsContent>
+
             </div>
           </Tabs>
         </div>
 
-        {/* Right Sidebar - Timeline & Quick Actions */}
-        <div className="w-80 border-l bg-card overflow-y-auto">
-          {/* Timeline */}
-          <div className="border-b">
-            <ComprehensiveTimeline 
-              leadId={leadId || ''}
-              filter={timelineFilter}
-              onFilterChange={setTimelineFilter}
-            />
-          </div>
-
+        {/* Right Sidebar - Compliance & Additional Info */}
+        <div className="w-80 border-l bg-card p-4 space-y-4">
           {/* Privacy & Compliance */}
-          <div className="p-4 space-y-4">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
-                  Privacy & Compliance
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Communication Consent</span>
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">FERPA Compliant</span>
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">AI Audit Trail</span>
-                  <Button variant="ghost" size="sm">
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                Privacy & Compliance
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">Communication Consent</span>
+                <CheckCircle className="h-4 w-4 text-green-500" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">FERPA Compliant</span>
+                <CheckCircle className="h-4 w-4 text-green-500" />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">AI Audit Trail</span>
+                <Button variant="ghost" size="sm">
+                  <Eye className="h-3 w-3" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Quick Actions */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Phone className="h-4 w-4 mr-2" />
-                  Schedule Call
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Mail className="h-4 w-4 mr-2" />
-                  Send Email
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Calendar className="h-4 w-4 mr-2" />
-                  Book Meeting
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
-                  <Flag className="h-4 w-4 mr-2" />
-                  Flag for Review
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Phone className="h-4 w-4 mr-2" />
+                Schedule Call
+              </Button>
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Mail className="h-4 w-4 mr-2" />
+                Send Email
+              </Button>
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Calendar className="h-4 w-4 mr-2" />
+                Book Meeting
+              </Button>
+              <Button variant="outline" size="sm" className="w-full justify-start">
+                <Flag className="h-4 w-4 mr-2" />
+                Flag for Review
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* Sticky Action Card */}
-            <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 sticky top-4">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center gap-2 text-primary">
-                  <Zap className="h-4 w-4" />
-                  Take Action Now
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className={`w-2 h-2 rounded-full ${showDemoData ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                    <span>{showDemoData ? 'Application deadline in 5 days' : 'No urgent actions required'}</span>
-                  </div>
-                  <Button size="sm" className="w-full" disabled={!showDemoData}>
-                    {showDemoData ? 'Send Deadline Reminder' : 'No Actions Available'}
-                  </Button>
+          {/* Sticky Action Card */}
+          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 sticky top-4">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2 text-primary">
+                <Zap className="h-4 w-4" />
+                Take Action Now
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <div className={`w-2 h-2 rounded-full ${showDemoData ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
+                  <span>{showDemoData ? 'Application deadline in 5 days' : 'No urgent actions required'}</span>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+                <Button size="sm" className="w-full" disabled={!showDemoData}>
+                  {showDemoData ? 'Send Deadline Reminder' : 'No Actions Available'}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </div>
+      </div>
 
       {/* Advisor Match Dialog */}
       <AdvisorMatchDialog 

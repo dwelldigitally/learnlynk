@@ -542,9 +542,6 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">
-                      <span className="text-muted-foreground">No template</span>
-                    </SelectItem>
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         <div className="flex items-center gap-2">

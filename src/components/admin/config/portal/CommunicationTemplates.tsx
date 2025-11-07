@@ -1,12 +1,27 @@
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useCommunicationTemplates, useTemplateMutations } from "@/hooks/useStudentPortalAdmin";
-import { Plus, Loader2, MessageSquare, Mail, Phone } from "lucide-react";
+import { Plus, Loader2, MessageSquare, Mail, Phone, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { TemplateDialog } from "./dialogs/TemplateDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const CommunicationTemplates = () => {
   const { data: templates, isLoading } = useCommunicationTemplates();
+  const { createTemplate, updateTemplate, deleteTemplate } = useTemplateMutations();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const getTemplateIcon = (type: string) => {
     switch (type) {
@@ -28,6 +43,32 @@ export const CommunicationTemplates = () => {
       </div>
     );
   }
+
+  const handleSave = (template: any) => {
+    if (editingTemplate) {
+      updateTemplate.mutate({ id: editingTemplate.id, updates: template });
+    } else {
+      createTemplate.mutate(template);
+    }
+    setEditingTemplate(null);
+  };
+
+  const handleEdit = (template: any) => {
+    setEditingTemplate(template);
+    setDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingTemplate(null);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (deleteId) {
+      deleteTemplate.mutate(deleteId);
+      setDeleteId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -72,9 +113,14 @@ export const CommunicationTemplates = () => {
                           <Badge variant="outline">Used {template.times_used} times</Badge>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(template)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => setDeleteId(template.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -86,13 +132,35 @@ export const CommunicationTemplates = () => {
               </div>
             )}
 
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleAdd}>
               <Plus className="mr-2 h-4 w-4" />
               Create Template
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <TemplateDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={handleSave}
+        template={editingTemplate}
+      />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Template</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this communication template? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

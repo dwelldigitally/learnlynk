@@ -1,12 +1,27 @@
-import React from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { usePortalRoles, useRoleMutations } from "@/hooks/useStudentPortalAdmin";
-import { Plus, Loader2, Shield } from "lucide-react";
+import { Plus, Loader2, Shield, Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { RoleDialog } from "./dialogs/RoleDialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export const RoleManagement = () => {
   const { data: roles, isLoading } = usePortalRoles();
+  const { createRole, updateRole, deleteRole } = useRoleMutations();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<any>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -15,6 +30,32 @@ export const RoleManagement = () => {
       </div>
     );
   }
+
+  const handleSave = (role: any) => {
+    if (editingRole) {
+      updateRole.mutate({ id: editingRole.id, updates: role });
+    } else {
+      createRole.mutate(role);
+    }
+    setEditingRole(null);
+  };
+
+  const handleEdit = (role: any) => {
+    setEditingRole(role);
+    setDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingRole(null);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = () => {
+    if (deleteId) {
+      deleteRole.mutate(deleteId);
+      setDeleteId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -50,9 +91,16 @@ export const RoleManagement = () => {
                           <p className="text-sm text-muted-foreground">{role.role_description}</p>
                         )}
                       </div>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="ghost" size="sm" onClick={() => handleEdit(role)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        {role.role_type === 'custom' && (
+                          <Button variant="ghost" size="sm" onClick={() => setDeleteId(role.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                     <div className="flex gap-2 flex-wrap">
                       <Badge variant="outline">Type: {role.role_type}</Badge>
@@ -68,13 +116,35 @@ export const RoleManagement = () => {
               </div>
             )}
 
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleAdd}>
               <Plus className="mr-2 h-4 w-4" />
               Create Role
             </Button>
           </div>
         </CardContent>
       </Card>
+
+      <RoleDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={handleSave}
+        role={editingRole}
+      />
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Role</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this role? Students assigned to this role will lose their permissions.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -500,7 +500,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className={`${displayTasks.length <= 2 ? 'h-auto max-h-[300px]' : displayTasks.length <= 4 ? 'h-auto max-h-[500px]' : 'h-[600px]'}`}>
           <div className="space-y-4">
             {/* Active Tasks */}
             {displayActiveTasks.length > 0 && (

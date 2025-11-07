@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { RotateCcw, Phone, Mail, Star, Calendar, TrendingUp } from 'lucide-react';
+import { RotateCcw, Phone, Mail, Star, Calendar, TrendingUp, ArrowRight, Eye } from 'lucide-react';
 
 interface ReenquiryStudent {
   id: string;
@@ -101,13 +101,18 @@ export function ReenquiryStudents() {
     }
   };
 
-  const getTypeColor = (type: string) => {
+  const getTypeBadgeStyle = (type: string) => {
     switch (type) {
-      case 'upsell_opportunity': return 'text-success';
-      case 'program_change': return 'text-primary';
-      case 'dormant_reactivation': return 'text-warning';
-      case 'alumni_referral': return 'text-accent';
-      default: return 'text-muted-foreground';
+      case 'upsell_opportunity': 
+        return 'bg-green-500/10 text-green-600 border-green-500/20';
+      case 'program_change': 
+        return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
+      case 'dormant_reactivation': 
+        return 'bg-orange-500/10 text-orange-600 border-orange-500/20';
+      case 'alumni_referral': 
+        return 'bg-purple-500/10 text-purple-600 border-purple-500/20';
+      default: 
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
 
@@ -121,10 +126,11 @@ export function ReenquiryStudents() {
     }
   };
 
-  const getUrgencyColor = (days: number) => {
-    if (days <= 3) return 'text-success';
-    if (days <= 7) return 'text-warning';
-    return 'text-destructive';
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return 'text-green-600';
+    if (score >= 70) return 'text-blue-600';
+    if (score >= 50) return 'text-yellow-600';
+    return 'text-orange-600';
   };
 
   if (loading) {
@@ -139,68 +145,107 @@ export function ReenquiryStudents() {
 
   return (
     <>
-      <div className="flex items-center gap-2 mb-4">
-        <Badge variant="secondary" className="ml-auto">{students.length} re-enquiries</Badge>
+      <div className="flex items-center justify-between mb-4">
+        <Badge variant="secondary" className="text-xs">
+          {students.length} re-enquiries
+        </Badge>
       </div>
       
       <div className="space-y-3">
         {students.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <RotateCcw className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No re-enquiries today</p>
+          <div className="text-center py-12">
+            <div className="w-12 h-12 bg-muted rounded-full mx-auto mb-3 flex items-center justify-center">
+              <RotateCcw className="w-6 h-6 text-muted-foreground" />
+            </div>
+            <p className="text-sm text-muted-foreground">No re-enquiries at this time</p>
+            <p className="text-xs text-muted-foreground mt-1">Check back later for new opportunities</p>
           </div>
         ) : (
           <>
             {students.map((student) => (
               <div
                 key={student.id}
-                className="p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors bg-white shadow-sm"
+                className="group p-4 rounded-lg border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all cursor-pointer"
               >
-                <div className="flex items-start gap-3">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="text-xs">
+                <div className="flex items-start gap-4">
+                  {/* Avatar */}
+                  <Avatar className="w-10 h-10 border-2 border-border flex-shrink-0">
+                    <AvatarFallback className="bg-primary/10 text-primary text-sm font-semibold">
                       {student.name.split(' ').map(n => n[0]).join('')}
                     </AvatarFallback>
                   </Avatar>
 
+                  {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm truncate">
-                        {student.name}
-                      </p>
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="min-w-0 flex-1">
+                        <h4 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                          {student.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground truncate">{student.email}</p>
+                      </div>
                       <Badge 
                         variant="outline" 
-                        className={cn("text-xs", getTypeColor(student.type))}
+                        className={cn("text-xs flex-shrink-0", getTypeBadgeStyle(student.type))}
                       >
                         {getTypeLabel(student.type)}
                       </Badge>
                     </div>
                     
-                    <div className="text-xs text-muted-foreground space-y-1">
-                      <div className="flex items-center gap-1">
-                        <TrendingUp className="w-3 h-3" />
-                        <span>{student.original_program} → {student.new_interest}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-3 h-3" />
-                        <span className={getUrgencyColor(student.days_since_last_contact)}>
-                          {student.days_since_last_contact} days ago
-                        </span>
-                        <span>•</span>
-                        <Star className="w-3 h-3 text-warning" />
-                        <span>{student.engagement_score}/100</span>
+                    {/* Program Change */}
+                    <div className="flex items-center gap-2 mb-3 p-2 rounded-md bg-muted/50 border border-border/50">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground flex-1 min-w-0">
+                        <span className="font-medium text-foreground truncate">{student.original_program}</span>
+                        <ArrowRight className="w-3 h-3 flex-shrink-0 text-primary" />
+                        <span className="font-medium text-foreground truncate">{student.new_interest}</span>
                       </div>
                     </div>
-                  </div>
+                    
+                    {/* Metadata */}
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        <span>{student.days_since_last_contact}d ago</span>
+                      </div>
+                      <span>•</span>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3 h-3 text-yellow-500" />
+                        <span className={cn("font-medium", getScoreColor(student.engagement_score))}>
+                          {student.engagement_score}/100
+                        </span>
+                      </div>
+                    </div>
 
-                  <div className="flex gap-1">
-                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                      <Phone className="w-3 h-3" />
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                      <Mail className="w-3 h-3" />
-                    </Button>
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="default"
+                        className="h-8 text-xs flex-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Phone className="w-3 h-3 mr-1.5" />
+                        Call
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="h-8 text-xs flex-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Mail className="w-3 h-3 mr-1.5" />
+                        Email
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Eye className="w-3 h-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

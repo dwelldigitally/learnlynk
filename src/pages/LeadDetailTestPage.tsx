@@ -585,15 +585,6 @@ export default function LeadDetailTestPage() {
 
       {/* Main Content Layout */}
       <div className="flex h-[calc(100vh-300px)]">
-        {/* Left Panel - Enhanced Engagement Timeline */}
-        <div className="w-80 border-r bg-card">
-          <ComprehensiveTimeline 
-            leadId={leadId || ''}
-            filter={timelineFilter}
-            onFilterChange={setTimelineFilter}
-          />
-        </div>
-
         {/* Center Content - Tabs */}
         <div className="flex-1 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
@@ -759,33 +750,15 @@ export default function LeadDetailTestPage() {
           </Tabs>
         </div>
 
-        {/* Right Sidebar - Compliance & Additional Info */}
-        <div className="w-80 border-l bg-card p-4 space-y-4">
-          {/* Privacy & Compliance */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Privacy & Compliance
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Communication Consent</span>
-                <CheckCircle className="h-4 w-4 text-green-500" />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">FERPA Compliant</span>
-                <CheckCircle className="h-4 w-4 text-green-500" />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">AI Audit Trail</span>
-                <Button variant="ghost" size="sm">
-                  <Eye className="h-3 w-3" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Right Sidebar - Timeline & Quick Actions */}
+        <div className="w-80 border-l bg-card">
+          <ComprehensiveTimeline 
+            leadId={leadId || ''}
+            filter={timelineFilter}
+            onFilterChange={setTimelineFilter}
+          />
+          
+          <div className="p-4 space-y-4">
 
           {/* Quick Actions */}
           <Card>
@@ -832,6 +805,7 @@ export default function LeadDetailTestPage() {
               </div>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
       </div>

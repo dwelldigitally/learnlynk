@@ -494,7 +494,7 @@ export const RequirementsManagement = () => {
           <p className="mt-4 text-muted-foreground">Loading requirements...</p>
         </div>
       ) : filteredRequirements.length > 0 ? (
-        <div className="grid gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredRequirements.map((requirement) => {
             const typeConfig = getTypeConfig(requirement.type);
             return (

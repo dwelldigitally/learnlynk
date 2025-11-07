@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,17 +22,41 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const { tasks, loading, error, refetch } = useLeadTasks(leadId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
     priority: '',
     task_type: '',
     due_date: '',
-    assigned_to: 'myself',
+    assigned_to: '',
     tags: [] as string[]
   });
   const [tagInput, setTagInput] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Get current user info
+        const currentUser = {
+          id: user.id,
+          name: user.user_metadata?.full_name || user.email || 'Me',
+          email: user.email || ''
+        };
+
+        // For now, just show current user. In the future, you can fetch actual team members
+        setTeamMembers([currentUser]);
+        setNewTask(prev => ({ ...prev, assigned_to: user.id }));
+      }
+    };
+
+    if (isDialogOpen) {
+      fetchTeamMembers();
+    }
+  }, [isDialogOpen]);
 
   const quickTemplates = [
     { label: 'Follow up with lead', title: 'Follow up with lead', description: 'Schedule follow-up call or email', category: 'follow_up' },
@@ -93,6 +117,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
           priority: newTask.priority,
           task_type: newTask.task_type,
           due_date: newTask.due_date || null,
+          assigned_to: newTask.assigned_to || null,
           status: 'pending'
         });
 
@@ -110,7 +135,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
         priority: '',
         task_type: '',
         due_date: '',
-        assigned_to: 'myself',
+        assigned_to: '',
         tags: []
       });
       setTagInput('');
@@ -315,10 +340,14 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                     <Label htmlFor="assign_to">Assign To</Label>
                     <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select team member" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="myself">Assign to myself</SelectItem>
+                        {teamMembers.map((member) => (
+                          <SelectItem key={member.id} value={member.id}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -342,6 +371,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="call">Call</SelectItem>
                         <SelectItem value="follow_up">Follow Up</SelectItem>
                         <SelectItem value="document_review">Document Review</SelectItem>
                         <SelectItem value="interview">Interview</SelectItem>

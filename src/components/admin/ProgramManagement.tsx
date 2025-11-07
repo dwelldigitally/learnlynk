@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useConditionalData } from '@/hooks/useConditionalData';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
@@ -35,8 +34,14 @@ import {
   FileText,
   Eye,
   Settings,
-  RefreshCw
+  RefreshCw,
+  GraduationCap,
+  Clock
 } from "lucide-react";
+import { PageHeader } from "@/components/modern/PageHeader";
+import { ModernCard } from "@/components/modern/ModernCard";
+import { InfoBadge } from "@/components/modern/InfoBadge";
+import { MetadataItem } from "@/components/modern/MetadataItem";
 
 const ProgramManagement: React.FC = () => {
   const { toast } = useToast();
@@ -217,23 +222,21 @@ const ProgramManagement: React.FC = () => {
 
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Program Management</h1>
-          <p className="text-muted-foreground">Manage programs, intakes, and enrollment</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleRefreshData}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Data
-          </Button>
-          <Button onClick={() => navigate('/admin/programs/new')}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Program
-          </Button>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="Program Management"
+        subtitle="Manage programs, intakes, and enrollment"
+      />
+
+      <div className="mb-6 flex justify-end gap-2">
+        <Button variant="outline" onClick={handleRefreshData}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Refresh Data
+        </Button>
+        <Button size="lg" onClick={() => navigate('/admin/programs/new')}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Program
+        </Button>
       </div>
 
       {/* Programs Overview */}
@@ -245,77 +248,92 @@ const ProgramManagement: React.FC = () => {
         emptyTitle="No Programs Found"
         emptyDescription="Create your first program to start managing educational offerings."
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {programs.map((program) => (
-            <Card key={program.id} className="relative overflow-hidden">
-              <div 
-                className="absolute top-0 left-0 right-0 h-1" 
-                style={{ backgroundColor: program.color }}
-              />
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">{program.name}</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
+            <ModernCard key={program.id}>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
+                    <GraduationCap className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base text-foreground mb-1 truncate">
+                      {program.name}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mb-2">
                       {program.type} • {program.duration}
                     </p>
+                    <InfoBadge variant={program.status === 'active' ? 'success' : 'secondary'}>
+                      {program.status.toUpperCase()}
+                    </InfoBadge>
                   </div>
-                  <Badge variant={program.status === 'active' ? 'default' : 'secondary'}>
-                    {program.status}
-                  </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground line-clamp-2">
+
+                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
                   {program.description}
                 </p>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Enrollment</span>
-                    <span>{program.enrolled}/{program.capacity || 0}</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-primary h-2 rounded-full transition-all duration-300" 
-                      style={{ 
-                        width: program.capacity > 0 
-                          ? `${Math.min((program.enrolled / program.capacity) * 100, 100)}%` 
-                          : '0%' 
-                      }}
+
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                      <span>Enrollment</span>
+                      <span>{program.enrolled}/{program.capacity || 0}</span>
+                    </div>
+                    <Progress 
+                      value={program.capacity > 0 ? (program.enrolled / program.capacity) * 100 : 0} 
+                      className="h-2"
                     />
+                    {program.capacity === 0 && (
+                      <p className="text-xs text-muted-foreground mt-1">No intake capacity configured</p>
+                    )}
                   </div>
-                  {program.capacity === 0 && (
-                    <p className="text-xs text-muted-foreground">No intake capacity configured</p>
-                  )}
+
+                  <MetadataItem
+                    icon={DollarSign}
+                    label="Tuition Fee"
+                    value={`$${program.tuitionFee.toLocaleString()}`}
+                  />
+
+                  <MetadataItem
+                    icon={Calendar}
+                    label="Next Intake"
+                    value={new Date(program.nextIntake).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Tuition Fee</p>
-                    <p className="font-medium">${program.tuitionFee.toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Next Intake</p>
-                    <p className="font-medium">{new Date(program.nextIntake).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProgram(program)}>
-                    <Eye className="h-4 w-4 mr-1" />
+                <div className="flex gap-2 pt-4 border-t border-border">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1" 
+                    onClick={() => handleViewProgram(program)}
+                  >
+                    <Eye className="h-3.5 w-3.5 mr-1.5" />
                     View
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleComprehensiveEditProgram(program)}>
-                    <Edit className="h-4 w-4 mr-1" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1" 
+                    onClick={() => handleComprehensiveEditProgram(program)}
+                  >
+                    <Edit className="h-3.5 w-3.5 mr-1.5" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleSettingsProgram(program)}>
-                    <Settings className="h-4 w-4" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleSettingsProgram(program)}
+                  >
+                    <Settings className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
           ))}
         </div>
       </ConditionalDataWrapper>

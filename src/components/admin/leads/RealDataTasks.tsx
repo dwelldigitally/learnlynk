@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLeadTasks } from '@/hooks/useLeadData';
-import { CheckCircle, Clock, Plus, User, Calendar, Flag, Check, Trash2 } from 'lucide-react';
+import { CheckCircle, Clock, Plus, User, Calendar, Flag, Check, Trash2, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,10 +21,21 @@ interface RealDataTasksProps {
 export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const { tasks, loading, error, refetch } = useLeadTasks(leadId);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teamMembers, setTeamMembers] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [editingTaskId, setEditingTaskId] = useState<string>('');
   const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    priority: '',
+    task_type: '',
+    due_date: '',
+    assigned_to: '',
+    tags: [] as string[]
+  });
+  const [editTask, setEditTask] = useState({
     title: '',
     description: '',
     priority: '',
@@ -150,6 +161,66 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
         description: "Failed to delete task",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEditTask = (task: any) => {
+    setEditingTaskId(task.id);
+    setEditTask({
+      title: task.title || '',
+      description: task.description || '',
+      priority: task.priority || '',
+      task_type: task.task_type || '',
+      due_date: task.due_date ? new Date(task.due_date).toISOString().split('T')[0] : '',
+      assigned_to: task.assigned_to || '',
+      tags: []
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateTask = async () => {
+    if (!editTask.title.trim()) {
+      toast({
+        title: "Error",
+        description: "Task title is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from('lead_tasks')
+        .update({
+          title: editTask.title,
+          description: editTask.description || null,
+          priority: editTask.priority,
+          task_type: editTask.task_type,
+          due_date: editTask.due_date || null,
+          assigned_to: editTask.assigned_to || null,
+        })
+        .eq('id', editingTaskId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Task updated successfully",
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingTaskId('');
+      refetch();
+    } catch (err) {
+      console.error('Error updating task:', err);
+      toast({
+        title: "Error",
+        description: "Failed to update task",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -586,6 +657,15 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                className="h-7 w-7 p-0 hover:bg-blue-100 hover:text-blue-700"
+                                onClick={() => handleEditTask(task)}
+                                title="Edit task"
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className="h-7 w-7 p-0 hover:bg-green-100 hover:text-green-700"
                                 onClick={() => handleCompleteTask(task.id)}
                                 title="Mark as complete"
@@ -695,6 +775,117 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
           </div>
         </ScrollArea>
       </CardContent>
+
+      {/* Edit Task Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Edit className="h-5 w-5" />
+              Edit Task
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {/* Task Title */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-title">
+                Task Title <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="edit-title"
+                placeholder="Enter task title"
+                value={editTask.title}
+                onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
+              />
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Textarea
+                id="edit-description"
+                placeholder="Enter task description..."
+                value={editTask.description}
+                onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
+                rows={3}
+              />
+            </div>
+
+            {/* Priority and Assign To */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-priority">
+                  Priority <span className="text-red-500">*</span>
+                </Label>
+                <Select value={editTask.priority} onValueChange={(value) => setEditTask({ ...editTask, priority: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-assign-to">Assign To</Label>
+                <Select value={editTask.assigned_to} onValueChange={(value) => setEditTask({ ...editTask, assigned_to: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select team member" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {teamMembers.map((member) => (
+                      <SelectItem key={member.id} value={member.id}>
+                        {member.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Due Date and Category */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-due-date">Due Date</Label>
+                <Input
+                  id="edit-due-date"
+                  type="date"
+                  value={editTask.due_date}
+                  onChange={(e) => setEditTask({ ...editTask, due_date: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-category">Category</Label>
+                <Select value={editTask.task_type} onValueChange={(value) => setEditTask({ ...editTask, task_type: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="call">Call</SelectItem>
+                    <SelectItem value="follow_up">Follow Up</SelectItem>
+                    <SelectItem value="document_review">Document Review</SelectItem>
+                    <SelectItem value="interview">Interview</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} type="button">
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateTask} disabled={isSubmitting || !editTask.title.trim() || !editTask.priority}>
+              {isSubmitting ? 'Updating...' : 'Update Task'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

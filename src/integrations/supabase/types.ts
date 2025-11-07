@@ -3081,6 +3081,47 @@ export type Database = {
           },
         ]
       }
+      lead_communication_attachments: {
+        Row: {
+          communication_id: string | null
+          created_at: string | null
+          created_by: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          mime_type: string
+        }
+        Insert: {
+          communication_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          mime_type: string
+        }
+        Update: {
+          communication_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          mime_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_communication_attachments_communication_id_fkey"
+            columns: ["communication_id"]
+            isOneToOne: false
+            referencedRelation: "lead_communications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_communications: {
         Row: {
           ai_agent_id: string | null

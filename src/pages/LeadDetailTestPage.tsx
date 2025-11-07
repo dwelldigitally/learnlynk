@@ -490,10 +490,14 @@ export default function LeadDetailTestPage() {
                   </Badge>
                 </div>
                 
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="h-4 w-4 text-muted-foreground" />
                     <span>{lead.program_interest && lead.program_interest[0] || 'General Interest'}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span>{lead.intake_period || 'Not Set'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />

@@ -65,6 +65,7 @@ export interface Lead {
   lead_score: number;
   ai_score?: number;
   program_interest: string[];
+  intake_period?: string;
   assigned_to?: string;
   assigned_at?: string;
   assignment_method?: AssignmentMethod;

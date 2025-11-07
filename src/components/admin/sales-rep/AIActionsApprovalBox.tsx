@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { usePendingAIActions } from '@/hooks/usePendingAIActions';
 import { PendingAIAction } from '@/types/pendingAIAction';
 import { cn } from '@/lib/utils';
@@ -26,7 +27,9 @@ import {
   AlertTriangle,
   CheckCheck,
   User,
-  Lightbulb
+  Lightbulb,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 export function AIActionsApprovalBox() {
@@ -44,6 +47,11 @@ export function AIActionsApprovalBox() {
   } = usePendingAIActions();
 
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+  
+  const INITIAL_DISPLAY_COUNT = 5;
+  const displayedActions = showAll ? actions : actions.slice(0, INITIAL_DISPLAY_COUNT);
+  const hasMore = actions.length > INITIAL_DISPLAY_COUNT;
 
   if (loading) {
     return (
@@ -206,129 +214,62 @@ export function AIActionsApprovalBox() {
 
   const ActionCard = ({ action }: { action: PendingAIAction }) => {
     const [detailsOpen, setDetailsOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     return (
-      <div className="border rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors">
-        <div className="flex items-start gap-3">
-          <Checkbox
-            checked={selectedActions.has(action.id)}
-            onCheckedChange={() => toggleSelection(action.id)}
-            className="mt-1"
-          />
-          
-          <div className="flex-1 space-y-3">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2">
+      <div className="border rounded-lg hover:border-primary/30 transition-all">
+        <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+          {/* Collapsed State - Compact View */}
+          <div className="p-3 flex items-center gap-3">
+            <Checkbox
+              checked={selectedActions.has(action.id)}
+              onCheckedChange={() => toggleSelection(action.id)}
+            />
+            
+            <div className="flex-1 flex items-center gap-3 min-w-0">
+              {/* Action Icon & Title */}
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <div className="flex-shrink-0">
                   {getActionIcon(action.recommendedAction.type)}
-                  <span className="font-medium text-sm">{action.recommendedAction.title}</span>
                 </div>
-                <Badge className={cn("text-xs", getUrgencyColor(action.recommendedAction.urgency))}>
-                  {action.recommendedAction.urgency}
-                </Badge>
+                <span className="font-medium text-sm truncate">{action.recommendedAction.title}</span>
               </div>
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">
-                  {formatTimeAgo(action.triggerTimestamp)}
-                </span>
-              </div>
-            </div>
 
-            {/* Lead Info */}
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-1">
-                <User className="h-3 w-3 text-muted-foreground" />
-                <span className="font-medium">{action.leadName}</span>
+              {/* Lead Name */}
+              <div className="flex items-center gap-1 text-sm text-muted-foreground min-w-0">
+                <User className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate max-w-[150px]">{action.leadName}</span>
               </div>
-              <span className="text-muted-foreground">{action.leadEmail}</span>
-              <Badge variant="outline" className="text-xs">
-                {action.leadStatus}
+
+              {/* Urgency Badge */}
+              <Badge className={cn("text-xs flex-shrink-0", getUrgencyColor(action.recommendedAction.urgency))}>
+                {action.recommendedAction.urgency}
               </Badge>
-            </div>
 
-            {/* Trigger & Confidence */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className="h-3 w-3 text-yellow-500" />
-                <span className="text-sm text-muted-foreground">{action.triggerEvent}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="text-xs text-muted-foreground">Confidence:</div>
+              {/* Confidence Score */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <div className="text-xs text-muted-foreground">Conf:</div>
                 <Badge variant="secondary" className="text-xs">
                   {action.recommendedAction.confidenceScore}%
                 </Badge>
               </div>
-            </div>
 
-            {/* Playbook */}
-            <div className="bg-blue-50 p-2 rounded text-sm">
-              <div className="font-medium text-blue-900">Playbook: {action.recommendedAction.playbook}</div>
-              <div className="text-blue-700 text-xs mt-1">{action.recommendedAction.playbookDescription}</div>
-            </div>
-
-            {/* Policies */}
-            <div className="space-y-1">
-              <div className="text-xs font-medium text-muted-foreground">Policy Status:</div>
-              <div className="flex flex-wrap gap-2">
-                {action.boundPolicies.map((policy, index) => (
-                  <div key={index} className="text-xs flex items-center gap-1">
-                    <CheckCircle2 className={cn("h-3 w-3", getPolicyStatusColor(policy.status))} />
-                    <span>{policy.name}</span>
-                  </div>
-                ))}
+              {/* Time */}
+              <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
+                <Clock className="h-3 w-3" />
+                {formatTimeAgo(action.triggerTimestamp)}
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-2 pt-2 border-t">
-              <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <Eye className="h-3 w-3 mr-1" />
-                    Details
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>AI Action Details</DialogTitle>
-                  </DialogHeader>
-                  <ScrollArea className="max-h-96">
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-medium mb-2">Trigger Details</h4>
-                        <p className="text-sm text-muted-foreground">{action.triggerDetails}</p>
-                      </div>
-                      <div>
-                        <h4 className="font-medium mb-2">AI Reasoning</h4>
-                        <div className="space-y-2 text-sm">
-                          <div>
-                            <span className="font-medium">Primary Factors:</span>
-                            <ul className="list-disc list-inside ml-2 mt-1">
-                              {action.aiReasoning.primaryFactors.map((factor, i) => (
-                                <li key={i}>{factor}</li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <span className="font-medium">Success Rate:</span> {action.aiReasoning.successRate}% (based on {action.aiReasoning.similarCases} similar cases)
-                          </div>
-                        </div>
-                      </div>
-                      <div>
-                        <h4 className="font-medium mb-2">Expected Outcome</h4>
-                        <p className="text-sm text-muted-foreground">{action.recommendedAction.expectedOutcome}</p>
-                      </div>
-                    </div>
-                  </ScrollArea>
-                </DialogContent>
-              </Dialog>
-
+            {/* Quick Actions */}
+            <div className="flex items-center gap-1 flex-shrink-0">
               <Button 
                 size="sm" 
-                onClick={() => approveAction(action.id)}
-                className="text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  approveAction(action.id);
+                }}
+                className="h-8 px-3 text-xs"
               >
                 <CheckCircle2 className="h-3 w-3 mr-1" />
                 Approve
@@ -337,15 +278,176 @@ export function AIActionsApprovalBox() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={() => rejectAction(action.id)}
-                className="text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  rejectAction(action.id);
+                }}
+                className="h-8 px-3 text-xs"
               >
-                <X className="h-3 w-3 mr-1" />
-                Reject
+                <X className="h-3 w-3" />
               </Button>
+
+              {/* Expand/Collapse Toggle */}
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  {isExpanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
             </div>
           </div>
-        </div>
+
+          {/* Expanded State - Full Details */}
+          <CollapsibleContent className="px-3 pb-3">
+            <div className="pl-8 pt-2 space-y-3 border-t mt-2">
+              {/* Lead Info */}
+              <div className="flex items-center gap-4 text-sm">
+                <span className="text-muted-foreground">{action.leadEmail}</span>
+                {action.leadPhone && (
+                  <span className="text-muted-foreground">{action.leadPhone}</span>
+                )}
+                <Badge variant="outline" className="text-xs">
+                  {action.leadStatus}
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  {action.leadSource}
+                </Badge>
+              </div>
+
+              {/* Trigger */}
+              <div className="flex items-center gap-2">
+                <Zap className="h-3 w-3 text-yellow-500" />
+                <span className="text-sm font-medium">{action.triggerEvent}</span>
+                <span className="text-sm text-muted-foreground">- {action.triggerDetails}</span>
+              </div>
+
+              {/* Description */}
+              <div className="text-sm text-muted-foreground">
+                {action.recommendedAction.description}
+              </div>
+
+              {/* Playbook */}
+              <div className="bg-primary/5 border border-primary/10 p-3 rounded-lg">
+                <div className="flex items-center gap-2 mb-1">
+                  <Target className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-sm">Playbook: {action.recommendedAction.playbook}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">{action.recommendedAction.playbookDescription}</p>
+              </div>
+
+              {/* AI Reasoning */}
+              <div className="bg-muted/50 p-3 rounded-lg space-y-2">
+                <div className="font-medium text-sm flex items-center gap-2">
+                  <Brain className="h-4 w-4" />
+                  AI Reasoning
+                </div>
+                <div className="text-xs space-y-1">
+                  <div>
+                    <span className="font-medium">Primary Factors:</span>
+                    <ul className="list-disc list-inside ml-2 mt-1 space-y-0.5">
+                      {action.aiReasoning.primaryFactors.map((factor, i) => (
+                        <li key={i} className="text-muted-foreground">{factor}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2">
+                    <span className="text-muted-foreground">
+                      Success Rate: <strong>{action.aiReasoning.successRate}%</strong>
+                    </span>
+                    <span className="text-muted-foreground">
+                      Similar Cases: <strong>{action.aiReasoning.similarCases}</strong>
+                    </span>
+                    <span className="text-muted-foreground">
+                      Opportunity Score: <strong>{action.aiReasoning.opportunityScore}/10</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expected Outcome & Impact */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-green-50 dark:bg-green-950/20 p-2 rounded text-sm">
+                  <div className="font-medium text-xs text-muted-foreground mb-1">Expected Outcome</div>
+                  <div className="text-xs">{action.recommendedAction.expectedOutcome}</div>
+                </div>
+                <div className="bg-blue-50 dark:bg-blue-950/20 p-2 rounded text-sm">
+                  <div className="font-medium text-xs text-muted-foreground mb-1">Estimated Impact</div>
+                  <div className="text-xs font-medium">{action.recommendedAction.estimatedImpact}% conversion lift</div>
+                </div>
+              </div>
+
+              {/* Policies */}
+              <div className="space-y-1">
+                <div className="text-xs font-medium text-muted-foreground">Policy Compliance:</div>
+                <div className="flex flex-wrap gap-2">
+                  {action.boundPolicies.map((policy, index) => (
+                    <div key={index} className="text-xs flex items-center gap-1 bg-muted px-2 py-1 rounded">
+                      <CheckCircle2 className={cn("h-3 w-3", getPolicyStatusColor(policy.status))} />
+                      <span>{policy.name}</span>
+                      <span className="text-muted-foreground">({policy.impact})</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Full Details Dialog */}
+              <div className="pt-2">
+                <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs w-full">
+                      <Eye className="h-3 w-3 mr-1" />
+                      View Full Details
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[80vh]">
+                    <DialogHeader>
+                      <DialogTitle>AI Action Details</DialogTitle>
+                    </DialogHeader>
+                    <ScrollArea className="max-h-[60vh] pr-4">
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium mb-2">Trigger Details</h4>
+                          <p className="text-sm text-muted-foreground">{action.triggerDetails}</p>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">AI Reasoning</h4>
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <span className="font-medium">Primary Factors:</span>
+                              <ul className="list-disc list-inside ml-2 mt-1">
+                                {action.aiReasoning.primaryFactors.map((factor, i) => (
+                                  <li key={i}>{factor}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <span className="font-medium">Risk Factors:</span>
+                              <ul className="list-disc list-inside ml-2 mt-1">
+                                {action.aiReasoning.riskFactors.map((factor, i) => (
+                                  <li key={i}>{factor}</li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <span className="font-medium">Success Rate:</span> {action.aiReasoning.successRate}% (based on {action.aiReasoning.similarCases} similar cases)
+                            </div>
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-medium mb-2">Expected Outcome</h4>
+                          <p className="text-sm text-muted-foreground">{action.recommendedAction.expectedOutcome}</p>
+                        </div>
+                      </div>
+                    </ScrollArea>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     );
   };
@@ -394,13 +496,31 @@ export function AIActionsApprovalBox() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-96">
-          <div className="space-y-3">
-            {actions.map((action) => (
-              <ActionCard key={action.id} action={action} />
-            ))}
-          </div>
-        </ScrollArea>
+        <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+          {displayedActions.map((action) => (
+            <ActionCard key={action.id} action={action} />
+          ))}
+          
+          {hasMore && !showAll && (
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setShowAll(true)}
+            >
+              Show {actions.length - INITIAL_DISPLAY_COUNT} More Actions
+            </Button>
+          )}
+          
+          {showAll && hasMore && (
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={() => setShowAll(false)}
+            >
+              Show Less
+            </Button>
+          )}
+        </div>
         <BulkPreviewDialog />
       </CardContent>
     </Card>

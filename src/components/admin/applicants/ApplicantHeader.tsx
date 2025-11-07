@@ -21,7 +21,7 @@ import {
   User,
   Building
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ApplicantHeaderProps {
   applicant: Applicant;
@@ -40,6 +40,7 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
   onSendEmail,
   saving
 }) => {
+  const navigate = useNavigate();
   const applicantName = applicant.master_records
     ? `${applicant.master_records.first_name} ${applicant.master_records.last_name}`
     : "Applicant";
@@ -121,7 +122,12 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
         
         {/* Mode Switchers */}
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="rounded-lg">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="rounded-lg"
+            onClick={() => navigate(`/admin/applicants/review/${applicant.id}`)}
+          >
             <Target className="h-4 w-4 mr-2" />
             Enter Review Mode
           </Button>

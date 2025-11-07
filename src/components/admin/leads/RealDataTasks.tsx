@@ -25,11 +25,45 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
-    priority: 'medium',
-    task_type: 'follow_up',
-    due_date: ''
+    priority: '',
+    task_type: '',
+    due_date: '',
+    assigned_to: 'myself',
+    tags: [] as string[]
   });
+  const [tagInput, setTagInput] = useState('');
   const { toast } = useToast();
+
+  const quickTemplates = [
+    { label: 'Follow up with lead', title: 'Follow up with lead', description: 'Schedule follow-up call or email', category: 'follow_up' },
+    { label: 'Review application documents', title: 'Review application documents', description: 'Check all submitted documents', category: 'document_review' },
+    { label: 'Follow up on payment', title: 'Follow up on payment', description: 'Check payment status and follow up', category: 'follow_up' },
+    { label: 'Prepare for consultation meeting', title: 'Prepare for consultation meeting', description: 'Prepare materials for consultation', category: 'interview' },
+    { label: 'Update student records', title: 'Update student records', description: 'Update lead information in system', category: 'other' }
+  ];
+
+  const handleTemplateClick = (template: typeof quickTemplates[0]) => {
+    setNewTask({
+      ...newTask,
+      title: template.title,
+      description: template.description,
+      task_type: template.category
+    });
+  };
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      if (!newTask.tags.includes(tagInput.trim())) {
+        setNewTask({ ...newTask, tags: [...newTask.tags, tagInput.trim()] });
+      }
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setNewTask({ ...newTask, tags: newTask.tags.filter(tag => tag !== tagToRemove) });
+  };
 
   const handleCreateTask = async () => {
     if (!newTask.title.trim()) {
@@ -73,10 +107,13 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
       setNewTask({
         title: '',
         description: '',
-        priority: 'medium',
-        task_type: 'follow_up',
-        due_date: ''
+        priority: '',
+        task_type: '',
+        due_date: '',
+        assigned_to: 'myself',
+        tags: []
       });
+      setTagInput('');
       refetch();
     } catch (err) {
       console.error('Error creating task:', err);
@@ -203,35 +240,68 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                 New Task
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-xl">
               <DialogHeader>
-                <DialogTitle>Create New Task</DialogTitle>
+                <DialogTitle className="flex items-center gap-2">
+                  <Plus className="h-5 w-5" />
+                  Create New Task
+                </DialogTitle>
               </DialogHeader>
+              
               <div className="space-y-4 py-4">
+                {/* Quick Templates */}
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title *</Label>
+                  <Label className="text-sm font-medium">Quick Templates</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {quickTemplates.map((template, idx) => (
+                      <Button
+                        key={idx}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => handleTemplateClick(template)}
+                        type="button"
+                      >
+                        {template.label}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Task Title */}
+                <div className="space-y-2">
+                  <Label htmlFor="title">
+                    Task Title <span className="text-red-500">*</span>
+                  </Label>
                   <Input
                     id="title"
-                    placeholder="Task title"
+                    placeholder="Enter task title"
                     value={newTask.title}
                     onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
                   />
                 </div>
+
+                {/* Description */}
                 <div className="space-y-2">
                   <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
-                    placeholder="Task description"
+                    placeholder="Enter task description..."
                     value={newTask.description}
                     onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                    rows={3}
                   />
                 </div>
+
+                {/* Priority and Assign To */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="priority">Priority</Label>
+                    <Label htmlFor="priority">
+                      Priority <span className="text-red-500">*</span>
+                    </Label>
                     <Select value={newTask.priority} onValueChange={(value) => setNewTask({ ...newTask, priority: value })}>
                       <SelectTrigger>
-                        <SelectValue />
+                        <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="low">Low</SelectItem>
@@ -242,10 +312,34 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="task_type">Type</Label>
-                    <Select value={newTask.task_type} onValueChange={(value) => setNewTask({ ...newTask, task_type: value })}>
+                    <Label htmlFor="assign_to">Assign To</Label>
+                    <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
                       <SelectTrigger>
                         <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="myself">Assign to myself</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Due Date and Category */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="due_date">Due Date</Label>
+                    <Input
+                      id="due_date"
+                      type="date"
+                      value={newTask.due_date}
+                      onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select value={newTask.task_type} onValueChange={(value) => setNewTask({ ...newTask, task_type: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="follow_up">Follow Up</SelectItem>
@@ -256,19 +350,45 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                     </Select>
                   </div>
                 </div>
+
+                {/* Tags */}
                 <div className="space-y-2">
-                  <Label htmlFor="due_date">Due Date</Label>
-                  <Input
-                    id="due_date"
-                    type="date"
-                    value={newTask.due_date}
-                    onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                  />
+                  <Label htmlFor="tags">Tags</Label>
+                  <div className="relative">
+                    <Input
+                      id="tags"
+                      placeholder="Enter tag and press Enter"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyDown={handleAddTag}
+                    />
+                    <Flag className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+                  {newTask.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {newTask.tags.map((tag, idx) => (
+                        <Badge key={idx} variant="secondary" className="gap-1">
+                          {tag}
+                          <button
+                            onClick={() => handleRemoveTag(tag)}
+                            className="ml-1 hover:text-destructive"
+                            type="button"
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
+
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleCreateTask} disabled={isSubmitting}>
+                <Button variant="outline" onClick={() => setIsDialogOpen(false)} type="button">
+                  Cancel
+                </Button>
+                <Button onClick={handleCreateTask} disabled={isSubmitting || !newTask.title.trim() || !newTask.priority}>
+                  <Plus className="h-4 w-4 mr-2" />
                   {isSubmitting ? 'Creating...' : 'Create Task'}
                 </Button>
               </div>

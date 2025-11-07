@@ -170,7 +170,7 @@ export function FieldRenderer({ field, value, onChange, error, formData }: Field
           </div>
         );
 
-      case 'date':
+      case 'intake-date':
         return (
           <Popover>
             <PopoverTrigger asChild>
@@ -198,23 +198,6 @@ export function FieldRenderer({ field, value, onChange, error, formData }: Field
           </Popover>
         );
 
-      case 'range':
-        return (
-          <div className="space-y-2">
-            <Slider
-              value={[value || field.min || 0]}
-              onValueChange={(newValue) => onChange(newValue[0])}
-              max={field.max || 100}
-              min={field.min || 0}
-              step={field.step || 1}
-              className="w-full"
-            />
-            <div className="text-sm text-muted-foreground text-center">
-              Value: {value || field.min || 0}
-            </div>
-          </div>
-        );
-
       case 'file':
         return (
           <div className="space-y-2">
@@ -237,26 +220,6 @@ export function FieldRenderer({ field, value, onChange, error, formData }: Field
                 }
               </div>
             )}
-          </div>
-        );
-
-      case 'color':
-        return (
-          <div className="flex items-center space-x-2">
-            <Input
-              {...commonProps}
-              type="color"
-              value={value || '#000000'}
-              onChange={(e) => onChange(e.target.value)}
-              className="w-16 h-10 p-1 rounded"
-            />
-            <Input
-              type="text"
-              value={value || ''}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder="#000000"
-              className={cn("flex-1", error && "border-destructive")}
-            />
           </div>
         );
 

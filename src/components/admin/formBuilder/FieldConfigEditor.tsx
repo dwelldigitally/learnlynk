@@ -30,13 +30,12 @@ const fieldTypeOptions: { value: FormFieldType; label: string }[] = [
   { value: 'radio', label: 'Radio Buttons' },
   { value: 'checkbox', label: 'Checkbox' },
   { value: 'multi-select', label: 'Multi-Select' },
-  { value: 'date', label: 'Date Picker' },
-  { value: 'range', label: 'Range Slider' },
+  { value: 'intake-date', label: 'Intake Date' },
   { value: 'switch', label: 'Switch' },
   { value: 'file', label: 'File Upload' },
   { value: 'url', label: 'URL' },
-  { value: 'color', label: 'Color Picker' },
   { value: 'consent', label: 'Consent Checkbox' },
+  { value: 'program-list', label: 'Program List' },
 ];
 
 export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields, compact = false }: FieldConfigEditorProps) {
@@ -44,7 +43,7 @@ export function FieldConfigEditor({ field, onUpdate, onRemove, availableFields, 
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const needsOptions = ['select', 'radio', 'multi-select'].includes(field.type);
-  const needsMinMax = ['number', 'range'].includes(field.type);
+  const needsMinMax = ['number'].includes(field.type);
   const needsFileProps = field.type === 'file';
 
   const addOption = () => {

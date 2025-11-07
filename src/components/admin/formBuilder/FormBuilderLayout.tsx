@@ -54,12 +54,10 @@ const fieldTypes = [
   { type: 'radio' as FormFieldType, label: 'Radio Buttons', icon: Circle, color: 'bg-red-500' },
   { type: 'checkbox' as FormFieldType, label: 'Checkbox', icon: CheckSquare, color: 'bg-yellow-500' },
   { type: 'multi-select' as FormFieldType, label: 'Multi-Select', icon: CheckSquare, color: 'bg-cyan-500' },
-  { type: 'date' as FormFieldType, label: 'Date Picker', icon: Calendar, color: 'bg-emerald-500' },
-  { type: 'range' as FormFieldType, label: 'Range Slider', icon: Sliders, color: 'bg-violet-500' },
+  { type: 'intake-date' as FormFieldType, label: 'Intake Date', icon: Calendar, color: 'bg-emerald-500' },
   { type: 'switch' as FormFieldType, label: 'Switch', icon: ToggleLeft, color: 'bg-teal-500' },
   { type: 'file' as FormFieldType, label: 'File Upload', icon: Upload, color: 'bg-rose-500' },
   { type: 'url' as FormFieldType, label: 'URL', icon: Link, color: 'bg-amber-500' },
-  { type: 'color' as FormFieldType, label: 'Color Picker', icon: Palette, color: 'bg-fuchsia-500' },
   { type: 'program-list' as FormFieldType, label: 'Program List', icon: List, color: 'bg-lime-500' },
 ];
 
@@ -130,7 +128,7 @@ export function FormBuilderLayout({
               />
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[500px]">
+              <ScrollArea className="h-[700px]">
                 <Droppable droppableId="field-palette">
                   {(provided) => (
                     <div

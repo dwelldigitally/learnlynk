@@ -8,12 +8,10 @@ export type FormFieldType =
   | 'radio'
   | 'checkbox'
   | 'multi-select'
-  | 'date'
-  | 'range'
+  | 'intake-date'
   | 'switch'
   | 'file'
   | 'url'
-  | 'color'
   | 'consent'
   | 'program-list';
 

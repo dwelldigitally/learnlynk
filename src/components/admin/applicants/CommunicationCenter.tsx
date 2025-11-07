@@ -63,7 +63,97 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   
   // Fetch communications from database
-  const { communications, loading: loadingComms, refetch } = useLeadCommunications(applicantId);
+  const { communications: dbCommunications, loading: loadingComms, refetch } = useLeadCommunications(applicantId);
+  
+  // Dummy data for demonstration
+  const dummyCommunications: any[] = [
+    {
+      id: 'dummy-1',
+      lead_id: applicantId,
+      type: 'email',
+      direction: 'inbound',
+      subject: 'Question about admission requirements',
+      content: 'Hi, I wanted to ask about the admission requirements for the Computer Science program. What are the minimum GPA requirements?',
+      status: 'completed',
+      communication_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      created_by: applicantId,
+      is_ai_generated: false,
+      thread_id: 'thread-1',
+      parent_id: null,
+    },
+    {
+      id: 'dummy-2',
+      lead_id: applicantId,
+      type: 'email',
+      direction: 'outbound',
+      subject: 'Re: Question about admission requirements',
+      content: 'Thank you for your interest! The minimum GPA requirement for Computer Science is 3.0. We also consider your overall academic performance and extracurricular activities.',
+      status: 'completed',
+      communication_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000).toISOString(),
+      created_by: 'advisor-1',
+      is_ai_generated: false,
+      thread_id: 'thread-1',
+      parent_id: 'dummy-1',
+    },
+    {
+      id: 'dummy-3',
+      lead_id: applicantId,
+      type: 'email',
+      direction: 'inbound',
+      subject: 'Re: Question about admission requirements',
+      content: 'Great! One more question - what documents do I need to submit with my application?',
+      status: 'completed',
+      communication_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 120 * 60 * 1000).toISOString(),
+      created_by: applicantId,
+      is_ai_generated: false,
+      thread_id: 'thread-1',
+      parent_id: 'dummy-2',
+    },
+    {
+      id: 'dummy-4',
+      lead_id: applicantId,
+      type: 'sms',
+      direction: 'outbound',
+      content: 'Reminder: Your campus tour is scheduled for tomorrow at 2 PM. Please arrive 10 minutes early. Looking forward to seeing you!',
+      status: 'completed',
+      communication_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      created_by: 'advisor-1',
+      is_ai_generated: false,
+      thread_id: null,
+      parent_id: null,
+    },
+    {
+      id: 'dummy-5',
+      lead_id: applicantId,
+      type: 'note',
+      direction: 'outbound',
+      content: 'Student showed strong interest in the AI/ML specialization. Recommended to follow up with information about our research lab partnerships.',
+      status: 'completed',
+      communication_date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+      created_by: 'advisor-1',
+      is_ai_generated: false,
+      thread_id: null,
+      parent_id: null,
+    },
+    {
+      id: 'dummy-6',
+      lead_id: applicantId,
+      type: 'email',
+      direction: 'outbound',
+      subject: 'Scholarship Opportunities - AI/ML Program',
+      content: 'Based on our recent conversation, I wanted to share information about our Merit Scholarship for students interested in AI/ML. The application deadline is next month.',
+      status: 'completed',
+      communication_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+      created_by: 'advisor-1',
+      is_ai_generated: true,
+      ai_agent_id: 'ai-recruitment',
+      thread_id: null,
+      parent_id: null,
+    },
+  ];
+  
+  // Combine real and dummy data
+  const communications = dbCommunications.length > 0 ? dbCommunications : dummyCommunications;
   
   // Load templates when message type changes
   useEffect(() => {
@@ -271,7 +361,7 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
     return matchesSearch && matchesType && matchesDirection;
   });
 
-  // Group communications by date
+  // Group communications by thread and date
   const groupedCommunications = filteredCommunications.reduce((groups, comm) => {
     const date = new Date(comm.communication_date).toLocaleDateString();
     if (!groups[date]) {
@@ -279,7 +369,33 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
     }
     groups[date].push(comm);
     return groups;
-  }, {} as Record<string, typeof communications>);
+  }, {} as Record<string, any[]>);
+
+  // Organize into threads
+  const organizeThreads = (comms: any[]) => {
+    const threads: Record<string, any[]> = {};
+    const standalone: any[] = [];
+    
+    comms.forEach(comm => {
+      if (comm.thread_id) {
+        if (!threads[comm.thread_id]) {
+          threads[comm.thread_id] = [];
+        }
+        threads[comm.thread_id].push(comm);
+      } else {
+        standalone.push(comm);
+      }
+    });
+    
+    // Sort messages within each thread by date
+    Object.keys(threads).forEach(threadId => {
+      threads[threadId].sort((a, b) => 
+        new Date(a.communication_date).getTime() - new Date(b.communication_date).getTime()
+      );
+    });
+    
+    return { threads, standalone };
+  };
 
   return (
     <div className="space-y-6">
@@ -366,80 +482,175 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {Object.entries(groupedCommunications).map(([date, comms]) => (
-                    <div key={date}>
-                      <div className="sticky top-0 bg-background z-10 pb-2">
-                        <p className="text-sm font-semibold text-muted-foreground">{date}</p>
-                      </div>
-                      <div className="space-y-3">
-                        {comms.map((message) => (
-                          <Collapsible key={message.id}>
-                            <Card className={`border-l-4 ${
-                              message.direction === 'inbound' ? 'border-l-blue-500' : 
-                              message.direction === 'outbound' ? 'border-l-green-500' : 
-                              'border-l-purple-500'
-                            }`}>
-                              <CardContent className="p-4">
-                                <div className="flex items-start gap-3">
-                                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
-                                    message.is_ai_generated ? 'bg-purple-100 text-purple-600' :
-                                    message.direction === 'inbound' ? 'bg-blue-100 text-blue-600' :
-                                    'bg-green-100 text-green-600'
-                                  }`}>
-                                    {message.is_ai_generated ? <Bot className="h-4 w-4" /> : getMessageIcon(message.type as CommunicationType)}
-                                  </div>
-                                  
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <h4 className="font-medium text-sm">
-                                          {message.type.toUpperCase()} Message
-                                        </h4>
-                                        {getStatusBadge(message.status)}
-                                        <Badge variant="outline" className="capitalize text-xs">
-                                          {getDirectionIcon(message.direction as CommunicationDirection, message.is_ai_generated)}
-                                          <span className="ml-1">{message.direction}</span>
-                                        </Badge>
-                                        {message.is_ai_generated && (
-                                          <Badge variant="secondary" className="text-xs">
-                                            <Sparkles className="h-3 w-3 mr-1" />
-                                            AI
+                  {Object.entries(groupedCommunications).map(([date, comms]: [string, any[]]) => {
+                    const { threads, standalone } = organizeThreads(comms);
+                    
+                    return (
+                      <div key={date}>
+                        <div className="sticky top-0 bg-background z-10 pb-2">
+                          <p className="text-sm font-semibold text-muted-foreground">{date}</p>
+                        </div>
+                        <div className="space-y-3">
+                          {/* Render threads */}
+                          {Object.entries(threads).map(([threadId, threadMessages]) => (
+                            <Collapsible key={threadId} defaultOpen={true}>
+                              <Card className="border-l-4 border-l-blue-500">
+                                <CardContent className="p-0">
+                                  {/* First message in thread */}
+                                  {threadMessages.map((message, index) => (
+                                    <div 
+                                      key={message.id}
+                                      className={`p-4 ${index > 0 ? 'border-t ml-8 bg-muted/20' : ''}`}
+                                    >
+                                      <div className="flex items-start gap-3">
+                                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                                          message.is_ai_generated ? 'bg-purple-100 text-purple-600' :
+                                          message.direction === 'inbound' ? 'bg-blue-100 text-blue-600' :
+                                          'bg-green-100 text-green-600'
+                                        }`}>
+                                          {message.is_ai_generated ? <Bot className="h-4 w-4" /> : getMessageIcon(message.type as CommunicationType)}
+                                        </div>
+                                        
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center justify-between gap-2">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              {index === 0 && (
+                                                <h4 className="font-medium text-sm">
+                                                  {message.subject || `${message.type.toUpperCase()} Thread`}
+                                                </h4>
+                                              )}
+                                              {index > 0 && (
+                                                <span className="text-sm text-muted-foreground">Reply</span>
+                                              )}
+                                              <Badge variant="outline" className="capitalize text-xs">
+                                                {getDirectionIcon(message.direction as CommunicationDirection, message.is_ai_generated)}
+                                                <span className="ml-1">{message.direction}</span>
+                                              </Badge>
+                                              {message.is_ai_generated && (
+                                                <Badge variant="secondary" className="text-xs">
+                                                  <Sparkles className="h-3 w-3 mr-1" />
+                                                  AI
+                                                </Badge>
+                                              )}
+                                            </div>
+                                            
+                                            {index === 0 && (
+                                              <CollapsibleTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 shrink-0">
+                                                  <ChevronDown className="h-4 w-4" />
+                                                </Button>
+                                              </CollapsibleTrigger>
+                                            )}
+                                          </div>
+                                          
+                                          {index === 0 ? (
+                                            <>
+                                              <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                                {message.content}
+                                              </p>
+                                              
+                                              <CollapsibleContent>
+                                                <div className="mt-3 p-3 rounded-lg bg-muted/50">
+                                                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                                </div>
+                                              </CollapsibleContent>
+                                            </>
+                                          ) : (
+                                            <div className="mt-2 p-3 rounded-lg bg-muted/50">
+                                              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                            </div>
+                                          )}
+                                          
+                                          <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                            <span className="flex items-center gap-1">
+                                              <Clock className="h-3 w-3" />
+                                              {new Date(message.communication_date).toLocaleString()}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  {threadMessages.length > 1 && (
+                                    <div className="px-4 py-2 bg-muted/30 text-xs text-muted-foreground border-t">
+                                      {threadMessages.length} messages in this thread
+                                    </div>
+                                  )}
+                                </CardContent>
+                              </Card>
+                            </Collapsible>
+                          ))}
+                          
+                          {/* Render standalone messages */}
+                          {standalone.map((message) => (
+                            <Collapsible key={message.id}>
+                              <Card className={`border-l-4 ${
+                                message.direction === 'inbound' ? 'border-l-blue-500' : 
+                                message.direction === 'outbound' ? 'border-l-green-500' : 
+                                'border-l-purple-500'
+                              }`}>
+                                <CardContent className="p-4">
+                                  <div className="flex items-start gap-3">
+                                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                                      message.is_ai_generated ? 'bg-purple-100 text-purple-600' :
+                                      message.direction === 'inbound' ? 'bg-blue-100 text-blue-600' :
+                                      'bg-green-100 text-green-600'
+                                    }`}>
+                                      {message.is_ai_generated ? <Bot className="h-4 w-4" /> : getMessageIcon(message.type as CommunicationType)}
+                                    </div>
+                                    
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <h4 className="font-medium text-sm">
+                                            {message.type.toUpperCase()} Message
+                                          </h4>
+                                          {getStatusBadge(message.status)}
+                                          <Badge variant="outline" className="capitalize text-xs">
+                                            {getDirectionIcon(message.direction as CommunicationDirection, message.is_ai_generated)}
+                                            <span className="ml-1">{message.direction}</span>
                                           </Badge>
-                                        )}
+                                          {message.is_ai_generated && (
+                                            <Badge variant="secondary" className="text-xs">
+                                              <Sparkles className="h-3 w-3 mr-1" />
+                                              AI
+                                            </Badge>
+                                          )}
+                                        </div>
+                                        
+                                        <CollapsibleTrigger asChild>
+                                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 shrink-0">
+                                            <ChevronDown className="h-4 w-4" />
+                                          </Button>
+                                        </CollapsibleTrigger>
                                       </div>
                                       
-                                      <CollapsibleTrigger asChild>
-                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 shrink-0">
-                                          <ChevronDown className="h-4 w-4" />
-                                        </Button>
-                                      </CollapsibleTrigger>
-                                    </div>
-                                    
-                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                      {message.content}
-                                    </p>
-                                    
-                                    <CollapsibleContent>
-                                      <div className="mt-3 p-3 rounded-lg bg-muted/50">
-                                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                      <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                        {message.content}
+                                      </p>
+                                      
+                                      <CollapsibleContent>
+                                        <div className="mt-3 p-3 rounded-lg bg-muted/50">
+                                          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                        </div>
+                                      </CollapsibleContent>
+                                      
+                                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                        <span className="flex items-center gap-1">
+                                          <Clock className="h-3 w-3" />
+                                          {new Date(message.communication_date).toLocaleString()}
+                                        </span>
                                       </div>
-                                    </CollapsibleContent>
-                                    
-                                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                                      <span className="flex items-center gap-1">
-                                        <Clock className="h-3 w-3" />
-                                        {new Date(message.communication_date).toLocaleString()}
-                                      </span>
                                     </div>
                                   </div>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          </Collapsible>
-                        ))}
+                                </CardContent>
+                              </Card>
+                            </Collapsible>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </ScrollArea>

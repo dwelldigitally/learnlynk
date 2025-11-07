@@ -7305,6 +7305,153 @@ export type Database = {
           },
         ]
       }
+      student_portal_branding: {
+        Row: {
+          accent_color: string | null
+          background_color: string | null
+          created_at: string
+          custom_css: string | null
+          favicon_url: string | null
+          font_family_body: string | null
+          font_family_heading: string | null
+          font_size_base: string | null
+          footer_links: Json | null
+          footer_text: string | null
+          foreground_color: string | null
+          hero_image_url: string | null
+          id: string
+          layout_template: string | null
+          login_background_url: string | null
+          logo_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          sidebar_position: string | null
+          social_media_links: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          favicon_url?: string | null
+          font_family_body?: string | null
+          font_family_heading?: string | null
+          font_size_base?: string | null
+          footer_links?: Json | null
+          footer_text?: string | null
+          foreground_color?: string | null
+          hero_image_url?: string | null
+          id?: string
+          layout_template?: string | null
+          login_background_url?: string | null
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          sidebar_position?: string | null
+          social_media_links?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          created_at?: string
+          custom_css?: string | null
+          favicon_url?: string | null
+          font_family_body?: string | null
+          font_family_heading?: string | null
+          font_size_base?: string | null
+          footer_links?: Json | null
+          footer_text?: string | null
+          foreground_color?: string | null
+          hero_image_url?: string | null
+          id?: string
+          layout_template?: string | null
+          login_background_url?: string | null
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          sidebar_position?: string | null
+          social_media_links?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      student_portal_communication_templates: {
+        Row: {
+          available_variables: Json | null
+          body: string
+          created_at: string
+          delay_minutes: number | null
+          html_body: string | null
+          id: string
+          is_active: boolean | null
+          is_automated: boolean | null
+          last_used_at: string | null
+          priority: string | null
+          scheduled_time: string | null
+          send_time: string | null
+          subject: string | null
+          template_category: string | null
+          template_name: string
+          template_type: string
+          times_used: number | null
+          trigger_conditions: Json | null
+          trigger_event: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          available_variables?: Json | null
+          body: string
+          created_at?: string
+          delay_minutes?: number | null
+          html_body?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_automated?: boolean | null
+          last_used_at?: string | null
+          priority?: string | null
+          scheduled_time?: string | null
+          send_time?: string | null
+          subject?: string | null
+          template_category?: string | null
+          template_name: string
+          template_type: string
+          times_used?: number | null
+          trigger_conditions?: Json | null
+          trigger_event?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          available_variables?: Json | null
+          body?: string
+          created_at?: string
+          delay_minutes?: number | null
+          html_body?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_automated?: boolean | null
+          last_used_at?: string | null
+          priority?: string | null
+          scheduled_time?: string | null
+          send_time?: string | null
+          subject?: string | null
+          template_category?: string | null
+          template_name?: string
+          template_type?: string
+          times_used?: number | null
+          trigger_conditions?: Json | null
+          trigger_event?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       student_portal_communications: {
         Row: {
           attachments: Json | null
@@ -7470,6 +7617,128 @@ export type Database = {
         }
         Relationships: []
       }
+      student_portal_content_categories: {
+        Row: {
+          category_description: string | null
+          category_name: string
+          category_slug: string
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          is_public: boolean | null
+          parent_category_id: string | null
+          position: number | null
+          required_roles: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          category_description?: string | null
+          category_name: string
+          category_slug: string
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_public?: boolean | null
+          parent_category_id?: string | null
+          position?: number | null
+          required_roles?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          category_description?: string | null
+          category_name?: string
+          category_slug?: string
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_public?: boolean | null
+          parent_category_id?: string | null
+          position?: number | null
+          required_roles?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_portal_content_categories_parent_category_id_fkey"
+            columns: ["parent_category_id"]
+            isOneToOne: false
+            referencedRelation: "student_portal_content_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_portal_media_library: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          duration: number | null
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          folder: string | null
+          height: number | null
+          id: string
+          mime_type: string | null
+          tags: Json | null
+          times_used: number | null
+          updated_at: string
+          user_id: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          folder?: string | null
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          tags?: Json | null
+          times_used?: number | null
+          updated_at?: string
+          user_id?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration?: number | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          folder?: string | null
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          tags?: Json | null
+          times_used?: number | null
+          updated_at?: string
+          user_id?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
       student_portal_messages: {
         Row: {
           attachments: Json | null
@@ -7530,6 +7799,80 @@ export type Database = {
         }
         Relationships: []
       }
+      student_portal_navigation: {
+        Row: {
+          badge_color: string | null
+          badge_text: string | null
+          created_at: string
+          description: string | null
+          external_url: string | null
+          icon: string | null
+          id: string
+          is_enabled: boolean | null
+          is_visible: boolean | null
+          label: string
+          parent_id: string | null
+          path: string | null
+          position: number
+          required_intakes: Json | null
+          required_programs: Json | null
+          required_roles: Json | null
+          required_statuses: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_text?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          is_visible?: boolean | null
+          label: string
+          parent_id?: string | null
+          path?: string | null
+          position?: number
+          required_intakes?: Json | null
+          required_programs?: Json | null
+          required_roles?: Json | null
+          required_statuses?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          badge_color?: string | null
+          badge_text?: string | null
+          created_at?: string
+          description?: string | null
+          external_url?: string | null
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          is_visible?: boolean | null
+          label?: string
+          parent_id?: string | null
+          path?: string | null
+          position?: number
+          required_intakes?: Json | null
+          required_programs?: Json | null
+          required_roles?: Json | null
+          required_statuses?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_portal_navigation_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "student_portal_navigation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_portal_notifications: {
         Row: {
           action_url: string | null
@@ -7575,6 +7918,60 @@ export type Database = {
           read_at?: string | null
           session_id?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      student_portal_roles: {
+        Row: {
+          allowed_campuses: Json | null
+          allowed_content_categories: Json | null
+          allowed_programs: Json | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          permissions: Json | null
+          priority: number | null
+          restricted_content_categories: Json | null
+          role_description: string | null
+          role_name: string
+          role_type: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          allowed_campuses?: Json | null
+          allowed_content_categories?: Json | null
+          allowed_programs?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          permissions?: Json | null
+          priority?: number | null
+          restricted_content_categories?: Json | null
+          role_description?: string | null
+          role_name: string
+          role_type?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          allowed_campuses?: Json | null
+          allowed_content_categories?: Json | null
+          allowed_programs?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          permissions?: Json | null
+          priority?: number | null
+          restricted_content_categories?: Json | null
+          role_description?: string | null
+          role_name?: string
+          role_type?: string | null
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

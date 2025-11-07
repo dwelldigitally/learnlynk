@@ -14,6 +14,8 @@ import {
   Zap, Search, Brain, GraduationCap,
   Route, Menu
 } from "lucide-react";
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
 
 // Import configuration components
 import { CustomFieldsManagement } from "../database/CustomFieldsManagement";
@@ -218,17 +220,17 @@ export const EnhancedConfigurationManagement = () => {
       <div className="flex h-[calc(100vh-120px)] bg-background">
         {/* Sidebar */}
         <div className={cn(
-          "border-r bg-card transition-all duration-300 flex flex-col",
+          "border-r bg-card/50 backdrop-blur-sm transition-all duration-300 flex flex-col",
           isCollapsed ? "w-20" : "w-80"
         )}>
           {/* Header */}
           <div className={cn(
-            "border-b flex items-center",
+            "border-b bg-card/80 backdrop-blur-sm flex items-center",
             isCollapsed ? "p-3 justify-center" : "p-6 justify-between"
           )}>
             {!isCollapsed && (
               <div>
-                <h2 className="text-2xl font-bold">Configuration</h2>
+                <h2 className="text-2xl font-bold text-foreground">Configuration</h2>
                 <p className="text-sm text-muted-foreground mt-1">
                   Manage all system configurations
                 </p>
@@ -238,7 +240,7 @@ export const EnhancedConfigurationManagement = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsCollapsed(!isCollapsed)}
-              className="flex-shrink-0"
+              className="flex-shrink-0 hover:bg-primary/10"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -246,14 +248,14 @@ export const EnhancedConfigurationManagement = () => {
 
           {/* Search - Only show when expanded */}
           {!isCollapsed && (
-            <div className="p-4 border-b">
+            <div className="p-4 border-b bg-card/50">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
                   placeholder="Search configurations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 bg-background"
                 />
               </div>
             </div>
@@ -261,12 +263,13 @@ export const EnhancedConfigurationManagement = () => {
 
           {/* Categories - Only show when expanded */}
           {!isCollapsed && (
-            <div className="p-4 border-b">
+            <div className="p-4 border-b bg-card/50">
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant={selectedCategory === null ? "default" : "outline"}
                   size="sm"
                   onClick={() => setSelectedCategory(null)}
+                  className={selectedCategory === null ? "" : "hover:bg-primary/10"}
                 >
                   All
                 </Button>
@@ -276,6 +279,7 @@ export const EnhancedConfigurationManagement = () => {
                     variant={selectedCategory === category ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSelectedCategory(category)}
+                    className={selectedCategory === category ? "" : "hover:bg-primary/10"}
                   >
                     {category}
                   </Button>
@@ -299,10 +303,10 @@ export const EnhancedConfigurationManagement = () => {
                         <Button
                           variant="ghost"
                           className={cn(
-                            "w-full h-12 p-0 flex items-center justify-center rounded-lg transition-colors",
+                            "w-full h-12 p-0 flex items-center justify-center rounded-lg transition-all",
                             isActive 
-                              ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm" 
+                              : "text-muted-foreground hover:text-foreground hover:bg-primary/10"
                           )}
                           onClick={() => setActiveSection(section.id)}
                         >
@@ -349,11 +353,22 @@ export const EnhancedConfigurationManagement = () => {
                               <Button
                                 key={section.id}
                                 variant={isActive ? "default" : "ghost"}
-                                className="w-full justify-start h-auto p-3 mb-2 text-left"
+                                className={cn(
+                                  "w-full justify-start h-auto p-3 mb-2 text-left transition-all",
+                                  isActive ? "shadow-sm" : "hover:bg-primary/10"
+                                )}
                                 onClick={() => setActiveSection(section.id)}
                               >
                                 <div className="flex items-start gap-3 w-full min-w-0">
-                                  <IconComponent className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                                  <div className={cn(
+                                    "w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0",
+                                    isActive ? "bg-primary-foreground/20" : "bg-primary/10"
+                                  )}>
+                                    <IconComponent className={cn(
+                                      "w-5 h-5",
+                                      isActive ? "text-primary-foreground" : "text-primary"
+                                    )} />
+                                  </div>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2 flex-wrap">
                                       <span className="font-medium truncate">{section.label}</span>
@@ -388,22 +403,28 @@ export const EnhancedConfigurationManagement = () => {
         </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6">
+      <div className="flex-1 overflow-y-auto bg-muted/30">
+        <div className="container mx-auto px-6 py-8 max-w-7xl">
           {activeConfig && (
             <>
               {/* Header */}
-              <div className="mb-6">
-                <div className="flex items-center gap-3 mb-2">
-                  <activeConfig.icon className="w-6 h-6" />
-                  <h1 className="text-3xl font-bold">{activeConfig.label}</h1>
-                  {activeConfig.isNew && (
-                    <Badge variant="secondary">New</Badge>
-                  )}
+              <div className="mb-8">
+                <div className="flex items-center gap-4 mb-3">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <activeConfig.icon className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <h1 className="text-3xl font-bold text-foreground">{activeConfig.label}</h1>
+                      {activeConfig.isNew && (
+                        <Badge variant="secondary" className="text-sm">New</Badge>
+                      )}
+                    </div>
+                    <p className="text-muted-foreground text-base mt-1">
+                      {activeConfig.description}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-muted-foreground text-lg">
-                  {activeConfig.description}
-                </p>
               </div>
 
               {/* Content */}

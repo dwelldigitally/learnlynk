@@ -406,10 +406,10 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
             Communication Center
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="w-full space-y-6">
           
           {/* COMMUNICATION HISTORY */}
-          <div className="space-y-4">
+          <div className="w-full space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold">Communication History ({communications.length})</h3>
               
@@ -469,7 +469,7 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
             <Separator />
 
             {/* History List */}
-            <ScrollArea className="h-[400px] pr-4">
+            <ScrollArea className="h-[calc(100vh-24rem)] w-full pr-4">
               {loadingComms ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

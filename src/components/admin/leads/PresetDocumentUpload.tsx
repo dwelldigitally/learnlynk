@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Upload,
@@ -166,6 +167,42 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
       toast({
         title: 'Update failed',
         description: 'Failed to update document status',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleQuickApprove = async (documentId: string) => {
+    try {
+      await presetDocumentService.updateDocumentStatus(documentId, 'approved', 'Quick approved');
+      toast({
+        title: 'Approved',
+        description: 'Document has been approved'
+      });
+      onStatusUpdated();
+    } catch (error) {
+      console.error('Approve error:', error);
+      toast({
+        title: 'Approval failed',
+        description: 'Failed to approve document',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleQuickReject = async (documentId: string) => {
+    try {
+      await presetDocumentService.updateDocumentStatus(documentId, 'rejected', 'Quick rejected');
+      toast({
+        title: 'Rejected',
+        description: 'Document has been rejected'
+      });
+      onStatusUpdated();
+    } catch (error) {
+      console.error('Reject error:', error);
+      toast({
+        title: 'Rejection failed',
+        description: 'Failed to reject document',
         variant: 'destructive'
       });
     }
@@ -407,9 +444,34 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                       size="sm" 
                       variant="outline"
                       onClick={() => handleViewDocument(doc.file_path)}
+                      title="View document"
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    
+                    {doc.admin_status !== 'approved' && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="text-green-600 hover:bg-green-50"
+                        onClick={() => handleQuickApprove(doc.id)}
+                        title="Quick approve"
+                      >
+                        <Check className="h-4 w-4" />
+                      </Button>
+                    )}
+                    
+                    {doc.admin_status !== 'rejected' && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="text-red-600 hover:bg-red-50"
+                        onClick={() => handleQuickReject(doc.id)}
+                        title="Quick reject"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
                     
                     <Button 
                       size="sm" 
@@ -423,6 +485,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                       size="sm" 
                       variant="outline"
                       onClick={() => handleDeleteDocument(doc.id)}
+                      title="Delete document"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -434,13 +497,14 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         </CardContent>
       </Card>
 
-      {/* Review Modal */}
-      {reviewingDoc && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Review Document</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* Review Dialog */}
+      <Dialog open={!!reviewingDoc} onOpenChange={(open) => !open && setReviewingDoc(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Review Document</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
             <div>
               <label className="text-sm font-medium">Status</label>
               <Select value={reviewStatus} onValueChange={setReviewStatus}>
@@ -464,18 +528,18 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                 rows={3}
               />
             </div>
-            
-            <div className="flex gap-2">
-              <Button onClick={handleStatusUpdate} disabled={!reviewStatus}>
-                Update Status
-              </Button>
-              <Button variant="outline" onClick={() => setReviewingDoc(null)}>
-                Cancel
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReviewingDoc(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleStatusUpdate} disabled={!reviewStatus}>
+              Update Status
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

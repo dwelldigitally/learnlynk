@@ -88,7 +88,7 @@ export default function LeadDetailTestPage() {
   const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
   
   // Document and journey data
-  const { documents: presetDocuments, loading: documentsLoading, refetchDocuments } = usePresetDocuments(leadId || '', 'Computer Science');
+  const { documents: presetDocuments, loading: documentsLoading, refetchDocuments } = usePresetDocuments(leadId || '', lead?.program_interest?.[0] || 'General');
   
   // Academic journey data
   const { journey, loading: journeyLoading } = useLeadAcademicJourney(leadId || '');
@@ -740,7 +740,7 @@ export default function LeadDetailTestPage() {
               <TabsContent value="docs" className="h-full">
                 <PresetDocumentUpload
                   leadId={leadId || ''}
-                  programName="Computer Science"
+                  programName={lead?.program_interest?.[0] || 'General'}
                   documents={presetDocuments}
                   onDocumentUploaded={refetchDocuments}
                   onDocumentDeleted={refetchDocuments}

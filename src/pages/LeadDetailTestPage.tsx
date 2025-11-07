@@ -598,13 +598,12 @@ export default function LeadDetailTestPage() {
         <div className="flex-1 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
             <div className="border-b p-4">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="comms">Comms</TabsTrigger>
                 <TabsTrigger value="docs">Docs</TabsTrigger>
                 <TabsTrigger value="tasks">Tasks</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>
-                <TabsTrigger value="journey">Journey</TabsTrigger>
               </TabsList>
             </div>
 
@@ -755,9 +754,6 @@ export default function LeadDetailTestPage() {
                 <RealDataTasks leadId={leadId || ''} />
               </TabsContent>
 
-              <TabsContent value="journey" className="h-full">
-                <RealDataJourney leadId={leadId || ''} />
-              </TabsContent>
 
             </div>
           </Tabs>

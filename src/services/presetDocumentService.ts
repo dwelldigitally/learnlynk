@@ -11,21 +11,24 @@ export interface PresetDocumentRequirement {
 export interface UploadedDocument {
   id: string;
   lead_id: string;
-  session_id: string;
+  user_id: string;
   requirement_id: string | null;
   document_name: string;
   file_path: string | null;
   file_size: number | null;
   document_type: string;
-  upload_status: string | null;
+  status: string | null;
   admin_status: string | null;
   admin_comments: string | null;
   admin_reviewed_by: string | null;
   admin_reviewed_at: string | null;
   metadata: any;
-  ocr_text: string | null;
-  created_at: string | null;
-  updated_at: string | null;
+  ai_insight: string | null;
+  original_filename: string | null;
+  upload_date: string | null;
+  required: boolean | null;
+  created_at: string;
+  updated_at: string;
 }
 
 // Preset document requirements for each program
@@ -315,7 +318,7 @@ class PresetDocumentService {
   // Get uploaded documents for a lead
   async getUploadedDocuments(leadId: string): Promise<UploadedDocument[]> {
     const { data, error } = await supabase
-      .from('student_document_uploads')
+      .from('lead_documents')
       .select('*')
       .eq('lead_id', leadId)
       .order('created_at', { ascending: false });
@@ -349,16 +352,15 @@ class PresetDocumentService {
 
     // Create document record
     const { data, error } = await supabase
-      .from('student_document_uploads')
+      .from('lead_documents')
       .insert({
         lead_id: leadId,
-        session_id: 'admin-upload', // For admin uploads
+        user_id: (await supabase.auth.getUser()).data.user?.id,
         document_name: requirement.name,
         document_type: file.type,
         file_path: uploadData.path,
         file_size: file.size,
         requirement_id: requirementId,
-        upload_status: 'uploaded',
         admin_status: 'pending'
       })
       .select()
@@ -377,7 +379,7 @@ class PresetDocumentService {
     const userId = (await supabase.auth.getUser()).data.user?.id;
     
     const { error } = await supabase
-      .from('student_document_uploads')
+      .from('lead_documents')
       .update({
         admin_status: status,
         admin_reviewed_by: userId,
@@ -393,7 +395,7 @@ class PresetDocumentService {
   async deleteDocument(documentId: string): Promise<void> {
     // Get document info first
     const { data: doc, error: fetchError } = await supabase
-      .from('student_document_uploads')
+      .from('lead_documents')
       .select('file_path')
       .eq('id', documentId)
       .single();
@@ -409,7 +411,7 @@ class PresetDocumentService {
 
     // Delete from database
     const { error } = await supabase
-      .from('student_document_uploads')
+      .from('lead_documents')
       .delete()
       .eq('id', documentId);
 

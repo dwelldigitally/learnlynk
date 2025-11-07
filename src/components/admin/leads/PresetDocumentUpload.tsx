@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -42,34 +42,26 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
 }) => {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedRequirement, setSelectedRequirement] = useState<string>('none');
+  const [uploadingRequirementId, setUploadingRequirementId] = useState<string | null>(null);
   const [reviewingDoc, setReviewingDoc] = useState<string | null>(null);
   const [reviewStatus, setReviewStatus] = useState<string>('');
   const [reviewComments, setReviewComments] = useState<string>('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { toast } = useToast();
 
   const requirements = presetDocumentService.getPresetRequirements(programName);
   const progress = presetDocumentService.getDocumentProgress(programName, documents);
 
-  const handleFileSelect = () => {
-    if (selectedRequirement === 'none') {
-      toast({
-        title: 'Select Requirement',
-        description: 'Please select which document requirement you want to upload',
-        variant: 'destructive'
-      });
-      return;
-    }
-    fileInputRef.current?.click();
+  const handleFileSelect = (requirementId: string) => {
+    fileInputRefs.current[requirementId]?.click();
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, requirementId: string) => {
     const file = event.target.files?.[0];
-    if (!file || selectedRequirement === 'none') return;
+    if (!file) return;
 
     // Check if document already exists for this requirement
-    const existingDoc = documents.find(doc => doc.requirement_id === selectedRequirement);
+    const existingDoc = documents.find(doc => doc.requirement_id === requirementId);
     if (existingDoc) {
       toast({
         title: 'Document already uploaded',
@@ -102,6 +94,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     }
 
     setUploading(true);
+    setUploadingRequirementId(requirementId);
     setUploadProgress(0);
 
     try {
@@ -113,7 +106,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
       await presetDocumentService.uploadDocument(
         leadId,
         file,
-        selectedRequirement,
+        requirementId,
         programName
       );
 
@@ -125,10 +118,9 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         description: 'Document has been uploaded successfully'
       });
 
-      // Reset form
-      setSelectedRequirement('none');
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+      // Reset file input
+      if (fileInputRefs.current[requirementId]) {
+        fileInputRefs.current[requirementId]!.value = '';
       }
 
       onDocumentUploaded();
@@ -141,6 +133,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
       });
     } finally {
       setUploading(false);
+      setUploadingRequirementId(null);
       setUploadProgress(0);
     }
   };
@@ -264,16 +257,9 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     );
   };
 
-  const getRequirementStatus = (requirementId: string) => {
-    const doc = documents.find(d => d.requirement_id === requirementId);
-    return doc?.admin_status || null;
+  const getUploadedDocument = (requirementId: string) => {
+    return documents.find(doc => doc.requirement_id === requirementId);
   };
-
-  const getUploadedRequirements = () => {
-    return new Set(documents.map(doc => doc.requirement_id));
-  };
-
-  const uploadedRequirements = getUploadedRequirements();
 
   return (
     <div className="space-y-6">
@@ -299,201 +285,161 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         </CardContent>
       </Card>
 
-      {/* Upload Section */}
+      {/* Consolidated Requirements List */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
-            Upload Required Documents
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="text-sm font-medium">Select Document Requirement</label>
-            <Select value={selectedRequirement} onValueChange={setSelectedRequirement}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select which document to upload" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Select a requirement...</SelectItem>
-                {requirements.map((req) => {
-                  const isUploaded = uploadedRequirements.has(req.id);
-                  return (
-                    <SelectItem 
-                      key={req.id} 
-                      value={req.id}
-                      disabled={isUploaded}
-                    >
-                      {req.name} {req.required && '*'} {isUploaded && '(Uploaded)'}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              onChange={handleFileUpload}
-              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-            />
-            
-            {uploading ? (
-              <div className="space-y-2">
-                <div className="text-sm text-muted-foreground">Uploading...</div>
-                <Progress value={uploadProgress} className="w-full max-w-xs mx-auto" />
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
-                <div className="text-sm text-muted-foreground">
-                  Select a requirement above, then click to upload
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  PDF, JPG, PNG, DOC, DOCX (max 10MB)
-                </div>
-                <Button onClick={handleFileSelect} variant="outline" disabled={selectedRequirement === 'none'}>
-                  Choose File
-                </Button>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Requirements Checklist */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Required Documents Checklist</CardTitle>
+          <CardTitle>Required Documents</CardTitle>
+          <CardDescription>Upload and manage all required documents for this program</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {requirements.map((req) => {
-              const status = getRequirementStatus(req.id);
-              const isComplete = status === 'approved';
+              const uploadedDoc = getUploadedDocument(req.id);
+              const isUploading = uploadingRequirementId === req.id;
               
               return (
-                <div key={req.id} className="flex items-start gap-3 p-3 border rounded-lg">
-                  <div className="mt-1">
-                    {isComplete ? (
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                    ) : status ? (
-                      <Clock className="h-4 w-4 text-yellow-600" />
-                    ) : (
-                      <div className="h-4 w-4 border rounded border-muted-foreground" />
-                    )}
-                  </div>
-                  
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{req.name}</h4>
-                      {req.required && (
-                        <Badge variant="outline" className="text-xs">Required</Badge>
-                      )}
-                      {status && getStatusBadge(status)}
+                <div key={req.id} className="border rounded-lg p-4 space-y-3">
+                  {/* Requirement Header */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-medium">{req.name}</h4>
+                        {req.required && (
+                          <Badge variant="outline" className="text-xs">Required</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{req.description}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{req.description}</p>
+                    
+                    {/* Upload Status Icon */}
+                    <div className="flex-shrink-0">
+                      {uploadedDoc?.admin_status === 'approved' ? (
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                      ) : uploadedDoc ? (
+                        <Clock className="h-5 w-5 text-yellow-600" />
+                      ) : (
+                        <div className="h-5 w-5 border-2 rounded-full border-muted-foreground" />
+                      )}
+                    </div>
                   </div>
+
+                  {/* Upload Section or Uploaded Document */}
+                  {!uploadedDoc ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        ref={(el) => { fileInputRefs.current[req.id] = el; }}
+                        type="file"
+                        className="hidden"
+                        onChange={(e) => handleFileUpload(e, req.id)}
+                        accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                      />
+                      
+                      {isUploading ? (
+                        <div className="flex-1 space-y-2">
+                          <div className="text-sm text-muted-foreground">Uploading...</div>
+                          <Progress value={uploadProgress} className="w-full" />
+                        </div>
+                      ) : (
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleFileSelect(req.id)}
+                          className="w-full sm:w-auto"
+                        >
+                          <Upload className="h-4 w-4 mr-2" />
+                          Upload Document
+                        </Button>
+                      )}
+                      <div className="text-xs text-muted-foreground hidden sm:block">
+                        PDF, JPG, PNG, DOC, DOCX (max 10MB)
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3 bg-muted/30 rounded-md p-3">
+                      {/* Document Info */}
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 mt-1">
+                          {getFileIcon(uploadedDoc.document_type)}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h5 className="font-medium text-sm truncate">{uploadedDoc.document_name}</h5>
+                            {getStatusBadge(uploadedDoc.admin_status)}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span>{(uploadedDoc.file_size / 1024 / 1024).toFixed(2)} MB</span>
+                            <span>{new Date(uploadedDoc.created_at).toLocaleDateString()}</span>
+                          </div>
+                          {uploadedDoc.admin_comments && (
+                            <p className="text-xs text-muted-foreground mt-2 italic">
+                              Comment: {uploadedDoc.admin_comments}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Document Actions */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleViewDocument(uploadedDoc.file_path)}
+                          title="View document"
+                        >
+                          <Eye className="h-4 w-4 mr-1" />
+                          <span className="hidden sm:inline">View</span>
+                        </Button>
+                        
+                        {uploadedDoc.admin_status !== 'approved' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="text-green-600 hover:bg-green-50"
+                            onClick={() => handleQuickApprove(uploadedDoc.id)}
+                            title="Quick approve"
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">Approve</span>
+                          </Button>
+                        )}
+                        
+                        {uploadedDoc.admin_status !== 'rejected' && (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            className="text-red-600 hover:bg-red-50"
+                            onClick={() => handleQuickReject(uploadedDoc.id)}
+                            title="Quick reject"
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            <span className="hidden sm:inline">Reject</span>
+                          </Button>
+                        )}
+                        
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => setReviewingDoc(uploadedDoc.id)}
+                        >
+                          Review
+                        </Button>
+                        
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => handleDeleteDocument(uploadedDoc.id)}
+                          title="Delete document"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Uploaded Documents */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Uploaded Documents ({documents.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {documents.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <File className="h-8 w-8 mx-auto mb-2" />
-              <p>No documents uploaded yet</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {documents.map((doc) => (
-                <div key={doc.id} className="flex items-center gap-3 p-3 border rounded-lg">
-                  <div className="flex-shrink-0">
-                    {getFileIcon(doc.document_type)}
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium truncate">{doc.document_name}</h4>
-                      {getStatusBadge(doc.admin_status)}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>{(doc.file_size / 1024 / 1024).toFixed(2)} MB</span>
-                      <span>{new Date(doc.created_at).toLocaleDateString()}</span>
-                    </div>
-                    {doc.admin_comments && (
-                      <p className="text-sm text-muted-foreground mt-1 italic">
-                        Comment: {doc.admin_comments}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleViewDocument(doc.file_path)}
-                      title="View document"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    
-                    {doc.admin_status !== 'approved' && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="text-green-600 hover:bg-green-50"
-                        onClick={() => handleQuickApprove(doc.id)}
-                        title="Quick approve"
-                      >
-                        <Check className="h-4 w-4" />
-                      </Button>
-                    )}
-                    
-                    {doc.admin_status !== 'rejected' && (
-                      <Button 
-                        size="sm" 
-                        variant="outline"
-                        className="text-red-600 hover:bg-red-50"
-                        onClick={() => handleQuickReject(doc.id)}
-                        title="Quick reject"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                    
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => setReviewingDoc(doc.id)}
-                    >
-                      Review
-                    </Button>
-                    
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => handleDeleteDocument(doc.id)}
-                      title="Delete document"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </CardContent>
       </Card>
 

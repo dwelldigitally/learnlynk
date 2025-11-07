@@ -13,6 +13,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { DocumentTemplate, DocumentTemplateService, DocumentTemplateFormData } from '@/services/documentTemplateService';
 import { useToast } from '@/hooks/use-toast';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { InfoBadge } from '@/components/modern/InfoBadge';
+import { MetadataItem } from '@/components/modern/MetadataItem';
 
 const DOCUMENT_CATEGORIES = [
   'Academic Documents',
@@ -285,86 +289,72 @@ export function DocumentTemplatesManagement() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Document Templates</h1>
-          <p className="text-muted-foreground">
-            Manage reusable document requirement templates for your programs
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={addSampleTemplates}>
-            <Download className="h-4 w-4 mr-2" />
-            Add Sample Templates
-          </Button>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Template
-          </Button>
-        </div>
-      </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="Document Templates"
+        subtitle="Manage reusable document requirement templates for your programs"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={addSampleTemplates}>
+              <Download className="h-4 w-4 mr-2" />
+              Add Sample Templates
+            </Button>
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Template
+            </Button>
+          </div>
+        }
+      />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <ModernCard>
+          <CardContent className="p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-2">
               Total Templates
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTemplates || 0}</div>
+            </div>
+            <div className="text-3xl font-bold text-foreground">{stats.totalTemplates || 0}</div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <ModernCard>
+          <CardContent className="p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-2">
               Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+            </div>
+            <div className="text-3xl font-bold text-foreground">
               {Object.keys(stats.categoryCounts || {}).length}
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <ModernCard>
+          <CardContent className="p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-2">
               Most Used
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+            </div>
+            <div className="text-xl font-bold text-foreground truncate">
               {stats.mostUsed?.[0]?.name || 'None'}
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
+        <ModernCard>
+          <CardContent className="p-6">
+            <div className="text-sm font-medium text-muted-foreground mb-2">
               System Templates
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+            </div>
+            <div className="text-3xl font-bold text-foreground">
               {templates.filter(t => t.is_system_template).length}
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <ModernCard className="mb-6">
+        <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -435,104 +425,118 @@ export function DocumentTemplatesManagement() {
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </ModernCard>
 
       {/* Templates Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filteredTemplates.map((template) => (
-          <Card key={template.id} className="hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{template.name}</CardTitle>
-                  <CardDescription className="mt-1">
-                    {template.description}
-                  </CardDescription>
-                </div>
-                <div className="flex gap-1 ml-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedTemplate(template);
-                      setShowPreviewDialog(true);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEditTemplate(template)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDuplicateTemplate(template)}
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                  {!template.is_system_template && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteTemplate(template.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
+          <ModernCard key={template.id}>
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start gap-3 flex-1">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-base text-foreground mb-1">
+                      {template.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {template.description}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <InfoBadge variant="default">
+                        {template.category}
+                      </InfoBadge>
+                      <InfoBadge variant={
+                        template.stage === 'application' ? 'default' :
+                        template.stage === 'enrollment' ? 'success' :
+                        template.stage === 'pre-arrival' ? 'warning' : 'secondary'
+                      }>
+                        {template.stage.toUpperCase()}
+                      </InfoBadge>
+                      {template.mandatory && (
+                        <InfoBadge variant="destructive">REQUIRED</InfoBadge>
+                      )}
+                      {template.is_system_template && (
+                        <InfoBadge variant="secondary">SYSTEM</InfoBadge>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">{template.category}</Badge>
-                  <Badge className={getStageColor(template.stage)}>
-                    {template.stage}
-                  </Badge>
-                  {template.mandatory && (
-                    <Badge variant="destructive">Required</Badge>
-                  )}
-                  {template.is_system_template && (
-                    <Badge variant="outline">System</Badge>
-                  )}
-                </div>
-                
-                <div className="text-sm text-muted-foreground">
-                  <div>Formats: {template.accepted_formats.join(', ')}</div>
-                  <div>Max size: {template.max_size}MB</div>
-                  {template.usage_count > 0 && (
-                    <div>Used {template.usage_count} times</div>
-                  )}
-                </div>
+
+              <div className="space-y-2 pt-4 border-t border-border">
+                <MetadataItem label="Formats" value={template.accepted_formats.join(', ').toUpperCase()} />
+                <MetadataItem label="Max Size" value={`${template.max_size}MB`} />
+                {template.usage_count > 0 && (
+                  <MetadataItem label="Usage" value={`${template.usage_count} times`} />
+                )}
+              </div>
+
+              <div className="flex items-center gap-1 pt-4 border-t border-border mt-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedTemplate(template);
+                    setShowPreviewDialog(true);
+                  }}
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  Preview
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEditTemplate(template)}
+                >
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleDuplicateTemplate(template)}
+                >
+                  <Copy className="h-4 w-4 mr-1" />
+                  Duplicate
+                </Button>
+                {!template.is_system_template && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => handleDeleteTemplate(template.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </CardContent>
-          </Card>
+          </ModernCard>
         ))}
       </div>
 
       {filteredTemplates.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No templates found</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              {searchTerm || selectedCategory !== 'all' || selectedType !== 'all' 
-                ? "Try adjusting your filters or search terms"
-                : "Create your first document template to get started"
-              }
-            </p>
-            {(!searchTerm && selectedCategory === 'all' && selectedType === 'all') && (
-              <Button onClick={() => setShowCreateDialog(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Template
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+        <div className="text-center py-16 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <FileText className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            {searchTerm || selectedCategory !== 'all' || selectedType !== 'all' 
+              ? "Try adjusting your filters or search terms"
+              : "Create your first document template to get started"
+            }
+          </p>
+          {(!searchTerm && selectedCategory === 'all' && selectedType === 'all') && (
+            <Button size="lg" onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Template
+            </Button>
+          )}
+        </div>
       )}
 
       {/* Create/Edit Template Dialog */}

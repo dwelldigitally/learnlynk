@@ -23,6 +23,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [teamMembers, setTeamMembers] = useState<Array<{ id: string; name: string; email: string }>>([]);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -34,6 +35,16 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   });
   const [tagInput, setTagInput] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setCurrentUserId(user.id);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
     const fetchTeamMembers = async () => {
@@ -311,19 +322,6 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const displayTasks = tasks.length > 0 ? tasks : demoTasks;
   const displayActiveTasks = displayTasks.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
   const displayCompletedTasks = displayTasks.filter(task => task.status === 'completed' || task.status === 'cancelled');
-
-  // Get current user ID for highlighting
-  const [currentUserId, setCurrentUserId] = useState<string>('');
-  
-  useEffect(() => {
-    const fetchCurrentUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setCurrentUserId(user.id);
-      }
-    };
-    fetchCurrentUser();
-  }, []);
 
   return (
     <Card>

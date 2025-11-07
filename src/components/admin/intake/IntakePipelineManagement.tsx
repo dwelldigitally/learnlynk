@@ -210,6 +210,9 @@ export function IntakePipelineManagement() {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showSalesApproachDialog, setShowSalesApproachDialog] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterProgram, setFilterProgram] = useState<string>('all');
+  const [filterCampus, setFilterCampus] = useState<string>('all');
   const [newIntake, setNewIntake] = useState({
     name: '',
     program: '',
@@ -348,6 +351,16 @@ export function IntakePipelineManagement() {
     }
   };
 
+  const filteredIntakes = useMemo(() => {
+    return intakes.filter(intake => {
+      const matchesStatus = filterStatus === 'all' || intake.status === filterStatus;
+      const matchesProgram = filterProgram === 'all' || intake.program === filterProgram;
+      const matchesCampus = filterCampus === 'all' || intake.campus === filterCampus;
+      
+      return matchesStatus && matchesProgram && matchesCampus;
+    });
+  }, [intakes, filterStatus, filterProgram, filterCampus]);
+
   const filteredData = useMemo(() => {
     if (!selectedIntake) return [];
     
@@ -379,6 +392,10 @@ export function IntakePipelineManagement() {
               <Button variant="outline">
                 <Brain className="h-4 w-4 mr-2" />
                 AI Insights
+              </Button>
+              <Button variant="outline">
+                <Download className="h-4 w-4 mr-2" />
+                Export
               </Button>
               <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
                 <DialogTrigger asChild>
@@ -485,6 +502,77 @@ export function IntakePipelineManagement() {
         </div>
       </div>
 
+      {/* Filters Section */}
+      <div className="container mx-auto px-6 py-6 border-b bg-muted/20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">Filter by:</span>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3 flex-1">
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="planning">Planning</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filterProgram} onValueChange={setFilterProgram}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Program" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Programs</SelectItem>
+                <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
+                <SelectItem value="Education Assistant">Education Assistant</SelectItem>
+                <SelectItem value="Aviation">Aviation</SelectItem>
+                <SelectItem value="Hospitality">Hospitality</SelectItem>
+                <SelectItem value="ECE">ECE</SelectItem>
+                <SelectItem value="MLA">MLA</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={filterCampus} onValueChange={setFilterCampus}>
+              <SelectTrigger className="w-[160px]">
+                <SelectValue placeholder="Campus" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Campuses</SelectItem>
+                <SelectItem value="Surrey">Surrey</SelectItem>
+                <SelectItem value="Vancouver">Vancouver</SelectItem>
+                <SelectItem value="Richmond">Richmond</SelectItem>
+                <SelectItem value="Burnaby">Burnaby</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {(filterStatus !== 'all' || filterProgram !== 'all' || filterCampus !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterStatus('all');
+                  setFilterProgram('all');
+                  setFilterCampus('all');
+                }}
+                className="text-muted-foreground"
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+          
+          <div className="text-sm text-muted-foreground">
+            Showing {filteredIntakes.length} of {intakes.length} intakes
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-6 py-6 space-y-6">
         {!selectedIntake ? (
           <div className="space-y-6">
@@ -567,7 +655,7 @@ export function IntakePipelineManagement() {
 
             {/* Intakes List */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {intakes.map((intake) => (
+              {filteredIntakes.map((intake) => (
                 <Card 
                   key={intake.id} 
                   className="cursor-pointer hover:shadow-md transition-shadow"

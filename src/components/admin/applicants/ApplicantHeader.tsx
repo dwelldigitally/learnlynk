@@ -29,6 +29,7 @@ interface ApplicantHeaderProps {
   onReject: () => void;
   onScheduleInterview: () => void;
   onSendEmail: () => void;
+  onSwitchToAiMode?: () => void;
   saving: boolean;
 }
 
@@ -38,6 +39,7 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
   onReject,
   onScheduleInterview,
   onSendEmail,
+  onSwitchToAiMode,
   saving
 }) => {
   const navigate = useNavigate();
@@ -131,7 +133,12 @@ export const ApplicantHeader: React.FC<ApplicantHeaderProps> = ({
             <Target className="h-4 w-4 mr-2" />
             Enter Review Mode
           </Button>
-          <Button variant="outline" size="sm" className="rounded-lg">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="rounded-lg"
+            onClick={onSwitchToAiMode}
+          >
             <TrendingUp className="h-4 w-4 mr-2" />
             Switch to AI Mode
           </Button>

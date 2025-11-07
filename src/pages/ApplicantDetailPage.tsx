@@ -307,6 +307,7 @@ const ApplicantDetailPage: React.FC = () => {
               onReject={handleReject}
               onScheduleInterview={handleScheduleInterview}
               onSendEmail={handleSendEmail}
+              onSwitchToAiMode={() => setAiViewMode(true)}
               saving={saving}
             />
             </div>

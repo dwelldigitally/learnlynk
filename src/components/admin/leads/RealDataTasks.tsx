@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLeadTasks } from '@/hooks/useLeadData';
-import { CheckCircle, Clock, Plus, User, Calendar, Flag } from 'lucide-react';
+import { CheckCircle, Clock, Plus, User, Calendar, Flag, Check, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -98,6 +98,59 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
 
   const handleRemoveTag = (tagToRemove: string) => {
     setNewTask({ ...newTask, tags: newTask.tags.filter(tag => tag !== tagToRemove) });
+  };
+
+  const handleCompleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('lead_tasks')
+        .update({ 
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Task marked as completed",
+      });
+
+      refetch();
+    } catch (err) {
+      console.error('Error completing task:', err);
+      toast({
+        title: "Error",
+        description: "Failed to complete task",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('lead_tasks')
+        .delete()
+        .eq('id', taskId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Task deleted",
+      });
+
+      refetch();
+    } catch (err) {
+      console.error('Error deleting task:', err);
+      toast({
+        title: "Error",
+        description: "Failed to delete task",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCreateTask = async () => {
@@ -515,8 +568,8 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                         key={task.id} 
                         className={`border rounded-lg p-4 ${isAssignedToOther ? 'border-blue-200 bg-blue-50/50' : ''}`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1">
                             {getStatusIcon(task.status)}
                             <span className="font-medium">{task.title}</span>
                             {isAssignedToOther && (
@@ -529,6 +582,26 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                           <div className="flex items-center gap-2">
                             {getPriorityBadge(task.priority)}
                             {getStatusBadge(task.status)}
+                            <div className="flex gap-1 ml-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 hover:bg-green-100 hover:text-green-700"
+                                onClick={() => handleCompleteTask(task.id)}
+                                title="Mark as complete"
+                              >
+                                <Check className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700"
+                                onClick={() => handleDeleteTask(task.id)}
+                                title="Delete task"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
 
@@ -575,8 +648,8 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                         key={task.id} 
                         className={`border rounded-lg p-4 opacity-75 ${isAssignedToOther ? 'border-blue-200 bg-blue-50/30' : ''}`}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex items-center gap-2 flex-1">
                             {getStatusIcon(task.status)}
                             <span className="font-medium line-through">{task.title}</span>
                             {isAssignedToOther && (
@@ -589,6 +662,15 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                           <div className="flex items-center gap-2">
                             {getPriorityBadge(task.priority)}
                             {getStatusBadge(task.status)}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 ml-2"
+                              onClick={() => handleDeleteTask(task.id)}
+                              title="Delete task"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
 

@@ -38,7 +38,6 @@ import {
 import TeamHierarchyVisualizer from "./team/TeamHierarchyVisualizer";
 import TeamPerformanceDashboard from "./team/TeamPerformanceDashboard";
 import AdvancedRoleBuilder from "./team/AdvancedRoleBuilder";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import MemberDetailModal from "./modals/MemberDetailModal";
@@ -46,6 +45,10 @@ import DepartmentMembersModal from "./modals/DepartmentMembersModal";
 import PermissionManagementModal from "./modals/PermissionManagementModal";
 import ConfirmDeleteDialog from "./modals/ConfirmDeleteDialog";
 import InviteDetailsModal from "./modals/InviteDetailsModal";
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { InfoBadge } from '@/components/modern/InfoBadge';
+import { MetadataItem } from '@/components/modern/MetadataItem';
 
 interface TeamMember {
   id: string;
@@ -320,43 +323,44 @@ const TeamManagement: React.FC = () => {
   );
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Team Management</h1>
-          <p className="text-muted-foreground">Manage team members, roles, and permissions</p>
-        </div>
-        <Button onClick={() => setShowInviteDialog(true)}>
-          <UserPlus className="h-4 w-4 mr-2" />
-          Invite Member
-        </Button>
-      </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="Team Management"
+        subtitle="Manage team members, roles, and permissions"
+        action={
+          <Button onClick={() => setShowInviteDialog(true)} size="lg">
+            <UserPlus className="h-4 w-4 mr-2" />
+            Invite Member
+          </Button>
+        }
+      />
 
       {/* Team Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         {[
-          { title: "Total Members", count: 5, icon: Users, color: "text-blue-600" },
-          { title: "Active Users", count: 4, icon: Shield, color: "text-green-600" },
-          { title: "Departments", count: 4, icon: Users, color: "text-purple-600" },
-          { title: "Pending Invites", count: 2, icon: Mail, color: "text-orange-600" }
+          { title: "Total Members", count: 5, icon: Users, color: "text-primary" },
+          { title: "Active Users", count: 4, icon: Shield, color: "text-primary" },
+          { title: "Departments", count: 4, icon: Users, color: "text-primary" },
+          { title: "Pending Invites", count: 2, icon: Mail, color: "text-primary" }
         ].map((stat, index) => (
-          <Card key={index}>
+          <ModernCard key={index}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold text-foreground">{stat.count}</p>
+                  <p className="text-sm font-medium text-muted-foreground mb-2">{stat.title}</p>
+                  <p className="text-3xl font-bold text-foreground">{stat.count}</p>
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                </div>
               </div>
             </CardContent>
-          </Card>
+          </ModernCard>
         ))}
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-7 bg-muted/50 p-1">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="hierarchy">Hierarchy</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
@@ -368,89 +372,89 @@ const TeamManagement: React.FC = () => {
 
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <TrendingUp className="h-5 w-5" />
-                  <span>Team Performance Overview</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Overall Productivity</span>
-                    <span className="text-sm font-bold">92%</span>
+            <ModernCard>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <TrendingUp className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Team Satisfaction</span>
-                    <span className="text-sm font-bold">89%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Capacity Utilization</span>
-                    <span className="text-sm font-bold">78%</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">Average Response Time</span>
-                    <span className="text-sm font-bold">1.2 hours</span>
-                  </div>
+                  <h3 className="font-semibold text-lg">Team Performance Overview</h3>
+                </div>
+                <div className="space-y-3">
+                  <MetadataItem label="Overall Productivity" value="92%" />
+                  <MetadataItem label="Team Satisfaction" value="89%" />
+                  <MetadataItem label="Capacity Utilization" value="78%" />
+                  <MetadataItem label="Average Response Time" value="1.2 hours" />
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Target className="h-5 w-5" />
-                  <span>Active Goals</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <ModernCard>
+              <CardContent className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Target className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-lg">Active Goals</h3>
+                </div>
                 <div className="space-y-3">
-                  <div className="p-3 border rounded-lg">
-                    <div className="flex justify-between items-center mb-1">
+                  <div className="p-3 border border-border rounded-lg bg-card">
+                    <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium">Q1 Enrollment Target</span>
-                      <Badge>77%</Badge>
+                      <InfoBadge variant="success">77%</InfoBadge>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2">
                       <div className="bg-primary h-2 rounded-full" style={{ width: '77%' }}></div>
                     </div>
                   </div>
-                  <div className="p-3 border rounded-lg">
-                    <div className="flex justify-between items-center mb-1">
+                  <div className="p-3 border border-border rounded-lg bg-card">
+                    <div className="flex justify-between items-center mb-2">
                       <span className="text-sm font-medium">Lead Response Time</span>
-                      <Badge>89%</Badge>
+                      <InfoBadge variant="success">89%</InfoBadge>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-muted rounded-full h-2">
                       <div className="bg-primary h-2 rounded-full" style={{ width: '89%' }}></div>
                     </div>
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("hierarchy")}>
-              <CardContent className="p-6 text-center">
-                <Users className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium">Team Hierarchy</h3>
-                <p className="text-sm text-muted-foreground">Visualize and manage team structure</p>
-              </CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("performance")}>
-              <CardContent className="p-6 text-center">
-                <BarChart3 className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium">Performance Analytics</h3>
-                <p className="text-sm text-muted-foreground">Track team productivity and KPIs</p>
-              </CardContent>
-            </Card>
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setActiveTab("roles")}>
-              <CardContent className="p-6 text-center">
-                <Shield className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium">Role Builder</h3>
-                <p className="text-sm text-muted-foreground">Create custom roles and permissions</p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="cursor-pointer" onClick={() => setActiveTab("hierarchy")}>
+              <ModernCard>
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-medium mb-1">Team Hierarchy</h3>
+                  <p className="text-sm text-muted-foreground">Visualize and manage team structure</p>
+                </CardContent>
+              </ModernCard>
+            </div>
+            <div className="cursor-pointer" onClick={() => setActiveTab("performance")}>
+              <ModernCard>
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <BarChart3 className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-medium mb-1">Performance Analytics</h3>
+                  <p className="text-sm text-muted-foreground">Track team productivity and KPIs</p>
+                </CardContent>
+              </ModernCard>
+            </div>
+            <div className="cursor-pointer" onClick={() => setActiveTab("roles")}>
+              <ModernCard>
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-medium mb-1">Role Builder</h3>
+                  <p className="text-sm text-muted-foreground">Create custom roles and permissions</p>
+                </CardContent>
+              </ModernCard>
+            </div>
           </div>
         </TabsContent>
 
@@ -472,132 +476,128 @@ const TeamManagement: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="members" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {teamMembers.map((member) => (
-              <Card key={member.id}>
+              <ModernCard key={member.id}>
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-4">
-                       <Avatar 
-                         className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all"
-                         onClick={() => handleMemberClick(member)}
-                       >
-                         <AvatarImage src={member.avatar} />
-                         <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                       </Avatar>
-                       <div>
-                         <h3 
-                           className="font-semibold cursor-pointer hover:text-primary transition-colors"
-                           onClick={() => handleMemberClick(member)}
-                         >
-                           {member.name}
-                         </h3>
-                         <p className="text-sm text-muted-foreground">{member.role}</p>
-                         <p 
-                           className="text-sm text-muted-foreground cursor-pointer hover:text-primary transition-colors"
-                           onClick={() => handleDepartmentClick(member.department)}
-                         >
-                           {member.department}
-                         </p>
-                       </div>
-                    </div>
-                    <Badge variant={member.status === 'active' ? 'default' : 'secondary'}>
-                      {member.status}
-                    </Badge>
-                  </div>
-
-                   <div className="mt-4 space-y-2">
-                     <div 
-                       className="flex items-center text-sm text-muted-foreground cursor-pointer hover:text-primary transition-colors"
-                       onClick={() => handleMemberClick(member)}
-                     >
-                       <Mail className="h-4 w-4 mr-2" />
-                       {member.email}
-                     </div>
-                    {member.studentsAssigned > 0 && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Users className="h-4 w-4 mr-2" />
-                        {member.studentsAssigned} students assigned
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      <Avatar 
+                        className="h-12 w-12 cursor-pointer hover:ring-2 hover:ring-primary transition-all flex-shrink-0"
+                        onClick={() => handleMemberClick(member)}
+                      >
+                        <AvatarImage src={member.avatar} />
+                        <AvatarFallback>{member.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h3 
+                          className="font-semibold text-base cursor-pointer hover:text-primary transition-colors mb-1"
+                          onClick={() => handleMemberClick(member)}
+                        >
+                          {member.name}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">{member.role}</p>
+                        <p 
+                          className="text-sm text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+                          onClick={() => handleDepartmentClick(member.department)}
+                        >
+                          {member.department}
+                        </p>
+                        <div className="mt-2">
+                          <InfoBadge variant={member.status === 'active' ? 'success' : 'secondary'}>
+                            {member.status.toUpperCase()}
+                          </InfoBadge>
+                        </div>
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 pt-4 border-t border-border">
+                    <MetadataItem label="Email" value={member.email} />
+                    {member.studentsAssigned > 0 && (
+                      <MetadataItem label="Students" value={`${member.studentsAssigned} assigned`} />
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      Last active: {member.lastActive}
-                    </p>
+                    <MetadataItem label="Last Active" value={member.lastActive} />
                   </div>
 
-                  <div className="mt-4">
+                  <div className="pt-4 border-t border-border mt-4">
                     <p className="text-sm font-medium mb-2">Permissions:</p>
-                     <div className="flex flex-wrap gap-1">
-                       {member.permissions.slice(0, 3).map((permission) => (
-                         <Badge 
-                           key={permission} 
-                           variant="outline" 
-                           className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                           onClick={() => handleMemberClick(member)}
-                         >
-                           {permission.replace('_', ' ')}
-                         </Badge>
-                       ))}
-                       {member.permissions.length > 3 && (
-                         <Badge 
-                           variant="outline" 
-                           className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
-                           onClick={() => handleMemberClick(member)}
-                         >
-                           +{member.permissions.length - 3} more
-                         </Badge>
-                       )}
-                     </div>
+                    <div className="flex flex-wrap gap-1">
+                      {member.permissions.slice(0, 3).map((permission) => (
+                        <Badge 
+                          key={permission} 
+                          variant="secondary" 
+                          className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => handleMemberClick(member)}
+                        >
+                          {permission.replace('_', ' ')}
+                        </Badge>
+                      ))}
+                      {member.permissions.length > 3 && (
+                        <Badge 
+                          variant="secondary" 
+                          className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors"
+                          onClick={() => handleMemberClick(member)}
+                        >
+                          +{member.permissions.length - 3}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
-                   <div className="mt-4 flex space-x-2">
-                     <Button 
-                       variant="outline" 
-                       size="sm" 
-                       className="flex-1"
-                       onClick={() => handleMemberClick(member)}
-                     >
-                       <Edit className="h-4 w-4 mr-1" />
-                       Edit
-                     </Button>
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => handleDeleteClick('member', member.id, member.name)}
-                     >
-                       <Trash2 className="h-4 w-4" />
-                     </Button>
-                   </div>
+                  <div className="flex items-center gap-1 pt-4 border-t border-border mt-4">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="flex-1"
+                      onClick={() => handleMemberClick(member)}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      Edit
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-destructive hover:text-destructive"
+                      onClick={() => handleDeleteClick('member', member.id, member.name)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardContent>
-              </Card>
+              </ModernCard>
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="departments" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {departments.map((dept, index) => (
-              <Card key={index}>
+              <ModernCard key={index}>
                 <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-semibold text-lg">{dept.name}</h3>
-                      <p className="text-sm text-muted-foreground mt-1">{dept.description}</p>
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <Users className="h-5 w-5 text-primary" />
                     </div>
-                    <Badge variant="outline">{dept.members} members</Badge>
-                   </div>
-                   <div className="mt-4">
-                     <Button 
-                       variant="outline" 
-                       size="sm"
-                       onClick={() => handleDepartmentClick(dept.name)}
-                     >
-                       <Users className="h-4 w-4 mr-1" />
-                       View Members
-                     </Button>
-                   </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-base">{dept.name}</h3>
+                        <InfoBadge variant="secondary">{dept.members} members</InfoBadge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{dept.description}</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="w-full"
+                    onClick={() => handleDepartmentClick(dept.name)}
+                  >
+                    <Users className="h-4 w-4 mr-1" />
+                    View Members
+                  </Button>
                 </CardContent>
-              </Card>
+              </ModernCard>
             ))}
           </div>
         </TabsContent>

@@ -237,33 +237,41 @@ const ApplicantDetailPage: React.FC = () => {
 
   return (
     <ModernAdminLayout>
-      <div className="p-6 space-y-6">
-        {/* Header with view toggle */}
-        {aiViewMode ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                <h2 className="text-lg font-semibold">AI-Accelerated Review Mode</h2>
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="p-6 lg:p-8 space-y-6">
+          {/* Header with view toggle */}
+          {aiViewMode ? (
+            <div className="space-y-6">
+              <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-6 shadow-lg">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-md">
+                      <Zap className="h-5 w-5 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-foreground">AI-Accelerated Review Mode</h2>
+                      <p className="text-sm text-muted-foreground">Enhanced insights and automated recommendations</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      onClick={() => navigate(`/admin/applicants/review/${applicantId}`)}
+                      className="flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow"
+                    >
+                      <ClipboardCheck className="h-4 w-4" />
+                      Enter Review Mode
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setAiViewMode(false)}
+                      className="flex items-center gap-2 border-border/50 hover:bg-muted/50 transition-all"
+                    >
+                      <Eye className="h-4 w-4" />
+                      Classic View
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Button 
-                  onClick={() => navigate(`/admin/applicants/review/${applicantId}`)}
-                  className="flex items-center gap-2"
-                >
-                  <ClipboardCheck className="h-4 w-4" />
-                  Enter Review Mode
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setAiViewMode(false)}
-                  className="flex items-center gap-2"
-                >
-                  <Eye className="h-4 w-4" />
-                  Switch to Classic View
-                </Button>
-              </div>
-            </div>
             <EnhancedApplicantHeader
               applicant={applicant}
               onApprove={handleApprove}
@@ -273,24 +281,26 @@ const ApplicantDetailPage: React.FC = () => {
               saving={saving}
             />
           </div>
-        ) : (
-          <div className="space-y-4">
-            <div className="flex items-center justify-end gap-2">
-              <Button 
-                onClick={() => navigate(`/admin/applicants/review/${applicantId}`)}
-                className="flex items-center gap-2"
-              >
-                <ClipboardCheck className="h-4 w-4" />
-                Enter Review Mode
-              </Button>
-              <Button 
-                onClick={() => setAiViewMode(true)}
-                className="flex items-center gap-2"
-              >
-                <Zap className="h-4 w-4" />
-                Switch to AI Mode
-              </Button>
-            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-lg">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-end gap-3">
+                  <Button 
+                    onClick={() => navigate(`/admin/applicants/review/${applicantId}`)}
+                    className="flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow w-full sm:w-auto"
+                  >
+                    <ClipboardCheck className="h-4 w-4" />
+                    Enter Review Mode
+                  </Button>
+                  <Button 
+                    onClick={() => setAiViewMode(true)}
+                    className="flex items-center gap-2 shadow-md hover:shadow-lg transition-shadow w-full sm:w-auto"
+                  >
+                    <Zap className="h-4 w-4" />
+                    Switch to AI Mode
+                  </Button>
+                </div>
+              </div>
             <ApplicantHeader
               applicant={applicant}
               onApprove={handleApprove}
@@ -299,128 +309,145 @@ const ApplicantDetailPage: React.FC = () => {
               onSendEmail={handleSendEmail}
               saving={saving}
             />
-          </div>
-        )}
-
-        {aiViewMode ? (
-          // AI-Accelerated Three-Column Layout
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            {/* Left Column - AI Insights */}
-            <div className="xl:col-span-1 space-y-6">
-              <AIInsightsDashboard applicant={applicant} />
             </div>
+          )}
 
-            {/* Center Column - Core Information */}
-            <div className="xl:col-span-2">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="documents">Smart Docs</TabsTrigger>
-                  <TabsTrigger value="assessment">AI Assessment</TabsTrigger>
-                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
-                </TabsList>
-
-                <div className="mt-6">
-                  <TabsContent value="overview" className="space-y-6">
-                    <ComprehensiveApplicantOverview applicant={applicant} />
-                  </TabsContent>
-
-                  <TabsContent value="documents" className="space-y-6">
-                    <SmartDocumentReview
-                      applicant={applicant}
-                      onDocumentAction={handleDocumentAction}
-                      onApproveAll={handleApproveAllDocs}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="assessment" className="space-y-6">
-                    <AssessmentPanel
-                      applicant={applicant}
-                      onScoreUpdate={handleScoreUpdate}
-                      onNotesUpdate={handleAssessmentNotesUpdate}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="timeline" className="space-y-6">
-                    <ApplicationTimeline 
-                      applicant={applicant} 
-                      onStageUpdate={handleStageUpdate}
-                    />
-                  </TabsContent>
+          {aiViewMode ? (
+            // AI-Accelerated Three-Column Layout
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+              {/* Left Column - AI Insights */}
+              <div className="xl:col-span-1 space-y-6">
+                <div className="animate-fade-in">
+                  <AIInsightsDashboard applicant={applicant} />
                 </div>
-              </Tabs>
-            </div>
+              </div>
 
-            {/* Right Column - Human Decision Tools */}
-            <div className="xl:col-span-1 space-y-6">
-              <HumanDecisionTracker applicant={applicant} />
-              <AISuggestionsCard onApply={handleAISuggestionApply} />
-            </div>
-          </div>
-        ) : (
-          // Classic Layout
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            {/* Main Content - 3 columns */}
-            <div className="xl:col-span-3">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="grid w-full grid-cols-5">
-                  <TabsTrigger value="overview">Overview</TabsTrigger>
-                  <TabsTrigger value="documents">Documents</TabsTrigger>
-                  <TabsTrigger value="communication">Communication</TabsTrigger>
-                  <TabsTrigger value="assessment">Assessment</TabsTrigger>
-                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
-                </TabsList>
+              {/* Center Column - Core Information */}
+              <div className="xl:col-span-2">
+                <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg overflow-hidden">
+                  <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <div className="border-b border-border/50 bg-muted/30">
+                      <TabsList className="grid w-full grid-cols-4 bg-transparent h-auto p-2">
+                        <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Overview</TabsTrigger>
+                        <TabsTrigger value="documents" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Smart Docs</TabsTrigger>
+                        <TabsTrigger value="assessment" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Assessment</TabsTrigger>
+                        <TabsTrigger value="timeline" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Timeline</TabsTrigger>
+                      </TabsList>
+                    </div>
 
-                <div className="mt-6">
-                  <TabsContent value="overview" className="space-y-6">
-                    <ComprehensiveApplicantOverview applicant={applicant} />
-                  </TabsContent>
+                    <div className="p-6">
+                      <TabsContent value="overview" className="space-y-6 m-0">
+                        <ComprehensiveApplicantOverview applicant={applicant} />
+                      </TabsContent>
 
-                  <TabsContent value="documents">
-                    <DocumentManager
-                      applicant={applicant}
-                      onDocumentAction={handleDocumentAction}
-                      onApproveAll={handleApproveAllDocs}
-                    />
-                  </TabsContent>
+                      <TabsContent value="documents" className="space-y-6 m-0">
+                        <SmartDocumentReview
+                          applicant={applicant}
+                          onDocumentAction={handleDocumentAction}
+                          onApproveAll={handleApproveAllDocs}
+                        />
+                      </TabsContent>
 
-                  <TabsContent value="communication">
-                    <CommunicationCenter
-                      applicantId={applicant.id}
-                      applicantName={applicantName}
-                      applicantEmail={applicant.master_records?.email || ''}
-                      onSendMessage={handleSendMessage}
-                    />
-                  </TabsContent>
+                      <TabsContent value="assessment" className="space-y-6 m-0">
+                        <AssessmentPanel
+                          applicant={applicant}
+                          onScoreUpdate={handleScoreUpdate}
+                          onNotesUpdate={handleAssessmentNotesUpdate}
+                        />
+                      </TabsContent>
 
-                  <TabsContent value="assessment">
-                    <AssessmentPanel
-                      applicant={applicant}
-                      onScoreUpdate={handleScoreUpdate}
-                      onNotesUpdate={handleAssessmentNotesUpdate}
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="timeline">
-                    <ApplicationTimeline
-                      applicant={applicant}
-                      onStageUpdate={handleStageUpdate}
-                    />
-                  </TabsContent>
+                      <TabsContent value="timeline" className="space-y-6 m-0">
+                        <ApplicationTimeline 
+                          applicant={applicant} 
+                          onStageUpdate={handleStageUpdate}
+                        />
+                      </TabsContent>
+                    </div>
+                  </Tabs>
                 </div>
-              </Tabs>
-            </div>
+              </div>
 
-            {/* Collaboration Sidebar - 1 column */}
-            <div className="xl:col-span-1">
-              <CollaborationSidebar
-                applicantId={applicant.id}
-                onAssign={handleAssign}
-                onComment={handleComment}
-              />
+              {/* Right Column - Human Decision Tools */}
+              <div className="xl:col-span-1 space-y-6">
+                <div className="animate-fade-in">
+                  <HumanDecisionTracker applicant={applicant} />
+                  <div className="mt-6">
+                    <AISuggestionsCard onApply={handleAISuggestionApply} />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          ) : (
+            // Classic Layout
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+              {/* Main Content - 3 columns */}
+              <div className="xl:col-span-3">
+                <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-lg overflow-hidden">
+                  <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <div className="border-b border-border/50 bg-muted/30">
+                      <TabsList className="grid w-full grid-cols-5 bg-transparent h-auto p-2">
+                        <TabsTrigger value="overview" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Overview</TabsTrigger>
+                        <TabsTrigger value="documents" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Documents</TabsTrigger>
+                        <TabsTrigger value="communication" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Communication</TabsTrigger>
+                        <TabsTrigger value="assessment" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Assessment</TabsTrigger>
+                        <TabsTrigger value="timeline" className="data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-lg transition-all">Timeline</TabsTrigger>
+                      </TabsList>
+                    </div>
+
+                    <div className="p-6">
+                      <TabsContent value="overview" className="space-y-6 m-0">
+                        <ComprehensiveApplicantOverview applicant={applicant} />
+                      </TabsContent>
+
+                      <TabsContent value="documents" className="m-0">
+                        <DocumentManager
+                          applicant={applicant}
+                          onDocumentAction={handleDocumentAction}
+                          onApproveAll={handleApproveAllDocs}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="communication" className="m-0">
+                        <CommunicationCenter
+                          applicantId={applicant.id}
+                          applicantName={applicantName}
+                          applicantEmail={applicant.master_records?.email || ''}
+                          onSendMessage={handleSendMessage}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="assessment" className="m-0">
+                        <AssessmentPanel
+                          applicant={applicant}
+                          onScoreUpdate={handleScoreUpdate}
+                          onNotesUpdate={handleAssessmentNotesUpdate}
+                        />
+                      </TabsContent>
+
+                      <TabsContent value="timeline" className="m-0">
+                        <ApplicationTimeline
+                          applicant={applicant}
+                          onStageUpdate={handleStageUpdate}
+                        />
+                      </TabsContent>
+                    </div>
+                  </Tabs>
+                </div>
+              </div>
+
+              {/* Collaboration Sidebar - 1 column */}
+              <div className="xl:col-span-1">
+                <div className="animate-fade-in">
+                  <CollaborationSidebar
+                    applicantId={applicant.id}
+                    onAssign={handleAssign}
+                    onComment={handleComment}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </ModernAdminLayout>
   );

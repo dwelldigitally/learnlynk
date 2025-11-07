@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Phone, Mail, CheckCircle, Target, Calendar, Clock, Wifi, WifiOff, Users, AlertCircle } from 'lucide-react';
+import { Phone, Mail, CheckCircle, Target, Calendar, Clock, Wifi, WifiOff, Users, AlertCircle, PhoneCall } from 'lucide-react';
 
 export function DailyHeader() {
   const { user } = useAuth();
@@ -99,6 +99,11 @@ export function DailyHeader() {
     return lastSync.toLocaleDateString();
   }, [lastSync]);
 
+  const handleAircallLaunch = () => {
+    // Open Aircall CTI in a new window/tab
+    window.open('https://phone.aircall.io/', '_blank', 'width=400,height=600');
+  };
+
   return (
     <div className="relative overflow-hidden">
       {/* Background with subtle modern gradient */}
@@ -140,7 +145,7 @@ export function DailyHeader() {
                 
                 {/* Real-time Info Panel - Desktop */}
                 {!isMobile && (
-                  <div className="flex items-center gap-6 bg-card backdrop-blur-sm rounded-xl px-4 py-3 border border-border">
+                  <div className="flex items-center gap-4 bg-card backdrop-blur-sm rounded-xl px-4 py-3 border border-border">
                     <div className="text-center">
                       <div className="text-2xl font-mono font-bold text-foreground">
                         {formattedTime}
@@ -149,6 +154,19 @@ export function DailyHeader() {
                         {currentTime.toLocaleDateString('en-US', { timeZoneName: 'short' }).split(', ')[1]}
                       </div>
                     </div>
+                    
+                    <div className="w-px h-8 bg-border"></div>
+                    
+                    <Button
+                      onClick={handleAircallLaunch}
+                      variant="default"
+                      size="sm"
+                      className="h-9 gap-2"
+                      title="Launch Aircall CTI"
+                    >
+                      <PhoneCall className="w-4 h-4" />
+                      <span className="hidden xl:inline">Aircall</span>
+                    </Button>
                     
                     <div className="w-px h-8 bg-border"></div>
                     
@@ -248,21 +266,32 @@ export function DailyHeader() {
 
           {/* Mobile Time/Status Panel */}
           {isMobile && (
-            <div className="mt-4 flex items-center justify-between bg-card backdrop-blur-sm rounded-lg px-4 py-3 border border-border">
-              <div className="flex items-center gap-3">
-                <div className="text-lg font-mono font-bold text-foreground">
-                  {formattedTime}
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center justify-between bg-card backdrop-blur-sm rounded-lg px-4 py-3 border border-border">
+                <div className="flex items-center gap-3">
+                  <div className="text-lg font-mono font-bold text-foreground">
+                    {formattedTime}
+                  </div>
+                  <div className="w-px h-4 bg-border"></div>
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "w-2 h-2 rounded-full",
+                      isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
+                    )}></div>
+                    <span className="text-sm text-foreground">{isOnline ? 'Online' : 'Offline'}</span>
+                  </div>
                 </div>
-                <div className="w-px h-4 bg-border"></div>
-                <div className="flex items-center gap-2">
-                  <div className={cn(
-                    "w-2 h-2 rounded-full",
-                    isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
-                  )}></div>
-                  <span className="text-sm text-foreground">{isOnline ? 'Online' : 'Offline'}</span>
-                </div>
+                <Button
+                  onClick={handleAircallLaunch}
+                  variant="default"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  title="Launch Aircall CTI"
+                >
+                  <PhoneCall className="w-4 h-4" />
+                </Button>
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground text-center">
                 Synced {relativeTime}
               </div>
             </div>

@@ -227,26 +227,28 @@ export function UnifiedLeadHeader({
       </div>
 
       {/* Stage Timeline - Compact Horizontal */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant={activeStage === "all" ? "default" : "outline"}
           onClick={() => onStageChange("all")}
           size="sm"
-          className="whitespace-nowrap"
+          className="whitespace-nowrap flex-shrink-0"
         >
-          All <Badge variant="secondary" className="ml-2">{getTotalLeads()}</Badge>
+          All <Badge variant="secondary" className="ml-1.5">{getTotalLeads()}</Badge>
         </Button>
         {stages.map((stage, index) => (
-          <div key={stage.key} className="flex items-center gap-2">
-            {index > 0 && <div className="h-px w-8 bg-border" />}
+          <div key={stage.key} className="flex items-center gap-1.5 flex-shrink-0">
+            {index > 0 && <div className="h-px w-4 sm:w-6 bg-border hidden sm:block" />}
             <Button
               variant={activeStage === stage.key ? "default" : "outline"}
               onClick={() => onStageChange(stage.key)}
               size="sm"
-              className="whitespace-nowrap"
+              className="whitespace-nowrap text-xs sm:text-sm"
             >
-              <div className={`w-2 h-2 rounded-full mr-2 ${stage.color}`} />
-              {stage.label} <Badge variant="secondary" className="ml-2">{stage.count}</Badge>
+              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full mr-1.5 ${stage.color}`} />
+              <span className="hidden sm:inline">{stage.label}</span>
+              <span className="sm:hidden">{stage.label.split(' ')[0]}</span>
+              <Badge variant="secondary" className="ml-1.5">{stage.count}</Badge>
             </Button>
           </div>
         ))}

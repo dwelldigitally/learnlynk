@@ -136,9 +136,95 @@ const PRESET_REQUIREMENTS: Record<string, PresetDocumentRequirement[]> = {
     {
       id: 'statement_purpose',
       name: 'Statement of Purpose',
-      description: 'Personal statement explaining your academic goals',
+      description: 'Personal statement explaining your academic goals and career objectives',
       required: true,
       programName: 'Computer Science'
+    },
+    {
+      id: 'recommendation_letter_1',
+      name: 'Letter of Recommendation #1',
+      description: 'Academic or professional reference letter',
+      required: true,
+      programName: 'Computer Science'
+    },
+    {
+      id: 'recommendation_letter_2',
+      name: 'Letter of Recommendation #2',
+      description: 'Second academic or professional reference letter',
+      required: true,
+      programName: 'Computer Science'
+    },
+    {
+      id: 'gre_scores',
+      name: 'GRE Scores',
+      description: 'Graduate Record Examination scores (if applicable)',
+      required: false,
+      programName: 'Computer Science'
+    },
+    {
+      id: 'financial_documents',
+      name: 'Financial Support Documents',
+      description: 'Bank statements or sponsorship letters showing financial capability',
+      required: true,
+      programName: 'Computer Science'
+    },
+    {
+      id: 'birth_certificate',
+      name: 'Birth Certificate',
+      description: 'Copy of birth certificate',
+      required: false,
+      programName: 'Computer Science'
+    },
+    {
+      id: 'photos',
+      name: 'Passport Photos',
+      description: 'Recent passport-sized photographs (2x2 inches)',
+      required: true,
+      programName: 'Computer Science'
+    },
+    {
+      id: 'previous_visa',
+      name: 'Previous Visa Documents',
+      description: 'Copies of any previous visas or study permits (if applicable)',
+      required: false,
+      programName: 'Computer Science'
+    }
+  ],
+  'General': [
+    {
+      id: 'passport',
+      name: 'Passport',
+      description: 'Valid passport copy (all pages)',
+      required: true,
+      programName: 'General'
+    },
+    {
+      id: 'transcript',
+      name: 'Academic Transcripts',
+      description: 'Official transcripts from previous institutions',
+      required: true,
+      programName: 'General'
+    },
+    {
+      id: 'english_test',
+      name: 'English Proficiency Test',
+      description: 'IELTS, TOEFL, or equivalent test results',
+      required: true,
+      programName: 'General'
+    },
+    {
+      id: 'statement_purpose',
+      name: 'Statement of Purpose',
+      description: 'Personal statement outlining your goals',
+      required: true,
+      programName: 'General'
+    },
+    {
+      id: 'cv_resume',
+      name: 'CV/Resume',
+      description: 'Current curriculum vitae or resume',
+      required: false,
+      programName: 'General'
     }
   ]
 };

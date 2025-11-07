@@ -3,15 +3,52 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useLeadDocuments } from '@/hooks/useLeadData';
-import { FileText, Upload, CheckCircle, XCircle, AlertTriangle, Eye, Download } from 'lucide-react';
+import { FileText, Upload, CheckCircle, XCircle, AlertTriangle, Eye, Download, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
+import { documentService } from '@/services/documentService';
+import { useToast } from '@/hooks/use-toast';
 
 interface RealDataDocumentsProps {
   leadId: string;
 }
 
 export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
-  const { documents, loading, error } = useLeadDocuments(leadId);
+  const { documents, loading, error, refetch } = useLeadDocuments(leadId);
+  const { toast } = useToast();
+
+  const handleApprove = async (documentId: string) => {
+    try {
+      await documentService.updateDocumentStatus(documentId, 'approved');
+      toast({
+        title: "Document Approved",
+        description: "The document has been approved successfully.",
+      });
+      refetch();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to approve document",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReject = async (documentId: string) => {
+    try {
+      await documentService.updateDocumentStatus(documentId, 'rejected');
+      toast({
+        title: "Document Rejected",
+        description: "The document has been rejected.",
+      });
+      refetch();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to reject document",
+        variant: "destructive",
+      });
+    }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -171,6 +208,26 @@ export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
                           Download
                         </Button>
                       </>
+                    )}
+                    {doc.status !== 'approved' && (
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        onClick={() => handleApprove(doc.id)}
+                      >
+                        <Check className="h-3 w-3 mr-1" />
+                        Approve
+                      </Button>
+                    )}
+                    {doc.status !== 'rejected' && (
+                      <Button 
+                        variant="destructive" 
+                        size="sm"
+                        onClick={() => handleReject(doc.id)}
+                      >
+                        <X className="h-3 w-3 mr-1" />
+                        Reject
+                      </Button>
                     )}
                     <div className="text-xs text-muted-foreground ml-auto">
                       Updated {format(new Date(doc.updated_at), 'PPP')}

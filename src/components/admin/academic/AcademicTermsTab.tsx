@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, Clock, BookOpen } from 'lucide-react';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
 import { CreateTermDialog } from './CreateTermDialog';
 import { format } from 'date-fns';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { InfoBadge } from '@/components/modern/InfoBadge';
+import { MetadataItem } from '@/components/modern/MetadataItem';
 
 export function AcademicTermsTab() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -28,89 +31,103 @@ export function AcademicTermsTab() {
 
   if (isLoading) {
     return (
-      <Card className="p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-        </div>
-      </Card>
+      <div className="text-center py-12">
+        <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <p className="mt-4 text-muted-foreground">Loading academic terms...</p>
+      </div>
     );
   }
 
   return (
     <>
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-semibold">Academic Terms</h2>
-            <p className="text-muted-foreground">
-              Manage semester and quarter schedules
-            </p>
+      <div className="flex justify-end mb-6">
+        <Button onClick={() => setShowCreateDialog(true)} size="lg">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Term
+        </Button>
+      </div>
+
+      {terms?.length === 0 ? (
+        <div className="text-center py-16 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
+            <Calendar className="h-8 w-8 text-primary" />
           </div>
-          <Button onClick={() => setShowCreateDialog(true)}>
+          <h3 className="text-lg font-semibold mb-2">No Academic Terms</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            No academic terms configured yet. Create your first term to get started.
+          </p>
+          <Button onClick={() => setShowCreateDialog(true)} size="lg">
             <Plus className="w-4 h-4 mr-2" />
-            Add Term
+            Create Your First Term
           </Button>
         </div>
-
-        <div className="space-y-4">
-          {terms?.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">No academic terms configured yet</p>
-              <Button onClick={() => setShowCreateDialog(true)} variant="outline">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Your First Term
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {terms?.map((term) => (
-                <Card key={term.id} className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-semibold">{term.name}</h3>
-                        <Badge variant="secondary" className={getStatusColor(term.status)}>
-                          {term.status}
-                        </Badge>
-                        {term.is_current && (
-                          <Badge variant="default">Current</Badge>
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground space-y-1">
-                        <p><span className="font-medium">Academic Year:</span> {term.academic_year}</p>
-                        <p><span className="font-medium">Type:</span> {term.term_type}</p>
-                        <p>
-                          <span className="font-medium">Duration:</span>{' '}
-                          {format(new Date(term.start_date), 'MMM d, yyyy')} -{' '}
-                          {format(new Date(term.end_date), 'MMM d, yyyy')}
-                        </p>
-                        {term.registration_start_date && term.registration_end_date && (
-                          <p>
-                            <span className="font-medium">Registration:</span>{' '}
-                            {format(new Date(term.registration_start_date), 'MMM d')} -{' '}
-                            {format(new Date(term.registration_end_date), 'MMM d, yyyy')}
-                          </p>
-                        )}
-                      </div>
-                      {term.description && (
-                        <p className="text-sm text-muted-foreground mt-2">{term.description}</p>
-                      )}
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {terms?.map((term) => (
+            <ModernCard key={term.id}>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start gap-3 flex-1">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                      <BookOpen className="h-5 w-5 text-primary" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-destructive">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base text-foreground mb-2">
+                        {term.name}
+                      </h3>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        <InfoBadge variant={
+                          term.status === 'active' ? 'success' :
+                          term.status === 'draft' ? 'warning' :
+                          term.status === 'completed' ? 'default' : 'destructive'
+                        }>
+                          {term.status.toUpperCase()}
+                        </InfoBadge>
+                        <InfoBadge variant="default">
+                          {term.term_type.toUpperCase()}
+                        </InfoBadge>
+                        {term.is_current && (
+                          <InfoBadge variant="success">CURRENT</InfoBadge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </Card>
-              ))}
-            </div>
-          )}
+                </div>
+
+                <div className="space-y-2 pt-4 border-t border-border">
+                  <MetadataItem label="Academic Year" value={term.academic_year} />
+                  <MetadataItem 
+                    label="Duration" 
+                    value={`${format(new Date(term.start_date), 'MMM d, yyyy')} - ${format(new Date(term.end_date), 'MMM d, yyyy')}`} 
+                  />
+                  {term.registration_start_date && term.registration_end_date && (
+                    <MetadataItem 
+                      label="Registration" 
+                      value={`${format(new Date(term.registration_start_date), 'MMM d')} - ${format(new Date(term.registration_end_date), 'MMM d, yyyy')}`} 
+                    />
+                  )}
+                  {term.description && (
+                    <p className="text-sm text-muted-foreground pt-2">
+                      {term.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-1 pt-4 border-t border-border mt-4">
+                  <Button variant="ghost" size="sm">
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </CardContent>
+            </ModernCard>
+          ))}
         </div>
-      </Card>
+      )}
 
       <CreateTermDialog
         open={showCreateDialog}

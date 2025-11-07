@@ -3,21 +3,36 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { AIEmailInbox } from '@/components/admin/communication/AIEmailInbox';
+import { PageHeader } from '@/components/modern/PageHeader';
+
 const AIEmailManagementPage: React.FC = () => {
   const navigate = useNavigate();
-  return <div className="space-y-4 px-6 my-[50px] mx-[20px]">
-      {/* Compact Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="outline" size="sm" onClick={() => navigate('/admin/communication')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">AI Email Management</h1>
+  
+  return (
+    <div className="min-h-screen bg-muted/30">
+      <div className="container mx-auto px-6 py-8">
+        {/* Modern Header */}
+        <div className="mb-6">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/admin/communication')}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Communication
+          </Button>
+          
+          <PageHeader
+            title="AI Email Management"
+            subtitle="Intelligent email inbox with AI-powered insights, lead matching, and automated response suggestions"
+          />
         </div>
-      </div>
 
-      <AIEmailInbox />
-    </div>;
+        <AIEmailInbox />
+      </div>
+    </div>
+  );
 };
+
 export default AIEmailManagementPage;

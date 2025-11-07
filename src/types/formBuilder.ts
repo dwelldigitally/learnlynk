@@ -14,7 +14,8 @@ export type FormFieldType =
   | 'file'
   | 'url'
   | 'color'
-  | 'consent';
+  | 'consent'
+  | 'program-list';
 
 export interface FormFieldOption {
   label: string;

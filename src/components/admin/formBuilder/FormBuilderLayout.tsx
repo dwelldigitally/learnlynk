@@ -60,6 +60,7 @@ const fieldTypes = [
   { type: 'file' as FormFieldType, label: 'File Upload', icon: Upload, color: 'bg-rose-500' },
   { type: 'url' as FormFieldType, label: 'URL', icon: Link, color: 'bg-amber-500' },
   { type: 'color' as FormFieldType, label: 'Color Picker', icon: Palette, color: 'bg-fuchsia-500' },
+  { type: 'program-list' as FormFieldType, label: 'Program List', icon: List, color: 'bg-lime-500' },
 ];
 
 export function FormBuilderLayout({
@@ -189,7 +190,7 @@ export function FormBuilderLayout({
               />
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-96">
+              <ScrollArea className="h-[500px]">
                 <Droppable droppableId="field-palette">
                   {(provided) => (
                     <div

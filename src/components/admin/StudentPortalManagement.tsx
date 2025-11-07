@@ -1033,6 +1033,26 @@ export const StudentPortalManagement = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="branding">
+          <BrandingCustomization />
+        </TabsContent>
+
+        <TabsContent value="navigation">
+          <NavigationBuilder />
+        </TabsContent>
+
+        <TabsContent value="roles">
+          <RoleManagement />
+        </TabsContent>
+
+        <TabsContent value="templates">
+          <CommunicationTemplates />
+        </TabsContent>
+
+        <TabsContent value="media">
+          <ContentManagement />
+        </TabsContent>
       </Tabs>
 
       {/* Content Create/Edit Dialog */}
@@ -1140,27 +1160,6 @@ export const StudentPortalManagement = () => {
           setShowPreviewDialog(open);
         }} 
       />
-
-      {/* New Admin Tabs */}
-      <TabsContent value="branding">
-        <BrandingCustomization />
-      </TabsContent>
-
-      <TabsContent value="navigation">
-        <NavigationBuilder />
-      </TabsContent>
-
-      <TabsContent value="roles">
-        <RoleManagement />
-      </TabsContent>
-
-      <TabsContent value="templates">
-        <CommunicationTemplates />
-      </TabsContent>
-
-      <TabsContent value="media">
-        <ContentManagement />
-      </TabsContent>
     </div>
   );
 };

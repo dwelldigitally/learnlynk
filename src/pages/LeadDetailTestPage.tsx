@@ -775,36 +775,7 @@ export default function LeadDetailTestPage() {
         <div className="w-80 border-l bg-card">
           <ComprehensiveTimeline leadId={leadId || ''} filter={timelineFilter} onFilterChange={setTimelineFilter} />
           
-          <div className="p-4 space-y-4">
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Phone className="h-4 w-4 mr-2" />
-                Schedule Call
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Mail className="h-4 w-4 mr-2" />
-                Send Email
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Calendar className="h-4 w-4 mr-2" />
-                Book Meeting
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start">
-                <Flag className="h-4 w-4 mr-2" />
-                Flag for Review
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Sticky Action Card */}
           
-          </div>
         </div>
       </div>
       </div>

@@ -567,17 +567,17 @@ export function LeadManagement() {
       {/* Main Content - Table with Modern Styling */}
       <div className="flex-1 overflow-hidden">
         <div className="h-full p-6">
-          <ModernCard className="h-full flex flex-col">
-            <ConditionalDataWrapper
-              isLoading={loading}
-              showEmptyState={!hasDemoAccess && leads.length === 0}
-              hasDemoAccess={hasDemoAccess || false}
-              hasRealData={leads.length > 0 && !leads.some((lead) => lead.id.startsWith('demo-'))}
-              emptyTitle="No Leads Yet"
-              emptyDescription="Create your first lead to get started with lead management."
-              loadingRows={5}
-            >
-              <div className="flex-1 overflow-hidden">
+          <ConditionalDataWrapper
+            isLoading={loading}
+            showEmptyState={!hasDemoAccess && leads.length === 0}
+            hasDemoAccess={hasDemoAccess || false}
+            hasRealData={leads.length > 0 && !leads.some((lead) => lead.id.startsWith('demo-'))}
+            emptyTitle="No Leads Yet"
+            emptyDescription="Create your first lead to get started with lead management."
+            loadingRows={5}
+          >
+            <ModernCard className="h-full flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-auto">
                 <SmartLeadTable
                   leads={leads}
                   loading={loading}
@@ -607,8 +607,8 @@ export function LeadManagement() {
                   columns={tableColumns}
                 />
               </div>
-            </ConditionalDataWrapper>
-          </ModernCard>
+            </ModernCard>
+          </ConditionalDataWrapper>
         </div>
       </div>
     {/* Modals */}

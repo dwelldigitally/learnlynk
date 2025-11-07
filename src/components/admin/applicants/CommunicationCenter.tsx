@@ -447,17 +447,66 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
 
           <Separator className="my-6" />
 
-          {/* COMPOSE NEW MESSAGE */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Send New Message</h3>
+          {/* WHATSAPP-STYLE COMPOSE */}
+          <div className="space-y-3">
+            {/* Expandable options (Type, Template, Subject) */}
+            {(messageType === 'email' || selectedTemplateId) && (
+              <div className="flex flex-wrap gap-2 px-3">
+                <Badge variant="outline" className="gap-1">
+                  {getMessageIcon(messageType)}
+                  <span className="capitalize">{messageType}</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                    onClick={() => setMessageType('email')}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </Badge>
+                
+                {selectedTemplateId && templates.find(t => t.id === selectedTemplateId) && (
+                  <Badge variant="outline" className="gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    {templates.find(t => t.id === selectedTemplateId)?.name}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-4 w-4 p-0 ml-1 hover:bg-transparent"
+                      onClick={() => {
+                        setSelectedTemplateId('');
+                        setContent('');
+                        setSubject('');
+                      }}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                )}
+              </div>
+            )}
+            
+            {/* Subject line for email */}
+            {messageType === 'email' && (
+              <div className="px-3">
+                <Input
+                  placeholder="Subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="border-0 border-b rounded-none px-0 focus-visible:ring-0 focus-visible:border-primary"
+                />
+              </div>
+            )}
 
-            <div className="grid grid-cols-2 gap-4">
-              {/* Message Type */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Type</label>
+            {/* Message input area */}
+            <div className="flex items-end gap-2 bg-muted/30 rounded-2xl p-2 border border-border/50">
+              {/* Left actions - Type selector */}
+              <div className="flex items-center gap-1">
                 <Select value={messageType} onValueChange={(val) => setMessageType(val as CommunicationType)}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="h-9 w-9 p-0 border-0 bg-transparent hover:bg-accent">
+                    <div className="flex items-center justify-center">
+                      {getMessageIcon(messageType)}
+                    </div>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="email">
@@ -475,93 +524,75 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
                     <SelectItem value="note">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4" />
-                        Internal Note
+                        Note
                       </div>
                     </SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
 
-              {/* Template Selector */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Template (Optional)</label>
+                {/* Template selector */}
                 <Select 
                   value={selectedTemplateId} 
                   onValueChange={handleTemplateSelect}
                   disabled={loadingTemplates}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder={loadingTemplates ? "Loading..." : "Choose template"} />
+                  <SelectTrigger className="h-9 w-9 p-0 border-0 bg-transparent hover:bg-accent">
+                    <div className="flex items-center justify-center">
+                      <Sparkles className="h-4 w-4" />
+                    </div>
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">
+                      <span className="text-muted-foreground">No template</span>
+                    </SelectItem>
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         <div className="flex items-center gap-2">
                           {template.ai_generated && <Sparkles className="h-3 w-3 text-purple-500" />}
-                          <span className="truncate">{template.name}</span>
+                          <span>{template.name}</span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            {/* Subject (Email only) */}
-            {messageType === 'email' && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Subject</label>
-                <Input
-                  placeholder="Email subject"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                />
-              </div>
-            )}
-
-            {/* Message Content */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Message</label>
+              {/* Message input */}
               <Textarea
-                placeholder={
-                  messageType === 'email' 
-                    ? 'Compose your email...'
-                    : messageType === 'sms'
-                    ? 'Compose SMS (160 chars max)...'
-                    : 'Add internal note...'
-                }
+                placeholder={`Message ${applicantName}...`}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                rows={6}
+                className="min-h-[40px] max-h-[200px] resize-none border-0 bg-transparent focus-visible:ring-0 shadow-none px-2 py-2"
+                rows={1}
                 maxLength={messageType === 'sms' ? 160 : undefined}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (content.trim() && (messageType !== 'email' || subject)) {
+                      handleSend();
+                    }
+                  }
+                }}
               />
-              {messageType === 'sms' && (
-                <p className="text-xs text-muted-foreground">
-                  {content.length}/160 characters
-                </p>
-              )}
-            </div>
 
-            {/* Send Button */}
-            <div className="flex items-center justify-between pt-2">
-              <p className="text-sm text-muted-foreground">
-                To: {applicantName} ({applicantEmail})
-              </p>
+              {/* Character count for SMS */}
+              {messageType === 'sms' && content && (
+                <span className="text-xs text-muted-foreground self-center px-2">
+                  {content.length}/160
+                </span>
+              )}
+
+              {/* Send button */}
               <Button 
-                onClick={handleSend} 
-                disabled={sending || !content || (messageType === 'email' && !subject)}
-                size="lg"
+                onClick={handleSend}
+                disabled={sending || !content.trim() || (messageType === 'email' && !subject)}
+                size="sm"
+                className="h-9 w-9 p-0 rounded-full shrink-0"
               >
                 {sending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Sending...
-                  </>
+                  <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <>
-                    <Send className="h-4 w-4 mr-2" />
-                    Send {messageType === 'email' ? 'Email' : messageType === 'sms' ? 'SMS' : 'Note'}
-                  </>
+                  <Send className="h-4 w-4" />
                 )}
               </Button>
             </div>

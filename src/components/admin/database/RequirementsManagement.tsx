@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -22,11 +22,16 @@ import {
   Calendar,
   AlertCircle,
   Copy,
-  Filter
+  Filter,
+  CheckCircle
 } from 'lucide-react';
 import { EntryRequirementsService, EntryRequirementFormData as ServiceFormData } from '@/services/entryRequirementsService';
 import { useToast } from '@/hooks/use-toast';
 import type { EntryRequirement } from '@/types/program';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { InfoBadge } from '@/components/modern/InfoBadge';
+import { MetadataItem } from '@/components/modern/MetadataItem';
 
 const REQUIREMENT_TYPES = [
   { value: 'academic', label: 'Academic', icon: GraduationCap, color: 'text-blue-600' },
@@ -395,23 +400,21 @@ export const RequirementsManagement = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-xl font-semibold">Entry Requirements Management</h3>
-          <p className="text-muted-foreground">
-            Manage standard entry requirements that can be reused across programs
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="Entry Requirements Management"
+        subtitle="Manage standard entry requirements that can be reused across programs"
+      />
+
+      <div className="mb-6 flex justify-end">
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingRequirement(null)}>
+            <Button size="lg" onClick={() => setEditingRequirement(null)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Requirement
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingRequirement ? 'Edit Requirement' : 'Create New Requirement'}
@@ -433,8 +436,8 @@ export const RequirementsManagement = () => {
       </div>
 
       {/* Search and Filters */}
-      <Card>
-        <CardContent className="pt-6">
+      <ModernCard className="mb-6">
+        <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <div className="flex gap-2">
@@ -482,31 +485,45 @@ export const RequirementsManagement = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </ModernCard>
 
       {/* Requirements List */}
       {isLoading ? (
-        <div className="text-center py-8">Loading requirements...</div>
+        <div className="text-center py-12">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-4 text-muted-foreground">Loading requirements...</p>
+        </div>
       ) : filteredRequirements.length > 0 ? (
         <div className="grid gap-4">
           {filteredRequirements.map((requirement) => {
             const typeConfig = getTypeConfig(requirement.type);
             return (
-              <Card key={requirement.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <typeConfig.icon className={`h-5 w-5 ${typeConfig.color}`} />
-                      <div>
-                        <CardTitle className="text-base">{requirement.title}</CardTitle>
-                        <CardDescription>{requirement.description}</CardDescription>
+              <ModernCard key={requirement.id}>
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between gap-4 mb-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
+                        <typeConfig.icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base text-foreground mb-1">
+                          {requirement.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {requirement.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          <InfoBadge variant={requirement.mandatory ? 'destructive' : 'secondary'}>
+                            {requirement.mandatory ? 'REQUIRED' : 'OPTIONAL'}
+                          </InfoBadge>
+                          <InfoBadge variant="default">
+                            {typeConfig.label.toUpperCase()}
+                          </InfoBadge>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={requirement.mandatory ? 'destructive' : 'secondary'}>
-                        {requirement.mandatory ? 'Required' : 'Optional'}
-                      </Badge>
-                      <Badge variant="outline">{typeConfig.label}</Badge>
+                    
+                    <div className="flex items-center gap-1 flex-shrink-0">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -538,62 +555,64 @@ export const RequirementsManagement = () => {
                       <Button
                         variant="ghost"
                         size="sm"
+                        className="text-destructive hover:text-destructive"
                         onClick={() => handleDeleteRequirement(requirement.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                </CardHeader>
-                {(requirement.details || requirement.minimumGrade || requirement.alternatives?.length) && (
-                  <CardContent className="pt-0">
-                    {requirement.minimumGrade && (
-                      <p className="text-sm text-muted-foreground">
-                        <strong>Minimum Grade:</strong> {requirement.minimumGrade}
-                      </p>
-                    )}
-                    {requirement.details && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        <strong>Details:</strong> {requirement.details}
-                      </p>
-                    )}
-                    {requirement.alternatives && requirement.alternatives.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-sm font-medium text-muted-foreground mb-1">
-                          Alternatives:
+
+                  {(requirement.details || requirement.minimumGrade || requirement.alternatives?.length) && (
+                    <div className="space-y-2 pt-4 border-t border-border">
+                      {requirement.minimumGrade && (
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Minimum Grade:</strong> {requirement.minimumGrade}
                         </p>
-                        <div className="flex flex-wrap gap-1">
-                          {requirement.alternatives.map((alt, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
-                              {alt}
-                            </Badge>
-                          ))}
+                      )}
+                      {requirement.details && (
+                        <p className="text-sm text-muted-foreground">
+                          <strong>Details:</strong> {requirement.details}
+                        </p>
+                      )}
+                      {requirement.alternatives && requirement.alternatives.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-muted-foreground mb-2">
+                            Alternatives:
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {requirement.alternatives.map((alt, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                {alt}
+                              </Badge>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </CardContent>
-                )}
-              </Card>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </ModernCard>
             );
           })}
         </div>
       ) : (
-        <Card className="border-dashed">
-          <CardContent className="p-8 text-center">
-            <GraduationCap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No Requirements Found</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchTerm || filterType !== 'all' || filterMandatory !== 'all'
-                ? 'No requirements match your current filters. Try adjusting your search criteria.'
-                : 'Create your first entry requirement to get started.'
-              }
-            </p>
-            <Button onClick={() => setShowDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add First Requirement
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="text-center py-16 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-light mb-4">
+            <GraduationCap className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No Requirements Found</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            {searchTerm || filterType !== 'all' || filterMandatory !== 'all'
+              ? 'No requirements match your current filters. Try adjusting your search criteria.'
+              : 'Create your first entry requirement to get started.'
+            }
+          </p>
+          <Button size="lg" onClick={() => setShowDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add First Requirement
+          </Button>
+        </div>
       )}
     </div>
   );

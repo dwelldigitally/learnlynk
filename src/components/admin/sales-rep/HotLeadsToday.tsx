@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Flame, Phone, Mail, Eye, TrendingUp, Activity, MousePointer, Clock, Zap, CheckCircle2, Timer } from 'lucide-react';
+import { Flame, Phone, Mail, Eye, TrendingUp, Activity, MousePointer, Clock, Zap, CheckCircle2, Timer, Sparkles } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { toast } from 'sonner';
@@ -313,25 +313,33 @@ export function HotLeadsToday() {
               return (
                 <div
                   key={lead.id}
-                  className="group relative p-4 rounded-xl bg-gradient-to-r from-white to-orange-50/30 border border-orange-200/60 hover:border-orange-300 hover:shadow-lg transition-all duration-200 cursor-pointer overflow-hidden"
+                  className="group relative p-5 rounded-lg border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer"
                   onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
                 >
                   {/* Heat indicator stripe */}
-                  <div className={cn("absolute left-0 top-0 w-1 h-full", heatLevel.bgColor)}></div>
+                  <div className={cn(
+                    "absolute left-0 top-0 w-1 h-full rounded-l-lg",
+                    lead.activity_score >= 90 ? "bg-destructive" : 
+                    lead.activity_score >= 80 ? "bg-orange-500" : "bg-yellow-500"
+                  )}></div>
                   
                   <div className="flex items-start gap-4">
                     {/* Avatar Section */}
-                    <div className="relative">
-                      <Avatar className="w-12 h-12 ring-2 ring-orange-100 ring-offset-2">
-                        <AvatarFallback className="text-sm bg-gradient-to-br from-orange-100 to-orange-200 text-orange-800 font-semibold">
+                    <div className="relative flex-shrink-0">
+                      <Avatar className="w-12 h-12 border-2 border-border">
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
                           {lead.first_name[0]}{lead.last_name[0]}
                         </AvatarFallback>
                       </Avatar>
                       {/* Heat level indicator */}
-                      <div className="absolute -top-1 -right-1 flex items-center gap-1 bg-white rounded-full px-2 py-0.5 shadow-md border border-orange-200">
-                        <div className={cn("w-2 h-2 rounded-full animate-pulse", heatLevel.bgColor)}></div>
-                        <span className={cn("text-xs font-bold", heatLevel.color)}>
-                          {lead.activity_score}°
+                      <div className="absolute -top-1 -right-1 flex items-center gap-1 bg-background rounded-full px-1.5 py-0.5 shadow-sm border border-border">
+                        <Flame className={cn(
+                          "w-3 h-3",
+                          lead.activity_score >= 90 ? "text-destructive" : 
+                          lead.activity_score >= 80 ? "text-orange-500" : "text-yellow-500"
+                        )} />
+                        <span className="text-xs font-bold text-foreground">
+                          {lead.activity_score}
                         </span>
                       </div>
                     </div>
@@ -339,16 +347,19 @@ export function HotLeadsToday() {
                     {/* Main Content */}
                     <div className="flex-1 min-w-0">
                       {/* Header with name and status */}
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <h3 className="font-semibold text-gray-900 text-base group-hover:text-orange-700 transition-colors">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-semibold text-foreground text-base group-hover:text-primary transition-colors truncate">
                             {lead.first_name} {lead.last_name}
                           </h3>
-                          <p className="text-sm text-gray-600 mt-0.5">{lead.email}</p>
+                          <p className="text-sm text-muted-foreground truncate">{lead.email}</p>
                         </div>
                         <Badge 
                           variant="outline" 
-                          className="bg-orange-50 text-orange-700 border-orange-200 text-xs font-medium px-2 py-1"
+                          className={cn(
+                            "ml-2 flex-shrink-0",
+                            lead.priority === 'urgent' && "bg-destructive/10 text-destructive border-destructive/20"
+                          )}
                         >
                           {lead.priority.toUpperCase()}
                         </Badge>
@@ -357,22 +368,22 @@ export function HotLeadsToday() {
                       {/* Activity indicators */}
                       <div className="flex flex-wrap gap-2 mb-3">
                         {lead.recent_activities.slice(0, 3).map((activity, index) => (
-                          <div key={index} className="flex items-center gap-1.5 text-xs bg-white rounded-lg px-2.5 py-1.5 border border-orange-100 shadow-sm">
-                            <div className="text-orange-600">
+                          <div key={index} className="flex items-center gap-1.5 text-xs bg-muted/50 rounded-md px-2 py-1 border border-border/50">
+                            <div className="text-primary">
                               {getActivityIcon(activity.type)}
                             </div>
-                            <span className="font-medium text-gray-700">{activity.count}</span>
-                            <span className="text-gray-500">{getActivityLabel(activity.type)}</span>
+                            <span className="font-semibold text-foreground">{activity.count}</span>
+                            <span className="text-muted-foreground">{getActivityLabel(activity.type)}</span>
                           </div>
                         ))}
                       </div>
                       
                       {/* Engagement insight */}
-                      <div className="flex items-start gap-2 p-2.5 bg-orange-50/50 rounded-lg border border-orange-100/50">
-                        <TrendingUp className="w-4 h-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <p className="text-xs font-medium text-orange-800">Latest Insight</p>
-                          <p className="text-xs text-orange-700 mt-0.5 leading-relaxed">
+                      <div className="flex items-start gap-2 p-2.5 bg-primary/5 rounded-md border border-primary/10">
+                        <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-medium text-foreground">Latest Insight</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                             {lead.engagement_indicators[0] || 'High engagement detected'}
                           </p>
                         </div>
@@ -380,43 +391,39 @@ export function HotLeadsToday() {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-col gap-2 ml-2">
+                    <div className="flex flex-col gap-2 flex-shrink-0">
                       <Button 
                         size="sm" 
-                        className="h-8 px-3 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-md hover:shadow-lg transition-all group/btn"
+                        variant="default"
+                        className="h-8 px-3 shadow-sm"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Phone className="w-3.5 h-3.5 mr-1.5" />
                         Call
                       </Button>
-                      
                       <Button 
                         size="sm" 
-                        variant="outline" 
-                        className="h-7 px-3 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 hover:border-orange-300 transition-all"
+                        variant="outline"
+                        className="h-8 px-3"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Mail className="w-3 h-3 mr-1.5" />
+                        <Mail className="w-3.5 h-3.5 mr-1.5" />
                         Email
                       </Button>
-                      
                       <Button 
                         size="sm" 
-                        variant="outline" 
-                        className="h-7 px-3 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300 transition-all"
+                        variant="secondary"
+                        className="h-8 px-3"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleAIPlayEnrollment(lead);
                         }}
                       >
-                        <TrendingUp className="w-3 h-3 mr-1.5" />
+                        <Zap className="w-3.5 h-3.5 mr-1.5" />
                         AI Play
                       </Button>
                     </div>
                   </div>
-                  
-                  {/* Hover effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl pointer-events-none"></div>
                 </div>
               );
             })}

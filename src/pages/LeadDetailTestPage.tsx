@@ -9,44 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { LeadTimeline } from '@/components/admin/lead-details/LeadTimeline';
 import { ComprehensiveTimeline } from '@/components/admin/leads/ComprehensiveTimeline';
-import { 
-  ArrowLeft, 
-  MessageSquare, 
-  FileText, 
-  Clock, 
-  Users, 
-  Route, 
-  Bot,
-  Brain,
-  Target,
-  AlertTriangle,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  GraduationCap,
-  Star,
-  Shield,
-  Eye,
-  Edit,
-  Send,
-  Zap,
-  CheckCircle,
-  XCircle,
-  Pause,
-  Play,
-  Flag,
-  Award,
-  Activity,
-  Download,
-  Upload,
-  Plus,
-  PieChart,
-  Filter,
-  User
-} from 'lucide-react';
+import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, Brain, Target, AlertTriangle, TrendingUp, TrendingDown, Calendar, Phone, Mail, MapPin, GraduationCap, Star, Shield, Eye, Edit, Send, Zap, CheckCircle, XCircle, Pause, Play, Flag, Award, Activity, Download, Upload, Plus, PieChart, Filter, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
@@ -70,12 +33,15 @@ import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
-
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
-  const { leadId } = useParams();
-  const { toast } = useToast();
-  
+  const {
+    leadId
+  } = useParams();
+  const {
+    toast
+  } = useToast();
+
   // All useState hooks must be at the top
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
@@ -86,20 +52,26 @@ export default function LeadDetailTestPage() {
   const [timelineFilter, setTimelineFilter] = useState('all');
   const [isEditing, setIsEditing] = useState(false);
   const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
-  
-  // Document and journey data
-  const { documents: presetDocuments, loading: documentsLoading, refetchDocuments } = usePresetDocuments(leadId || '', lead?.program_interest?.[0] || 'General');
-  
-  // Academic journey data
-  const { journey, loading: journeyLoading } = useLeadAcademicJourney(leadId || '');
 
+  // Document and journey data
+  const {
+    documents: presetDocuments,
+    loading: documentsLoading,
+    refetchDocuments
+  } = usePresetDocuments(leadId || '', lead?.program_interest?.[0] || 'General');
+
+  // Academic journey data
+  const {
+    journey,
+    loading: journeyLoading
+  } = useLeadAcademicJourney(leadId || '');
   const loadLead = useCallback(async () => {
     if (!leadId) return;
-    
     try {
       setLoading(true);
-      const { data: leadData } = await LeadService.getLeadById(leadId);
-      
+      const {
+        data: leadData
+      } = await LeadService.getLeadById(leadId);
       if (leadData) {
         setLead(leadData);
       } else {
@@ -121,7 +93,6 @@ export default function LeadDetailTestPage() {
       setLoading(false);
     }
   }, [leadId, toast, navigate]);
-
   useEffect(() => {
     if (leadId) {
       loadLead();
@@ -129,58 +100,163 @@ export default function LeadDetailTestPage() {
   }, [leadId, loadLead]);
 
   // Demo data
-  const demoEngagementTimeline = [
-    { id: 1, type: 'email', action: 'Welcome email sent', timestamp: '2024-01-15 09:00', source: 'AI', status: 'opened', category: 'communication' },
-    { id: 2, type: 'ai_analysis', action: 'AI analyzed student profile - High potential match', timestamp: '2024-01-15 09:05', source: 'AI', status: 'completed', category: 'ai_activity' },
-    { id: 3, type: 'ai_scoring', action: 'Lead score updated: 73 → 85', timestamp: '2024-01-15 09:10', source: 'AI', status: 'completed', category: 'ai_activity' },
-    { id: 4, type: 'sms', action: 'Program info shared', timestamp: '2024-01-16 14:30', source: 'Human', status: 'delivered', category: 'communication' },
-    { id: 5, type: 'ai_recommendation', action: 'AI suggested scholarship info based on profile', timestamp: '2024-01-16 15:00', source: 'AI', status: 'executed', category: 'ai_activity' },
-    { id: 6, type: 'event', action: 'Virtual info session attended', timestamp: '2024-01-17 18:00', source: 'Student', status: 'attended', category: 'engagement' },
-    { id: 7, type: 'ai_automation', action: 'Auto-enrolled in document reminder sequence', timestamp: '2024-01-17 18:15', source: 'AI', status: 'active', category: 'ai_activity' },
-    { id: 8, type: 'application', action: 'Application started', timestamp: '2024-01-18 10:15', source: 'Student', status: 'in_progress', category: 'application' },
-    { id: 9, type: 'ai_insight', action: 'AI detected strong STEM background from transcript', timestamp: '2024-01-18 10:45', source: 'AI', status: 'completed', category: 'ai_activity' },
-    { id: 10, type: 'email', action: 'Follow-up on incomplete application', timestamp: '2024-01-20 11:00', source: 'AI', status: 'sent', category: 'communication' },
-    { id: 11, type: 'ai_prediction', action: 'AI predicted 87% enrollment likelihood', timestamp: '2024-01-20 11:30', source: 'AI', status: 'completed', category: 'ai_activity' },
-    { id: 12, type: 'call', action: 'Outbound call - answered', timestamp: '2024-01-20 14:30', source: 'Human', status: 'completed', category: 'communication' },
-    { id: 13, type: 'ai_optimization', action: 'AI optimized communication timing for student timezone', timestamp: '2024-01-20 15:00', source: 'AI', status: 'applied', category: 'ai_activity' },
-    { id: 14, type: 'note', action: 'Added financial aid discussion notes', timestamp: '2024-01-19 11:15', source: 'Human', status: 'completed', category: 'internal' },
-    { id: 15, type: 'document', action: 'High school transcript uploaded', timestamp: '2024-01-18 10:30', source: 'Student', status: 'approved', category: 'document' },
-    { id: 16, type: 'ai_validation', action: 'AI validated transcript authenticity - Verified', timestamp: '2024-01-18 10:32', source: 'AI', status: 'completed', category: 'ai_activity' }
-  ];
-
-  const demoAIRecommendations = [
-    {
-      id: 1,
-      action: 'Send scholarship deadline reminder',
-      confidence: 87,
-      rationale: 'Student showed high interest in financial aid during info session',
-      timing: 'Next 24 hours',
-      priority: 'high',
-      type: 'email',
-      status: 'pending'
-    },
-    {
-      id: 2,
-      action: 'Schedule one-on-one program consultation',
-      confidence: 72,
-      rationale: 'Similar students benefit from personal interaction at this stage',
-      timing: 'Within 3 days',
-      priority: 'medium',
-      type: 'task',
-      status: 'pending'
-    },
-    {
-      id: 3,
-      action: 'Move to application review stage',
-      confidence: 94,
-      rationale: 'All documents submitted and eligibility criteria met',
-      timing: 'Immediate',
-      priority: 'high',
-      type: 'journey_move',
-      status: 'pending'
-    }
-  ];
-
+  const demoEngagementTimeline = [{
+    id: 1,
+    type: 'email',
+    action: 'Welcome email sent',
+    timestamp: '2024-01-15 09:00',
+    source: 'AI',
+    status: 'opened',
+    category: 'communication'
+  }, {
+    id: 2,
+    type: 'ai_analysis',
+    action: 'AI analyzed student profile - High potential match',
+    timestamp: '2024-01-15 09:05',
+    source: 'AI',
+    status: 'completed',
+    category: 'ai_activity'
+  }, {
+    id: 3,
+    type: 'ai_scoring',
+    action: 'Lead score updated: 73 → 85',
+    timestamp: '2024-01-15 09:10',
+    source: 'AI',
+    status: 'completed',
+    category: 'ai_activity'
+  }, {
+    id: 4,
+    type: 'sms',
+    action: 'Program info shared',
+    timestamp: '2024-01-16 14:30',
+    source: 'Human',
+    status: 'delivered',
+    category: 'communication'
+  }, {
+    id: 5,
+    type: 'ai_recommendation',
+    action: 'AI suggested scholarship info based on profile',
+    timestamp: '2024-01-16 15:00',
+    source: 'AI',
+    status: 'executed',
+    category: 'ai_activity'
+  }, {
+    id: 6,
+    type: 'event',
+    action: 'Virtual info session attended',
+    timestamp: '2024-01-17 18:00',
+    source: 'Student',
+    status: 'attended',
+    category: 'engagement'
+  }, {
+    id: 7,
+    type: 'ai_automation',
+    action: 'Auto-enrolled in document reminder sequence',
+    timestamp: '2024-01-17 18:15',
+    source: 'AI',
+    status: 'active',
+    category: 'ai_activity'
+  }, {
+    id: 8,
+    type: 'application',
+    action: 'Application started',
+    timestamp: '2024-01-18 10:15',
+    source: 'Student',
+    status: 'in_progress',
+    category: 'application'
+  }, {
+    id: 9,
+    type: 'ai_insight',
+    action: 'AI detected strong STEM background from transcript',
+    timestamp: '2024-01-18 10:45',
+    source: 'AI',
+    status: 'completed',
+    category: 'ai_activity'
+  }, {
+    id: 10,
+    type: 'email',
+    action: 'Follow-up on incomplete application',
+    timestamp: '2024-01-20 11:00',
+    source: 'AI',
+    status: 'sent',
+    category: 'communication'
+  }, {
+    id: 11,
+    type: 'ai_prediction',
+    action: 'AI predicted 87% enrollment likelihood',
+    timestamp: '2024-01-20 11:30',
+    source: 'AI',
+    status: 'completed',
+    category: 'ai_activity'
+  }, {
+    id: 12,
+    type: 'call',
+    action: 'Outbound call - answered',
+    timestamp: '2024-01-20 14:30',
+    source: 'Human',
+    status: 'completed',
+    category: 'communication'
+  }, {
+    id: 13,
+    type: 'ai_optimization',
+    action: 'AI optimized communication timing for student timezone',
+    timestamp: '2024-01-20 15:00',
+    source: 'AI',
+    status: 'applied',
+    category: 'ai_activity'
+  }, {
+    id: 14,
+    type: 'note',
+    action: 'Added financial aid discussion notes',
+    timestamp: '2024-01-19 11:15',
+    source: 'Human',
+    status: 'completed',
+    category: 'internal'
+  }, {
+    id: 15,
+    type: 'document',
+    action: 'High school transcript uploaded',
+    timestamp: '2024-01-18 10:30',
+    source: 'Student',
+    status: 'approved',
+    category: 'document'
+  }, {
+    id: 16,
+    type: 'ai_validation',
+    action: 'AI validated transcript authenticity - Verified',
+    timestamp: '2024-01-18 10:32',
+    source: 'AI',
+    status: 'completed',
+    category: 'ai_activity'
+  }];
+  const demoAIRecommendations = [{
+    id: 1,
+    action: 'Send scholarship deadline reminder',
+    confidence: 87,
+    rationale: 'Student showed high interest in financial aid during info session',
+    timing: 'Next 24 hours',
+    priority: 'high',
+    type: 'email',
+    status: 'pending'
+  }, {
+    id: 2,
+    action: 'Schedule one-on-one program consultation',
+    confidence: 72,
+    rationale: 'Similar students benefit from personal interaction at this stage',
+    timing: 'Within 3 days',
+    priority: 'medium',
+    type: 'task',
+    status: 'pending'
+  }, {
+    id: 3,
+    action: 'Move to application review stage',
+    confidence: 94,
+    rationale: 'All documents submitted and eligibility criteria met',
+    timing: 'Immediate',
+    priority: 'high',
+    type: 'journey_move',
+    status: 'pending'
+  }];
   const demoJourneyData = {
     id: 'journey-1',
     name: 'Bachelor of Science Application Journey',
@@ -188,54 +264,101 @@ export default function LeadDetailTestPage() {
     currentStep: 3,
     totalSteps: 7,
     enrolledAt: '2024-01-15T09:00:00Z',
-    stages: [
-      { name: 'Initial Inquiry', completed: true, date: '2024-01-15' },
-      { name: 'Info Session', completed: true, date: '2024-01-17' },
-      { name: 'Document Collection', completed: false, active: true },
-      { name: 'Application Review', completed: false },
-      { name: 'Interview Process', completed: false },
-      { name: 'Admission Decision', completed: false },
-      { name: 'Enrollment', completed: false }
-    ],
+    stages: [{
+      name: 'Initial Inquiry',
+      completed: true,
+      date: '2024-01-15'
+    }, {
+      name: 'Info Session',
+      completed: true,
+      date: '2024-01-17'
+    }, {
+      name: 'Document Collection',
+      completed: false,
+      active: true
+    }, {
+      name: 'Application Review',
+      completed: false
+    }, {
+      name: 'Interview Process',
+      completed: false
+    }, {
+      name: 'Admission Decision',
+      completed: false
+    }, {
+      name: 'Enrollment',
+      completed: false
+    }],
     nextRequiredAction: 'Submit transcripts and personal statement',
     estimatedCompletionDate: '2024-02-15'
   };
-
-  const demoExecutedPlays = [
-    {
-      id: 'play-1',
-      name: 'Welcome Email Sequence',
-      type: 'email_sequence',
+  const demoExecutedPlays = [{
+    id: 'play-1',
+    name: 'Welcome Email Sequence',
+    type: 'email_sequence',
+    status: 'completed',
+    executedAt: '2024-01-15T09:30:00Z',
+    steps: [{
+      name: 'Welcome email',
       status: 'completed',
-      executedAt: '2024-01-15T09:30:00Z',
-      steps: [
-        { name: 'Welcome email', status: 'completed', result: 'opened' },
-        { name: 'Program overview', status: 'completed', result: 'clicked' },
-        { name: 'Next steps guide', status: 'completed', result: 'opened' }
-      ],
-      performance: { open_rate: 85, click_rate: 65, conversion_rate: 23 }
-    },
-    {
-      id: 'play-2',
-      name: 'Document Reminder Campaign',
-      type: 'nurture_sequence',
-      status: 'active',
-      executedAt: '2024-01-20T08:00:00Z',
-      steps: [
-        { name: 'Initial reminder', status: 'completed', result: 'opened' },
-        { name: 'Helpful tips email', status: 'active', result: 'pending' },
-        { name: 'Final deadline warning', status: 'pending', result: 'pending' }
-      ],
-      performance: { open_rate: 92, click_rate: 45, conversion_rate: 0 }
+      result: 'opened'
+    }, {
+      name: 'Program overview',
+      status: 'completed',
+      result: 'clicked'
+    }, {
+      name: 'Next steps guide',
+      status: 'completed',
+      result: 'opened'
+    }],
+    performance: {
+      open_rate: 85,
+      click_rate: 65,
+      conversion_rate: 23
     }
-  ];
-
-  const demoDocuments = [
-    { id: 1, name: 'High School Transcript', status: 'uploaded', uploadDate: '2024-01-18', aiInsight: 'GPA: 3.7, Strong in STEM' },
-    { id: 2, name: 'Personal Statement', status: 'missing', required: true },
-    { id: 3, name: 'Letters of Recommendation', status: 'partial', uploadDate: '2024-01-19', aiInsight: '1 of 2 required letters' }
-  ];
-
+  }, {
+    id: 'play-2',
+    name: 'Document Reminder Campaign',
+    type: 'nurture_sequence',
+    status: 'active',
+    executedAt: '2024-01-20T08:00:00Z',
+    steps: [{
+      name: 'Initial reminder',
+      status: 'completed',
+      result: 'opened'
+    }, {
+      name: 'Helpful tips email',
+      status: 'active',
+      result: 'pending'
+    }, {
+      name: 'Final deadline warning',
+      status: 'pending',
+      result: 'pending'
+    }],
+    performance: {
+      open_rate: 92,
+      click_rate: 45,
+      conversion_rate: 0
+    }
+  }];
+  const demoDocuments = [{
+    id: 1,
+    name: 'High School Transcript',
+    status: 'uploaded',
+    uploadDate: '2024-01-18',
+    aiInsight: 'GPA: 3.7, Strong in STEM'
+  }, {
+    id: 2,
+    name: 'Personal Statement',
+    status: 'missing',
+    required: true
+  }, {
+    id: 3,
+    name: 'Letters of Recommendation',
+    status: 'partial',
+    uploadDate: '2024-01-19',
+    aiInsight: '1 of 2 required letters'
+  }];
   const demoScores = {
     yieldLikelihood: 73,
     yieldTrend: 'up',
@@ -296,31 +419,23 @@ export default function LeadDetailTestPage() {
         return <Activity className="h-3 w-3 text-muted-foreground" />;
     }
   };
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
+    return <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="text-muted-foreground">Loading lead details...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!lead) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
+    return <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <h2 className="text-xl font-semibold">Lead not found</h2>
           <Button onClick={() => navigate('/admin/leads')}>Back to Leads</Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <ModernAdminLayout>
+  return <ModernAdminLayout>
       <div className="min-h-screen bg-background">
         {/* Student Snapshot Header */}
         <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 px-8 py-6">
@@ -330,22 +445,13 @@ export default function LeadDetailTestPage() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Leads
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setShowDemoData(!showDemoData)}
-              className={showDemoData ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200" : "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"}
-            >
+            <Button variant="outline" size="sm" onClick={() => setShowDemoData(!showDemoData)} className={showDemoData ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200" : "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"}>
               {showDemoData ? '📊 Clear Demo Data' : '🎯 Fill Demo Data'}
             </Button>
           </div>
           
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setIsEditing(true)}
-            >
+            <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Lead
             </Button>
@@ -358,22 +464,16 @@ export default function LeadDetailTestPage() {
         </div>
 
         {/* Edit Form Modal */}
-        {isEditing && (
-          <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 overflow-y-auto">
+        {isEditing && <div className="fixed inset-0 bg-black/50 z-50 flex items-start justify-center p-4 overflow-y-auto">
             <div className="bg-background rounded-lg shadow-xl w-full max-w-4xl my-8">
               <div className="p-6">
-                <LeadEditForm
-                  lead={lead}
-                  onSave={(updatedLead) => {
-                    setLead(updatedLead);
-                    setIsEditing(false);
-                  }}
-                  onCancel={() => setIsEditing(false)}
-                />
+                <LeadEditForm lead={lead} onSave={updatedLead => {
+                setLead(updatedLead);
+                setIsEditing(false);
+              }} onCancel={() => setIsEditing(false)} />
               </div>
             </div>
-          </div>
-        )}
+          </div>}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Student Info */}
@@ -393,7 +493,7 @@ export default function LeadDetailTestPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                    <span>{(lead.program_interest && lead.program_interest[0]) || 'General Interest'}</span>
+                    <span>{lead.program_interest && lead.program_interest[0] || 'General Interest'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -401,11 +501,7 @@ export default function LeadDetailTestPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <Button 
-                      variant="link" 
-                      className="p-0 h-auto text-sm font-normal underline hover:no-underline"
-                      onClick={() => setAdvisorMatchOpen(true)}
-                    >
+                    <Button variant="link" className="p-0 h-auto text-sm font-normal underline hover:no-underline" onClick={() => setAdvisorMatchOpen(true)}>
                       Sarah Johnson
                     </Button>
                   </div>
@@ -420,115 +516,65 @@ export default function LeadDetailTestPage() {
                    <div className="flex items-center justify-between mb-2">
                      <span className="text-sm font-medium">Application Progress</span>
                      <span className="text-sm text-muted-foreground">
-                       {journey && journey.stages ? 
-                         `${Math.round((journey.stages.filter(s => s.completed).length / journey.stages.length) * 100)}% Complete` : 
-                         (showDemoData ? `${Math.round(((currentStageIndex + 1) / 5) * 100)}% Complete` : 'Not Started')
-                       }
+                       {journey && journey.stages ? `${Math.round(journey.stages.filter(s => s.completed).length / journey.stages.length * 100)}% Complete` : showDemoData ? `${Math.round((currentStageIndex + 1) / 5 * 100)}% Complete` : 'Not Started'}
                      </span>
                    </div>
                    <div className="flex items-center gap-1">
                      <div className="flex-1 grid grid-cols-5 gap-1">
-                       {journey && journey.stages ? (
-                         // Show first 5 stages from academic journey
-                         journey.stages.slice(0, 5).map((stage, index) => (
-                           <button
-                             key={index}
-                             onClick={() => {
-                               // Handle stage click for real journey data
-                               toast({
-                                 title: 'Stage Updated',
-                                 description: `Moved to ${stage.stage_name}`,
-                               });
-                             }}
-                             className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${
-                               stage.completed 
-                                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' 
-                                 : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
-                             }`}
-                           />
-                         ))
-                       ) : showDemoData ? (
-                         <>
-                           {Array.from({ length: 5 }, (_, index) => (
-                             <button
-                               key={index}
-                               onClick={() => {
-                                 setCurrentStageIndex(index);
-                                 const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
-                                 toast({
-                                   title: 'Stage Updated',
-                                   description: `Moved to ${stageNames[index]} stage`,
-                                 });
-                               }}
-                               className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
-                                 index <= currentStageIndex 
-                                   ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' 
-                                   : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
-                               }`}
-                               title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][index]}`}
-                             />
-                           ))}
-                         </>
-                       ) : (
-                         Array.from({ length: 5 }, (_, i) => (
-                           <button
-                             key={i}
-                             onClick={() => {
-                               setCurrentStageIndex(i);
-                               const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
-                               toast({
-                                 title: 'Stage Updated',
-                                 description: `Moved to ${stageNames[i]} stage`,
-                               });
-                             }}
-                             className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
-                               i <= currentStageIndex
-                                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600'
-                                 : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
-                             }`}
-                             title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][i]}`}
-                           />
-                         ))
-                        )}
+                       {journey && journey.stages ?
+                      // Show first 5 stages from academic journey
+                      journey.stages.slice(0, 5).map((stage, index) => <button key={index} onClick={() => {
+                        // Handle stage click for real journey data
+                        toast({
+                          title: 'Stage Updated',
+                          description: `Moved to ${stage.stage_name}`
+                        });
+                      }} className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${stage.completed ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'}`} />) : showDemoData ? <>
+                           {Array.from({
+                          length: 5
+                        }, (_, index) => <button key={index} onClick={() => {
+                          setCurrentStageIndex(index);
+                          const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
+                          toast({
+                            title: 'Stage Updated',
+                            description: `Moved to ${stageNames[index]} stage`
+                          });
+                        }} className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${index <= currentStageIndex ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'}`} title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][index]}`} />)}
+                         </> : Array.from({
+                        length: 5
+                      }, (_, i) => <button key={i} onClick={() => {
+                        setCurrentStageIndex(i);
+                        const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
+                        toast({
+                          title: 'Stage Updated',
+                          description: `Moved to ${stageNames[i]} stage`
+                        });
+                      }} className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${i <= currentStageIndex ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'}`} title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][i]}`} />)}
                       </div>
                     </div>
                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                     {journey && journey.stages ? (
-                       // Show stage names from academic journey
-                       journey.stages.slice(0, 5).map((stage, index) => (
-                         <span key={index} className={`transition-colors ${stage.completed ? 'text-purple-600 font-semibold' : 'hover:text-foreground'}`}>
+                     {journey && journey.stages ?
+                    // Show stage names from academic journey
+                    journey.stages.slice(0, 5).map((stage, index) => <span key={index} className={`transition-colors ${stage.completed ? 'text-purple-600 font-semibold' : 'hover:text-foreground'}`}>
                            {stage.stage_name}
-                         </span>
-                       ))
-                     ) : (
-                       <>
-                         {['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'].map((stageName, index) => (
-                           <span 
-                             key={index}
-                             className={`cursor-pointer transition-colors hover:text-foreground ${
-                               index <= currentStageIndex ? 'text-purple-600 font-semibold' : ''
-                             }`}
-                             onClick={() => {
-                               setCurrentStageIndex(index);
-                               toast({
-                                 title: 'Stage Updated',
-                                 description: `Moved to ${stageName} stage`,
-                               });
-                             }}
-                           >
+                         </span>) : <>
+                         {['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'].map((stageName, index) => <span key={index} className={`cursor-pointer transition-colors hover:text-foreground ${index <= currentStageIndex ? 'text-purple-600 font-semibold' : ''}`} onClick={() => {
+                        setCurrentStageIndex(index);
+                        toast({
+                          title: 'Stage Updated',
+                          description: `Moved to ${stageName} stage`
+                        });
+                      }}>
                              {stageName}
-                           </span>
-                         ))}
-                       </>
-                     )}
+                           </span>)}
+                       </>}
                    </div>
                  </div>
 
                 {/* Tags & AI Indicator */}
                 <div className="flex items-center justify-between mt-3">
                   <div className="flex gap-2">
-                    {showDemoData ? (
-                      <>
+                    {showDemoData ? <>
                         <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
                           🔥 High Priority
                         </Badge>
@@ -538,28 +584,19 @@ export default function LeadDetailTestPage() {
                         <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
                           📄 Incomplete Docs
                         </Badge>
-                      </>
-                    ) : (
-                      <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
+                      </> : <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
                         No tags assigned
-                      </Badge>
-                    )}
+                      </Badge>}
                   </div>
                   
                   {/* AgenticAI Indicator */}
-                  <AgenticAIIndicator 
-                    isAIManaged={showDemoData}
-                    aiStatus={showDemoData ? 'active' : undefined}
-                    lastAIAction={showDemoData ? 'Sent follow-up email 2 hours ago' : undefined}
-                    nextAIAction={showDemoData ? 'Schedule call reminder in 4 hours' : undefined}
-                    onHumanTakeover={() => {
-                      toast({
-                        title: 'Human Takeover Initiated',
-                        description: 'AI management has been paused. You now have full control.',
-                        variant: 'default'
-                      });
-                    }}
-                  />
+                  <AgenticAIIndicator isAIManaged={showDemoData} aiStatus={showDemoData ? 'active' : undefined} lastAIAction={showDemoData ? 'Sent follow-up email 2 hours ago' : undefined} nextAIAction={showDemoData ? 'Schedule call reminder in 4 hours' : undefined} onHumanTakeover={() => {
+                    toast({
+                      title: 'Human Takeover Initiated',
+                      description: 'AI management has been paused. You now have full control.',
+                      variant: 'default'
+                    });
+                  }} />
                 </div>
               </div>
             </div>
@@ -568,17 +605,13 @@ export default function LeadDetailTestPage() {
           {/* Lead Score & Quick Actions */}
           <div className="space-y-4">
             {/* AI Recommendations */}
-            <AIRecommendations 
-              currentStage={journey?.current_stage_name || 'Inquiry'}
-              leadData={lead}
-              onActionClick={(actionId) => {
-                console.log('AI Action clicked:', actionId);
-                toast({
-                  title: "AI Action Triggered",
-                  description: `Executing: ${actionId}`,
-                });
-              }}
-            />
+            <AIRecommendations currentStage={journey?.current_stage_name || 'Inquiry'} leadData={lead} onActionClick={actionId => {
+              console.log('AI Action clicked:', actionId);
+              toast({
+                title: "AI Action Triggered",
+                description: `Executing: ${actionId}`
+              });
+            }} />
           </div>
         </div>
       </div>
@@ -601,10 +634,7 @@ export default function LeadDetailTestPage() {
             <div className="flex-1 p-6">
               <TabsContent value="summary" className="h-full space-y-6">
                 {/* AI Summary Section - First */}
-                <AILeadSummary 
-                  leadId={leadId}
-                  leadName={`${lead.first_name} ${lead.last_name}`}
-                />
+                <AILeadSummary leadId={leadId} leadName={`${lead.first_name} ${lead.last_name}`} />
                 
                 {/* Lead Intelligence & Scores */}
                 <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -612,9 +642,7 @@ export default function LeadDetailTestPage() {
                     <CardContent className="p-4 text-center">
                       <div className="flex items-center justify-center gap-2 mb-2">
                         <Target className={`h-4 w-4 ${showDemoData ? 'text-green-600' : 'text-gray-400'}`} />
-                        {showDemoData && mockScores.yieldTrend === 'up' && (
-                          <TrendingUp className="h-3 w-3 text-green-600" />
-                        )}
+                        {showDemoData && mockScores.yieldTrend === 'up' && <TrendingUp className="h-3 w-3 text-green-600" />}
                       </div>
                       <div className={`text-2xl font-bold ${showDemoData ? 'text-green-800' : 'text-gray-400'}`}>{mockScores.yieldLikelihood}%</div>
                       <div className={`text-xs ${showDemoData ? 'text-green-600' : 'text-gray-500'}`}>Yield Likelihood</div>
@@ -715,26 +743,19 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="comms" className="h-full">
-                <CommunicationCenter 
-                  applicantId={leadId || ''}
-                  applicantName={`${lead.first_name} ${lead.last_name}`}
-                  applicantEmail={lead.email}
-                  onSendMessage={(type, content, subject) => {
-                    console.log('Sending message:', { type, content, subject, leadId });
-                    // TODO: Implement actual message sending
-                  }}
-                />
+                <CommunicationCenter applicantId={leadId || ''} applicantName={`${lead.first_name} ${lead.last_name}`} applicantEmail={lead.email} onSendMessage={(type, content, subject) => {
+                  console.log('Sending message:', {
+                    type,
+                    content,
+                    subject,
+                    leadId
+                  });
+                  // TODO: Implement actual message sending
+                }} />
               </TabsContent>
 
               <TabsContent value="docs" className="h-full">
-                <PresetDocumentUpload
-                  leadId={leadId || ''}
-                  programName={lead?.program_interest?.[0] || 'General'}
-                  documents={presetDocuments}
-                  onDocumentUploaded={refetchDocuments}
-                  onDocumentDeleted={refetchDocuments}
-                  onStatusUpdated={refetchDocuments}
-                />
+                <PresetDocumentUpload leadId={leadId || ''} programName={lead?.program_interest?.[0] || 'General'} documents={presetDocuments} onDocumentUploaded={refetchDocuments} onDocumentDeleted={refetchDocuments} onStatusUpdated={refetchDocuments} />
               </TabsContent>
 
               <TabsContent value="notes" className="h-full">
@@ -752,11 +773,7 @@ export default function LeadDetailTestPage() {
 
         {/* Right Sidebar - Timeline & Quick Actions */}
         <div className="w-80 border-l bg-card">
-          <ComprehensiveTimeline 
-            leadId={leadId || ''}
-            filter={timelineFilter}
-            onFilterChange={setTimelineFilter}
-          />
+          <ComprehensiveTimeline leadId={leadId || ''} filter={timelineFilter} onFilterChange={setTimelineFilter} />
           
           <div className="p-4 space-y-4">
 
@@ -786,37 +803,13 @@ export default function LeadDetailTestPage() {
           </Card>
 
           {/* Sticky Action Card */}
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 sticky top-4">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2 text-primary">
-                <Zap className="h-4 w-4" />
-                Take Action Now
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className={`w-2 h-2 rounded-full ${showDemoData ? 'bg-red-500 animate-pulse' : 'bg-gray-400'}`}></div>
-                  <span>{showDemoData ? 'Application deadline in 5 days' : 'No urgent actions required'}</span>
-                </div>
-                <Button size="sm" className="w-full" disabled={!showDemoData}>
-                  {showDemoData ? 'Send Deadline Reminder' : 'No Actions Available'}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          
           </div>
         </div>
       </div>
       </div>
 
       {/* Advisor Match Dialog */}
-      <AdvisorMatchDialog 
-        open={advisorMatchOpen}
-        onOpenChange={setAdvisorMatchOpen}
-        advisorName="Sarah Johnson"
-        lead={lead || {} as Lead}
-      />
-    </ModernAdminLayout>
-  );
+      <AdvisorMatchDialog open={advisorMatchOpen} onOpenChange={setAdvisorMatchOpen} advisorName="Sarah Johnson" lead={lead || {} as Lead} />
+    </ModernAdminLayout>;
 }

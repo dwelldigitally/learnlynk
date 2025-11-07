@@ -33,6 +33,10 @@ import { AIAgentWizard } from "./AIAgentWizard";
 import { JourneyBasedAIAgentWizard } from "../wizard/JourneyBasedAIAgentWizard";
 import { useLeadAIAgent } from "@/hooks/useLeadAIAgent";
 import { useRegistrarAIAgent } from "@/hooks/useRegistrarAIAgent";
+import { PageHeader } from "@/components/modern/PageHeader";
+import { ModernCard } from "@/components/modern/ModernCard";
+import { InfoBadge } from "@/components/modern/InfoBadge";
+import { MetadataItem } from "@/components/modern/MetadataItem";
 
 // Mock data - in real app, this would come from API
 const MOCK_AGENTS: AIAgent[] = [
@@ -295,181 +299,96 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
   const activeAgents = MOCK_AGENTS.filter(agent => agent.status === 'active').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
-      <div className="space-y-8 p-6 lg:p-8">
-        {/* Hero Header with Modern Design */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary via-primary/95 to-primary/85 text-primary-foreground shadow-2xl">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/10 opacity-50"></div>
-          <div className="relative px-8 py-12 lg:px-12 lg:py-16">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-              <div className="space-y-4">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-primary-foreground/10 rounded-2xl backdrop-blur-sm">
-                    <Bot className="w-8 h-8" />
-                  </div>
-                  <div>
-                    <h1 className="text-4xl lg:text-5xl font-bold tracking-tight">AI Agents</h1>
-                    <p className="text-primary-foreground/80 text-lg mt-2">
-                      Autonomous intelligence for admissions & student success
-                    </p>
-                  </div>
-                </div>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="AI Agents"
+        subtitle="Autonomous intelligence for admissions & student success"
+      />
+
+      <div className="mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <ModernCard hover={false}>
+            <CardContent className="p-6">
+              <MetadataItem
+                icon={UserCheck}
+                label="Active Agents"
+                value={activeAgents}
+              />
+              <div className="flex items-center gap-1 text-xs text-success mt-2">
+                <TrendingUp className="w-3 h-3" />
+                <span>+12% this month</span>
               </div>
-              
-              <div className="flex items-center gap-8">
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{activeAgents}</div>
-                  <div className="text-primary-foreground/80 text-sm">Active Agents</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-4xl font-bold">{totalStudentsManaged.toLocaleString()}</div>
-                  <div className="text-primary-foreground/80 text-sm">Students Managed</div>
-                </div>
+            </CardContent>
+          </ModernCard>
+          
+          <ModernCard hover={false}>
+            <CardContent className="p-6">
+              <MetadataItem
+                icon={Users}
+                label="Students Managed"
+                value={totalStudentsManaged.toLocaleString()}
+              />
+              <div className="flex items-center gap-1 text-xs text-success mt-2">
+                <TrendingUp className="w-3 h-3" />
+                <span>+8% this week</span>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </ModernCard>
+          
+          <ModernCard hover={false}>
+            <CardContent className="p-6">
+              <MetadataItem
+                icon={Zap}
+                label="Tasks Executed"
+                value={totalTasksExecuted.toLocaleString()}
+              />
+              <div className="flex items-center gap-1 text-xs text-success mt-2">
+                <TrendingUp className="w-3 h-3" />
+                <span>+24% this week</span>
+              </div>
+            </CardContent>
+          </ModernCard>
+        </div>
+      </div>
+
+      <Tabs value={activeCategory} onValueChange={setActiveCategory} className="space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+          <TabsList className="bg-card border shadow-sm rounded-lg p-1 grid grid-cols-2 w-full lg:w-auto">
+            <TabsTrigger 
+              value="admission" 
+              className="flex items-center gap-2 py-2 px-4 rounded-md"
+            >
+              <UserCheck className="h-4 w-4" />
+              <span className="font-medium">Admission Advisors</span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="journey" 
+              className="flex items-center gap-2 py-2 px-4 rounded-md"
+            >
+              <Route className="h-4 w-4" />
+              <span className="font-medium">Journey Agents</span>
+            </TabsTrigger>
+          </TabsList>
+          
+          <Button 
+            onClick={activeCategory === 'admission' ? handleCreateAdmissionAgent : handleCreateJourneyAgent}
+            size="lg"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Create {activeCategory === 'admission' ? 'Admission' : 'Journey'} Agent
+          </Button>
         </div>
 
-        {/* Enhanced Navigation Tabs */}
-        <Tabs value={activeCategory} onValueChange={setActiveCategory} className="space-y-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <TabsList className="bg-card border border-border/50 shadow-lg rounded-xl p-1 grid grid-cols-2 w-full lg:w-auto">
-              <TabsTrigger 
-                value="admission" 
-                className="flex items-center gap-3 py-3 px-6 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
-              >
-                <UserCheck className="h-5 w-5" />
-                <div className="text-left hidden sm:block">
-                  <div className="font-semibold">Admission Advisors</div>
-                  <div className="text-xs opacity-80">AI-powered counseling</div>
-                </div>
-                <span className="sm:hidden font-medium">Admission</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="journey" 
-                className="flex items-center gap-3 py-3 px-6 rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md transition-all"
-              >
-                <Route className="h-5 w-5" />
-                <div className="text-left hidden sm:block">
-                  <div className="font-semibold">Journey Agents</div>
-                  <div className="text-xs opacity-80">Student progression</div>
-                </div>
-                <span className="sm:hidden font-medium">Journey</span>
-              </TabsTrigger>
-            </TabsList>
-            
-            <div className="flex gap-3">
-              <Button 
-                onClick={handleCreateAdmissionAgent}
-                variant={activeCategory === 'admission' ? 'default' : 'outline'}
-                disabled={activeCategory !== 'admission'}
-                size="lg"
-                className="shadow-lg hover:shadow-xl transition-all"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Create {activeCategory === 'admission' ? 'Admission' : 'Journey'} Agent
-              </Button>
-              <Button 
-                onClick={handleCreateJourneyAgent}
-                variant={activeCategory === 'journey' ? 'default' : 'outline'}
-                disabled={activeCategory !== 'journey'}
-                size="lg"
-                className="shadow-lg hover:shadow-xl transition-all"
-              >
-                <Plus className="h-5 w-5 mr-2" />
-                Create {activeCategory === 'journey' ? 'Journey' : 'Admission'} Agent
-              </Button>
-            </div>
-          </div>
-
         <TabsContent value="admission" className="space-y-6">
-          {/* Modern Analytics Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-blue-50 to-blue-100/50 dark:from-blue-950/50 dark:to-blue-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-blue-700 dark:text-blue-300">Active Advisors</p>
-                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">{activeAgents}</p>
-                    <div className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>+12% this month</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-blue-500/10 rounded-2xl group-hover:bg-blue-500/20 transition-colors">
-                    <UserCheck className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-950/50 dark:to-green-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-green-700 dark:text-green-300">Students Managed</p>
-                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">{totalStudentsManaged.toLocaleString()}</p>
-                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>+8% this week</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-green-500/10 rounded-2xl group-hover:bg-green-500/20 transition-colors">
-                    <Users className="w-8 h-8 text-green-600 dark:text-green-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-purple-950/50 dark:to-purple-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-purple-700 dark:text-purple-300">Tasks Executed</p>
-                    <p className="text-3xl font-bold text-purple-900 dark:text-purple-100">{totalTasksExecuted.toLocaleString()}</p>
-                    <div className="flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400">
-                      <TrendingUp className="w-3 h-3" />
-                      <span>+15% today</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-purple-500/10 rounded-2xl group-hover:bg-purple-500/20 transition-colors">
-                    <MessageSquare className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-orange-50 to-orange-100/50 dark:from-orange-950/50 dark:to-orange-900/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-orange-700 dark:text-orange-300">Avg Confidence</p>
-                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
-                      {Math.round(MOCK_AGENTS.reduce((sum, agent) => sum + (agent.metrics?.averageConfidence || 0), 0) / MOCK_AGENTS.length)}%
-                    </p>
-                    <div className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
-                      <Target className="w-3 h-3" />
-                      <span>High accuracy</span>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-orange-500/10 rounded-2xl group-hover:bg-orange-500/20 transition-colors">
-                    <Target className="w-8 h-8 text-orange-600 dark:text-orange-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Modern Agents List */}
           <div className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-xl sm:text-2xl font-bold">AI Admission Advisors</h2>
+                <h2 className="text-xl font-bold">AI Admission Advisors</h2>
                 <p className="text-muted-foreground mt-1">Autonomous agents that handle admissions counselor tasks</p>
               </div>
-              <Badge variant="outline" className="text-sm px-3 py-1 self-start sm:self-auto">
+              <InfoBadge variant="default">
                 {MOCK_AGENTS.length} agents
-              </Badge>
+              </InfoBadge>
             </div>
             
             <div className="space-y-6">
@@ -919,7 +838,6 @@ export function AIAgentDashboard({ onCreateAgent }: AIAgentDashboardProps) {
         </div>
       )}
       </Tabs>
-      </div>
     </div>
   );
 }

@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Calendar, Users } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, Users, Building2, BookOpen } from 'lucide-react';
 import { IntakeService, IntakeData } from '@/services/intakeService';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { InfoBadge } from '@/components/modern/InfoBadge';
+import { MetadataItem } from '@/components/modern/MetadataItem';
 
 interface IntakeManagementProps {
   programId: string;
@@ -115,9 +118,9 @@ export const IntakeManagement: React.FC<IntakeManagementProps> = ({
     setIsAddModalOpen(true);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'default' | 'secondary' => {
     switch (status) {
-      case 'open': return 'default';
+      case 'open': return 'success';
       case 'closed': return 'secondary';
       case 'full': return 'destructive';
       default: return 'default';
@@ -125,17 +128,21 @@ export const IntakeManagement: React.FC<IntakeManagementProps> = ({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Intake Management</h3>
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="Manage Program Intakes"
+        subtitle="Schedule and manage intake periods for your academic programs"
+      />
+
+      <div className="mb-6 flex justify-end">
         <Dialog open={isAddModalOpen} onOpenChange={(open) => {
           setIsAddModalOpen(open);
           if (!open) resetForm();
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button size="lg">
               <Plus className="h-4 w-4 mr-2" />
-              Add Intake
+              Add New Intake
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
@@ -255,73 +262,94 @@ export const IntakeManagement: React.FC<IntakeManagementProps> = ({
       </div>
 
       {intakes.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="p-8 text-center">
-            <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground mb-4">No intakes scheduled yet</p>
-            <Button onClick={() => setIsAddModalOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add First Intake
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="text-center py-16 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-light mb-4">
+            <Calendar className="h-8 w-8 text-primary" />
+          </div>
+          <h3 className="text-lg font-semibold mb-2">No intakes scheduled yet</h3>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            Get started by creating your first intake period for this program
+          </p>
+          <Button size="lg" onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add First Intake
+          </Button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {intakes.map((intake) => (
-            <Card key={intake.id}>
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <CardTitle className="text-base">{intake.name}</CardTitle>
-                  <Badge variant={getStatusColor(intake.status)}>
-                    {intake.status}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Start Date</p>
-                    <p className="font-medium">
-                      {new Date(intake.start_date).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Capacity</p>
-                    <p className="font-medium flex items-center">
-                      <Users className="h-3 w-3 mr-1" />
-                      {intake.capacity}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Study Mode</p>
-                    <p className="font-medium">{intake.study_mode}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Delivery</p>
-                    <p className="font-medium">{intake.delivery_method}</p>
+            <ModernCard key={intake.id}>
+              <CardContent className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base text-foreground mb-1 truncate">
+                        {intake.name}
+                      </h3>
+                      <InfoBadge variant={getStatusVariant(intake.status)}>
+                        {intake.status.toUpperCase()}
+                      </InfoBadge>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex justify-end space-x-2">
+
+                <div className="space-y-3 mb-4">
+                  <MetadataItem
+                    icon={Calendar}
+                    label="Start Date"
+                    value={new Date(intake.start_date).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  />
+                  
+                  <MetadataItem
+                    icon={Users}
+                    label="Capacity"
+                    value={`${intake.capacity} students`}
+                  />
+
+                  <MetadataItem
+                    icon={BookOpen}
+                    label="Study Mode"
+                    value={intake.study_mode === 'full-time' ? 'Full Time' : 'Part Time'}
+                  />
+
+                  {intake.campus && (
+                    <MetadataItem
+                      icon={Building2}
+                      label="Campus"
+                      value={intake.campus}
+                    />
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-4 border-t border-border">
                   <Button
                     variant="outline"
                     size="sm"
+                    className="flex-1"
                     onClick={() => handleEdit(intake)}
                   >
-                    <Edit className="h-3 w-3 mr-1" />
+                    <Edit className="h-3.5 w-3.5 mr-1.5" />
                     Edit
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
+                    className="flex-1 text-destructive hover:text-destructive"
                     onClick={() => handleDelete(intake.id)}
                   >
-                    <Trash2 className="h-3 w-3 mr-1" />
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                     Delete
                   </Button>
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
           ))}
         </div>
       )}

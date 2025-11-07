@@ -402,18 +402,81 @@ export const ApplicantManagement = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight">Applicant Management</h2>
-          <p className="text-muted-foreground">
-            Manage applications and admission decisions
-          </p>
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-bold tracking-tight">Applicant Management</h1>
+        <p className="text-muted-foreground">
+          Manage applications and admission decisions
+        </p>
+      </div>
+
+      {/* Application Pipeline */}
+      <ApplicantStageTracker
+        stages={stageStats}
+        activeStage={activeStage}
+        onStageChange={handleStageChange}
+        onAIAction={handleAIAction}
+        selectedApplicantsCount={selectedApplicantIds.length}
+      />
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {stageStats.map((stat) => (
+          <Card 
+            key={stat.key} 
+            className="relative overflow-hidden transition-all hover:shadow-md cursor-pointer border-l-4"
+            style={{ borderLeftColor: stat.color.replace('bg-', '#').replace('blue-500', '3b82f6').replace('orange-500', 'f97316').replace('purple-500', 'a855f7').replace('yellow-500', 'eab308').replace('green-500', '22c55e').replace('red-500', 'ef4444') }}
+            onClick={() => handleStageChange(stat.key)}
+          >
+            <CardContent className="p-4">
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</p>
+                <p className="text-3xl font-bold">{stat.count}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Actions Bar */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between bg-muted/50 p-4 rounded-lg border">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative flex-1 min-w-[280px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, email, or program..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9 bg-background"
+            />
+          </div>
+          <Select
+            value={filters.substage?.[0] || 'all'}
+            onValueChange={(value) =>
+              setFilters({ ...filters, substage: value === 'all' ? undefined : [value as any] })
+            }
+          >
+            <SelectTrigger className="w-[180px] bg-background">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="Filter by stage" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Stages</SelectItem>
+              <SelectItem value="application_started">Application Started</SelectItem>
+              <SelectItem value="documents_submitted">Documents Submitted</SelectItem>
+              <SelectItem value="under_review">Under Review</SelectItem>
+              <SelectItem value="decision_pending">Decision Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <div className="flex items-center gap-4">
+        
+        <div className="flex items-center gap-2 flex-wrap">
           {selectedApplicantIds.length > 0 && (
             <Button
               onClick={handleBulkProgramFitAssessment}
               disabled={bulkAssessing}
+              size="sm"
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
             >
               {bulkAssessing ? (
@@ -424,7 +487,7 @@ export const ApplicantManagement = () => {
               ) : (
                 <>
                   <Brain className="w-4 h-4 mr-2" />
-                  Assess Program Fit ({selectedApplicantIds.length})
+                  Assess ({selectedApplicantIds.length})
                 </>
               )}
             </Button>
@@ -445,92 +508,29 @@ export const ApplicantManagement = () => {
               }}
               disabled={bulkAssessing}
               variant="outline"
+              size="sm"
             >
               <Brain className="w-4 h-4 mr-2" />
               Assess Visible ({missingAssessmentIds.length})
             </Button>
           )}
-          <Button onClick={async () => {
-            try {
-              const created = await ApplicantService.createSampleApplicant();
-              toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
-              navigate(`/admin/applicants/detail/${created.id}`);
-            } catch (e) {
-              toast({ title: "Error", description: "Failed to create sample applicant", variant: "destructive" });
-            }
-          }}>
+          <Button 
+            onClick={async () => {
+              try {
+                const created = await ApplicantService.createSampleApplicant();
+                toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
+                navigate(`/admin/applicants/detail/${created.id}`);
+              } catch (e) {
+                toast({ title: "Error", description: "Failed to create sample applicant", variant: "destructive" });
+              }
+            }}
+            size="sm"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Applicant
           </Button>
         </div>
       </div>
-
-      {/* Application Pipeline */}
-      <ApplicantStageTracker
-        stages={stageStats}
-        activeStage={activeStage}
-        onStageChange={handleStageChange}
-        onAIAction={handleAIAction}
-        selectedApplicantsCount={selectedApplicantIds.length}
-      />
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {stageStats.map((stat) => (
-          <Card key={stat.key} className="relative overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.count}</p>
-                </div>
-                <div className={`w-3 h-3 rounded-full ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Search and Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Search className="w-5 h-5" />
-            Search & Filter
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <Input
-                placeholder="Search applicants..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full"
-              />
-            </div>
-            <Select
-              value={filters.substage?.[0] || 'all'}
-              onValueChange={(value) =>
-                setFilters({ ...filters, substage: value === 'all' ? undefined : [value as any] })
-              }
-            >
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Filter by stage" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Stages</SelectItem>
-                <SelectItem value="application_started">Application Started</SelectItem>
-                <SelectItem value="documents_submitted">Documents Submitted</SelectItem>
-                <SelectItem value="under_review">Under Review</SelectItem>
-                <SelectItem value="decision_pending">Decision Pending</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Applicants Table */}
       <ConditionalDataWrapper
@@ -541,25 +541,27 @@ export const ApplicantManagement = () => {
         emptyTitle="No applicants found"
         emptyDescription="No applicants match your current filters."
       >
-        <RefinedLeadTable
-          title="Applicants"
-          data={applicants}
-          columns={columns}
-          loading={loading}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          totalCount={totalCount}
-          onPageChange={setCurrentPage}
-          onPageSizeChange={setPageSize}
-          onSearch={(term) => setSearchTerm(term)}
-          onSort={() => {}}
-          onFilter={() => {}}
-          onRowClick={(applicant) => navigate(`/admin/applicants/detail/${applicant.id}`)}
-          selectedIds={selectedApplicantIds}
-          onSelectionChange={setSelectedApplicantIds}
-          selectable={true}
-        />
+        <Card>
+          <RefinedLeadTable
+            title="Applicants"
+            data={applicants}
+            columns={columns}
+            loading={loading}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            onPageChange={setCurrentPage}
+            onPageSizeChange={setPageSize}
+            onSearch={(term) => setSearchTerm(term)}
+            onSort={() => {}}
+            onFilter={() => {}}
+            onRowClick={(applicant) => navigate(`/admin/applicants/detail/${applicant.id}`)}
+            selectedIds={selectedApplicantIds}
+            onSelectionChange={setSelectedApplicantIds}
+            selectable={true}
+          />
+        </Card>
       </ConditionalDataWrapper>
     </div>
   );

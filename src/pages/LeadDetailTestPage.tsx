@@ -617,10 +617,10 @@ export default function LeadDetailTestPage() {
       </div>
 
       {/* Main Content Layout */}
-      <div className="flex h-[calc(100vh-300px)]">
+      <div className="flex">
         {/* Center Content - Tabs */}
         <div className="flex-1 flex flex-col">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
             <div className="border-b p-4">
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
@@ -631,8 +631,8 @@ export default function LeadDetailTestPage() {
               </TabsList>
             </div>
 
-            <div className="flex-1 p-6">
-              <TabsContent value="summary" className="h-full space-y-6">
+            <div className="p-6">
+              <TabsContent value="summary" className="space-y-6">
                 {/* AI Summary Section - First */}
                 <AILeadSummary leadId={leadId} leadName={`${lead.first_name} ${lead.last_name}`} />
                 
@@ -742,7 +742,7 @@ export default function LeadDetailTestPage() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="comms" className="h-full">
+              <TabsContent value="comms" className="mt-0">
                 <CommunicationCenter applicantId={leadId || ''} applicantName={`${lead.first_name} ${lead.last_name}`} applicantEmail={lead.email} onSendMessage={(type, content, subject) => {
                   console.log('Sending message:', {
                     type,
@@ -754,15 +754,15 @@ export default function LeadDetailTestPage() {
                 }} />
               </TabsContent>
 
-              <TabsContent value="docs" className="h-full">
+              <TabsContent value="docs" className="mt-0">
                 <PresetDocumentUpload leadId={leadId || ''} programName={lead?.program_interest?.[0] || 'General'} documents={presetDocuments} onDocumentUploaded={refetchDocuments} onDocumentDeleted={refetchDocuments} onStatusUpdated={refetchDocuments} />
               </TabsContent>
 
-              <TabsContent value="notes" className="h-full">
+              <TabsContent value="notes" className="mt-0">
                 <NotesSystemPanel leadId={leadId || ''} />
               </TabsContent>
 
-              <TabsContent value="tasks" className="h-full">
+              <TabsContent value="tasks" className="mt-0">
                 <RealDataTasks leadId={leadId || ''} />
               </TabsContent>
 

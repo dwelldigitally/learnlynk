@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Play, Pause, Settings, BarChart, Database } from "lucide-react";
+import { Plus, Play, Pause, Settings, BarChart, Database, Workflow as WorkflowIcon, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import WorkflowBuilder from "./workflow/WorkflowBuilder";
 import { DummyWorkflowService } from "@/services/dummyWorkflowService";
+import { PageHeader } from "@/components/modern/PageHeader";
+import { ModernCard } from "@/components/modern/ModernCard";
+import { InfoBadge } from "@/components/modern/InfoBadge";
+import { MetadataItem } from "@/components/modern/MetadataItem";
 
 interface Workflow {
   id: string;
@@ -130,26 +133,23 @@ const WorkflowManagement: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Workflow Management</h1>
-          <p className="text-muted-foreground">
-            Automate student journey with custom workflows and triggers
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={handleCreateWorkflow} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Workflow
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader
+        title="Workflow Management"
+        subtitle="Automate student journey with custom workflows and triggers"
+      />
+
+      <div className="mb-6 flex justify-end gap-2">
+        <Button size="lg" onClick={handleCreateWorkflow}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Workflow
+        </Button>
+        {workflows.length === 0 && (
+          <Button onClick={handleCreateSampleData} variant="outline" size="lg">
+            <Database className="h-4 w-4 mr-2" />
+            Add Sample Data
           </Button>
-          {workflows.length === 0 && (
-            <Button onClick={handleCreateSampleData} variant="outline" className="gap-2">
-              <Database className="h-4 w-4" />
-              Add Sample Data
-            </Button>
-          )}
-        </div>
+        )}
       </div>
 
       <Tabs defaultValue="workflows" className="w-full">
@@ -159,64 +159,69 @@ const WorkflowManagement: React.FC = () => {
 
         <TabsContent value="workflows" className="space-y-4">
           {loading ? (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {[1, 2, 3].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardHeader className="pb-3">
-                    <div className="h-4 bg-muted rounded w-3/4"></div>
-                    <div className="h-3 bg-muted rounded w-1/2"></div>
-                  </CardHeader>
-                  <CardContent>
+                <ModernCard key={i} hover={false}>
+                  <CardContent className="p-6 animate-pulse">
+                    <div className="flex gap-3 mb-4">
+                      <div className="w-10 h-10 bg-muted rounded-lg"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-muted rounded w-3/4"></div>
+                        <div className="h-3 bg-muted rounded w-1/2"></div>
+                      </div>
+                    </div>
                     <div className="h-20 bg-muted rounded"></div>
                   </CardContent>
-                </Card>
+                </ModernCard>
               ))}
             </div>
           ) : workflows.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Settings className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
-                <p className="text-muted-foreground text-center mb-4">
-                  Create your first workflow to automate student communications and actions.
-                </p>
-                <div className="flex gap-2">
-                  <Button onClick={handleCreateWorkflow} className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Your First Workflow
-                  </Button>
-                  <Button onClick={handleCreateSampleData} variant="outline" className="gap-2">
-                    <Database className="h-4 w-4" />
-                    Add Sample Data
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="text-center py-16 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-light mb-4">
+                <WorkflowIcon className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                Create your first workflow to automate student communications and actions
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={handleCreateWorkflow} size="lg">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Workflow
+                </Button>
+                <Button onClick={handleCreateSampleData} variant="outline" size="lg">
+                  <Database className="h-4 w-4 mr-2" />
+                  Add Sample Data
+                </Button>
+              </div>
+            </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {workflows.map((workflow) => (
-                <Card key={workflow.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">{workflow.name}</CardTitle>
-                        <div className="flex items-center gap-2">
-                          <Badge 
-                            variant={workflow.is_active ? "default" : "secondary"}
-                            className="text-xs"
-                          >
-                            {workflow.is_active ? "Active" : "Paused"}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {workflow.trigger_type.replace('_', ' ')}
-                          </Badge>
+                <ModernCard key={workflow.id}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-3 mb-4">
+                      <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
+                        <Zap className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-base text-foreground mb-2 truncate">
+                          {workflow.name}
+                        </h3>
+                        <div className="flex flex-wrap gap-1.5">
+                          <InfoBadge variant={workflow.is_active ? "success" : "secondary"}>
+                            {workflow.is_active ? "ACTIVE" : "PAUSED"}
+                          </InfoBadge>
+                          <InfoBadge variant="default">
+                            {workflow.trigger_type.replace('_', ' ').toUpperCase()}
+                          </InfoBadge>
                         </div>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleWorkflow(workflow)}
-                        className="h-8 w-8 p-0"
+                        className="h-9 w-9 p-0 flex-shrink-0"
                       >
                         {workflow.is_active ? (
                           <Pause className="h-4 w-4" />
@@ -225,19 +230,32 @@ const WorkflowManagement: React.FC = () => {
                         )}
                       </Button>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <CardDescription className="mb-4">
-                      {workflow.description || "No description provided"}
-                    </CardDescription>
-                    <div className="flex gap-2">
+
+                    <div className="mb-4">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {workflow.description || "No description provided"}
+                      </p>
+                    </div>
+
+                    <MetadataItem
+                      icon={WorkflowIcon}
+                      label="Created"
+                      value={new Date(workflow.created_at).toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                      className="mb-4"
+                    />
+
+                    <div className="flex gap-2 pt-4 border-t border-border">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => handleEditWorkflow(workflow)}
                         className="flex-1"
                       >
-                        <Settings className="h-4 w-4 mr-2" />
+                        <Settings className="h-3.5 w-3.5 mr-1.5" />
                         Edit
                       </Button>
                       <Button
@@ -245,12 +263,12 @@ const WorkflowManagement: React.FC = () => {
                         size="sm"
                         className="flex-1"
                       >
-                        <BarChart className="h-4 w-4 mr-2" />
+                        <BarChart className="h-3.5 w-3.5 mr-1.5" />
                         Stats
                       </Button>
                     </div>
                   </CardContent>
-                </Card>
+                </ModernCard>
               ))}
             </div>
           )}

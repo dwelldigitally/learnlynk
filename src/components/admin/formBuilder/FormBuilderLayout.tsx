@@ -117,68 +117,8 @@ export function FormBuilderLayout({
       
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="flex h-[calc(100vh-180px)] gap-4">
-        {/* Forms Sidebar */}
-        <div className="w-80 space-y-4">
-          {/* Forms List */}
-          <Card>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Forms</CardTitle>
-                <Button size="sm" onClick={onFormCreate}>
-                  <Plus className="h-4 w-4 mr-1" />
-                  New Form
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="p-0">
-              <ScrollArea className="h-64">
-                <div className="space-y-1 p-3">
-                  {forms.map((form) => (
-                    <div
-                      key={form.id}
-                      className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedFormId === form.id 
-                          ? 'bg-primary/10 border border-primary/20' 
-                          : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => onFormSelect(form.id!)}
-                    >
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-sm truncate">{form.title}</h4>
-                        <p className="text-xs text-muted-foreground">
-                          {form.fields.length} fields
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onFormDuplicate(form.id!);
-                          }}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onFormDelete(form.id!);
-                          }}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
-          {/* Field Palette */}
+          <div className="w-80 space-y-4">
+            {/* Field Palette */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Field Types</CardTitle>

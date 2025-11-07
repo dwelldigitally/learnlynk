@@ -3,10 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Phone, Mail, Eye, Star, Clock, User, Brain, Play, CheckSquare, Loader2, Zap } from 'lucide-react';
+import { Phone, Mail, Eye, Star, Clock, User, Brain, Play, CheckSquare, Loader2, Zap, ChevronDown, ChevronUp } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { useLeadAIActions, type LeadAIAction } from '@/hooks/useLeadAIActions';
@@ -21,6 +22,7 @@ export function NewlyAssignedLeads() {
   const [previewAction, setPreviewAction] = useState<{ lead: Lead; action: LeadAIAction } | null>(null);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [actionsGenerated, setActionsGenerated] = useState(false);
+  const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set());
   
   const {
     isGenerating,
@@ -358,49 +360,87 @@ export function NewlyAssignedLeads() {
                         <span className="font-medium">{lead.lead_score}/100</span>
                       </div>
 
-                      {/* AI Action Section */}
+                      {/* AI Action Section - Collapsible */}
                       {aiAction ? (
-                        <div className="mt-2 p-3 bg-white rounded-lg border border-gray-300">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Brain className="w-4 h-4 text-primary" />
-                            <span className="text-xs font-medium text-primary">AI Next Best Action</span>
-                            <Badge 
-                              variant="outline" 
-                              className={cn("text-xs border", getConfidenceColor(aiAction.confidence))}
-                            >
-                              {aiAction.confidence}% confidence
-                            </Badge>
-                            <Badge 
-                              variant="outline" 
-                              className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}
-                            >
-                              {aiAction.urgency} priority
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-foreground/80 mb-3 leading-relaxed">{aiAction.description}</p>
-                          
-                          <div className="flex items-center justify-between">
+                        <Collapsible 
+                          open={expandedActions.has(lead.id)} 
+                          onOpenChange={(open) => {
+                            const newExpanded = new Set(expandedActions);
+                            if (open) {
+                              newExpanded.add(lead.id);
+                            } else {
+                              newExpanded.delete(lead.id);
+                            }
+                            setExpandedActions(newExpanded);
+                          }}
+                          className="mt-2"
+                        >
+                          <CollapsibleTrigger asChild>
                             <Button 
+                              variant="outline" 
                               size="sm" 
-                              className="h-7 text-xs px-3 bg-primary hover:bg-primary/90"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setPreviewAction({ lead, action: aiAction });
-                              }}
-                              disabled={isExecuting}
+                              className="w-full h-9 justify-between text-xs"
                             >
-                              {isExecuting ? (
-                                <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                              <div className="flex items-center gap-2">
+                                <Brain className="w-4 h-4 text-primary" />
+                                <span className="font-medium text-primary">AI Next Best Action</span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}
+                                >
+                                  {aiAction.urgency}
+                                </Badge>
+                              </div>
+                              {expandedActions.has(lead.id) ? (
+                                <ChevronUp className="w-4 h-4" />
                               ) : (
-                                getActionIcon(aiAction.actionType)
+                                <ChevronDown className="w-4 h-4" />
                               )}
-                              <span className="ml-1">Execute Action</span>
                             </Button>
-                            <span className="text-xs text-muted-foreground font-medium">
-                              Est. Impact: {aiAction.estimatedImpact}%
-                            </span>
-                          </div>
-                        </div>
+                          </CollapsibleTrigger>
+                          
+                          <CollapsibleContent>
+                            <div className="mt-2 p-3 bg-white rounded-lg border border-gray-300">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn("text-xs border", getConfidenceColor(aiAction.confidence))}
+                                >
+                                  {aiAction.confidence}% confidence
+                                </Badge>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}
+                                >
+                                  {aiAction.urgency} priority
+                                </Badge>
+                              </div>
+                              <p className="text-xs text-foreground/80 mb-3 leading-relaxed">{aiAction.description}</p>
+                              
+                              <div className="flex items-center justify-between">
+                                <Button 
+                                  size="sm" 
+                                  className="h-7 text-xs px-3 bg-primary hover:bg-primary/90"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewAction({ lead, action: aiAction });
+                                  }}
+                                  disabled={isExecuting}
+                                >
+                                  {isExecuting ? (
+                                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                                  ) : (
+                                    getActionIcon(aiAction.actionType)
+                                  )}
+                                  <span className="ml-1">Execute Action</span>
+                                </Button>
+                                <span className="text-xs text-muted-foreground font-medium">
+                                  Est. Impact: {aiAction.estimatedImpact}%
+                                </span>
+                              </div>
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
                       ) : isGenerating ? (
                         <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-muted">
                           <div className="flex items-center gap-2">
@@ -408,14 +448,7 @@ export function NewlyAssignedLeads() {
                             <span className="text-xs text-muted-foreground">AI analyzing lead for next best action...</span>
                           </div>
                         </div>
-                      ) : (
-                        <div className="mt-2 p-3 bg-muted/30 rounded-lg border border-muted/50">
-                          <div className="flex items-center gap-2">
-                            <Brain className="w-4 h-4 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">No AI action available</span>
-                          </div>
-                        </div>
-                      )}
+                      ) : null}
                     </div>
 
                     <div className="flex gap-1 mt-2">

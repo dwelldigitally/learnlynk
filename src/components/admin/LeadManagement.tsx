@@ -32,6 +32,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
 export function LeadManagement() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -540,9 +542,9 @@ export function LeadManagement() {
     }
   ];
   return (
-    <div className="h-full flex flex-col">
-      {/* Unified Header with Timeline */}
-      <div className="border-b bg-background">
+    <div className="h-full flex flex-col bg-muted/30">
+      {/* Modern Header */}
+      <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="px-6 py-6">
           <UnifiedLeadHeader
             stages={stageStats}
@@ -562,47 +564,51 @@ export function LeadManagement() {
         </div>
       </div>
 
-      {/* Main Content - Table */}
+      {/* Main Content - Table with Modern Styling */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full">
-          <ConditionalDataWrapper
-            isLoading={loading}
-            showEmptyState={!hasDemoAccess && leads.length === 0}
-            hasDemoAccess={hasDemoAccess || false}
-            hasRealData={leads.length > 0 && !leads.some((lead) => lead.id.startsWith('demo-'))}
-            emptyTitle="No Leads Yet"
-            emptyDescription="Create your first lead to get started with lead management."
-            loadingRows={5}
-          >
-            <SmartLeadTable
-              leads={leads}
-              loading={loading}
-              selectedLeadIds={selectedLeadIds}
-              onLeadSelect={(leadId) => {
-                setSelectedLeadIds((prev) =>
-                  prev.includes(leadId) ? prev.filter((id) => id !== leadId) : [...prev, leadId]
-                );
-              }}
-              onSelectAll={(selected) => {
-                setSelectedLeadIds(selected ? leads.map((l) => l.id) : []);
-              }}
-               onLeadClick={(lead) => {
-                 navigate(`/admin/leads/detail/${lead.id}`);
-               }}
-               onBulkAction={handleBulkAction}
-               onSort={handleSort}
-               onFilter={handleFilter}
-               onSearch={handleSearch}
-               onExport={handleExport}
-               onAddLead={() => setShowLeadForm(true)}
-               totalCount={totalCount}
-               currentPage={currentPage}
-               pageSize={pageSize}
-               onPageChange={handlePageChange}
-               onPageSizeChange={handlePageSizeChange}
-               columns={tableColumns}
-             />
-          </ConditionalDataWrapper>
+        <div className="h-full p-6">
+          <ModernCard className="h-full flex flex-col">
+            <ConditionalDataWrapper
+              isLoading={loading}
+              showEmptyState={!hasDemoAccess && leads.length === 0}
+              hasDemoAccess={hasDemoAccess || false}
+              hasRealData={leads.length > 0 && !leads.some((lead) => lead.id.startsWith('demo-'))}
+              emptyTitle="No Leads Yet"
+              emptyDescription="Create your first lead to get started with lead management."
+              loadingRows={5}
+            >
+              <div className="flex-1 overflow-hidden">
+                <SmartLeadTable
+                  leads={leads}
+                  loading={loading}
+                  selectedLeadIds={selectedLeadIds}
+                  onLeadSelect={(leadId) => {
+                    setSelectedLeadIds((prev) =>
+                      prev.includes(leadId) ? prev.filter((id) => id !== leadId) : [...prev, leadId]
+                    );
+                  }}
+                  onSelectAll={(selected) => {
+                    setSelectedLeadIds(selected ? leads.map((l) => l.id) : []);
+                  }}
+                  onLeadClick={(lead) => {
+                    navigate(`/admin/leads/detail/${lead.id}`);
+                  }}
+                  onBulkAction={handleBulkAction}
+                  onSort={handleSort}
+                  onFilter={handleFilter}
+                  onSearch={handleSearch}
+                  onExport={handleExport}
+                  onAddLead={() => setShowLeadForm(true)}
+                  totalCount={totalCount}
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                  columns={tableColumns}
+                />
+              </div>
+            </ConditionalDataWrapper>
+          </ModernCard>
         </div>
       </div>
     {/* Modals */}

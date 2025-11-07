@@ -26,6 +26,7 @@ import { PerformanceTracker } from '@/components/admin/sales-rep/PerformanceTrac
 import { AIActionCenter } from '@/components/admin/sales-rep/AIActionCenter';
 import { QuickActions } from '@/components/admin/sales-rep/QuickActions';
 import { AISequenceCard } from '@/components/admin/sales-rep/AISequenceCard';
+import { GoalsPerformanceTracker } from '@/components/admin/sales-rep/GoalsPerformanceTracker';
 
 export default function SalesRepDashboard() {
   const [activeTab, setActiveTab] = useState('today');
@@ -179,22 +180,7 @@ export default function SalesRepDashboard() {
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">
-          <div className="grid grid-cols-1 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                  <span>Performance Metrics</span>
-                </CardTitle>
-                <CardDescription>
-                  Track your sales performance and goals
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PerformanceTracker />
-              </CardContent>
-            </Card>
-          </div>
+          <GoalsPerformanceTracker />
         </TabsContent>
 
         <TabsContent value="ai" className="space-y-6">

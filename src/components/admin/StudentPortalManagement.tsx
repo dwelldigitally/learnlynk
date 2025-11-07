@@ -23,12 +23,21 @@ import {
   Send,
   Calendar,
   Clock,
-  Monitor
+  Monitor,
+  Palette,
+  Menu,
+  Shield,
+  FolderOpen
 } from "lucide-react";
 import { usePortalContent, useContentMutations, usePortalMessages, useMessageMutations, usePortalConfig, useConfigMutations, useRealTimePortalUpdates } from "@/hooks/useStudentPortal";
 import { useConditionalStudents } from "@/hooks/useConditionalStudents";
 import { StudentPortalContent, StudentPortalMessage, StudentPortalConfig } from "@/services/studentPortalService";
 import { StudentPortalPreview } from "./StudentPortalPreview";
+import { BrandingCustomization } from "./config/portal/BrandingCustomization";
+import { NavigationBuilder } from "./config/portal/NavigationBuilder";
+import { RoleManagement } from "./config/portal/RoleManagement";
+import { CommunicationTemplates } from "./config/portal/CommunicationTemplates";
+import { ContentManagement } from "./config/portal/ContentManagement";
 
 export const StudentPortalManagement = () => {
   const [activeTab, setActiveTab] = useState("content");
@@ -215,7 +224,7 @@ export const StudentPortalManagement = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="content" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Content
@@ -235,6 +244,26 @@ export const StudentPortalManagement = () => {
           <TabsTrigger value="preview" className="flex items-center gap-2">
             <Monitor className="h-4 w-4" />
             Preview
+          </TabsTrigger>
+          <TabsTrigger value="branding" className="flex items-center gap-2">
+            <Palette className="h-4 w-4" />
+            Branding
+          </TabsTrigger>
+          <TabsTrigger value="navigation" className="flex items-center gap-2">
+            <Menu className="h-4 w-4" />
+            Navigation
+          </TabsTrigger>
+          <TabsTrigger value="roles" className="flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Roles
+          </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Templates
+          </TabsTrigger>
+          <TabsTrigger value="media" className="flex items-center gap-2">
+            <FolderOpen className="h-4 w-4" />
+            Media
           </TabsTrigger>
         </TabsList>
 
@@ -1111,6 +1140,27 @@ export const StudentPortalManagement = () => {
           setShowPreviewDialog(open);
         }} 
       />
+
+      {/* New Admin Tabs */}
+      <TabsContent value="branding">
+        <BrandingCustomization />
+      </TabsContent>
+
+      <TabsContent value="navigation">
+        <NavigationBuilder />
+      </TabsContent>
+
+      <TabsContent value="roles">
+        <RoleManagement />
+      </TabsContent>
+
+      <TabsContent value="templates">
+        <CommunicationTemplates />
+      </TabsContent>
+
+      <TabsContent value="media">
+        <ContentManagement />
+      </TabsContent>
     </div>
   );
 };

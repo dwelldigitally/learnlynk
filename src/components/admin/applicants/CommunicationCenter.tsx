@@ -6,14 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { useLeadCommunications } from '@/hooks/useLeadData';
 import { LeadCommunicationService } from '@/services/leadCommunicationService';
 import { CommunicationTemplateService } from '@/services/communicationTemplateService';
-import { CommunicationTemplate, CommunicationType, CommunicationDirection, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
+import { CommunicationTemplate, CommunicationType, CommunicationDirection } from '@/types/leadEnhancements';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   Mail, 
@@ -24,10 +23,8 @@ import {
   Clock,
   FileText,
   Bot,
-  User,
   ChevronDown,
   Search,
-  Filter,
   Loader2,
   X,
   ArrowDown,
@@ -49,7 +46,7 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
 }) => {
   const { toast } = useToast();
   
-  // State management
+  // Compose state
   const [messageType, setMessageType] = useState<CommunicationType>('email');
   const [subject, setSubject] = useState('');
   const [content, setContent] = useState('');
@@ -68,12 +65,12 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
   // Fetch communications from database
   const { communications, loading: loadingComms, refetch } = useLeadCommunications(applicantId);
   
-  // Load templates on mount
+  // Load templates when message type changes
   useEffect(() => {
     loadTemplates();
   }, [messageType]);
   
-  // Set up real-time subscription for new communications
+  // Real-time subscription for new communications
   useEffect(() => {
     const channel = supabase
       .channel('lead-communications')
@@ -188,7 +185,6 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
         
         if (error) throw error;
       } else if (messageType === 'sms') {
-        // Fetch lead phone number
         const { data: lead } = await supabase
           .from('leads')
           .select('phone')
@@ -220,7 +216,7 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
       setContent('');
       setSelectedTemplateId('');
       
-      // Refresh communications list
+      // Refresh communications
       refetch();
       
     } catch (error: any) {
@@ -294,26 +290,174 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
             Communication Center
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="compose" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="compose">Compose</TabsTrigger>
-              <TabsTrigger value="history">
-                History ({communications.length})
-              </TabsTrigger>
-              <TabsTrigger value="templates">
-                Templates ({templates.length})
-              </TabsTrigger>
-            </TabsList>
+        <CardContent className="space-y-6">
+          
+          {/* COMMUNICATION HISTORY */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">Communication History ({communications.length})</h3>
+              
+              {/* Filters */}
+              <div className="flex gap-2">
+                <div className="relative w-[200px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="sms">SMS</SelectItem>
+                    <SelectItem value="phone">Phone</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="note">Note</SelectItem>
+                  </SelectContent>
+                </Select>
 
-            {/* COMPOSE TAB */}
-            <TabsContent value="compose" className="space-y-4">
-              {/* Message Type Selector */}
+                <Select value={directionFilter} onValueChange={setDirectionFilter}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Direction" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="inbound">Inbound</SelectItem>
+                    <SelectItem value="outbound">Outbound</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {(searchQuery || typeFilter !== 'all' || directionFilter !== 'all') && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setTypeFilter('all');
+                      setDirectionFilter('all');
+                    }}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* History List */}
+            <ScrollArea className="h-[400px] pr-4">
+              {loadingComms ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : filteredCommunications.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p className="font-medium">No communications yet</p>
+                  <p className="text-sm">Send your first message below</p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {Object.entries(groupedCommunications).map(([date, comms]) => (
+                    <div key={date}>
+                      <div className="sticky top-0 bg-background z-10 pb-2">
+                        <p className="text-sm font-semibold text-muted-foreground">{date}</p>
+                      </div>
+                      <div className="space-y-3">
+                        {comms.map((message) => (
+                          <Collapsible key={message.id}>
+                            <Card className={`border-l-4 ${
+                              message.direction === 'inbound' ? 'border-l-blue-500' : 
+                              message.direction === 'outbound' ? 'border-l-green-500' : 
+                              'border-l-purple-500'
+                            }`}>
+                              <CardContent className="p-4">
+                                <div className="flex items-start gap-3">
+                                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${
+                                    message.is_ai_generated ? 'bg-purple-100 text-purple-600' :
+                                    message.direction === 'inbound' ? 'bg-blue-100 text-blue-600' :
+                                    'bg-green-100 text-green-600'
+                                  }`}>
+                                    {message.is_ai_generated ? <Bot className="h-4 w-4" /> : getMessageIcon(message.type as CommunicationType)}
+                                  </div>
+                                  
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        <h4 className="font-medium text-sm">
+                                          {message.type.toUpperCase()} Message
+                                        </h4>
+                                        {getStatusBadge(message.status)}
+                                        <Badge variant="outline" className="capitalize text-xs">
+                                          {getDirectionIcon(message.direction as CommunicationDirection, message.is_ai_generated)}
+                                          <span className="ml-1">{message.direction}</span>
+                                        </Badge>
+                                        {message.is_ai_generated && (
+                                          <Badge variant="secondary" className="text-xs">
+                                            <Sparkles className="h-3 w-3 mr-1" />
+                                            AI
+                                          </Badge>
+                                        )}
+                                      </div>
+                                      
+                                      <CollapsibleTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 shrink-0">
+                                          <ChevronDown className="h-4 w-4" />
+                                        </Button>
+                                      </CollapsibleTrigger>
+                                    </div>
+                                    
+                                    <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                      {message.content}
+                                    </p>
+                                    
+                                    <CollapsibleContent>
+                                      <div className="mt-3 p-3 rounded-lg bg-muted/50">
+                                        <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                                      </div>
+                                    </CollapsibleContent>
+                                    
+                                    <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="h-3 w-3" />
+                                        {new Date(message.communication_date).toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          </Collapsible>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+
+          <Separator className="my-6" />
+
+          {/* COMPOSE NEW MESSAGE */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold">Send New Message</h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Message Type */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Message Type</label>
+                <label className="text-sm font-medium">Type</label>
                 <Select value={messageType} onValueChange={(val) => setMessageType(val as CommunicationType)}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select message type" />
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="email">
@@ -340,327 +484,88 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
 
               {/* Template Selector */}
               <div className="space-y-2">
-                <label className="text-sm font-medium">Use Template (Optional)</label>
+                <label className="text-sm font-medium">Template (Optional)</label>
                 <Select 
                   value={selectedTemplateId} 
                   onValueChange={handleTemplateSelect}
                   disabled={loadingTemplates}
                 >
                   <SelectTrigger>
-                    <FileText className="h-4 w-4 mr-2" />
-                    <SelectValue placeholder={loadingTemplates ? "Loading templates..." : "Choose a template"} />
+                    <SelectValue placeholder={loadingTemplates ? "Loading..." : "Choose template"} />
                   </SelectTrigger>
                   <SelectContent>
                     {templates.map((template) => (
                       <SelectItem key={template.id} value={template.id}>
                         <div className="flex items-center gap-2">
                           {template.ai_generated && <Sparkles className="h-3 w-3 text-purple-500" />}
-                          {template.name}
-                          <span className="text-xs text-muted-foreground">({template.usage_count} uses)</span>
+                          <span className="truncate">{template.name}</span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+            </div>
 
-              {/* Subject Line (Email only) */}
-              {messageType === 'email' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Subject Line</label>
-                  <Input
-                    placeholder="Email subject"
-                    value={subject}
-                    onChange={(e) => setSubject(e.target.value)}
-                  />
-                </div>
-              )}
-
-              {/* Message Content */}
+            {/* Subject (Email only) */}
+            {messageType === 'email' && (
               <div className="space-y-2">
-                <label className="text-sm font-medium">Message Content</label>
-                <Textarea
-                  placeholder={
-                    messageType === 'email' 
-                      ? 'Compose your email message...'
-                      : messageType === 'sms'
-                      ? 'Compose your SMS message (160 char limit)...'
-                      : 'Add internal note...'
-                  }
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={8}
-                  maxLength={messageType === 'sms' ? 160 : undefined}
+                <label className="text-sm font-medium">Subject</label>
+                <Input
+                  placeholder="Email subject"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
                 />
-                {messageType === 'sms' && (
-                  <p className="text-xs text-muted-foreground">
-                    {content.length}/160 characters
-                  </p>
-                )}
               </div>
+            )}
 
-              {/* Available Variables */}
-              {selectedTemplateId && (
-                <div className="rounded-lg border p-3 bg-muted/50">
-                  <p className="text-sm font-medium mb-2">Available Variables:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {TEMPLATE_VARIABLES.slice(0, 6).map((variable) => (
-                      <Badge key={variable.key} variant="secondary" className="text-xs">
-                        {variable.key}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
+            {/* Message Content */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Message</label>
+              <Textarea
+                placeholder={
+                  messageType === 'email' 
+                    ? 'Compose your email...'
+                    : messageType === 'sms'
+                    ? 'Compose SMS (160 chars max)...'
+                    : 'Add internal note...'
+                }
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={6}
+                maxLength={messageType === 'sms' ? 160 : undefined}
+              />
+              {messageType === 'sms' && (
+                <p className="text-xs text-muted-foreground">
+                  {content.length}/160 characters
+                </p>
               )}
+            </div>
 
-              {/* Send Button */}
-              <div className="flex items-center justify-between pt-4">
-                <div className="text-sm text-muted-foreground">
-                  Sending to: {applicantEmail}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button 
-                    onClick={handleSend} 
-                    disabled={sending || !content || (messageType === 'email' && !subject)}
-                  >
-                    {sending ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send {messageType === 'email' ? 'Email' : messageType === 'sms' ? 'SMS' : 'Note'}
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </TabsContent>
-
-            {/* HISTORY TAB */}
-            <TabsContent value="history" className="space-y-4">
-              {/* Filters */}
-              <div className="flex flex-wrap gap-3">
-                <div className="flex-1 min-w-[200px]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search communications..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
-                </div>
-                
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-[130px]">
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="sms">SMS</SelectItem>
-                    <SelectItem value="phone">Phone</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="note">Note</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={directionFilter} onValueChange={setDirectionFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Direction" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="inbound">Inbound</SelectItem>
-                    <SelectItem value="outbound">Outbound</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {(searchQuery || typeFilter !== 'all' || directionFilter !== 'all') && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setTypeFilter('all');
-                      setDirectionFilter('all');
-                    }}
-                  >
-                    <X className="h-4 w-4 mr-1" />
-                    Clear
-                  </Button>
-                )}
-              </div>
-
-              {/* Communications List */}
-              <ScrollArea className="h-[500px]">
-                {loadingComms ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                  </div>
-                ) : filteredCommunications.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                    <p>No communications found</p>
-                  </div>
+            {/* Send Button */}
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-sm text-muted-foreground">
+                To: {applicantName} ({applicantEmail})
+              </p>
+              <Button 
+                onClick={handleSend} 
+                disabled={sending || !content || (messageType === 'email' && !subject)}
+                size="lg"
+              >
+                {sending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
                 ) : (
-                  <div className="space-y-6">
-                    {Object.entries(groupedCommunications).map(([date, comms]) => (
-                      <div key={date}>
-                        <div className="sticky top-0 bg-background z-10 py-2">
-                          <h4 className="text-sm font-semibold text-muted-foreground">{date}</h4>
-                          <Separator className="mt-2" />
-                        </div>
-                        <div className="space-y-3 mt-3">
-                          {comms.map((message) => (
-                            <Collapsible key={message.id}>
-                              <Card className={`border-l-4 ${
-                                message.direction === 'inbound' ? 'border-l-blue-500' : 
-                                message.direction === 'outbound' ? 'border-l-green-500' : 
-                                'border-l-purple-500'
-                              }`}>
-                                <CardContent className="p-4">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex items-start gap-3 flex-1">
-                                      <div className={`flex h-9 w-9 items-center justify-center rounded-full ${
-                                        message.is_ai_generated ? 'bg-purple-100 text-purple-600' :
-                                        message.direction === 'inbound' ? 'bg-blue-100 text-blue-600' :
-                                        'bg-green-100 text-green-600'
-                                      }`}>
-                                        {message.is_ai_generated ? <Bot className="h-4 w-4" /> : getMessageIcon(message.type as CommunicationType)}
-                                      </div>
-                                      
-                                      <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                          <h4 className="font-medium">
-                                            {message.type.toUpperCase()} Message
-                                          </h4>
-                                          {getStatusBadge(message.status)}
-                                          <Badge variant="outline" className="capitalize text-xs">
-                                            {getDirectionIcon(message.direction as CommunicationDirection, message.is_ai_generated)}
-                                            <span className="ml-1">{message.direction}</span>
-                                          </Badge>
-                                          {message.is_ai_generated && (
-                                            <Badge variant="secondary" className="text-xs">
-                                              <Sparkles className="h-3 w-3 mr-1" />
-                                              AI Generated
-                                            </Badge>
-                                          )}
-                                        </div>
-                                        
-                                        <CollapsibleTrigger asChild>
-                                          <Button variant="ghost" size="sm" className="h-auto p-0 mt-2 text-left">
-                                            <p className="text-sm text-muted-foreground line-clamp-2">
-                                              {message.content}
-                                            </p>
-                                          </Button>
-                                        </CollapsibleTrigger>
-                                        
-                                        <CollapsibleContent>
-                                          <div className="mt-3 p-3 rounded-lg bg-muted/50">
-                                            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                                          </div>
-                                        </CollapsibleContent>
-                                        
-                                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                                          <span className="flex items-center gap-1">
-                                            <Clock className="h-3 w-3" />
-                                            {new Date(message.communication_date).toLocaleString()}
-                                          </span>
-                                          {message.scheduled_for && (
-                                            <span className="flex items-center gap-1">
-                                              <Calendar className="h-3 w-3" />
-                                              Scheduled: {new Date(message.scheduled_for).toLocaleString()}
-                                            </span>
-                                          )}
-                                        </div>
-                                      </div>
-                                    </div>
-                                    
-                                    <CollapsibleTrigger asChild>
-                                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                        <ChevronDown className="h-4 w-4" />
-                                      </Button>
-                                    </CollapsibleTrigger>
-                                  </div>
-                                </CardContent>
-                              </Card>
-                            </Collapsible>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send {messageType === 'email' ? 'Email' : messageType === 'sms' ? 'SMS' : 'Note'}
+                  </>
                 )}
-              </ScrollArea>
-            </TabsContent>
-
-            {/* TEMPLATES TAB */}
-            <TabsContent value="templates" className="space-y-4">
-              {loadingTemplates ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : templates.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No templates available for {messageType}</p>
-                </div>
-              ) : (
-                <ScrollArea className="h-[500px]">
-                  <div className="grid gap-4">
-                    {templates.map((template) => (
-                      <Card 
-                        key={template.id} 
-                        className="cursor-pointer hover:bg-muted/50 transition-colors"
-                        onClick={() => handleTemplateSelect(template.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="font-medium">{template.name}</h4>
-                                {template.ai_generated && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    <Sparkles className="h-3 w-3 mr-1" />
-                                    AI
-                                  </Badge>
-                                )}
-                                <Badge variant="outline" className="text-xs capitalize">
-                                  {template.type}
-                                </Badge>
-                              </div>
-                              {template.subject && (
-                                <p className="text-sm text-muted-foreground mb-1">
-                                  <strong>Subject:</strong> {template.subject}
-                                </p>
-                              )}
-                              <p className="text-xs text-muted-foreground line-clamp-2 mt-2">
-                                {template.content}
-                              </p>
-                              <div className="flex items-center gap-3 mt-3 text-xs text-muted-foreground">
-                                <span>Used {template.usage_count} times</span>
-                                {template.variables.length > 0 && (
-                                  <span>• {template.variables.length} variables</span>
-                                )}
-                              </div>
-                            </div>
-                            <Button size="sm" variant="outline">
-                              Use Template
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
-            </TabsContent>
-          </Tabs>
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

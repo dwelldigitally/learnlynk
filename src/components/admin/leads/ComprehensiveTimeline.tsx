@@ -299,49 +299,51 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange }: Compre
       </div>
       
       <CollapsibleContent className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full p-4">
-        {filteredTimeline.length > 0 ? (
-          <div className="space-y-4">
-            {filteredTimeline.map((event, index) => (
-              <div key={event.id} className="flex gap-3">
-                <div className="flex flex-col items-center">
-                  <div className={`w-3 h-3 rounded-full ${
-                    event.source === 'AI' ? 'bg-blue-500' : 
-                    event.source === 'Human' ? 'bg-green-500' : 
-                    event.source === 'Student' ? 'bg-purple-500' :
-                    'bg-gray-500'
-                  }`} />
-                  {index < filteredTimeline.length - 1 && (
-                    <div className="w-px h-8 bg-border mt-2" />
-                  )}
-                </div>
-                <div className="flex-1 pb-4">
-                  <div className="flex items-center gap-2 mb-1">
-                    {getIconForEvent(event.type, event.source)}
-                    <span className="text-sm font-medium">{event.action}</span>
-                    <Badge variant="outline" className="text-xs">
-                      {event.source}
-                    </Badge>
+        <ScrollArea className="h-full">
+          <div className="p-4">
+            {filteredTimeline.length > 0 ? (
+              <div className="space-y-4">
+                {filteredTimeline.map((event, index) => (
+                  <div key={event.id} className="flex gap-3">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-3 h-3 rounded-full ${
+                        event.source === 'AI' ? 'bg-blue-500' : 
+                        event.source === 'Human' ? 'bg-green-500' : 
+                        event.source === 'Student' ? 'bg-purple-500' :
+                        'bg-gray-500'
+                      }`} />
+                      {index < filteredTimeline.length - 1 && (
+                        <div className="w-px h-8 bg-border mt-2" />
+                      )}
+                    </div>
+                    <div className="flex-1 pb-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        {getIconForEvent(event.type, event.source)}
+                        <span className="text-sm font-medium">{event.action}</span>
+                        <Badge variant="outline" className="text-xs">
+                          {event.source}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {event.description}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(event.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">
-                    {event.description}
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(event.timestamp).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="text-center py-8">
+                <Activity className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">No timeline events found</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <Activity className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">No timeline events found</p>
-          </div>
-        )}
         </ScrollArea>
       </CollapsibleContent>
     </Collapsible>

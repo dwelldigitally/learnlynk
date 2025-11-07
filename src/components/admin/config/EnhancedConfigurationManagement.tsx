@@ -84,15 +84,6 @@ const configurationSections: ConfigurationSection[] = [
     category: 'Students',
     component: <StudentManagementConfiguration />
   },
-  {
-    id: 'student-portal-admin',
-    label: 'Student Portal Admin',
-    icon: Settings,
-    description: 'Configure student portal branding, navigation, roles, and communication',
-    category: 'Students',
-    component: <StudentPortalAdminConfiguration />,
-    isNew: true
-  },
   
   // Applicants Configuration
   {

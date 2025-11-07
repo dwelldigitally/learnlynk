@@ -33,6 +33,7 @@ import { LeadScoringConfiguration } from './LeadScoringConfiguration';
 import { StudentManagementConfiguration } from './StudentManagementConfiguration';
 import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
 import { ApplicantAIAgentConfiguration } from './ApplicantAIAgentConfiguration';
+import { StudentPortalAdminConfiguration } from './StudentPortalAdminConfiguration';
 
 interface ConfigurationSection {
   id: string;
@@ -80,6 +81,15 @@ const configurationSections: ConfigurationSection[] = [
     description: 'Configure student lifecycle and management settings',
     category: 'Students',
     component: <StudentManagementConfiguration />
+  },
+  {
+    id: 'student-portal-admin',
+    label: 'Student Portal Admin',
+    icon: Settings,
+    description: 'Configure student portal branding, navigation, roles, and communication',
+    category: 'Students',
+    component: <StudentPortalAdminConfiguration />,
+    isNew: true
   },
   
   // Applicants Configuration

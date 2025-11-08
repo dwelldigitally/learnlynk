@@ -113,15 +113,6 @@ const configurationSections: ConfigurationSection[] = [
     component: <CustomFieldsManagement />
   },
   {
-    id: 'programs',
-    label: 'Programs',
-    icon: Building2,
-    description: 'Manage academic programs and their configurations',
-    category: 'System',
-    component: <ProgramsConfiguration />,
-    isNew: true
-  },
-  {
     id: 'campuses',
     label: 'Campuses',
     icon: MapPin,

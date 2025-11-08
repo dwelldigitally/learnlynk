@@ -99,38 +99,8 @@ const EventManagement: React.FC = () => {
     }
   };
 
-  // Mock events for display (different structure than real data)
-  const mockEvents = [
-    {
-      id: "1",
-      title: "Virtual Information Session",
-      type: "webinar",
-      date: "2024-03-15",
-      time: "14:00",
-      location: "Online Platform",
-      capacity: 100,
-      registered: 67,
-      description: "Learn about our programs and admission process in this comprehensive virtual session.",
-      program: "General",
-      isVirtual: true
-    },
-    {
-      id: "2",
-      title: "Campus Open House",
-      type: "tour",
-      date: "2024-03-22",
-      time: "10:00",
-      location: "Main Campus",
-      capacity: 50,
-      registered: 42,
-      description: "Visit our campus, meet faculty, and explore our facilities.",
-      program: "Business Administration",
-      isVirtual: false
-    }
-  ];
-
-  // For demo purposes, show mock data if not in empty state
-  const events = eventsData.showEmptyState ? [] : mockEvents;
+  // Use actual demo events from DemoDataService or real data
+  const events = eventsData.data || [];
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
@@ -321,7 +291,7 @@ const EventManagement: React.FC = () => {
                         <span>{new Date(event.date).toLocaleDateString()} at {event.time}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {event.isVirtual ? (
+                        {event.type === 'webinar' ? (
                           <Video className="h-4 w-4 text-muted-foreground" />
                         ) : (
                           <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -330,19 +300,19 @@ const EventManagement: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{event.registered}/{event.capacity} registered</span>
+                        <span>{event.registrations || 0}/{event.capacity} registered</span>
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <div className="flex justify-between text-xs text-muted-foreground">
                         <span>Registration</span>
-                        <span>{Math.round((event.registered / event.capacity) * 100)}%</span>
+                        <span>{Math.round(((event.registrations || 0) / event.capacity) * 100)}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="w-full bg-muted rounded-full h-2">
                         <div 
                           className="bg-primary h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${(event.registered / event.capacity) * 100}%` }}
+                          style={{ width: `${((event.registrations || 0) / event.capacity) * 100}%` }}
                         />
                       </div>
                     </div>
@@ -356,12 +326,6 @@ const EventManagement: React.FC = () => {
                         <Users className="h-4 w-4 mr-1" />
                         Attendees
                       </Button>
-                    </div>
-
-                    <div className="pt-2 border-t">
-                      <p className="text-xs text-muted-foreground">
-                        Program: <span className="font-medium">{event.program}</span>
-                      </p>
                     </div>
                   </CardContent>
                 </Card>

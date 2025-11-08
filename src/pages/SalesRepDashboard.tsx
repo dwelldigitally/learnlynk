@@ -38,7 +38,7 @@ export default function SalesRepDashboard() {
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         {/* Tab Navigation */}
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="today" className="flex items-center space-x-2">
             <Clock className="h-4 w-4" />
             <span>Today's Focus</span>
@@ -50,10 +50,6 @@ export default function SalesRepDashboard() {
           <TabsTrigger value="performance" className="flex items-center space-x-2">
             <TrendingUp className="h-4 w-4" />
             <span>Performance</span>
-          </TabsTrigger>
-          <TabsTrigger value="ai" className="flex items-center space-x-2">
-            <Bot className="h-4 w-4" />
-            <span>AI Tools</span>
           </TabsTrigger>
         </TabsList>
 
@@ -183,39 +179,6 @@ export default function SalesRepDashboard() {
           <GoalsPerformanceTracker />
         </TabsContent>
 
-        <TabsContent value="ai" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bot className="h-5 w-5 text-purple-600" />
-                  <span>AI Action Center</span>
-                </CardTitle>
-                <CardDescription>
-                  AI-powered recommendations and automation
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AIActionCenter />
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bot className="h-5 w-5 text-blue-600" />
-                  <span>AI Sequences</span>
-                </CardTitle>
-                <CardDescription>
-                  Automated follow-up sequences and workflows
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <AISequenceCard />
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
     </div>
   );

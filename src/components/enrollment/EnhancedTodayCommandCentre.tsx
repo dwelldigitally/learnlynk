@@ -3,15 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useSegmentSelection } from '@/hooks/useSegmentSelection';
 
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Phone, Mail, FileText, CheckCircle, Clock, User, GraduationCap, 
-  Star, Zap, TrendingUp, AlertCircle, Filter, Search, Target,
-  DollarSign, Calendar, MessageSquare, Users, Award, Flame
+  Phone, Mail, FileText, Clock, 
+  Star, Zap, TrendingUp, AlertCircle, Search,
+  DollarSign, Users, Award, Flame, CheckCircle2
 } from 'lucide-react';
 
 // Widget components
@@ -21,12 +21,6 @@ import { CommunicationsWidget } from './widgets/CommunicationsWidget';
 import { DocumentReviewsWidget } from './widgets/DocumentReviewsWidget';
 import { OverdueUrgentWidget } from './widgets/OverdueUrgentWidget';
 import { ConversionOpportunitiesWidget } from './widgets/ConversionOpportunitiesWidget';
-import { SmartActionsConfiguration } from './SmartActionsConfiguration';
-import { EnhancedBulkActionsToolbar } from './EnhancedBulkActionsToolbar';
-// Modern components
-import { ExpandableCard } from '../modern/ExpandableCard';
-import { SmartActionsHub } from '../modern/SmartActionsHub';
-import { EnhancedProductivityDashboard } from '../modern/EnhancedProductivityDashboard';
 
 interface StudentAction {
   id: string;
@@ -49,7 +43,6 @@ interface StudentAction {
     };
     play_source?: string;
     revenue_potential?: number;
-    // Journey/Play Traceability
     journey_id?: string;
     journey_name?: string;
     stage_id?: string;
@@ -72,7 +65,6 @@ interface ConversionMetrics {
 export function EnhancedTodayCommandCentre() {
   const [actions, setActions] = useState<StudentAction[]>([]);
   const [loading, setLoading] = useState(false);
-  const [showConfiguration, setShowConfiguration] = useState(false);
   const [metrics, setMetrics] = useState<ConversionMetrics>({
     leadToApplicant: 0,
     applicantToEnrolled: 0,
@@ -80,14 +72,9 @@ export function EnhancedTodayCommandCentre() {
     conversionMomentum: 0
   });
   
-  // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [yieldFilter, setYieldFilter] = useState<string>('all');
-  const [urgencyFilter, setUrgencyFilter] = useState<string>('all');
-  const [stageFilter, setStageFilter] = useState<string>('all');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState('all');
   
-  // Bulk selection for each widget type
   const callsSelection = useSegmentSelection();
   const communicationsSelection = useSegmentSelection();
   const hotProspectsSelection = useSegmentSelection();
@@ -138,14 +125,11 @@ export function EnhancedTodayCommandCentre() {
     }
   };
 
-  // Load conversion metrics and actions
-
   const loadConversionMetrics = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      // Mock conversion metrics - in real app, these would come from analytics
       setMetrics({
         leadToApplicant: 68,
         applicantToEnrolled: 45,
@@ -172,13 +156,13 @@ export function EnhancedTodayCommandCentre() {
         .eq('id', actionId);
 
       if (error) throw error;
-
-      // Actions are automatically updated via real-time subscription
       
       toast({
-        title: "Action completed! 🎉",
-        description: "Great work! Progress tracked for conversion analytics.",
+        title: "Action completed",
+        description: "Progress tracked successfully",
       });
+
+      loadActions();
     } catch (error) {
       console.error('Error completing action:', error);
       toast({
@@ -189,29 +173,14 @@ export function EnhancedTodayCommandCentre() {
     }
   };
 
-  // Filter actions based on current filters
   const filteredActions = actions.filter(action => {
     const matchesSearch = !searchQuery || 
       action.metadata?.student_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       action.instruction.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesYield = yieldFilter === 'all' || action.metadata?.yield_band === yieldFilter;
-    
-    const matchesUrgency = urgencyFilter === 'all' || 
-      (urgencyFilter === 'overdue' && new Date(action.scheduled_at) < new Date()) ||
-      (urgencyFilter === 'today' && new Date(action.scheduled_at).toDateString() === new Date().toDateString()) ||
-      (urgencyFilter === 'urgent' && action.priority === 1);
-    
-    const matchesStage = stageFilter === 'all' || 
-      action.metadata?.conversion_stage === stageFilter ||
-      (stageFilter === 'journey' && action.metadata?.journey_context);
-    
-    const matchesType = typeFilter === 'all' || action.metadata?.generation_source === typeFilter;
-    
-    return matchesSearch && matchesYield && matchesUrgency && matchesStage && matchesType;
+    return matchesSearch;
   });
 
-  // Categorize actions for widgets
   const categorizedActions = {
     hotProspects: filteredActions.filter(a => 
       a.metadata?.yield_score && a.metadata.yield_score >= 70 && a.priority <= 2
@@ -232,17 +201,14 @@ export function EnhancedTodayCommandCentre() {
     )
   };
 
-  // Debug logging for categorized actions
-  console.log('📊 Categorized actions:', {
-    total: filteredActions.length,
-    calls: categorizedActions.calls.length,
-    callsData: categorizedActions.calls.map(a => ({ id: a.id, type: a.action_type, student: a.metadata?.student_name }))
-  });
+  const totalActions = filteredActions.length;
+  const urgentCount = categorizedActions.overdueUrgent.length;
+  const highValueCount = categorizedActions.hotProspects.length;
 
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map(i => (
             <Card key={i}>
               <CardContent className="p-6">
@@ -260,265 +226,347 @@ export function EnhancedTodayCommandCentre() {
 
   return (
     <div className="space-y-6">
+      {/* Header Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Actions</p>
+                <p className="text-3xl font-bold text-foreground mt-1">{totalActions}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Smart Filters */}
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Urgent</p>
+                <p className="text-3xl font-bold text-destructive mt-1">{urgentCount}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-destructive/10 flex items-center justify-center">
+                <AlertCircle className="h-6 w-6 text-destructive" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">High Value</p>
+                <p className="text-3xl font-bold text-amber-600 mt-1">{highValueCount}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <Flame className="h-6 w-6 text-amber-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Revenue Impact</p>
+                <p className="text-3xl font-bold text-success mt-1">
+                  ${(metrics.revenueImpact / 1000).toFixed(0)}K
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-success" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Search Bar */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-wrap gap-4 items-center">
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Smart Filters:</span>
-            </div>
-            
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search students or actions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-            
-            <Select value={yieldFilter} onValueChange={setYieldFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Yield Band" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Yields</SelectItem>
-                <SelectItem value="high">High Yield</SelectItem>
-                <SelectItem value="medium">Medium Yield</SelectItem>
-                <SelectItem value="low">Low Yield</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={urgencyFilter} onValueChange={setUrgencyFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Urgency" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Tasks</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-                <SelectItem value="today">Due Today</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={stageFilter} onValueChange={setStageFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Stage" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Stages</SelectItem>
-                <SelectItem value="lead">Lead</SelectItem>
-                <SelectItem value="applicant">Applicant</SelectItem>
-                <SelectItem value="enrolled">Enrolled</SelectItem>
-                <SelectItem value="journey">Journey Active</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[140px]">
-                <SelectValue placeholder="Source" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Sources</SelectItem>
-                <SelectItem value="journey-orchestrator">Journey</SelectItem>
-                <SelectItem value="standard-plays">Standard</SelectItem>
-                <SelectItem value="manual">Manual</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setSearchQuery('');
-                setYieldFilter('all');
-                setUrgencyFilter('all');
-                setStageFilter('all');
-                setTypeFilter('all');
-              }}
-            >
-              Clear All
-            </Button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by student name or action..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </CardContent>
       </Card>
 
-      {/* Enhanced AI Productivity Dashboard */}
-      <div className="mb-6">
-        <EnhancedProductivityDashboard />
-      </div>
+      {/* Actions Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="all">
+            All
+            <Badge variant="secondary" className="ml-2">{totalActions}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="urgent">
+            <AlertCircle className="h-4 w-4 mr-1" />
+            Urgent
+            <Badge variant="destructive" className="ml-2">{urgentCount}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="hot">
+            <Flame className="h-4 w-4 mr-1" />
+            Hot
+            <Badge variant="secondary" className="ml-2">{categorizedActions.hotProspects.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="calls">
+            <Phone className="h-4 w-4 mr-1" />
+            Calls
+            <Badge variant="secondary" className="ml-2">{categorizedActions.calls.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="comms">
+            <Mail className="h-4 w-4 mr-1" />
+            Comms
+            <Badge variant="secondary" className="ml-2">{categorizedActions.communications.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="docs">
+            <FileText className="h-4 w-4 mr-1" />
+            Docs
+            <Badge variant="secondary" className="ml-2">{categorizedActions.documentReviews.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="conversion">
+            <TrendingUp className="h-4 w-4 mr-1" />
+            Convert
+            <Badge variant="secondary" className="ml-2">{categorizedActions.conversionOps.length}</Badge>
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Smart Actions Hub */}
-      <div className="mb-6">
-        {showConfiguration ? (
-          <SmartActionsConfiguration />
-        ) : (
-          <SmartActionsHub 
-            onConfigurationClick={() => setShowConfiguration(true)}
-          />
-        )}
-      </div>
+        <TabsContent value="all" className="mt-6 space-y-4">
+          {urgentCount > 0 && (
+            <Card className="border-destructive/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5 text-destructive" />
+                  Overdue & Urgent
+                  <Badge variant="destructive">{urgentCount}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OverdueUrgentWidget 
+                  actions={categorizedActions.overdueUrgent}
+                  onCompleteAction={handleCompleteAction}
+                  selectedItems={overdueUrgentSelection.selectedItems}
+                  onToggleItem={overdueUrgentSelection.toggleItem}
+                  onToggleAll={overdueUrgentSelection.toggleAll}
+                  showBulkActions={true}
+                />
+              </CardContent>
+            </Card>
+          )}
 
-      {showConfiguration && (
-        <div className="mb-6 flex justify-end">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowConfiguration(false)}
-          >
-            Back to Actions
-          </Button>
-        </div>
-      )}
+          {highValueCount > 0 && (
+            <Card className="border-amber-500/50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Flame className="h-5 w-5 text-amber-600" />
+                  Hot Prospects
+                  <Badge className="bg-amber-500">{highValueCount}</Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <HotProspectsWidget 
+                  actions={categorizedActions.hotProspects}
+                  onCompleteAction={handleCompleteAction}
+                  selectedItems={hotProspectsSelection.selectedItems}
+                  onToggleItem={hotProspectsSelection.toggleItem}
+                  onToggleAll={hotProspectsSelection.toggleAll}
+                  showBulkActions={true}
+                />
+              </CardContent>
+            </Card>
+          )}
 
-      {/* Enhanced Task Widgets Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <ExpandableCard
-          title="Hot Prospects"
-          subtitle="High-value opportunities requiring immediate attention"
-          icon={<Flame className="h-5 w-5" />}
-          count={categorizedActions.hotProspects.length}
-          priority="urgent"
-          defaultExpanded={categorizedActions.hotProspects.length > 0}
-          className="animate-stagger-1"
-        >
-          <HotProspectsWidget 
-            actions={categorizedActions.hotProspects}
-            onCompleteAction={handleCompleteAction}
-            selectedItems={hotProspectsSelection.selectedItems}
-            onToggleItem={hotProspectsSelection.toggleItem}
-            onToggleAll={hotProspectsSelection.toggleAll}
-            showBulkActions={true}
-          />
-        </ExpandableCard>
-        
-        <ExpandableCard
-          title="Calls to Make"
-          subtitle="Priority phone calls and check-ins"
-          icon={<Phone className="h-5 w-5" />}
-          count={categorizedActions.calls.length}
-          priority="high"
-          defaultExpanded={categorizedActions.calls.length > 0}
-          className="animate-stagger-2"
-        >
-          <CallsToMakeWidget 
-            actions={categorizedActions.calls}
-            onCompleteAction={handleCompleteAction}
-            selectedItems={callsSelection.selectedItems}
-            onToggleItem={callsSelection.toggleItem}
-            onToggleAll={callsSelection.toggleAll}
-            showBulkActions={true}
-          />
-        </ExpandableCard>
-        
-        <ExpandableCard
-          title="Communications"
-          subtitle="Emails, messages, and follow-ups"
-          icon={<Mail className="h-5 w-5" />}
-          count={categorizedActions.communications.length}
-          priority="medium"
-          defaultExpanded={categorizedActions.communications.length > 0}
-          className="animate-stagger-3"
-        >
-          <CommunicationsWidget 
-            actions={categorizedActions.communications}
-            onCompleteAction={handleCompleteAction}
-            selectedItems={communicationsSelection.selectedItems}
-            onToggleItem={communicationsSelection.toggleItem}
-            onToggleAll={communicationsSelection.toggleAll}
-            showBulkActions={true}
-          />
-        </ExpandableCard>
-        
-        <ExpandableCard
-          title="Document Reviews"
-          subtitle="Applications and documents requiring review"
-          icon={<FileText className="h-5 w-5" />}
-          count={categorizedActions.documentReviews.length}
-          priority="medium"
-          defaultExpanded={categorizedActions.documentReviews.length > 0}
-          className="animate-stagger-4"
-        >
-          <DocumentReviewsWidget 
-            actions={categorizedActions.documentReviews}
-            onCompleteAction={handleCompleteAction}
-            selectedItems={documentReviewsSelection.selectedItems}
-            onToggleItem={documentReviewsSelection.toggleItem}
-            onToggleAll={documentReviewsSelection.toggleAll}
-            showBulkActions={true}
-          />
-        </ExpandableCard>
-        
-        <ExpandableCard
-          title="Overdue & Urgent"
-          subtitle="Time-sensitive tasks requiring immediate action"
-          icon={<AlertCircle className="h-5 w-5" />}
-          count={categorizedActions.overdueUrgent.length}
-          priority="urgent"
-          defaultExpanded={categorizedActions.overdueUrgent.length > 0}
-          className="animate-stagger-5"
-        >
-          <OverdueUrgentWidget 
-            actions={categorizedActions.overdueUrgent}
-            onCompleteAction={handleCompleteAction}
-            selectedItems={overdueUrgentSelection.selectedItems}
-            onToggleItem={overdueUrgentSelection.toggleItem}
-            onToggleAll={overdueUrgentSelection.toggleAll}
-            showBulkActions={true}
-          />
-        </ExpandableCard>
-        
-        <ExpandableCard
-          title="Conversion Opportunities"
-          subtitle="High-potential leads ready for advancement"
-          icon={<TrendingUp className="h-5 w-5" />}
-          count={categorizedActions.conversionOps.length}
-          priority="high"
-          defaultExpanded={categorizedActions.conversionOps.length > 0}
-          className="animate-stagger-1"
-        >
-          <ConversionOpportunitiesWidget 
-            actions={categorizedActions.conversionOps}
-            onCompleteAction={handleCompleteAction}
-            selectedItems={conversionOpsSelection.selectedItems}
-            onToggleItem={conversionOpsSelection.toggleItem}
-            onToggleAll={conversionOpsSelection.toggleAll}
-            showBulkActions={true}
-          />
-        </ExpandableCard>
-      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {categorizedActions.calls.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Phone className="h-5 w-5" />
+                    Calls to Make
+                    <Badge variant="secondary">{categorizedActions.calls.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CallsToMakeWidget 
+                    actions={categorizedActions.calls}
+                    onCompleteAction={handleCompleteAction}
+                    selectedItems={callsSelection.selectedItems}
+                    onToggleItem={callsSelection.toggleItem}
+                    onToggleAll={callsSelection.toggleAll}
+                    showBulkActions={true}
+                  />
+                </CardContent>
+              </Card>
+            )}
 
-      {/* Summary Card */}
-      {filteredActions.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">All caught up! 🎉</h3>
-            <p className="text-muted-foreground">
-              No pending actions match your current filters. 
-              Try adjusting your filters or check back later for new tasks.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Target className="h-5 w-5 text-primary" />
-                <span className="font-medium">
-                  {filteredActions.length} actions ready for conversion impact
-                </span>
-              </div>
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                {categorizedActions.hotProspects.length} high-value opportunities
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            {categorizedActions.communications.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Communications
+                    <Badge variant="secondary">{categorizedActions.communications.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CommunicationsWidget 
+                    actions={categorizedActions.communications}
+                    onCompleteAction={handleCompleteAction}
+                    selectedItems={communicationsSelection.selectedItems}
+                    onToggleItem={communicationsSelection.toggleItem}
+                    onToggleAll={communicationsSelection.toggleAll}
+                    showBulkActions={true}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {categorizedActions.documentReviews.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Document Reviews
+                    <Badge variant="secondary">{categorizedActions.documentReviews.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <DocumentReviewsWidget 
+                    actions={categorizedActions.documentReviews}
+                    onCompleteAction={handleCompleteAction}
+                    selectedItems={documentReviewsSelection.selectedItems}
+                    onToggleItem={documentReviewsSelection.toggleItem}
+                    onToggleAll={documentReviewsSelection.toggleAll}
+                    showBulkActions={true}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
+            {categorizedActions.conversionOps.length > 0 && (
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <TrendingUp className="h-5 w-5" />
+                    Conversion Opportunities
+                    <Badge variant="secondary">{categorizedActions.conversionOps.length}</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ConversionOpportunitiesWidget 
+                    actions={categorizedActions.conversionOps}
+                    onCompleteAction={handleCompleteAction}
+                    selectedItems={conversionOpsSelection.selectedItems}
+                    onToggleItem={conversionOpsSelection.toggleItem}
+                    onToggleAll={conversionOpsSelection.toggleAll}
+                    showBulkActions={true}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="urgent" className="mt-6">
+          <Card className="border-destructive/50">
+            <CardContent className="p-6">
+              <OverdueUrgentWidget 
+                actions={categorizedActions.overdueUrgent}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={overdueUrgentSelection.selectedItems}
+                onToggleItem={overdueUrgentSelection.toggleItem}
+                onToggleAll={overdueUrgentSelection.toggleAll}
+                showBulkActions={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="hot" className="mt-6">
+          <Card className="border-amber-500/50">
+            <CardContent className="p-6">
+              <HotProspectsWidget 
+                actions={categorizedActions.hotProspects}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={hotProspectsSelection.selectedItems}
+                onToggleItem={hotProspectsSelection.toggleItem}
+                onToggleAll={hotProspectsSelection.toggleAll}
+                showBulkActions={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="calls" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
+              <CallsToMakeWidget 
+                actions={categorizedActions.calls}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={callsSelection.selectedItems}
+                onToggleItem={callsSelection.toggleItem}
+                onToggleAll={callsSelection.toggleAll}
+                showBulkActions={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="comms" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
+              <CommunicationsWidget 
+                actions={categorizedActions.communications}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={communicationsSelection.selectedItems}
+                onToggleItem={communicationsSelection.toggleItem}
+                onToggleAll={communicationsSelection.toggleAll}
+                showBulkActions={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="docs" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
+              <DocumentReviewsWidget 
+                actions={categorizedActions.documentReviews}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={documentReviewsSelection.selectedItems}
+                onToggleItem={documentReviewsSelection.toggleItem}
+                onToggleAll={documentReviewsSelection.toggleAll}
+                showBulkActions={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="conversion" className="mt-6">
+          <Card>
+            <CardContent className="p-6">
+              <ConversionOpportunitiesWidget 
+                actions={categorizedActions.conversionOps}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={conversionOpsSelection.selectedItems}
+                onToggleItem={conversionOpsSelection.toggleItem}
+                onToggleAll={conversionOpsSelection.toggleAll}
+                showBulkActions={true}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

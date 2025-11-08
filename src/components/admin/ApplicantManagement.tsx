@@ -27,71 +27,91 @@ export const ApplicantManagement = () => {
   const [activeStage, setActiveStage] = useState('all');
   const [selectedApplicantIds, setSelectedApplicantIds] = useState<string[]>([]);
   const [bulkAssessing, setBulkAssessing] = useState(false);
-  const missingAssessmentIds = useMemo(
-    () => applicants.filter((a: any) => a?.program_fit_score == null).map(a => a.id),
-    [applicants]
-  );
-  const { toast } = useToast();
+  const missingAssessmentIds = useMemo(() => applicants.filter((a: any) => a?.program_fit_score == null).map(a => a.id), [applicants]);
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
 
   // Stage statistics
-  const [stageStats, setStageStats] = useState([
-    { key: 'application_started', label: 'Started', count: 0, color: 'bg-blue-500' },
-    { key: 'documents_submitted', label: 'Documents', count: 0, color: 'bg-orange-500' },
-    { key: 'under_review', label: 'Review', count: 0, color: 'bg-purple-500' },
-    { key: 'decision_pending', label: 'Decision', count: 0, color: 'bg-yellow-500' },
-    { key: 'approved', label: 'Approved', count: 0, color: 'bg-green-500' },
-    { key: 'rejected', label: 'Rejected', count: 0, color: 'bg-red-500' }
-  ]);
-
+  const [stageStats, setStageStats] = useState([{
+    key: 'application_started',
+    label: 'Started',
+    count: 0,
+    color: 'bg-blue-500'
+  }, {
+    key: 'documents_submitted',
+    label: 'Documents',
+    count: 0,
+    color: 'bg-orange-500'
+  }, {
+    key: 'under_review',
+    label: 'Review',
+    count: 0,
+    color: 'bg-purple-500'
+  }, {
+    key: 'decision_pending',
+    label: 'Decision',
+    count: 0,
+    color: 'bg-yellow-500'
+  }, {
+    key: 'approved',
+    label: 'Approved',
+    count: 0,
+    color: 'bg-green-500'
+  }, {
+    key: 'rejected',
+    label: 'Rejected',
+    count: 0,
+    color: 'bg-red-500'
+  }]);
   const totalPages = Math.ceil(totalCount / pageSize);
-
   useEffect(() => {
     loadApplicants();
   }, [currentPage, pageSize, filters, activeStage]);
-
   const loadApplicants = async () => {
     try {
       setLoading(true);
-      
+
       // Add stage filter if not viewing all
-      const stageFilters = activeStage !== 'all' 
-        ? { ...filters, substage: [activeStage as any] }
-        : filters;
-      
-      const { applicants: data, total } = await ApplicantService.getApplicants(
-        stageFilters,
-        currentPage,
-        pageSize
-      );
+      const stageFilters = activeStage !== 'all' ? {
+        ...filters,
+        substage: [activeStage as any]
+      } : filters;
+      const {
+        applicants: data,
+        total
+      } = await ApplicantService.getApplicants(stageFilters, currentPage, pageSize);
 
       // Merge any existing program fit assessments
       let merged = data as any[];
       if (data.length > 0) {
         const ids = data.map(a => a.id);
-        const { data: assessments } = await supabase
-          .from('program_fit_assessments')
-          .select('applicant_id, program_fit_score, yield_propensity_score')
-          .in('applicant_id', ids);
-
-        const byApplicant: Record<string, { program_fit_score?: number; yield_propensity_score?: number }> = {};
-        (assessments || []).forEach(a => { byApplicant[a.applicant_id] = a; });
+        const {
+          data: assessments
+        } = await supabase.from('program_fit_assessments').select('applicant_id, program_fit_score, yield_propensity_score').in('applicant_id', ids);
+        const byApplicant: Record<string, {
+          program_fit_score?: number;
+          yield_propensity_score?: number;
+        }> = {};
+        (assessments || []).forEach(a => {
+          byApplicant[a.applicant_id] = a;
+        });
         merged = data.map(a => ({
           ...a,
           program_fit_score: byApplicant[a.id]?.program_fit_score,
-          yield_propensity: byApplicant[a.id]?.yield_propensity_score,
+          yield_propensity: byApplicant[a.id]?.yield_propensity_score
         }));
       }
-
       setApplicants(merged as any);
       setTotalCount(total);
-      
+
       // Debug: Log the first applicant to see the data structure
       if (data.length > 0) {
         console.log('First applicant data:', data[0]);
         console.log('Master records:', data[0]?.master_records);
       }
-      
+
       // Update stage statistics
       if (activeStage === 'all') {
         updateStageStats(data);
@@ -101,101 +121,108 @@ export const ApplicantManagement = () => {
       toast({
         title: "Error",
         description: "Failed to load applicants",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const updateStageStats = (applicantData: Applicant[]) => {
     const stageCounts = applicantData.reduce((acc, applicant) => {
       acc[applicant.substage] = (acc[applicant.substage] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-
     setStageStats(prev => prev.map(stage => ({
       ...stage,
       count: stageCounts[stage.key] || 0
     })));
   };
-
   const handleStageChange = (stage: string) => {
     setActiveStage(stage);
     setCurrentPage(1); // Reset to first page when changing stages
   };
-
   const handleAIAction = async (actionId: string, stageKey: string) => {
     toast({
       title: "AI Action Triggered",
-      description: `Executing ${actionId} for ${stageKey} stage`,
+      description: `Executing ${actionId} for ${stageKey} stage`
     });
-    
+
     // Here you would implement the actual AI action
     console.log(`Executing AI action: ${actionId} for stage: ${stageKey}`);
   };
-
   const getSubstageBadgeVariant = (substage: string) => {
     switch (substage) {
-      case 'application_started': return 'outline';
-      case 'documents_submitted': return 'secondary';
-      case 'under_review': return 'default';
-      case 'decision_pending': return 'destructive';
-      case 'approved': return 'default';
-      case 'rejected': return 'secondary';
-      default: return 'outline';
+      case 'application_started':
+        return 'outline';
+      case 'documents_submitted':
+        return 'secondary';
+      case 'under_review':
+        return 'default';
+      case 'decision_pending':
+        return 'destructive';
+      case 'approved':
+        return 'default';
+      case 'rejected':
+        return 'secondary';
+      default:
+        return 'outline';
     }
   };
-
   const getDecisionBadgeVariant = (decision?: string) => {
     switch (decision) {
-      case 'approved': return 'default';
-      case 'rejected': return 'destructive';
-      case 'waitlisted': return 'secondary';
-      default: return 'outline';
+      case 'approved':
+        return 'default';
+      case 'rejected':
+        return 'destructive';
+      case 'waitlisted':
+        return 'secondary';
+      default:
+        return 'outline';
     }
   };
-
   const getPaymentStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case 'completed': return 'default';
-      case 'partial': return 'secondary';
-      case 'pending': return 'outline';
-      case 'refunded': return 'destructive';
-      default: return 'outline';
+      case 'completed':
+        return 'default';
+      case 'partial':
+        return 'secondary';
+      case 'pending':
+        return 'outline';
+      case 'refunded':
+        return 'destructive';
+      default:
+        return 'outline';
     }
   };
-
   const handleApprove = async (applicantId: string) => {
     try {
       await ApplicantService.approveApplicant(applicantId, 'Approved via admin panel');
       toast({
         title: "Success",
-        description: "Applicant approved and moved to student stage",
+        description: "Applicant approved and moved to student stage"
       });
       loadApplicants();
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to approve applicant",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleReject = async (applicantId: string) => {
     try {
       await ApplicantService.rejectApplicant(applicantId, 'Rejected via admin panel');
       toast({
         title: "Success",
-        description: "Applicant rejected",
+        description: "Applicant rejected"
       });
       loadApplicants();
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to reject applicant",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -215,17 +242,16 @@ export const ApplicantManagement = () => {
       toast({
         title: "No Selection",
         description: "Please select applicants to assess",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setBulkAssessing(true);
     try {
       const assessments = await ProgramFitService.bulkAssessApplicants(selectedApplicantIds);
       toast({
         title: "Assessment Complete",
-        description: `Program fit assessed for ${assessments.length} applicants`,
+        description: `Program fit assessed for ${assessments.length} applicants`
       });
       setSelectedApplicantIds([]);
       loadApplicants(); // Reload to show updated scores
@@ -234,173 +260,127 @@ export const ApplicantManagement = () => {
       toast({
         title: "Assessment Failed",
         description: "Failed to assess program fit. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setBulkAssessing(false);
     }
   };
-
-  const columns = [
-    {
-      key: 'name',
-      label: 'Name',
-      sortable: true,
-      render: (_value: any, row: any) => {
-        if (!row) return null;
-        const firstName = row.master_records?.first_name || row.first_name || 'N/A';
-        const lastName = row.master_records?.last_name || row.last_name || '';
-        const email = row.master_records?.email || row.email || 'No email';
-        return (
-          <div>
+  const columns = [{
+    key: 'name',
+    label: 'Name',
+    sortable: true,
+    render: (_value: any, row: any) => {
+      if (!row) return null;
+      const firstName = row.master_records?.first_name || row.first_name || 'N/A';
+      const lastName = row.master_records?.last_name || row.last_name || '';
+      const email = row.master_records?.email || row.email || 'No email';
+      return <div>
             <Link to={`/admin/applicants/detail/${row.id}`} className="font-medium hover:underline">
               {firstName} {lastName}
             </Link>
             <div className="text-sm text-muted-foreground">{email}</div>
-          </div>
-        );
-      }
-    },
-    {
-      key: 'program',
-      label: 'Program',
-      sortable: true,
-      render: (_: any, row: any) => (
-        <Badge variant="outline">{row?.program || 'No Program'}</Badge>
-      )
-    },
-    {
-      key: 'substage',
-      label: 'Stage',
-      render: (_: any, row: any) => {
-        const stage = (row?.substage || 'application_started') as string;
-        return (
-          <Badge variant={getSubstageBadgeVariant(stage)}>
+          </div>;
+    }
+  }, {
+    key: 'program',
+    label: 'Program',
+    sortable: true,
+    render: (_: any, row: any) => <Badge variant="outline">{row?.program || 'No Program'}</Badge>
+  }, {
+    key: 'substage',
+    label: 'Stage',
+    render: (_: any, row: any) => {
+      const stage = (row?.substage || 'application_started') as string;
+      return <Badge variant={getSubstageBadgeVariant(stage)}>
             {stage.replace('_', ' ').toUpperCase()}
-          </Badge>
-        );
-      }
-    },
-    {
-      key: 'application_type',
-      label: 'Type',
-      render: (_: any, row: any) => {
-        const type = (row?.application_type || 'direct_enrollment') as string;
-        return (
-          <Badge variant="outline">
+          </Badge>;
+    }
+  }, {
+    key: 'application_type',
+    label: 'Type',
+    render: (_: any, row: any) => {
+      const type = (row?.application_type || 'direct_enrollment') as string;
+      return <Badge variant="outline">
             {type.replace('_', ' ').toUpperCase()}
-          </Badge>
-        );
-      }
-    },
-    {
-      key: 'decision',
-      label: 'Decision',
-      render: (_: any, row: any) => {
-        const decision = row?.decision || 'pending';
-        return decision !== 'pending' ? (
-          <Badge variant={getDecisionBadgeVariant(decision)}>
+          </Badge>;
+    }
+  }, {
+    key: 'decision',
+    label: 'Decision',
+    render: (_: any, row: any) => {
+      const decision = row?.decision || 'pending';
+      return decision !== 'pending' ? <Badge variant={getDecisionBadgeVariant(decision)}>
             {decision.toUpperCase()}
-          </Badge>
-        ) : (
-          <Badge variant="outline">PENDING</Badge>
-        );
-      }
-    },
-    {
-      key: 'payment_status',
-      label: 'Payment',
-      render: (_: any, row: any) => {
-        const pay = (row?.payment_status || 'pending') as string;
-        return (
-          <Badge variant={getPaymentStatusBadgeVariant(pay)}>
+          </Badge> : <Badge variant="outline">PENDING</Badge>;
+    }
+  }, {
+    key: 'payment_status',
+    label: 'Payment',
+    render: (_: any, row: any) => {
+      const pay = (row?.payment_status || 'pending') as string;
+      return <Badge variant={getPaymentStatusBadgeVariant(pay)}>
             {pay.toUpperCase()}
-          </Badge>
-        );
-      }
-    },
-    {
-      key: 'program_fit_score',
-      label: 'Program Fit',
-      render: (_: any, row: any) => {
-        const score = typeof row?.program_fit_score === 'number' ? row.program_fit_score : mockScoreFor(row.id, 0);
-        return (
-          <div className="text-center">
+          </Badge>;
+    }
+  }, {
+    key: 'program_fit_score',
+    label: 'Program Fit',
+    render: (_: any, row: any) => {
+      const score = typeof row?.program_fit_score === 'number' ? row.program_fit_score : mockScoreFor(row.id, 0);
+      return <div className="text-center">
             <Badge variant="outline">
               <Brain className="w-3 h-3 mr-1" />
               {Math.round(score)}
             </Badge>
-          </div>
-        );
-      }
-    },
-    {
-      key: 'yield_propensity',
-      label: 'Yield Propensity', 
-      render: (_: any, row: any) => {
-        const score = typeof row?.yield_propensity === 'number' ? row.yield_propensity : mockScoreFor(row.id, 7);
-        return (
-          <div className="text-center">
+          </div>;
+    }
+  }, {
+    key: 'yield_propensity',
+    label: 'Yield Propensity',
+    render: (_: any, row: any) => {
+      const score = typeof row?.yield_propensity === 'number' ? row.yield_propensity : mockScoreFor(row.id, 7);
+      return <div className="text-center">
             <Badge variant="outline">
               <Target className="w-3 h-3 mr-1" />
               {Math.round(score)}
             </Badge>
-          </div>
-        );
+          </div>;
+    }
+  }, {
+    key: 'created_at',
+    label: 'Applied',
+    sortable: true,
+    render: (_: any, row: any) => {
+      const dateVal = row?.created_at || row?.master_records?.created_at || null;
+      if (!dateVal) return 'No Date';
+      try {
+        return new Date(dateVal).toLocaleDateString();
+      } catch {
+        return 'Invalid Date';
       }
-    },
-    {
-      key: 'created_at',
-      label: 'Applied',
-      sortable: true,
-      render: (_: any, row: any) => {
-        const dateVal = row?.created_at || row?.master_records?.created_at || null;
-        if (!dateVal) return 'No Date';
-        try {
-          return new Date(dateVal).toLocaleDateString();
-        } catch {
-          return 'Invalid Date';
-        }
-      }
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      render: (_: any, row: any) => {
-        if (!row) return null;
-        return (
-          <div className="flex space-x-2">
+    }
+  }, {
+    key: 'actions',
+    label: 'Actions',
+    render: (_: any, row: any) => {
+      if (!row) return null;
+      return <div className="flex space-x-2">
             <Link to={`/admin/applicants/detail/${row.id}`}>
               <Button size="sm" variant="ghost" className="h-8">View</Button>
             </Link>
-            {(!row.decision || row.decision === 'pending') && (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => handleApprove(row.id)}
-                  className="h-8"
-                >
+            {(!row.decision || row.decision === 'pending') && <>
+                <Button size="sm" onClick={() => handleApprove(row.id)} className="h-8">
                   Approve
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleReject(row.id)}
-                  className="h-8"
-                >
+                <Button size="sm" variant="outline" onClick={() => handleReject(row.id)} className="h-8">
                   Reject
                 </Button>
-              </>
-            )}
-          </div>
-        );
-      }
+              </>}
+          </div>;
     }
-  ];
-
-
-  return (
-    <div className="space-y-6">
+  }];
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-bold tracking-tight">Applicant Management</h1>
@@ -410,31 +390,15 @@ export const ApplicantManagement = () => {
       </div>
 
       {/* Application Pipeline */}
-      <ApplicantStageTracker
-        stages={stageStats}
-        activeStage={activeStage}
-        onStageChange={handleStageChange}
-        onAIAction={handleAIAction}
-        selectedApplicantsCount={selectedApplicantIds.length}
-      />
+      <ApplicantStageTracker stages={stageStats} activeStage={activeStage} onStageChange={handleStageChange} onAIAction={handleAIAction} selectedApplicantsCount={selectedApplicantIds.length} />
 
       {/* Stats Overview */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {stageStats.map((stat) => (
-          <Card 
-            key={stat.key} 
-            className="relative overflow-hidden transition-all hover:shadow-md cursor-pointer border-l-4"
-            style={{ borderLeftColor: stat.color.replace('bg-', '#').replace('blue-500', '3b82f6').replace('orange-500', 'f97316').replace('purple-500', 'a855f7').replace('yellow-500', 'eab308').replace('green-500', '22c55e').replace('red-500', 'ef4444') }}
-            onClick={() => handleStageChange(stat.key)}
-          >
-            <CardContent className="p-4">
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{stat.label}</p>
-                <p className="text-3xl font-bold">{stat.count}</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        {stageStats.map(stat => <Card key={stat.key} className="relative overflow-hidden transition-all hover:shadow-md cursor-pointer border-l-4" style={{
+        borderLeftColor: stat.color.replace('bg-', '#').replace('blue-500', '3b82f6').replace('orange-500', 'f97316').replace('purple-500', 'a855f7').replace('yellow-500', 'eab308').replace('green-500', '22c55e').replace('red-500', 'ef4444')
+      }} onClick={() => handleStageChange(stat.key)}>
+            
+          </Card>)}
       </div>
 
       {/* Actions Bar */}
@@ -442,19 +406,12 @@ export const ApplicantManagement = () => {
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative flex-1 min-w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by name, email, or program..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 bg-background"
-            />
+            <Input placeholder="Search by name, email, or program..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9 bg-background" />
           </div>
-          <Select
-            value={filters.substage?.[0] || 'all'}
-            onValueChange={(value) =>
-              setFilters({ ...filters, substage: value === 'all' ? undefined : [value as any] })
-            }
-          >
+          <Select value={filters.substage?.[0] || 'all'} onValueChange={value => setFilters({
+          ...filters,
+          substage: value === 'all' ? undefined : [value as any]
+        })}>
             <SelectTrigger className="w-[180px] bg-background">
               <Filter className="h-4 w-4 mr-2" />
               <SelectValue placeholder="Filter by stage" />
@@ -472,60 +429,53 @@ export const ApplicantManagement = () => {
         </div>
         
         <div className="flex items-center gap-2 flex-wrap">
-          {selectedApplicantIds.length > 0 && (
-            <Button
-              onClick={handleBulkProgramFitAssessment}
-              disabled={bulkAssessing}
-              size="sm"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            >
-              {bulkAssessing ? (
-                <>
+          {selectedApplicantIds.length > 0 && <Button onClick={handleBulkProgramFitAssessment} disabled={bulkAssessing} size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              {bulkAssessing ? <>
                   <Zap className="w-4 h-4 mr-2 animate-spin" />
                   Assessing...
-                </>
-              ) : (
-                <>
+                </> : <>
                   <Brain className="w-4 h-4 mr-2" />
                   Assess ({selectedApplicantIds.length})
-                </>
-              )}
-            </Button>
-          )}
-          {missingAssessmentIds.length > 0 && (
-            <Button
-              onClick={async () => {
-                try {
-                  setBulkAssessing(true);
-                  const assessments = await ProgramFitService.bulkAssessApplicants(missingAssessmentIds);
-                  toast({ title: "Assessed visible applicants", description: `${assessments.length} scored` });
-                  await loadApplicants();
-                } catch (e) {
-                  toast({ title: "Error", description: "Failed to assess visible applicants", variant: "destructive" });
-                } finally {
-                  setBulkAssessing(false);
-                }
-              }}
-              disabled={bulkAssessing}
-              variant="outline"
-              size="sm"
-            >
+                </>}
+            </Button>}
+          {missingAssessmentIds.length > 0 && <Button onClick={async () => {
+          try {
+            setBulkAssessing(true);
+            const assessments = await ProgramFitService.bulkAssessApplicants(missingAssessmentIds);
+            toast({
+              title: "Assessed visible applicants",
+              description: `${assessments.length} scored`
+            });
+            await loadApplicants();
+          } catch (e) {
+            toast({
+              title: "Error",
+              description: "Failed to assess visible applicants",
+              variant: "destructive"
+            });
+          } finally {
+            setBulkAssessing(false);
+          }
+        }} disabled={bulkAssessing} variant="outline" size="sm">
               <Brain className="w-4 h-4 mr-2" />
               Assess Visible ({missingAssessmentIds.length})
-            </Button>
-          )}
-          <Button 
-            onClick={async () => {
-              try {
-                const created = await ApplicantService.createSampleApplicant();
-                toast({ title: "Sample applicant created", description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim() });
-                navigate(`/admin/applicants/detail/${created.id}`);
-              } catch (e) {
-                toast({ title: "Error", description: "Failed to create sample applicant", variant: "destructive" });
-              }
-            }}
-            size="sm"
-          >
+            </Button>}
+          <Button onClick={async () => {
+          try {
+            const created = await ApplicantService.createSampleApplicant();
+            toast({
+              title: "Sample applicant created",
+              description: `${created.master_records?.first_name || 'Sample'} ${created.master_records?.last_name || ''}`.trim()
+            });
+            navigate(`/admin/applicants/detail/${created.id}`);
+          } catch (e) {
+            toast({
+              title: "Error",
+              description: "Failed to create sample applicant",
+              variant: "destructive"
+            });
+          }
+        }} size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Add Applicant
           </Button>
@@ -533,36 +483,10 @@ export const ApplicantManagement = () => {
       </div>
 
       {/* Applicants Table */}
-      <ConditionalDataWrapper
-        isLoading={loading}
-        showEmptyState={applicants.length === 0 && !loading}
-        hasDemoAccess={false}
-        hasRealData={applicants.length > 0}
-        emptyTitle="No applicants found"
-        emptyDescription="No applicants match your current filters."
-      >
+      <ConditionalDataWrapper isLoading={loading} showEmptyState={applicants.length === 0 && !loading} hasDemoAccess={false} hasRealData={applicants.length > 0} emptyTitle="No applicants found" emptyDescription="No applicants match your current filters.">
         <Card>
-          <RefinedLeadTable
-            title="Applicants"
-            data={applicants}
-            columns={columns}
-            loading={loading}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            totalCount={totalCount}
-            onPageChange={setCurrentPage}
-            onPageSizeChange={setPageSize}
-            onSearch={(term) => setSearchTerm(term)}
-            onSort={() => {}}
-            onFilter={() => {}}
-            onRowClick={(applicant) => navigate(`/admin/applicants/detail/${applicant.id}`)}
-            selectedIds={selectedApplicantIds}
-            onSelectionChange={setSelectedApplicantIds}
-            selectable={true}
-          />
+          <RefinedLeadTable title="Applicants" data={applicants} columns={columns} loading={loading} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} totalCount={totalCount} onPageChange={setCurrentPage} onPageSizeChange={setPageSize} onSearch={term => setSearchTerm(term)} onSort={() => {}} onFilter={() => {}} onRowClick={applicant => navigate(`/admin/applicants/detail/${applicant.id}`)} selectedIds={selectedApplicantIds} onSelectionChange={setSelectedApplicantIds} selectable={true} />
         </Card>
       </ConditionalDataWrapper>
-    </div>
-  );
+    </div>;
 };

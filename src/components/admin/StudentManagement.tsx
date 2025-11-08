@@ -452,16 +452,7 @@ export default function StudentManagement() {
 
         {/* Full Width Data Table */}
         {!showEmptyState && <Card className="border-border/50 shadow-md animate-fade-in">
-            <CardHeader className="border-b bg-muted/20 pb-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <CardTitle className="text-xl">All Students</CardTitle>
-                  <CardDescription className="mt-1">
-                    {total} {total === 1 ? 'student' : 'students'} • Manage applications and track progress
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
+            
             <CardContent className="p-0">
               <EnhancedDataTable title="" columns={studentColumns} data={students} totalCount={total} currentPage={pagination.page} totalPages={paginatedData?.totalPages || 1} pageSize={pagination.pageSize} loading={isLoading} searchable={true} filterable={true} exportable={false} selectable={true} sortBy={pagination.sortBy} sortOrder={pagination.sortOrder} filterOptions={filterOptions} bulkActions={bulkActions} selectedIds={selectedStudents} onSelectionChange={setSelectedStudents} onPageChange={page => setPagination(prev => ({
             ...prev,

@@ -10,7 +10,9 @@ import {
   MessageCircle,
   Phone,
   Target,
-  Clock
+  Clock,
+  FileText,
+  DollarSign
 } from 'lucide-react';
 
 import { DailyHeader } from '@/components/admin/sales-rep/DailyHeader';
@@ -27,6 +29,8 @@ import { AIActionCenter } from '@/components/admin/sales-rep/AIActionCenter';
 import { QuickActions } from '@/components/admin/sales-rep/QuickActions';
 import { AISequenceCard } from '@/components/admin/sales-rep/AISequenceCard';
 import { GoalsPerformanceTracker } from '@/components/admin/sales-rep/GoalsPerformanceTracker';
+import { DocumentsTrackerTab } from '@/components/admin/sales-rep/DocumentsTrackerTab';
+import { FinanceTrackerTab } from '@/components/admin/sales-rep/FinanceTrackerTab';
 
 export default function SalesRepDashboard() {
   const [activeTab, setActiveTab] = useState('today');
@@ -38,7 +42,7 @@ export default function SalesRepDashboard() {
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         {/* Tab Navigation */}
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
           <TabsTrigger value="today" className="flex items-center space-x-2">
             <Clock className="h-4 w-4" />
             <span>Today's Focus</span>
@@ -46,6 +50,14 @@ export default function SalesRepDashboard() {
           <TabsTrigger value="leads" className="flex items-center space-x-2">
             <Users className="h-4 w-4" />
             <span>Leads & Calls</span>
+          </TabsTrigger>
+          <TabsTrigger value="documents" className="flex items-center space-x-2">
+            <FileText className="h-4 w-4" />
+            <span>Documents</span>
+          </TabsTrigger>
+          <TabsTrigger value="finance" className="flex items-center space-x-2">
+            <DollarSign className="h-4 w-4" />
+            <span>Finance</span>
           </TabsTrigger>
           <TabsTrigger value="performance" className="flex items-center space-x-2">
             <TrendingUp className="h-4 w-4" />
@@ -173,6 +185,14 @@ export default function SalesRepDashboard() {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="documents" className="space-y-6">
+          <DocumentsTrackerTab />
+        </TabsContent>
+
+        <TabsContent value="finance" className="space-y-6">
+          <FinanceTrackerTab />
         </TabsContent>
 
         <TabsContent value="performance" className="space-y-6">

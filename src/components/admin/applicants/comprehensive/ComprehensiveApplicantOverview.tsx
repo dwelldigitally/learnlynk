@@ -136,18 +136,23 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
           open={openSections.profile}
           onOpenChange={() => toggleSection('profile')}
         >
-          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('profile')}>
+          <div className="flex items-center justify-between mb-4 cursor-pointer group hover:bg-muted/50 p-3 rounded-lg transition-colors" onClick={() => toggleSection('profile')}>
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <User className="h-5 w-5 text-primary" />
               </div>
               <h2 className="text-2xl font-semibold">Student Profile</h2>
             </div>
-            {openSections.profile ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
-            )}
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md bg-secondary/50 hover:bg-secondary transition-colors">
+              <span className="text-sm font-medium">
+                {openSections.profile ? 'Collapse' : 'Expand'}
+              </span>
+              {openSections.profile ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </button>
           </div>
           <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
             <StudentProfileSection profile={studentData} />
@@ -163,7 +168,7 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
           open={openSections.essays}
           onOpenChange={() => toggleSection('essays')}
         >
-          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('essays')}>
+          <div className="flex items-center justify-between mb-4 cursor-pointer group hover:bg-muted/50 p-3 rounded-lg transition-colors" onClick={() => toggleSection('essays')}>
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <FileText className="h-5 w-5 text-primary" />
@@ -173,11 +178,16 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
                 <Badge variant="secondary">{studentData.essays.length}</Badge>
               )}
             </div>
-            {openSections.essays ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
-            )}
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md bg-secondary/50 hover:bg-secondary transition-colors">
+              <span className="text-sm font-medium">
+                {openSections.essays ? 'Collapse' : 'Expand'}
+              </span>
+              {openSections.essays ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </button>
           </div>
           <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
             <ApplicationEssayViewer essays={studentData.essays} />
@@ -193,7 +203,7 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
           open={openSections.responses}
           onOpenChange={() => toggleSection('responses')}
         >
-          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('responses')}>
+          <div className="flex items-center justify-between mb-4 cursor-pointer group hover:bg-muted/50 p-3 rounded-lg transition-colors" onClick={() => toggleSection('responses')}>
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <MessageSquare className="h-5 w-5 text-primary" />
@@ -203,11 +213,16 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
                 <Badge variant="secondary">{studentData.formResponses.length}</Badge>
               )}
             </div>
-            {openSections.responses ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
-            )}
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md bg-secondary/50 hover:bg-secondary transition-colors">
+              <span className="text-sm font-medium">
+                {openSections.responses ? 'Collapse' : 'Expand'}
+              </span>
+              {openSections.responses ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </button>
           </div>
           <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
             <ApplicationResponsesViewer responses={studentData.formResponses} />
@@ -223,7 +238,7 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
           open={openSections.experience}
           onOpenChange={() => toggleSection('experience')}
         >
-          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('experience')}>
+          <div className="flex items-center justify-between mb-4 cursor-pointer group hover:bg-muted/50 p-3 rounded-lg transition-colors" onClick={() => toggleSection('experience')}>
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <Briefcase className="h-5 w-5 text-primary" />
@@ -235,11 +250,16 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
                 </Badge>
               )}
             </div>
-            {openSections.experience ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
-            )}
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md bg-secondary/50 hover:bg-secondary transition-colors">
+              <span className="text-sm font-medium">
+                {openSections.experience ? 'Collapse' : 'Expand'}
+              </span>
+              {openSections.experience ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </button>
           </div>
           <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
             <ProfessionalExperiencePanel 
@@ -258,7 +278,7 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
           open={openSections.references}
           onOpenChange={() => toggleSection('references')}
         >
-          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('references')}>
+          <div className="flex items-center justify-between mb-4 cursor-pointer group hover:bg-muted/50 p-3 rounded-lg transition-colors" onClick={() => toggleSection('references')}>
             <div className="flex items-center gap-3">
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
                 <Users className="h-5 w-5 text-primary" />
@@ -268,11 +288,16 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
                 <Badge variant="secondary">{studentData.references.length}</Badge>
               )}
             </div>
-            {openSections.references ? (
-              <ChevronUp className="h-5 w-5 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-5 w-5 text-muted-foreground" />
-            )}
+            <button className="flex items-center gap-2 px-3 py-2 rounded-md bg-secondary/50 hover:bg-secondary transition-colors">
+              <span className="text-sm font-medium">
+                {openSections.references ? 'Collapse' : 'Expand'}
+              </span>
+              {openSections.references ? (
+                <ChevronUp className="h-5 w-5" />
+              ) : (
+                <ChevronDown className="h-5 w-5" />
+              )}
+            </button>
           </div>
           <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
             <Card>

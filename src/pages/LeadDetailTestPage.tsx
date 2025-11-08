@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { LeadTimeline } from '@/components/admin/lead-details/LeadTimeline';
 import { ComprehensiveTimeline } from '@/components/admin/leads/ComprehensiveTimeline';
-import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, Brain, Target, AlertTriangle, TrendingUp, TrendingDown, Calendar, Phone, Mail, MapPin, GraduationCap, Star, Shield, Eye, Edit, Send, Zap, CheckCircle, XCircle, Pause, Play, Flag, Award, Activity, Download, Upload, Plus, PieChart, Filter, User } from 'lucide-react';
+import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, Brain, Target, AlertTriangle, TrendingUp, TrendingDown, Calendar, Phone, Mail, MapPin, GraduationCap, Star, Shield, Eye, Edit, Send, Zap, CheckCircle, XCircle, Pause, Play, Flag, Award, Activity, Download, Upload, Plus, PieChart, Filter, User, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
@@ -31,6 +31,7 @@ import { PresetDocumentUpload } from '@/components/admin/leads/PresetDocumentUpl
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
+import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
 import { useLeadAcademicJourney } from '@/hooks/useLeadData';
 export default function LeadDetailTestPage() {
@@ -420,22 +421,27 @@ export default function LeadDetailTestPage() {
     }
   };
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">
+    return (
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="text-muted-foreground">Loading lead details...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
   if (!lead) {
-    return <div className="flex items-center justify-center min-h-screen">
+    return (
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <h2 className="text-xl font-semibold">Lead not found</h2>
           <Button onClick={() => navigate('/admin/leads')}>Back to Leads</Button>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <ModernAdminLayout>
+  return (
+    <ModernAdminLayout>
       <div className="min-h-screen bg-background">
         {/* Student Snapshot Header */}
         <div className="border-b bg-gradient-to-r from-primary/5 to-primary/10 px-8 py-6">
@@ -626,10 +632,11 @@ export default function LeadDetailTestPage() {
         <div className="flex-1 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
             <div className="border-b p-4">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="comms">Comms</TabsTrigger>
                 <TabsTrigger value="docs">Docs</TabsTrigger>
+                <TabsTrigger value="payments">Payments</TabsTrigger>
                 <TabsTrigger value="tasks">Tasks</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>
               </TabsList>
@@ -762,6 +769,10 @@ export default function LeadDetailTestPage() {
                 <PresetDocumentUpload leadId={leadId || ''} programName={lead?.program_interest?.[0] || 'General'} documents={presetDocuments} onDocumentUploaded={refetchDocuments} onDocumentDeleted={refetchDocuments} onStatusUpdated={refetchDocuments} />
               </TabsContent>
 
+              <TabsContent value="payments" className="mt-0">
+                <PaymentsTab leadId={leadId || ''} />
+              </TabsContent>
+
               <TabsContent value="notes" className="mt-0">
                 <NotesSystemPanel leadId={leadId || ''} />
               </TabsContent>
@@ -769,8 +780,6 @@ export default function LeadDetailTestPage() {
               <TabsContent value="tasks" className="mt-0">
                 <RealDataTasks leadId={leadId || ''} />
               </TabsContent>
-
-
             </div>
           </Tabs>
         </div>
@@ -778,13 +787,12 @@ export default function LeadDetailTestPage() {
         {/* Right Sidebar - Timeline & Quick Actions */}
         <div className="w-80 border-l bg-card">
           <ComprehensiveTimeline leadId={leadId || ''} filter={timelineFilter} onFilterChange={setTimelineFilter} />
-          
-          
         </div>
-      </div>
       </div>
 
       {/* Advisor Match Dialog */}
       <AdvisorMatchDialog open={advisorMatchOpen} onOpenChange={setAdvisorMatchOpen} advisorName="Sarah Johnson" lead={lead || {} as Lead} />
-    </ModernAdminLayout>;
+    </div>
+    </ModernAdminLayout>
+  );
 }

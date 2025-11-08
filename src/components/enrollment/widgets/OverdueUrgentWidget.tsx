@@ -67,10 +67,10 @@ export function OverdueUrgentWidget({
   };
 
   return (
-    <Card className="border-destructive/30">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center space-x-2">
+    <Card className="border-destructive/30 shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between text-lg">
+          <div className="flex items-center space-x-3">
             {showBulkActions && onToggleAll && (
               <Checkbox
                 checked={isAllSelected}
@@ -80,15 +80,14 @@ export function OverdueUrgentWidget({
                   }
                 }}
                 onCheckedChange={() => onToggleAll(actionIds)}
-                className="mr-2"
               />
             )}
             <div className="flex items-center space-x-2 text-foreground">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <AlertTriangle className="h-5 w-5 text-destructive" />
               <span>Overdue/Urgent</span>
             </div>
           </div>
-          <Badge variant="destructive">
+          <Badge variant="destructive" className="font-medium">
             {actions.length}
           </Badge>
         </CardTitle>

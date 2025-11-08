@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useSegmentSelection } from '@/hooks/useSegmentSelection';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { PageHeader } from '@/components/modern/PageHeader';
 
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -225,70 +227,75 @@ export function EnhancedTodayCommandCentre() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageHeader 
+        title="Today's Command Center"
+        subtitle="Prioritized actions and opportunities for maximum impact"
+      />
+      
       {/* Header Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <ModernCard className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total Actions</p>
-                <p className="text-3xl font-bold text-foreground mt-1">{totalActions}</p>
+                <p className="text-sm text-muted-foreground font-medium">Total Actions</p>
+                <p className="text-3xl font-bold text-foreground mt-2">{totalActions}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <CheckCircle2 className="h-6 w-6 text-primary" />
+              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                <CheckCircle2 className="h-7 w-7 text-primary" />
               </div>
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
+        <ModernCard className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Urgent</p>
-                <p className="text-3xl font-bold text-destructive mt-1">{urgentCount}</p>
+                <p className="text-sm text-muted-foreground font-medium">Urgent</p>
+                <p className="text-3xl font-bold text-destructive mt-2">{urgentCount}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-destructive/10 flex items-center justify-center">
-                <AlertCircle className="h-6 w-6 text-destructive" />
+              <div className="h-14 w-14 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <AlertCircle className="h-7 w-7 text-destructive" />
               </div>
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
+        <ModernCard className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">High Value</p>
-                <p className="text-3xl font-bold text-primary mt-1">{highValueCount}</p>
+                <p className="text-sm text-muted-foreground font-medium">High Value</p>
+                <p className="text-3xl font-bold text-primary mt-2">{highValueCount}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Flame className="h-6 w-6 text-primary" />
+              <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Flame className="h-7 w-7 text-primary" />
               </div>
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
+        <ModernCard className="hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Revenue Impact</p>
-                <p className="text-3xl font-bold text-foreground mt-1">
+                <p className="text-sm text-muted-foreground font-medium">Revenue Impact</p>
+                <p className="text-3xl font-bold text-foreground mt-2">
                   ${(metrics.revenueImpact / 1000).toFixed(0)}K
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-foreground" />
+              <div className="h-14 w-14 rounded-xl bg-muted flex items-center justify-center">
+                <DollarSign className="h-7 w-7 text-foreground" />
               </div>
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
       </div>
 
       {/* Search Bar */}
-      <Card>
+      <ModernCard>
         <CardContent className="p-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -300,179 +307,113 @@ export function EnhancedTodayCommandCentre() {
             />
           </div>
         </CardContent>
-      </Card>
+      </ModernCard>
 
       {/* Actions Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="all">
-            All
-            <Badge variant="secondary" className="ml-2">{totalActions}</Badge>
+        <TabsList className="grid w-full grid-cols-7 h-auto p-1">
+          <TabsTrigger value="all" className="flex-col h-auto py-3 gap-1">
+            <span className="text-xs font-medium">All</span>
+            <Badge variant="secondary" className="text-xs">{totalActions}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="urgent">
-            <AlertCircle className="h-4 w-4 mr-1" />
-            Urgent
-            <Badge variant="destructive" className="ml-2">{urgentCount}</Badge>
+          <TabsTrigger value="urgent" className="flex-col h-auto py-3 gap-1">
+            <AlertCircle className="h-4 w-4" />
+            <span className="text-xs font-medium">Urgent</span>
+            <Badge variant="destructive" className="text-xs">{urgentCount}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="hot">
-            <Flame className="h-4 w-4 mr-1" />
-            Hot
-            <Badge variant="secondary" className="ml-2">{categorizedActions.hotProspects.length}</Badge>
+          <TabsTrigger value="hot" className="flex-col h-auto py-3 gap-1">
+            <Flame className="h-4 w-4" />
+            <span className="text-xs font-medium">Hot</span>
+            <Badge variant="secondary" className="text-xs">{categorizedActions.hotProspects.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="calls">
-            <Phone className="h-4 w-4 mr-1" />
-            Calls
-            <Badge variant="secondary" className="ml-2">{categorizedActions.calls.length}</Badge>
+          <TabsTrigger value="calls" className="flex-col h-auto py-3 gap-1">
+            <Phone className="h-4 w-4" />
+            <span className="text-xs font-medium">Calls</span>
+            <Badge variant="secondary" className="text-xs">{categorizedActions.calls.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="comms">
-            <Mail className="h-4 w-4 mr-1" />
-            Comms
-            <Badge variant="secondary" className="ml-2">{categorizedActions.communications.length}</Badge>
+          <TabsTrigger value="comms" className="flex-col h-auto py-3 gap-1">
+            <Mail className="h-4 w-4" />
+            <span className="text-xs font-medium">Comms</span>
+            <Badge variant="secondary" className="text-xs">{categorizedActions.communications.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="docs">
-            <FileText className="h-4 w-4 mr-1" />
-            Docs
-            <Badge variant="secondary" className="ml-2">{categorizedActions.documentReviews.length}</Badge>
+          <TabsTrigger value="docs" className="flex-col h-auto py-3 gap-1">
+            <FileText className="h-4 w-4" />
+            <span className="text-xs font-medium">Docs</span>
+            <Badge variant="secondary" className="text-xs">{categorizedActions.documentReviews.length}</Badge>
           </TabsTrigger>
-          <TabsTrigger value="conversion">
-            <TrendingUp className="h-4 w-4 mr-1" />
-            Convert
-            <Badge variant="secondary" className="ml-2">{categorizedActions.conversionOps.length}</Badge>
+          <TabsTrigger value="conversion" className="flex-col h-auto py-3 gap-1">
+            <TrendingUp className="h-4 w-4" />
+            <span className="text-xs font-medium">Convert</span>
+            <Badge variant="secondary" className="text-xs">{categorizedActions.conversionOps.length}</Badge>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="all" className="mt-6 space-y-4">
+        <TabsContent value="all" className="mt-8 space-y-6">
           {urgentCount > 0 && (
-            <Card className="border-destructive/50">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <AlertCircle className="h-5 w-5 text-destructive" />
-                  Overdue & Urgent
-                  <Badge variant="destructive">{urgentCount}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <OverdueUrgentWidget 
-                  actions={categorizedActions.overdueUrgent}
-                  onCompleteAction={handleCompleteAction}
-                  selectedItems={overdueUrgentSelection.selectedItems}
-                  onToggleItem={overdueUrgentSelection.toggleItem}
-                  onToggleAll={overdueUrgentSelection.toggleAll}
-                  showBulkActions={true}
-                />
-              </CardContent>
-            </Card>
+            <OverdueUrgentWidget 
+              actions={categorizedActions.overdueUrgent}
+              onCompleteAction={handleCompleteAction}
+              selectedItems={overdueUrgentSelection.selectedItems}
+              onToggleItem={overdueUrgentSelection.toggleItem}
+              onToggleAll={overdueUrgentSelection.toggleAll}
+              showBulkActions={true}
+            />
           )}
 
           {highValueCount > 0 && (
-            <Card className="border-primary/30">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Flame className="h-5 w-5 text-primary" />
-                  Hot Prospects
-                  <Badge variant="secondary">{highValueCount}</Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <HotProspectsWidget 
-                  actions={categorizedActions.hotProspects}
-                  onCompleteAction={handleCompleteAction}
-                  selectedItems={hotProspectsSelection.selectedItems}
-                  onToggleItem={hotProspectsSelection.toggleItem}
-                  onToggleAll={hotProspectsSelection.toggleAll}
-                  showBulkActions={true}
-                />
-              </CardContent>
-            </Card>
+            <HotProspectsWidget 
+              actions={categorizedActions.hotProspects}
+              onCompleteAction={handleCompleteAction}
+              selectedItems={hotProspectsSelection.selectedItems}
+              onToggleItem={hotProspectsSelection.toggleItem}
+              onToggleAll={hotProspectsSelection.toggleAll}
+              showBulkActions={true}
+            />
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {categorizedActions.calls.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Phone className="h-5 w-5" />
-                    Calls to Make
-                    <Badge variant="secondary">{categorizedActions.calls.length}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CallsToMakeWidget 
-                    actions={categorizedActions.calls}
-                    onCompleteAction={handleCompleteAction}
-                    selectedItems={callsSelection.selectedItems}
-                    onToggleItem={callsSelection.toggleItem}
-                    onToggleAll={callsSelection.toggleAll}
-                    showBulkActions={true}
-                  />
-                </CardContent>
-              </Card>
+              <CallsToMakeWidget 
+                actions={categorizedActions.calls}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={callsSelection.selectedItems}
+                onToggleItem={callsSelection.toggleItem}
+                onToggleAll={callsSelection.toggleAll}
+                showBulkActions={true}
+              />
             )}
 
             {categorizedActions.communications.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Mail className="h-5 w-5" />
-                    Communications
-                    <Badge variant="secondary">{categorizedActions.communications.length}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CommunicationsWidget 
-                    actions={categorizedActions.communications}
-                    onCompleteAction={handleCompleteAction}
-                    selectedItems={communicationsSelection.selectedItems}
-                    onToggleItem={communicationsSelection.toggleItem}
-                    onToggleAll={communicationsSelection.toggleAll}
-                    showBulkActions={true}
-                  />
-                </CardContent>
-              </Card>
+              <CommunicationsWidget 
+                actions={categorizedActions.communications}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={communicationsSelection.selectedItems}
+                onToggleItem={communicationsSelection.toggleItem}
+                onToggleAll={communicationsSelection.toggleAll}
+                showBulkActions={true}
+              />
             )}
 
             {categorizedActions.documentReviews.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    Document Reviews
-                    <Badge variant="secondary">{categorizedActions.documentReviews.length}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <DocumentReviewsWidget 
-                    actions={categorizedActions.documentReviews}
-                    onCompleteAction={handleCompleteAction}
-                    selectedItems={documentReviewsSelection.selectedItems}
-                    onToggleItem={documentReviewsSelection.toggleItem}
-                    onToggleAll={documentReviewsSelection.toggleAll}
-                    showBulkActions={true}
-                  />
-                </CardContent>
-              </Card>
+              <DocumentReviewsWidget 
+                actions={categorizedActions.documentReviews}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={documentReviewsSelection.selectedItems}
+                onToggleItem={documentReviewsSelection.toggleItem}
+                onToggleAll={documentReviewsSelection.toggleAll}
+                showBulkActions={true}
+              />
             )}
 
             {categorizedActions.conversionOps.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Conversion Opportunities
-                    <Badge variant="secondary">{categorizedActions.conversionOps.length}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ConversionOpportunitiesWidget 
-                    actions={categorizedActions.conversionOps}
-                    onCompleteAction={handleCompleteAction}
-                    selectedItems={conversionOpsSelection.selectedItems}
-                    onToggleItem={conversionOpsSelection.toggleItem}
-                    onToggleAll={conversionOpsSelection.toggleAll}
-                    showBulkActions={true}
-                  />
-                </CardContent>
-              </Card>
+              <ConversionOpportunitiesWidget 
+                actions={categorizedActions.conversionOps}
+                onCompleteAction={handleCompleteAction}
+                selectedItems={conversionOpsSelection.selectedItems}
+                onToggleItem={conversionOpsSelection.toggleItem}
+                onToggleAll={conversionOpsSelection.toggleAll}
+                showBulkActions={true}
+              />
             )}
           </div>
         </TabsContent>

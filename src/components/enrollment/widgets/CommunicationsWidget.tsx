@@ -124,10 +124,10 @@ export function CommunicationsWidget({
   const selectedActions = actions.filter(action => selectedItems.includes(action.id));
 
   return (
-    <Card className="border-border">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center justify-between text-base">
-          <div className="flex items-center space-x-2">
+    <Card className="border-border shadow-sm">
+      <CardHeader className="pb-4">
+        <CardTitle className="flex items-center justify-between text-lg">
+          <div className="flex items-center space-x-3">
             {showBulkActions && onToggleAll && (
               <Checkbox
                 checked={isAllSelected}
@@ -137,15 +137,14 @@ export function CommunicationsWidget({
                   }
                 }}
                 onCheckedChange={() => onToggleAll(actionIds)}
-                className="mr-2"
               />
             )}
             <div className="flex items-center space-x-2 text-foreground">
-              <MessageSquare className="h-4 w-4" />
+              <MessageSquare className="h-5 w-5" />
               <span>Communications</span>
             </div>
           </div>
-          <Badge variant="secondary" className="text-sm">
+          <Badge variant="secondary" className="text-sm font-medium">
             {actions.length}
           </Badge>
         </CardTitle>

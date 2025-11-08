@@ -223,15 +223,15 @@ export default function StudentManagement() {
         if (!student) return <div>Loading...</div>;
         
         return (
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">
+          <div className="flex items-center gap-3 py-1">
+            <Avatar className="h-10 w-10 border-2 border-primary/10">
+              <AvatarFallback className="text-sm font-medium bg-primary/5">
                 {student.first_name?.[0] || 'N'}{student.last_name?.[0] || 'A'}
               </AvatarFallback>
             </Avatar>
             <div>
               <div 
-                className="font-medium text-sm cursor-pointer text-primary hover:underline"
+                className="font-semibold text-sm cursor-pointer hover:text-primary transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigate(`/admin/students/detail/${student.id}`);
@@ -239,8 +239,11 @@ export default function StudentManagement() {
               >
                 {student.first_name || 'N/A'} {student.last_name || ''}
               </div>
-              <div className="text-xs text-muted-foreground">{student.email || 'No email'}</div>
-              <div className="text-xs text-muted-foreground">ID: {student.student_id || 'N/A'}</div>
+              <div className="text-xs text-muted-foreground flex items-center gap-2">
+                <span>{student.email || 'No email'}</span>
+                <span className="text-muted-foreground/50">•</span>
+                <span>ID: {student.student_id || 'N/A'}</span>
+              </div>
             </div>
           </div>
         );
@@ -259,7 +262,7 @@ export default function StudentManagement() {
       render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
         return (
-          <Badge variant={getStageColor(student.stage || '')}>
+          <Badge variant={getStageColor(student.stage || '')} className="font-medium">
             {student.stage?.replace('_', ' ') || 'N/A'}
           </Badge>
         );
@@ -274,14 +277,14 @@ export default function StudentManagement() {
         if (!student) return <div>Loading...</div>;
         const progress = student.progress || 0;
         return (
-          <div className="w-full">
-            <div className="flex justify-between text-xs mb-1">
-              <span>Progress</span>
-              <span>{progress}%</span>
+          <div className="w-full min-w-[120px]">
+            <div className="flex justify-between text-xs font-medium mb-1.5">
+              <span className="text-muted-foreground">Progress</span>
+              <span className="text-foreground">{progress}%</span>
             </div>
-            <div className="w-full bg-muted rounded-full h-2">
+            <div className="w-full bg-muted/50 rounded-full h-2.5 overflow-hidden">
               <div 
-                className="bg-primary h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-primary to-primary/80 h-2.5 rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -297,7 +300,7 @@ export default function StudentManagement() {
       render: (value: any, student: any) => {
         if (!student) return <div>Loading...</div>;
         return (
-          <Badge variant={getRiskColor(student.risk_level || '')}>
+          <Badge variant={getRiskColor(student.risk_level || '')} className="font-medium capitalize">
             {student.risk_level || 'N/A'}
           </Badge>
         );
@@ -312,7 +315,7 @@ export default function StudentManagement() {
         if (!student) return <div>Loading...</div>;
         return (
           <div className="text-sm">
-            <div>{student.city || 'N/A'}</div>
+            <div className="font-medium">{student.city || 'N/A'}</div>
             <div className="text-muted-foreground text-xs">{student.country || 'N/A'}</div>
           </div>
         );
@@ -326,24 +329,24 @@ export default function StudentManagement() {
       render: (value: any, student: any) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="sm" className="hover:bg-muted" onClick={(e) => e.stopPropagation()}>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate(`/admin/students/detail/${student.id}`)}>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={() => navigate(`/admin/students/detail/${student.id}`)} className="cursor-pointer">
               <Eye className="h-4 w-4 mr-2" />
               View Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <Phone className="h-4 w-4 mr-2" />
               Call Student
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
               <Edit className="h-4 w-4 mr-2" />
               Edit Details
             </DropdownMenuItem>
@@ -397,25 +400,25 @@ export default function StudentManagement() {
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-8 space-y-6 bg-background min-h-screen">
         {/* Header with buttons */}
         <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Student Management</h1>
-            <p className="text-muted-foreground mt-2">
+          <div className="space-y-1">
+            <h1 className="text-4xl font-bold tracking-tight">Student Management</h1>
+            <p className="text-muted-foreground text-base">
               Manage and track student applications through their admission journey
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleExport}>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleExport} className="hover-scale">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)}>
+            <Button variant="outline" onClick={() => setImportModalOpen(true)} className="hover-scale">
               <Upload className="w-4 h-4 mr-2" />
               Import
             </Button>
-            <Button size="sm" onClick={() => setAddModalOpen(true)}>
+            <Button onClick={() => setAddModalOpen(true)} className="hover-scale">
               <Plus className="w-4 h-4 mr-2" />
               Add Student
             </Button>
@@ -432,14 +435,18 @@ export default function StudentManagement() {
       >
         {/* Compact Stage Tracker and Filters */}
         {!showEmptyState && (
-          <div className="space-y-3">
-            <StageTracker 
-              stages={stageTrackerData}
-              activeStage={activeStage}
-              onStageChange={handleStageChange}
-              onAIAction={handleAIBulkAction}
-              selectedStudentsCount={selectedStudents.length}
-            />
+          <div className="space-y-4 animate-fade-in">
+            <Card className="border-border/50 shadow-sm">
+              <CardContent className="pt-6">
+                <StageTracker 
+                  stages={stageTrackerData}
+                  activeStage={activeStage}
+                  onStageChange={handleStageChange}
+                  onAIAction={handleAIBulkAction}
+                  selectedStudentsCount={selectedStudents.length}
+                />
+              </CardContent>
+            </Card>
             
             <StageFilters
               activeStage={activeStage}
@@ -452,18 +459,18 @@ export default function StudentManagement() {
 
         {/* Full Width Data Table */}
         {!showEmptyState && (
-          <div className="bg-background border rounded-lg shadow-sm">
-            <div className="p-4 border-b bg-muted/30">
+          <Card className="border-border/50 shadow-md animate-fade-in">
+            <CardHeader className="border-b bg-muted/20 pb-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-lg font-semibold">Students ({total})</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Manage student applications and track progress
-                  </p>
+                  <CardTitle className="text-xl">All Students</CardTitle>
+                  <CardDescription className="mt-1">
+                    {total} {total === 1 ? 'student' : 'students'} • Manage applications and track progress
+                  </CardDescription>
                 </div>
               </div>
-            </div>
-            <div className="p-0">
+            </CardHeader>
+            <CardContent className="p-0">
               <EnhancedDataTable
                 title=""
                 columns={studentColumns}
@@ -494,8 +501,8 @@ export default function StudentManagement() {
                 }}
                 onRowClick={(student) => navigate(`/admin/students/detail/${student.id}`)}
               />
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         )}
       </ConditionalDataWrapper>
 

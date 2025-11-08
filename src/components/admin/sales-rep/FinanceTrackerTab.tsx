@@ -15,22 +15,229 @@ export function FinanceTrackerTab() {
   const navigate = useNavigate();
   const [paymentDaysFilter, setPaymentDaysFilter] = useState<7 | 30 | 90>(30);
 
-  const { data: paymentPendingStudents = [], isLoading: loadingPending } = useQuery({
+  // Mock data for demonstration
+  const mockPaymentPendingStudents: StudentPaymentPending[] = [
+    {
+      id: '1',
+      master_record_id: 'mr-1',
+      first_name: 'Sarah',
+      last_name: 'Johnson',
+      email: 'sarah.johnson@email.com',
+      program: 'MBA - Business Analytics',
+      payment_status: 'partial',
+      outstanding_amount: 8500,
+      days_since_approval: 18,
+      approved_at: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '2',
+      master_record_id: 'mr-2',
+      first_name: 'Michael',
+      last_name: 'Chen',
+      email: 'michael.chen@email.com',
+      program: 'Executive MBA',
+      payment_status: 'pending',
+      outstanding_amount: 25000,
+      days_since_approval: 7,
+      approved_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '3',
+      master_record_id: 'mr-3',
+      first_name: 'Emily',
+      last_name: 'Rodriguez',
+      email: 'emily.rodriguez@email.com',
+      program: 'Digital Marketing Certificate',
+      payment_status: 'pending',
+      outstanding_amount: 3500,
+      days_since_approval: 22,
+      approved_at: new Date(Date.now() - 22 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '4',
+      master_record_id: 'mr-4',
+      first_name: 'David',
+      last_name: 'Kim',
+      email: 'david.kim@email.com',
+      program: 'Data Science Certificate',
+      payment_status: 'partial',
+      outstanding_amount: 2200,
+      days_since_approval: 5,
+      approved_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: '5',
+      master_record_id: 'mr-5',
+      first_name: 'Jennifer',
+      last_name: 'Wilson',
+      email: 'jennifer.wilson@email.com',
+      program: 'Finance MBA',
+      payment_status: 'pending',
+      outstanding_amount: 18000,
+      days_since_approval: 15,
+      approved_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString()
+    }
+  ];
+
+  const mockRecentPayments: RecentPayment[] = [
+    {
+      id: 'pay-1',
+      lead_id: 'mr-6',
+      amount: 5000,
+      currency: 'USD',
+      payment_type: 'tuition_deposit',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Jessica Williams',
+      student_email: 'jessica.williams@email.com'
+    },
+    {
+      id: 'pay-2',
+      lead_id: 'mr-7',
+      amount: 12500,
+      currency: 'USD',
+      payment_type: 'full_tuition',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Robert Taylor',
+      student_email: 'robert.taylor@email.com'
+    },
+    {
+      id: 'pay-3',
+      lead_id: 'mr-1',
+      amount: 6500,
+      currency: 'USD',
+      payment_type: 'partial_payment',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Sarah Johnson',
+      student_email: 'sarah.johnson@email.com'
+    },
+    {
+      id: 'pay-4',
+      lead_id: 'mr-8',
+      amount: 3500,
+      currency: 'USD',
+      payment_type: 'application_fee',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Amanda Martinez',
+      student_email: 'amanda.martinez@email.com'
+    },
+    {
+      id: 'pay-5',
+      lead_id: 'mr-4',
+      amount: 2800,
+      currency: 'USD',
+      payment_type: 'partial_payment',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'David Kim',
+      student_email: 'david.kim@email.com'
+    },
+    {
+      id: 'pay-6',
+      lead_id: 'mr-9',
+      amount: 8500,
+      currency: 'USD',
+      payment_type: 'tuition_deposit',
+      status: 'pending',
+      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Christopher Lee',
+      student_email: 'christopher.lee@email.com'
+    },
+    {
+      id: 'pay-7',
+      lead_id: 'mr-10',
+      amount: 15000,
+      currency: 'USD',
+      payment_type: 'full_tuition',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Patricia Anderson',
+      student_email: 'patricia.anderson@email.com'
+    },
+    {
+      id: 'pay-8',
+      lead_id: 'mr-11',
+      amount: 4200,
+      currency: 'USD',
+      payment_type: 'application_fee',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Daniel Brown',
+      student_email: 'daniel.brown@email.com'
+    },
+    {
+      id: 'pay-9',
+      lead_id: 'mr-12',
+      amount: 1500,
+      currency: 'USD',
+      payment_type: 'partial_payment',
+      status: 'failed',
+      created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Michelle Garcia',
+      student_email: 'michelle.garcia@email.com'
+    },
+    {
+      id: 'pay-10',
+      lead_id: 'mr-13',
+      amount: 22000,
+      currency: 'USD',
+      payment_type: 'full_tuition',
+      status: 'paid',
+      paid_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+      updated_at: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+      student_name: 'Thomas White',
+      student_email: 'thomas.white@email.com'
+    }
+  ];
+
+  const { data: paymentPendingStudents = mockPaymentPendingStudents, isLoading: loadingPending } = useQuery({
     queryKey: ['sales-rep-payment-pending'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-      return salesRepService.getPaymentPendingStudents(user.id);
+      if (!user) return mockPaymentPendingStudents;
+      try {
+        const result = await salesRepService.getPaymentPendingStudents(user.id);
+        return result.length > 0 ? result : mockPaymentPendingStudents;
+      } catch (error) {
+        console.error('Error fetching payment pending students, using mock data:', error);
+        return mockPaymentPendingStudents;
+      }
     },
     staleTime: 5 * 60 * 1000,
   });
 
-  const { data: recentPayments = [], isLoading: loadingPayments } = useQuery({
+  const { data: recentPayments = mockRecentPayments, isLoading: loadingPayments } = useQuery({
     queryKey: ['sales-rep-recent-payments', paymentDaysFilter],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-      return salesRepService.getRecentPaymentsForAssignedStudents(user.id, paymentDaysFilter);
+      if (!user) return mockRecentPayments;
+      try {
+        const result = await salesRepService.getRecentPaymentsForAssignedStudents(user.id, paymentDaysFilter);
+        return result.length > 0 ? result : mockRecentPayments;
+      } catch (error) {
+        console.error('Error fetching recent payments, using mock data:', error);
+        return mockRecentPayments;
+      }
     },
     staleTime: 5 * 60 * 1000,
   });

@@ -680,6 +680,9 @@ export function IntakePipelineManagement() {
                         <CardDescription className="mt-1">
                           {intake.program} • {safeFormatDate(intake.startDate, 'MMM d, yyyy')}
                         </CardDescription>
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-xs text-muted-foreground">📍 {intake.campus}</span>
+                        </div>
                       </div>
                       <Badge variant={getStatusBadgeVariant(intake.status)}>
                         {intake.status}
@@ -722,8 +725,23 @@ export function IntakePipelineManagement() {
                           {intake.applicants.length} apps
                         </Badge>
                       </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    
+                    <Button 
+                      variant={intake.status === 'active' ? 'destructive' : 'default'}
+                      size="sm"
+                      className="w-full mt-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newStatus = intake.status === 'active' ? 'closed' : 'active';
+                        setIntakes(prev => prev.map(i => 
+                          i.id === intake.id ? { ...i, status: newStatus as 'active' | 'closed' | 'planning' } : i
+                        ));
+                        toast.success(`Intake ${newStatus === 'active' ? 'opened' : 'closed'}`);
+                      }}
+                    >
+                      {intake.status === 'active' ? 'Close Intake' : 'Accept Applications'}
+                    </Button>
                   </CardContent>
                 </Card>
               ))}

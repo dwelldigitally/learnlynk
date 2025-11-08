@@ -79,6 +79,7 @@ interface RefinedLeadTableProps {
   selectedIds?: string[];
   bulkActions?: Array<{ label: string; onClick: (selectedIds: string[]) => void; variant?: 'default' | 'destructive' }>;
   className?: string;
+  hideHeader?: boolean;
 }
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100];
@@ -110,7 +111,8 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
   onSelectionChange,
   selectedIds = [],
   bulkActions = [],
-  className
+  className,
+  hideHeader = false
 }) => {
   const isMobile = useIsMobile();
   
@@ -391,91 +393,95 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
   return (
     <div className={cn("w-full space-y-4", className)}>
       {/* Enhanced Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 px-6 py-5 bg-gradient-subtle border-b border-border/50">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
-            <Badge variant="outline" className="text-xs bg-primary-light text-primary font-medium border-primary/20">
-              {totalCount.toLocaleString()}
-            </Badge>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Manage and track your leads efficiently
-          </p>
-        </div>
-        
-        {/* Action Bar */}
-        <div className="flex items-center gap-3">
-          {selectable && selectedIds.length > 0 && (
-            <div className="flex items-center gap-3 mr-4 px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-                <Users className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
-                  {selectedIds.length} selected
-                </span>
+      {!hideHeader && (
+        <>
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 px-6 py-5 bg-gradient-subtle border-b border-border/50">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <h2 className="text-xl font-semibold tracking-tight text-foreground">{title}</h2>
+                <Badge variant="outline" className="text-xs bg-primary-light text-primary font-medium border-primary/20">
+                  {totalCount.toLocaleString()}
+                </Badge>
               </div>
-              <div className="w-px h-4 bg-primary/20"></div>
-              {bulkActions.map((action, index) => (
-                <Button
-                  key={index}
-                  variant={action.variant === 'destructive' ? 'destructive' : 'outline'}
-                  size="sm"
-                  onClick={() => action.onClick(selectedIds)}
-                  className="h-8 text-xs"
-                >
-                  {action.label}
-                </Button>
-              ))}
+              <p className="text-sm text-muted-foreground">
+                Manage and track your leads efficiently
+              </p>
             </div>
-          )}
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-10 px-4 border-border/50 hover:border-accent hover:bg-accent-light/50">
-                <Settings className="h-4 w-4 mr-2" />
-                View
-                <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border/50">
-                Toggle Columns
-              </div>
-              {initialColumns.map((column) => (
-                <DropdownMenuItem
-                  key={column.key}
-                  className="flex items-center gap-3 cursor-pointer py-2.5"
-                  onClick={() => toggleColumnVisibility(column.key)}
-                >
-                  {visibleColumns[column.key] !== false ? (
-                    <Eye className="h-4 w-4 text-accent" />
-                  ) : (
-                    <EyeOff className="h-4 w-4 opacity-50" />
-                  )}
-                  <span className={cn(
-                    "text-sm",
-                    visibleColumns[column.key] === false && "opacity-50"
-                  )}>
-                    {column.label}
-                  </span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+            
+            {/* Action Bar */}
+            <div className="flex items-center gap-3">
+              {selectable && selectedIds.length > 0 && (
+                <div className="flex items-center gap-3 mr-4 px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl backdrop-blur-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+                    <Users className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">
+                      {selectedIds.length} selected
+                    </span>
+                  </div>
+                  <div className="w-px h-4 bg-primary/20"></div>
+                  {bulkActions.map((action, index) => (
+                    <Button
+                      key={index}
+                      variant={action.variant === 'destructive' ? 'destructive' : 'outline'}
+                      size="sm"
+                      onClick={() => action.onClick(selectedIds)}
+                      className="h-8 text-xs"
+                    >
+                      {action.label}
+                    </Button>
+                  ))}
+                </div>
+              )}
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-10 px-4 border-border/50 hover:border-accent hover:bg-accent-light/50">
+                    <Settings className="h-4 w-4 mr-2" />
+                    View
+                    <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  <div className="px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider border-b border-border/50">
+                    Toggle Columns
+                  </div>
+                  {initialColumns.map((column) => (
+                    <DropdownMenuItem
+                      key={column.key}
+                      className="flex items-center gap-3 cursor-pointer py-2.5"
+                      onClick={() => toggleColumnVisibility(column.key)}
+                    >
+                      {visibleColumns[column.key] !== false ? (
+                        <Eye className="h-4 w-4 text-accent" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 opacity-50" />
+                      )}
+                      <span className={cn(
+                        "text-sm",
+                        visibleColumns[column.key] === false && "opacity-50"
+                      )}>
+                        {column.label}
+                      </span>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
 
-          {exportable && (
-            <Button variant="outline" size="sm" onClick={onExport} className="h-10 px-4 border-border/50 hover:border-accent hover:bg-accent-light/50">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          )}
-        </div>
-      </div>
+              {exportable && (
+                <Button variant="outline" size="sm" onClick={onExport} className="h-10 px-4 border-border/50 hover:border-accent hover:bg-accent-light/50">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              )}
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Enhanced Filters & Search */}
-      <div className="flex flex-col sm:flex-row gap-4 px-6 py-4 bg-background border-b border-border/30">
-        {searchable && (
+      {searchable && (
+        <div className="flex flex-col sm:flex-row gap-4 px-6 py-4 bg-background border-b border-border/30">
           <div className="relative flex-1 min-w-[320px]">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -498,70 +504,70 @@ export const RefinedLeadTable: React.FC<RefinedLeadTableProps> = ({
               </div>
             )}
           </div>
-        )}
 
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Quick Filters */}
-          {quickFilters.map((quickFilter, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              onClick={() => onFilter(quickFilter.filter)}
-              className="h-11 px-4 text-xs border-border/50 hover:border-accent hover:bg-accent-light/50 hover:text-accent-foreground"
-            >
-              {quickFilter.label}
-            </Button>
-          ))}
+          <div className="flex items-center gap-3 flex-wrap">
+            {/* Quick Filters */}
+            {quickFilters.map((quickFilter, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => onFilter(quickFilter.filter)}
+                className="h-11 px-4 text-xs border-border/50 hover:border-accent hover:bg-accent-light/50 hover:text-accent-foreground"
+              >
+                {quickFilter.label}
+              </Button>
+            ))}
 
-          {/* Bulk Actions Trigger */}
-          {selectedIds.length > 0 && (
-            <Button
-              variant="default"
-              size="sm"
-              className="h-11 px-4 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Actions ({selectedIds.length})
-            </Button>
-          )}
+            {/* Bulk Actions Trigger */}
+            {selectedIds.length > 0 && (
+              <Button
+                variant="default"
+                size="sm"
+                className="h-11 px-4 bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Actions ({selectedIds.length})
+              </Button>
+            )}
 
-          {/* Advanced Filter Toggle */}
-          {filterable && filterOptions.length > 0 && (
-            <Button
-              variant={showFilters ? "default" : "outline"}
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-              className={cn(
-                "h-11 px-4",
-                !showFilters && "border-border/50 hover:border-accent hover:bg-accent-light/50",
-                showFilters && "bg-accent text-accent-foreground"
-              )}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-              {Object.keys(activeFilters).length > 0 && (
-                <Badge variant="secondary" className="ml-2 h-5 px-2 text-xs bg-accent-light text-accent">
-                  {Object.keys(activeFilters).length}
-                </Badge>
-              )}
-            </Button>
-          )}
+            {/* Advanced Filter Toggle */}
+            {filterable && filterOptions.length > 0 && (
+              <Button
+                variant={showFilters ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className={cn(
+                  "h-11 px-4",
+                  !showFilters && "border-border/50 hover:border-accent hover:bg-accent-light/50",
+                  showFilters && "bg-accent text-accent-foreground"
+                )}
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+                {Object.keys(activeFilters).length > 0 && (
+                  <Badge variant="secondary" className="ml-2 h-5 px-2 text-xs bg-accent-light text-accent">
+                    {Object.keys(activeFilters).length}
+                  </Badge>
+                )}
+              </Button>
+            )}
 
-          <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
-            <SelectTrigger className="w-24 h-11 border-border/50 focus:border-accent focus:ring-accent/20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map(size => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
+              <SelectTrigger className="w-24 h-11 border-border/50 focus:border-accent focus:ring-accent/20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PAGE_SIZE_OPTIONS.map(size => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Advanced Filters Panel */}
       {showFilters && filterOptions.length > 0 && (

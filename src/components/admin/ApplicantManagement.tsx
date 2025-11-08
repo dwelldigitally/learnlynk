@@ -485,7 +485,7 @@ export const ApplicantManagement = () => {
       {/* Applicants Table */}
       <ConditionalDataWrapper isLoading={loading} showEmptyState={applicants.length === 0 && !loading} hasDemoAccess={false} hasRealData={applicants.length > 0} emptyTitle="No applicants found" emptyDescription="No applicants match your current filters.">
         <Card>
-          <RefinedLeadTable title="Applicants" data={applicants} columns={columns} loading={loading} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} totalCount={totalCount} onPageChange={setCurrentPage} onPageSizeChange={setPageSize} onSearch={term => setSearchTerm(term)} onSort={() => {}} onFilter={() => {}} onRowClick={applicant => navigate(`/admin/applicants/detail/${applicant.id}`)} selectedIds={selectedApplicantIds} onSelectionChange={setSelectedApplicantIds} selectable={true} />
+          <RefinedLeadTable hideHeader={true} title="Applicants" data={applicants} columns={columns} loading={loading} currentPage={currentPage} totalPages={totalPages} pageSize={pageSize} totalCount={totalCount} onPageChange={setCurrentPage} onPageSizeChange={setPageSize} onSearch={term => setSearchTerm(term)} onSort={() => {}} onFilter={() => {}} onRowClick={applicant => navigate(`/admin/applicants/detail/${applicant.id}`)} selectedIds={selectedApplicantIds} onSelectionChange={setSelectedApplicantIds} selectable={true} searchable={false} />
         </Card>
       </ConditionalDataWrapper>
     </div>;

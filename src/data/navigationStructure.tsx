@@ -32,8 +32,8 @@ export const navigationStructure = {
   sections: [
     {
       id: 'leads-marketing',
-      name: 'Leads & Marketing',
-      icon: Target,
+      title: 'Leads & Marketing',
+      description: 'Manage your lead generation and marketing campaigns',
       items: [
         { name: 'Leads', label: 'Leads', href: '/admin/leads', icon: UserPlus, description: 'View and manage all leads' },
         { name: 'Lead Routing', label: 'Lead Routing', href: '/admin/lead-routing', icon: Target, description: 'Configure lead assignment rules' },
@@ -43,8 +43,8 @@ export const navigationStructure = {
     },
     {
       id: 'students-applications',
-      name: 'Students & Applications',
-      icon: Users,
+      title: 'Students & Applications',
+      description: 'Track student applications and enrollment progress',
       items: [
         { name: 'Students', label: 'Students', href: '/admin/students', icon: Users, description: 'Manage student records' },
         { name: 'Applications', label: 'Applications', href: '/admin/applications', icon: FileText, description: 'Review and process applications' },
@@ -54,8 +54,8 @@ export const navigationStructure = {
     },
     {
       id: 'data-management',
-      name: 'Data Management',
-      icon: Settings,
+      title: 'Data Management',
+      description: 'Configure your programs, requirements, and automation',
       items: [
         { name: 'Programs', label: 'Programs', href: '/admin/programs', icon: GraduationCap, description: 'Manage academic programs' },
         { name: 'Requirements', label: 'Requirements', href: '/admin/requirements', icon: FileText, description: 'Configure program requirements' },
@@ -71,8 +71,8 @@ export const navigationStructure = {
     },
     {
       id: 'analytics-reports',
-      name: 'Analytics & Reports',
-      icon: BarChart3,
+      title: 'Analytics & Reports',
+      description: 'Monitor performance and generate insights',
       items: [
         { name: 'Analytics', label: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'View detailed analytics' },
         { name: 'Reports', label: 'Reports', href: '/admin/reports', icon: FileText, description: 'Generate custom reports' },
@@ -81,8 +81,8 @@ export const navigationStructure = {
     },
     {
       id: 'configuration',
-      name: 'Configuration',
-      icon: Settings,
+      title: 'Configuration',
+      description: 'System settings and configurations',
       items: [
         { name: 'Settings', label: 'Settings', href: '/admin/configuration', icon: Settings, description: 'System configuration' },
         { name: 'Team Management', label: 'Team Management', href: '/admin/team', icon: Users, description: 'Manage team members' },

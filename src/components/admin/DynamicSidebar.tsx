@@ -2,7 +2,7 @@ import { useLocation, NavLink } from "react-router-dom";
 import { navigationStructure } from "@/data/navigationStructure";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X, ChevronRight, ChevronDown } from "lucide-react";
+import { Search, X, ChevronRight, ChevronDown, Settings } from "lucide-react";
 import { useState } from "react";
 import { AIQuickActions } from "./AIQuickActions";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -115,9 +115,9 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
             )}
             
             <div className="flex items-center space-x-2 mb-3">
-              <currentSection.icon className="w-5 h-5 text-primary" />
+              <Settings className="w-5 h-5 text-primary" />
               <h2 className={`font-semibold ${isMobile ? 'text-base' : 'text-lg'}`}>
-                {currentSection.name}
+                {currentSection.title}
               </h2>
             </div>
             
@@ -125,7 +125,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder={`Search ${currentSection.name.toLowerCase()}...`}
+                placeholder={`Search ${currentSection.title.toLowerCase()}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`pl-10 ${isMobile ? 'h-11' : 'h-9'}`}

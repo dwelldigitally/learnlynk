@@ -1,5 +1,5 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { Search, ChevronRight, ChevronDown, Menu } from "lucide-react";
+import { Search, ChevronRight, ChevronDown, Menu, Settings } from "lucide-react";
 import { useState } from "react";
 import { navigationStructure, MVP_HIDDEN_PAGES } from "@/data/navigationStructure";
 import { useMvpMode } from "@/contexts/MvpModeContext";
@@ -133,12 +133,12 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
           isCollapsed ? "justify-center" : "justify-between"
         )}>
           {isCollapsed ? (
-            <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" />
+            <Settings className="w-6 h-6 text-primary flex-shrink-0" />
           ) : (
             <div className="flex items-center space-x-3">
-              <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" />
+              <Settings className="w-6 h-6 text-primary flex-shrink-0" />
               <h2 className="font-semibold text-lg truncate">
-                {currentSection.name}
+                {currentSection.title}
               </h2>
             </div>
           )}
@@ -160,7 +160,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
           <div className="relative p-4 pt-0">
             <Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
             <Input
-              placeholder={`Search ${currentSection.name.toLowerCase()}...`}
+              placeholder={`Search ${currentSection.title.toLowerCase()}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10 h-10"

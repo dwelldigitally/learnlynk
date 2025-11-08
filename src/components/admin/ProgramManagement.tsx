@@ -15,7 +15,6 @@ import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
 import { ProgramSettingsModal } from "./modals/ProgramSettingsModal";
 import { ComprehensiveProgramEditModal } from "./modals/ComprehensiveProgramEditModal";
-import { EnhancedPipelinePlanner } from "./EnhancedPipelinePlanner";
 import { 
   Select,
   SelectContent,
@@ -337,9 +336,6 @@ const ProgramManagement: React.FC = () => {
           ))}
         </div>
       </ConditionalDataWrapper>
-
-      {/* Pipeline Planner */}
-      <EnhancedPipelinePlanner />
 
       {/* No longer using ProgramWizard dialog - now navigates to separate page */}
 

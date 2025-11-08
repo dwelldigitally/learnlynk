@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Calendar, Clock, Video, Phone, User, Plus, MapPin, ExternalLink } from 'lucide-react';
+import { Calendar, Clock, Video, Phone, User, Plus, MapPin, ExternalLink, CalendarDays } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 
 interface CalendarEvent {
   id: string;
@@ -30,13 +32,16 @@ interface CalendarEvent {
 export function MyDayCalendar() {
   const isMobile = useIsMobile();
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [weekEvents, setWeekEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('daily');
   const [demoMode] = useState(true); // Always in demo mode
 
   useEffect(() => {
     loadTodaysEvents();
+    loadWeekEvents();
   }, []);
 
   const loadTodaysEvents = async () => {
@@ -91,6 +96,86 @@ export function MyDayCalendar() {
       console.error('Failed to load today\'s events:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadWeekEvents = async () => {
+    try {
+      const today = new Date();
+      const weekStart = startOfWeek(today, { weekStartsOn: 1 }); // Monday start
+      
+      // Generate mock events for the entire week
+      const mockWeekEvents: CalendarEvent[] = [
+        // Monday
+        {
+          id: 'w1',
+          title: 'Team Standup',
+          type: 'meeting',
+          start_time: addDays(weekStart, 0).setHours(9, 0, 0, 0).toString(),
+          end_time: addDays(weekStart, 0).setHours(9, 30, 0, 0).toString(),
+          description: 'Daily team sync',
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/teamstandup',
+        },
+        // Tuesday
+        {
+          id: 'w2',
+          title: 'Client Demo - ABC Corp',
+          type: 'demo',
+          start_time: addDays(weekStart, 1).setHours(14, 0, 0, 0).toString(),
+          end_time: addDays(weekStart, 1).setHours(15, 0, 0, 0).toString(),
+          description: 'Product demonstration for potential enterprise client',
+          lead_name: 'ABC Corporation',
+          lead_id: 'lead-abc',
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/abcdemo',
+        },
+        // Wednesday - Today's events
+        ...events.map(e => ({ ...e, id: `today-${e.id}` })),
+        // Thursday
+        {
+          id: 'w3',
+          title: 'Follow-up Call - Jennifer Smith',
+          type: 'follow_up',
+          start_time: addDays(weekStart, 3).setHours(10, 30, 0, 0).toString(),
+          end_time: addDays(weekStart, 3).setHours(11, 0, 0, 0).toString(),
+          description: 'Post-demo follow-up discussion',
+          lead_name: 'Jennifer Smith',
+          lead_id: 'lead-jennifer',
+          is_virtual: false,
+          location: 'Phone Call',
+        },
+        {
+          id: 'w4',
+          title: 'Intake Meeting - David Brown',
+          type: 'intake',
+          start_time: addDays(weekStart, 3).setHours(15, 0, 0, 0).toString(),
+          end_time: addDays(weekStart, 3).setHours(16, 0, 0, 0).toString(),
+          description: 'MBA program consultation',
+          lead_name: 'David Brown',
+          lead_id: 'lead-david',
+          is_virtual: true,
+          meeting_link: 'https://zoom.us/j/davidintake',
+        },
+        // Friday
+        {
+          id: 'w5',
+          title: 'Weekly Review Meeting',
+          type: 'meeting',
+          start_time: addDays(weekStart, 4).setHours(16, 0, 0, 0).toString(),
+          end_time: addDays(weekStart, 4).setHours(17, 0, 0, 0).toString(),
+          description: 'Review week performance and plan for next week',
+          attendees: ['Sales Team', 'Manager'],
+          is_virtual: false,
+          location: 'Conference Room A',
+        },
+      ];
+
+      setWeekEvents(mockWeekEvents.sort((a, b) => 
+        new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+      ));
+    } catch (error) {
+      console.error('Failed to load week events:', error);
     }
   };
 
@@ -157,6 +242,18 @@ export function MyDayCalendar() {
     window.open(meetingLink, '_blank');
   };
 
+  const getWeekDays = () => {
+    const today = new Date();
+    const weekStart = startOfWeek(today, { weekStartsOn: 1 });
+    return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  };
+
+  const getEventsForDay = (day: Date) => {
+    return weekEvents.filter(event => 
+      isSameDay(new Date(event.start_time), day)
+    );
+  };
+
   if (loading) {
     return (
       <div className="col-span-full rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -180,17 +277,35 @@ export function MyDayCalendar() {
   return (
     <div className="col-span-full rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="pb-3 p-6">
-        <div className="text-base flex items-center gap-2">
-          <Badge variant="secondary" className="ml-auto">{events.length} events</Badge>
-          {demoMode && (
-            <Badge variant="outline" className="text-xs">
-              Demo Mode
+        <div className="flex items-center justify-between gap-2 flex-wrap">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as 'daily' | 'weekly')} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="daily" className="flex items-center gap-1">
+                <Calendar className="w-3 h-3" />
+                Daily
+              </TabsTrigger>
+              <TabsTrigger value="weekly" className="flex items-center gap-1">
+                <CalendarDays className="w-3 h-3" />
+                Weekly
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">
+              {viewMode === 'daily' ? `${events.length} events today` : `${weekEvents.length} events this week`}
             </Badge>
-          )}
+            {demoMode && (
+              <Badge variant="outline" className="text-xs">
+                Demo Mode
+              </Badge>
+            )}
+          </div>
         </div>
       </div>
       <div className="p-6 pt-0">
-        <div className={cn("grid gap-6", isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2")}>
+        {viewMode === 'daily' ? (
+          <div className={cn("grid gap-6", isMobile ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2")}>
           {/* Timeline View */}
           <div className="space-y-4">
             <h3 className="font-medium text-sm text-muted-foreground">Today's Schedule</h3>
@@ -329,6 +444,83 @@ export function MyDayCalendar() {
             )}
           </div>
         </div>
+        ) : (
+          /* Weekly View */
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
+              {getWeekDays().map((day, idx) => {
+                const dayEvents = getEventsForDay(day);
+                const isToday = isSameDay(day, new Date());
+                
+                return (
+                  <div 
+                    key={idx}
+                    className={cn(
+                      "rounded-lg border p-3 min-h-[200px]",
+                      isToday ? "border-primary bg-primary/5" : "border-border"
+                    )}
+                  >
+                    <div className="mb-3 pb-2 border-b">
+                      <div className="text-xs text-muted-foreground">
+                        {format(day, 'EEE')}
+                      </div>
+                      <div className={cn(
+                        "text-lg font-semibold",
+                        isToday && "text-primary"
+                      )}>
+                        {format(day, 'd')}
+                      </div>
+                      {isToday && (
+                        <Badge variant="secondary" className="text-xs mt-1">
+                          Today
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {dayEvents.length === 0 ? (
+                        <p className="text-xs text-muted-foreground text-center py-4">
+                          No events
+                        </p>
+                      ) : (
+                        dayEvents.map((event) => (
+                          <div
+                            key={event.id}
+                            onClick={() => handleEventClick(event)}
+                            className={cn(
+                              "p-2 rounded border cursor-pointer transition-all group hover:shadow-md",
+                              isEventSoon(event.start_time)
+                                ? "border-warning/40 bg-warning/10"
+                                : "border-border/50 hover:border-primary/30"
+                            )}
+                          >
+                            <div className="flex items-start gap-2">
+                              <div className={cn("w-2 h-2 rounded-full mt-1 flex-shrink-0", getEventTypeColor(event.type))}></div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium truncate group-hover:text-primary transition-colors">
+                                  {event.title}
+                                </p>
+                                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+                                  <Clock className="w-2.5 h-2.5" />
+                                  <span className="text-xs">{formatTime(event.start_time)}</span>
+                                </div>
+                                {event.is_virtual && (
+                                  <div className="flex items-center gap-1 mt-1">
+                                    <Video className="w-2.5 h-2.5 text-muted-foreground" />
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Event Details Dialog */}

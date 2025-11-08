@@ -75,6 +75,21 @@ export default function SalesRepDashboard() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
+                    <Calendar className="h-5 w-5 text-primary" />
+                    <span>My Schedule</span>
+                  </CardTitle>
+                  <CardDescription>
+                    Today's calendar and available time slots - Click events for details
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <MyDayCalendar />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
                     <Target className="h-5 w-5 text-primary" />
                     <span>New Assignments</span>
                   </CardTitle>
@@ -84,21 +99,6 @@ export default function SalesRepDashboard() {
                 </CardHeader>
                 <CardContent>
                   <NewlyAssignedLeads />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-blue-600" />
-                    <span>My Schedule</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Today's calendar and available time slots
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <MyDayCalendar />
                 </CardContent>
               </Card>
             </div>

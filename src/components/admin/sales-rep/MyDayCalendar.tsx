@@ -3,7 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Calendar, Clock, Video, Phone, User, Plus, MapPin } from 'lucide-react';
+import { Calendar, Clock, Video, Phone, User, Plus, MapPin, ExternalLink } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface CalendarEvent {
   id: string;
@@ -15,6 +22,7 @@ interface CalendarEvent {
   attendees?: string[];
   location?: string;
   lead_name?: string;
+  lead_id?: string;
   is_virtual?: boolean;
   meeting_link?: string;
 }
@@ -24,6 +32,7 @@ export function MyDayCalendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [demoMode] = useState(true); // Always in demo mode
 
   useEffect(() => {
@@ -42,6 +51,7 @@ export function MyDayCalendar() {
           end_time: new Date(Date.now() + 1.5 * 60 * 60 * 1000).toISOString(),
           description: 'Data Science Masters program inquiry - High priority lead with CS background',
           lead_name: 'Sarah Johnson',
+          lead_id: 'lead-1',
           is_virtual: true,
           meeting_link: 'https://zoom.us/j/123456789',
           location: 'Virtual Meeting Room'
@@ -54,6 +64,7 @@ export function MyDayCalendar() {
           end_time: new Date(Date.now() + 2.5 * 60 * 60 * 1000).toISOString(),
           description: 'MBA application status review - GMAT score 720, all documents submitted',
           lead_name: 'Michael Chen',
+          lead_id: 'lead-2',
           attendees: ['Michael Chen', 'Admissions Team'],
           is_virtual: false,
           location: 'Conference Room B'
@@ -66,6 +77,7 @@ export function MyDayCalendar() {
           end_time: new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString(),
           description: 'Corporate training program demo for 150 employees - $200k-350k budget',
           attendees: ['Jennifer Lopez', 'Business Dev Team', 'Training Coordinators'],
+          lead_id: 'lead-3',
           is_virtual: true,
           meeting_link: 'https://zoom.us/j/corporatedemo',
           location: 'Virtual Presentation Room'
@@ -137,6 +149,14 @@ export function MyDayCalendar() {
     return slots;
   };
 
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEvent(event);
+  };
+
+  const handleJoinMeeting = (meetingLink: string) => {
+    window.open(meetingLink, '_blank');
+  };
+
   if (loading) {
     return (
       <div className="col-span-full rounded-lg border bg-card text-card-foreground shadow-sm">
@@ -189,11 +209,13 @@ export function MyDayCalendar() {
                 {events.map((event) => (
                   <div
                     key={event.id}
+                    onClick={() => handleEventClick(event)}
                     className={cn(
-                      "p-4 rounded-lg border transition-colors",
+                      "p-4 rounded-lg border transition-all cursor-pointer group",
                       isEventSoon(event.start_time)
-                        ? "border-warning/20 bg-warning/5"
-                        : "border-border hover:bg-muted/50"
+                        ? "border-warning/20 bg-warning/5 hover:border-warning/40 hover:shadow-md"
+                        : "border-border hover:bg-muted/50 hover:border-primary/20 hover:shadow-md",
+                      isEventSoon(event.start_time) && "animate-pulse"
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -201,12 +223,13 @@ export function MyDayCalendar() {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-medium text-sm truncate">{event.title}</h4>
+                          <h4 className="font-medium text-sm truncate group-hover:text-primary transition-colors">{event.title}</h4>
                           {isEventSoon(event.start_time) && (
-                            <Badge variant="outline" className="text-xs text-warning">
+                            <Badge variant="outline" className="text-xs text-warning border-warning">
                               Starting Soon
                             </Badge>
                           )}
+                          <ExternalLink className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
                         
                         <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
@@ -237,7 +260,15 @@ export function MyDayCalendar() {
                       
                       <div className="flex flex-col gap-1">
                         {event.meeting_link && (
-                          <Button size="sm" variant="outline" className="h-7 px-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-7 px-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleJoinMeeting(event.meeting_link!);
+                            }}
+                          >
                             <Video className="w-3 h-3 mr-1" />
                             Join
                           </Button>
@@ -299,6 +330,108 @@ export function MyDayCalendar() {
           </div>
         </div>
       </div>
+
+      {/* Event Details Dialog */}
+      <Dialog open={!!selectedEvent} onOpenChange={() => setSelectedEvent(null)}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className={cn("w-3 h-3 rounded-full", selectedEvent && getEventTypeColor(selectedEvent.type))}></div>
+              {selectedEvent?.title}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedEvent && formatTimeRange(selectedEvent.start_time, selectedEvent.end_time)}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedEvent && (
+            <div className="space-y-4">
+              {selectedEvent.description && (
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Description</h4>
+                  <p className="text-sm text-muted-foreground">{selectedEvent.description}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Type</h4>
+                  <Badge variant="secondary" className="capitalize">
+                    {selectedEvent.type.replace('_', ' ')}
+                  </Badge>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Format</h4>
+                  <div className="flex items-center gap-1 text-sm">
+                    {selectedEvent.is_virtual ? (
+                      <>
+                        <Video className="w-3 h-3" />
+                        <span>Virtual</span>
+                      </>
+                    ) : (
+                      <>
+                        <MapPin className="w-3 h-3" />
+                        <span>In-person</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {selectedEvent.location && (
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Location</h4>
+                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <MapPin className="w-3 h-3" />
+                    {selectedEvent.location}
+                  </p>
+                </div>
+              )}
+
+              {selectedEvent.attendees && selectedEvent.attendees.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Attendees</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {selectedEvent.attendees.map((attendee, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        <User className="w-3 h-3 mr-1" />
+                        {attendee}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedEvent.lead_name && (
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Lead</h4>
+                  <p className="text-sm text-muted-foreground">{selectedEvent.lead_name}</p>
+                </div>
+              )}
+
+              <div className="flex gap-2 pt-2">
+                {selectedEvent.meeting_link && (
+                  <Button 
+                    className="flex-1"
+                    onClick={() => handleJoinMeeting(selectedEvent.meeting_link!)}
+                  >
+                    <Video className="w-4 h-4 mr-2" />
+                    Join Meeting
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  onClick={() => setSelectedEvent(null)}
+                  className={selectedEvent.meeting_link ? "" : "flex-1"}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

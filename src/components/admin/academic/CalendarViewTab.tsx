@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
 import { useConditionalIntakes } from '@/hooks/useConditionalIntakes';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, parseISO, isValid } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, parseISO, isValid } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 
 export function CalendarViewTab() {
@@ -16,7 +16,14 @@ export function CalendarViewTab() {
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  
+  // Get the start of the week containing the first day of the month
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 0 }); // 0 = Sunday
+  // Get the end of the week containing the last day of the month
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 0 });
+  
+  // Generate all days for the calendar grid (including previous/next month days)
+  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd });
 
   const goToPreviousMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));

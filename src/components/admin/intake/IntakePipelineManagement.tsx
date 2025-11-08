@@ -517,25 +517,17 @@ export function IntakePipelineManagement() {
 
       {/* Filters Section */}
       <div className="container mx-auto px-6 py-6 border-b bg-muted/20">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">Filter by:</span>
-          </div>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="active">Active</TabsTrigger>
+              <TabsTrigger value="closed">Closed</TabsTrigger>
+              <TabsTrigger value="planning">Planning</TabsTrigger>
+            </TabsList>
+          </Tabs>
           
-          <div className="flex flex-wrap items-center gap-3 flex-1">
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="planning">Planning</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
-
+          <div className="flex flex-wrap items-center gap-3">
             <Select value={filterProgram} onValueChange={setFilterProgram}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Program" />
@@ -578,10 +570,10 @@ export function IntakePipelineManagement() {
                 Clear Filters
               </Button>
             )}
-          </div>
-          
-          <div className="text-sm text-muted-foreground">
-            Showing {filteredIntakes.length} of {intakes.length} intakes
+            
+            <div className="text-sm text-muted-foreground">
+              {filteredIntakes.length} of {intakes.length}
+            </div>
           </div>
         </div>
       </div>
@@ -589,83 +581,6 @@ export function IntakePipelineManagement() {
       <div className="container mx-auto px-6 py-6 space-y-6">
         {!selectedIntake ? (
           <div className="space-y-6">
-            {/* Overview Statistics */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Intakes</p>
-                      <p className="text-2xl font-semibold mt-2">{intakes.length}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {intakes.filter(i => i.status === 'active').length} active
-                      </p>
-                    </div>
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Target className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Enrollment</p>
-                      <p className="text-2xl font-semibold mt-2">
-                        {intakes.reduce((sum, i) => sum + i.enrolled, 0)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        of {intakes.reduce((sum, i) => sum + i.capacity, 0)} capacity
-                      </p>
-                    </div>
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Users className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Avg Pipeline Strength</p>
-                      <p className="text-2xl font-semibold mt-2">
-                        {Math.round(intakes.reduce((sum, i) => sum + i.pipelineStrength, 0) / intakes.length)}%
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Across all active intakes
-                      </p>
-                    </div>
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <BarChart3 className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Avg Conversion</p>
-                      <p className="text-2xl font-semibold mt-2">
-                        {Math.round(intakes.reduce((sum, i) => sum + i.conversionRate, 0) / intakes.length)}%
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Lead to enrollment rate
-                      </p>
-                    </div>
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <TrendingUp className="h-6 w-6 text-primary" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
             {/* Intakes List */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredIntakes.map((intake) => (

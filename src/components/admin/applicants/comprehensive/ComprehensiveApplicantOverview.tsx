@@ -1,5 +1,10 @@
 // @ts-nocheck
-import React from 'react';
+import React, { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { SectionNavigation } from './SectionNavigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -10,7 +15,9 @@ import {
   MessageSquare, 
   Briefcase,
   Users,
-  Star
+  Star,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { Applicant } from '@/types/applicant';
 import { getMockApplicationData } from '@/data/mockApplicationData';
@@ -27,6 +34,23 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
   // Get comprehensive student data
   const studentData = getMockApplicationData(applicant.id);
 
+  // State for collapsible sections
+  const [openSections, setOpenSections] = useState({
+    aiAssessment: true,
+    profile: true,
+    essays: true,
+    responses: true,
+    experience: true,
+    references: true,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   return (
     <div className="flex gap-8">
       {/* Section Navigation Sidebar */}
@@ -35,14 +59,28 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
       {/* Main Content */}
       <div className="flex-1 space-y-8">
         {/* AI Assessment Summary */}
-        <Card id="ai-assessment" className="border-primary/20 scroll-mt-20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Star className="h-5 w-5 text-primary" />
-              AI Assessment Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+        <Collapsible
+          id="ai-assessment"
+          className="scroll-mt-20"
+          open={openSections.aiAssessment}
+          onOpenChange={() => toggleSection('aiAssessment')}
+        >
+          <Card className="border-primary/20">
+            <CardHeader className="pb-3">
+              <CollapsibleTrigger className="flex items-center justify-between w-full hover:opacity-80 transition-opacity">
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="h-5 w-5 text-primary" />
+                  AI Assessment Summary
+                </CardTitle>
+                {openSections.aiAssessment ? (
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                ) : (
+                  <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                )}
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+              <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">{studentData.aiAssessment.overallFitScore}%</div>
@@ -90,118 +128,190 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
         {/* Profile Section */}
-        <div id="profile" className="scroll-mt-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <User className="h-5 w-5 text-primary" />
+        <Collapsible
+          id="profile"
+          className="scroll-mt-20"
+          open={openSections.profile}
+          onOpenChange={() => toggleSection('profile')}
+        >
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('profile')}>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold">Student Profile</h2>
             </div>
-            <h2 className="text-2xl font-semibold">Student Profile</h2>
+            {openSections.profile ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            )}
           </div>
-          <StudentProfileSection profile={studentData} />
-        </div>
+          <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+            <StudentProfileSection profile={studentData} />
+          </CollapsibleContent>
+        </Collapsible>
 
         <Separator />
 
         {/* Essays Section */}
-        <div id="essays" className="scroll-mt-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <FileText className="h-5 w-5 text-primary" />
+        <Collapsible
+          id="essays"
+          className="scroll-mt-20"
+          open={openSections.essays}
+          onOpenChange={() => toggleSection('essays')}
+        >
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('essays')}>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <FileText className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold">Essays</h2>
+              {studentData.essays.length > 0 && (
+                <Badge variant="secondary">{studentData.essays.length}</Badge>
+              )}
             </div>
-            <h2 className="text-2xl font-semibold">Essays</h2>
-            {studentData.essays.length > 0 && (
-              <Badge variant="secondary">{studentData.essays.length}</Badge>
+            {openSections.essays ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             )}
           </div>
-          <ApplicationEssayViewer essays={studentData.essays} />
-        </div>
+          <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+            <ApplicationEssayViewer essays={studentData.essays} />
+          </CollapsibleContent>
+        </Collapsible>
 
         <Separator />
 
         {/* Application Responses Section */}
-        <div id="responses" className="scroll-mt-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <MessageSquare className="h-5 w-5 text-primary" />
+        <Collapsible
+          id="responses"
+          className="scroll-mt-20"
+          open={openSections.responses}
+          onOpenChange={() => toggleSection('responses')}
+        >
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('responses')}>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <MessageSquare className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold">Application Responses</h2>
+              {studentData.formResponses.length > 0 && (
+                <Badge variant="secondary">{studentData.formResponses.length}</Badge>
+              )}
             </div>
-            <h2 className="text-2xl font-semibold">Application Responses</h2>
-            {studentData.formResponses.length > 0 && (
-              <Badge variant="secondary">{studentData.formResponses.length}</Badge>
+            {openSections.responses ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             )}
           </div>
-          <ApplicationResponsesViewer responses={studentData.formResponses} />
-        </div>
+          <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+            <ApplicationResponsesViewer responses={studentData.formResponses} />
+          </CollapsibleContent>
+        </Collapsible>
 
         <Separator />
 
         {/* Professional Experience Section */}
-        <div id="experience" className="scroll-mt-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <Briefcase className="h-5 w-5 text-primary" />
+        <Collapsible
+          id="experience"
+          className="scroll-mt-20"
+          open={openSections.experience}
+          onOpenChange={() => toggleSection('experience')}
+        >
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('experience')}>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <Briefcase className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold">Experience</h2>
+              {(studentData.professionalExperience.length + studentData.extracurriculars.length) > 0 && (
+                <Badge variant="secondary">
+                  {studentData.professionalExperience.length + studentData.extracurriculars.length}
+                </Badge>
+              )}
             </div>
-            <h2 className="text-2xl font-semibold">Experience</h2>
-            {(studentData.professionalExperience.length + studentData.extracurriculars.length) > 0 && (
-              <Badge variant="secondary">
-                {studentData.professionalExperience.length + studentData.extracurriculars.length}
-              </Badge>
+            {openSections.experience ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             )}
           </div>
-          <ProfessionalExperiencePanel 
-            professionalExperience={studentData.professionalExperience}
-            extracurriculars={studentData.extracurriculars}
-          />
-        </div>
+          <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+            <ProfessionalExperiencePanel 
+              professionalExperience={studentData.professionalExperience}
+              extracurriculars={studentData.extracurriculars}
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
         <Separator />
 
         {/* References Section */}
-        <div id="references" className="scroll-mt-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-              <Users className="h-5 w-5 text-primary" />
+        <Collapsible
+          id="references"
+          className="scroll-mt-20"
+          open={openSections.references}
+          onOpenChange={() => toggleSection('references')}
+        >
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('references')}>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <h2 className="text-2xl font-semibold">References</h2>
+              {studentData.references.length > 0 && (
+                <Badge variant="secondary">{studentData.references.length}</Badge>
+              )}
             </div>
-            <h2 className="text-2xl font-semibold">References</h2>
-            {studentData.references.length > 0 && (
-              <Badge variant="secondary">{studentData.references.length}</Badge>
+            {openSections.references ? (
+              <ChevronUp className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-muted-foreground" />
             )}
           </div>
-          <Card>
-            <CardContent className="pt-6">
-              {studentData.references.length === 0 ? (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No references provided</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {studentData.references.map((reference, index) => (
-                    <div key={index} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-semibold">{reference.name}</h4>
-                          <p className="text-sm text-muted-foreground">{reference.position}</p>
-                          <p className="text-sm text-muted-foreground">{reference.institution}</p>
+          <CollapsibleContent className="animate-accordion-down data-[state=closed]:animate-accordion-up">
+            <Card>
+              <CardContent className="pt-6">
+                {studentData.references.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No references provided</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {studentData.references.map((reference, index) => (
+                      <div key={index} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-semibold">{reference.name}</h4>
+                            <p className="text-sm text-muted-foreground">{reference.position}</p>
+                            <p className="text-sm text-muted-foreground">{reference.institution}</p>
+                          </div>
+                          <Badge variant={reference.submitted ? "default" : "secondary"}>
+                            {reference.submitted ? "Submitted" : "Pending"}
+                          </Badge>
                         </div>
-                        <Badge variant={reference.submitted ? "default" : "secondary"}>
-                          {reference.submitted ? "Submitted" : "Pending"}
-                        </Badge>
+                        <div>
+                          <p className="text-sm"><span className="font-medium">Relationship:</span> {reference.relationship}</p>
+                          <p className="text-sm"><span className="font-medium">Email:</span> {reference.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-sm"><span className="font-medium">Relationship:</span> {reference.relationship}</p>
-                        <p className="text-sm"><span className="font-medium">Email:</span> {reference.email}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </div>
   );

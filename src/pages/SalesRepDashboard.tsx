@@ -20,7 +20,6 @@ import { NewlyAssignedLeads } from '@/components/admin/sales-rep/NewlyAssignedLe
 import { UnreadCommunications } from '@/components/admin/sales-rep/UnreadCommunications';
 import { TodaysCallList } from '@/components/admin/sales-rep/TodaysCallList';
 import { ReenquiryStudents } from '@/components/admin/sales-rep/ReenquiryStudents';
-import { AIActionsApprovalBox } from '@/components/admin/sales-rep/AIActionsApprovalBox';
 import { TodaysTasks } from '@/components/admin/sales-rep/TodaysTasks';
 import { MyDayCalendar } from '@/components/admin/sales-rep/MyDayCalendar';
 import { HotLeadsToday } from '@/components/admin/sales-rep/HotLeadsToday';
@@ -70,8 +69,6 @@ export default function SalesRepDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Priority Items */}
             <div className="lg:col-span-2 space-y-6">
-              <AIActionsApprovalBox />
-              
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">

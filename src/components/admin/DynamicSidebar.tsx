@@ -66,8 +66,8 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
 
   if (!currentSection) return null;
 
-  // Filter items based on MVP mode (only for data-management section)
-  const sectionItems = currentActiveSection === 'data-management' && isMvpMode
+  // Filter items based on MVP mode (for data-management and leads-marketing sections)
+  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing') && isMvpMode
     ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
     : currentSection.items;
 

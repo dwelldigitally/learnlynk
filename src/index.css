@@ -38,23 +38,23 @@
     --accent-foreground: 210 11% 15%;
     --accent-light: 210 40% 95%;
  
-    /* Status colors - Minimal and clean */
-    --success: 142 71% 45%;      /* Clean green */
-    --success-light: 142 71% 95%;
-    --warning: 38 92% 50%;       /* Clean orange */
-    --warning-light: 38 92% 95%;
-    --destructive: 0 84% 60%;    /* Clean red for errors */
+    /* Status colors - Professional and subdued */
+    --success: 142 71% 45%;      /* Professional green */
+    --success-light: 142 71% 96%;
+    --warning: 32 80% 55%;       /* Muted amber */
+    --warning-light: 32 80% 96%;
+    --destructive: 4 75% 55%;    /* Muted coral/red */
     --destructive-foreground: 0 0% 100%;
     --info: 217 91% 60%;         /* Same as primary blue */
-    --info-light: 217 91% 95%;
+    --info-light: 217 91% 96%;
     
-    /* Journey status colors - Clean and minimal */
-    --journey-active: 142 71% 45%;      /* Clean green */
-    --journey-active-light: 142 71% 95%;
+    /* Journey status colors - Professional and minimal */
+    --journey-active: 142 71% 45%;      /* Professional green */
+    --journey-active-light: 142 71% 96%;
     --journey-inactive: 210 11% 60%;    /* Medium grey */
-    --journey-inactive-light: 210 20% 95%;
-    --journey-draft: 38 92% 50%;        /* Clean orange */
-    --journey-draft-light: 38 92% 95%;
+    --journey-inactive-light: 210 20% 96%;
+    --journey-draft: 32 80% 55%;        /* Muted amber */
+    --journey-draft-light: 32 80% 96%;
 
     /* Borders and inputs - Very subtle */
     --border: 210 20% 90%;
@@ -149,8 +149,8 @@
     --accent: 210 40% 25%;
     --accent-foreground: 0 0% 98%;
  
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 210 11% 8%;
+    --destructive: 4 75% 60%;
+    --destructive-foreground: 0 0% 98%;
  
     --border: 210 11% 20%;
     --input: 210 11% 20%;

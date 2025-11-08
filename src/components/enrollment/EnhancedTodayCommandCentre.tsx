@@ -261,10 +261,10 @@ export function EnhancedTodayCommandCentre() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">High Value</p>
-                <p className="text-3xl font-bold text-amber-600 mt-1">{highValueCount}</p>
+                <p className="text-3xl font-bold text-warning mt-1">{highValueCount}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-amber-500/10 flex items-center justify-center">
-                <Flame className="h-6 w-6 text-amber-600" />
+              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
+                <Flame className="h-6 w-6 text-warning" />
               </div>
             </div>
           </CardContent>
@@ -365,12 +365,12 @@ export function EnhancedTodayCommandCentre() {
           )}
 
           {highValueCount > 0 && (
-            <Card className="border-amber-500/50">
+            <Card className="border-warning/50">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Flame className="h-5 w-5 text-amber-600" />
+                  <Flame className="h-5 w-5 text-warning" />
                   Hot Prospects
-                  <Badge className="bg-amber-500">{highValueCount}</Badge>
+                  <Badge className="bg-warning text-white">{highValueCount}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -493,7 +493,7 @@ export function EnhancedTodayCommandCentre() {
         </TabsContent>
 
         <TabsContent value="hot" className="mt-6">
-          <Card className="border-amber-500/50">
+          <Card className="border-warning/50">
             <CardContent className="p-6">
               <HotProspectsWidget 
                 actions={categorizedActions.hotProspects}

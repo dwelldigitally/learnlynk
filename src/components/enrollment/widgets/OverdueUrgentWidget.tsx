@@ -67,7 +67,7 @@ export function OverdueUrgentWidget({
   };
 
   return (
-    <Card className="border-red-300 bg-red-50/50">
+    <Card className="border-destructive/30">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
           <div className="flex items-center space-x-2">
@@ -83,12 +83,12 @@ export function OverdueUrgentWidget({
                 className="mr-2"
               />
             )}
-            <div className="flex items-center space-x-2 text-red-700">
-              <AlertTriangle className="h-4 w-4" />
-              <span>⚡ Overdue/Urgent</span>
+            <div className="flex items-center space-x-2 text-foreground">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <span>Overdue/Urgent</span>
             </div>
           </div>
-          <Badge variant="destructive" className="bg-red-200 text-red-800 border-red-300">
+          <Badge variant="destructive">
             {actions.length}
           </Badge>
         </CardTitle>
@@ -110,7 +110,7 @@ export function OverdueUrgentWidget({
             return (
               <div 
                 key={action.id}
-                className={`p-3 rounded-lg border bg-red-100 border-red-300 transition-all duration-200 hover:shadow-md ${
+                className={`p-3 rounded-lg border bg-card transition-all duration-200 hover:shadow-md ${
                   selectedItems.includes(action.id) ? 'ring-2 ring-primary shadow-lg' : ''
                 }`}
               >
@@ -127,29 +127,29 @@ export function OverdueUrgentWidget({
                     <div className="flex items-center space-x-2 mb-1">
                       <div className="flex items-center space-x-1">
                         {getActionIcon(action.action_type)}
-                        <span className="font-medium text-sm truncate text-red-900">
+                        <span className="font-medium text-sm truncate text-foreground">
                           {action.metadata?.student_name || 'Student'}
                         </span>
                       </div>
                       
                       {overdue ? (
-                        <Badge variant="destructive" className="text-xs bg-red-600">
+                        <Badge variant="destructive" className="text-xs">
                           <Clock className="h-2 w-2 mr-1" />
                           {hoursOverdue}h overdue
                         </Badge>
                       ) : (
-                        <Badge variant="destructive" className="text-xs bg-orange-600">
+                        <Badge variant="secondary" className="text-xs">
                           <Zap className="h-2 w-2 mr-1" />
                           URGENT
                         </Badge>
                       )}
                     </div>
                     
-                    <p className="text-xs text-red-700 mb-1 line-clamp-2 font-medium">
+                    <p className="text-xs text-muted-foreground mb-1 line-clamp-2">
                       {action.instruction}
                     </p>
                     
-                    <div className="flex items-center space-x-2 text-xs text-red-600">
+                    <div className="flex items-center space-x-2 text-xs text-muted-foreground">
                       <span>{action.metadata?.program || 'Unknown Program'}</span>
                       {overdue && (
                         <>
@@ -163,8 +163,8 @@ export function OverdueUrgentWidget({
                   
                   <Button
                     size="sm"
-                    variant="destructive"
-                    className="ml-2 h-6 px-2 text-xs bg-red-700 hover:bg-red-800"
+                    variant="default"
+                    className="ml-2 h-6 px-2 text-xs"
                     onClick={() => onCompleteAction(action.id)}
                   >
                     Fix Now
@@ -177,7 +177,7 @@ export function OverdueUrgentWidget({
         
         {actions.length > 5 && (
           <div className="text-center pt-2">
-            <Button variant="ghost" size="sm" className="text-red-700 hover:bg-red-100">
+            <Button variant="ghost" size="sm">
               View all {actions.length} urgent items →
             </Button>
           </div>

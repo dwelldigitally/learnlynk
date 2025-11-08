@@ -1,54 +1,26 @@
 import React, { useState, useMemo } from "react";
+import { DocumentHeader } from "./documents/DocumentHeader";
+import { DocumentFilters } from "./documents/DocumentFilters";
+import { DocumentTable } from "./documents/DocumentTable";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { 
-  Search, 
-  Eye, 
-  CheckCircle, 
-  XCircle,
-  Clock,
   FileText,
   MessageSquare,
-  Filter,
-  Download,
-  Settings,
-  User,
-  Calendar,
-  Building,
-  GraduationCap,
-  AlertTriangle,
-  Info,
   Star,
-  FileCheck,
-  Users,
-  BarChart
+  User,
+  GraduationCap,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Download,
+  Eye,
+  Clock,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { Progress } from "@/components/ui/progress";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface DocumentData {
   id: string;
@@ -580,438 +552,78 @@ const EnhancedDocumentManagement: React.FC = () => {
     );
   };
 
+  const handleClearFilters = () => {
+    setFilters({
+      search: '',
+      program: 'all',
+      campus: 'all',
+      intake: 'all',
+      status: 'all',
+      studentType: 'all',
+      documentType: 'all',
+      priority: 'all',
+      reviewer: 'all',
+      dateRange: 'all'
+    });
+  };
+
+  const handleExport = () => {
+    console.log('Export documents');
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header with Bulk Actions */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Document Management</h1>
-          <p className="text-muted-foreground">Comprehensive document review and approval system</p>
-        </div>
-        <div className="flex space-x-2">
-          {selectedDocuments.length > 0 && (
-            <Sheet open={showBulkActions} onOpenChange={setShowBulkActions}>
-              <SheetTrigger asChild>
-                <Button variant="default">
-                  Bulk Actions ({selectedDocuments.length})
-                </Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Bulk Actions</SheetTitle>
-                </SheetHeader>
-                <div className="space-y-4 mt-6">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      Selected {selectedDocuments.length} documents
-                    </p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Button 
-                      className="w-full" 
-                      onClick={() => handleBulkAction('approve')}
-                    >
-                      <CheckCircle className="h-4 w-4 mr-2" />
-                      Bulk Approve
-                    </Button>
-                    <Button 
-                      variant="destructive" 
-                      className="w-full"
-                      onClick={() => handleBulkAction('reject')}
-                    >
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Bulk Reject
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                    >
-                      <Download className="h-4 w-4 mr-2" />
-                      Bulk Download
-                    </Button>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Communication Note</label>
-                    <Textarea
-                      placeholder="Add a note that will be sent to all selected students..."
-                      value={bulkComment}
-                      onChange={(e) => setBulkComment(e.target.value)}
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-          <Button variant="outline">
-            <BarChart className="h-4 w-4 mr-2" />
-            Analytics
-          </Button>
+    <div className="h-full flex flex-col bg-muted/30">
+      <div className="border-b bg-card/50 backdrop-blur-sm">
+        <div className="px-6 py-6">
+          <DocumentHeader
+            searchQuery={filters.search}
+            onSearchChange={(query) => setFilters(prev => ({ ...prev, search: query }))}
+            selectedCount={selectedDocuments.length}
+            onBulkApprove={() => handleBulkAction('approve')}
+            onBulkReject={() => handleBulkAction('reject')}
+            onExport={handleExport}
+            stats={stats}
+          >
+            <DocumentFilters
+              filters={{
+                program: filters.program,
+                campus: filters.campus,
+                intake: filters.intake,
+                status: filters.status,
+                studentType: filters.studentType,
+                priority: filters.priority,
+                reviewer: filters.reviewer
+              }}
+              onFilterChange={(key, value) => setFilters(prev => ({ ...prev, [key]: value }))}
+              onClearFilters={handleClearFilters}
+            />
+          </DocumentHeader>
         </div>
       </div>
 
-      {/* Enhanced Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
-        {[
-          { title: "Total Documents", count: stats.total, icon: FileText, color: "text-blue-600", bgColor: "bg-blue-100" },
-          { title: "Pending Review", count: stats.pending, icon: Clock, color: "text-yellow-600", bgColor: "bg-yellow-100" },
-          { title: "Under Review", count: stats.underReview, icon: Eye, color: "text-blue-600", bgColor: "bg-blue-100" },
-          { title: "Approved", count: stats.approved, icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-100" },
-          { title: "Rejected", count: stats.rejected, icon: XCircle, color: "text-red-600", bgColor: "bg-red-100" },
-          { title: "High Priority", count: stats.highPriority, icon: AlertTriangle, color: "text-orange-600", bgColor: "bg-orange-100" }
-        ].map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-xl font-bold text-foreground">{stat.count}</p>
-                </div>
-                <div className={`p-2 rounded-full ${stat.bgColor}`}>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="flex-1 p-6">
+        <DocumentTable
+          documents={filteredDocuments}
+          selectedDocuments={selectedDocuments}
+          onSelectDocument={(id) => {
+            setSelectedDocuments(prev =>
+              prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]
+            );
+          }}
+          onSelectAll={handleSelectAll}
+          onViewDocument={(doc) => setSelectedDocument(doc)}
+          onApproveDocument={(id) => handleDocumentAction(id, 'approve')}
+          onRejectDocument={(id) => handleDocumentAction(id, 'reject')}
+          onDownloadDocument={handleDownloadDocument}
+        />
       </div>
 
-      {/* Advanced Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Advanced Filters
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search documents..." 
-                className="pl-10"
-                value={filters.search}
-                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-              />
-            </div>
-
-            <Select value={filters.program} onValueChange={(value) => setFilters(prev => ({ ...prev, program: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Program" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Programs</SelectItem>
-                <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
-                <SelectItem value="Education Assistant">Education Assistant</SelectItem>
-                <SelectItem value="Aviation">Aviation</SelectItem>
-                <SelectItem value="Hospitality">Hospitality</SelectItem>
-                <SelectItem value="ECE">ECE</SelectItem>
-                <SelectItem value="MLA">MLA</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.campus} onValueChange={(value) => setFilters(prev => ({ ...prev, campus: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Campus" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Campuses</SelectItem>
-                <SelectItem value="Main Campus">Main Campus</SelectItem>
-                <SelectItem value="Downtown Campus">Downtown Campus</SelectItem>
-                <SelectItem value="Technical Campus">Technical Campus</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.intake} onValueChange={(value) => setFilters(prev => ({ ...prev, intake: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Intake" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Intakes</SelectItem>
-                <SelectItem value="April 2024">April 2024</SelectItem>
-                <SelectItem value="September 2024">September 2024</SelectItem>
-                <SelectItem value="June 2024">June 2024</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.studentType} onValueChange={(value) => setFilters(prev => ({ ...prev, studentType: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Student Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="domestic">Domestic</SelectItem>
-                <SelectItem value="international">International</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-            <Select value={filters.status} onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="under-review">Under Review</SelectItem>
-                <SelectItem value="approved">Approved</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Priorities</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filters.reviewer} onValueChange={(value) => setFilters(prev => ({ ...prev, reviewer: value }))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Reviewer" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Reviewers</SelectItem>
-                <SelectItem value="Dr. Smith">Dr. Smith</SelectItem>
-                <SelectItem value="Jane Doe">Jane Doe</SelectItem>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Documents Table with Tabs */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Document Management
-            </span>
-            {selectedDocuments.length > 0 && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Bulk Actions ({selectedDocuments.length})
-                  </Button>
-                </SheetTrigger>
-                <SheetContent>
-                  <SheetHeader>
-                    <SheetTitle>Bulk Actions</SheetTitle>
-                  </SheetHeader>
-                  <div className="space-y-4 mt-4">
-                    <div>
-                      <p className="text-sm font-medium mb-2">Selected Documents: {selectedDocuments.length}</p>
-                      <Textarea 
-                        placeholder="Add a note for this bulk action..."
-                        value={bulkComment}
-                        onChange={(e) => setBulkComment(e.target.value)}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Button 
-                        className="w-full" 
-                        onClick={() => handleBulkAction('approve')}
-                      >
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Bulk Approve
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        className="w-full"
-                        onClick={() => handleBulkAction('reject')}
-                      >
-                        <XCircle className="h-4 w-4 mr-2" />
-                        Bulk Reject
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        className="w-full"
-                        onClick={() => handleBulkAction('assign')}
-                      >
-                        <User className="h-4 w-4 mr-2" />
-                        Bulk Assign
-                      </Button>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="pending" className="flex items-center gap-1">
-                <Clock className="h-4 w-4" />
-                Pending ({documents.filter(d => d.status === 'pending').length})
-              </TabsTrigger>
-              <TabsTrigger value="under-review" className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                Under Review ({documents.filter(d => d.status === 'under-review').length})
-              </TabsTrigger>
-              <TabsTrigger value="approved" className="flex items-center gap-1">
-                <CheckCircle className="h-4 w-4" />
-                Approved ({documents.filter(d => d.status === 'approved').length})
-              </TabsTrigger>
-              <TabsTrigger value="rejected" className="flex items-center gap-1">
-                <XCircle className="h-4 w-4" />
-                Rejected ({documents.filter(d => d.status === 'rejected').length})
-              </TabsTrigger>
-              <TabsTrigger value="all" className="flex items-center gap-1">
-                <FileText className="h-4 w-4" />
-                All ({documents.length})
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value={activeTab} className="mt-4">
-              <div className="rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">
-                        <Checkbox 
-                          checked={selectedDocuments.length === filteredDocuments.length && filteredDocuments.length > 0}
-                          onCheckedChange={handleSelectAll}
-                        />
-                      </TableHead>
-                      <TableHead>Document</TableHead>
-                      <TableHead>Student</TableHead>
-                      <TableHead>Program</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Upload Date</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredDocuments.map((doc) => (
-                      <TableRow key={doc.id}>
-                        <TableCell>
-                          <Checkbox 
-                            checked={selectedDocuments.includes(doc.id)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedDocuments([...selectedDocuments, doc.id]);
-                              } else {
-                                setSelectedDocuments(selectedDocuments.filter(id => id !== doc.id));
-                              }
-                            }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-3">
-                            <FileText className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <button 
-                                className="font-medium text-primary hover:underline cursor-pointer text-left"
-                                onClick={() => handleDocumentClick(doc.id)}
-                              >
-                                {doc.name}
-                              </button>
-                              <p className="text-sm text-muted-foreground">{doc.fileType} • {doc.fileSize}</p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                              <Avatar className="h-6 w-6">
-                                <AvatarImage src="/placeholder.svg" />
-                                <AvatarFallback>{doc.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <button 
-                                  className="font-medium text-primary hover:underline cursor-pointer"
-                                  onClick={() => handleStudentClick(doc.studentId)}
-                                >
-                                  {doc.studentName}
-                                </button>
-                                <p className="text-xs text-muted-foreground">{doc.studentId}</p>
-                              </div>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleViewAllStudentDocuments(doc.studentId, doc.studentName)}
-                              className="h-6 px-2 text-xs"
-                            >
-                              <Users className="h-3 w-3 mr-1" />
-                              All Docs
-                            </Button>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{doc.program}</p>
-                            <p className="text-sm text-muted-foreground">{doc.campus}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={getStatusColor(doc.status)} className="flex items-center gap-1 w-fit">
-                            {getStatusIcon(doc.status)}
-                            {doc.status.replace('-', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={getPriorityColor(doc.priority)}>
-                            {doc.priority}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm">{new Date(doc.uploadDate).toLocaleDateString()}</p>
-                            <p className="text-xs text-muted-foreground">{doc.intake}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-1">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="ghost" size="sm" onClick={() => setSelectedDocument(doc)}>
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              {selectedDocument && (
-                                <DocumentPreview document={selectedDocument} />
-                              )}
-                            </Dialog>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDocumentAction(doc.id, 'approve')}
-                            >
-                              <CheckCircle className="h-4 w-4 text-green-600" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDocumentAction(doc.id, 'reject')}
-                            >
-                              <XCircle className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+      {/* Document Preview Dialog */}
+      {selectedDocument && (
+        <Dialog open={!!selectedDocument} onOpenChange={() => setSelectedDocument(null)}>
+          <DocumentPreview document={selectedDocument} />
+        </Dialog>
+      )}
     </div>
   );
 };

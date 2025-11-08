@@ -261,10 +261,10 @@ export function EnhancedTodayCommandCentre() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">High Value</p>
-                <p className="text-3xl font-bold text-success mt-1">{highValueCount}</p>
+                <p className="text-3xl font-bold text-primary mt-1">{highValueCount}</p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <Flame className="h-6 w-6 text-success" />
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Flame className="h-6 w-6 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -275,12 +275,12 @@ export function EnhancedTodayCommandCentre() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Revenue Impact</p>
-                <p className="text-3xl font-bold text-success mt-1">
+                <p className="text-3xl font-bold text-foreground mt-1">
                   ${(metrics.revenueImpact / 1000).toFixed(0)}K
                 </p>
               </div>
-              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-success" />
+              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-foreground" />
               </div>
             </div>
           </CardContent>
@@ -365,12 +365,12 @@ export function EnhancedTodayCommandCentre() {
           )}
 
           {highValueCount > 0 && (
-            <Card className="border-success/50">
+            <Card className="border-primary/30">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Flame className="h-5 w-5 text-success" />
+                  <Flame className="h-5 w-5 text-primary" />
                   Hot Prospects
-                  <Badge className="bg-success text-white">{highValueCount}</Badge>
+                  <Badge variant="secondary">{highValueCount}</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -493,7 +493,7 @@ export function EnhancedTodayCommandCentre() {
         </TabsContent>
 
         <TabsContent value="hot" className="mt-6">
-          <Card className="border-success/50">
+          <Card className="border-primary/30">
             <CardContent className="p-6">
               <HotProspectsWidget 
                 actions={categorizedActions.hotProspects}

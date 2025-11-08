@@ -41,6 +41,9 @@ export const MVP_HIDDEN_PAGES = [
   '/admin/leads/workflow',
   '/admin/leads/ai',
   '/admin/leads/bulk',
+  // Students & Applications
+  '/admin/registrar/command-center',
+  '/admin/registrar/intelligence',
   // Data Management
   '/admin/recruiters',
   '/admin/recruiter-applications',

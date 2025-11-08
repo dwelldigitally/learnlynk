@@ -48,12 +48,12 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
   };
 
   return (
-    <div className="flex gap-8 items-start">
+    <div className="flex gap-8 items-start min-h-screen">
       {/* Section Navigation Sidebar */}
       <SectionNavigation />
       
       {/* Main Content */}
-      <div className="flex-1 space-y-8">
+      <div className="flex-1 space-y-8 pb-20">
         {/* AI Assessment Summary */}
         <Collapsible
           id="ai-assessment"

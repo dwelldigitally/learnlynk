@@ -390,7 +390,12 @@ export function NewlyAssignedLeads() {
                 </div>;
         })}
             
-            {leads.length > 3 && <Button variant="ghost" size="sm" className="w-full mt-2">
+            {leads.length > 3 && <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full mt-2"
+                onClick={() => navigate('/admin/leads')}
+              >
                 View all {leads.length} assigned leads
               </Button>}
           </div>}

@@ -219,7 +219,8 @@ export function IntakePipelineManagement() {
     campus: '',
     capacity: 25,
     startDate: '',
-    endDate: ''
+    endDate: '',
+    waitlistEnabled: false
   });
 
   // AI Recommendations data
@@ -306,7 +307,8 @@ export function IntakePipelineManagement() {
       campus: '',
       capacity: 25,
       startDate: '',
-      endDate: ''
+      endDate: '',
+      waitlistEnabled: false
     });
     setShowCreateDialog(false);
     toast.success('Intake created successfully');
@@ -463,6 +465,16 @@ export function IntakePipelineManagement() {
                         max="100"
                         className="mt-1.5"
                       />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="waitlist"
+                        checked={newIntake.waitlistEnabled}
+                        onCheckedChange={(checked) => setNewIntake(prev => ({ ...prev, waitlistEnabled: checked as boolean }))}
+                      />
+                      <Label htmlFor="waitlist" className="text-sm font-normal cursor-pointer">
+                        Enable waitlist for this intake
+                      </Label>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>

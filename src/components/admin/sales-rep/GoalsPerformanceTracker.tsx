@@ -283,78 +283,138 @@ export function GoalsPerformanceTracker() {
             const percentage = getProgressPercentage(goal.current, goal.target);
             const isExpanded = expandedGoals.has(goal.id);
             const remaining = goal.target - goal.current;
+            const isAchieved = goal.current >= goal.target;
             
             return (
               <Collapsible key={goal.id} open={isExpanded} onOpenChange={() => toggleGoalExpansion(goal.id)}>
-                <div className="border border-border rounded-lg p-4 hover:border-primary/30 transition-colors">
+                <div className={cn(
+                  "border rounded-lg p-4 transition-all",
+                  isAchieved 
+                    ? "border-green-500/30 bg-green-500/5 hover:border-green-500/50" 
+                    : "border-border hover:border-primary/30"
+                )}>
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 p-2.5 rounded-lg bg-primary/10">
-                      <Icon className="w-5 h-5 text-primary" />
+                    <div className={cn(
+                      "flex-shrink-0 p-2.5 rounded-lg",
+                      isAchieved ? "bg-green-500/20" : "bg-primary/10"
+                    )}>
+                      {isAchieved ? (
+                        <Award className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <Icon className="w-5 h-5 text-primary" />
+                      )}
                     </div>
                     
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex-1 min-w-0 space-y-3">
+                      {/* Header */}
+                      <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-foreground truncate">{goal.name}</h4>
-                          <p className="text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-foreground">{goal.name}</h4>
+                            {isAchieved && (
+                              <Badge className="bg-green-500/10 text-green-600 border-green-500/20 hover:bg-green-500/20">
+                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                Achieved
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-0.5">
                             {goal.current.toLocaleString()} / {goal.target.toLocaleString()} {goal.unit}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <Badge variant="outline" className={getPriorityBadge(goal.priority)}>
-                            {goal.priority}
-                          </Badge>
-                          <span className={cn("text-2xl font-bold", getProgressColor(percentage))}>
-                            {Math.round(percentage)}%
-                          </span>
-                        </div>
+                        <Badge variant="outline" className={getPriorityBadge(goal.priority)}>
+                          {goal.priority}
+                        </Badge>
                       </div>
                       
-                      <div className="space-y-2">
-                        <Progress value={percentage} className="h-2" />
-                        
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-muted-foreground">
-                            {remaining > 0 ? (
-                              <>{remaining} {goal.unit} remaining</>
-                            ) : (
-                              <span className="text-green-600 font-medium">Goal completed! 🎉</span>
-                            )}
-                          </span>
-                          <div className="flex items-center gap-1 text-muted-foreground">
-                            <Clock className="w-3 h-3" />
-                            <span>Due {format(new Date(goal.deadline), 'MMM d')}</span>
+                      {/* Compact Progress */}
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-20 h-20 flex-shrink-0">
+                          <svg className="w-20 h-20 transform -rotate-90">
+                            <circle
+                              cx="40"
+                              cy="40"
+                              r="34"
+                              stroke="currentColor"
+                              strokeWidth="6"
+                              fill="none"
+                              className="text-muted/20"
+                            />
+                            <circle
+                              cx="40"
+                              cy="40"
+                              r="34"
+                              stroke="currentColor"
+                              strokeWidth="6"
+                              fill="none"
+                              strokeDasharray={`${2 * Math.PI * 34}`}
+                              strokeDashoffset={`${2 * Math.PI * 34 * (1 - percentage / 100)}`}
+                              className={cn(
+                                "transition-all duration-500",
+                                isAchieved ? "text-green-600" :
+                                percentage >= 70 ? "text-primary" :
+                                percentage >= 50 ? "text-yellow-600" :
+                                "text-orange-600"
+                              )}
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className={cn(
+                              "text-xl font-bold",
+                              isAchieved ? "text-green-600" : getProgressColor(percentage)
+                            )}>
+                              {Math.round(percentage)}%
+                            </span>
                           </div>
+                        </div>
+                        
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              {remaining > 0 ? `${remaining} ${goal.unit} to go` : 'Complete! 🎉'}
+                            </span>
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              {format(new Date(goal.deadline), 'MMM d')}
+                            </div>
+                          </div>
+                          
+                          {!isAchieved && remaining > 0 && (
+                            <div className="text-xs text-muted-foreground">
+                              Daily target: <span className="font-medium text-foreground">{Math.ceil(remaining / 7)} {goal.unit}/day</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
                       {/* Collapsible Details */}
-                      <CollapsibleContent className="mt-3 pt-3 border-t border-border">
+                      <CollapsibleContent className="pt-3 border-t border-border">
                         <div className="space-y-2 text-sm">
                           <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <span className="text-muted-foreground">Daily Target:</span>
-                              <span className="ml-2 font-medium text-foreground">
-                                {Math.ceil(remaining / 7)} {goal.unit}/day
-                              </span>
-                            </div>
                             <div>
                               <span className="text-muted-foreground">Category:</span>
                               <span className="ml-2 font-medium text-foreground capitalize">
                                 {goal.category}
                               </span>
                             </div>
+                            <div>
+                              <span className="text-muted-foreground">Deadline:</span>
+                              <span className="ml-2 font-medium text-foreground">
+                                {format(new Date(goal.deadline), 'MMM d, yyyy')}
+                              </span>
+                            </div>
                           </div>
                           <div className="flex items-center gap-2 pt-2">
-                            {percentage >= 90 ? (
+                            {isAchieved ? (
                               <Award className="w-4 h-4 text-green-600" />
                             ) : percentage >= 70 ? (
-                              <TrendingUp className="w-4 h-4 text-blue-600" />
+                              <TrendingUp className="w-4 h-4 text-primary" />
                             ) : (
                               <AlertCircle className="w-4 h-4 text-orange-600" />
                             )}
                             <span className="text-xs text-muted-foreground">
-                              {percentage >= 90 ? 'Excellent progress! Keep it up!' :
+                              {isAchieved ? 'Congratulations! Goal completed!' :
                                percentage >= 70 ? 'Good pace, stay consistent' :
                                'Focus needed to reach target'}
                             </span>
@@ -366,7 +426,7 @@ export function GoalsPerformanceTracker() {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="mt-2 h-7 text-xs w-full"
+                          className="h-7 text-xs w-full"
                         >
                           {isExpanded ? (
                             <>

@@ -12,31 +12,30 @@ import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { useLeadAIActions, type LeadAIAction } from '@/hooks/useLeadAIActions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
 export function NewlyAssignedLeads() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
-  const [previewAction, setPreviewAction] = useState<{ lead: Lead; action: LeadAIAction } | null>(null);
+  const [previewAction, setPreviewAction] = useState<{
+    lead: Lead;
+    action: LeadAIAction;
+  } | null>(null);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [actionsGenerated, setActionsGenerated] = useState(false);
   const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set());
-  
   const {
     isGenerating,
     isExecuting,
     leadActions,
     generateActionsForLeads,
     executeAction,
-    executeBulkActions,
+    executeBulkActions
   } = useLeadAIActions();
-
   useEffect(() => {
     loadNewlyAssignedLeads();
   }, []);
-
   const generateActions = useCallback(async () => {
     if (leads.length > 0 && !actionsGenerated) {
       const leadIds = leads.map(lead => lead.id);
@@ -44,142 +43,133 @@ export function NewlyAssignedLeads() {
       setActionsGenerated(true);
     }
   }, [leads, actionsGenerated, generateActionsForLeads]);
-
   useEffect(() => {
     generateActions();
   }, [generateActions]);
-
   const loadNewlyAssignedLeads = async () => {
     try {
       // Enhanced mock data for newly assigned leads
-      const mockLeads: Lead[] = [
-        {
-          id: 'lead-1',
-          first_name: 'Sarah',
-          last_name: 'Johnson',
-          email: 'sarah.johnson@email.com',
-          phone: '+1 (555) 123-4567',
-          country: 'United States',
-          state: 'California',
-          city: 'San Francisco',
-          source: 'web',
-          source_details: 'MBA Program Landing Page',
-          status: 'new',
-          stage: 'NEW_INQUIRY',
-          priority: 'high',
-          lead_score: 87,
-          ai_score: 92,
-          program_interest: ['MBA', 'Executive MBA'],
-          assigned_to: 'current-user',
-          assigned_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          assignment_method: 'ai_based',
-          tags: ['high-intent', 'quick-decision'],
-          notes: 'Expressed urgent interest in MBA program. Looking to start ASAP.',
-          created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'lead-2',
-          first_name: 'Michael',
-          last_name: 'Chen',
-          email: 'michael.chen@email.com',
-          phone: '+1 (555) 234-5678',
-          country: 'Canada',
-          state: 'Ontario',
-          city: 'Toronto',
-          source: 'referral',
-          source_details: 'Alumni referral from John Smith',
-          status: 'new',
-          stage: 'NEW_INQUIRY',
-          priority: 'medium',
-          lead_score: 72,
-          ai_score: 78,
-          program_interest: ['Business Analytics', 'Data Science Certificate'],
-          assigned_to: 'current-user',
-          assigned_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-          assignment_method: 'round_robin',
-          tags: ['referral', 'alumni-connection'],
-          notes: 'Referred by alumnus. Interested in data science programs.',
-          created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'lead-3',
-          first_name: 'Emily',
-          last_name: 'Rodriguez',
-          email: 'emily.rodriguez@email.com',
-          phone: '+1 (555) 345-6789',
-          country: 'United States',
-          state: 'Texas',
-          city: 'Austin',
-          source: 'social_media',
-          source_details: 'LinkedIn ad campaign',
-          status: 'new',
-          stage: 'NEW_INQUIRY',
-          priority: 'urgent',
-          lead_score: 65,
-          ai_score: 85,
-          program_interest: ['Digital Marketing', 'Marketing Certificate'],
-          assigned_to: 'current-user',
-          assigned_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-          assignment_method: 'manual',
-          tags: ['linkedin', 'marketing-focus'],
-          notes: 'High engagement on social media. Quick to respond.',
-          created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'lead-4',
-          first_name: 'David',
-          last_name: 'Kim',
-          email: 'david.kim@email.com',
-          phone: '+1 (555) 456-7890',
-          country: 'United States',
-          state: 'Washington',
-          city: 'Seattle',
-          source: 'email',
-          source_details: 'Newsletter signup',
-          status: 'new',
-          stage: 'NEW_INQUIRY',
-          priority: 'medium',
-          lead_score: 58,
-          ai_score: 71,
-          program_interest: ['Project Management', 'Agile Certification'],
-          assigned_to: 'current-user',
-          assigned_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          assignment_method: 'geography',
-          tags: ['newsletter', 'project-management'],
-          notes: 'Subscribed to newsletter. Interested in PM certification.',
-          created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'lead-5',
-          first_name: 'Jennifer',
-          last_name: 'Wilson',
-          email: 'jennifer.wilson@email.com',
-          phone: '+1 (555) 567-8901',
-          country: 'United States',
-          state: 'Florida',
-          city: 'Miami',
-          source: 'event',
-          source_details: 'Virtual Information Session',
-          status: 'new',
-          stage: 'NEW_INQUIRY',
-          priority: 'high',
-          lead_score: 81,
-          ai_score: 88,
-          program_interest: ['Finance MBA', 'Investment Management'],
-          assigned_to: 'current-user',
-          assigned_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          assignment_method: 'ai_based',
-          tags: ['info-session', 'finance-focus', 'high-engagement'],
-          notes: 'Attended full info session. Asked detailed questions about finance track.',
-          created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
+      const mockLeads: Lead[] = [{
+        id: 'lead-1',
+        first_name: 'Sarah',
+        last_name: 'Johnson',
+        email: 'sarah.johnson@email.com',
+        phone: '+1 (555) 123-4567',
+        country: 'United States',
+        state: 'California',
+        city: 'San Francisco',
+        source: 'web',
+        source_details: 'MBA Program Landing Page',
+        status: 'new',
+        stage: 'NEW_INQUIRY',
+        priority: 'high',
+        lead_score: 87,
+        ai_score: 92,
+        program_interest: ['MBA', 'Executive MBA'],
+        assigned_to: 'current-user',
+        assigned_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+        assignment_method: 'ai_based',
+        tags: ['high-intent', 'quick-decision'],
+        notes: 'Expressed urgent interest in MBA program. Looking to start ASAP.',
+        created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        id: 'lead-2',
+        first_name: 'Michael',
+        last_name: 'Chen',
+        email: 'michael.chen@email.com',
+        phone: '+1 (555) 234-5678',
+        country: 'Canada',
+        state: 'Ontario',
+        city: 'Toronto',
+        source: 'referral',
+        source_details: 'Alumni referral from John Smith',
+        status: 'new',
+        stage: 'NEW_INQUIRY',
+        priority: 'medium',
+        lead_score: 72,
+        ai_score: 78,
+        program_interest: ['Business Analytics', 'Data Science Certificate'],
+        assigned_to: 'current-user',
+        assigned_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+        assignment_method: 'round_robin',
+        tags: ['referral', 'alumni-connection'],
+        notes: 'Referred by alumnus. Interested in data science programs.',
+        created_at: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        id: 'lead-3',
+        first_name: 'Emily',
+        last_name: 'Rodriguez',
+        email: 'emily.rodriguez@email.com',
+        phone: '+1 (555) 345-6789',
+        country: 'United States',
+        state: 'Texas',
+        city: 'Austin',
+        source: 'social_media',
+        source_details: 'LinkedIn ad campaign',
+        status: 'new',
+        stage: 'NEW_INQUIRY',
+        priority: 'urgent',
+        lead_score: 65,
+        ai_score: 85,
+        program_interest: ['Digital Marketing', 'Marketing Certificate'],
+        assigned_to: 'current-user',
+        assigned_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+        assignment_method: 'manual',
+        tags: ['linkedin', 'marketing-focus'],
+        notes: 'High engagement on social media. Quick to respond.',
+        created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        id: 'lead-4',
+        first_name: 'David',
+        last_name: 'Kim',
+        email: 'david.kim@email.com',
+        phone: '+1 (555) 456-7890',
+        country: 'United States',
+        state: 'Washington',
+        city: 'Seattle',
+        source: 'email',
+        source_details: 'Newsletter signup',
+        status: 'new',
+        stage: 'NEW_INQUIRY',
+        priority: 'medium',
+        lead_score: 58,
+        ai_score: 71,
+        program_interest: ['Project Management', 'Agile Certification'],
+        assigned_to: 'current-user',
+        assigned_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+        assignment_method: 'geography',
+        tags: ['newsletter', 'project-management'],
+        notes: 'Subscribed to newsletter. Interested in PM certification.',
+        created_at: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      }, {
+        id: 'lead-5',
+        first_name: 'Jennifer',
+        last_name: 'Wilson',
+        email: 'jennifer.wilson@email.com',
+        phone: '+1 (555) 567-8901',
+        country: 'United States',
+        state: 'Florida',
+        city: 'Miami',
+        source: 'event',
+        source_details: 'Virtual Information Session',
+        status: 'new',
+        stage: 'NEW_INQUIRY',
+        priority: 'high',
+        lead_score: 81,
+        ai_score: 88,
+        program_interest: ['Finance MBA', 'Investment Management'],
+        assigned_to: 'current-user',
+        assigned_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        assignment_method: 'ai_based',
+        tags: ['info-session', 'finance-focus', 'high-engagement'],
+        notes: 'Attended full info session. Asked detailed questions about finance track.',
+        created_at: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString()
+      }];
       setLeads(mockLeads);
     } catch (error) {
       console.error('Failed to load newly assigned leads:', error);
@@ -187,30 +177,29 @@ export function NewlyAssignedLeads() {
       setLoading(false);
     }
   };
-
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-destructive';
-      case 'high': return 'text-warning';
-      case 'medium': return 'text-primary';
-      default: return 'text-muted-foreground';
+      case 'urgent':
+        return 'text-destructive';
+      case 'high':
+        return 'text-warning';
+      case 'medium':
+        return 'text-primary';
+      default:
+        return 'text-muted-foreground';
     }
   };
-
   const getSourceIcon = (source: string) => {
     // Return appropriate icon based on source
     return <User className="w-3 h-3" />;
   };
-
   const formatTimeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
     if (hours < 1) return 'Just now';
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
   };
-
   const handleLeadSelect = (leadId: string, checked: boolean) => {
     setSelectedLeads(prev => {
       const newSet = new Set(prev);
@@ -223,7 +212,6 @@ export function NewlyAssignedLeads() {
       return newSet;
     });
   };
-
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedLeads(new Set(leads.slice(0, 3).map(lead => lead.id)));
@@ -233,43 +221,45 @@ export function NewlyAssignedLeads() {
       setShowBulkActions(false);
     }
   };
-
   const handleBulkExecute = async () => {
     if (selectedLeads.size === 0) return;
-    
     await executeBulkActions(Array.from(selectedLeads));
     setSelectedLeads(new Set());
     setShowBulkActions(false);
   };
-
   const getActionIcon = (actionType: string) => {
     switch (actionType) {
-      case 'call': return <Phone className="w-3 h-3" />;
-      case 'email': return <Mail className="w-3 h-3" />;
-      case 'follow_up': return <Clock className="w-3 h-3" />;
-      case 'document': return <Eye className="w-3 h-3" />;
-      default: return <Zap className="w-3 h-3" />;
+      case 'call':
+        return <Phone className="w-3 h-3" />;
+      case 'email':
+        return <Mail className="w-3 h-3" />;
+      case 'follow_up':
+        return <Clock className="w-3 h-3" />;
+      case 'document':
+        return <Eye className="w-3 h-3" />;
+      default:
+        return <Zap className="w-3 h-3" />;
     }
   };
-
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 80) return 'text-green-700 bg-green-100 border-green-300';
     if (confidence >= 60) return 'text-amber-700 bg-amber-100 border-amber-300';
     return 'text-primary bg-primary/10 border-primary/30';
   };
-
   const getUrgencyColor = (urgency: string) => {
     switch (urgency) {
-      case 'critical': return 'text-destructive bg-destructive/10 border-destructive/30';
-      case 'high': return 'text-warning bg-warning/10 border-warning/30';
-      case 'medium': return 'text-primary bg-primary/10 border-primary/30';
-      default: return 'text-muted-foreground bg-muted border-muted-foreground/30';
+      case 'critical':
+        return 'text-destructive bg-destructive/10 border-destructive/30';
+      case 'high':
+        return 'text-warning bg-warning/10 border-warning/30';
+      case 'medium':
+        return 'text-primary bg-primary/10 border-primary/30';
+      default:
+        return 'text-muted-foreground bg-muted border-muted-foreground/30';
     }
   };
-
   if (loading) {
-    return (
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+    return <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="pb-3 p-6">
           <div className="text-base flex items-center gap-2">
             <User className="w-4 h-4" />
@@ -278,54 +268,28 @@ export function NewlyAssignedLeads() {
         </div>
         <div className="p-6 pt-0">
           <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-muted rounded-lg h-16"></div>
-            ))}
+            {[1, 2, 3].map(i => <div key={i} className="animate-pulse bg-muted rounded-lg h-16"></div>)}
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <>
+  return <>
         <div className="p-6 pt-0">
-        {leads.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+        {leads.length === 0 ? <div className="text-center py-8 text-muted-foreground">
             <div className="p-3 bg-blue-100 rounded-full w-12 h-12 mx-auto mb-3">
               <User className="w-6 h-6 text-blue-500 mx-auto mt-1.5" />
             </div>
             <p className="text-sm">No new assignments</p>
             <p className="text-xs text-muted-foreground mt-1">Check back soon for new leads</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
+          </div> : <div className="space-y-3">
             {/* Select All Header */}
-            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg border border-blue-200">
-              <Checkbox 
-                checked={selectedLeads.size === leads.slice(0, 3).length && leads.length > 0}
-                onCheckedChange={handleSelectAll}
-              />
-              <Brain className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">AI Actions Available</span>
-              <Badge variant="outline" className="ml-auto text-xs">
-                Select for bulk execution
-              </Badge>
-            </div>
+            
 
-            {leads.slice(0, 3).map((lead) => {
-              const aiAction = leadActions.get(lead.id);
-              return (
-                <div
-                  key={lead.id}
-                  className="relative p-3 rounded-lg bg-white border border-blue-100 shadow-sm"
-                >
+            {leads.slice(0, 3).map(lead => {
+          const aiAction = leadActions.get(lead.id);
+          return <div key={lead.id} className="relative p-3 rounded-lg bg-white border border-blue-100 shadow-sm">
                   <div className="flex items-start gap-3">
-                    <Checkbox 
-                      checked={selectedLeads.has(lead.id)}
-                      onCheckedChange={(checked) => handleLeadSelect(lead.id, !!checked)}
-                      className="mt-2"
-                    />
+                    <Checkbox checked={selectedLeads.has(lead.id)} onCheckedChange={checked => handleLeadSelect(lead.id, !!checked)} className="mt-2" />
                     
                     <Avatar className="w-10 h-10 mt-1">
                       <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
@@ -335,16 +299,10 @@ export function NewlyAssignedLeads() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p 
-                          className="font-medium text-sm truncate cursor-pointer hover:text-blue-600"
-                          onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
-                        >
+                        <p className="font-medium text-sm truncate cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}>
                           {lead.first_name} {lead.last_name}
                         </p>
-                        <Badge 
-                          variant="outline" 
-                          className={cn("text-xs", getPriorityColor(lead.priority))}
-                        >
+                        <Badge variant="outline" className={cn("text-xs", getPriorityColor(lead.priority))}>
                           {lead.priority}
                         </Badge>
                       </div>
@@ -361,77 +319,49 @@ export function NewlyAssignedLeads() {
                       </div>
 
                       {/* AI Action Section - Collapsible */}
-                      {aiAction ? (
-                        <Collapsible 
-                          open={expandedActions.has(lead.id)} 
-                          onOpenChange={(open) => {
-                            const newExpanded = new Set(expandedActions);
-                            if (open) {
-                              newExpanded.add(lead.id);
-                            } else {
-                              newExpanded.delete(lead.id);
-                            }
-                            setExpandedActions(newExpanded);
-                          }}
-                          className="mt-2"
-                        >
+                      {aiAction ? <Collapsible open={expandedActions.has(lead.id)} onOpenChange={open => {
+                  const newExpanded = new Set(expandedActions);
+                  if (open) {
+                    newExpanded.add(lead.id);
+                  } else {
+                    newExpanded.delete(lead.id);
+                  }
+                  setExpandedActions(newExpanded);
+                }} className="mt-2">
                           <CollapsibleTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="w-full h-9 justify-between text-xs"
-                            >
+                            <Button variant="outline" size="sm" className="w-full h-9 justify-between text-xs">
                               <div className="flex items-center gap-2">
                                 <Brain className="w-4 h-4 text-primary" />
                                 <span className="font-medium text-primary">AI Next Best Action</span>
-                                <Badge 
-                                  variant="outline" 
-                                  className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}
-                                >
+                                <Badge variant="outline" className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}>
                                   {aiAction.urgency}
                                 </Badge>
                               </div>
-                              {expandedActions.has(lead.id) ? (
-                                <ChevronUp className="w-4 h-4" />
-                              ) : (
-                                <ChevronDown className="w-4 h-4" />
-                              )}
+                              {expandedActions.has(lead.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                             </Button>
                           </CollapsibleTrigger>
                           
                           <CollapsibleContent>
                             <div className="mt-2 p-3 bg-white rounded-lg border border-gray-300">
                               <div className="flex items-center gap-2 mb-2">
-                                <Badge 
-                                  variant="outline" 
-                                  className={cn("text-xs border", getConfidenceColor(aiAction.confidence))}
-                                >
+                                <Badge variant="outline" className={cn("text-xs border", getConfidenceColor(aiAction.confidence))}>
                                   {aiAction.confidence}% confidence
                                 </Badge>
-                                <Badge 
-                                  variant="outline" 
-                                  className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}
-                                >
+                                <Badge variant="outline" className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}>
                                   {aiAction.urgency} priority
                                 </Badge>
                               </div>
                               <p className="text-xs text-foreground/80 mb-3 leading-relaxed">{aiAction.description}</p>
                               
                               <div className="flex items-center justify-between">
-                                <Button 
-                                  size="sm" 
-                                  className="h-7 text-xs px-3 bg-primary hover:bg-primary/90"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setPreviewAction({ lead, action: aiAction });
-                                  }}
-                                  disabled={isExecuting}
-                                >
-                                  {isExecuting ? (
-                                    <Loader2 className="w-3 h-3 animate-spin mr-1" />
-                                  ) : (
-                                    getActionIcon(aiAction.actionType)
-                                  )}
+                                <Button size="sm" className="h-7 text-xs px-3 bg-primary hover:bg-primary/90" onClick={e => {
+                          e.stopPropagation();
+                          setPreviewAction({
+                            lead,
+                            action: aiAction
+                          });
+                        }} disabled={isExecuting}>
+                                  {isExecuting ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : getActionIcon(aiAction.actionType)}
                                   <span className="ml-1">Execute Action</span>
                                 </Button>
                                 <span className="text-xs text-muted-foreground font-medium">
@@ -440,15 +370,12 @@ export function NewlyAssignedLeads() {
                               </div>
                             </div>
                           </CollapsibleContent>
-                        </Collapsible>
-                      ) : isGenerating ? (
-                        <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-muted">
+                        </Collapsible> : isGenerating ? <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-muted">
                           <div className="flex items-center gap-2">
                             <Loader2 className="w-4 h-4 animate-spin text-primary" />
                             <span className="text-xs text-muted-foreground">AI analyzing lead for next best action...</span>
                           </div>
-                        </div>
-                      ) : null}
+                        </div> : null}
                     </div>
 
                     <div className="flex gap-1 mt-2">
@@ -460,17 +387,13 @@ export function NewlyAssignedLeads() {
                       </Button>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                </div>;
+        })}
             
-            {leads.length > 3 && (
-              <Button variant="ghost" size="sm" className="w-full mt-2">
+            {leads.length > 3 && <Button variant="ghost" size="sm" className="w-full mt-2">
                 View all {leads.length} assigned leads
-              </Button>
-            )}
-          </div>
-        )}
+              </Button>}
+          </div>}
       </div>
 
       {/* Action Preview Dialog */}
@@ -486,8 +409,7 @@ export function NewlyAssignedLeads() {
           </DialogDescription>
         </DialogHeader>
         
-        {previewAction && (
-          <div className="space-y-4">
+        {previewAction && <div className="space-y-4">
             <div className="p-4 bg-muted/50 rounded-lg">
               <h4 className="font-medium mb-2">Lead: {previewAction.lead.first_name} {previewAction.lead.last_name}</h4>
               <p className="text-sm text-muted-foreground">{previewAction.lead.email}</p>
@@ -511,38 +433,25 @@ export function NewlyAssignedLeads() {
                 <span>Expected Impact: <span className="font-medium">{previewAction.action.estimatedImpact}%</span></span>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
         
         <DialogFooter className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={() => setPreviewAction(null)}
-          >
+          <Button variant="outline" onClick={() => setPreviewAction(null)}>
             Cancel
           </Button>
-          <Button 
-            onClick={() => {
-              if (previewAction) {
-                executeAction(previewAction.lead.id, previewAction.action);
-                setPreviewAction(null);
-              }
-            }}
-            disabled={isExecuting}
-            className="bg-primary hover:bg-primary/90"
-          >
-            {isExecuting ? (
-              <>
+          <Button onClick={() => {
+            if (previewAction) {
+              executeAction(previewAction.lead.id, previewAction.action);
+              setPreviewAction(null);
+            }
+          }} disabled={isExecuting} className="bg-primary hover:bg-primary/90">
+            {isExecuting ? <>
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 Executing...
-              </>
-            ) : (
-              'Execute Action'
-            )}
+              </> : 'Execute Action'}
           </Button>
         </DialogFooter>
       </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 }

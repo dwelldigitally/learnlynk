@@ -83,7 +83,7 @@ export function TopNavigationBar({
                   <Button
                     key={section.id}
                     variant={isActive ? "secondary" : "ghost"}
-                    className={`h-10 px-4 text-sm font-medium transition-colors ${
+                    className={`h-10 px-2 text-sm font-medium transition-colors ${
                       isActive 
                         ? "bg-white/20 text-white" 
                         : "text-white/80 hover:text-white hover:bg-white/10"
@@ -104,7 +104,7 @@ export function TopNavigationBar({
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant={isActive ? "secondary" : "ghost"}
-                      className={`h-10 px-4 text-sm font-medium transition-colors ${
+                      className={`h-10 px-2 text-sm font-medium transition-colors ${
                         isActive 
                           ? "bg-white/20 text-white" 
                           : "text-white/80 hover:text-white hover:bg-white/10"

@@ -84,8 +84,8 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
 
   if (!currentSection) return null;
 
-  // Filter items based on MVP mode (for data-management, leads-marketing, and students-applications sections)
-  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications') && isMvpMode
+  // Filter items based on MVP mode (for data-management, leads-marketing, students-applications, and configuration sections)
+  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode
     ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
     : currentSection.items;
 

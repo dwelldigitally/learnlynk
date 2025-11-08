@@ -77,8 +77,8 @@ export function TopNavigationBar({
           {/* Main Navigation - Hidden on mobile */}
           <nav className="hidden lg:flex items-center space-x-1">
             {navigationStructure.sections.map((section) => {
-              // Filter items based on MVP mode (for data-management, leads-marketing, and students-applications sections)
-              const sectionItems = (section.id === 'data-management' || section.id === 'leads-marketing' || section.id === 'students-applications') && isMvpMode
+              // Filter items based on MVP mode (for data-management, leads-marketing, students-applications, and configuration sections)
+              const sectionItems = (section.id === 'data-management' || section.id === 'leads-marketing' || section.id === 'students-applications' || section.id === 'configuration') && isMvpMode
                 ? section.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
                 : section.items;
               

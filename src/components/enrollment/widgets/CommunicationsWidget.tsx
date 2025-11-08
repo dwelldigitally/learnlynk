@@ -124,7 +124,7 @@ export function CommunicationsWidget({
   const selectedActions = actions.filter(action => selectedItems.includes(action.id));
 
   return (
-    <Card className="border-border bg-muted/30">
+    <Card className="border-border">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between text-base">
           <div className="flex items-center space-x-2">

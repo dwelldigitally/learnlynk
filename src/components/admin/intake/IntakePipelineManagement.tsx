@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -727,21 +728,29 @@ export function IntakePipelineManagement() {
                       </div>
                     </div>
                     
-                    <Button 
-                      variant={intake.status === 'active' ? 'destructive' : 'default'}
-                      size="sm"
-                      className="w-full mt-2"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newStatus = intake.status === 'active' ? 'closed' : 'active';
-                        setIntakes(prev => prev.map(i => 
-                          i.id === intake.id ? { ...i, status: newStatus as 'active' | 'closed' | 'planning' } : i
-                        ));
-                        toast.success(`Intake ${newStatus === 'active' ? 'opened' : 'closed'}`);
-                      }}
+                    <div 
+                      className="flex items-center justify-between pt-3 border-t mt-3"
+                      onClick={(e) => e.stopPropagation()}
                     >
-                      {intake.status === 'active' ? 'Close Intake' : 'Accept Applications'}
-                    </Button>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">
+                          {intake.status === 'active' ? 'Accepting Applications' : 'Closed Intake'}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {intake.status === 'active' ? 'Open for new applicants' : 'Not accepting applications'}
+                        </span>
+                      </div>
+                      <Switch
+                        checked={intake.status === 'active'}
+                        onCheckedChange={(checked) => {
+                          const newStatus = checked ? 'active' : 'closed';
+                          setIntakes(prev => prev.map(i => 
+                            i.id === intake.id ? { ...i, status: newStatus as 'active' | 'closed' | 'planning' } : i
+                          ));
+                          toast.success(`Intake ${checked ? 'opened' : 'closed'}`);
+                        }}
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               ))}

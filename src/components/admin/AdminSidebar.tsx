@@ -1,7 +1,8 @@
 import { useLocation, NavLink } from "react-router-dom";
 import { Search, ChevronRight, ChevronDown, Menu } from "lucide-react";
 import { useState } from "react";
-import { navigationStructure } from "@/data/navigationStructure";
+import { navigationStructure, MVP_HIDDEN_PAGES } from "@/data/navigationStructure";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   const location = useLocation();
+  const { isMvpMode } = useMvpMode();
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     // Auto-expand enrollment optimization if we're on an enrollment page
@@ -82,7 +84,12 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
 
   if (!currentSection) return null;
 
-  const filteredItems = currentSection.items.filter(item =>
+  // Filter items based on MVP mode (only for data-management section)
+  const sectionItems = currentActiveSection === 'data-management' && isMvpMode
+    ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
+    : currentSection.items;
+
+  const filteredItems = sectionItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

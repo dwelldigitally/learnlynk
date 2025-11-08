@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { ChevronDown, Search, Bell, User, Building2, Settings, LogOut, Menu, X, Plus } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { navigationStructure } from "@/data/navigationStructure";
+import { navigationStructure, MVP_HIDDEN_PAGES } from "@/data/navigationStructure";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +33,7 @@ export function TopNavigationBar({
 }: TopNavigationBarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { isMvpMode } = useMvpMode();
   const [searchQuery, setSearchQuery] = useState("");
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -75,8 +77,13 @@ export function TopNavigationBar({
           {/* Main Navigation - Hidden on mobile */}
           <nav className="hidden lg:flex items-center space-x-1">
             {navigationStructure.sections.map((section) => {
+              // Filter items based on MVP mode (only for data-management section)
+              const sectionItems = section.id === 'data-management' && isMvpMode
+                ? section.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
+                : section.items;
+              
               const isActive = currentActiveSection === section.id;
-              const isSingleItem = section.items.length === 1;
+              const isSingleItem = sectionItems.length === 1;
               
               if (isSingleItem) {
                 return (
@@ -89,7 +96,7 @@ export function TopNavigationBar({
                         : "text-white/80 hover:text-white hover:bg-white/10"
                     }`}
                     onClick={() => {
-                      navigate(section.items[0].href);
+                      navigate(sectionItems[0].href);
                       onSectionChange(section.id);
                     }}
                   >
@@ -120,7 +127,7 @@ export function TopNavigationBar({
                     align="start" 
                     className="bg-background border border-border shadow-xl rounded-lg z-50 p-0 overflow-hidden"
                     style={{ 
-                      width: section.items.length > 6 ? '720px' : section.items.length > 3 ? '480px' : '320px',
+                      width: sectionItems.length > 6 ? '720px' : sectionItems.length > 3 ? '480px' : '320px',
                       maxWidth: '90vw'
                     }}
                   >
@@ -140,20 +147,20 @@ export function TopNavigationBar({
                       </div>
                       
                       <div className={`grid gap-6 ${
-                        section.items.length > 6 ? 'grid-cols-3' : 
-                        section.items.length > 3 ? 'grid-cols-2' : 
+                        sectionItems.length > 6 ? 'grid-cols-3' : 
+                        sectionItems.length > 3 ? 'grid-cols-2' : 
                         'grid-cols-1'
                       }`}>
                         {(() => {
                           // Organize items into logical groups
-                          const itemsPerColumn = Math.ceil(section.items.length / (
-                            section.items.length > 6 ? 3 : 
-                            section.items.length > 3 ? 2 : 1
+                          const itemsPerColumn = Math.ceil(sectionItems.length / (
+                            sectionItems.length > 6 ? 3 : 
+                            sectionItems.length > 3 ? 2 : 1
                           ));
                           
                           const columns = [];
-                          for (let i = 0; i < section.items.length; i += itemsPerColumn) {
-                            columns.push(section.items.slice(i, i + itemsPerColumn));
+                          for (let i = 0; i < sectionItems.length; i += itemsPerColumn) {
+                            columns.push(sectionItems.slice(i, i + itemsPerColumn));
                           }
                           
                           return columns.map((columnItems, columnIndex) => (

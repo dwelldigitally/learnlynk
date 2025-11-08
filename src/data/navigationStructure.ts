@@ -35,6 +35,17 @@ import {
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
+// Pages to hide in MVP mode (only in Data Management section)
+export const MVP_HIDDEN_PAGES = [
+  '/admin/recruiters',
+  '/admin/recruiter-applications',
+  '/admin/practicum',
+  '/admin/practicum/sites',
+  '/admin/practicum/progress',
+  '/admin/practicum/competencies',
+  '/admin/practicum/evaluations'
+];
+
 export const navigationStructure: NavigationStructure = {
   sections: [
     {

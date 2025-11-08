@@ -11,7 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Bell, Shield, Settings, Activity, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Building2, Palette } from "lucide-react";
+import { User, Bell, Shield, Settings, Activity, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Building2, Palette, Eye } from "lucide-react";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 
 interface ProfileData {
   id?: string;
@@ -34,6 +35,7 @@ interface ProfileData {
 
 const ProfilePage: React.FC = () => {
   const { toast } = useToast();
+  const { isMvpMode, toggleMvpMode } = useMvpMode();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     first_name: '',
@@ -431,6 +433,42 @@ const ProfilePage: React.FC = () => {
                       <SelectItem value="system">System</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+
+              {/* View Mode Toggle */}
+              <div className="mt-8 p-6 border border-border rounded-lg bg-muted/30">
+                <div className="flex items-start justify-between gap-6">
+                  <div className="flex-1 space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Eye className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold">View Mode</h3>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant={isMvpMode ? "default" : "secondary"} className="text-xs">
+                          {isMvpMode ? "MVP Mode" : "Full Mode"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {isMvpMode 
+                          ? "Streamlined view with essential features only. Advanced practicum and recruiter management features are hidden."
+                          : "Complete view with all features including practicum management, recruiter tools, and advanced analytics."
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium">{isMvpMode ? "MVP" : "Full"}</p>
+                      <p className="text-xs text-muted-foreground">Mode</p>
+                    </div>
+                    <Switch
+                      checked={!isMvpMode}
+                      onCheckedChange={() => toggleMvpMode()}
+                      className="data-[state=checked]:bg-primary"
+                    />
+                  </div>
                 </div>
               </div>
             </CardContent>

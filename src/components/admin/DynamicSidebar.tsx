@@ -1,5 +1,6 @@
 import { useLocation, NavLink } from "react-router-dom";
-import { navigationStructure } from "@/data/navigationStructure";
+import { navigationStructure, MVP_HIDDEN_PAGES } from "@/data/navigationStructure";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X, ChevronRight, ChevronDown } from "lucide-react";
@@ -16,6 +17,7 @@ interface DynamicSidebarProps {
 
 export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSidebarProps) {
   const location = useLocation();
+  const { isMvpMode } = useMvpMode();
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const isMobile = useIsMobile();
@@ -64,7 +66,12 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
 
   if (!currentSection) return null;
 
-  const filteredItems = currentSection.items.filter(item =>
+  // Filter items based on MVP mode (only for data-management section)
+  const sectionItems = currentActiveSection === 'data-management' && isMvpMode
+    ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
+    : currentSection.items;
+
+  const filteredItems = sectionItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

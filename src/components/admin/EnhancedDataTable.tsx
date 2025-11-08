@@ -209,28 +209,39 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
 
   return (
     <Card className={cn("border-0 shadow-soft w-full", className)}>{/* Ensure full width */}
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-            <p className="text-sm text-muted-foreground mt-1">
-              {totalCount.toLocaleString()} total records
-            </p>
+      <CardHeader className="border-b bg-card/50 backdrop-blur-sm">
+        {/* Top Row: Title + Actions */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div>
+              <h3 className="text-xl font-bold tracking-tight">{title}</h3>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-muted-foreground">
+                  {totalCount.toLocaleString()} total
+                </span>
+                {selectedIds.length > 0 && (
+                  <>
+                    <span className="text-muted-foreground/50">•</span>
+                    <Badge variant="default" className="font-medium">
+                      {selectedIds.length} selected
+                    </Badge>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
           
           <div className="flex items-center gap-2">
             {/* Bulk Actions */}
             {selectable && selectedIds.length > 0 && (
-              <div className="flex items-center gap-2 mr-4 p-2 bg-primary/10 rounded-lg">
-                <span className="text-sm font-medium">
-                  {selectedIds.length} selected
-                </span>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/20 rounded-lg">
                 {bulkActions.map((action, index) => (
                   <Button
                     key={index}
                     variant={action.variant || "outline"}
                     size="sm"
                     onClick={() => action.onClick(selectedIds)}
+                    className="h-8"
                   >
                     {action.label}
                   </Button>
@@ -241,93 +252,102 @@ export const EnhancedDataTable: React.FC<EnhancedDataTableProps> = ({
             {/* Column Visibility */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Settings className="h-4 w-4 mr-2" />
+                <Button variant="outline" size="sm" className="h-9 gap-2">
+                  <Settings className="h-4 w-4" />
                   Columns
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-popover z-50">
                 {initialColumns.map((column) => (
                   <DropdownMenuItem
                     key={column.key}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 cursor-pointer"
                     onClick={() => toggleColumnVisibility(column.key)}
                   >
                     {visibleColumns[column.key] !== false ? (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="h-4 w-4 text-primary" />
                     ) : (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="h-4 w-4 text-muted-foreground" />
                     )}
-                    {column.label}
+                    <span className={visibleColumns[column.key] !== false ? "font-medium" : ""}>
+                      {column.label}
+                    </span>
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
 
             {exportable && (
-              <Button variant="outline" size="sm" onClick={onExport}>
-                <Download className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" onClick={onExport} className="h-9 gap-2">
+                <Download className="h-4 w-4" />
                 Export
               </Button>
             )}
           </div>
         </div>
         
-        {/* Search and Filters */}
-        <div className="flex items-center gap-3 mt-4 flex-wrap">
+        {/* Bottom Row: Search and Filters */}
+        <div className="flex items-center gap-3 flex-wrap">
           {searchable && (
-            <div className="relative flex-1 min-w-[280px] max-w-sm">{/* Allow more flexible width */}
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <div className="relative flex-1 min-w-[240px] max-w-md">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
-                placeholder="Search leads..."
+                placeholder="Search students..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 h-9"
+                className="pl-10 h-10 bg-background border-border/60 focus:border-primary/40 transition-colors"
               />
             </div>
           )}
 
           {/* Quick Filters */}
-          {quickFilters.map((quickFilter, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              onClick={() => onFilter(quickFilter.filter)}
-            >
-              {quickFilter.label}
-            </Button>
-          ))}
+          <div className="flex items-center gap-2 flex-wrap">
+            {quickFilters.map((quickFilter, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => onFilter(quickFilter.filter)}
+                className="h-10 border-border/60 hover:border-primary/40 hover:bg-primary/5"
+              >
+                {quickFilter.label}
+              </Button>
+            ))}
 
-          {filterable && filterOptions.length > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filter
-              {Object.keys(activeFilters).length > 0 && (
-                <Badge variant="secondary" className="ml-2 h-5 px-1.5 text-xs">
-                  {Object.keys(activeFilters).length}
-                </Badge>
-              )}
-            </Button>
-          )}
+            {filterable && filterOptions.length > 0 && (
+              <Button
+                variant={showFilters ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+                className="h-10 gap-2"
+              >
+                <Filter className="h-4 w-4" />
+                Filter
+                {Object.keys(activeFilters).length > 0 && (
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs bg-background/80">
+                    {Object.keys(activeFilters).length}
+                  </Badge>
+                )}
+              </Button>
+            )}
+          </div>
 
           {/* Page Size Selector */}
-          <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
-            <SelectTrigger className="w-20">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map(size => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-sm text-muted-foreground whitespace-nowrap">Show</span>
+            <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
+              <SelectTrigger className="w-[70px] h-10">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {PAGE_SIZE_OPTIONS.map(size => (
+                  <SelectItem key={size} value={size.toString()}>
+                    {size}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Advanced Filters Panel */}

@@ -109,7 +109,10 @@ export function StageFilters({ activeStage, filters, onFilterChange, onClearFilt
             
             {filter.type === 'select' && filter.options ? (
               <Select
-                value={filters[filter.key as keyof StudentFilters] || ''}
+                value={(() => {
+                  const val = filters[filter.key as keyof StudentFilters];
+                  return typeof val === 'string' ? val : '';
+                })()}
                 onValueChange={(value) => onFilterChange(filter.key as keyof StudentFilters, value)}
               >
                 <SelectTrigger className="h-8 text-xs">
@@ -128,7 +131,10 @@ export function StageFilters({ activeStage, filters, onFilterChange, onClearFilt
                 id={filter.key}
                 type={filter.type}
                 placeholder={`Filter...`}
-                value={filters[filter.key as keyof StudentFilters] || ''}
+                value={(() => {
+                  const val = filters[filter.key as keyof StudentFilters];
+                  return typeof val === 'string' ? val : '';
+                })()}
                 onChange={(e) => onFilterChange(filter.key as keyof StudentFilters, e.target.value)}
                 className="h-8 text-xs"
               />

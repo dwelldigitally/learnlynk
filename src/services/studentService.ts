@@ -4,10 +4,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 export interface StudentFilters {
   stage?: string;
   program?: string;
+  programs?: string[];
   riskLevel?: string;
   search?: string;
   country?: string;
+  countries?: string[];
   city?: string;
+  date_from?: string;
+  date_to?: string;
 }
 
 export interface PaginationParams {

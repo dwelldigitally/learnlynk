@@ -18,6 +18,7 @@ import { AddStudentModal } from "./modals/AddStudentModal";
 import { ImportStudentsModal } from "./modals/ImportStudentsModal";
 import { StageTracker } from "./students/StageTracker";
 import { StageFilters } from "./students/StageFilters";
+import { AdvancedFilters } from "./students/AdvancedFilters";
 import { toast } from "sonner";
 export default function StudentManagement() {
   const navigate = useNavigate();
@@ -96,6 +97,15 @@ export default function StudentManagement() {
       ...prev,
       [key]: value || undefined
     }));
+    setPagination(prev => ({
+      ...prev,
+      page: 1
+    }));
+  };
+
+  // Handle advanced filter changes
+  const handleAdvancedFilterChange = (newFilters: StudentFilters) => {
+    setFilters(newFilters);
     setPagination(prev => ({
       ...prev,
       page: 1
@@ -446,6 +456,12 @@ export default function StudentManagement() {
             <Card className="border-border/50 shadow-sm">
               
             </Card>
+            
+            <AdvancedFilters 
+              filters={filters}
+              onFilterChange={handleAdvancedFilterChange}
+              onClearFilters={clearAllFilters}
+            />
             
             <StageFilters activeStage={activeStage} filters={filters} onFilterChange={handleFilterChange} onClearFilters={clearAllFilters} />
           </div>}

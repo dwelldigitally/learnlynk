@@ -66,7 +66,7 @@ export function EnrollmentNotifications() {
           title: 'Speed Policy Success',
           message: '23% conversion lift achieved this week',
           timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          actionUrl: '/admin/enrollment/outcomes',
+          actionUrl: '/admin/enrollment/policies',
           isRead: true
         },
         {

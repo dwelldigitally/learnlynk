@@ -65,7 +65,6 @@ import { EnrollmentCommandCenter } from "@/components/enrollment/EnrollmentComma
 import { ModernPoliciesConfiguration } from "@/components/enrollment/ModernPoliciesConfiguration";
 import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrator";
 
-import { OutcomesDashboard } from "@/components/enrollment/OutcomesDashboard";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 import { AIAdvisorAnalytics } from "@/components/admin/ai-agents/AIAdvisorAnalytics";
@@ -219,8 +218,6 @@ const AdminDashboard: React.FC = () => {
         return <PlaybookOrchestrator />;
       case "/admin/enrollment/program-journeys":
         return <ProgramJourneyManager />;
-      case "/admin/enrollment/outcomes":
-        return <OutcomesDashboard />;
       case "/admin/ai-intelligence":
         return <AIIntelligenceDashboard />;
       

@@ -27,7 +27,6 @@ import { ProgramJourneyStep } from "@/components/admin/ProgramJourneyStep";
 import PracticumConfigurationStep from "@/components/admin/wizard/PracticumConfigurationStep";
 import FeeStructureStep from "@/components/admin/wizard/FeeStructureStep";
 import IntakeQuestionsStep from "@/components/admin/wizard/IntakeQuestionsStep";
-import IntakeDatesStep from "@/components/admin/wizard/IntakeDatesStep";
 import PreviewStep from "@/components/admin/wizard/PreviewStep";
 
 const STEPS = [
@@ -38,7 +37,6 @@ const STEPS = [
   { id: 'practicum', title: 'Practicum Configuration', description: 'Practicum requirements, sites, and competencies' },
   { id: 'fees', title: 'Fee Structure', description: 'Tuition, payment plans, and scholarships' },
   { id: 'questions', title: 'Custom Questions', description: 'Application form customization' },
-  { id: 'intakes', title: 'Intake Dates', description: 'Schedule and capacity management' },
   { id: 'preview', title: 'Review & Preview', description: 'Final review before creating program' }
 ];
 
@@ -134,9 +132,7 @@ const ProgramWizardPage: React.FC = () => {
         return !!(data.feeStructure && (data.feeStructure.domesticFees.length > 0 || data.feeStructure.internationalFees.length > 0));
       case 6: // Custom Questions
         return true; // Optional step
-      case 7: // Intake Dates
-        return !!(data.intakes && data.intakes.length > 0);
-      case 8: // Preview
+      case 7: // Preview
         return true;
       default:
         return false;
@@ -284,8 +280,6 @@ const ProgramWizardPage: React.FC = () => {
       case 6:
         return <IntakeQuestionsStep {...stepProps} />;
       case 7:
-        return <IntakeDatesStep {...stepProps} />;
-      case 8:
         return <PreviewStep {...stepProps} onSave={handleSave} />;
       default:
         return null;

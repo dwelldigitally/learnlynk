@@ -2588,6 +2588,42 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_templates: {
+        Row: {
+          body_html: string
+          body_text: string
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          subject_line: string
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          body_html: string
+          body_text: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          subject_line: string
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          body_html?: string
+          body_text?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          subject_line?: string
+          template_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       journey_channel_rules: {
         Row: {
           channel_type: string
@@ -4568,6 +4604,126 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_transactions: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          payment_id: string
+          status: string
+          stripe_transaction_id: string | null
+          transaction_type: string
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_id: string
+          status: string
+          stripe_transaction_id?: string | null
+          transaction_type: string
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_id?: string
+          status?: string
+          stripe_transaction_id?: string | null
+          transaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string | null
+          currency: string
+          financial_record_id: string | null
+          id: string
+          invoice_sent_at: string | null
+          invoice_template_id: string | null
+          lead_id: string
+          notes: string | null
+          paid_at: string | null
+          payment_method: string | null
+          payment_type: string
+          status: string
+          stripe_invoice_id: string | null
+          stripe_payment_intent_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          currency?: string
+          financial_record_id?: string | null
+          id?: string
+          invoice_sent_at?: string | null
+          invoice_template_id?: string | null
+          lead_id: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_type: string
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          currency?: string
+          financial_record_id?: string | null
+          id?: string
+          invoice_sent_at?: string | null
+          invoice_template_id?: string | null
+          lead_id?: string
+          notes?: string | null
+          paid_at?: string | null
+          payment_method?: string | null
+          payment_type?: string
+          status?: string
+          stripe_invoice_id?: string | null
+          stripe_payment_intent_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_financial_record_id_fkey"
+            columns: ["financial_record_id"]
+            isOneToOne: false
+            referencedRelation: "financial_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_invoice_template_id_fkey"
+            columns: ["invoice_template_id"]
+            isOneToOne: false
+            referencedRelation: "invoice_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       play_program_assignments: {
         Row: {
           created_at: string
@@ -5729,6 +5885,39 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      receipt_templates: {
+        Row: {
+          body_html: string
+          body_text: string
+          created_at: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          template_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          body_html: string
+          body_text: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          template_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          body_html?: string
+          body_text?: string
+          created_at?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          template_type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

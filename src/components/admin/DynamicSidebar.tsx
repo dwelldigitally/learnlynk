@@ -142,8 +142,8 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                   location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/')
                 );
                 const isActive = mostSpecificMatch?.href === item.href;
-                const hasSubItems = item.subItems && item.subItems.length > 0;
-                const isSubItemActive = hasSubItems && item.subItems.some(subItem => 
+                const hasSubItems = (item as any).subItems && (item as any).subItems.length > 0;
+                const isSubItemActive = hasSubItems && (item as any).subItems.some((subItem: any) => 
                   location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/')
                 );
                 const isGroupExpanded = expandedGroups.has(item.name);
@@ -194,7 +194,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                         </div>
                         
                         <CollapsibleContent className="ml-4 mt-1 space-y-1">
-                          {item.subItems.map((subItem) => {
+                          {(item as any).subItems.map((subItem: any) => {
                             const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
                             
                             return (
@@ -233,7 +233,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                       >
                         <item.icon className="w-4 h-4" />
                         <span>{item.name}</span>
-                        {item.count && (
+                        {(item as any).count && (
                           <span className={`
                             ml-auto text-xs px-2 py-0.5 rounded-full
                             ${isActive
@@ -241,12 +241,12 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                               : 'bg-muted text-muted-foreground'
                             }
                           `}>
-                            {item.count}
+                            {(item as any).count}
                           </span>
                         )}
-                        {item.badge && (
+                        {(item as any).badge && (
                           <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                            {item.badge}
+                            {(item as any).badge}
                           </span>
                         )}
                       </NavLink>

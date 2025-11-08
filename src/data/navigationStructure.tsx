@@ -14,6 +14,20 @@ import {
   CalendarDays
 } from 'lucide-react';
 
+// Pages hidden in MVP mode
+export const MVP_HIDDEN_PAGES = [
+  '/admin/recruiters',
+  '/admin/recruiter-applications',
+  '/admin/practicum',
+  '/admin/practicum/sites',
+  '/admin/practicum/programs',
+  '/admin/practicum/journeys',
+  '/admin/practicum/assignments',
+  '/admin/practicum/student-progress',
+  '/admin/practicum/competency-tracker',
+  '/admin/practicum/evaluation-center',
+];
+
 export const navigationStructure = {
   sections: [
     {
@@ -21,10 +35,10 @@ export const navigationStructure = {
       title: 'Leads & Marketing',
       description: 'Manage your lead generation and marketing campaigns',
       items: [
-        { label: 'Leads', href: '/admin/leads', icon: UserPlus, description: 'View and manage all leads' },
-        { label: 'Lead Routing', href: '/admin/lead-routing', icon: Target, description: 'Configure lead assignment rules' },
-        { label: 'Lead Scoring', href: '/admin/lead-scoring', icon: BarChart3, description: 'Set up lead scoring criteria' },
-        { label: 'Campaigns', href: '/admin/campaigns', icon: Zap, description: 'Manage marketing campaigns' }
+        { name: 'Leads', label: 'Leads', href: '/admin/leads', icon: UserPlus, description: 'View and manage all leads' },
+        { name: 'Lead Routing', label: 'Lead Routing', href: '/admin/lead-routing', icon: Target, description: 'Configure lead assignment rules' },
+        { name: 'Lead Scoring', label: 'Lead Scoring', href: '/admin/lead-scoring', icon: BarChart3, description: 'Set up lead scoring criteria' },
+        { name: 'Campaigns', label: 'Campaigns', href: '/admin/campaigns', icon: Zap, description: 'Manage marketing campaigns' }
       ]
     },
     {
@@ -32,10 +46,10 @@ export const navigationStructure = {
       title: 'Students & Applications',
       description: 'Track student applications and enrollment progress',
       items: [
-        { label: 'Students', href: '/admin/students', icon: Users, description: 'Manage student records' },
-        { label: 'Applications', href: '/admin/applications', icon: FileText, description: 'Review and process applications' },
-        { label: 'Applicants', href: '/admin/applicants', icon: GraduationCap, description: 'Review applicant data' },
-        { label: 'Documents', href: '/admin/documents', icon: FileText, description: 'Manage student documents' }
+        { name: 'Students', label: 'Students', href: '/admin/students', icon: Users, description: 'Manage student records' },
+        { name: 'Applications', label: 'Applications', href: '/admin/applications', icon: FileText, description: 'Review and process applications' },
+        { name: 'Applicants', label: 'Applicants', href: '/admin/applicants', icon: GraduationCap, description: 'Review applicant data' },
+        { name: 'Documents', label: 'Documents', href: '/admin/documents', icon: FileText, description: 'Manage student documents' }
       ]
     },
     {
@@ -57,16 +71,16 @@ export const navigationStructure = {
       title: 'Data Management',
       description: 'Configure your programs, requirements, and automation',
       items: [
-        { label: 'Programs', href: '/admin/programs', icon: GraduationCap, description: 'Manage academic programs' },
-        { label: 'Requirements', href: '/admin/requirements', icon: FileText, description: 'Configure program requirements' },
-        { label: 'Workflows', href: '/admin/workflows', icon: Zap, description: 'Automate enrollment processes' },
-        { label: 'Events', href: '/admin/events', icon: Calendar, description: 'Manage events and schedules' },
-        { label: 'Academic Terms & Schedules', href: '/admin/academic-terms', icon: CalendarDays, description: 'Manage academic terms and scheduling' },
-        { label: 'Practicum Dashboard', href: '/admin/practicum', icon: BarChart3, description: 'Practicum overview and analytics' },
-        { label: 'Practicum Sites', href: '/admin/practicum/sites', icon: MapPin, description: 'Manage practicum sites' },
-        { label: 'Practicum Programs', href: '/admin/practicum/programs', icon: BookOpen, description: 'Configure practicum programs' },
-        { label: 'Practicum Journeys', href: '/admin/practicum/journeys', icon: ClipboardList, description: 'Setup practicum workflows' },
-        { label: 'Practicum Assignments', href: '/admin/practicum/assignments', icon: Users, description: 'Manage student assignments' }
+        { name: 'Programs', label: 'Programs', href: '/admin/programs', icon: GraduationCap, description: 'Manage academic programs' },
+        { name: 'Requirements', label: 'Requirements', href: '/admin/requirements', icon: FileText, description: 'Configure program requirements' },
+        { name: 'Workflows', label: 'Workflows', href: '/admin/workflows', icon: Zap, description: 'Automate enrollment processes' },
+        { name: 'Events', label: 'Events', href: '/admin/events', icon: Calendar, description: 'Manage events and schedules' },
+        { name: 'Academic Terms & Schedules', label: 'Academic Terms & Schedules', href: '/admin/academic-terms', icon: CalendarDays, description: 'Manage academic terms and scheduling' },
+        { name: 'Practicum Dashboard', label: 'Practicum Dashboard', href: '/admin/practicum', icon: BarChart3, description: 'Practicum overview and analytics' },
+        { name: 'Practicum Sites', label: 'Practicum Sites', href: '/admin/practicum/sites', icon: MapPin, description: 'Manage practicum sites' },
+        { name: 'Practicum Programs', label: 'Practicum Programs', href: '/admin/practicum/programs', icon: BookOpen, description: 'Configure practicum programs' },
+        { name: 'Practicum Journeys', label: 'Practicum Journeys', href: '/admin/practicum/journeys', icon: ClipboardList, description: 'Setup practicum workflows' },
+        { name: 'Practicum Assignments', label: 'Practicum Assignments', href: '/admin/practicum/assignments', icon: Users, description: 'Manage student assignments' }
       ]
     },
     {
@@ -74,9 +88,9 @@ export const navigationStructure = {
       title: 'Analytics & Reports',
       description: 'Monitor performance and generate insights',
       items: [
-        { label: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'View detailed analytics' },
-        { label: 'Reports', href: '/admin/reports', icon: FileText, description: 'Generate custom reports' },
-        { label: 'Enrollment Optimization', href: '/admin/enrollment-optimization', icon: Target, description: 'Optimize enrollment strategies' }
+        { name: 'Analytics', label: 'Analytics', href: '/admin/analytics', icon: BarChart3, description: 'View detailed analytics' },
+        { name: 'Reports', label: 'Reports', href: '/admin/reports', icon: FileText, description: 'Generate custom reports' },
+        { name: 'Enrollment Optimization', label: 'Enrollment Optimization', href: '/admin/enrollment-optimization', icon: Target, description: 'Optimize enrollment strategies' }
       ]
     },
     {
@@ -84,9 +98,9 @@ export const navigationStructure = {
       title: 'Configuration',
       description: 'System settings and configurations',
       items: [
-        { label: 'Settings', href: '/admin/configuration', icon: Settings, description: 'System configuration' },
-        { label: 'Team Management', href: '/admin/team', icon: Users, description: 'Manage team members' },
-        { label: 'Integration', href: '/admin/integration', icon: Zap, description: 'Connect external services' }
+        { name: 'Settings', label: 'Settings', href: '/admin/configuration', icon: Settings, description: 'System configuration' },
+        { name: 'Team Management', label: 'Team Management', href: '/admin/team', icon: Users, description: 'Manage team members' },
+        { name: 'Integration', label: 'Integration', href: '/admin/integration', icon: Zap, description: 'Connect external services' }
       ]
     }
   ]

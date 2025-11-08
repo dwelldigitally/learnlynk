@@ -1,7 +1,8 @@
 import { useLocation, NavLink } from "react-router-dom";
 import { Search, ChevronRight, ChevronDown, Menu } from "lucide-react";
 import { useState } from "react";
-import { navigationStructure } from "@/data/navigationStructure";
+import { navigationStructure, MVP_HIDDEN_PAGES } from "@/data/navigationStructure";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ activeSection }: AdminSidebarProps) {
   const location = useLocation();
+  const { isMvpMode } = useMvpMode();
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     // Auto-expand enrollment optimization if we're on an enrollment page
@@ -82,9 +84,16 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
 
   if (!currentSection) return null;
 
-  const filteredItems = currentSection.items.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredItems = currentSection.items
+    .filter(item => {
+      // Filter out MVP hidden pages if in MVP mode
+      if (isMvpMode && MVP_HIDDEN_PAGES.includes(item.href)) {
+        return false;
+      }
+      // Apply search filter
+      const itemLabel = item.label || '';
+      return itemLabel.toLowerCase().includes(searchQuery.toLowerCase());
+    });
 
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups);
@@ -170,8 +179,8 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                 location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/')
               );
               const isActive = mostSpecificMatch?.href === item.href;
-              const hasSubItems = item.subItems && item.subItems.length > 0;
-              const isSubItemActive = hasSubItems && item.subItems.some(subItem => 
+              const hasSubItems = (item as any).subItems && (item as any).subItems.length > 0;
+              const isSubItemActive = hasSubItems && (item as any).subItems.some((subItem: any) => 
                 location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/')
               );
               const isGroupExpanded = expandedGroups.has(item.name);
@@ -179,13 +188,13 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
               return (
                 <li key={item.href}>
                   {hasSubItems ? (
-                    item.subItems.length === 1 ? (
+                    (item as any).subItems.length === 1 ? (
                        // Single sub-item: navigate directly to the sub-item
                        isCollapsed ? (
                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <NavLink 
-                                to={item.subItems[0].href}
+                             <TooltipTrigger asChild>
+                               <NavLink 
+                                 to={(item as any).subItems[0].href}
                                 className={cn(
                                   "flex items-center justify-center w-full h-12 rounded-md transition-colors p-0",
                                   isSubItemActive 
@@ -204,8 +213,8 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                             </TooltipContent>
                          </Tooltip>
                        ) : (
-                        <NavLink 
-                          to={item.subItems[0].href}
+                         <NavLink 
+                           to={(item as any).subItems[0].href}
                           className={cn(
                             "flex items-center space-x-4 w-full h-12 px-3 rounded-md transition-colors",
                             isSubItemActive 
@@ -254,7 +263,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                     <span>{item.name}</span>
                                   </NavLink>
                                 </DropdownMenuItem>
-                                {item.subItems?.map((subItem) => (
+                                {(item as any).subItems?.map((subItem: any) => (
                                   <DropdownMenuItem key={subItem.href} asChild>
                                     <NavLink 
                                       to={subItem.href}
@@ -301,7 +310,7 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                         {!isCollapsed && (
                           <CollapsibleContent className="ml-4 mt-1">
                             <ul className="space-y-1">
-                              {item.subItems.map((subItem) => {
+                              {(item as any).subItems.map((subItem: any) => {
                                 const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
                                 
                                 return (
@@ -346,16 +355,16 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                            <div className="flex items-center space-x-2">
                              <item.icon className="w-4 h-4" />
                              <span>{item.name}</span>
-                             {item.count && (
-                               <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                                 {item.count}
-                               </span>
-                             )}
-                             {item.badge && (
-                               <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                                 {item.badge}
-                               </span>
-                             )}
+                              {(item as any).count && (
+                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                                  {(item as any).count}
+                                </span>
+                              )}
+                              {(item as any).badge && (
+                                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                                  {(item as any).badge}
+                                </span>
+                              )}
                            </div>
                          </TooltipContent>
                       </Tooltip>
@@ -371,14 +380,14 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                       >
                         <item.icon className="w-5 h-5" />
                         <span>{item.name}</span>
-                        {item.count && (
+                        {(item as any).count && (
                           <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                            {item.count}
+                            {(item as any).count}
                           </span>
                         )}
-                        {item.badge && (
+                        {(item as any).badge && (
                           <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                            {item.badge}
+                            {(item as any).badge}
                           </span>
                         )}
                       </NavLink>

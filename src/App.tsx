@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { MvpModeProvider } from "@/contexts/MvpModeContext";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { AuthSessionMonitor } from "@/components/auth/AuthSessionMonitor";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -65,8 +64,7 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <MvpModeProvider>
-          <TooltipProvider>
+        <TooltipProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -212,7 +210,6 @@ const App = () => {
             </DataInitializer>
           </BrowserRouter>
         </TooltipProvider>
-        </MvpModeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

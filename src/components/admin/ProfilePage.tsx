@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useMvpMode } from '@/contexts/MvpModeContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,7 +34,6 @@ interface ProfileData {
 
 const ProfilePage: React.FC = () => {
   const { toast } = useToast();
-  const { isMvpMode, toggleMvpMode } = useMvpMode();
   const [loading, setLoading] = useState(false);
   const [profileData, setProfileData] = useState<ProfileData>({
     first_name: '',
@@ -433,29 +431,6 @@ const ProfilePage: React.FC = () => {
                       <SelectItem value="system">System</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-              </div>
-              
-              <div className="pt-6 border-t">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-base">View Mode</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {isMvpMode ? 'MVP Mode - Simplified interface with essential features only' : 'Full Mode - All features and advanced options visible'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-sm font-medium ${!isMvpMode ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      Full
-                    </span>
-                    <Switch
-                      checked={isMvpMode}
-                      onCheckedChange={toggleMvpMode}
-                    />
-                    <span className={`text-sm font-medium ${isMvpMode ? 'text-foreground' : 'text-muted-foreground'}`}>
-                      MVP
-                    </span>
-                  </div>
                 </div>
               </div>
             </CardContent>

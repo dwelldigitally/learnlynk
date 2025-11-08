@@ -2,7 +2,7 @@ import { useLocation, NavLink } from "react-router-dom";
 import { navigationStructure } from "@/data/navigationStructure";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X, ChevronRight, ChevronDown, Settings } from "lucide-react";
+import { Search, X, ChevronRight, ChevronDown } from "lucide-react";
 import { useState } from "react";
 import { AIQuickActions } from "./AIQuickActions";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -115,9 +115,9 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
             )}
             
             <div className="flex items-center space-x-2 mb-3">
-              <Settings className="w-5 h-5 text-primary" />
+              <currentSection.icon className="w-5 h-5 text-primary" />
               <h2 className={`font-semibold ${isMobile ? 'text-base' : 'text-lg'}`}>
-                {currentSection.title}
+                {currentSection.name}
               </h2>
             </div>
             
@@ -125,7 +125,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
-                placeholder={`Search ${currentSection.title.toLowerCase()}...`}
+                placeholder={`Search ${currentSection.name.toLowerCase()}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`pl-10 ${isMobile ? 'h-11' : 'h-9'}`}
@@ -142,8 +142,8 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                   location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/')
                 );
                 const isActive = mostSpecificMatch?.href === item.href;
-                const hasSubItems = (item as any).subItems && (item as any).subItems.length > 0;
-                const isSubItemActive = hasSubItems && (item as any).subItems.some((subItem: any) => 
+                const hasSubItems = item.subItems && item.subItems.length > 0;
+                const isSubItemActive = hasSubItems && item.subItems.some(subItem => 
                   location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/')
                 );
                 const isGroupExpanded = expandedGroups.has(item.name);
@@ -194,7 +194,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                         </div>
                         
                         <CollapsibleContent className="ml-4 mt-1 space-y-1">
-                          {(item as any).subItems.map((subItem: any) => {
+                          {item.subItems.map((subItem) => {
                             const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
                             
                             return (
@@ -233,7 +233,7 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                       >
                         <item.icon className="w-4 h-4" />
                         <span>{item.name}</span>
-                        {(item as any).count && (
+                        {item.count && (
                           <span className={`
                             ml-auto text-xs px-2 py-0.5 rounded-full
                             ${isActive
@@ -241,12 +241,12 @@ export function DynamicSidebar({ activeSection, isOpen, onClose }: DynamicSideba
                               : 'bg-muted text-muted-foreground'
                             }
                           `}>
-                            {(item as any).count}
+                            {item.count}
                           </span>
                         )}
-                        {(item as any).badge && (
+                        {item.badge && (
                           <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
-                            {(item as any).badge}
+                            {item.badge}
                           </span>
                         )}
                       </NavLink>

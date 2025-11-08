@@ -6,26 +6,19 @@ import { useMvpMode } from "@/contexts/MvpModeContext";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-
 interface AdminSidebarProps {
   activeSection: string;
 }
-
-export function AdminSidebar({ activeSection }: AdminSidebarProps) {
+export function AdminSidebar({
+  activeSection
+}: AdminSidebarProps) {
   const location = useLocation();
-  const { isMvpMode } = useMvpMode();
+  const {
+    isMvpMode
+  } = useMvpMode();
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
     // Auto-expand enrollment optimization if we're on an enrollment page
@@ -36,10 +29,9 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
     return initialExpanded;
   });
   const [isCollapsed, setIsCollapsed] = useState(true);
-
   const getActiveSectionFromPath = () => {
     const path = location.pathname;
-    
+
     // Handle specific detail page patterns
     if (path.startsWith('/admin/leads/') || path.startsWith('/admin/communication/') || path.startsWith('/admin/enrollment/')) {
       return 'leads-marketing';
@@ -65,34 +57,24 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
     if (path.startsWith('/admin/reports/')) {
       return 'analytics-reports';
     }
-    
+
     // Find section by exact or prefix match
     for (const section of navigationStructure.sections) {
       if (section.items.some(item => path === item.href || path.startsWith(item.href + '/'))) {
         return section.id;
       }
     }
-    
+
     // Default to leads-marketing if no match found
     return 'leads-marketing';
   };
-
   const currentActiveSection = activeSection || getActiveSectionFromPath();
-  const currentSection = navigationStructure.sections.find(
-    section => section.id === currentActiveSection
-  );
-
+  const currentSection = navigationStructure.sections.find(section => section.id === currentActiveSection);
   if (!currentSection) return null;
 
   // Filter items based on MVP mode (for data-management, leads-marketing, students-applications, and configuration sections)
-  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode
-    ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
-    : currentSection.items;
-
-  const filteredItems = sectionItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
+  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href)) : currentSection.items;
+  const filteredItems = sectionItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups);
     if (newExpanded.has(groupName)) {
@@ -102,104 +84,53 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
     }
     setExpandedGroups(newExpanded);
   };
-
-  return (
-    <div 
-      className={cn(
-        "border-r border-border h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] bg-card flex flex-col transition-all duration-300 fixed left-0 top-14 sm:top-16 lg:top-20 z-40",
-        isCollapsed ? "w-20" : "w-80"
-      )}
-    >
+  return <div className={cn("border-r border-border h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] bg-card flex flex-col transition-all duration-300 fixed left-0 top-14 sm:top-16 lg:top-20 z-40", isCollapsed ? "w-20" : "w-80")}>
       {/* Collapse Button - Top position when collapsed */}
-      {isCollapsed && (
-        <div className="flex justify-end p-2 border-b border-border">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="h-8 w-8"
-          >
+      {isCollapsed && <div className="flex justify-end p-2 border-b border-border">
+          <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="h-8 w-8">
             <Menu className="h-4 w-4" />
           </Button>
-        </div>
-      )}
+        </div>}
 
       {/* Header */}
       <div className="border-b border-border">
-        <div className={cn(
-          "flex items-center p-4",
-          isCollapsed ? "justify-center" : "justify-between"
-        )}>
-          {isCollapsed ? (
-            <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" />
-          ) : (
-            <div className="flex items-center space-x-3">
+        <div className={cn("flex items-center p-4", isCollapsed ? "justify-center" : "justify-between")}>
+          {isCollapsed ? <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" /> : <div className="flex items-center space-x-3">
               <currentSection.icon className="w-6 h-6 text-primary flex-shrink-0" />
               <h2 className="font-semibold text-lg truncate">
                 {currentSection.name}
               </h2>
-            </div>
-          )}
+            </div>}
           {/* Collapse Button - Beside title when expanded */}
-          {!isCollapsed && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              className="h-8 w-8"
-            >
+          {!isCollapsed && <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="h-8 w-8">
               <Menu className="h-4 w-4" />
-            </Button>
-          )}
+            </Button>}
         </div>
         
         {/* Search within section */}
-        {!isCollapsed && (
-          <div className="relative p-4 pt-0">
+        {!isCollapsed && <div className="relative p-4 pt-0">
             <Search className="absolute left-7 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <Input
-              placeholder={`Search ${currentSection.name.toLowerCase()}...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-10"
-            />
-          </div>
-        )}
+            <Input placeholder={`Search ${currentSection.name.toLowerCase()}...`} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 h-10" />
+          </div>}
       </div>
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         <nav className="p-4">
           <ul className="space-y-1">
-            {filteredItems.map((item) => {
-              const sortedItems = [...filteredItems].sort((a, b) => b.href.length - a.href.length);
-              const mostSpecificMatch = sortedItems.find(sortedItem => 
-                location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/')
-              );
-              const isActive = mostSpecificMatch?.href === item.href;
-              const hasSubItems = item.subItems && item.subItems.length > 0;
-              const isSubItemActive = hasSubItems && item.subItems.some(subItem => 
-                location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/')
-              );
-              const isGroupExpanded = expandedGroups.has(item.name);
-              
-              return (
-                <li key={item.href}>
-                  {hasSubItems ? (
-                    item.subItems.length === 1 ? (
-                       // Single sub-item: navigate directly to the sub-item
-                       isCollapsed ? (
-                         <Tooltip>
+            {filteredItems.map(item => {
+            const sortedItems = [...filteredItems].sort((a, b) => b.href.length - a.href.length);
+            const mostSpecificMatch = sortedItems.find(sortedItem => location.pathname === sortedItem.href || location.pathname.startsWith(sortedItem.href + '/'));
+            const isActive = mostSpecificMatch?.href === item.href;
+            const hasSubItems = item.subItems && item.subItems.length > 0;
+            const isSubItemActive = hasSubItems && item.subItems.some(subItem => location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/'));
+            const isGroupExpanded = expandedGroups.has(item.name);
+            return <li key={item.href}>
+                  {hasSubItems ? item.subItems.length === 1 ?
+              // Single sub-item: navigate directly to the sub-item
+              isCollapsed ? <Tooltip>
                             <TooltipTrigger asChild>
-                              <NavLink 
-                                to={item.subItems[0].href}
-                                className={cn(
-                                  "flex items-center justify-center w-full h-12 rounded-md transition-colors p-0",
-                                  isSubItemActive 
-                                    ? "bg-primary text-primary-foreground" 
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                )}
-                              >
+                              <NavLink to={item.subItems[0].href} className={cn("flex items-center justify-center w-full h-12 rounded-md transition-colors p-0", isSubItemActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                                 <item.icon className="w-6 h-6" />
                               </NavLink>
                             </TooltipTrigger>
@@ -209,143 +140,59 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                                 <span>{item.name}</span>
                               </div>
                             </TooltipContent>
-                         </Tooltip>
-                       ) : (
-                        <NavLink 
-                          to={item.subItems[0].href}
-                          className={cn(
-                            "flex items-center space-x-4 w-full h-12 px-3 rounded-md transition-colors",
-                            isSubItemActive 
-                              ? "bg-primary text-primary-foreground" 
-                              : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                          )}
-                        >
+                         </Tooltip> : <NavLink to={item.subItems[0].href} className={cn("flex items-center space-x-4 w-full h-12 px-3 rounded-md transition-colors", isSubItemActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                           <item.icon className="w-5 h-5" />
                           <span>{item.name}</span>
-                        </NavLink>
-                      )
-                    ) : (
-                      // Multiple sub-items: show collapsible group
-                      <Collapsible 
-                        open={isGroupExpanded || isSubItemActive} 
-                        onOpenChange={() => toggleGroup(item.name)}
-                      >
+                        </NavLink> :
+              // Multiple sub-items: show collapsible group
+              <Collapsible open={isGroupExpanded || isSubItemActive} onOpenChange={() => toggleGroup(item.name)}>
                         <div className="flex items-center">
-                          {isCollapsed ? (
-                            <DropdownMenu>
+                          {isCollapsed ? <DropdownMenu>
                                <DropdownMenuTrigger asChild>
-                                 <Button
-                                   variant="ghost"
-                                   className={cn(
-                                     "flex items-center justify-center w-full h-12 rounded-md transition-colors p-0",
-                                     isActive 
-                                       ? "bg-primary text-primary-foreground" 
-                                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                   )}
-                                 >
+                                 <Button variant="ghost" className={cn("flex items-center justify-center w-full h-12 rounded-md transition-colors p-0", isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                                    <item.icon className="w-6 h-6" />
                                  </Button>
                                </DropdownMenuTrigger>
-                               <DropdownMenuContent 
-                                 side="right" 
-                                 align="start"
-                                 className="min-w-48 bg-background border shadow-lg z-50"
-                                 sideOffset={8}
-                               >
+                               <DropdownMenuContent side="right" align="start" className="min-w-48 bg-background border shadow-lg z-50" sideOffset={8}>
                                 <DropdownMenuItem asChild>
-                                  <NavLink 
-                                    to={item.href}
-                                    className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
-                                  >
-                                    <item.icon className="w-4 h-4" />
-                                    <span>{item.name}</span>
-                                  </NavLink>
+                                  
                                 </DropdownMenuItem>
-                                {item.subItems?.map((subItem) => (
-                                  <DropdownMenuItem key={subItem.href} asChild>
-                                    <NavLink 
-                                      to={subItem.href}
-                                      className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm"
-                                    >
+                                {item.subItems?.map(subItem => <DropdownMenuItem key={subItem.href} asChild>
+                                    <NavLink to={subItem.href} className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm">
                                       <subItem.icon className="w-4 h-4" />
                                       <span>{subItem.name}</span>
                                     </NavLink>
-                                  </DropdownMenuItem>
-                                ))}
+                                  </DropdownMenuItem>)}
                               </DropdownMenuContent>
-                            </DropdownMenu>
-                          ) : (
-                            <>
-                              <NavLink 
-                                to={item.href}
-                                className={cn(
-                                  "flex items-center space-x-4 flex-1 h-12 px-3 rounded-md transition-colors",
-                                  isActive 
-                                    ? "bg-primary text-primary-foreground" 
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                )}
-                              >
+                            </DropdownMenu> : <>
+                              <NavLink to={item.href} className={cn("flex items-center space-x-4 flex-1 h-12 px-3 rounded-md transition-colors", isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                                 <item.icon className="w-5 h-5" />
                                 <span>{item.name}</span>
                               </NavLink>
                               <CollapsibleTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="px-2 py-1 h-8 w-8"
-                                >
-                                  {(isGroupExpanded || isSubItemActive) ? (
-                                    <ChevronDown className="w-4 h-4" />
-                                  ) : (
-                                    <ChevronRight className="w-4 h-4" />
-                                  )}
+                                <Button variant="ghost" size="sm" className="px-2 py-1 h-8 w-8">
+                                  {isGroupExpanded || isSubItemActive ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                                 </Button>
                               </CollapsibleTrigger>
-                            </>
-                          )}
+                            </>}
                         </div>
                         
-                        {!isCollapsed && (
-                          <CollapsibleContent className="ml-4 mt-1">
+                        {!isCollapsed && <CollapsibleContent className="ml-4 mt-1">
                             <ul className="space-y-1">
-                              {item.subItems.map((subItem) => {
-                                const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
-                                
-                                return (
-                                  <li key={subItem.href}>
-                                    <NavLink 
-                                      to={subItem.href}
-                                      className={cn(
-                                        "flex items-center space-x-3 pl-6 h-10 rounded-md transition-colors",
-                                        isSubActive 
-                                          ? "bg-primary text-primary-foreground" 
-                                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                                      )}
-                                    >
+                              {item.subItems.map(subItem => {
+                      const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
+                      return <li key={subItem.href}>
+                                    <NavLink to={subItem.href} className={cn("flex items-center space-x-3 pl-6 h-10 rounded-md transition-colors", isSubActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                                       <subItem.icon className="w-3.5 h-3.5" />
                                       <span>{subItem.name}</span>
                                     </NavLink>
-                                  </li>
-                                );
-                              })}
+                                  </li>;
+                    })}
                             </ul>
-                          </CollapsibleContent>
-                        )}
-                      </Collapsible>
-                    )
-                   ) : (
-                    isCollapsed ? (
-                      <Tooltip>
+                          </CollapsibleContent>}
+                      </Collapsible> : isCollapsed ? <Tooltip>
                         <TooltipTrigger asChild>
-                           <NavLink 
-                             to={item.href}
-                             className={cn(
-                               "flex items-center justify-center w-full h-12 rounded-md transition-colors p-0",
-                               isActive 
-                                 ? "bg-primary text-primary-foreground" 
-                                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                             )}
-                           >
+                           <NavLink to={item.href} className={cn("flex items-center justify-center w-full h-12 rounded-md transition-colors p-0", isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                              <item.icon className="w-6 h-6" />
                            </NavLink>
                         </TooltipTrigger>
@@ -353,131 +200,67 @@ export function AdminSidebar({ activeSection }: AdminSidebarProps) {
                            <div className="flex items-center space-x-2">
                              <item.icon className="w-4 h-4" />
                              <span>{item.name}</span>
-                             {item.count && (
-                               <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                             {item.count && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                                  {item.count}
-                               </span>
-                             )}
-                             {item.badge && (
-                               <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                               </span>}
+                             {item.badge && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
                                  {item.badge}
-                               </span>
-                             )}
+                               </span>}
                            </div>
                          </TooltipContent>
-                      </Tooltip>
-                    ) : (
-                      <NavLink 
-                        to={item.href}
-                        className={cn(
-                          "flex items-center space-x-4 h-12 px-3 rounded-md transition-colors",
-                          isActive 
-                            ? "bg-primary text-primary-foreground" 
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        )}
-                      >
+                      </Tooltip> : <NavLink to={item.href} className={cn("flex items-center space-x-4 h-12 px-3 rounded-md transition-colors", isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
                         <item.icon className="w-5 h-5" />
                         <span>{item.name}</span>
-                        {item.count && (
-                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        {item.count && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
                             {item.count}
-                          </span>
-                        )}
-                        {item.badge && (
-                          <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
+                          </span>}
+                        {item.badge && <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-accent text-accent-foreground">
                             {item.badge}
-                          </span>
-                        )}
-                      </NavLink>
-                    )
-                  )}
-                </li>
-              );
-            })}
+                          </span>}
+                      </NavLink>}
+                </li>;
+          })}
           </ul>
         </nav>
 
         {/* Quick Actions */}
-        {!isCollapsed && (
-          <div className="mt-4 p-4 border-t border-border">
+        {!isCollapsed && <div className="mt-4 p-4 border-t border-border">
             <div className="space-y-2">
-              {currentSection.id === 'contacts' && (
-                <>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+              {currentSection.id === 'contacts' && <>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Add New Lead
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Import Contacts
                   </Button>
-                </>
-              )}
-              {currentSection.id === 'engagement' && (
-                <>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                </>}
+              {currentSection.id === 'engagement' && <>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Create Campaign
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     New Template
                   </Button>
-                </>
-              )}
-              {currentSection.id === 'applications' && (
-                <>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                </>}
+              {currentSection.id === 'applications' && <>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Add Program
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Create Workflow
                   </Button>
-                </>
-              )}
-              {currentSection.id === 'data-automations' && (
-                <>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                </>}
+              {currentSection.id === 'data-automations' && <>
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Generate Report
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start"
-                  >
+                  <Button variant="outline" size="sm" className="w-full justify-start">
                     Add Team Member
                   </Button>
-                </>
-              )}
+                </>}
             </div>
-          </div>
-        )}
+          </div>}
       </div>
 
-    </div>
-  );
+    </div>;
 }

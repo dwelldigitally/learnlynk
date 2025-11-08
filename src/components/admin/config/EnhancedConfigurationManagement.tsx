@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
+import { useMvpMode } from '@/contexts/MvpModeContext';
 
 // Import configuration components
 import { CustomFieldsManagement } from "../database/CustomFieldsManagement";
@@ -154,6 +155,11 @@ const configurationSections: ConfigurationSection[] = [
 ];
 
 export const EnhancedConfigurationManagement = () => {
+  const { isMvpMode } = useMvpMode();
+
+  // Define MVP hidden configuration sections
+  const MVP_HIDDEN_CONFIG_SECTIONS = ['lead-intelligence', 'applicant-ai-intelligence'];
+
   // Determine initial section based on URL
   const getInitialSection = () => {
     const path = window.location.pathname;
@@ -169,7 +175,14 @@ export const EnhancedConfigurationManagement = () => {
     if (path.includes('/company')) {
       return 'company-profile'; // Default to company profile
     }
-    return 'lead-intelligence';
+    
+    // In MVP mode, skip hidden sections
+    const defaultSection = 'lead-intelligence';
+    if (isMvpMode && MVP_HIDDEN_CONFIG_SECTIONS.includes(defaultSection)) {
+      return 'routing-rules'; // Fallback to routing rules in MVP mode
+    }
+    
+    return defaultSection;
   };
 
   const [activeSection, setActiveSection] = useState(getInitialSection());
@@ -184,18 +197,23 @@ export const EnhancedConfigurationManagement = () => {
   });
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Get unique categories
-  const categories = [...new Set(configurationSections.map(section => section.category))];
+  // Filter configuration sections based on MVP mode
+  const availableSections = isMvpMode 
+    ? configurationSections.filter(section => !MVP_HIDDEN_CONFIG_SECTIONS.includes(section.id))
+    : configurationSections;
+
+  // Get unique categories from available sections
+  const categories = [...new Set(availableSections.map(section => section.category))];
 
   // Filter sections based on search and category
-  const filteredSections = configurationSections.filter(section => {
+  const filteredSections = availableSections.filter(section => {
     const matchesSearch = section.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          section.description.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || section.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const activeConfig = configurationSections.find(section => section.id === activeSection);
+  const activeConfig = availableSections.find(section => section.id === activeSection);
 
   return (
     <TooltipProvider>

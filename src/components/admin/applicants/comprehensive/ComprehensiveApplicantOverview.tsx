@@ -1,14 +1,13 @@
 // @ts-nocheck
-import React, { useState } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { 
   User, 
   FileText, 
   MessageSquare, 
   Briefcase,
-  GraduationCap,
   Users,
   Star
 } from 'lucide-react';
@@ -24,25 +23,16 @@ interface ComprehensiveApplicantOverviewProps {
 }
 
 export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOverviewProps> = ({ applicant }) => {
-  const [activeTab, setActiveTab] = useState('profile');
-  
   // Get comprehensive student data
   const studentData = getMockApplicationData(applicant.id);
 
-  const tabCounts = {
-    essays: studentData.essays.length,
-    responses: studentData.formResponses.length,
-    experience: studentData.professionalExperience.length + studentData.extracurriculars.length,
-    references: studentData.references.length
-  };
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* AI Assessment Summary */}
-      <Card>
+      <Card className="border-primary/20">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Star className="h-5 w-5" />
+            <Star className="h-5 w-5 text-primary" />
             AI Assessment Summary
           </CardTitle>
         </CardHeader>
@@ -97,104 +87,115 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
         </CardContent>
       </Card>
 
-      {/* Detailed Information Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="profile" className="flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Profile
-          </TabsTrigger>
-          <TabsTrigger value="essays" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Essays
-            {tabCounts.essays > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">{tabCounts.essays}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="responses" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Responses
-            {tabCounts.responses > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">{tabCounts.responses}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="experience" className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            Experience
-            {tabCounts.experience > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">{tabCounts.experience}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="references" className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            References
-            {tabCounts.references > 0 && (
-              <Badge variant="secondary" className="ml-1 text-xs">{tabCounts.references}</Badge>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <div className="mt-6">
-          <TabsContent value="profile">
-            <StudentProfileSection profile={studentData} />
-          </TabsContent>
-
-          <TabsContent value="essays">
-            <ApplicationEssayViewer essays={studentData.essays} />
-          </TabsContent>
-
-          <TabsContent value="responses">
-            <ApplicationResponsesViewer responses={studentData.formResponses} />
-          </TabsContent>
-
-          <TabsContent value="experience">
-            <ProfessionalExperiencePanel 
-              professionalExperience={studentData.professionalExperience}
-              extracurriculars={studentData.extracurriculars}
-            />
-          </TabsContent>
-
-          <TabsContent value="references">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  References ({studentData.references.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {studentData.references.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No references provided</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {studentData.references.map((reference, index) => (
-                      <div key={index} className="border rounded-lg p-4 space-y-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-semibold">{reference.name}</h4>
-                            <p className="text-sm text-muted-foreground">{reference.position}</p>
-                            <p className="text-sm text-muted-foreground">{reference.institution}</p>
-                          </div>
-                          <Badge variant={reference.submitted ? "default" : "secondary"}>
-                            {reference.submitted ? "Submitted" : "Pending"}
-                          </Badge>
-                        </div>
-                        <div>
-                          <p className="text-sm"><span className="font-medium">Relationship:</span> {reference.relationship}</p>
-                          <p className="text-sm"><span className="font-medium">Email:</span> {reference.email}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+      {/* Profile Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+            <User className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold">Student Profile</h2>
         </div>
-      </Tabs>
+        <StudentProfileSection profile={studentData} />
+      </div>
+
+      <Separator />
+
+      {/* Essays Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+            <FileText className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold">Essays</h2>
+          {studentData.essays.length > 0 && (
+            <Badge variant="secondary">{studentData.essays.length}</Badge>
+          )}
+        </div>
+        <ApplicationEssayViewer essays={studentData.essays} />
+      </div>
+
+      <Separator />
+
+      {/* Application Responses Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+            <MessageSquare className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold">Application Responses</h2>
+          {studentData.formResponses.length > 0 && (
+            <Badge variant="secondary">{studentData.formResponses.length}</Badge>
+          )}
+        </div>
+        <ApplicationResponsesViewer responses={studentData.formResponses} />
+      </div>
+
+      <Separator />
+
+      {/* Professional Experience Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+            <Briefcase className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold">Experience</h2>
+          {(studentData.professionalExperience.length + studentData.extracurriculars.length) > 0 && (
+            <Badge variant="secondary">
+              {studentData.professionalExperience.length + studentData.extracurriculars.length}
+            </Badge>
+          )}
+        </div>
+        <ProfessionalExperiencePanel 
+          professionalExperience={studentData.professionalExperience}
+          extracurriculars={studentData.extracurriculars}
+        />
+      </div>
+
+      <Separator />
+
+      {/* References Section */}
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
+            <Users className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="text-2xl font-semibold">References</h2>
+          {studentData.references.length > 0 && (
+            <Badge variant="secondary">{studentData.references.length}</Badge>
+          )}
+        </div>
+        <Card>
+          <CardContent className="pt-6">
+            {studentData.references.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No references provided</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {studentData.references.map((reference, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-semibold">{reference.name}</h4>
+                        <p className="text-sm text-muted-foreground">{reference.position}</p>
+                        <p className="text-sm text-muted-foreground">{reference.institution}</p>
+                      </div>
+                      <Badge variant={reference.submitted ? "default" : "secondary"}>
+                        {reference.submitted ? "Submitted" : "Pending"}
+                      </Badge>
+                    </div>
+                    <div>
+                      <p className="text-sm"><span className="font-medium">Relationship:</span> {reference.relationship}</p>
+                      <p className="text-sm"><span className="font-medium">Email:</span> {reference.email}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

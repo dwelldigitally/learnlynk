@@ -8,12 +8,15 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   MessageSquare, CreditCard, Phone, Mail, Building, Settings, CheckCircle, 
   AlertCircle, Eye, EyeOff, Calendar, FileText, BarChart3, Users, Video,
   Zap, Bot, BookOpen, GraduationCap, Shield, Workflow, Share2, MessageCircle,
-  DollarSign, Cloud, Brain, TestTube
+  DollarSign, Cloud, Brain, TestTube, RefreshCw, Database
 } from 'lucide-react';
+import { StripeSyncDashboard } from '../stripe/StripeSyncDashboard';
+import { useStripeSyncStatus } from '@/services/stripeDataService';
 
 interface IntegrationField {
   key: string;
@@ -467,10 +470,160 @@ export const EnhancedIntegrationHub = () => {
     );
   };
 
+  const StripeCard = ({ integration }: { integration: Integration }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [showDashboard, setShowDashboard] = useState(false);
+    const { data: syncStatus } = useStripeSyncStatus();
+
+    const getSyncStatusBadge = () => {
+      if (!syncStatus) return null;
+      
+      switch (syncStatus.status) {
+        case 'in_progress':
+          return (
+            <Badge variant="secondary" className="flex items-center gap-1">
+              <RefreshCw className="h-3 w-3 animate-spin" />
+              Syncing...
+            </Badge>
+          );
+        case 'completed':
+          return (
+            <Badge variant="default" className="flex items-center gap-1">
+              <CheckCircle className="h-3 w-3" />
+              Synced
+            </Badge>
+          );
+        case 'failed':
+          return (
+            <Badge variant="destructive" className="flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" />
+              Failed
+            </Badge>
+          );
+        default:
+          return null;
+      }
+    };
+
+    return (
+      <>
+        <Card key={integration.id} className="relative">
+          {integration.isPopular && (
+            <Badge className="absolute -top-2 -right-2 z-10" variant="default">
+              Popular
+            </Badge>
+          )}
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <integration.icon className="h-8 w-8 text-primary" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-lg">{integration.name}</CardTitle>
+                    {getSyncStatusBadge()}
+                  </div>
+                  <CardDescription>{integration.description}</CardDescription>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                {getStatusBadge(integration.status)}
+                <Switch 
+                  checked={integration.status === 'connected'} 
+                  onCheckedChange={() => setIsExpanded(!isExpanded)}
+                />
+              </div>
+            </div>
+          </CardHeader>
+          
+          {(isExpanded || integration.status === 'connected') && (
+            <CardContent className="space-y-4">
+              {integration.status === 'connected' && syncStatus && (
+                <Alert>
+                  <Database className="h-4 w-4" />
+                  <AlertDescription>
+                    <div className="flex items-center justify-between">
+                      <span>Auto-sync enabled (every 5 minutes)</span>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => setShowDashboard(true)}
+                        className="h-auto p-0"
+                      >
+                        View Sync Dashboard →
+                      </Button>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
+              
+              <div className="grid gap-4">
+                {integration.fields.map((field) => (
+                  <div key={field.key}>
+                    <Label htmlFor={`${integration.id}-${field.key}`}>
+                      {field.label}
+                      {field.required && <span className="text-destructive ml-1">*</span>}
+                    </Label>
+                    <div className="flex space-x-2">
+                      <Input
+                        id={`${integration.id}-${field.key}`}
+                        type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'}
+                        placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`}
+                        className="flex-1"
+                      />
+                      {field.type === 'password' && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}
+                        >
+                          {showApiKeys[`${integration.id}-${field.key}`] ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex space-x-2 pt-4">
+                <Button className="flex-1">
+                  {integration.status === 'connected' ? 'Update' : 'Connect'}
+                </Button>
+                <Button variant="outline">Test Connection</Button>
+                {integration.status === 'connected' && (
+                  <Button variant="destructive">Disconnect</Button>
+                )}
+              </div>
+            </CardContent>
+          )}
+        </Card>
+
+        <Dialog open={showDashboard} onOpenChange={setShowDashboard}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Stripe Data Sync Dashboard</DialogTitle>
+              <DialogDescription>
+                Manage Stripe data synchronization, view sync history, and monitor linked customers.
+              </DialogDescription>
+            </DialogHeader>
+            <StripeSyncDashboard />
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  };
+
   const IntegrationCard = ({ integration }: { integration: Integration }) => {
-    // Use special HubSpot card for HubSpot integration
+    // Use special card for special integrations
     if (integration.id === 'hubspot') {
       return <HubSpotCard integration={integration} />;
+    }
+    if (integration.id === 'stripe') {
+      return <StripeCard integration={integration} />;
     }
 
     const [isExpanded, setIsExpanded] = useState(false);

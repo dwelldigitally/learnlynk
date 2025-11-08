@@ -6854,6 +6854,258 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_customers: {
+        Row: {
+          balance: number | null
+          created: string
+          currency: string | null
+          delinquent: boolean | null
+          description: string | null
+          email: string
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          name: string | null
+          phone: string | null
+          synced_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          balance?: number | null
+          created: string
+          currency?: string | null
+          delinquent?: boolean | null
+          description?: string | null
+          email: string
+          id: string
+          lead_id?: string | null
+          metadata?: Json | null
+          name?: string | null
+          phone?: string | null
+          synced_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          balance?: number | null
+          created?: string
+          currency?: string | null
+          delinquent?: boolean | null
+          description?: string | null
+          email?: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          name?: string | null
+          phone?: string | null
+          synced_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_customers_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_payment_intents: {
+        Row: {
+          amount: number
+          created: string
+          currency: string
+          customer_id: string | null
+          description: string | null
+          id: string
+          metadata: Json | null
+          payment_method: string | null
+          receipt_email: string | null
+          status: string
+          synced_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created: string
+          currency: string
+          customer_id?: string | null
+          description?: string | null
+          id: string
+          metadata?: Json | null
+          payment_method?: string | null
+          receipt_email?: string | null
+          status: string
+          synced_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created?: string
+          currency?: string
+          customer_id?: string | null
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          payment_method?: string | null
+          receipt_email?: string | null
+          status?: string
+          synced_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_payment_intents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_prices: {
+        Row: {
+          active: boolean | null
+          created: string
+          currency: string
+          id: string
+          metadata: Json | null
+          product_id: string | null
+          recurring_interval: string | null
+          recurring_interval_count: number | null
+          synced_at: string | null
+          type: string | null
+          unit_amount: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created: string
+          currency: string
+          id: string
+          metadata?: Json | null
+          product_id?: string | null
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          synced_at?: string | null
+          type?: string | null
+          unit_amount?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          product_id?: string | null
+          recurring_interval?: string | null
+          recurring_interval_count?: number | null
+          synced_at?: string | null
+          type?: string | null
+          unit_amount?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_prices_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "stripe_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_products: {
+        Row: {
+          active: boolean | null
+          created: string
+          default_price_id: string | null
+          description: string | null
+          id: string
+          images: string[] | null
+          metadata: Json | null
+          name: string
+          synced_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          created: string
+          default_price_id?: string | null
+          description?: string | null
+          id: string
+          images?: string[] | null
+          metadata?: Json | null
+          name: string
+          synced_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          created?: string
+          default_price_id?: string | null
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          metadata?: Json | null
+          name?: string
+          synced_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      stripe_sync_log: {
+        Row: {
+          completed_at: string | null
+          customers_matched: number | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          records_synced: Json | null
+          started_at: string | null
+          status: string
+          sync_type: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          customers_matched?: number | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          records_synced?: Json | null
+          started_at?: string | null
+          status?: string
+          sync_type: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          customers_matched?: number | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          records_synced?: Json | null
+          started_at?: string | null
+          status?: string
+          sync_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       student_academic_plans: {
         Row: {
           academic_level: string | null

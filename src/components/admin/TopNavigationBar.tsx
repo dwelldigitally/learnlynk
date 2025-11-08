@@ -20,7 +20,6 @@ import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
 import { UniversalTaskModal } from "./UniversalTaskModal";
-import { AIActionsMenu } from "./AIActionsMenu";
 
 interface TopNavigationBarProps {
   activeSection: string;
@@ -235,9 +234,6 @@ export function TopNavigationBar({
           >
             <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
-
-          {/* AI Actions Menu */}
-          <AIActionsMenu />
 
           {/* Notifications */}
           <div className="relative">

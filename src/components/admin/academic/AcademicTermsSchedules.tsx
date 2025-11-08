@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { AcademicTermsTab } from './AcademicTermsTab';
 import { ScheduleTemplatesTab } from './ScheduleTemplatesTab';
-import { ProgramSchedulingTab } from './ProgramSchedulingTab';
+import { IntakePipelineManagement } from '../intake/IntakePipelineManagement';
 import { CalendarViewTab } from './CalendarViewTab';
 import { PageHeader } from '@/components/modern/PageHeader';
 
@@ -16,14 +16,14 @@ export function AcademicTermsSchedules() {
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <PageHeader
         title="Academic Terms & Schedules"
-        subtitle="Manage academic terms, schedule templates, and program scheduling"
+        subtitle="Manage academic terms, schedule templates, and intake scheduling"
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1">
           <TabsTrigger value="terms">Academic Terms</TabsTrigger>
           <TabsTrigger value="schedules">Schedule Templates</TabsTrigger>
-          <TabsTrigger value="program-scheduling">Program Scheduling</TabsTrigger>
+          <TabsTrigger value="intake-scheduling">Intake Scheduling</TabsTrigger>
           <TabsTrigger value="calendar">Calendar View</TabsTrigger>
         </TabsList>
 
@@ -35,8 +35,8 @@ export function AcademicTermsSchedules() {
           <ScheduleTemplatesTab />
         </TabsContent>
 
-        <TabsContent value="program-scheduling" className="space-y-6">
-          <ProgramSchedulingTab />
+        <TabsContent value="intake-scheduling" className="space-y-6">
+          <IntakePipelineManagement />
         </TabsContent>
 
         <TabsContent value="calendar" className="space-y-6">

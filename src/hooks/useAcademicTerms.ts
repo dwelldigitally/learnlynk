@@ -1,6 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useConditionalData } from './useConditionalData';
+import { DemoDataService } from '@/services/demoDataService';
 
 export interface AcademicTerm {
   id: string;
@@ -23,9 +25,10 @@ export interface AcademicTerm {
 }
 
 export function useAcademicTerms() {
-  return useQuery({
-    queryKey: ['academic-terms'],
-    queryFn: async () => {
+  return useConditionalData(
+    ['academic-terms'],
+    () => DemoDataService.getDemoAcademicTerms() as AcademicTerm[],
+    async () => {
       const { data, error } = await supabase
         .from('academic_terms')
         .select('*')
@@ -34,8 +37,8 @@ export function useAcademicTerms() {
 
       if (error) throw error;
       return data as AcademicTerm[];
-    },
-  });
+    }
+  );
 }
 
 export function useCreateAcademicTerm() {

@@ -581,6 +581,68 @@ export class DemoDataService {
   }
 
   /**
+   * Get demo academic terms data
+   */
+  static getDemoAcademicTerms() {
+    return [
+      {
+        id: 'demo-term-1',
+        user_id: 'demo-user',
+        name: 'Fall 2024',
+        description: 'Fall semester 2024',
+        term_type: 'semester',
+        academic_year: '2024-2025',
+        start_date: '2024-09-03',
+        end_date: '2024-12-20',
+        registration_start_date: '2024-08-01',
+        registration_end_date: '2024-08-31',
+        add_drop_deadline: '2024-09-17',
+        withdrawal_deadline: '2024-11-15',
+        status: 'active',
+        is_current: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 'demo-term-2',
+        user_id: 'demo-user',
+        name: 'Winter 2025',
+        description: 'Winter semester 2025',
+        term_type: 'semester',
+        academic_year: '2024-2025',
+        start_date: '2025-01-06',
+        end_date: '2025-04-25',
+        registration_start_date: '2024-11-15',
+        registration_end_date: '2024-12-15',
+        add_drop_deadline: '2025-01-20',
+        withdrawal_deadline: '2025-03-20',
+        status: 'upcoming',
+        is_current: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      {
+        id: 'demo-term-3',
+        user_id: 'demo-user',
+        name: 'Summer 2024',
+        description: 'Summer semester 2024',
+        term_type: 'semester',
+        academic_year: '2023-2024',
+        start_date: '2024-05-06',
+        end_date: '2024-08-23',
+        registration_start_date: '2024-03-01',
+        registration_end_date: '2024-04-30',
+        add_drop_deadline: '2024-05-20',
+        withdrawal_deadline: '2024-07-15',
+        status: 'active',
+        is_current: false,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+    ];
+  }
+
+  /**
    * Get demo intakes data
    */
   static getDemoIntakes() {

@@ -6,9 +6,11 @@ import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
 import { useConditionalIntakes } from '@/hooks/useConditionalIntakes';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, parseISO, isValid } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 export function CalendarViewTab() {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const navigate = useNavigate();
   const { data: terms } = useAcademicTerms();
   const { data: intakes } = useConditionalIntakes();
 
@@ -24,6 +26,16 @@ export function CalendarViewTab() {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
   };
 
+  const handleEventClick = (event: any) => {
+    if (event.type.startsWith('intake-')) {
+      // Navigate to intake management - you can customize this route as needed
+      navigate('/admin/leads-marketing', { state: { scrollToIntakes: true } });
+    } else if (event.type.startsWith('term-') || event.type.startsWith('registration-')) {
+      // For now, navigate to the terms tab
+      navigate('/admin/academic-terms', { state: { activeTab: 'terms' } });
+    }
+  };
+
   const getEventsForDay = (date: Date) => {
     const events = [];
     const dateStr = format(date, 'yyyy-MM-dd');
@@ -32,16 +44,16 @@ export function CalendarViewTab() {
     if (terms) {
       terms.forEach(term => {
         if (term.start_date === dateStr) {
-          events.push({ type: 'term-start', term, label: `${term.name} Starts` });
+          events.push({ type: 'term-start', term, label: `${term.name} Starts`, id: term.id });
         }
         if (term.end_date === dateStr) {
-          events.push({ type: 'term-end', term, label: `${term.name} Ends` });
+          events.push({ type: 'term-end', term, label: `${term.name} Ends`, id: term.id });
         }
         if (term.registration_start_date === dateStr) {
-          events.push({ type: 'registration-start', term, label: `${term.name} Registration Opens` });
+          events.push({ type: 'registration-start', term, label: `${term.name} Registration Opens`, id: term.id });
         }
         if (term.registration_end_date === dateStr) {
-          events.push({ type: 'registration-end', term, label: `${term.name} Registration Closes` });
+          events.push({ type: 'registration-end', term, label: `${term.name} Registration Closes`, id: term.id });
         }
       });
     }
@@ -67,14 +79,16 @@ export function CalendarViewTab() {
           events.push({ 
             type: 'intake-start', 
             intake, 
-            label: `${intake.program_name} - ${intake.name} Starts` 
+            label: `${intake.program_name} - ${intake.name} Starts`,
+            id: intake.id
           });
         }
         if (intakeDeadline === dateStr) {
           events.push({ 
             type: 'intake-deadline', 
             intake, 
-            label: `${intake.program_name} - Application Deadline` 
+            label: `${intake.program_name} - Application Deadline`,
+            id: intake.id
           });
         }
       });
@@ -158,7 +172,8 @@ export function CalendarViewTab() {
                   <Badge
                     key={index}
                     variant="outline"
-                    className={`text-xs px-1 py-0.5 w-full justify-start ${getEventColor(event.type)}`}
+                    onClick={() => handleEventClick(event)}
+                    className={`text-xs px-1 py-0.5 w-full justify-start cursor-pointer hover:opacity-80 transition-opacity ${getEventColor(event.type)}`}
                   >
                     {event.label}
                   </Badge>

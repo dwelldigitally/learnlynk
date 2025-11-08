@@ -4,11 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday } from 'date-fns';
+import { useConditionalIntakes } from '@/hooks/useConditionalIntakes';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isToday, parseISO, isValid } from 'date-fns';
 
 export function CalendarViewTab() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const { data: terms } = useAcademicTerms();
+  const { data: intakes } = useConditionalIntakes();
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -23,25 +25,60 @@ export function CalendarViewTab() {
   };
 
   const getEventsForDay = (date: Date) => {
-    if (!terms) return [];
-    
     const events = [];
     const dateStr = format(date, 'yyyy-MM-dd');
     
-    terms.forEach(term => {
-      if (term.start_date === dateStr) {
-        events.push({ type: 'term-start', term, label: `${term.name} Starts` });
-      }
-      if (term.end_date === dateStr) {
-        events.push({ type: 'term-end', term, label: `${term.name} Ends` });
-      }
-      if (term.registration_start_date === dateStr) {
-        events.push({ type: 'registration-start', term, label: `${term.name} Registration Opens` });
-      }
-      if (term.registration_end_date === dateStr) {
-        events.push({ type: 'registration-end', term, label: `${term.name} Registration Closes` });
-      }
-    });
+    // Add academic term events
+    if (terms) {
+      terms.forEach(term => {
+        if (term.start_date === dateStr) {
+          events.push({ type: 'term-start', term, label: `${term.name} Starts` });
+        }
+        if (term.end_date === dateStr) {
+          events.push({ type: 'term-end', term, label: `${term.name} Ends` });
+        }
+        if (term.registration_start_date === dateStr) {
+          events.push({ type: 'registration-start', term, label: `${term.name} Registration Opens` });
+        }
+        if (term.registration_end_date === dateStr) {
+          events.push({ type: 'registration-end', term, label: `${term.name} Registration Closes` });
+        }
+      });
+    }
+    
+    // Add intake events
+    if (intakes) {
+      intakes.forEach(intake => {
+        // Helper function to safely format date
+        const formatIntakeDate = (dateString: string) => {
+          if (!dateString) return null;
+          try {
+            const date = parseISO(dateString);
+            return isValid(date) ? format(date, 'yyyy-MM-dd') : null;
+          } catch {
+            return null;
+          }
+        };
+
+        const intakeStartDate = formatIntakeDate(intake.start_date);
+        const intakeDeadline = formatIntakeDate(intake.application_deadline);
+        
+        if (intakeStartDate === dateStr) {
+          events.push({ 
+            type: 'intake-start', 
+            intake, 
+            label: `${intake.program_name} - ${intake.name} Starts` 
+          });
+        }
+        if (intakeDeadline === dateStr) {
+          events.push({ 
+            type: 'intake-deadline', 
+            intake, 
+            label: `${intake.program_name} - Application Deadline` 
+          });
+        }
+      });
+    }
     
     return events;
   };
@@ -56,6 +93,10 @@ export function CalendarViewTab() {
         return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'registration-end':
         return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'intake-start':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'intake-deadline':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }
@@ -67,7 +108,7 @@ export function CalendarViewTab() {
         <div>
           <h2 className="text-2xl font-semibold">Academic Calendar</h2>
           <p className="text-muted-foreground">
-            View all academic terms and important dates
+            View all academic terms, intake dates, and important deadlines
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -128,10 +169,10 @@ export function CalendarViewTab() {
         })}
       </div>
 
-      {terms && terms.length > 0 && (
+      {(terms && terms.length > 0) || (intakes && intakes.length > 0) ? (
         <div className="mt-6 pt-6 border-t">
           <h3 className="font-semibold mb-3">Legend</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded bg-green-500"></div>
               <span className="text-sm">Term Start</span>
@@ -148,9 +189,17 @@ export function CalendarViewTab() {
               <div className="w-3 h-3 rounded bg-orange-500"></div>
               <span className="text-sm">Registration Closes</span>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-purple-500"></div>
+              <span className="text-sm">Intake Start</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded bg-yellow-500"></div>
+              <span className="text-sm">Application Deadline</span>
+            </div>
           </div>
         </div>
-      )}
+      ) : null}
     </Card>
   );
 }

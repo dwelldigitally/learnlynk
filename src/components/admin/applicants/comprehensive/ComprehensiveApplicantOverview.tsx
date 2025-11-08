@@ -48,7 +48,7 @@ export const ComprehensiveApplicantOverview: React.FC<ComprehensiveApplicantOver
   };
 
   return (
-    <div className="flex gap-8">
+    <div className="flex gap-8 items-start">
       {/* Section Navigation Sidebar */}
       <SectionNavigation />
       

@@ -58,7 +58,7 @@ export const SectionNavigation: React.FC = () => {
   };
 
   return (
-    <div className="hidden lg:block sticky top-20 w-48 space-y-1">
+    <div className="hidden lg:block sticky top-24 self-start w-48 space-y-1 max-h-[calc(100vh-7rem)] overflow-y-auto">
       <p className="text-xs font-semibold text-muted-foreground mb-3 px-3">
         SECTIONS
       </p>

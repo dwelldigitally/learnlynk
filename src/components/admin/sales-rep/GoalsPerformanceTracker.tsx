@@ -277,7 +277,7 @@ export function GoalsPerformanceTracker() {
             <Badge variant="secondary" className="ml-2">{goals.length}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.map((goal) => {
             const Icon = goal.icon;
             const percentage = getProgressPercentage(goal.current, goal.target);

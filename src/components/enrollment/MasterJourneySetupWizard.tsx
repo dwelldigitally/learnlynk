@@ -257,32 +257,277 @@ export function MasterJourneySetupWizard({ onComplete, onSkip }: MasterJourneySe
 
   if (step === 'complete') {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-green-600">
-            <CheckCircle className="h-5 w-5" />
-            Master Journey Templates Ready
-          </CardTitle>
-          <CardDescription>
-            Your master journey templates are configured and ready to use.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Alert>
-            <CheckCircle className="h-4 w-4" />
-            <AlertDescription>
-              Master templates for both domestic and international students are now available. 
-              These templates will be automatically applied to all programs unless you create custom journeys.
-            </AlertDescription>
-          </Alert>
-          
-          <div className="flex justify-end gap-2">
-            <Button onClick={onComplete} className="flex items-center gap-2">
-              Continue to Journey Management <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <Card className="w-full max-w-4xl mx-auto">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="h-5 w-5" />
+              Master Journey Templates Ready
+            </CardTitle>
+            <CardDescription>
+              Your master journey templates are configured and ready to use.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert>
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>
+                Master templates for both domestic and international students are now available. 
+                These templates will be automatically applied to all programs unless you create custom journeys.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        {/* Display Template Details */}
+        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Users className="h-5 w-5 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">Domestic Student Template</CardTitle>
+                    <CardDescription>Standard enrollment journey</CardDescription>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-sm font-medium text-muted-foreground mb-2">Journey Stages:</div>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">1</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Lead Capture</div>
+                    <div className="text-xs text-muted-foreground">Initial contact and interest</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">2</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Application Start</div>
+                    <div className="text-xs text-muted-foreground">Begin application process</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">3</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Prerequisites Review</div>
+                    <div className="text-xs text-muted-foreground">Academic requirements check</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">4</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Document Submission</div>
+                    <div className="text-xs text-muted-foreground">Upload required documents</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">5</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Admission Interview</div>
+                    <div className="text-xs text-muted-foreground">Interview with admissions team</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">6</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Admission Decision</div>
+                    <div className="text-xs text-muted-foreground">Review and decision</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">7</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Contract Signing</div>
+                    <div className="text-xs text-muted-foreground">Sign enrollment agreement</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">8</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Deposit Payment</div>
+                    <div className="text-xs text-muted-foreground">Submit deposit fee</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">9</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Enrollment Complete</div>
+                    <div className="text-xs text-muted-foreground">Welcome to the program!</div>
+                  </div>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full mt-4" 
+                onClick={() => handleTemplateEdit('domestic')}
+                disabled={isLoading}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Edit Template
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Globe className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg">International Student Template</CardTitle>
+                    <CardDescription>Enhanced enrollment journey</CardDescription>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="text-sm font-medium text-muted-foreground mb-2">Journey Stages:</div>
+              <div className="space-y-2">
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">1</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Lead Capture</div>
+                    <div className="text-xs text-muted-foreground">Initial contact and interest</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">2</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Application Start</div>
+                    <div className="text-xs text-muted-foreground">Begin application process</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">3</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Prerequisites Review</div>
+                    <div className="text-xs text-muted-foreground">Academic requirements check</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">4</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">English Proficiency Test</div>
+                    <div className="text-xs text-muted-foreground">Language requirement verification</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">5</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Document Submission</div>
+                    <div className="text-xs text-muted-foreground">Upload required documents</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">6</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Admission Interview</div>
+                    <div className="text-xs text-muted-foreground">Interview with admissions team</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">7</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Admission Decision</div>
+                    <div className="text-xs text-muted-foreground">Review and decision</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">8</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Visa Application Support</div>
+                    <div className="text-xs text-muted-foreground">Assistance with visa process</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">9</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Contract Signing</div>
+                    <div className="text-xs text-muted-foreground">Sign enrollment agreement</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">10</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Deposit Payment</div>
+                    <div className="text-xs text-muted-foreground">Submit deposit fee</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 text-sm">
+                  <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs font-semibold text-primary">11</span>
+                  </div>
+                  <div>
+                    <div className="font-medium">Enrollment Complete</div>
+                    <div className="text-xs text-muted-foreground">Welcome to the program!</div>
+                  </div>
+                </div>
+              </div>
+              <Button 
+                variant="outline" 
+                className="w-full mt-4" 
+                onClick={() => handleTemplateEdit('international')}
+                disabled={isLoading}
+              >
+                <Settings className="h-4 w-4 mr-2" />
+                Edit Template
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="max-w-4xl mx-auto flex justify-end">
+          <Button onClick={onComplete} className="flex items-center gap-2">
+            Continue to Journey Management <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
     );
   }
 

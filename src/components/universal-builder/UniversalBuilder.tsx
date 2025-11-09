@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
 import { ElementPalette } from './ElementPalette';
 import { CanvasArea } from './CanvasArea';
@@ -436,58 +437,272 @@ function UniversalBuilderContent({
           </TabsContent>
 
           <TabsContent value="settings" className="flex-1 overflow-auto m-0 p-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuration Settings</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Name</Label>
-                  <Input
-                    value={state.config.name}
-                    onChange={(e) => dispatch({
-                      type: 'SET_CONFIG',
-                      payload: { ...state.config, name: e.target.value }
-                    })}
-                    placeholder="Enter configuration name"
-                  />
-                </div>
-                
-                <div>
-                  <Label>Description</Label>
-                  <Textarea
-                    value={state.config.description}
-                    onChange={(e) => dispatch({
-                      type: 'SET_CONFIG',
-                      payload: { ...state.config, description: e.target.value }
-                    })}
-                    placeholder="Enter configuration description"
-                    rows={3}
-                  />
-                </div>
+            <div className="space-y-6 max-w-3xl">
+              <Card>
+                <CardHeader>
+                  <CardTitle>General Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Name</Label>
+                    <Input
+                      value={state.config.name}
+                      onChange={(e) => dispatch({
+                        type: 'SET_CONFIG',
+                        payload: { ...state.config, name: e.target.value }
+                      })}
+                      placeholder="Enter configuration name"
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label>Description</Label>
+                    <Textarea
+                      value={state.config.description}
+                      onChange={(e) => dispatch({
+                        type: 'SET_CONFIG',
+                        payload: { ...state.config, description: e.target.value }
+                      })}
+                      placeholder="Enter configuration description"
+                      rows={3}
+                    />
+                  </div>
 
-                <div>
-                  <Label>Type</Label>
-                  <Select
-                    value={state.config.type}
-                    onValueChange={(value: BuilderType) => dispatch({
-                      type: 'SET_BUILDER_TYPE',
-                      payload: value
-                    })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="form">Form</SelectItem>
-                      <SelectItem value="workflow">Workflow</SelectItem>
-                      <SelectItem value="campaign">Campaign</SelectItem>
-                      <SelectItem value="journey">Journey</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+                  <div>
+                    <Label>Type</Label>
+                    <Select
+                      value={state.config.type}
+                      onValueChange={(value: BuilderType) => dispatch({
+                        type: 'SET_BUILDER_TYPE',
+                        payload: value
+                      })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="form">Form</SelectItem>
+                        <SelectItem value="workflow">Workflow</SelectItem>
+                        <SelectItem value="campaign">Campaign</SelectItem>
+                        <SelectItem value="journey">Journey</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Campaign-specific settings */}
+              {state.config.type === 'campaign' && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Campaign Schedule</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>Frequency</Label>
+                      <Select
+                        value={state.config.settings?.frequency || 'one-time'}
+                        onValueChange={(value) => dispatch({
+                          type: 'SET_CONFIG',
+                          payload: {
+                            ...state.config,
+                            settings: {
+                              ...state.config.settings,
+                              frequency: value
+                            }
+                          }
+                        })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="one-time">One-time</SelectItem>
+                          <SelectItem value="ongoing">Ongoing</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label>Start Date & Time</Label>
+                      <Input
+                        type="datetime-local"
+                        value={state.config.settings?.startDateTime || ''}
+                        onChange={(e) => dispatch({
+                          type: 'SET_CONFIG',
+                          payload: {
+                            ...state.config,
+                            settings: {
+                              ...state.config.settings,
+                              startDateTime: e.target.value
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+
+                    {state.config.settings?.frequency === 'one-time' && (
+                      <div>
+                        <Label>End Date & Time (Optional)</Label>
+                        <Input
+                          type="datetime-local"
+                          value={state.config.settings?.endDateTime || ''}
+                          onChange={(e) => dispatch({
+                            type: 'SET_CONFIG',
+                            payload: {
+                              ...state.config,
+                              settings: {
+                                ...state.config.settings,
+                                endDateTime: e.target.value
+                              }
+                            }
+                          })}
+                        />
+                      </div>
+                    )}
+
+                    {state.config.settings?.frequency === 'ongoing' && (
+                      <>
+                        <div>
+                          <Label>Recurrence Pattern</Label>
+                          <Select
+                            value={state.config.settings?.recurrence || 'daily'}
+                            onValueChange={(value) => dispatch({
+                              type: 'SET_CONFIG',
+                              payload: {
+                                ...state.config,
+                                settings: {
+                                  ...state.config.settings,
+                                  recurrence: value
+                                }
+                              }
+                            })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select recurrence" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="daily">Daily</SelectItem>
+                              <SelectItem value="weekly">Weekly</SelectItem>
+                              <SelectItem value="monthly">Monthly</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <div className="space-y-0.5">
+                            <Label>Set End Date</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Configure when the recurring campaign should stop
+                            </p>
+                          </div>
+                          <Switch
+                            checked={state.config.settings?.hasEndDate || false}
+                            onCheckedChange={(checked) => dispatch({
+                              type: 'SET_CONFIG',
+                              payload: {
+                                ...state.config,
+                                settings: {
+                                  ...state.config.settings,
+                                  hasEndDate: checked
+                                }
+                              }
+                            })}
+                          />
+                        </div>
+
+                        {state.config.settings?.hasEndDate && (
+                          <div>
+                            <Label>End Date & Time</Label>
+                            <Input
+                              type="datetime-local"
+                              value={state.config.settings?.endDateTime || ''}
+                              onChange={(e) => dispatch({
+                                type: 'SET_CONFIG',
+                                payload: {
+                                  ...state.config,
+                                  settings: {
+                                    ...state.config.settings,
+                                    endDateTime: e.target.value
+                                  }
+                                }
+                              })}
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    <Separator />
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Auto-activate Campaign</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Automatically activate campaign at scheduled time
+                        </p>
+                      </div>
+                      <Switch
+                        checked={state.config.settings?.autoActivate || false}
+                        onCheckedChange={(checked) => dispatch({
+                          type: 'SET_CONFIG',
+                          payload: {
+                            ...state.config,
+                            settings: {
+                              ...state.config.settings,
+                              autoActivate: checked
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label>Send Test Email</Label>
+                        <p className="text-sm text-muted-foreground">
+                          Send a test email before campaign starts
+                        </p>
+                      </div>
+                      <Switch
+                        checked={state.config.settings?.sendTest || false}
+                        onCheckedChange={(checked) => dispatch({
+                          type: 'SET_CONFIG',
+                          payload: {
+                            ...state.config,
+                            settings: {
+                              ...state.config.settings,
+                              sendTest: checked
+                            }
+                          }
+                        })}
+                      />
+                    </div>
+
+                    {state.config.settings?.sendTest && (
+                      <div>
+                        <Label>Test Email Address</Label>
+                        <Input
+                          type="email"
+                          value={state.config.settings?.testEmail || ''}
+                          onChange={(e) => dispatch({
+                            type: 'SET_CONFIG',
+                            payload: {
+                              ...state.config,
+                              settings: {
+                                ...state.config.settings,
+                                testEmail: e.target.value
+                              }
+                            }
+                          })}
+                          placeholder="test@example.com"
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="preview" className="flex-1 overflow-auto m-0 p-4">

@@ -31,7 +31,9 @@ import {
   TrendingUp,
   MapPin,
   ClipboardList,
-  Award
+  Award,
+  Building,
+  Server
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -143,8 +145,8 @@ export const navigationStructure: NavigationStructure = {
         { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
         { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
         { name: "Scoring Engine", href: "/admin/configuration/scoring", icon: Target },
-        { name: "Company Profile", href: "/admin/configuration/company", icon: Building2 },
-        { name: "System Configuration", href: "/admin/configuration/system", icon: Cog }
+        { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
+        { name: "System Configuration", href: "/admin/configuration/system", icon: Server }
       ]
     },
     {

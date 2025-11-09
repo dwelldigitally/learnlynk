@@ -164,8 +164,26 @@ export const EnhancedConfigurationManagement = () => {
     isMvpMode
   } = useMvpMode();
 
-  // Define MVP hidden configuration sections
-  const MVP_HIDDEN_CONFIG_SECTIONS = ['lead-intelligence', 'applicant-ai-intelligence'];
+  // Define MVP vs Full Mode configuration sections
+  // MVP MODE: Only these sections are visible
+  const MVP_VISIBLE_SECTIONS = [
+    'routing-rules',
+    'lead-scoring',
+    'student-management',
+    'applicant-management',
+    'setup-onboarding',
+    'custom-fields',
+    'campuses',
+    'internal-teams',
+    'company-profile',
+    'external-integrations'
+  ];
+  
+  // FULL MODE: These additional sections become visible
+  const FULL_MODE_ONLY_SECTIONS = [
+    'lead-intelligence',
+    'applicant-ai-intelligence'
+  ];
 
   // Determine initial section based on URL
   const getInitialSection = () => {
@@ -183,12 +201,8 @@ export const EnhancedConfigurationManagement = () => {
       return 'company-profile'; // Default to company profile
     }
 
-    // In MVP mode, skip hidden sections
-    const defaultSection = 'lead-intelligence';
-    if (isMvpMode && MVP_HIDDEN_CONFIG_SECTIONS.includes(defaultSection)) {
-      return 'routing-rules'; // Fallback to routing rules in MVP mode
-    }
-    return defaultSection;
+    // Default section based on mode
+    return isMvpMode ? 'routing-rules' : 'lead-intelligence';
   };
   const [activeSection, setActiveSection] = useState(getInitialSection());
   const [searchTerm, setSearchTerm] = useState('');
@@ -203,7 +217,9 @@ export const EnhancedConfigurationManagement = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Filter configuration sections based on MVP mode
-  const availableSections = isMvpMode ? configurationSections.filter(section => !MVP_HIDDEN_CONFIG_SECTIONS.includes(section.id)) : configurationSections;
+  const availableSections = isMvpMode 
+    ? configurationSections.filter(section => MVP_VISIBLE_SECTIONS.includes(section.id))
+    : configurationSections;
 
   // Get unique categories from available sections
   const categories = [...new Set(availableSections.map(section => section.category))];

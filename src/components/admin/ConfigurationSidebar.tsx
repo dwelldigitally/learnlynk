@@ -24,6 +24,7 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useMvpMode } from '@/contexts/MvpModeContext';
 
 interface ConfigurationItem {
   name: string;
@@ -36,23 +37,39 @@ interface ConfigurationGroup {
   items: ConfigurationItem[];
 }
 
-const configurationGroups: ConfigurationGroup[] = [
+// MVP Mode visible pages
+const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
   {
-    name: "Data Management",
+    name: "Lead Management",
     items: [
-      { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
-      { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
+      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
     ]
   },
   {
-    name: "Integrations & Templates", 
+    name: "Student & Applicant Management",
     items: [
-      { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },
-      { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
+      { name: "Student Management", href: "/admin/configuration/students", icon: Users },
+      { name: "Applicant Management", href: "/admin/configuration/applicants", icon: Briefcase },
     ]
   },
   {
-    name: "AI & Machine Learning",
+    name: "System Configuration",
+    items: [
+      { name: "Setup & Onboarding", href: "/admin/configuration/setup", icon: Cog },
+      { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
+      { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
+      { name: "Internal Teams", href: "/admin/configuration/teams", icon: Users },
+      { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
+      { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
+    ]
+  }
+];
+
+// Full Mode additional pages
+const FULL_MODE_ADDITIONAL_GROUPS: ConfigurationGroup[] = [
+  {
+    name: "AI & Intelligence",
     items: [
       { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
       { name: "AI Models", href: "/admin/configuration/ai-models", icon: Brain },
@@ -60,7 +77,7 @@ const configurationGroups: ConfigurationGroup[] = [
     ]
   },
   {
-    name: "Workflow Automation",
+    name: "Advanced Workflow",
     items: [
       { name: "Visual Builder", href: "/admin/configuration/workflows", icon: Route },
       { name: "Automation Rules", href: "/admin/configuration/automation-rules", icon: Zap },
@@ -68,28 +85,9 @@ const configurationGroups: ConfigurationGroup[] = [
     ]
   },
   {
-    name: "Lead Management",
+    name: "Templates & Communication",
     items: [
-      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
-      { name: "Scoring Engine", href: "/admin/configuration/scoring", icon: Target },
-    ]
-  },
-  {
-    name: "System Settings",
-    items: [
-      { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
-      { name: "System Configuration", href: "/admin/configuration/system", icon: Server },
-    ]
-  },
-  {
-    name: "Setup & Configuration",
-    items: [
-      { name: "Setup Dashboard", href: "/admin/setup", icon: Cog },
-      { name: "Institution Setup", href: "/admin/setup/institution", icon: Building2 },
-      { name: "Application Setup", href: "/admin/setup/applications", icon: FileText },
-      { name: "Business Setup", href: "/admin/setup/business", icon: Briefcase },
-      { name: "Team Setup", href: "/admin/setup/team", icon: Users },
-      { name: "Data Setup", href: "/admin/setup/data", icon: Database },
+      { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
     ]
   }
 ];
@@ -100,6 +98,12 @@ interface ConfigurationSidebarContentProps {
 
 const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = ({ onItemClick }) => {
   const location = useLocation();
+  const { isMvpMode } = useMvpMode();
+  
+  // Determine which groups to show based on MVP mode
+  const configurationGroups = isMvpMode 
+    ? MVP_CONFIG_GROUPS 
+    : [...MVP_CONFIG_GROUPS, ...FULL_MODE_ADDITIONAL_GROUPS];
 
   return (
     <div className="flex flex-col h-full">

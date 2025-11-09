@@ -459,6 +459,39 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                           <Eye className="h-4 w-4 sm:mr-1" />
                           <span className="hidden sm:inline">View</span>
                         </Button>
+
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={async () => {
+                            try {
+                              const url = await presetDocumentService.getDocumentUrl(uploadedDoc.file_path);
+                              const link = document.createElement('a');
+                              link.href = url;
+                              link.download = uploadedDoc.document_name;
+                              link.target = '_blank';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              toast({
+                                title: 'Download started',
+                                description: 'Document is being downloaded'
+                              });
+                            } catch (error) {
+                              console.error('Download error:', error);
+                              toast({
+                                title: 'Download failed',
+                                description: 'Failed to download document',
+                                variant: 'destructive'
+                              });
+                            }
+                          }}
+                          title="Download document"
+                          className="flex-1 sm:flex-none"
+                        >
+                          <Download className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Download</span>
+                        </Button>
                         
                         {uploadedDoc.admin_status === 'pending' && (
                           <>

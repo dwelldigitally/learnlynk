@@ -184,91 +184,51 @@ export const ApplicantManagementConfiguration: React.FC = () => {
         </TabsList>
 
         <TabsContent value="process" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Application Process Settings</CardTitle>
-              <CardDescription>
-                Configure different application types and their processing requirements.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Application Types"
-                description="Manage different application workflows"
-                data={applicationTypes}
-                columns={applicationColumns}
-                onAdd={() => console.log('Add application type')}
-                onEdit={(item) => console.log('Edit application type:', item)}
-                onDelete={(item) => console.log('Delete application type:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Application Process Settings"
+            description="Configure different application types and their processing requirements"
+            data={applicationTypes}
+            columns={applicationColumns}
+            onAdd={() => console.log('Add application type')}
+            onEdit={(item) => console.log('Edit application type:', item)}
+            onDelete={(item) => console.log('Delete application type:', item)}
+          />
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Document Requirements</CardTitle>
-              <CardDescription>
-                Configure required documents for different programs and application types.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Document Requirements"
-                description="Manage document submission requirements"
-                data={documentRequirements}
-                columns={documentColumns}
-                onAdd={() => console.log('Add document requirement')}
-                onEdit={(item) => console.log('Edit document requirement:', item)}
-                onDelete={(item) => console.log('Delete document requirement:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Document Requirements"
+            description="Configure required documents for different programs and application types"
+            data={documentRequirements}
+            columns={documentColumns}
+            onAdd={() => console.log('Add document requirement')}
+            onEdit={(item) => console.log('Edit document requirement:', item)}
+            onDelete={(item) => console.log('Delete document requirement:', item)}
+          />
         </TabsContent>
 
         <TabsContent value="payment" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Payment Configuration</CardTitle>
-              <CardDescription>
-                Configure application fees and payment processing settings.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Payment Settings"
-                description="Manage application fees and payment options"
-                data={paymentSettings}
-                columns={paymentColumns}
-                onAdd={() => console.log('Add payment setting')}
-                onEdit={(item) => console.log('Edit payment setting:', item)}
-                onDelete={(item) => console.log('Delete payment setting:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Payment Configuration"
+            description="Configure application fees and payment processing settings"
+            data={paymentSettings}
+            columns={paymentColumns}
+            onAdd={() => console.log('Add payment setting')}
+            onEdit={(item) => console.log('Edit payment setting:', item)}
+            onDelete={(item) => console.log('Delete payment setting:', item)}
+          />
         </TabsContent>
 
         <TabsContent value="decisions" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Decision Management</CardTitle>
-              <CardDescription>
-                Configure decision criteria and automated decision rules.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Decision Criteria"
-                description="Manage automated decision-making criteria"
-                data={decisionCriteria}
-                columns={decisionColumns}
-                onAdd={() => console.log('Add decision criteria')}
-                onEdit={(item) => console.log('Edit decision criteria:', item)}
-                onDelete={(item) => console.log('Delete decision criteria:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Decision Management"
+            description="Configure decision criteria and automated decision rules"
+            data={decisionCriteria}
+            columns={decisionColumns}
+            onAdd={() => console.log('Add decision criteria')}
+            onEdit={(item) => console.log('Edit decision criteria:', item)}
+            onDelete={(item) => console.log('Delete decision criteria:', item)}
+          />
 
           <Card className="mt-4">
             <CardHeader>

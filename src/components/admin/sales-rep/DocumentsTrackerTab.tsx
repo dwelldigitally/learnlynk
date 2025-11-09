@@ -238,7 +238,7 @@ export function DocumentsTrackerTab() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-lg bg-card border border-border">
@@ -283,7 +283,7 @@ export function DocumentsTrackerTab() {
       </Tabs>
 
       {/* Students List */}
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredStudents.length === 0 ? (
           <div className="text-center py-12 bg-card rounded-lg border border-border">
             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
@@ -303,7 +303,7 @@ export function DocumentsTrackerTab() {
               <div
                 key={student.id}
                 className={cn(
-                  "p-4 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer",
+                  "p-4 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer flex flex-col h-full",
                   priorityConfig.borderColor
                 )}
                 onClick={() => navigate(`/admin/leads/detail/${student.master_record_id}`)}
@@ -372,7 +372,7 @@ export function DocumentsTrackerTab() {
                 )}
 
                 {/* Action Buttons */}
-                <div className="flex items-center gap-2 pt-2 border-t border-border">
+                <div className="flex items-center gap-2 pt-2 border-t border-border mt-auto">
                   <Button
                     size="sm"
                     variant="default"

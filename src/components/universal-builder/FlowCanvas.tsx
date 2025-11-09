@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { UniversalElement, CampaignElement } from '@/types/universalBuilder';
-import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone, ChevronDown, ChevronUp, GitBranch, Split } from 'lucide-react';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { TriggerConditionBuilder } from './TriggerConditionBuilder';
 
@@ -14,6 +15,7 @@ interface FlowCanvasProps {
 
 export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
   const { state, dispatch } = useBuilder();
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
 
   const handleDeleteElement = (elementId: string) => {
     dispatch({ type: 'DELETE_ELEMENT', payload: elementId });
@@ -25,25 +27,29 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
 
   const getElementIcon = (elementType: string) => {
     switch (elementType) {
-      case 'send_email':
-      case 'email_campaign':
+      case 'email':
         return Mail;
-      case 'send_site_message':
-      case 'sms_campaign':
+      case 'sms':
         return MessageSquare;
-      case 'send_sms':
-        return Phone;
       case 'wait':
-      case 'wait_and_check':
-      case 'wait_and_send':
         return Clock;
-      case 'wait_and_check':
-        return Eye;
-      case 'wait_and_send':
-        return Send;
+      case 'condition':
+        return GitBranch;
+      case 'split':
+        return Split;
       default:
         return Mail;
     }
+  };
+
+  const getCampaignActions = () => {
+    const elementTypes = getElementTypesForBuilder('campaign');
+    return elementTypes.filter(type => type.type !== 'trigger');
+  };
+
+  const handleAddAction = (actionType: string, popoverId: string) => {
+    onAddElement(actionType);
+    setOpenPopoverId(null);
   };
 
   const getTriggerSummary = (trigger: CampaignElement): string => {
@@ -137,15 +143,51 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
         </Card>
         
         {/* Add button between elements */}
-        <div className="my-4">
-          <Button
-            size="sm"
-            variant="outline"
-            className="rounded-full w-8 h-8 p-0 border-dashed"
-            onClick={() => onAddElement(getDefaultElementType(state.config.type))}
+        <div className="my-4 flex justify-center">
+          <Popover 
+            open={openPopoverId === `element-${index}`} 
+            onOpenChange={(open) => setOpenPopoverId(open ? `element-${index}` : null)}
           >
-            <Plus className="h-4 w-4" />
-          </Button>
+            <PopoverTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full w-10 h-10 p-0 border-dashed hover:border-solid hover:bg-primary/10 transition-all"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-2" align="center">
+              <div className="space-y-1">
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  Add Action
+                </div>
+                {getCampaignActions().map((action) => {
+                  const ActionIcon = getElementIcon(action.type);
+                  return (
+                    <Button
+                      key={action.type}
+                      variant="ghost"
+                      className="w-full justify-start h-auto py-3 px-3 hover:bg-accent"
+                      onClick={() => handleAddAction(action.type, `element-${index}`)}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <ActionIcon className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="font-medium text-sm">{action.label}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {action.category}
+                          </div>
+                        </div>
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
     );

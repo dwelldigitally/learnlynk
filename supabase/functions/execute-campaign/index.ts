@@ -205,6 +205,27 @@ async function processWorkflowStep(
     case 'condition':
       await processConditionStep(supabase, executionId, stepConfig, lead, testMode);
       break;
+    case 'update-lead':
+      await processUpdateLeadStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
+    case 'assign-advisor':
+      await processAssignAdvisorStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
+    case 'internal-notification':
+      await processInternalNotificationStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
+    case 'goal-tracking':
+      await processGoalTrackingStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
+    case 'remove-campaign':
+      await processRemoveCampaignStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
+    case 'copy-campaign':
+      await processCopyCampaignStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
+    case 'create-task':
+      await processCreateTaskStep(supabase, executionId, stepConfig, lead, testMode);
+      break;
     default:
       console.warn(`Unknown step type: ${step.step_type}`);
   }
@@ -328,6 +349,208 @@ async function processConditionStep(supabase: any, executionId: string, stepConf
     // For now, we just log the condition step
   } catch (error) {
     console.error('Error processing condition step:', error);
+  }
+}
+
+async function processUpdateLeadStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const updates = stepConfig.updates || {};
+    
+    if (!testMode && Object.keys(updates).length > 0) {
+      const { error } = await supabase
+        .from('leads')
+        .update(updates)
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Failed to update lead:', error);
+      } else {
+        console.log(`Lead ${lead.id} updated with:`, updates);
+      }
+    } else {
+      console.log(`Lead update ${testMode ? 'simulated' : 'skipped (no updates)'} for lead ${lead.id}`);
+    }
+  } catch (error) {
+    console.error('Error processing update lead step:', error);
+  }
+}
+
+async function processAssignAdvisorStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const advisorId = stepConfig.advisorId;
+    
+    if (!advisorId) {
+      console.log(`Skipping advisor assignment - no advisor specified`);
+      return;
+    }
+
+    if (!testMode) {
+      const { error } = await supabase
+        .from('leads')
+        .update({ assigned_to: advisorId })
+        .eq('id', lead.id);
+
+      if (error) {
+        console.error('Failed to assign advisor:', error);
+      } else {
+        console.log(`Lead ${lead.id} assigned to advisor ${advisorId}`);
+      }
+    } else {
+      console.log(`Advisor assignment simulated for lead ${lead.id} to advisor ${advisorId}`);
+    }
+  } catch (error) {
+    console.error('Error processing assign advisor step:', error);
+  }
+}
+
+async function processInternalNotificationStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const notificationData = {
+      lead_id: lead.id,
+      user_id: stepConfig.assignedTo || lead.user_id,
+      title: stepConfig.title || 'Campaign Notification',
+      description: personalizeContent(stepConfig.message || '', lead),
+      task_type: 'notification',
+      priority: stepConfig.priority || 'medium',
+      status: testMode ? 'test' : 'pending',
+      due_date: new Date().toISOString()
+    };
+
+    const { error } = await supabase
+      .from('lead_tasks')
+      .insert(notificationData);
+
+    if (error) {
+      console.error('Failed to create notification:', error);
+    } else {
+      console.log(`Internal notification ${testMode ? 'simulated' : 'created'} for lead ${lead.id}`);
+    }
+  } catch (error) {
+    console.error('Error processing internal notification step:', error);
+  }
+}
+
+async function processGoalTrackingStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const goalData = {
+      campaign_id: stepConfig.campaignId,
+      lead_id: lead.id,
+      goal_type: stepConfig.goalType || 'engagement',
+      goal_value: stepConfig.goalValue || 1,
+      metadata: {
+        executionId,
+        stepConfig,
+        testMode,
+        timestamp: new Date().toISOString()
+      }
+    };
+
+    console.log(`Goal tracking ${testMode ? 'simulated' : 'recorded'}:`, goalData);
+    // Note: You may need to create a campaign_goals table to store this data
+  } catch (error) {
+    console.error('Error processing goal tracking step:', error);
+  }
+}
+
+async function processRemoveCampaignStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const campaignIdToRemove = stepConfig.campaignId;
+    
+    if (!campaignIdToRemove) {
+      console.log(`Skipping remove from campaign - no campaign specified`);
+      return;
+    }
+
+    if (!testMode) {
+      // Mark campaign executions as stopped for this lead and campaign
+      const { error } = await supabase
+        .from('campaign_executions')
+        .update({ 
+          status: 'stopped',
+          completed_at: new Date().toISOString()
+        })
+        .eq('lead_id', lead.id)
+        .eq('campaign_id', campaignIdToRemove)
+        .in('status', ['pending', 'running']);
+
+      if (error) {
+        console.error('Failed to remove lead from campaign:', error);
+      } else {
+        console.log(`Lead ${lead.id} removed from campaign ${campaignIdToRemove}`);
+      }
+    } else {
+      console.log(`Remove from campaign simulated for lead ${lead.id}`);
+    }
+  } catch (error) {
+    console.error('Error processing remove campaign step:', error);
+  }
+}
+
+async function processCopyCampaignStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const targetCampaignId = stepConfig.targetCampaignId;
+    
+    if (!targetCampaignId) {
+      console.log(`Skipping copy to campaign - no target campaign specified`);
+      return;
+    }
+
+    if (!testMode) {
+      // Create a new execution for the target campaign
+      const { error } = await supabase
+        .from('campaign_executions')
+        .insert({
+          campaign_id: targetCampaignId,
+          lead_id: lead.id,
+          status: 'pending',
+          started_at: new Date().toISOString(),
+          execution_data: {
+            copiedFrom: executionId,
+            leadInfo: {
+              id: lead.id,
+              email: lead.email
+            }
+          }
+        });
+
+      if (error) {
+        console.error('Failed to copy lead to campaign:', error);
+      } else {
+        console.log(`Lead ${lead.id} copied to campaign ${targetCampaignId}`);
+      }
+    } else {
+      console.log(`Copy to campaign simulated for lead ${lead.id}`);
+    }
+  } catch (error) {
+    console.error('Error processing copy campaign step:', error);
+  }
+}
+
+async function processCreateTaskStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
+  try {
+    const taskData = {
+      lead_id: lead.id,
+      user_id: lead.user_id,
+      title: stepConfig.title || 'Campaign Task',
+      description: personalizeContent(stepConfig.description || '', lead),
+      task_type: stepConfig.taskType || 'follow-up',
+      priority: stepConfig.priority || 'medium',
+      status: testMode ? 'test' : 'pending',
+      due_date: stepConfig.dueDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      assigned_to: stepConfig.assignedTo || lead.assigned_to
+    };
+
+    const { error } = await supabase
+      .from('lead_tasks')
+      .insert(taskData);
+
+    if (error) {
+      console.error('Failed to create task:', error);
+    } else {
+      console.log(`Task ${testMode ? 'simulated' : 'created'} for lead ${lead.id}`);
+    }
+  } catch (error) {
+    console.error('Error processing create task step:', error);
   }
 }
 

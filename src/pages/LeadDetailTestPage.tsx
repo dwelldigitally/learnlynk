@@ -952,7 +952,7 @@ export default function LeadDetailTestPage() {
                               <CheckCircle className="h-4 w-4 text-green-600" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-medium">Lead Created</p>
+                              <p className="font-medium text-foreground">Lead Created</p>
                               <p className="text-sm text-muted-foreground">
                                 {lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'Unknown'}
                               </p>
@@ -963,7 +963,7 @@ export default function LeadDetailTestPage() {
                               <Clock className="h-4 w-4 text-blue-600" />
                             </div>
                             <div className="flex-1">
-                              <p className="font-medium">Application In Progress</p>
+                              <p className="font-medium text-foreground">Application In Progress</p>
                               <Badge variant="outline" className="mt-1 text-xs">
                                 Current Stage
                               </Badge>

@@ -331,16 +331,16 @@ export function FinanceTrackerTab() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Payments */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-              <CreditCard className="w-5 h-5 text-primary" />
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+              <CreditCard className="w-6 h-6 text-primary" />
               Recent Payments
             </h3>
             <Tabs value={paymentDaysFilter.toString()} onValueChange={(v) => setPaymentDaysFilter(Number(v) as any)}>
-              <TabsList className="h-8">
-                <TabsTrigger value="7" className="text-xs h-7">7d</TabsTrigger>
-                <TabsTrigger value="30" className="text-xs h-7">30d</TabsTrigger>
-                <TabsTrigger value="90" className="text-xs h-7">90d</TabsTrigger>
+              <TabsList className="h-9">
+                <TabsTrigger value="7" className="text-sm">7d</TabsTrigger>
+                <TabsTrigger value="30" className="text-sm">30d</TabsTrigger>
+                <TabsTrigger value="90" className="text-sm">90d</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -396,8 +396,8 @@ export function FinanceTrackerTab() {
 
         {/* Payment Pending Students */}
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            <Clock className="w-5 h-5 text-orange-500" />
+          <h3 className="text-xl font-bold text-foreground flex items-center gap-2 mb-2">
+            <Clock className="w-6 h-6 text-orange-500" />
             Payment Pending Students
           </h3>
 

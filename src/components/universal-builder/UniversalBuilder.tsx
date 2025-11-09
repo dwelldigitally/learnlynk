@@ -287,8 +287,13 @@ function UniversalBuilderContent({
               {/* Workflow/Campaign Builder Layout */}
               {(state.config.type === 'workflow' || state.config.type === 'campaign') && (
                 <>
+                  {/* Left Sidebar - Actions (Element Palette) */}
+                  <div className="w-80 flex-shrink-0">
+                    <ActionsSidebar onAddElement={handleAddElement} />
+                  </div>
+
                   {/* Center - Canvas */}
-                  <div className="flex-1 overflow-auto max-w-4xl mx-auto">
+                  <div className="flex-1 overflow-auto">
                     {state.isPreviewMode ? (
                       <PreviewPanel />
                     ) : (
@@ -296,9 +301,9 @@ function UniversalBuilderContent({
                     )}
                   </div>
 
-                  {/* Right Sidebar - Actions */}
+                  {/* Right Sidebar - Properties */}
                   <div className="w-80 flex-shrink-0">
-                    <ActionsSidebar onAddElement={handleAddElement} />
+                    <PropertyPanel />
                   </div>
                 </>
               )}

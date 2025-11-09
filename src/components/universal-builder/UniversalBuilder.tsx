@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +19,7 @@ import { JourneyElementPalette } from '@/components/journey-builder/JourneyEleme
 import { JourneyPropertyPanel } from '@/components/journey-builder/JourneyPropertyPanel';
 import { TemplateSelector } from '@/components/campaign-builder/TemplateSelector';
 import { InitialTemplateDialog } from '@/components/campaign-builder/InitialTemplateDialog';
+import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 import { CampaignTemplate } from '@/config/campaignTemplates';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
@@ -74,6 +76,7 @@ function UniversalBuilderContent({
   onSelectTemplate,
   onStartBlank
 }: UniversalBuilderProps) {
+  const navigate = useNavigate();
   const { state, dispatch } = useBuilder();
   const [activeTab, setActiveTab] = useState('build');
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
@@ -203,17 +206,33 @@ function UniversalBuilderContent({
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
-      {/* Initial Template Dialog for new campaigns */}
-      {state.config.type === 'campaign' && showTemplateDialog && (
-        <InitialTemplateDialog
-          open={showTemplateDialog}
-          onSelectTemplate={handleTemplateSelect}
-          onStartBlank={handleStartBlank}
-        />
-      )}
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Top Navigation Bar */}
+      <TopNavigationBar
+        activeSection="leads-marketing"
+        onSectionChange={(sectionId) => {
+          // Handle section navigation if needed
+          if (sectionId === 'leads-marketing') {
+            // Stay on current page
+          } else {
+            // Navigate to other sections
+            navigate('/admin');
+          }
+        }}
+      />
       
-      {/* Header */}
+      {/* Builder Content */}
+      <div className="flex-1 flex flex-col pt-14 sm:pt-16 lg:pt-20">
+        {/* Initial Template Dialog for new campaigns */}
+        {state.config.type === 'campaign' && showTemplateDialog && (
+          <InitialTemplateDialog
+            open={showTemplateDialog}
+            onSelectTemplate={handleTemplateSelect}
+            onStartBlank={handleStartBlank}
+          />
+        )}
+        
+        {/* Header */}
       <div className="border-b bg-card">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-4">
@@ -421,6 +440,7 @@ function UniversalBuilderContent({
           </TabsContent>
         </Tabs>
       </div>
+    </div>
     </div>
   );
 }

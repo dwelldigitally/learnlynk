@@ -305,27 +305,6 @@ export const RequirementsManagement = () => {
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label>Student Type</Label>
-            <Select
-              value={formData.student_type?.[0] || 'all'}
-              onValueChange={(value) => 
-                setFormData(prev => ({ 
-                  ...prev, 
-                  student_type: value === 'all' ? ['All Students'] : [value]
-                }))
-              }
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Students</SelectItem>
-                <SelectItem value="domestic">Domestic Students</SelectItem>
-                <SelectItem value="international">International Students</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </div>
 
         <div className="flex items-center space-x-2">

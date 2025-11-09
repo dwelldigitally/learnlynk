@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { UniversalElement, CampaignElement } from '@/types/universalBuilder';
-import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone, ChevronDown, ChevronUp, GitBranch, Split } from 'lucide-react';
+import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone, ChevronDown, ChevronUp, GitBranch, Split, GripVertical } from 'lucide-react';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { TriggerConditionBuilder } from './TriggerConditionBuilder';
 
@@ -52,6 +53,26 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
     setOpenPopoverId(null);
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(state.config.elements.filter(el => el.type !== 'trigger'));
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // Combine triggers with reordered elements
+    const triggers = state.config.elements.filter(el => el.type === 'trigger');
+    const reorderedElements = [...triggers, ...items];
+
+    dispatch({
+      type: 'SET_CONFIG',
+      payload: {
+        ...state.config,
+        elements: reorderedElements
+      }
+    });
+  };
+
   const getTriggerSummary = (trigger: CampaignElement): string => {
     const conditionGroups = trigger.conditionGroups || trigger.config?.conditionGroups || [];
     
@@ -76,12 +97,12 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
   };
 
 
-  const renderFlowElement = (element: UniversalElement, index: number) => {
+  const renderFlowElement = (element: UniversalElement, index: number, isDragging: boolean = false) => {
     const Icon = getElementIcon(element.type);
     const isSelected = state.selectedElementId === element.id;
     
     return (
-      <div key={element.id} className="flex flex-col items-center">
+      <div className="flex flex-col items-center">
         {/* Connection line from previous element */}
         {index > 0 && (
           <div className="w-px h-8 bg-border mb-4"></div>
@@ -89,15 +110,20 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
         
         {/* Element Card */}
         <Card 
-          className={`w-80 cursor-pointer transition-all duration-200 ${
+          className={`w-80 cursor-pointer transition-all duration-200 group ${
             isSelected 
               ? 'ring-2 ring-primary border-primary shadow-lg' 
               : 'hover:border-primary/50 hover:shadow-md'
-          }`}
+          } ${isDragging ? 'shadow-2xl rotate-2' : ''}`}
           onClick={() => handleSelectElement(element.id)}
         >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
+              {/* Drag Handle */}
+              <div className="flex-shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors">
+                <GripVertical className="w-5 h-5" />
+              </div>
+
               <div className="flex-shrink-0 w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Icon className="w-5 h-5 text-primary" />
               </div>
@@ -134,7 +160,7 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
                   e.stopPropagation();
                   handleDeleteElement(element.id);
                 }}
-                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive transition-opacity"
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -411,12 +437,39 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
           </div>
         </div>
 
-        {/* Flow Steps */}
-        <div className="flex flex-col items-center space-y-0">
-          {state.config.elements
-            .filter(el => el.type !== 'trigger')
-            .map((element, index) => renderFlowElement(element, index))}
-        </div>
+        {/* Flow Steps with Drag and Drop */}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId="campaign-flow">
+            {(provided, snapshot) => (
+              <div 
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="flex flex-col items-center space-y-0"
+              >
+                {state.config.elements
+                  .filter(el => el.type !== 'trigger')
+                  .map((element, index) => (
+                    <Draggable 
+                      key={element.id} 
+                      draggableId={element.id} 
+                      index={index}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          {renderFlowElement(element, index, snapshot.isDragging)}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
 
         {/* Suggested next steps - only show if we have elements */}
         {state.config.elements.length > 0 && (

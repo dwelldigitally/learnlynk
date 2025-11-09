@@ -131,25 +131,20 @@ export const navigationStructure: NavigationStructure = {
       name: "System Configuration", 
       icon: Settings,
       items: [
-        { name: "Stages & Workflows", href: "/admin/configuration", icon: Settings },
+        { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
+        { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },
         { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
-        { name: "Team & Routing", href: "/admin/configuration/routing", icon: Route },
-        { name: "Company Profile", href: "/admin/configuration/company", icon: Briefcase },
-        { name: "AI Intelligence Center", href: "/admin/ai-intelligence", icon: Brain },
-        { 
-          name: "Setup & Configuration", 
-          href: "/admin/setup", 
-          icon: Cog,
-          subItems: [
-            { name: "Setup Dashboard", href: "/admin/setup", icon: Cog },
-            { name: "Institution Setup", href: "/admin/setup/institution", icon: Building2 },
-            { name: "Application Setup", href: "/admin/setup/applications", icon: FileText },
-            { name: "Business Setup", href: "/admin/setup/business", icon: Briefcase },
-            { name: "Team Setup", href: "/admin/setup/team", icon: Users },
-            { name: "Data Setup", href: "/admin/setup/data", icon: Database }
-          ]
-        }
+        { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
+        { name: "AI Models", href: "/admin/configuration/ai-models", icon: Brain },
+        { name: "Performance Analytics", href: "/admin/configuration/ai-analytics", icon: TrendingUp },
+        { name: "Visual Builder", href: "/admin/configuration/workflows", icon: Route },
+        { name: "Automation Rules", href: "/admin/configuration/automation-rules", icon: Zap },
+        { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
+        { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+        { name: "Scoring Engine", href: "/admin/configuration/scoring", icon: Target },
+        { name: "Company Profile", href: "/admin/configuration/company", icon: Building2 },
+        { name: "System Configuration", href: "/admin/configuration/system", icon: Cog }
       ]
     },
     {

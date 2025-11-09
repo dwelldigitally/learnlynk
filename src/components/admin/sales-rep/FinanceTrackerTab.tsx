@@ -518,7 +518,7 @@ export function FinanceTrackerTab() {
                 return (
                   <div
                     key={payment.id}
-                    className="p-3 rounded-lg border border-border bg-card hover:border-primary/30 transition-all"
+                    className="p-5 rounded-lg border border-border bg-card hover:border-primary/30 transition-all"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -574,7 +574,7 @@ export function FinanceTrackerTab() {
                 <div
                   key={student.id}
                   className={cn(
-                    "p-4 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer",
+                    "p-5 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer",
                     student.days_since_approval > 14 ? "border-orange-300" : "border-border"
                   )}
                   onClick={() => navigate(`/admin/leads/detail/${student.master_record_id}`)}

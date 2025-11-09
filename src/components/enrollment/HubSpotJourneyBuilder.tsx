@@ -367,19 +367,34 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
           <div className="flex-1 overflow-auto bg-gradient-to-br from-slate-50 to-blue-50/30">
             <div className="p-8">
               {journeySteps.length === 0 ? (
-                <div className="flex items-center justify-center h-96">
-                  <div className="text-center max-w-md">
-                    <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                      <Zap className="h-10 w-10 text-white" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-slate-900 mb-2">Start building your journey</h3>
-                    <p className="text-slate-500 mb-6">
-                      Add actions from the left sidebar to create your enrollment workflow. 
-                      Students will progress through each step automatically.
-                    </p>
-                    <div className="flex items-center gap-2 text-sm text-slate-400">
-                      <ArrowLeft className="h-4 w-4" />
-                      <span>Choose an action to get started</span>
+                <div className="flex items-center justify-center min-h-96 py-12">
+                  <div className="flex flex-col items-center gap-6">
+                    {/* Starting Point */}
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="bg-gradient-to-br from-green-500 to-green-600 text-white px-6 py-3 rounded-full shadow-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <Sparkles className="h-4 w-4" />
+                          </div>
+                          <span className="font-semibold">Lead Received</span>
+                        </div>
+                      </div>
+                      
+                      {/* Connection Line */}
+                      <div className="w-0.5 h-8 bg-gradient-to-b from-green-500/50 to-slate-300"></div>
+                      
+                      {/* Add First Step Button */}
+                      <Button
+                        onClick={() => setShowStepLibrary(true)}
+                        size="lg"
+                        className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 shadow-lg hover:shadow-xl transition-all duration-200"
+                      >
+                        <Plus className="h-6 w-6" />
+                      </Button>
+                      
+                      <p className="text-sm text-slate-500 max-w-xs text-center">
+                        Click the + button to add your first action and start building the journey
+                      </p>
                     </div>
                   </div>
                 </div>

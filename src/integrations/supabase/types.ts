@@ -1230,6 +1230,39 @@ export type Database = {
           },
         ]
       }
+      audience_templates: {
+        Row: {
+          audience_count: number | null
+          created_at: string | null
+          description: string | null
+          filters: Json
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          audience_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          filters?: Json
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          audience_count?: number | null
+          created_at?: string | null
+          description?: string | null
+          filters?: Json
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       automation_action_logs: {
         Row: {
           action_data: Json | null

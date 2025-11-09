@@ -6,9 +6,13 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { EnhancedLeadService } from '@/services/enhancedLeadService';
-import { Users, Filter, Plus, X, Search, TrendingUp } from 'lucide-react';
+import { AudienceTemplateService, AudienceTemplate } from '@/services/audienceTemplateService';
+import { Users, Filter, Plus, X, Search, TrendingUp, Save, FolderOpen, Trash2, BookmarkPlus } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface FilterRule {
@@ -50,6 +54,19 @@ export function AudienceTab({ selectedAudience, onAudienceSelect }: AudienceTabP
   const [audienceCount, setAudienceCount] = useState(selectedAudience?.count || 0);
   const [filterRules, setFilterRules] = useState<FilterRule[]>([]);
   const [filters, setFilters] = useState<EnhancedLeadFilters>({});
+  
+  // Template management state
+  const [templates, setTemplates] = useState<AudienceTemplate[]>([]);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+  const [templateDescription, setTemplateDescription] = useState('');
+  const [deleteTemplateId, setDeleteTemplateId] = useState<string | null>(null);
+
+  // Load templates on mount
+  useEffect(() => {
+    loadTemplates();
+  }, []);
 
   useEffect(() => {
     if (selectedAudience) {
@@ -57,6 +74,15 @@ export function AudienceTab({ selectedAudience, onAudienceSelect }: AudienceTabP
       setAudienceCount(selectedAudience.count);
     }
   }, [selectedAudience]);
+
+  const loadTemplates = async () => {
+    try {
+      const loadedTemplates = await AudienceTemplateService.getTemplates();
+      setTemplates(loadedTemplates);
+    } catch (error) {
+      console.error('Failed to load templates:', error);
+    }
+  };
 
   const addFilterRule = () => {
     const newRule: FilterRule = {
@@ -118,6 +144,88 @@ export function AudienceTab({ selectedAudience, onAudienceSelect }: AudienceTabP
       toast.success(`Audience updated: ${count} leads match your criteria`);
     } catch (error) {
       toast.error('Failed to apply filters');
+    }
+  };
+
+  const saveAsTemplate = async () => {
+    if (!templateName.trim()) {
+      toast.error('Please enter a template name');
+      return;
+    }
+
+    try {
+      // Check if name already exists
+      const nameExists = await AudienceTemplateService.templateNameExists(templateName);
+      if (nameExists) {
+        toast.error('A template with this name already exists');
+        return;
+      }
+
+      await AudienceTemplateService.createTemplate({
+        name: templateName.trim(),
+        description: templateDescription.trim() || undefined,
+        filters,
+        audience_count: audienceCount,
+      });
+
+      toast.success('Template saved successfully');
+      setShowSaveDialog(false);
+      setTemplateName('');
+      setTemplateDescription('');
+      loadTemplates();
+    } catch (error) {
+      console.error('Failed to save template:', error);
+      toast.error('Failed to save template');
+    }
+  };
+
+  const loadTemplate = async (template: AudienceTemplate) => {
+    try {
+      // Apply the template filters
+      const leadResponse = await EnhancedLeadService.getLeads(1, 1000, template.filters);
+      const count = leadResponse.total;
+      
+      setFilters(template.filters);
+      setAudienceCount(count);
+      onAudienceSelect(template.filters, count);
+      
+      // Convert filters back to filter rules for display
+      const rules: FilterRule[] = [];
+      if (template.filters.status?.length) {
+        rules.push({
+          id: `rule_status_${Date.now()}`,
+          field: 'status',
+          operator: 'equals',
+          value: template.filters.status[0]
+        });
+      }
+      if (template.filters.program_interest?.length) {
+        rules.push({
+          id: `rule_program_${Date.now()}`,
+          field: 'program',
+          operator: 'equals',
+          value: template.filters.program_interest[0]
+        });
+      }
+      setFilterRules(rules);
+      
+      setShowTemplatesDialog(false);
+      toast.success(`Template "${template.name}" loaded`);
+    } catch (error) {
+      console.error('Failed to load template:', error);
+      toast.error('Failed to load template');
+    }
+  };
+
+  const deleteTemplate = async (id: string) => {
+    try {
+      await AudienceTemplateService.deleteTemplate(id);
+      toast.success('Template deleted');
+      loadTemplates();
+      setDeleteTemplateId(null);
+    } catch (error) {
+      console.error('Failed to delete template:', error);
+      toast.error('Failed to delete template');
     }
   };
 
@@ -193,10 +301,22 @@ export function AudienceTab({ selectedAudience, onAudienceSelect }: AudienceTabP
                 </CardTitle>
                 <CardDescription>Create custom filter rules to target specific leads</CardDescription>
               </div>
-              <Button onClick={addFilterRule} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Filter
-              </Button>
+              <div className="flex gap-2">
+                <Button onClick={addFilterRule} size="sm" variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Filter
+                </Button>
+                <Button onClick={() => setShowTemplatesDialog(true)} size="sm" variant="outline">
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  Load Template
+                </Button>
+                {(filterRules.length > 0 || searchQuery) && (
+                  <Button onClick={() => setShowSaveDialog(true)} size="sm" variant="outline">
+                    <Save className="h-4 w-4 mr-2" />
+                    Save as Template
+                  </Button>
+                )}
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -283,6 +403,141 @@ export function AudienceTab({ selectedAudience, onAudienceSelect }: AudienceTabP
             )}
           </CardContent>
         </Card>
+
+        {/* Save Template Dialog */}
+        <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Save Audience Template</DialogTitle>
+              <DialogDescription>
+                Save your current filter configuration as a reusable template
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="template-name">Template Name *</Label>
+                <Input
+                  id="template-name"
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  placeholder="e.g., High Priority Leads"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="template-description">Description (Optional)</Label>
+                <Textarea
+                  id="template-description"
+                  value={templateDescription}
+                  onChange={(e) => setTemplateDescription(e.target.value)}
+                  placeholder="Describe what this template is used for..."
+                  rows={3}
+                />
+              </div>
+              <div className="p-3 bg-muted rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  This template will save {filterRules.length} filter{filterRules.length !== 1 ? 's' : ''} targeting approximately <strong>{audienceCount}</strong> leads
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={saveAsTemplate}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Template
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Load Templates Dialog */}
+        <Dialog open={showTemplatesDialog} onOpenChange={setShowTemplatesDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Load Audience Template</DialogTitle>
+              <DialogDescription>
+                Choose a saved template to quickly apply filter combinations
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              {templates.length === 0 ? (
+                <div className="text-center py-12 border-2 border-dashed rounded-lg">
+                  <BookmarkPlus className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground font-medium">No templates saved yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Create filters and click "Save as Template" to get started
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                  {templates.map((template) => (
+                    <Card key={template.id} className="hover:border-primary transition-colors">
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <h4 className="font-semibold mb-1">{template.name}</h4>
+                            {template.description && (
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {template.description}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <span className="flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {template.audience_count.toLocaleString()} leads
+                              </span>
+                              <span>•</span>
+                              <span>
+                                {new Date(template.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => loadTemplate(template)}
+                            >
+                              Load
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setDeleteTemplateId(template.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!deleteTemplateId} onOpenChange={() => setDeleteTemplateId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Template</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this template? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteTemplateId && deleteTemplate(deleteTemplateId)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

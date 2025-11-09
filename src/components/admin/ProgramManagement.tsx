@@ -10,40 +10,21 @@ import { DemoDataService } from '@/services/demoDataService';
 import { ProgramService } from '@/services/programService';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-
 import { ProgramViewModal } from "./modals/ProgramViewModal";
 import { ProgramEditModal } from "./modals/ProgramEditModal";
 import { ProgramSettingsModal } from "./modals/ProgramSettingsModal";
 import { ComprehensiveProgramEditModal } from "./modals/ComprehensiveProgramEditModal";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  Calendar, 
-  Users, 
-  DollarSign,
-  FileText,
-  Eye,
-  Settings,
-  RefreshCw,
-  GraduationCap,
-  Clock
-} from "lucide-react";
+import { Plus, Edit, Trash2, Calendar, Users, DollarSign, FileText, Eye, Settings, RefreshCw, GraduationCap, Clock } from "lucide-react";
 import { PageHeader } from "@/components/modern/PageHeader";
 import { ModernCard } from "@/components/modern/ModernCard";
 import { InfoBadge } from "@/components/modern/InfoBadge";
 import { MetadataItem } from "@/components/modern/MetadataItem";
-
 const ProgramManagement: React.FC = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
@@ -53,46 +34,45 @@ const ProgramManagement: React.FC = () => {
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   // Data hooks
-  const programsData = useConditionalData(
-    ['programs'],
-    DemoDataService.getDemoPrograms,
-    ProgramService.getPrograms
-  );
+  const programsData = useConditionalData(['programs'], DemoDataService.getDemoPrograms, ProgramService.getPrograms);
 
   // Hook to get enrollment data for real programs
-  const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery({
+  const {
+    data: enrollmentData,
+    isLoading: enrollmentLoading
+  } = useQuery({
     queryKey: ['program-enrollment'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) return {};
-      
+
       // Get all programs for this user
-      const { data: programs } = await supabase
-        .from('programs')
-        .select('id, name')
-        .eq('user_id', user.id);
+      const {
+        data: programs
+      } = await supabase.from('programs').select('id, name').eq('user_id', user.id);
 
       // Get approved students count per program  
-      const { data: approvedStudents } = await supabase
-        .from('students')
-        .select('program, id')
-        .eq('user_id', user.id)
-        .eq('stage', 'APPROVED');
-
-      const enrollmentMap: Record<string, { enrolled: number; capacity: number }> = {};
-      
+      const {
+        data: approvedStudents
+      } = await supabase.from('students').select('program, id').eq('user_id', user.id).eq('stage', 'APPROVED');
+      const enrollmentMap: Record<string, {
+        enrolled: number;
+        capacity: number;
+      }> = {};
       if (programs) {
         for (const program of programs) {
           // Count approved students for this program (match by program name since that's how students reference programs)
           const enrolledCount = approvedStudents?.filter(s => s.program === program.name).length || 0;
-          
           enrollmentMap[program.id] = {
             enrolled: enrolledCount,
             capacity: 0 // Will be 0 until intake management is fully implemented
           };
         }
       }
-      
       return enrollmentMap;
     },
     enabled: programsData.hasRealData,
@@ -101,84 +81,74 @@ const ProgramManagement: React.FC = () => {
 
   // Transform real database data to match UI expectations
   const transformProgramData = (dbProgram: any) => {
-    const enrollment = enrollmentData?.[dbProgram.id] || { enrolled: 0, capacity: 0 };
-    
+    const enrollment = enrollmentData?.[dbProgram.id] || {
+      enrolled: 0,
+      capacity: 0
+    };
     return {
       id: dbProgram.id,
       name: dbProgram.name,
       description: dbProgram.description || "No description available",
       duration: dbProgram.duration,
       type: dbProgram.type,
-      color: "#3B82F6", // Default color
+      color: "#3B82F6",
+      // Default color
       status: dbProgram.enrollment_status === 'open' ? 'active' : 'inactive',
       enrolled: enrollment.enrolled,
       capacity: enrollment.capacity,
       tuitionFeeDomestic: dbProgram.tuition || 0,
       tuitionFeeInternational: dbProgram.tuition ? dbProgram.tuition * 1.2 : 0,
-      nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0],
+      nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0]
     };
   };
 
   // Mock programs data for demo purposes
-  const mockPrograms = [
-    {
-      id: "demo-1",
-      name: "Health Care Assistant",
-      description: "Gain practical skills to provide compassionate care in hospitals, long-term care facilities, and home care settings. This program covers vital signs monitoring, infection control, patient mobility assistance, and ethical healthcare practices. Graduates are prepared to work as certified Health Care Assistants supporting nurses and other healthcare professionals.",
-      duration: "10 months",
-      type: "certificate" as const,
-      color: "#3B82F6",
-      status: "active" as const,
-      enrolled: 245,
-      capacity: 280,
-      tuitionFeeDomestic: 15500,
-      tuitionFeeInternational: 18500,
-      nextIntake: "2024-04-15",
-    },
-    {
-      id: "demo-2",
-      name: "Early Childhood Education",
-      description: "Learn to nurture and educate children from birth to age 12 through play-based learning, developmental psychology, and curriculum planning. This comprehensive program prepares you to create safe, engaging environments where young minds thrive. Complete with practicum placements in licensed childcare centers and kindergarten settings.",
-      duration: "12 months",
-      type: "diploma" as const,
-      color: "#10B981",
-      status: "active" as const,
-      enrolled: 156,
-      capacity: 180,
-      tuitionFeeDomestic: 18500,
-      tuitionFeeInternational: 22000,
-      nextIntake: "2024-05-01",
-    }
-  ];
+  const mockPrograms = [{
+    id: "demo-1",
+    name: "Health Care Assistant",
+    description: "Gain practical skills to provide compassionate care in hospitals, long-term care facilities, and home care settings. This program covers vital signs monitoring, infection control, patient mobility assistance, and ethical healthcare practices. Graduates are prepared to work as certified Health Care Assistants supporting nurses and other healthcare professionals.",
+    duration: "10 months",
+    type: "certificate" as const,
+    color: "#3B82F6",
+    status: "active" as const,
+    enrolled: 245,
+    capacity: 280,
+    tuitionFeeDomestic: 15500,
+    tuitionFeeInternational: 18500,
+    nextIntake: "2024-04-15"
+  }, {
+    id: "demo-2",
+    name: "Early Childhood Education",
+    description: "Learn to nurture and educate children from birth to age 12 through play-based learning, developmental psychology, and curriculum planning. This comprehensive program prepares you to create safe, engaging environments where young minds thrive. Complete with practicum placements in licensed childcare centers and kindergarten settings.",
+    duration: "12 months",
+    type: "diploma" as const,
+    color: "#10B981",
+    status: "active" as const,
+    enrolled: 156,
+    capacity: 180,
+    tuitionFeeDomestic: 18500,
+    tuitionFeeInternational: 22000,
+    nextIntake: "2024-05-01"
+  }];
 
   // Use real data if available, otherwise fall back to demo/mock data
-  const programs = programsData.hasRealData 
-    ? programsData.data.map(transformProgramData)
-    : programsData.showEmptyState 
-      ? [] 
-      : mockPrograms;
-
-  const isLoading = programsData.isLoading || (programsData.hasRealData && enrollmentLoading);
-
+  const programs = programsData.hasRealData ? programsData.data.map(transformProgramData) : programsData.showEmptyState ? [] : mockPrograms;
+  const isLoading = programsData.isLoading || programsData.hasRealData && enrollmentLoading;
   const handleViewProgram = (program: any) => {
     setSelectedProgram(program);
     setViewModalOpen(true);
   };
-
   const handleEditProgram = (program: any) => {
     navigate(`/admin/programs/edit?edit=${program.id}`);
   };
-
   const handleSettingsProgram = (program: any) => {
     setSelectedProgram(program);
     setSettingsModalOpen(true);
   };
-
   const handleComprehensiveEditProgram = (program: any) => {
     setSelectedProgram(program);
     setComprehensiveEditModalOpen(true);
   };
-
   const handleSaveProgram = async (updatedProgram: any) => {
     try {
       if (updatedProgram.id) {
@@ -190,13 +160,12 @@ const ProgramManagement: React.FC = () => {
           tuition: updatedProgram.tuitionFee,
           requirements: updatedProgram.requirements
         });
-        
+
         // Refresh data
         programsData.refetch();
-        
         toast({
           title: "Program Updated",
-          description: `${updatedProgram.name} has been successfully updated.`,
+          description: `${updatedProgram.name} has been successfully updated.`
         });
       }
     } catch (error) {
@@ -204,31 +173,27 @@ const ProgramManagement: React.FC = () => {
       toast({
         title: "Error",
         description: "Failed to update program. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleRefreshData = async () => {
     console.log('Force refreshing all program data...');
     // Clear cache completely and refetch
-    queryClient.removeQueries({ queryKey: ['programs'] });
-    await queryClient.invalidateQueries({ queryKey: ['programs'] });
+    queryClient.removeQueries({
+      queryKey: ['programs']
+    });
+    await queryClient.invalidateQueries({
+      queryKey: ['programs']
+    });
     await programsData.refetch();
-    
     toast({
       title: "Data Refreshed",
-      description: "Program data has been completely refreshed with latest JSONB fields.",
+      description: "Program data has been completely refreshed with latest JSONB fields."
     });
   };
-
-
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <PageHeader
-        title="Program Management"
-        subtitle="Manage programs, intakes, and enrollment"
-      />
+  return <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <PageHeader title="Program Management" subtitle="Manage programs, intakes, and enrollment" />
 
       <div className="mb-6 flex justify-end gap-2">
         <Button variant="outline" onClick={handleRefreshData}>
@@ -242,23 +207,13 @@ const ProgramManagement: React.FC = () => {
       </div>
 
       {/* Programs Overview */}
-      <ConditionalDataWrapper
-        isLoading={isLoading}
-        showEmptyState={programsData.showEmptyState}
-        hasDemoAccess={programsData.hasDemoAccess}
-        hasRealData={programsData.hasRealData}
-        emptyTitle="No Programs Found"
-        emptyDescription="Create your first program to start managing educational offerings."
-      >
+      <ConditionalDataWrapper isLoading={isLoading} showEmptyState={programsData.showEmptyState} hasDemoAccess={programsData.hasDemoAccess} hasRealData={programsData.hasRealData} emptyTitle="No Programs Found" emptyDescription="Create your first program to start managing educational offerings.">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {programs.map((program) => (
-            <ModernCard key={program.id}>
+          {programs.map(program => <ModernCard key={program.id}>
               <CardContent className="p-6">
                 <div className="flex items-start justify-between gap-3 mb-4">
                   <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
-                      <GraduationCap className="h-5 w-5 text-primary" />
-                    </div>
+                    
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-base text-foreground mb-1 truncate">
                         {program.name}
@@ -283,105 +238,53 @@ const ProgramManagement: React.FC = () => {
                       <span>Enrollment</span>
                       <span>{program.enrolled}/{program.capacity || 0}</span>
                     </div>
-                    <Progress 
-                      value={program.capacity > 0 ? (program.enrolled / program.capacity) * 100 : 0} 
-                      className="h-2"
-                    />
-                    {program.capacity === 0 && (
-                      <p className="text-xs text-muted-foreground mt-1">No intake capacity configured</p>
-                    )}
+                    <Progress value={program.capacity > 0 ? program.enrolled / program.capacity * 100 : 0} className="h-2" />
+                    {program.capacity === 0 && <p className="text-xs text-muted-foreground mt-1">No intake capacity configured</p>}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <MetadataItem
-                      icon={DollarSign}
-                      label="Domestic Fee"
-                      value={`$${(program.tuitionFeeDomestic || 0).toLocaleString()}`}
-                    />
-                    <MetadataItem
-                      icon={DollarSign}
-                      label="International Fee"
-                      value={`$${(program.tuitionFeeInternational || 0).toLocaleString()}`}
-                    />
+                    <MetadataItem icon={DollarSign} label="Domestic Fee" value={`$${(program.tuitionFeeDomestic || 0).toLocaleString()}`} />
+                    <MetadataItem icon={DollarSign} label="International Fee" value={`$${(program.tuitionFeeInternational || 0).toLocaleString()}`} />
                   </div>
 
-                  <MetadataItem
-                    icon={Calendar}
-                    label="Next Intake"
-                    value={new Date(program.nextIntake).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      year: 'numeric' 
-                    })}
-                  />
+                  <MetadataItem icon={Calendar} label="Next Intake" value={new Date(program.nextIntake).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              })} />
                 </div>
 
                 <div className="flex gap-2 pt-4 border-t border-border">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1" 
-                    onClick={() => handleViewProgram(program)}
-                  >
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProgram(program)}>
                     <Eye className="h-3.5 w-3.5 mr-1.5" />
                     View
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex-1" 
-                    onClick={() => handleComprehensiveEditProgram(program)}
-                  >
+                  <Button variant="outline" size="sm" className="flex-1" onClick={() => handleComprehensiveEditProgram(program)}>
                     <Edit className="h-3.5 w-3.5 mr-1.5" />
                     Edit
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => handleSettingsProgram(program)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => handleSettingsProgram(program)}>
                     <Settings className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </CardContent>
-            </ModernCard>
-          ))}
+            </ModernCard>)}
         </div>
       </ConditionalDataWrapper>
 
       {/* No longer using ProgramWizard dialog - now navigates to separate page */}
 
       {/* View Program Modal */}
-      <ProgramViewModal
-        isOpen={viewModalOpen}
-        onClose={() => setViewModalOpen(false)}
-        program={selectedProgram}
-      />
+      <ProgramViewModal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} program={selectedProgram} />
 
       {/* Edit Program Modal */}
-      <ProgramEditModal
-        isOpen={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        program={selectedProgram}
-        onSave={handleSaveProgram}
-      />
+      <ProgramEditModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} program={selectedProgram} onSave={handleSaveProgram} />
 
       {/* Comprehensive Edit Program Modal */}
-      <ComprehensiveProgramEditModal
-        isOpen={comprehensiveEditModalOpen}
-        onClose={() => setComprehensiveEditModalOpen(false)}
-        program={selectedProgram}
-        onSave={handleSaveProgram}
-      />
+      <ComprehensiveProgramEditModal isOpen={comprehensiveEditModalOpen} onClose={() => setComprehensiveEditModalOpen(false)} program={selectedProgram} onSave={handleSaveProgram} />
 
       {/* Settings Program Modal */}
-      <ProgramSettingsModal
-        isOpen={settingsModalOpen}
-        onClose={() => setSettingsModalOpen(false)}
-        program={selectedProgram}
-      />
-    </div>
-  );
+      <ProgramSettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} program={selectedProgram} />
+    </div>;
 };
-
 export default ProgramManagement;

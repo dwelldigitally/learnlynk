@@ -43,23 +43,30 @@ export const MVP_HIDDEN_PAGES = [
   '/admin/leads/workflow',
   '/admin/leads/ai',
   '/admin/leads/bulk',
-  '/admin/enrollment/today', // Hide Today page in MVP mode
-  // Students & Applications
+  '/admin/enrollment/today',
+  '/admin/enrollment/policies',
+  '/admin/enrollment/playbooks',
+  // Students & Applications (hide entire section in MVP)
   '/admin/registrar/command-center',
   '/admin/registrar/intelligence',
-  // Data Management
-  '/admin/enrollment/policies', // Hide Policies in MVP mode
-  '/admin/enrollment/playbooks', // Hide Playbooks in MVP mode
-  // System Configuration
-  '/admin/ai-intelligence',
-  // Recruiter & Practicum
+  // Data Management - hide advanced features
   '/admin/recruiters',
   '/admin/recruiter-applications',
   '/admin/practicum',
   '/admin/practicum/sites',
   '/admin/practicum/progress',
   '/admin/practicum/competencies',
-  '/admin/practicum/evaluations'
+  '/admin/practicum/evaluations',
+  // System Configuration - AI and advanced features
+  '/admin/configuration/ai-agents',
+  '/admin/configuration/ai-models',
+  '/admin/configuration/ai-analytics',
+  '/admin/configuration/workflows',
+  '/admin/configuration/automation-rules',
+  '/admin/configuration/behavior',
+  '/admin/configuration/templates',
+  '/admin/configuration/master-data',
+  '/admin/configuration/system',
 ];
 
 export const navigationStructure: NavigationStructure = {
@@ -136,9 +143,18 @@ export const navigationStructure: NavigationStructure = {
       icon: Settings,
       items: [
         { name: "Team Management", href: "/admin/team", icon: UserCog },
-        { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
+        { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+        { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
+        { name: "Student Management", href: "/admin/configuration/students", icon: GraduationCap },
+        { name: "Applicant Management", href: "/admin/configuration/applicants", icon: FileText },
+        { name: "Setup & Onboarding", href: "/admin/configuration/setup", icon: Cog },
+        { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
+        { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
+        { name: "Internal Teams", href: "/admin/configuration/teams", icon: Users },
+        { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
+        { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
+        // Full Mode Only - AI & Advanced
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
-        { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },
         { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
         { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
         { name: "AI Models", href: "/admin/configuration/ai-models", icon: Brain },
@@ -146,9 +162,6 @@ export const navigationStructure: NavigationStructure = {
         { name: "Visual Builder", href: "/admin/configuration/workflows", icon: Route },
         { name: "Automation Rules", href: "/admin/configuration/automation-rules", icon: Zap },
         { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
-        { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
-        { name: "Scoring Engine", href: "/admin/configuration/scoring", icon: Target },
-        { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
         { name: "System Configuration", href: "/admin/configuration/system", icon: Server }
       ]
     },

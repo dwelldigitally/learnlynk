@@ -6,8 +6,18 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye, Workflow, GitBranch, TrendingUp, Target } from 'lucide-react';
+import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye, Workflow, GitBranch, TrendingUp, Target, Edit, AlertCircle } from 'lucide-react';
 import { NaturalLanguageCampaignBuilder } from './database/NaturalLanguageCampaignBuilder';
 import { UniversalBuilder } from '@/components/universal-builder/UniversalBuilder';
 import { CampaignService, type Campaign } from '@/services/campaignService';
@@ -24,6 +34,7 @@ export function CampaignManagement() {
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
   
   const { toast } = useToast();
 
@@ -120,7 +131,7 @@ export function CampaignManagement() {
       setCampaigns(campaigns.map(c => c.id === id ? { ...c, status } : c));
       toast({
         title: "Success",
-        description: "Campaign status updated",
+        description: `Campaign ${status === 'active' ? 'activated' : 'paused'} successfully`,
       });
       loadAnalytics();
     } catch (error) {
@@ -129,6 +140,37 @@ export function CampaignManagement() {
         description: "Failed to update campaign status",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleEditCampaign = (campaign: Campaign) => {
+    // Navigate to the campaign builder with the campaign ID
+    navigate(`/admin/builder/campaigns/${campaign.id}`);
+  };
+
+  const confirmDeleteCampaign = (campaign: Campaign) => {
+    setCampaignToDelete(campaign);
+  };
+
+  const executeDelete = async () => {
+    if (!campaignToDelete) return;
+    
+    try {
+      await CampaignService.deleteCampaign(campaignToDelete.id);
+      setCampaigns(campaigns.filter(c => c.id !== campaignToDelete.id));
+      toast({
+        title: "Success",
+        description: "Campaign deleted successfully",
+      });
+      loadAnalytics();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete campaign",
+        variant: "destructive",
+      });
+    } finally {
+      setCampaignToDelete(null);
     }
   };
 
@@ -328,45 +370,80 @@ export function CampaignManagement() {
                           {campaign.start_date ? format(new Date(campaign.start_date), 'MMM dd, yyyy') : 'Not set'}
                         </TableCell>
                         <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                <MoreHorizontal className="h-4 w-4" />
+                          <div className="flex items-center justify-end gap-1">
+                            {/* Edit Button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditCampaign(campaign)}
+                              className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                              title="Edit campaign"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+
+                            {/* Play/Pause Button */}
+                            {campaign.status === 'active' ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleStatusChange(campaign.id, 'paused')}
+                                className="h-8 w-8 p-0 hover:bg-orange-500/10 hover:text-orange-500"
+                                title="Pause campaign"
+                              >
+                                <Pause className="h-4 w-4" />
                               </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-48">
-                              <DropdownMenuItem onClick={() => setSelectedCampaign(campaign)}>
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
-                              {campaign.status === 'draft' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'active')}>
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleStatusChange(campaign.id, 'active')}
+                                className="h-8 w-8 p-0 hover:bg-emerald-500/10 hover:text-emerald-500"
+                                title="Activate campaign"
+                              >
+                                <Play className="h-4 w-4" />
+                              </Button>
+                            )}
+
+                            {/* Delete Button */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => confirmDeleteCampaign(campaign)}
+                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                              title="Delete campaign"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+
+                            {/* More Actions Dropdown */}
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-accent">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => setSelectedCampaign(campaign)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Details
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  onClick={() => handleExecuteCampaign(campaign.id)}
+                                  disabled={campaign.status !== 'active'}
+                                >
                                   <Play className="mr-2 h-4 w-4" />
-                                  Activate
+                                  Execute Now
                                 </DropdownMenuItem>
-                              )}
-                              {campaign.status === 'active' && (
-                                <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'paused')}>
-                                  <Pause className="mr-2 h-4 w-4" />
-                                  Pause
-                                </DropdownMenuItem>
-                              )}
-                              <DropdownMenuItem 
-                                onClick={() => handleExecuteCampaign(campaign.id)}
-                                disabled={campaign.status !== 'active'}
-                              >
-                                <Play className="mr-2 h-4 w-4" />
-                                Execute Now
-                              </DropdownMenuItem>
-                              <DropdownMenuItem 
-                                onClick={() => handleDeleteCampaign(campaign.id)}
-                                className="text-destructive"
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                                {campaign.status === 'paused' && (
+                                  <DropdownMenuItem onClick={() => handleStatusChange(campaign.id, 'draft')}>
+                                    <AlertCircle className="mr-2 h-4 w-4" />
+                                    Move to Draft
+                                  </DropdownMenuItem>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -417,6 +494,28 @@ export function CampaignManagement() {
           </Dialog>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!campaignToDelete} onOpenChange={() => setCampaignToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the campaign "{campaignToDelete?.name}". 
+              This action cannot be undone and all campaign data will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={executeDelete}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Delete Campaign
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

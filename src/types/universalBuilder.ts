@@ -31,7 +31,8 @@ export interface WorkflowElement extends BaseElement {
 
 export interface CampaignElement extends BaseElement {
   elementType: 'campaign';
-  type: 'trigger' | 'email' | 'sms' | 'wait' | 'condition' | 'split';
+  type: 'trigger' | 'email' | 'sms' | 'wait' | 'condition' | 'split' | 'update-lead' | 'assign-advisor' | 
+        'internal-notification' | 'goal-tracking' | 'remove-campaign' | 'copy-campaign' | 'create-task';
   subject?: string;
   content?: string;
   template?: string;

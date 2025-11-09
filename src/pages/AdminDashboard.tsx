@@ -135,9 +135,17 @@ const AdminDashboard: React.FC = () => {
       case "/admin/configuration/integrations":
       case "/admin/configuration/templates":
       case "/admin/configuration/ai-agents":
+      case "/admin/configuration/ai-models":
+      case "/admin/configuration/ai-analytics":
+      case "/admin/configuration/workflows":
+      case "/admin/configuration/automation-rules":
       case "/admin/configuration/behavior":
       case "/admin/configuration/routing":
       case "/admin/configuration/scoring":
+      case "/admin/configuration/students":
+      case "/admin/configuration/applicants":
+      case "/admin/configuration/campuses":
+      case "/admin/configuration/teams":
       case "/admin/configuration/company":
       case "/admin/configuration/system":
         return <ConfigurationManagement />;

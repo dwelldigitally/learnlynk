@@ -188,18 +188,29 @@ export const EnhancedConfigurationManagement = () => {
   // Determine initial section based on URL
   const getInitialSection = () => {
     const path = window.location.pathname;
-    if (path.includes('/master-data')) {
-      return 'campuses'; // Default to campuses for master data
-    }
-    if (path.includes('/templates')) {
-      return 'communication-templates'; // Default to communication templates
-    }
-    if (path.includes('/routing')) {
-      return 'routing-rules'; // Default to routing rules
-    }
-    if (path.includes('/company')) {
-      return 'company-profile'; // Default to company profile
-    }
+    
+    // Map URL paths to section IDs
+    if (path.includes('/routing')) return 'routing-rules';
+    if (path.includes('/scoring')) return 'lead-scoring';
+    if (path.includes('/students')) return 'student-management';
+    if (path.includes('/applicants')) return 'applicant-management';
+    if (path.includes('/setup')) return 'setup-onboarding';
+    if (path.includes('/custom-fields')) return 'custom-fields';
+    if (path.includes('/campuses')) return 'campuses';
+    if (path.includes('/teams')) return 'internal-teams';
+    if (path.includes('/company')) return 'company-profile';
+    if (path.includes('/integrations')) return 'external-integrations';
+    
+    // Full mode only sections
+    if (path.includes('/master-data')) return 'campuses';
+    if (path.includes('/templates')) return 'communication-templates';
+    if (path.includes('/ai-agents')) return 'lead-intelligence';
+    if (path.includes('/ai-models')) return 'lead-intelligence';
+    if (path.includes('/ai-analytics')) return 'lead-intelligence';
+    if (path.includes('/workflows')) return 'lead-intelligence';
+    if (path.includes('/automation-rules')) return 'lead-intelligence';
+    if (path.includes('/behavior')) return 'lead-intelligence';
+    if (path.includes('/system')) return 'company-profile';
 
     // Default section based on mode
     return isMvpMode ? 'routing-rules' : 'lead-intelligence';

@@ -30,6 +30,7 @@ import { DocumentUpload } from '@/components/admin/leads/DocumentUpload';
 import { PresetDocumentUpload } from '@/components/admin/leads/PresetDocumentUpload';
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
+import { TasksNotesPanel } from '@/components/admin/leads/TasksNotesPanel';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
@@ -632,13 +633,12 @@ export default function LeadDetailTestPage() {
         <div className="flex-1 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
             <div className="border-b p-4">
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
                 <TabsTrigger value="comms">Comms</TabsTrigger>
                 <TabsTrigger value="docs">Docs</TabsTrigger>
                 <TabsTrigger value="payments">Payments</TabsTrigger>
-                <TabsTrigger value="tasks">Tasks</TabsTrigger>
-                <TabsTrigger value="notes">Notes</TabsTrigger>
+                <TabsTrigger value="tasks-notes">Tasks & Notes</TabsTrigger>
               </TabsList>
             </div>
 
@@ -781,12 +781,8 @@ export default function LeadDetailTestPage() {
                 <PaymentsTab leadId={leadId || ''} />
               </TabsContent>
 
-              <TabsContent value="notes" className="mt-0">
-                <NotesSystemPanel leadId={leadId || ''} />
-              </TabsContent>
-
-              <TabsContent value="tasks" className="mt-0">
-                <RealDataTasks leadId={leadId || ''} />
+              <TabsContent value="tasks-notes" className="mt-0">
+                <TasksNotesPanel leadId={leadId || ''} />
               </TabsContent>
             </div>
           </Tabs>

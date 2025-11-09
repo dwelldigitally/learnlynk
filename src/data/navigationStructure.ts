@@ -47,9 +47,12 @@ export const MVP_HIDDEN_PAGES = [
   // Students & Applications
   '/admin/registrar/command-center',
   '/admin/registrar/intelligence',
+  // Data Management
+  '/admin/enrollment/policies', // Hide Policies in MVP mode
+  '/admin/enrollment/playbooks', // Hide Playbooks in MVP mode
   // System Configuration
   '/admin/ai-intelligence',
-  // Data Management
+  // Recruiter & Practicum
   '/admin/recruiters',
   '/admin/recruiter-applications',
   '/admin/practicum',

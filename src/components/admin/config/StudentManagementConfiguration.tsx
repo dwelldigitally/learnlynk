@@ -167,25 +167,15 @@ export const StudentManagementConfiguration: React.FC = () => {
         </TabsList>
 
         <TabsContent value="lifecycle" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Student Lifecycle Stages</CardTitle>
-              <CardDescription>
-                Define the stages a student progresses through during their academic journey.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Lifecycle Stages"
-                description="Manage student progression stages"
-                data={lifecycleStages}
-                columns={lifecycleColumns}
-                onAdd={() => console.log('Add lifecycle stage')}
-                onEdit={(item) => console.log('Edit lifecycle stage:', item)}
-                onDelete={(item) => console.log('Delete lifecycle stage:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Student Lifecycle Stages"
+            description="Define the stages a student progresses through during their academic journey"
+            data={lifecycleStages}
+            columns={lifecycleColumns}
+            onAdd={() => console.log('Add lifecycle stage')}
+            onEdit={(item) => console.log('Edit lifecycle stage:', item)}
+            onDelete={(item) => console.log('Delete lifecycle stage:', item)}
+          />
         </TabsContent>
 
         <TabsContent value="profile" className="space-y-4">
@@ -225,47 +215,27 @@ export const StudentManagementConfiguration: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="academic" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Academic Settings</CardTitle>
-              <CardDescription>
-                Configure academic requirements and grading systems.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Academic Configuration"
-                description="Manage academic requirements and settings"
-                data={academicSettings}
-                columns={academicColumns}
-                onAdd={() => console.log('Add academic setting')}
-                onEdit={(item) => console.log('Edit academic setting:', item)}
-                onDelete={(item) => console.log('Delete academic setting:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Academic Settings"
+            description="Configure academic requirements and grading systems"
+            data={academicSettings}
+            columns={academicColumns}
+            onAdd={() => console.log('Add academic setting')}
+            onEdit={(item) => console.log('Edit academic setting:', item)}
+            onDelete={(item) => console.log('Delete academic setting:', item)}
+          />
         </TabsContent>
 
         <TabsContent value="communication" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Communication Templates</CardTitle>
-              <CardDescription>
-                Manage automated communication templates for students.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <UniversalCRUDTable
-                title="Communication Templates"
-                description="Manage student communication templates"
-                data={communicationTemplates}
-                columns={communicationColumns}
-                onAdd={() => console.log('Add communication template')}
-                onEdit={(item) => console.log('Edit communication template:', item)}
-                onDelete={(item) => console.log('Delete communication template:', item)}
-              />
-            </CardContent>
-          </Card>
+          <UniversalCRUDTable
+            title="Communication Templates"
+            description="Manage automated communication templates for students"
+            data={communicationTemplates}
+            columns={communicationColumns}
+            onAdd={() => console.log('Add communication template')}
+            onEdit={(item) => console.log('Edit communication template:', item)}
+            onDelete={(item) => console.log('Delete communication template:', item)}
+          />
         </TabsContent>
 
         <TabsContent value="documents" className="space-y-4">

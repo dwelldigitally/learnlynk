@@ -520,16 +520,16 @@ export function FinanceTrackerTab() {
                     key={payment.id}
                     className="p-5 rounded-lg border border-border bg-card hover:border-primary/30 transition-all"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-8 h-8">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-10 h-10">
+                          <AvatarFallback className="bg-primary/10 text-primary">
                             {payment.student_name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium text-sm text-foreground">{payment.student_name}</p>
-                          <p className="text-xs text-muted-foreground">{payment.student_email}</p>
+                          <p className="font-medium text-foreground">{payment.student_name}</p>
+                          <p className="text-sm text-muted-foreground">{payment.student_email}</p>
                         </div>
                       </div>
                       <Badge className={cn("text-xs", statusConfig.color, statusConfig.bg)}>
@@ -537,13 +537,13 @@ export function FinanceTrackerTab() {
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-sm mt-2">
                       <span className="font-semibold text-foreground">{formatCurrency(Number(payment.amount))}</span>
-                      <span className="text-xs text-muted-foreground">{formatDate(payment.created_at)}</span>
+                      <span className="text-sm text-muted-foreground">{formatDate(payment.created_at)}</span>
                     </div>
                     
                     {payment.payment_type && (
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-sm text-muted-foreground mt-2">
                         Type: {payment.payment_type.replace('_', ' ')}
                       </p>
                     )}

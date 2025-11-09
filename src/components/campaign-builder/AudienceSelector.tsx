@@ -91,6 +91,25 @@ export function AudienceSelector({ selectedAudience, onAudienceSelect }: Audienc
     if (selectedAudience) {
       setFilters(selectedAudience.filters);
       setAudienceCount(selectedAudience.count);
+      // Convert filters to filter rules for display
+      const rules: FilterRule[] = [];
+      if (selectedAudience.filters.status?.length) {
+        rules.push({
+          id: `rule_status_${Date.now()}`,
+          field: 'status',
+          operator: 'equals',
+          value: selectedAudience.filters.status[0]
+        });
+      }
+      if (selectedAudience.filters.program_interest?.length) {
+        rules.push({
+          id: `rule_program_${Date.now()}`,
+          field: 'program',
+          operator: 'equals',
+          value: selectedAudience.filters.program_interest[0]
+        });
+      }
+      setFilterRules(rules);
     }
   }, [selectedAudience]);
 
@@ -212,6 +231,11 @@ export function AudienceSelector({ selectedAudience, onAudienceSelect }: Audienc
 
   return (
     <div className="space-y-6">
+      {/* Debug info - remove after testing */}
+      <div className="text-xs text-muted-foreground p-2 bg-muted rounded">
+        Debug: Component loaded. Audience count: {audienceCount}, Filter rules: {filterRules.length}
+      </div>
+      
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">

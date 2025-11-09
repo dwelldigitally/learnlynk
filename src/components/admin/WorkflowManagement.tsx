@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Play, Pause, Settings, BarChart, Database, Workflow as WorkflowIcon, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import WorkflowBuilder from "./workflow/WorkflowBuilder";
 import { DummyWorkflowService } from "@/services/dummyWorkflowService";
 import { PageHeader } from "@/components/modern/PageHeader";
 import { ModernCard } from "@/components/modern/ModernCard";
@@ -23,9 +23,10 @@ interface Workflow {
 }
 
 const WorkflowManagement: React.FC = () => {
-  const navigate = useNavigate();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showBuilder, setShowBuilder] = useState(false);
+  const [editingWorkflow, setEditingWorkflow] = useState<Workflow | null>(null);
 
   useEffect(() => {
     fetchWorkflows();
@@ -84,11 +85,19 @@ const WorkflowManagement: React.FC = () => {
   };
 
   const handleCreateWorkflow = () => {
-    navigate('/admin/workflows/builder');
+    setEditingWorkflow(null);
+    setShowBuilder(true);
   };
 
   const handleEditWorkflow = (workflow: Workflow) => {
-    navigate(`/admin/workflows/${workflow.id}/edit`);
+    setEditingWorkflow(workflow);
+    setShowBuilder(true);
+  };
+
+  const handleBuilderClose = () => {
+    setShowBuilder(false);
+    setEditingWorkflow(null);
+    fetchWorkflows();
   };
 
   const handleCreateSampleData = async () => {
@@ -113,6 +122,15 @@ const WorkflowManagement: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (showBuilder) {
+    return (
+      <WorkflowBuilder
+        workflow={editingWorkflow}
+        onClose={handleBuilderClose}
+      />
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">

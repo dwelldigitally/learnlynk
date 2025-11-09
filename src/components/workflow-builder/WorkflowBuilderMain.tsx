@@ -165,39 +165,40 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-6">
-            <TabsList className="grid w-full max-w-md grid-cols-3">
-              <TabsTrigger value="workflow">Workflow</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            </TabsList>
-          </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="workflow">Workflow</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-          {/* Main Content */}
-          <TabsContent value="workflow" className="flex-1 flex m-0 mt-0 overflow-hidden">
-            <div className="flex flex-1 overflow-hidden">
-              {/* Left Sidebar - Action Library */}
-              <div className="w-80 border-r bg-card flex flex-col">
-                <WorkflowActionLibrary onAddElement={handleAddElement} />
-              </div>
-
-              {/* Center - Canvas */}
-              <div className="flex-1 overflow-hidden">
-                <WorkflowCanvas onAddElement={handleAddElement} />
-              </div>
-
-              {/* Right Sidebar - Properties */}
-              <div className="w-96 border-l bg-card overflow-hidden">
-                <WorkflowPropertyPanel />
-              </div>
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        <TabsContent value="workflow" className="flex-1 flex m-0 data-[state=inactive]:hidden">
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left Sidebar - Action Library */}
+            <div className="w-80 border-r bg-card flex flex-col">
+              <WorkflowActionLibrary onAddElement={handleAddElement} />
             </div>
-          </TabsContent>
 
-          <TabsContent value="settings" className="flex-1 m-0 p-6 overflow-auto">
-            <div className="max-w-2xl space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Workflow Settings</h3>
+            {/* Center - Canvas */}
+            <div className="flex-1 overflow-hidden">
+              <WorkflowCanvas onAddElement={handleAddElement} />
+            </div>
+
+            {/* Right Sidebar - Properties */}
+            <div className="w-96 border-l bg-card overflow-hidden">
+              <WorkflowPropertyPanel />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="settings" className="flex-1 m-0 p-6 data-[state=inactive]:hidden">
+          <div className="max-w-2xl space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Workflow Settings</h3>
               
               <div className="space-y-4">
                 <div>
@@ -237,36 +238,35 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
                   </p>
                 </div>
               </div>
-              </div>
             </div>
-          </TabsContent>
+          </div>
+        </TabsContent>
 
-          <TabsContent value="analytics" className="flex-1 m-0 p-6 overflow-auto">
-            <div className="max-w-4xl space-y-6">
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Workflow Analytics</h3>
-                <p className="text-muted-foreground">
-                  Analytics and execution history will be available here once the workflow is active.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="p-4">
-                  <div className="text-2xl font-bold">0</div>
-                  <div className="text-sm text-muted-foreground">Total Executions</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-2xl font-bold">0%</div>
-                  <div className="text-sm text-muted-foreground">Completion Rate</div>
-                </Card>
-                <Card className="p-4">
-                  <div className="text-2xl font-bold">0</div>
-                  <div className="text-sm text-muted-foreground">Active Leads</div>
-                </Card>
-              </div>
+        <TabsContent value="analytics" className="flex-1 m-0 p-6 data-[state=inactive]:hidden">
+          <div className="max-w-4xl space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Workflow Analytics</h3>
+              <p className="text-muted-foreground">
+                Analytics and execution history will be available here once the workflow is active.
+              </p>
             </div>
-          </TabsContent>
-        </Tabs>
+
+            <div className="grid grid-cols-3 gap-4">
+              <Card className="p-4">
+                <div className="text-2xl font-bold">0</div>
+                <div className="text-sm text-muted-foreground">Total Executions</div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-2xl font-bold">0%</div>
+                <div className="text-sm text-muted-foreground">Completion Rate</div>
+              </Card>
+              <Card className="p-4">
+                <div className="text-2xl font-bold">0</div>
+                <div className="text-sm text-muted-foreground">Active Leads</div>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
+import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES, AttachmentMetadata } from '@/types/leadEnhancements';
 import { Lead } from '@/types/lead';
 import { supabaseWrapper } from './supabaseWrapper';
 
@@ -34,13 +34,19 @@ export class CommunicationTemplateService {
     // Extract variables from content
     const variables = this.extractVariables(templateData.content);
 
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('communication_templates')
-      .insert({
+      .insert([{
         user_id: user.id,
-        ...templateData,
+        name: templateData.name,
+        type: templateData.type,
+        subject: templateData.subject,
+        content: templateData.content,
+        html_content: templateData.html_content,
+        content_format: templateData.content_format || 'plain',
+        attachments: (templateData.attachments || []) as any,
         variables,
-      })
+      }])
       .select()
       .single();
 
@@ -76,6 +82,14 @@ export class CommunicationTemplateService {
   }
 
   static async deleteTemplate(id: string): Promise<void> {
+    // First, get the template to access attachments
+    const { data: template } = await supabase
+      .from('communication_templates')
+      .select('attachments')
+      .eq('id', id)
+      .single();
+
+    // Delete the template
     const { error } = await supabase
       .from('communication_templates')
       .delete()
@@ -84,6 +98,11 @@ export class CommunicationTemplateService {
     if (error) {
       console.error('Error deleting template:', error);
       throw new Error('Failed to delete template');
+    }
+
+    // Clean up attachments from storage
+    if (template?.attachments) {
+      await this.deleteTemplateAttachments(template.attachments as any as AttachmentMetadata[]);
     }
   }
 
@@ -163,5 +182,92 @@ export class CommunicationTemplateService {
 
   static getAvailableVariables() {
     return TEMPLATE_VARIABLES;
+  }
+
+  // Attachment management methods
+  static async validateAttachment(file: File): Promise<{ valid: boolean; error?: string }> {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = ['application/pdf'];
+
+    if (file.size > MAX_SIZE) {
+      return { valid: false, error: 'File size exceeds 10MB limit' };
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return { valid: false, error: 'Only PDF files are allowed' };
+    }
+
+    return { valid: true };
+  }
+
+  static async uploadAttachment(file: File, userId: string): Promise<AttachmentMetadata> {
+    const validation = await this.validateAttachment(file);
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+    const filePath = `${userId}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('email-attachments')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Error uploading attachment:', uploadError);
+      throw new Error('Failed to upload attachment');
+    }
+
+    const metadata: AttachmentMetadata = {
+      id: fileName,
+      file_name: file.name,
+      file_path: filePath,
+      file_size: file.size,
+      mime_type: file.type,
+      uploaded_at: new Date().toISOString(),
+    };
+
+    return metadata;
+  }
+
+  static async removeAttachment(filePath: string): Promise<void> {
+    const { error } = await supabase.storage
+      .from('email-attachments')
+      .remove([filePath]);
+
+    if (error) {
+      console.error('Error removing attachment:', error);
+      throw new Error('Failed to remove attachment');
+    }
+  }
+
+  static async getAttachmentUrl(filePath: string): Promise<string> {
+    const { data, error } = await supabase.storage
+      .from('email-attachments')
+      .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+    if (error) {
+      console.error('Error getting attachment URL:', error);
+      throw new Error('Failed to get attachment URL');
+    }
+
+    return data.signedUrl;
+  }
+
+  static async deleteTemplateAttachments(attachments: AttachmentMetadata[]): Promise<void> {
+    if (!attachments || attachments.length === 0) return;
+
+    const filePaths = attachments.map(a => a.file_path);
+    const { error } = await supabase.storage
+      .from('email-attachments')
+      .remove(filePaths);
+
+    if (error) {
+      console.error('Error deleting template attachments:', error);
+    }
   }
 }

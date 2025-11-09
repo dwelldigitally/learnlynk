@@ -1590,11 +1590,15 @@ export type Database = {
         Row: {
           ai_generated: boolean | null
           ai_suggestions: Json | null
+          attachments: Json | null
           content: string
+          content_format: string | null
           created_at: string
           generation_prompt: string | null
+          html_content: string | null
           id: string
           is_active: boolean
+          max_attachment_size: number | null
           name: string
           subject: string | null
           type: string
@@ -1606,11 +1610,15 @@ export type Database = {
         Insert: {
           ai_generated?: boolean | null
           ai_suggestions?: Json | null
+          attachments?: Json | null
           content: string
+          content_format?: string | null
           created_at?: string
           generation_prompt?: string | null
+          html_content?: string | null
           id?: string
           is_active?: boolean
+          max_attachment_size?: number | null
           name: string
           subject?: string | null
           type: string
@@ -1622,11 +1630,15 @@ export type Database = {
         Update: {
           ai_generated?: boolean | null
           ai_suggestions?: Json | null
+          attachments?: Json | null
           content?: string
+          content_format?: string | null
           created_at?: string
           generation_prompt?: string | null
+          html_content?: string | null
           id?: string
           is_active?: boolean
+          max_attachment_size?: number | null
           name?: string
           subject?: string | null
           type?: string

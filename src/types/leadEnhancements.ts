@@ -85,11 +85,23 @@ export interface CommunicationTemplate {
   updated_at: string;
 }
 
+export interface AttachmentMetadata {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_size: number;
+  mime_type: string;
+  uploaded_at: string;
+}
+
 export interface TemplateFormData {
   name: string;
   type: TemplateType;
   subject?: string;
   content: string;
+  html_content?: string;
+  content_format?: 'plain' | 'html' | 'rich';
+  attachments?: AttachmentMetadata[];
   variables?: string[];
 }
 

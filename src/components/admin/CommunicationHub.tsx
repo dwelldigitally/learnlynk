@@ -56,8 +56,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useConditionalCommunications } from "@/hooks/useConditionalCommunications";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
-import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES } from '@/types/leadEnhancements';
+import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES, AttachmentMetadata } from '@/types/leadEnhancements';
 import { CommunicationTemplateService } from '@/services/communicationTemplateService';
+import { EmailContentEditor } from './templates/EmailContentEditor';
+import { AttachmentUploader } from './templates/AttachmentUploader';
+import { EmailPreviewModal } from './templates/EmailPreviewModal';
+import { supabase } from '@/integrations/supabase/client';
 
 const CommunicationHub: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -83,6 +87,8 @@ const CommunicationHub: React.FC = () => {
   const [editingTemplate, setEditingTemplate] = useState<CommunicationTemplate | null>(null);
   const [previewTemplate, setPreviewTemplate] = useState<CommunicationTemplate | null>(null);
   const [activeTemplateTab, setActiveTemplateTab] = useState('email');
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
 
   const { toast } = useToast();
   
@@ -91,12 +97,24 @@ const CommunicationHub: React.FC = () => {
   const { register, handleSubmit, reset, setValue, watch } = useForm<TemplateFormData>({
     defaultValues: {
       type: 'email',
+      content_format: 'plain',
+      attachments: [],
     }
   });
 
   const watchedContent = watch('content');
+  const watchedHtmlContent = watch('html_content');
+  const watchedContentFormat = watch('content_format') || 'plain';
+  const watchedAttachments = watch('attachments') || [];
+  const watchedSubject = watch('subject');
+  const watchedType = watch('type');
 
   useEffect(() => {
+    const loadUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setCurrentUserId(user.id);
+    };
+    loadUser();
     loadTemplates();
   }, []);
 
@@ -244,6 +262,9 @@ const CommunicationHub: React.FC = () => {
     setValue('type', template.type);
     setValue('subject', template.subject || '');
     setValue('content', template.content);
+    setValue('html_content', (template as any).html_content || '');
+    setValue('content_format', (template as any).content_format || 'plain');
+    setValue('attachments', ((template as any).attachments as AttachmentMetadata[]) || []);
     setShowCreateDialog(true);
   };
 
@@ -601,14 +622,38 @@ const CommunicationHub: React.FC = () => {
                           </div>
                         )}
 
-                        <div>
-                          <Label htmlFor="content">Content</Label>
-                          <Textarea 
-                            {...register('content', { required: true })}
-                            placeholder="Template content (use variables like {{first_name}})"
-                            rows={10}
-                          />
-                        </div>
+                        {watch('type') === 'email' ? (
+                          <>
+                            <EmailContentEditor
+                              content={watchedContent || ''}
+                              htmlContent={watchedHtmlContent}
+                              contentFormat={watchedContentFormat}
+                              onContentChange={(content, htmlContent, format) => {
+                                setValue('content', content);
+                                if (htmlContent !== undefined) setValue('html_content', htmlContent);
+                                if (format) setValue('content_format', format);
+                              }}
+                              onPreview={() => setShowPreviewModal(true)}
+                            />
+
+                            {currentUserId && (
+                              <AttachmentUploader
+                                attachments={watchedAttachments}
+                                onAttachmentsChange={(attachments) => setValue('attachments', attachments)}
+                                userId={currentUserId}
+                              />
+                            )}
+                          </>
+                        ) : (
+                          <div>
+                            <Label htmlFor="content">Content</Label>
+                            <Textarea 
+                              {...register('content', { required: true })}
+                              placeholder="Template content (use variables like {{first_name}})"
+                              rows={10}
+                            />
+                          </div>
+                        )}
 
                         <div className="flex justify-end gap-2">
                           <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
@@ -873,6 +918,16 @@ const CommunicationHub: React.FC = () => {
       </Tabs>
 
       {/* Modals */}
+      <EmailPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+        subject={watchedSubject}
+        content={watchedContent || ''}
+        htmlContent={watchedHtmlContent}
+        contentFormat={watchedContentFormat}
+        attachments={watchedAttachments}
+      />
+
       {messageDetailOpen && selectedMessage && (
         <MessageDetailModal
           message={selectedMessage}

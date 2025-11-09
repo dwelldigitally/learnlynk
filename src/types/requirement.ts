@@ -40,6 +40,7 @@ export interface MasterRequirement {
   documentation_required?: string[];
   verification_method?: string;
   applicable_programs?: string[];
+  linked_document_templates?: string[];
   usage_count: number;
   is_system_template: boolean;
   is_active: boolean;

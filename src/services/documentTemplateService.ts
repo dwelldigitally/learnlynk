@@ -190,6 +190,21 @@ export class DocumentTemplateService {
   }
 
   /**
+   * Get templates by IDs
+   */
+  static async getTemplatesByIds(ids: string[]): Promise<DocumentTemplate[]> {
+    if (ids.length === 0) return [];
+    
+    const { data, error } = await supabase
+      .from('document_templates')
+      .select('*')
+      .in('id', ids);
+
+    if (error) throw error;
+    return data || [];
+  }
+
+  /**
    * Convert template to DocumentRequirement format for program wizard
    */
   static templateToRequirement(template: DocumentTemplate): DocumentRequirement {

@@ -4320,6 +4320,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_mandatory: boolean | null
+          linked_document_templates: string[] | null
           maximum_value: string | null
           minimum_value: string | null
           name: string
@@ -4338,6 +4339,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_mandatory?: boolean | null
+          linked_document_templates?: string[] | null
           maximum_value?: string | null
           minimum_value?: string | null
           name: string
@@ -4356,6 +4358,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_mandatory?: boolean | null
+          linked_document_templates?: string[] | null
           maximum_value?: string | null
           minimum_value?: string | null
           name?: string

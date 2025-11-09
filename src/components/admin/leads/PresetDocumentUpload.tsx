@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
 import { RequirementVerificationPanel } from '@/components/admin/documents/RequirementVerificationPanel';
+import { requirementDocumentMappingService } from '@/services/requirementDocumentMappingService';
 import { supabase } from '@/integrations/supabase/client';
 import { MasterRequirement, VerificationStatus } from '@/types/requirement';
 
@@ -168,7 +169,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 100);
 
-      await presetDocumentService.uploadDocument(
+      const uploadedDoc = await presetDocumentService.uploadDocument(
         leadId,
         file,
         requirementId,
@@ -177,6 +178,20 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
 
       clearInterval(progressInterval);
       setUploadProgress(100);
+
+      // Auto-link requirement if this document template has an associated requirement
+      const presetDoc = requirements.find(r => r.id === requirementId);
+      if (presetDoc?.id && uploadedDoc.id) {
+        try {
+          await requirementDocumentMappingService.autoLinkRequirement(
+            uploadedDoc.id,
+            presetDoc.id
+          );
+        } catch (linkError) {
+          console.error('Auto-link error:', linkError);
+          // Don't fail the upload if auto-linking fails
+        }
+      }
 
       toast({
         title: 'Upload successful',

@@ -7,8 +7,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MasterRequirement } from "@/types/masterData";
+import { DocumentTemplate, DocumentTemplateService } from "@/services/documentTemplateService";
 import { useToast } from "@/hooks/use-toast";
 
 export const RequirementsConfiguration = () => {
@@ -16,6 +19,8 @@ export const RequirementsConfiguration = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRequirement, setEditingRequirement] = useState<MasterRequirement | null>(null);
+  const [documentTemplates, setDocumentTemplates] = useState<DocumentTemplate[]>([]);
+  const [selectedTemplates, setSelectedTemplates] = useState<string[]>([]);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState<Partial<MasterRequirement>>({
@@ -30,12 +35,23 @@ export const RequirementsConfiguration = () => {
     applicable_programs: ['All Programs'],
     verification_method: '',
     documentation_required: [],
+    linked_document_templates: [],
     is_active: true
   });
 
   useEffect(() => {
     fetchRequirements();
+    fetchDocumentTemplates();
   }, []);
+
+  const fetchDocumentTemplates = async () => {
+    try {
+      const templates = await DocumentTemplateService.getTemplates();
+      setDocumentTemplates(templates);
+    } catch (error) {
+      console.error('Error fetching document templates:', error);
+    }
+  };
 
   const fetchRequirements = async () => {
     try {
@@ -77,6 +93,7 @@ export const RequirementsConfiguration = () => {
         ...formData,
         name: formData.name.trim(),
         type: formData.type || 'academic',
+        linked_document_templates: selectedTemplates,
         user_id: user.id
       };
 
@@ -115,6 +132,7 @@ export const RequirementsConfiguration = () => {
   const handleEdit = (requirement: MasterRequirement) => {
     setEditingRequirement(requirement);
     setFormData(requirement);
+    setSelectedTemplates(requirement.linked_document_templates || []);
     setIsModalOpen(true);
   };
 
@@ -157,8 +175,20 @@ export const RequirementsConfiguration = () => {
       applicable_programs: ['All Programs'],
       verification_method: '',
       documentation_required: [],
+      linked_document_templates: [],
       is_active: true
     });
+    setSelectedTemplates([]);
+  };
+
+  const handleRemoveTemplate = (templateId: string) => {
+    setSelectedTemplates(prev => prev.filter(id => id !== templateId));
+  };
+
+  const handleAddTemplate = (templateId: string) => {
+    if (!selectedTemplates.includes(templateId)) {
+      setSelectedTemplates(prev => [...prev, templateId]);
+    }
   };
 
   const columns = [
@@ -291,6 +321,52 @@ export const RequirementsConfiguration = () => {
                 placeholder="How this requirement will be verified..."
                 rows={2}
               />
+            </div>
+
+            <div className="md:col-span-2">
+              <Label htmlFor="linked_templates">Linked Document Templates</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select which document types can be used to verify this requirement
+              </p>
+              <div className="space-y-3">
+                <Select value="" onValueChange={handleAddTemplate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Add document template..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {documentTemplates
+                      .filter(t => !selectedTemplates.includes(t.id))
+                      .map((template) => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name} ({template.category})
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                
+                {selectedTemplates.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTemplates.map(templateId => {
+                      const template = documentTemplates.find(t => t.id === templateId);
+                      return template ? (
+                        <Badge key={templateId} variant="secondary" className="flex items-center gap-1">
+                          {template.name}
+                          <X 
+                            className="h-3 w-3 cursor-pointer" 
+                            onClick={() => handleRemoveTemplate(templateId)}
+                          />
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                )}
+                
+                {selectedTemplates.length === 0 && (
+                  <p className="text-xs text-muted-foreground italic">
+                    No document templates linked yet
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center space-x-2">

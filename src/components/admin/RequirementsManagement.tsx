@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,7 +20,9 @@ import {
   Briefcase,
   Shield,
   Calendar,
-  FileText
+  FileText,
+  AlertCircle,
+  Package
 } from 'lucide-react';
 import { 
   getAllSampleRequirements, 
@@ -29,6 +31,8 @@ import {
   getCommonRequirements,
   type RequirementTemplate 
 } from '@/services/sampleRequirementsService';
+import { DocumentTemplate, DocumentTemplateService } from '@/services/documentTemplateService';
+import { requirementDocumentMappingService } from '@/services/requirementDocumentMappingService';
 
 const typeIcons = {
   academic: GraduationCap,
@@ -52,9 +56,33 @@ export function RequirementsManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedRequirement, setSelectedRequirement] = useState<RequirementTemplate | null>(null);
+  const [documentTemplates, setDocumentTemplates] = useState<DocumentTemplate[]>([]);
+  const [linkedTemplatesMap, setLinkedTemplatesMap] = useState<Record<string, DocumentTemplate[]>>({});
 
   const allRequirements = getAllSampleRequirements();
   const commonRequirements = getCommonRequirements();
+
+  // Load document templates
+  useEffect(() => {
+    loadDocumentTemplates();
+  }, []);
+
+  const loadDocumentTemplates = async () => {
+    try {
+      const templates = await DocumentTemplateService.getTemplates();
+      setDocumentTemplates(templates);
+      
+      // Load linked templates for all requirements
+      const linkedMap: Record<string, DocumentTemplate[]> = {};
+      for (const req of allRequirements) {
+        const linked = await requirementDocumentMappingService.getLinkedTemplates(req.id);
+        linkedMap[req.id] = linked;
+      }
+      setLinkedTemplatesMap(linkedMap);
+    } catch (error) {
+      console.error('Error loading templates:', error);
+    }
+  };
 
   const filteredRequirements = useMemo(() => {
     let requirements = allRequirements;
@@ -104,6 +132,7 @@ export function RequirementsManagement() {
   const RequirementCard = ({ requirement }: { requirement: RequirementTemplate }) => {
     const Icon = typeIcons[requirement.type];
     const colorClass = typeColors[requirement.type];
+    const linkedTemplates = linkedTemplatesMap[requirement.id] || [];
 
     return (
       <Card className="group hover:shadow-md transition-all duration-200">
@@ -161,10 +190,10 @@ export function RequirementsManagement() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
-          <p className="text-sm text-muted-foreground mb-3">{requirement.description}</p>
+        <CardContent className="pt-0 space-y-3">
+          <p className="text-sm text-muted-foreground">{requirement.description}</p>
           {requirement.minimumGrade && (
-            <div className="text-xs text-muted-foreground mb-2">
+            <div className="text-xs text-muted-foreground">
               <strong>Minimum Grade:</strong> {requirement.minimumGrade}
             </div>
           )}
@@ -174,7 +203,32 @@ export function RequirementsManagement() {
               {requirement.alternatives.length > 2 && ` +${requirement.alternatives.length - 2} more`}
             </div>
           )}
-          <div className="flex flex-wrap gap-1 mt-3">
+          
+          {/* Linked Document Templates Section */}
+          <div className="pt-2 border-t">
+            <div className="flex items-center gap-2 mb-2">
+              <Package className="h-3 w-3 text-muted-foreground" />
+              <div className="text-xs font-medium text-muted-foreground">
+                Verified by documents:
+              </div>
+            </div>
+            {linkedTemplates.length > 0 ? (
+              <div className="flex flex-wrap gap-1">
+                {linkedTemplates.map((template) => (
+                  <Badge key={template.id} variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                    {template.name}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 text-xs text-amber-600">
+                <AlertCircle className="w-3 h-3" />
+                No documents linked
+              </div>
+            )}
+          </div>
+          
+          <div className="flex flex-wrap gap-1">
             {requirement.applicablePrograms.slice(0, 3).map((program, index) => (
               <Badge key={index} variant="outline" className="text-xs">
                 {program}

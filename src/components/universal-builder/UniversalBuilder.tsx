@@ -17,6 +17,7 @@ import { PreviewPanel } from './PreviewPanel';
 import { JourneyElementPalette } from '@/components/journey-builder/JourneyElementPalette';
 import { JourneyPropertyPanel } from '@/components/journey-builder/JourneyPropertyPanel';
 import { TemplateSelector } from '@/components/campaign-builder/TemplateSelector';
+import { InitialTemplateDialog } from '@/components/campaign-builder/InitialTemplateDialog';
 import { CampaignTemplate } from '@/config/campaignTemplates';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
@@ -75,6 +76,7 @@ function UniversalBuilderContent({
 }: UniversalBuilderProps) {
   const { state, dispatch } = useBuilder();
   const [activeTab, setActiveTab] = useState('build');
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
 
   React.useEffect(() => {
     if (initialConfig) {
@@ -82,7 +84,26 @@ function UniversalBuilderContent({
     } else {
       dispatch({ type: 'SET_BUILDER_TYPE', payload: builderType });
     }
+    
+    // Show template dialog for new campaigns
+    if (builderType === 'campaign' && !initialConfig?.name && !initialConfig?.elements?.length) {
+      setShowTemplateDialog(true);
+    }
   }, [initialConfig, builderType, dispatch]);
+
+  const handleTemplateSelect = (template: CampaignTemplate) => {
+    if (onSelectTemplate) {
+      onSelectTemplate(template);
+      setShowTemplateDialog(false);
+    }
+  };
+
+  const handleStartBlank = () => {
+    if (onStartBlank) {
+      onStartBlank();
+    }
+    setShowTemplateDialog(false);
+  };
 
   const getElementTypes = () => {
     switch (state.config.type) {
@@ -181,6 +202,15 @@ function UniversalBuilderContent({
 
   return (
     <div className="h-screen flex flex-col bg-background">
+      {/* Initial Template Dialog for new campaigns */}
+      {state.config.type === 'campaign' && showTemplateDialog && (
+        <InitialTemplateDialog
+          open={showTemplateDialog}
+          onSelectTemplate={handleTemplateSelect}
+          onStartBlank={handleStartBlank}
+        />
+      )}
+      
       {/* Header */}
       <div className="border-b bg-card">
         <div className="flex items-center justify-between p-4">

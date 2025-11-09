@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,6 @@ import { UniversalElement, CampaignElement } from '@/types/universalBuilder';
 import { Plus, Trash2, Mail, Clock, MessageSquare, ChevronDown, ChevronUp, GitBranch, Split, GripVertical, UserCog, UserCheck, Bell, Target, LogOut, Copy, CheckSquare, Eye, Send } from 'lucide-react';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { TriggerConditionBuilder } from './TriggerConditionBuilder';
-import { MiniMap } from './MiniMap';
 
 interface FlowCanvasProps {
   onAddElement: (elementType: string) => void;
@@ -18,7 +17,6 @@ interface FlowCanvasProps {
 export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
   const { state, dispatch } = useBuilder();
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const handleDeleteElement = (elementId: string) => {
     dispatch({ type: 'DELETE_ELEMENT', payload: elementId });
@@ -323,8 +321,7 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
   }
 
   return (
-    <div ref={scrollContainerRef} className="h-full overflow-auto relative">
-      <MiniMap containerRef={scrollContainerRef} />
+    <div className="h-full overflow-auto">
       <div className="p-8">
         {/* Flow Header */}
         <div className="text-center mb-8">

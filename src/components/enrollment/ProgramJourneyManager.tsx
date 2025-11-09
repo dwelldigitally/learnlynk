@@ -12,7 +12,6 @@ import { usePracticumJourneys } from '@/hooks/usePracticum';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { JourneyBuilder } from './JourneyBuilder';
-import { JourneyEditor } from './JourneyEditor';
 import { MasterJourneySetupWizard } from './MasterJourneySetupWizard';
 import { AcademicJourney } from '@/types/academicJourney';
 import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService';
@@ -146,6 +145,7 @@ export function ProgramJourneyManager() {
 
   const handleEditJourney = (journey: CombinedJourney) => {
     if (journey.type === 'academic') {
+      // Use the new HubSpotJourneyBuilder for editing academic journeys
       setEditingJourneyId(journey.id);
     } else {
       // Convert practicum journey to builder config format
@@ -212,24 +212,18 @@ export function ProgramJourneyManager() {
     );
   }
 
-  // Show Journey Editor if editing is active
-  if (editingJourneyId) {
+  // Show Journey Builder if editing or creating is active
+  if (editingJourneyId || showJourneyBuilder) {
     return (
-      <JourneyEditor 
-        journeyId={editingJourneyId}
-        onBack={() => setEditingJourneyId(null)}
+      <JourneyBuilder 
+        onBack={() => {
+          setEditingJourneyId(null);
+          setShowJourneyBuilder(false);
+        }}
       />
     );
   }
 
-  // Show Journey Builder if building is active
-  if (showJourneyBuilder) {
-    return (
-      <JourneyBuilder 
-        onBack={() => setShowJourneyBuilder(false)}
-      />
-    );
-  }
 
   // Main manager interface
   return (

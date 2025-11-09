@@ -1364,6 +1364,31 @@ export const journeyElementTypes: ElementTypeConfig[] = [
       { key: 'finalSteps', label: 'Final Enrollment Steps', type: 'checkbox' },
       { key: 'orientationAgenda', label: 'Orientation Agenda', type: 'textarea' }
     ]
+  },
+  {
+    type: 'enrollment-completed',
+    label: 'Enrollment Completed',
+    icon: 'CheckCircle2',
+    category: 'Enrollment',
+    defaultConfig: {
+      completionStatus: 'enrolled',
+      sendCompletionNotification: true,
+      activateStudentPortal: true,
+      issueStudentID: true,
+      archiveJourney: true
+    },
+    configSchema: [
+      { key: 'completionStatus', label: 'Completion Status', type: 'select', options: [
+        { label: 'Enrolled', value: 'enrolled' },
+        { label: 'Enrolled - Conditional', value: 'enrolled_conditional' },
+        { label: 'Completed', value: 'completed' }
+      ]},
+      { key: 'sendCompletionNotification', label: 'Send Completion Notification', type: 'checkbox' },
+      { key: 'activateStudentPortal', label: 'Activate Student Portal', type: 'checkbox' },
+      { key: 'issueStudentID', label: 'Issue Student ID', type: 'checkbox' },
+      { key: 'archiveJourney', label: 'Archive Journey', type: 'checkbox' },
+      { key: 'completionMessage', label: 'Completion Message', type: 'textarea' }
+    ]
   }
 ];
 

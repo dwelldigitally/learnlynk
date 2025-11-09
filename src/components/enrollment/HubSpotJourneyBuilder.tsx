@@ -24,7 +24,7 @@ import {
   MoreHorizontal, Copy, TestTube, Calendar as CalendarIcon,
   AlertTriangle, Timer,
   CheckCircle, SkipForward, Mail, Sparkles,
-  DollarSign, UserCheck, GraduationCap
+  DollarSign, UserCheck, GraduationCap, CheckCircle2
 } from 'lucide-react';
 import { BuilderConfig, JourneyElement, UniversalElement } from '@/types/universalBuilder';
 import { journeyElementTypes } from '@/config/elementTypes';

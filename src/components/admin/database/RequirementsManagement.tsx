@@ -62,7 +62,6 @@ export const RequirementsManagement = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [editingRequirement, setEditingRequirement] = useState<RequirementFormData | null>(null);
   const [alternativeInput, setAlternativeInput] = useState('');
-  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -242,12 +241,12 @@ export const RequirementsManagement = () => {
       linked_document_templates: requirement?.linked_document_templates || []
     });
 
+    const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>(
+      requirement?.linked_document_templates || []
+    );
+
     useEffect(() => {
-      if (requirement) {
-        setSelectedTemplateIds(requirement.linked_document_templates || []);
-      } else {
-        setSelectedTemplateIds([]);
-      }
+      setSelectedTemplateIds(requirement?.linked_document_templates || []);
     }, [requirement]);
 
     const addAlternative = () => {
@@ -423,15 +422,16 @@ export const RequirementsManagement = () => {
           <Select 
             value="" 
             onValueChange={(templateId) => {
-              if (!selectedTemplateIds.includes(templateId)) {
-                setSelectedTemplateIds([...selectedTemplateIds, templateId]);
+              if (templateId && !selectedTemplateIds.includes(templateId)) {
+                const newTemplateIds = [...selectedTemplateIds, templateId];
+                setSelectedTemplateIds(newTemplateIds);
               }
             }}
           >
-            <SelectTrigger>
+            <SelectTrigger className="bg-background">
               <SelectValue placeholder="Select document templates..." />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-background z-50">
               {documentTemplates
                 .filter(t => !selectedTemplateIds.includes(t.id))
                 .map(template => (
@@ -443,6 +443,11 @@ export const RequirementsManagement = () => {
                   </SelectItem>
                 ))
               }
+              {documentTemplates.filter(t => !selectedTemplateIds.includes(t.id)).length === 0 && (
+                <div className="p-2 text-xs text-muted-foreground text-center">
+                  All templates already selected
+                </div>
+              )}
             </SelectContent>
           </Select>
           
@@ -458,9 +463,10 @@ export const RequirementsManagement = () => {
                       variant="ghost"
                       size="sm"
                       className="h-auto p-0 ml-1 hover:bg-transparent"
-                      onClick={() => setSelectedTemplateIds(
-                        selectedTemplateIds.filter(id => id !== templateId)
-                      )}
+                      onClick={() => {
+                        const newTemplateIds = selectedTemplateIds.filter(id => id !== templateId);
+                        setSelectedTemplateIds(newTemplateIds);
+                      }}
                     >
                       <X className="h-3 w-3" />
                     </Button>

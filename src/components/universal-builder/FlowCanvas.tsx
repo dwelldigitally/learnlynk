@@ -361,16 +361,52 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
               );
             })}
 
-            {/* Add New Trigger Button */}
-            <div className="max-w-3xl mx-auto">
-              <Button 
-                variant="outline" 
-                onClick={() => onAddElement('trigger')}
-                className="w-full border-dashed h-12"
+            {/* Add Action Button */}
+            <div className="max-w-3xl mx-auto flex justify-center mt-8">
+              <Popover 
+                open={openPopoverId === 'add-after-triggers'} 
+                onOpenChange={(open) => setOpenPopoverId(open ? 'add-after-triggers' : null)}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                Add a new trigger
-              </Button>
+                <PopoverTrigger asChild>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="rounded-full w-12 h-12 p-0 border-dashed hover:border-solid hover:bg-primary/10 transition-all"
+                  >
+                    <Plus className="h-6 w-6" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-72 p-2" align="center">
+                  <div className="space-y-1">
+                    <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                      Add Action
+                    </div>
+                    {getCampaignActions().map((action) => {
+                      const ActionIcon = getElementIcon(action.type);
+                      return (
+                        <Button
+                          key={action.type}
+                          variant="ghost"
+                          className="w-full justify-start h-auto py-3 px-3 hover:bg-accent"
+                          onClick={() => handleAddAction(action.type, 'add-after-triggers')}
+                        >
+                          <div className="flex items-center gap-3 w-full">
+                            <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                              <ActionIcon className="w-4 h-4 text-primary" />
+                            </div>
+                            <div className="flex-1 text-left">
+                              <div className="font-medium text-sm">{action.label}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {action.category}
+                              </div>
+                            </div>
+                          </div>
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>

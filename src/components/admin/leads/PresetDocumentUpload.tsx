@@ -20,7 +20,8 @@ import {
   FileType,
   CheckCircle,
   Clock,
-  Edit
+  Edit,
+  Download
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
 
@@ -234,6 +235,54 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     }
   };
 
+  const handleBulkDownload = async () => {
+    const approvedDocuments = documents.filter(doc => doc.admin_status === 'approved');
+    
+    if (approvedDocuments.length === 0) {
+      toast({
+        title: 'No approved documents',
+        description: 'There are no approved documents to download',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Downloading documents',
+      description: `Preparing ${approvedDocuments.length} document(s) for download...`
+    });
+
+    try {
+      for (const doc of approvedDocuments) {
+        const url = await presetDocumentService.getDocumentUrl(doc.file_path);
+        
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = doc.document_name;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Small delay between downloads to avoid browser blocking
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+
+      toast({
+        title: 'Download complete',
+        description: `Successfully downloaded ${approvedDocuments.length} document(s)`
+      });
+    } catch (error) {
+      console.error('Bulk download error:', error);
+      toast({
+        title: 'Download failed',
+        description: 'Failed to download some documents',
+        variant: 'destructive'
+      });
+    }
+  };
+
   const getFileIcon = (documentType: string) => {
     if (documentType.includes('image')) return <Image className="h-4 w-4" />;
     if (documentType.includes('pdf')) return <FileText className="h-4 w-4" />;
@@ -289,8 +338,23 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
       {/* Consolidated Requirements List */}
       <Card>
         <CardHeader>
-          <CardTitle>Required Documents</CardTitle>
-          <CardDescription>Upload and manage all required documents for this program</CardDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <CardTitle>Required Documents</CardTitle>
+              <CardDescription>Upload and manage all required documents for this program</CardDescription>
+            </div>
+            {documents.filter(doc => doc.admin_status === 'approved').length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkDownload}
+                className="flex-shrink-0"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download All Approved
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">

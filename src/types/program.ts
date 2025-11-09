@@ -40,6 +40,16 @@ export interface Program {
     assigned_sites: string[]; // site IDs
   };
   
+  // Journey configuration
+  journeyConfiguration?: {
+    mode: 'master' | 'copy' | 'custom';
+    domesticJourneyId?: string;
+    internationalJourneyId?: string;
+    sourceProgram?: string; // Program ID if copied from another program
+    customizations?: Record<string, any>;
+    studentTypes?: ('domestic' | 'international')[];
+  };
+  
   // Metadata
   createdAt: string;
   updatedAt: string;

@@ -151,6 +151,130 @@ export class ProgramService {
       throw error;
     }
   }
+
+  /**
+   * Get journeys configured for a specific program
+   */
+  static async getProgramJourneys(programId: string) {
+    const { data, error } = await supabase
+      .from('academic_journeys')
+      .select('*, journey_templates!inner(*)')
+      .eq('program_id', programId)
+      .eq('is_active', true);
+
+    if (error) {
+      console.error('Error fetching program journeys:', error);
+      throw error;
+    }
+
+    return data || [];
+  }
+
+  /**
+   * Copy journey configuration from one program to another
+   */
+  static async copyJourneyFromProgram(
+    sourceProgramId: string,
+    targetProgramId: string,
+    studentType?: 'domestic' | 'international' | 'both'
+  ) {
+    // Fetch source program's journeys
+    const sourceJourneys = await this.getProgramJourneys(sourceProgramId);
+    
+    if (!sourceJourneys || sourceJourneys.length === 0) {
+      throw new Error('Source program has no configured journeys');
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Filter by student type if specified
+    const journeysToCopy = studentType && studentType !== 'both'
+      ? sourceJourneys.filter(j => j.journey_templates?.student_type === studentType)
+      : sourceJourneys;
+
+    // Copy each journey
+    const copiedJourneys = await Promise.all(
+      journeysToCopy.map(async (sourceJourney) => {
+        const metadata = sourceJourney.metadata || {};
+        const { data, error } = await supabase
+          .from('academic_journeys')
+          .insert({
+            user_id: user.id,
+            program_id: targetProgramId,
+            template_id: sourceJourney.template_id,
+            name: sourceJourney.name,
+            description: sourceJourney.description,
+            version: 1,
+            is_active: true,
+            metadata: {
+              ...(typeof metadata === 'object' ? metadata : {}),
+              copied_from_program: sourceProgramId,
+              copied_at: new Date().toISOString()
+            }
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      })
+    );
+
+    return copiedJourneys;
+  }
+
+  /**
+   * Link a program to master journey templates
+   */
+  static async linkMasterJourney(
+    programId: string,
+    studentTypes: ('domestic' | 'international')[]
+  ) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Get master templates
+    const { data: masterTemplates, error: templateError } = await supabase
+      .from('journey_templates')
+      .select('*')
+      .eq('is_master_template', true)
+      .in('student_type', studentTypes);
+
+    if (templateError) throw templateError;
+    if (!masterTemplates || masterTemplates.length === 0) {
+      throw new Error('No master templates found');
+    }
+
+    // Create journey instances linked to master templates
+    const linkedJourneys = await Promise.all(
+      masterTemplates.map(async (template) => {
+        const { data, error } = await supabase
+          .from('academic_journeys')
+          .insert({
+            user_id: user.id,
+            program_id: programId,
+            template_id: template.id,
+            name: `${template.name} - Program Journey`,
+            description: template.description,
+            version: 1,
+            is_active: true,
+            metadata: {
+              linked_to_master: true,
+              student_type: template.student_type,
+              linked_at: new Date().toISOString()
+            }
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      })
+    );
+
+    return linkedJourneys;
+  }
 }
 
 /**

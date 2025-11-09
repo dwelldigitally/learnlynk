@@ -8,9 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useJourneyTemplates } from '@/services/academicJourneyService';
+import { usePrograms } from '@/services/programService';
 import { JourneyTemplate, JourneyWizardState } from '@/types/academicJourney';
-import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye } from 'lucide-react';
+import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye, Globe, Copy, Sparkles } from 'lucide-react';
+import { ProgramJourneySelector } from './wizard/journey-steps/ProgramJourneySelector';
+import { useMasterJourneyTemplates } from '@/hooks/useMasterJourneyTemplates';
 
 interface ProgramJourneyStepProps {
   data: any;
@@ -22,7 +27,14 @@ interface ProgramJourneyStepProps {
 const onUpdate = (onDataChange: (data: any) => void) => onDataChange;
 
 export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepProps) {
+  const [selectionMode, setSelectionMode] = useState<'master' | 'copy' | 'custom'>(
+    data.journeyConfiguration?.mode || 'master'
+  );
   const [selectedTemplate, setSelectedTemplate] = useState<JourneyTemplate | null>(null);
+  const [selectedProgram, setSelectedProgram] = useState<any>(null);
+  const [selectedStudentTypes, setSelectedStudentTypes] = useState<('domestic' | 'international')[]>(
+    data.journeyConfiguration?.studentTypes || ['domestic', 'international']
+  );
   const [journeyData, setJourneyData] = useState<JourneyWizardState>({
     name: data.journeyName || '',
     description: data.journeyDescription || '',
@@ -31,11 +43,17 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     customStages: [],
     metadata: {}
   });
-  const [activeTab, setActiveTab] = useState<'templates' | 'configure' | 'preview'>('templates');
+  const [activeTab, setActiveTab] = useState<'mode' | 'configure' | 'preview'>('mode');
 
   const { data: templates, isLoading } = useJourneyTemplates();
+  const { data: programs } = usePrograms();
+  const { domesticTemplate, internationalTemplate, isLoading: masterLoading } = useMasterJourneyTemplates();
 
   useEffect(() => {
+    if (data.journeyConfiguration) {
+      setSelectionMode(data.journeyConfiguration.mode);
+      setSelectedStudentTypes(data.journeyConfiguration.studentTypes || ['domestic', 'international']);
+    }
     if (data.selectedJourneyTemplate) {
       const template = templates?.find(t => t.id === data.selectedJourneyTemplate);
       if (template) {
@@ -43,7 +61,21 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
         setActiveTab('configure');
       }
     }
-  }, [data.selectedJourneyTemplate, templates]);
+  }, [data.selectedJourneyTemplate, data.journeyConfiguration, templates, selectionMode]);
+
+  const handleModeSelect = (mode: 'master' | 'copy' | 'custom') => {
+    setSelectionMode(mode);
+    setActiveTab('configure');
+    
+    onDataChange({
+      ...data,
+      journeyConfiguration: {
+        ...(data.journeyConfiguration || {}),
+        mode,
+        studentTypes: selectedStudentTypes
+      }
+    });
+  };
 
   const handleTemplateSelect = (template: JourneyTemplate) => {
     setSelectedTemplate(template);
@@ -53,7 +85,6 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       name: template.name,
       description: template.description || ''
     }));
-    setActiveTab('configure');
     
     onDataChange({
       ...data,
@@ -61,7 +92,45 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       journeyName: template.name,
       journeyDescription: template.description,
       journeyComplexity: template.complexity_level,
-      journeyEstimatedDuration: template.estimated_duration_days
+      journeyEstimatedDuration: template.estimated_duration_days,
+      journeyConfiguration: {
+        ...data.journeyConfiguration,
+        mode: selectionMode,
+        studentTypes: selectedStudentTypes
+      }
+    });
+  };
+
+  const handleProgramSelect = (program: any, studentType?: 'domestic' | 'international' | 'both') => {
+    setSelectedProgram(program);
+    
+    onDataChange({
+      ...data,
+      journeyConfiguration: {
+        mode: 'copy',
+        sourceProgram: program.id,
+        domesticJourneyId: studentType !== 'international' ? program.journeyConfiguration?.domesticJourneyId : undefined,
+        internationalJourneyId: studentType !== 'domestic' ? program.journeyConfiguration?.internationalJourneyId : undefined,
+        studentTypes: selectedStudentTypes
+      }
+    });
+  };
+
+  const handleStudentTypeToggle = (type: 'domestic' | 'international') => {
+    setSelectedStudentTypes(prev => {
+      const newTypes = prev.includes(type) 
+        ? prev.filter(t => t !== type)
+        : [...prev, type];
+      
+      onDataChange({
+        ...data,
+        journeyConfiguration: {
+          ...data.journeyConfiguration,
+          studentTypes: newTypes
+        }
+      });
+      
+      return newTypes;
     });
   };
 
@@ -125,6 +194,119 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     </Card>
   );
 
+  const renderModeSelection = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-semibold mb-2">Configure Academic Journey</h3>
+        <p className="text-muted-foreground">
+          Choose how you want to set up the academic journey for this program
+        </p>
+      </div>
+
+      <RadioGroup value={selectionMode} onValueChange={(value: any) => handleModeSelect(value)}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Master Templates Option */}
+          <Card className={`cursor-pointer transition-all ${selectionMode === 'master' ? 'ring-2 ring-primary' : ''}`}>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="master" id="mode-master" />
+                <Label htmlFor="mode-master" className="cursor-pointer flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-primary" />
+                  <span className="font-semibold">Global Master Templates</span>
+                </Label>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-3">
+                Apply institution-wide standard journeys for domestic and international students
+              </p>
+              <div className="space-y-2">
+                <Badge variant="secondary" className="text-xs">Recommended</Badge>
+                <div className="text-xs text-muted-foreground">
+                  ✓ Institution standards<br />
+                  ✓ Automatic updates<br />
+                  ✓ Consistent experience
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Copy from Program Option */}
+          <Card className={`cursor-pointer transition-all ${selectionMode === 'copy' ? 'ring-2 ring-primary' : ''}`}>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="copy" id="mode-copy" />
+                <Label htmlFor="mode-copy" className="cursor-pointer flex items-center gap-2">
+                  <Copy className="h-5 w-5 text-primary" />
+                  <span className="font-semibold">Copy from Program</span>
+                </Label>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-3">
+                Inherit journey configuration from an existing program
+              </p>
+              <div className="space-y-2">
+                <Badge variant="outline" className="text-xs">Time Saver</Badge>
+                <div className="text-xs text-muted-foreground">
+                  ✓ Proven workflows<br />
+                  ✓ Similar programs<br />
+                  ✓ Quick setup
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Custom Template Option */}
+          <Card className={`cursor-pointer transition-all ${selectionMode === 'custom' ? 'ring-2 ring-primary' : ''}`}>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="custom" id="mode-custom" />
+                <Label htmlFor="mode-custom" className="cursor-pointer flex items-center gap-2">
+                  <Settings className="h-5 w-5 text-primary" />
+                  <span className="font-semibold">Custom Template</span>
+                </Label>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-3">
+                Build from scratch using journey templates
+              </p>
+              <div className="space-y-2">
+                <Badge variant="outline" className="text-xs">Advanced</Badge>
+                <div className="text-xs text-muted-foreground">
+                  ✓ Full customization<br />
+                  ✓ Unique requirements<br />
+                  ✓ Complete control
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </RadioGroup>
+
+      {selectionMode && (
+        <Card className="bg-primary/5 border-primary/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 mb-3">
+              <CheckCircle className="h-5 w-5 text-primary" />
+              <span className="font-medium">Selected: {
+                selectionMode === 'master' ? 'Global Master Templates' :
+                selectionMode === 'copy' ? 'Copy from Program' :
+                'Custom Template'
+              }</span>
+            </div>
+            <Button onClick={() => setActiveTab('configure')} className="w-full">
+              Continue to Configuration
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
   const renderTemplatesList = () => (
     <div className="space-y-4">
       <div className="text-center">
@@ -165,13 +347,167 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     </div>
   );
 
-  const renderJourneyConfiguration = () => (
+  const renderJourneyConfiguration = () => {
+    if (selectionMode === 'master') {
+      return renderMasterTemplateConfiguration();
+    } else if (selectionMode === 'copy') {
+      return renderCopyProgramConfiguration();
+    } else {
+      return renderCustomTemplateConfiguration();
+    }
+  };
+
+  const renderMasterTemplateConfiguration = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <Globe className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-semibold mb-2">Global Master Templates</h3>
+        <p className="text-muted-foreground">
+          Configure which student types will use the master journey templates
+        </p>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Student Type Selection</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Select which student types this program will accept:
+          </p>
+          
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="domestic"
+                checked={selectedStudentTypes.includes('domestic')}
+                onCheckedChange={() => handleStudentTypeToggle('domestic')}
+              />
+              <Label htmlFor="domestic" className="flex-1 cursor-pointer">
+                <div className="font-medium">Domestic Students</div>
+                <div className="text-sm text-muted-foreground">
+                  Uses Master Domestic Student Journey template
+                </div>
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="international"
+                checked={selectedStudentTypes.includes('international')}
+                onCheckedChange={() => handleStudentTypeToggle('international')}
+              />
+              <Label htmlFor="international" className="flex-1 cursor-pointer">
+                <div className="font-medium">International Students</div>
+                <div className="text-sm text-muted-foreground">
+                  Uses Master International Student Journey template
+                </div>
+              </Label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {(domesticTemplate || internationalTemplate) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {selectedStudentTypes.includes('domestic') && domesticTemplate && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Domestic Journey
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Stages:</span>
+                    <span className="font-medium">
+                      {domesticTemplate.template_data?.stages?.length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Complexity:</span>
+                    <Badge variant="secondary">{domesticTemplate.complexity_level}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {selectedStudentTypes.includes('international') && internationalTemplate && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Globe className="h-4 w-4" />
+                  International Journey
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Stages:</span>
+                    <span className="font-medium">
+                      {internationalTemplate.template_data?.stages?.length || 0}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Complexity:</span>
+                    <Badge variant="secondary">{internationalTemplate.complexity_level}</Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  const renderCopyProgramConfiguration = () => (
+    <div className="space-y-6">
+      <div className="text-center">
+        <Copy className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h3 className="text-lg font-semibold mb-2">Copy Journey from Program</h3>
+        <p className="text-muted-foreground">
+          Select an existing program to copy its journey configuration
+        </p>
+      </div>
+
+      {programs && programs.length > 0 ? (
+        <ProgramJourneySelector
+          programs={programs}
+          onSelect={handleProgramSelect}
+          selectedProgramId={selectedProgram?.id}
+        />
+      ) : (
+        <Card>
+          <CardContent className="py-8 text-center">
+            <p className="text-muted-foreground">No programs with configured journeys available</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {selectedProgram && (
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-600" />
+              <span className="font-medium">Copying journey from: {selectedProgram.name}</span>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
+  const renderCustomTemplateConfiguration = () => (
     <div className="space-y-6">
       <div className="text-center">
         <Settings className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h3 className="text-lg font-semibold mb-2">Configure Your Journey</h3>
+        <h3 className="text-lg font-semibold mb-2">Custom Journey Template</h3>
         <p className="text-muted-foreground">
-          Customize the journey details for your program
+          Select and customize a journey template for your program
         </p>
       </div>
 
@@ -254,6 +590,8 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
           </CardContent>
         </Card>
       </div>
+
+      {!selectedTemplate && renderTemplatesList()}
     </div>
   );
 
@@ -354,22 +692,22 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       <div className="flex border-b">
         <button
           className={`px-4 py-2 font-medium text-sm transition-colors ${
-            activeTab === 'templates' 
+            activeTab === 'mode' 
               ? 'border-b-2 border-primary text-primary' 
               : 'text-muted-foreground hover:text-foreground'
           }`}
-          onClick={() => setActiveTab('templates')}
+          onClick={() => setActiveTab('mode')}
         >
-          Templates
+          Selection Mode
         </button>
         <button
           className={`px-4 py-2 font-medium text-sm transition-colors ${
             activeTab === 'configure' 
               ? 'border-b-2 border-primary text-primary' 
               : 'text-muted-foreground hover:text-foreground'
-          } ${!selectedTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
-          onClick={() => selectedTemplate && setActiveTab('configure')}
-          disabled={!selectedTemplate}
+          } ${!selectionMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => selectionMode && setActiveTab('configure')}
+          disabled={!selectionMode}
         >
           Configure
         </button>
@@ -378,28 +716,30 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
             activeTab === 'preview' 
               ? 'border-b-2 border-primary text-primary' 
               : 'text-muted-foreground hover:text-foreground'
-          } ${!selectedTemplate ? 'opacity-50 cursor-not-allowed' : ''}`}
-          onClick={() => selectedTemplate && setActiveTab('preview')}
-          disabled={!selectedTemplate}
+          } ${!selectionMode ? 'opacity-50 cursor-not-allowed' : ''}`}
+          onClick={() => selectionMode && setActiveTab('preview')}
+          disabled={!selectionMode}
         >
           Preview
         </button>
       </div>
 
       <div className="min-h-[400px]">
-        {activeTab === 'templates' && renderTemplatesList()}
+        {activeTab === 'mode' && renderModeSelection()}
         {activeTab === 'configure' && renderJourneyConfiguration()}
         {activeTab === 'preview' && renderJourneyPreview()}
       </div>
 
-      {selectedTemplate && (
+      {(selectionMode === 'master' && selectedStudentTypes.length > 0) ||
+       (selectionMode === 'copy' && selectedProgram) ||
+       (selectionMode === 'custom' && selectedTemplate) ? (
         <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <span className="text-sm text-green-800">
-            Journey template configured successfully. Continue to complete your program setup.
+            Journey configured successfully. Continue to complete your program setup.
           </span>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

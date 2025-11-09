@@ -779,6 +779,246 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
 
                 <Separator />
 
+                {/* Assignment & Responsibility */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-slate-600" />
+                    <h4 className="font-medium text-slate-900">Assignment & Responsibility</h4>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-slate-600">Assigned To</Label>
+                    <Select
+                      value={selectedStep.config?.assignedTo || 'student_advisor'}
+                      onValueChange={(value) => dispatch({
+                        type: 'UPDATE_ELEMENT',
+                        payload: { 
+                          id: selectedStep.id, 
+                          updates: { 
+                            config: { ...selectedStep.config, assignedTo: value } 
+                          } 
+                        }
+                      })}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="student_advisor">Student's Advisor</SelectItem>
+                        <SelectItem value="review_committee">Review Committee</SelectItem>
+                        <SelectItem value="registrar_assistant">Registrar Assistant</SelectItem>
+                        <SelectItem value="registrar">Registrar</SelectItem>
+                        <SelectItem value="admissions_officer">Admissions Officer</SelectItem>
+                        <SelectItem value="financial_aid">Financial Aid Office</SelectItem>
+                        <SelectItem value="international_office">International Student Office</SelectItem>
+                        <SelectItem value="program_coordinator">Program Coordinator</SelectItem>
+                        <SelectItem value="system_automated">System (Automated)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Who is responsible for completing or reviewing this step
+                    </p>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-slate-700">Notify Assignee</Label>
+                      <p className="text-xs text-slate-500">Send notification when step becomes active</p>
+                    </div>
+                    <Switch
+                      checked={selectedStep.config?.notifyAssignee !== false}
+                      onCheckedChange={(checked) => dispatch({
+                        type: 'UPDATE_ELEMENT',
+                        payload: { 
+                          id: selectedStep.id, 
+                          updates: { 
+                            config: { ...selectedStep.config, notifyAssignee: checked } 
+                          } 
+                        }
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Deadline Notifications */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-4 w-4 text-slate-600" />
+                    <h4 className="font-medium text-slate-900">Deadline Notifications</h4>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium text-slate-700">Enable Notifications</Label>
+                      <p className="text-xs text-slate-500">Send reminders before deadline</p>
+                    </div>
+                    <Switch
+                      checked={selectedStep.config?.enableNotifications !== false}
+                      onCheckedChange={(checked) => dispatch({
+                        type: 'UPDATE_ELEMENT',
+                        payload: { 
+                          id: selectedStep.id, 
+                          updates: { 
+                            config: { ...selectedStep.config, enableNotifications: checked } 
+                          } 
+                        }
+                      })}
+                    />
+                  </div>
+
+                  {selectedStep.config?.enableNotifications !== false && (
+                    <div className="space-y-3 pl-4 border-l-2 border-slate-200">
+                      <div>
+                        <Label className="text-sm text-slate-600">Notification Recipients</Label>
+                        <div className="space-y-2 mt-2">
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-slate-600 font-normal">Student</Label>
+                            <Switch
+                              checked={selectedStep.config?.notifyStudent !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, notifyStudent: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-slate-600 font-normal">Assigned Staff</Label>
+                            <Switch
+                              checked={selectedStep.config?.notifyStaff !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, notifyStaff: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-xs text-slate-600 font-normal">Student's Advisor</Label>
+                            <Switch
+                              checked={selectedStep.config?.notifyAdvisor !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, notifyAdvisor: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-slate-600">Reminder Schedule</Label>
+                        <div className="space-y-2 mt-2">
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={selectedStep.config?.remind7Days !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, remind7Days: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                            <Label className="text-xs text-slate-600 font-normal">7 days before deadline</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={selectedStep.config?.remind3Days !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, remind3Days: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                            <Label className="text-xs text-slate-600 font-normal">3 days before deadline</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={selectedStep.config?.remind1Day !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, remind1Day: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                            <Label className="text-xs text-slate-600 font-normal">1 day before deadline</Label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={selectedStep.config?.remindOnDeadline !== false}
+                              onCheckedChange={(checked) => dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: { 
+                                  id: selectedStep.id, 
+                                  updates: { 
+                                    config: { ...selectedStep.config, remindOnDeadline: checked } 
+                                  } 
+                                }
+                              })}
+                            />
+                            <Label className="text-xs text-slate-600 font-normal">On deadline day</Label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-slate-600">Notification Method</Label>
+                        <Select
+                          value={selectedStep.config?.notificationMethod || 'email'}
+                          onValueChange={(value) => dispatch({
+                            type: 'UPDATE_ELEMENT',
+                            payload: { 
+                              id: selectedStep.id, 
+                              updates: { 
+                                config: { ...selectedStep.config, notificationMethod: value } 
+                              } 
+                            }
+                          })}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="email">Email Only</SelectItem>
+                            <SelectItem value="sms">SMS Only</SelectItem>
+                            <SelectItem value="portal">Portal Notification</SelectItem>
+                            <SelectItem value="email_sms">Email + SMS</SelectItem>
+                            <SelectItem value="all">All Methods</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <Separator />
+
                 {/* Step Behavior */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">

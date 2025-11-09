@@ -398,10 +398,10 @@ function UniversalBuilderContent({
               {/* Workflow/Campaign Builder Layout */}
               {(state.config.type === 'workflow' || state.config.type === 'campaign') && (
                 <>
-                  {/* Left Sidebar - Actions (Element Palette) - Sticky */}
+                  {/* Left Sidebar - Properties */}
                   <div className="w-80 flex-shrink-0 overflow-hidden">
                     <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
-                      <ActionsSidebar onAddElement={handleAddElement} />
+                      <PropertyPanel />
                     </div>
                   </div>
 
@@ -414,10 +414,10 @@ function UniversalBuilderContent({
                     )}
                   </div>
 
-                  {/* Right Sidebar - Properties - Sticky */}
+                  {/* Right Sidebar - Actions (Element Palette) */}
                   <div className="w-80 flex-shrink-0 overflow-hidden">
                     <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
-                      <PropertyPanel />
+                      <ActionsSidebar onAddElement={handleAddElement} />
                     </div>
                   </div>
                 </>

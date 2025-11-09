@@ -83,10 +83,7 @@ export const navigationStructure: NavigationStructure = {
           href: "/admin/enrollment/today", 
           icon: Target,
           subItems: [
-            { name: "Today", href: "/admin/enrollment/today", icon: Clock },
-            { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
-            { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
-            { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route }
+            { name: "Today", href: "/admin/enrollment/today", icon: Clock }
           ]
         },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
@@ -117,6 +114,9 @@ export const navigationStructure: NavigationStructure = {
         { name: "Programs", href: "/admin/programs", icon: BookOpen },
         { name: "Workflows", href: "/admin/workflows", icon: Workflow },
         { name: "Requirements", href: "/admin/requirements", icon: Shield },
+        { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
+        { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: Workflow },
+        { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
         { name: "Academic Terms & Schedules", href: "/admin/academic-terms", icon: Calendar },
         { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
         { name: "Team Management", href: "/admin/team", icon: UserCog },

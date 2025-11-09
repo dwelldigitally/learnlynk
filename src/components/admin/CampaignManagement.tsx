@@ -21,6 +21,8 @@ import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot,
 import { NaturalLanguageCampaignBuilder } from './database/NaturalLanguageCampaignBuilder';
 import { UniversalBuilder } from '@/components/universal-builder/UniversalBuilder';
 import { CampaignService, type Campaign } from '@/services/campaignService';
+import { CampaignAnalyticsService } from '@/services/campaignAnalyticsService';
+import { CampaignAnalyticsModal } from './CampaignAnalyticsModal';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { PageHeader } from '@/components/modern/PageHeader';
@@ -35,6 +37,7 @@ export function CampaignManagement() {
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
+  const [analyticsCampaign, setAnalyticsCampaign] = useState<Campaign | null>(null);
   
   const { toast } = useToast();
 
@@ -172,6 +175,12 @@ export function CampaignManagement() {
     } finally {
       setCampaignToDelete(null);
     }
+  };
+
+  const handleViewAnalytics = async (campaign: Campaign) => {
+    // Track view action
+    await CampaignAnalyticsService.trackAction(campaign.id, 'viewed');
+    setAnalyticsCampaign(campaign);
   };
 
   const getStatusBadge = (status: string) => {
@@ -424,6 +433,10 @@ export function CampaignManagement() {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem onClick={() => handleViewAnalytics(campaign)}>
+                                  <BarChart3 className="mr-2 h-4 w-4" />
+                                  View Analytics
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setSelectedCampaign(campaign)}>
                                   <Eye className="mr-2 h-4 w-4" />
                                   View Details
@@ -516,6 +529,13 @@ export function CampaignManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Analytics Modal */}
+      <CampaignAnalyticsModal
+        campaign={analyticsCampaign}
+        open={!!analyticsCampaign}
+        onOpenChange={(open) => !open && setAnalyticsCampaign(null)}
+      />
     </div>
   );
 }

@@ -1410,6 +1410,47 @@ export type Database = {
           },
         ]
       }
+      campaign_analytics: {
+        Row: {
+          action_metadata: Json | null
+          action_type: string
+          campaign_id: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_metadata?: Json | null
+          action_type: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_metadata?: Json | null
+          action_type?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_analytics_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_executions: {
         Row: {
           campaign_id: string
@@ -1487,10 +1528,16 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
+          last_executed_at: string | null
+          last_executed_by_user_id: string | null
           name: string
           start_date: string | null
+          started_at: string | null
+          started_by_user_id: string | null
           status: string
           target_audience: Json | null
+          total_executions: number | null
+          total_views: number | null
           updated_at: string
           user_id: string
           workflow_config: Json | null
@@ -1502,10 +1549,16 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          last_executed_at?: string | null
+          last_executed_by_user_id?: string | null
           name: string
           start_date?: string | null
+          started_at?: string | null
+          started_by_user_id?: string | null
           status?: string
           target_audience?: Json | null
+          total_executions?: number | null
+          total_views?: number | null
           updated_at?: string
           user_id: string
           workflow_config?: Json | null
@@ -1517,10 +1570,16 @@ export type Database = {
           description?: string | null
           end_date?: string | null
           id?: string
+          last_executed_at?: string | null
+          last_executed_by_user_id?: string | null
           name?: string
           start_date?: string | null
+          started_at?: string | null
+          started_by_user_id?: string | null
           status?: string
           target_audience?: Json | null
+          total_executions?: number | null
+          total_views?: number | null
           updated_at?: string
           user_id?: string
           workflow_config?: Json | null

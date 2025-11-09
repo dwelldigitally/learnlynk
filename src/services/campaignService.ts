@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
 import { supabaseWrapper } from './supabaseWrapper';
+import { CampaignAnalyticsService } from './campaignAnalyticsService';
 
 type DbCampaign = Database['public']['Tables']['campaigns']['Row'];
 type DbCampaignStep = Database['public']['Tables']['campaign_steps']['Row'];
@@ -44,6 +45,21 @@ export class CampaignService {
   }
 
   static async updateCampaign(id: string, updates: Partial<Campaign>): Promise<Campaign> {
+    // Track status changes
+    if (updates.status) {
+      const oldCampaign = await this.getCampaigns().then(campaigns => 
+        campaigns.find(c => c.id === id)
+      );
+      
+      if (oldCampaign && oldCampaign.status !== updates.status) {
+        const actionType = updates.status === 'active' ? 'started' : 'paused';
+        await CampaignAnalyticsService.trackAction(id, actionType, {
+          previousStatus: oldCampaign.status,
+          newStatus: updates.status,
+        });
+      }
+    }
+
     const { data, error } = await supabase
       .from('campaigns')
       .update(updates)
@@ -119,6 +135,9 @@ export class CampaignService {
   }
 
   static async executeCampaign(campaignId: string): Promise<void> {
+    // Track execution
+    await CampaignAnalyticsService.trackAction(campaignId, 'executed');
+
     const { data, error } = await supabase.functions.invoke('execute-campaign', {
       body: { campaignId }
     });

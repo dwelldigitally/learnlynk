@@ -1,18 +1,12 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
 import { useLeadDocuments } from '@/hooks/useLeadData';
-import { FileText, Upload, CheckCircle, XCircle, AlertTriangle, Eye, Download, Check, X, Link2 } from 'lucide-react';
+import { FileText, Upload, CheckCircle, XCircle, AlertTriangle, Eye, Download, Check, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { documentService } from '@/services/documentService';
 import { useToast } from '@/hooks/use-toast';
-import { RequirementVerificationPanel } from '@/components/admin/documents/RequirementVerificationPanel';
-import { supabase } from '@/integrations/supabase/client';
-import { MasterRequirement, VerificationStatus } from '@/types/requirement';
 
 interface RealDataDocumentsProps {
   leadId: string;
@@ -21,29 +15,6 @@ interface RealDataDocumentsProps {
 export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
   const { documents, loading, error, refetch } = useLeadDocuments(leadId);
   const { toast } = useToast();
-  const [selectedDocument, setSelectedDocument] = useState<any>(null);
-  const [showLinkDialog, setShowLinkDialog] = useState(false);
-  const [availableRequirements, setAvailableRequirements] = useState<MasterRequirement[]>([]);
-  const [selectedRequirementId, setSelectedRequirementId] = useState<string>('');
-
-  useEffect(() => {
-    loadAvailableRequirements();
-  }, []);
-
-  const loadAvailableRequirements = async () => {
-    const { data, error } = await supabase
-      .from('master_requirements')
-      .select('*')
-      .eq('is_active', true)
-      .order('name');
-
-    if (error) {
-      console.error('Error loading requirements:', error);
-      return;
-    }
-
-    setAvailableRequirements(data as any);
-  };
 
   const handleApprove = async (documentId: string) => {
     try {
@@ -117,38 +88,6 @@ export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const handleLinkRequirement = async () => {
-    if (!selectedDocument || !selectedRequirementId) return;
-
-    try {
-      await (supabase as any)
-        .from('student_document_uploads')
-        .update({ requirement_id: selectedRequirementId })
-        .eq('id', selectedDocument.id);
-
-      toast({
-        title: 'Requirement Linked',
-        description: 'Document has been linked to the requirement'
-      });
-
-      setShowLinkDialog(false);
-      setSelectedRequirementId('');
-      refetch();
-    } catch (error) {
-      console.error('Error linking requirement:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to link requirement',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const getLinkedRequirement = (requirementId?: string) => {
-    if (!requirementId) return null;
-    return availableRequirements.find(req => req.id === requirementId);
-  };
-
   if (loading) {
     return (
       <Card>
@@ -211,8 +150,8 @@ export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
           <ScrollArea className="h-[400px]">
             <div className="space-y-4">
               {documents.map((doc) => (
-                <div key={doc.id} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center justify-between">
+                <div key={doc.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       {getStatusIcon(doc.status)}
                       <div>
@@ -251,42 +190,13 @@ export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
                   )}
 
                   {doc.admin_comments && (
-                    <div className="bg-muted/50 rounded-lg p-3">
-                      <p className="text-sm font-medium mb-1">Admin Comments</p>
-                      <p className="text-sm text-muted-foreground">{doc.admin_comments}</p>
+                    <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                      <p className="text-sm font-medium text-gray-900 mb-1">Admin Comments</p>
+                      <p className="text-sm text-gray-800">{doc.admin_comments}</p>
                     </div>
                   )}
 
-                  {/* Requirement Verification Section */}
-                  <div className="border-t pt-4">
-                    {doc.requirement_id ? (
-                      <RequirementVerificationPanel
-                        documentId={doc.id}
-                        requirement={getLinkedRequirement(doc.requirement_id)}
-                        currentStatus={(doc.requirement_verification_status || 'not_checked') as VerificationStatus}
-                        currentExtractedValue={doc.extracted_value}
-                        currentNotes={doc.requirement_notes}
-                        onVerificationComplete={refetch}
-                      />
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-muted-foreground mb-3">No requirement linked</p>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedDocument(doc);
-                            setShowLinkDialog(true);
-                          }}
-                        >
-                          <Link2 className="h-4 w-4 mr-2" />
-                          Link Requirement
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-2 border-t pt-4">
+                  <div className="flex items-center gap-2">
                     {doc.file_path && (
                       <>
                         <Button variant="outline" size="sm">
@@ -328,51 +238,6 @@ export function RealDataDocuments({ leadId }: RealDataDocumentsProps) {
             </div>
           </ScrollArea>
         )}
-
-        {/* Link Requirement Dialog */}
-        <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Link Document to Requirement</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label>Select Requirement</Label>
-                <select
-                  className="w-full p-2 border rounded-md bg-background"
-                  value={selectedRequirementId}
-                  onChange={(e) => setSelectedRequirementId(e.target.value)}
-                >
-                  <option value="">Choose a requirement...</option>
-                  {availableRequirements.map((req) => (
-                    <option key={req.id} value={req.id}>
-                      {req.name} {req.minimum_value && `(Min: ${req.minimum_value})`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleLinkRequirement}
-                  className="flex-1"
-                  disabled={!selectedRequirementId}
-                >
-                  Link Requirement
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowLinkDialog(false);
-                    setSelectedRequirementId('');
-                  }}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </CardContent>
     </Card>
   );

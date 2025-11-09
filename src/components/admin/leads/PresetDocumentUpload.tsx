@@ -23,14 +23,9 @@ import {
   Clock,
   Edit,
   Download,
-  Plus,
-  Link2
+  Plus
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
-import { RequirementVerificationPanel } from '@/components/admin/documents/RequirementVerificationPanel';
-import { requirementDocumentMappingService } from '@/services/requirementDocumentMappingService';
-import { supabase } from '@/integrations/supabase/client';
-import { MasterRequirement, VerificationStatus } from '@/types/requirement';
 
 interface PresetDocumentUploadProps {
   leadId: string;
@@ -58,65 +53,11 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   const [reviewStatus, setReviewStatus] = useState<string>('');
   const [reviewComments, setReviewComments] = useState<string>('');
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
-  const [showLinkDialog, setShowLinkDialog] = useState(false);
-  const [linkingDocument, setLinkingDocument] = useState<UploadedDocument | null>(null);
-  const [availableRequirements, setAvailableRequirements] = useState<MasterRequirement[]>([]);
-  const [selectedRequirementId, setSelectedRequirementId] = useState<string>('');
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { toast } = useToast();
 
   const requirements = presetDocumentService.getPresetRequirements(programName);
   const progress = presetDocumentService.getDocumentProgress(programName, documents);
-
-  // Load available master requirements
-  React.useEffect(() => {
-    loadAvailableRequirements();
-  }, []);
-
-  const loadAvailableRequirements = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('master_requirements')
-        .select('*')
-        .eq('is_active', true)
-        .order('name');
-
-      if (error) throw error;
-      setAvailableRequirements((data || []) as any);
-    } catch (error) {
-      console.error('Error loading requirements:', error);
-    }
-  };
-
-  const handleLinkRequirement = async () => {
-    if (!linkingDocument || !selectedRequirementId) return;
-
-    try {
-      const { error } = await supabase
-        .from('student_document_uploads')
-        .update({ requirement_id: selectedRequirementId })
-        .eq('id', linkingDocument.id);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Requirement linked',
-        description: 'Document has been linked to the requirement successfully'
-      });
-
-      setShowLinkDialog(false);
-      setLinkingDocument(null);
-      setSelectedRequirementId('');
-      onDocumentUploaded();
-    } catch (error) {
-      console.error('Error linking requirement:', error);
-      toast({
-        title: 'Linking failed',
-        description: 'Failed to link requirement to document',
-        variant: 'destructive'
-      });
-    }
-  };
 
   const handleFileSelect = (requirementId: string) => {
     fileInputRefs.current[requirementId]?.click();
@@ -169,7 +110,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 100);
 
-      const uploadedDoc = await presetDocumentService.uploadDocument(
+      await presetDocumentService.uploadDocument(
         leadId,
         file,
         requirementId,
@@ -178,20 +119,6 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
 
       clearInterval(progressInterval);
       setUploadProgress(100);
-
-      // Auto-link requirement if this document template has an associated requirement
-      const presetDoc = requirements.find(r => r.id === requirementId);
-      if (presetDoc?.id && uploadedDoc.id) {
-        try {
-          await requirementDocumentMappingService.autoLinkRequirement(
-            uploadedDoc.id,
-            presetDoc.id
-          );
-        } catch (linkError) {
-          console.error('Auto-link error:', linkError);
-          // Don't fail the upload if auto-linking fails
-        }
-      }
 
       toast({
         title: 'Upload successful',
@@ -659,35 +586,6 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-
-                      {/* Requirement Verification Panel */}
-                      {uploadedDoc.requirement_id ? (
-                        <div className="mt-3 pt-3 border-t">
-                          <RequirementVerificationPanel
-                            documentId={uploadedDoc.id}
-                            requirement={availableRequirements.find(r => r.id === uploadedDoc.requirement_id)}
-                            currentStatus={(uploadedDoc as any).requirement_verification_status as VerificationStatus || 'not_checked'}
-                            currentExtractedValue={(uploadedDoc as any).extracted_value || ''}
-                            currentNotes={(uploadedDoc as any).requirement_notes || ''}
-                            onVerificationComplete={onDocumentUploaded}
-                          />
-                        </div>
-                      ) : (
-                        <div className="mt-3 pt-3 border-t">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => {
-                              setLinkingDocument(uploadedDoc);
-                              setShowLinkDialog(true);
-                            }}
-                            className="w-full"
-                          >
-                            <Link2 className="h-4 w-4 mr-2" />
-                            Link Requirement
-                          </Button>
-                        </div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -748,46 +646,6 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
             </Button>
             <Button onClick={handleStatusUpdate} disabled={!reviewStatus}>
               Update Status
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Link Requirement Dialog */}
-      <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Link Document to Requirement</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Select Requirement</label>
-              <Select value={selectedRequirementId} onValueChange={setSelectedRequirementId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a requirement" />
-                </SelectTrigger>
-                <SelectContent>
-                  {availableRequirements.map((req) => (
-                    <SelectItem key={req.id} value={req.id}>
-                      {req.name} {req.minimum_value && `(Min: ${req.minimum_value}${req.units ? ' ' + req.units : ''})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowLinkDialog(false);
-              setLinkingDocument(null);
-              setSelectedRequirementId('');
-            }}>
-              Cancel
-            </Button>
-            <Button onClick={handleLinkRequirement} disabled={!selectedRequirementId}>
-              Link Requirement
             </Button>
           </DialogFooter>
         </DialogContent>

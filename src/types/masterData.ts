@@ -135,7 +135,6 @@ export interface MasterRequirement {
   applicable_programs: string[];
   verification_method?: string;
   documentation_required?: string[];
-  linked_document_templates?: string[];
   is_active: boolean;
   created_at?: string;
   updated_at?: string;

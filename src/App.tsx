@@ -22,7 +22,7 @@ import { ScholarshipApplications } from "./pages/ScholarshipApplications";
 import OldLeadDetailPage from "./pages/LeadDetailPage";
 import LeadDetailPage from "./pages/LeadDetailTestPage";
 import StudentDetailPage from "./pages/StudentDetailPage";
-import { UniversalBuilderPage } from "./pages/UniversalBuilderPage";
+
 import { FormBuilderPage } from "./pages/FormBuilderPage";
 import { WorkflowBuilderPage } from "./pages/WorkflowBuilderPage";
 import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
@@ -105,8 +105,7 @@ const App = () => {
               {/* Student detail route - use a specific pattern to avoid conflicts */}
               <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />
               
-              {/* Universal Builder routes */}
-              <Route path="/admin/builder" element={<ProtectedRoute element={<UniversalBuilderPage />} />} />
+              {/* Builder routes */}
                <Route path="/admin/builder/forms" element={<ProtectedRoute element={<FormBuilderPage />} />} />
                <Route path="/admin/builder/forms/:formId" element={<ProtectedRoute element={<FormBuilderPage />} />} />
                <Route path="/admin/builder/forms/:formId/edit" element={<ProtectedRoute element={<FormBuilderPage />} />} />

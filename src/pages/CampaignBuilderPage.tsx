@@ -88,7 +88,7 @@ export function CampaignBuilderPage() {
           description: "Campaign created successfully",
         });
       }
-      navigate('/admin/builder');
+      navigate('/admin/campaigns');
     } catch (error) {
       toast({
         title: "Error",
@@ -99,7 +99,7 @@ export function CampaignBuilderPage() {
   };
 
   const handleCancel = () => {
-    navigate('/admin/builder');
+    navigate('/admin/campaigns');
   };
 
   return (
@@ -118,7 +118,7 @@ export function CampaignBuilderPage() {
                 onSelectTemplate={handleSelectTemplate}
                 onStartBlank={handleStartBlank}
               />
-              <Button variant="outline" onClick={() => navigate('/admin/builder')}>
+              <Button variant="outline" onClick={handleCancel}>
                 Cancel
               </Button>
             </div>

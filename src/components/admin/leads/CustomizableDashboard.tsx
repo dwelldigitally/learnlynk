@@ -15,11 +15,11 @@ const STORAGE_KEY = 'lead-dashboard-layout';
 const LOCK_STATE_KEY = 'lead-dashboard-locked';
 
 const defaultLayouts: Layout[] = [
-  { i: 'personal-info', x: 0, y: 0, w: 6, h: 3, minW: 3, minH: 2 },
-  { i: 'document-overview', x: 6, y: 0, w: 6, h: 3, minW: 3, minH: 2 },
-  { i: 'program-details', x: 0, y: 3, w: 6, h: 3, minW: 3, minH: 2 },
-  { i: 'intake-deadline', x: 6, y: 3, w: 6, h: 3, minW: 3, minH: 2 },
-  { i: 'application-timeline', x: 0, y: 6, w: 12, h: 4, minW: 6, minH: 3 },
+  { i: 'personal-info', x: 0, y: 0, w: 6, h: 3, minW: 4, minH: 3 },
+  { i: 'document-overview', x: 6, y: 0, w: 6, h: 3, minW: 4, minH: 4 },
+  { i: 'program-details', x: 0, y: 3, w: 6, h: 3, minW: 4, minH: 3 },
+  { i: 'intake-deadline', x: 6, y: 3, w: 6, h: 3, minW: 4, minH: 4 },
+  { i: 'application-timeline', x: 0, y: 6, w: 12, h: 4, minW: 8, minH: 4 },
 ];
 
 interface CustomizableDashboardProps {

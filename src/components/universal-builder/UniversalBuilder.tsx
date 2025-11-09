@@ -29,6 +29,7 @@ import { CampaignTemplate } from '@/config/campaignTemplates';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { 
   Play, 
   Save, 
@@ -397,30 +398,46 @@ function UniversalBuilderContent({
 
               {/* Workflow/Campaign Builder Layout */}
               {(state.config.type === 'workflow' || state.config.type === 'campaign') && (
-                <>
-                  {/* Left Sidebar - Properties */}
-                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                <ResizablePanelGroup direction="horizontal" className="flex-1">
+                  {/* Left Sidebar - Properties (Resizable) */}
+                  <ResizablePanel 
+                    defaultSize={20} 
+                    minSize={15} 
+                    maxSize={35}
+                    className="overflow-hidden"
+                  >
                     <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
                       <PropertyPanel />
                     </div>
-                  </div>
+                  </ResizablePanel>
+
+                  <ResizableHandle withHandle className="bg-border hover:bg-primary/20 transition-colors" />
 
                   {/* Center - Canvas */}
-                  <div className="flex-1 overflow-auto">
-                    {state.isPreviewMode ? (
-                      <PreviewPanel />
-                    ) : (
-                      <CanvasArea onAddElement={handleAddElement} />
-                    )}
-                  </div>
+                  <ResizablePanel defaultSize={60} minSize={40}>
+                    <div className="overflow-auto h-full">
+                      {state.isPreviewMode ? (
+                        <PreviewPanel />
+                      ) : (
+                        <CanvasArea onAddElement={handleAddElement} />
+                      )}
+                    </div>
+                  </ResizablePanel>
 
-                  {/* Right Sidebar - Actions (Element Palette) */}
-                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                  <ResizableHandle withHandle className="bg-border hover:bg-primary/20 transition-colors" />
+
+                  {/* Right Sidebar - Actions (Resizable) */}
+                  <ResizablePanel 
+                    defaultSize={20} 
+                    minSize={15} 
+                    maxSize={35}
+                    className="overflow-hidden"
+                  >
                     <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
                       <ActionsSidebar onAddElement={handleAddElement} />
                     </div>
-                  </div>
-                </>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
               )}
             </div>
           </TabsContent>

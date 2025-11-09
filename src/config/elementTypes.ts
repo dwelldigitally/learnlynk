@@ -113,86 +113,516 @@ export const formElementTypes: ElementTypeConfig[] = [
   }
 ];
 
-// Workflow Element Types
+// Workflow Element Types - Enhanced with comprehensive actions
 export const workflowElementTypes: ElementTypeConfig[] = [
+  // TRIGGERS
   {
     type: 'trigger',
     label: 'Trigger',
     icon: 'Play',
-    category: 'Flow Control',
+    category: 'Triggers',
     defaultConfig: {
-      triggerType: 'manual'
+      triggerEvent: 'manual',
+      conditionGroups: [],
+      evaluationMode: 'OR',
+      schedule: { type: 'once', dateTime: null, recurring: null }
     },
     configSchema: [
       {
-        key: 'triggerType',
-        label: 'Trigger Type',
+        key: 'triggerEvent',
+        label: 'Trigger Event',
         type: 'select',
         options: [
-          { label: 'Manual', value: 'manual' },
-          { label: 'Time-based', value: 'schedule' },
-          { label: 'Event-based', value: 'event' }
+          { label: 'Manual Trigger', value: 'manual' },
+          { label: 'Scheduled Time', value: 'scheduled' },
+          { label: 'Form Submitted', value: 'form_submitted' },
+          { label: 'Status Changed', value: 'status_changed' },
+          { label: 'Lead Score Threshold', value: 'score_threshold' },
+          { label: 'Tag Added', value: 'tag_added' },
+          { label: 'Date Reached', value: 'date_reached' },
+          { label: 'Webhook Received', value: 'webhook' },
+          { label: 'Field Value Changed', value: 'field_changed' },
+          { label: 'Document Uploaded', value: 'document_uploaded' }
+        ]
+      },
+      {
+        key: 'conditionGroups',
+        label: 'Conditions',
+        type: 'array',
+        helpText: 'Define when this trigger should activate'
+      }
+    ]
+  },
+  
+  // COMMUNICATION ACTIONS
+  {
+    type: 'email',
+    label: 'Send Email',
+    icon: 'Mail',
+    category: 'Communication',
+    defaultConfig: {
+      fromName: 'Your Organization',
+      fromEmail: 'noreply@example.com',
+      replyTo: '',
+      subject: 'Email Subject',
+      preheader: '',
+      content: '<p>Start writing your email content here...</p>',
+      trackOpens: true,
+      trackClicks: true
+    },
+    configSchema: [
+      { key: 'fromName', label: 'From Name', type: 'text', placeholder: 'Your Organization' },
+      { key: 'fromEmail', label: 'From Email', type: 'text', placeholder: 'noreply@example.com' },
+      { key: 'replyTo', label: 'Reply-To Email', type: 'text', placeholder: 'Optional reply-to address' },
+      { key: 'subject', label: 'Subject Line', type: 'text', placeholder: 'Compelling subject line' },
+      { key: 'preheader', label: 'Preheader Text', type: 'text', placeholder: 'Preview text shown in inbox' },
+      { key: 'content', label: 'Email Content', type: 'richtext' },
+      { key: 'trackOpens', label: 'Track Email Opens', type: 'checkbox' },
+      { key: 'trackClicks', label: 'Track Link Clicks', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'sms',
+    label: 'Send SMS',
+    icon: 'MessageSquare',
+    category: 'Communication',
+    defaultConfig: {
+      content: 'Hi {{firstName}}, this is your message...'
+    },
+    configSchema: [
+      { key: 'content', label: 'Message Content', type: 'sms', placeholder: 'Write your SMS message (160 chars = 1 SMS)' }
+    ]
+  },
+  {
+    type: 'whatsapp',
+    label: 'Send WhatsApp',
+    icon: 'MessageCircle',
+    category: 'Communication',
+    defaultConfig: {
+      content: 'Hi {{firstName}}, '
+    },
+    configSchema: [
+      { key: 'content', label: 'Message Content', type: 'textarea', placeholder: 'WhatsApp message content' }
+    ]
+  },
+  {
+    type: 'internal-notification',
+    label: 'Internal Notification',
+    icon: 'Bell',
+    category: 'Communication',
+    defaultConfig: {
+      notifyType: 'email',
+      recipients: [],
+      subject: 'Workflow Notification',
+      message: ''
+    },
+    configSchema: [
+      {
+        key: 'notifyType',
+        label: 'Notification Type',
+        type: 'select',
+        options: [
+          { label: 'Email', value: 'email' },
+          { label: 'In-App', value: 'in_app' },
+          { label: 'Both', value: 'both' }
+        ]
+      },
+      { key: 'recipients', label: 'Recipients (comma-separated emails)', type: 'text' },
+      { key: 'subject', label: 'Subject', type: 'text' },
+      { key: 'message', label: 'Message', type: 'textarea' }
+    ]
+  },
+
+  // LEAD MANAGEMENT ACTIONS
+  {
+    type: 'update-lead',
+    label: 'Update Lead',
+    icon: 'UserCog',
+    category: 'Lead Management',
+    defaultConfig: {
+      updateType: 'status',
+      newStatus: '',
+      tags: [],
+      customFields: {}
+    },
+    configSchema: [
+      {
+        key: 'updateType',
+        label: 'Update Type',
+        type: 'select',
+        options: [
+          { label: 'Change Status', value: 'status' },
+          { label: 'Add Tags', value: 'add_tags' },
+          { label: 'Remove Tags', value: 'remove_tags' },
+          { label: 'Update Custom Fields', value: 'custom_fields' },
+          { label: 'Update Lead Score', value: 'score' }
+        ]
+      },
+      { key: 'newStatus', label: 'New Status', type: 'text', placeholder: 'e.g., Qualified' },
+      { key: 'tags', label: 'Tags (comma-separated)', type: 'text', placeholder: 'e.g., hot-lead, contacted' },
+      { key: 'scoreChange', label: 'Score Change', type: 'number', placeholder: '+10 or -5' }
+    ]
+  },
+  {
+    type: 'assign-advisor',
+    label: 'Assign to Advisor',
+    icon: 'UserCheck',
+    category: 'Lead Management',
+    defaultConfig: {
+      assignmentMethod: 'round_robin',
+      specificAdvisorId: '',
+      teamId: ''
+    },
+    configSchema: [
+      {
+        key: 'assignmentMethod',
+        label: 'Assignment Method',
+        type: 'select',
+        options: [
+          { label: 'Round Robin', value: 'round_robin' },
+          { label: 'Specific Advisor', value: 'specific' },
+          { label: 'Load Balanced', value: 'load_balanced' },
+          { label: 'Team Assignment', value: 'team' }
+        ]
+      },
+      { key: 'specificAdvisorId', label: 'Advisor ID', type: 'text', placeholder: 'Enter advisor ID' },
+      { key: 'teamId', label: 'Team ID', type: 'text', placeholder: 'Enter team ID' }
+    ]
+  },
+  {
+    type: 'change-enrollment-stage',
+    label: 'Change Enrollment Stage',
+    icon: 'Milestone',
+    category: 'Lead Management',
+    defaultConfig: {
+      newStage: ''
+    },
+    configSchema: [
+      {
+        key: 'newStage',
+        label: 'New Stage',
+        type: 'select',
+        options: [
+          { label: 'Inquiry', value: 'inquiry' },
+          { label: 'Application', value: 'application' },
+          { label: 'Admitted', value: 'admitted' },
+          { label: 'Enrolled', value: 'enrolled' }
+        ]
+      }
+    ]
+  },
+
+  // TASK & CALENDAR ACTIONS
+  {
+    type: 'create-task',
+    label: 'Create Task',
+    icon: 'CheckSquare',
+    category: 'Tasks & Calendar',
+    defaultConfig: {
+      taskTitle: '',
+      taskDescription: '',
+      assignToAdvisor: true,
+      dueInDays: 1,
+      priority: 'medium'
+    },
+    configSchema: [
+      { key: 'taskTitle', label: 'Task Title', type: 'text', placeholder: 'e.g., Follow up with lead' },
+      { key: 'taskDescription', label: 'Task Description', type: 'textarea' },
+      { key: 'assignToAdvisor', label: 'Assign to Lead\'s Advisor', type: 'checkbox' },
+      { key: 'dueInDays', label: 'Due In (days)', type: 'number' },
+      {
+        key: 'priority',
+        label: 'Priority',
+        type: 'select',
+        options: [
+          { label: 'Low', value: 'low' },
+          { label: 'Medium', value: 'medium' },
+          { label: 'High', value: 'high' }
         ]
       }
     ]
   },
   {
+    type: 'create-calendar-event',
+    label: 'Create Calendar Event',
+    icon: 'Calendar',
+    category: 'Tasks & Calendar',
+    defaultConfig: {
+      eventTitle: '',
+      eventDescription: '',
+      duration: 30,
+      attendees: []
+    },
+    configSchema: [
+      { key: 'eventTitle', label: 'Event Title', type: 'text' },
+      { key: 'eventDescription', label: 'Description', type: 'textarea' },
+      { key: 'duration', label: 'Duration (minutes)', type: 'number' },
+      { key: 'attendees', label: 'Attendees (comma-separated)', type: 'text' }
+    ]
+  },
+  {
+    type: 'schedule-followup',
+    label: 'Schedule Follow-up',
+    icon: 'CalendarClock',
+    category: 'Tasks & Calendar',
+    defaultConfig: {
+      followupType: 'call',
+      daysUntil: 3,
+      notes: ''
+    },
+    configSchema: [
+      {
+        key: 'followupType',
+        label: 'Follow-up Type',
+        type: 'select',
+        options: [
+          { label: 'Phone Call', value: 'call' },
+          { label: 'Email', value: 'email' },
+          { label: 'Meeting', value: 'meeting' }
+        ]
+      },
+      { key: 'daysUntil', label: 'Days Until Follow-up', type: 'number' },
+      { key: 'notes', label: 'Notes', type: 'textarea' }
+    ]
+  },
+
+  // FLOW CONTROL
+  {
     type: 'condition',
-    label: 'Condition',
+    label: 'If/Else Branch',
     icon: 'GitBranch',
     category: 'Flow Control',
     defaultConfig: {
-      conditions: []
-    },
-    configSchema: [
-      { key: 'field', label: 'Field', type: 'text' },
-      { key: 'operator', label: 'Operator', type: 'select', options: [
-        { label: 'Equals', value: 'equals' },
-        { label: 'Contains', value: 'contains' },
-        { label: 'Greater than', value: 'gt' }
-      ]},
-      { key: 'value', label: 'Value', type: 'text' }
-    ]
-  },
-  {
-    type: 'action',
-    label: 'Action',
-    icon: 'Zap',
-    category: 'Actions',
-    defaultConfig: {
-      actionType: 'email'
+      conditionGroups: []
     },
     configSchema: [
       {
-        key: 'actionType',
-        label: 'Action Type',
-        type: 'select',
-        options: [
-          { label: 'Send Email', value: 'email' },
-          { label: 'Update Record', value: 'update' },
-          { label: 'Create Task', value: 'task' }
-        ]
+        key: 'conditionGroups',
+        label: 'Branch Conditions',
+        type: 'array',
+        helpText: 'Define conditions for branching'
       }
     ]
   },
   {
-    type: 'delay',
-    label: 'Delay',
+    type: 'wait',
+    label: 'Wait/Delay',
     icon: 'Clock',
     category: 'Flow Control',
     defaultConfig: {
-      delay: { value: 1, unit: 'hours' }
+      waitTime: { value: 1, unit: 'days' },
+      waitUntil: null
     },
     configSchema: [
-      { key: 'delay.value', label: 'Delay Amount', type: 'number' },
+      { key: 'waitTime.value', label: 'Wait Time', type: 'number' },
       {
-        key: 'delay.unit',
+        key: 'waitTime.unit',
         label: 'Time Unit',
         type: 'select',
         options: [
           { label: 'Minutes', value: 'minutes' },
           { label: 'Hours', value: 'hours' },
-          { label: 'Days', value: 'days' }
+          { label: 'Days', value: 'days' },
+          { label: 'Weeks', value: 'weeks' }
+        ]
+      }
+    ]
+  },
+  {
+    type: 'split',
+    label: 'A/B Split Test',
+    icon: 'Split',
+    category: 'Flow Control',
+    defaultConfig: {
+      splitPercentage: 50,
+      variantAName: 'Variant A',
+      variantBName: 'Variant B'
+    },
+    configSchema: [
+      { key: 'splitPercentage', label: 'Variant A Percentage', type: 'number', placeholder: '0-100' },
+      { key: 'variantAName', label: 'Variant A Name', type: 'text' },
+      { key: 'variantBName', label: 'Variant B Name', type: 'text' }
+    ]
+  },
+  {
+    type: 'go-to-workflow',
+    label: 'Go to Another Workflow',
+    icon: 'ArrowRightCircle',
+    category: 'Flow Control',
+    defaultConfig: {
+      targetWorkflowId: '',
+      removeFromCurrent: false
+    },
+    configSchema: [
+      { key: 'targetWorkflowId', label: 'Target Workflow ID', type: 'text' },
+      { key: 'removeFromCurrent', label: 'Remove from Current Workflow', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'end-workflow',
+    label: 'End Workflow',
+    icon: 'StopCircle',
+    category: 'Flow Control',
+    defaultConfig: {
+      reason: 'completed'
+    },
+    configSchema: [
+      {
+        key: 'reason',
+        label: 'End Reason',
+        type: 'select',
+        options: [
+          { label: 'Completed Successfully', value: 'completed' },
+          { label: 'Goal Achieved', value: 'goal_achieved' },
+          { label: 'Unsubscribed', value: 'unsubscribed' },
+          { label: 'Disqualified', value: 'disqualified' }
+        ]
+      }
+    ]
+  },
+
+  // DATA ACTIONS
+  {
+    type: 'update-database',
+    label: 'Update Database Record',
+    icon: 'Database',
+    category: 'Data Actions',
+    defaultConfig: {
+      table: '',
+      recordId: '',
+      fields: {}
+    },
+    configSchema: [
+      { key: 'table', label: 'Table Name', type: 'text' },
+      { key: 'recordId', label: 'Record ID', type: 'text', placeholder: 'Use {{leadId}} for current lead' },
+      { key: 'fields', label: 'Fields to Update (JSON)', type: 'textarea', placeholder: '{"field": "value"}' }
+    ]
+  },
+  {
+    type: 'create-database-record',
+    label: 'Create Database Record',
+    icon: 'DatabaseZap',
+    category: 'Data Actions',
+    defaultConfig: {
+      table: '',
+      fields: {}
+    },
+    configSchema: [
+      { key: 'table', label: 'Table Name', type: 'text' },
+      { key: 'fields', label: 'Fields (JSON)', type: 'textarea', placeholder: '{"field": "value"}' }
+    ]
+  },
+  {
+    type: 'api-webhook',
+    label: 'API Call / Webhook',
+    icon: 'Webhook',
+    category: 'Data Actions',
+    defaultConfig: {
+      url: '',
+      method: 'POST',
+      headers: {},
+      body: {}
+    },
+    configSchema: [
+      { key: 'url', label: 'Webhook URL', type: 'text', placeholder: 'https://...' },
+      {
+        key: 'method',
+        label: 'HTTP Method',
+        type: 'select',
+        options: [
+          { label: 'GET', value: 'GET' },
+          { label: 'POST', value: 'POST' },
+          { label: 'PUT', value: 'PUT' },
+          { label: 'PATCH', value: 'PATCH' }
+        ]
+      },
+      { key: 'headers', label: 'Headers (JSON)', type: 'textarea', placeholder: '{"Content-Type": "application/json"}' },
+      { key: 'body', label: 'Request Body (JSON)', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'log-activity',
+    label: 'Log Activity',
+    icon: 'FileText',
+    category: 'Data Actions',
+    defaultConfig: {
+      activityType: 'note',
+      content: ''
+    },
+    configSchema: [
+      {
+        key: 'activityType',
+        label: 'Activity Type',
+        type: 'select',
+        options: [
+          { label: 'Note', value: 'note' },
+          { label: 'Call Log', value: 'call' },
+          { label: 'Meeting', value: 'meeting' },
+          { label: 'Custom', value: 'custom' }
+        ]
+      },
+      { key: 'content', label: 'Activity Content', type: 'textarea' }
+    ]
+  },
+
+  // ADVANCED ACTIONS
+  {
+    type: 'goal-tracking',
+    label: 'Track Goal',
+    icon: 'Target',
+    category: 'Advanced',
+    defaultConfig: {
+      goalName: '',
+      goalType: 'conversion',
+      goalValue: 0
+    },
+    configSchema: [
+      { key: 'goalName', label: 'Goal Name', type: 'text', placeholder: 'e.g., Application Submitted' },
+      {
+        key: 'goalType',
+        label: 'Goal Type',
+        type: 'select',
+        options: [
+          { label: 'Conversion', value: 'conversion' },
+          { label: 'Engagement', value: 'engagement' },
+          { label: 'Revenue', value: 'revenue' }
+        ]
+      },
+      { key: 'goalValue', label: 'Goal Value', type: 'number', placeholder: 'Optional numeric value' }
+    ]
+  },
+  {
+    type: 'score-lead',
+    label: 'Score Lead',
+    icon: 'TrendingUp',
+    category: 'Advanced',
+    defaultConfig: {
+      scoreChange: 0,
+      reason: ''
+    },
+    configSchema: [
+      { key: 'scoreChange', label: 'Score Change', type: 'number', placeholder: '+10 or -5' },
+      { key: 'reason', label: 'Reason', type: 'text', placeholder: 'Why is the score changing?' }
+    ]
+  },
+  {
+    type: 'remove-from-workflow',
+    label: 'Remove from Workflow',
+    icon: 'LogOut',
+    category: 'Advanced',
+    defaultConfig: {
+      reason: 'completed'
+    },
+    configSchema: [
+      {
+        key: 'reason',
+        label: 'Removal Reason',
+        type: 'select',
+        options: [
+          { label: 'Completed', value: 'completed' },
+          { label: 'Unsubscribed', value: 'unsubscribed' },
+          { label: 'Converted', value: 'converted' },
+          { label: 'Disqualified', value: 'disqualified' }
         ]
       }
     ]

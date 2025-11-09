@@ -23,7 +23,8 @@ import {
   ArrowDown, ArrowRight, Zap, Filter,
   MoreHorizontal, Copy, TestTube, Calendar as CalendarIcon,
   AlertTriangle, Timer,
-  CheckCircle, SkipForward, Mail, Sparkles
+  CheckCircle, SkipForward, Mail, Sparkles,
+  DollarSign, UserCheck, GraduationCap
 } from 'lucide-react';
 import { BuilderConfig, JourneyElement, UniversalElement } from '@/types/universalBuilder';
 import { journeyElementTypes } from '@/config/elementTypes';

@@ -1176,6 +1176,194 @@ export const journeyElementTypes: ElementTypeConfig[] = [
       ]},
       { key: 'customMessage', label: 'Custom Message', type: 'textarea' }
     ]
+  },
+
+  // Admission & Enrollment Process
+  {
+    type: 'pal-allocation',
+    label: 'PAL Allocation',
+    icon: 'FileText',
+    category: 'Admission',
+    defaultConfig: {
+      palType: 'study_permit',
+      processingTime: 5,
+      required: true,
+      autoGenerate: false
+    },
+    configSchema: [
+      { key: 'palType', label: 'PAL Type', type: 'select', options: [
+        { label: 'Study Permit', value: 'study_permit' },
+        { label: 'Work Permit', value: 'work_permit' },
+        { label: 'Combined', value: 'combined' }
+      ]},
+      { key: 'processingTime', label: 'Processing Time (days)', type: 'number' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'autoGenerate', label: 'Auto Generate', type: 'checkbox' },
+      { key: 'instructions', label: 'Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'admission-decision',
+    label: 'Admission Decision',
+    icon: 'CheckCircle',
+    category: 'Admission',
+    defaultConfig: {
+      decisionType: 'manual',
+      timeframe: 7,
+      requiresApproval: true,
+      notifyApplicant: true
+    },
+    configSchema: [
+      { key: 'decisionType', label: 'Decision Type', type: 'select', options: [
+        { label: 'Manual Review', value: 'manual' },
+        { label: 'Automated', value: 'automated' },
+        { label: 'Committee Decision', value: 'committee' }
+      ]},
+      { key: 'timeframe', label: 'Decision Timeframe (days)', type: 'number' },
+      { key: 'requiresApproval', label: 'Requires Approval', type: 'checkbox' },
+      { key: 'notifyApplicant', label: 'Auto Notify Applicant', type: 'checkbox' },
+      { key: 'decisionCriteria', label: 'Decision Criteria', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'offer-letter',
+    label: 'Offer Letter Sending',
+    icon: 'Mail',
+    category: 'Admission',
+    defaultConfig: {
+      deliveryMethod: 'email',
+      includeConditions: true,
+      expiryDays: 14,
+      requiresSignature: true
+    },
+    configSchema: [
+      { key: 'deliveryMethod', label: 'Delivery Method', type: 'select', options: [
+        { label: 'Email', value: 'email' },
+        { label: 'Portal', value: 'portal' },
+        { label: 'Physical Mail', value: 'mail' },
+        { label: 'Both Email & Portal', value: 'both' }
+      ]},
+      { key: 'includeConditions', label: 'Include Conditions', type: 'checkbox' },
+      { key: 'expiryDays', label: 'Offer Expiry (days)', type: 'number' },
+      { key: 'requiresSignature', label: 'Requires Signature', type: 'checkbox' },
+      { key: 'templateId', label: 'Letter Template', type: 'text' }
+    ]
+  },
+  {
+    type: 'application-fee',
+    label: 'Payment of Application Fee',
+    icon: 'DollarSign',
+    category: 'Financial',
+    defaultConfig: {
+      feeAmount: 100,
+      currency: 'CAD',
+      paymentMethods: ['card', 'bank_transfer'],
+      allowInstallments: false,
+      required: true
+    },
+    configSchema: [
+      { key: 'feeAmount', label: 'Fee Amount', type: 'number' },
+      { key: 'currency', label: 'Currency', type: 'select', options: [
+        { label: 'CAD - Canadian Dollar', value: 'CAD' },
+        { label: 'USD - US Dollar', value: 'USD' },
+        { label: 'EUR - Euro', value: 'EUR' },
+        { label: 'GBP - British Pound', value: 'GBP' }
+      ]},
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'allowInstallments', label: 'Allow Installments', type: 'checkbox' },
+      { key: 'paymentInstructions', label: 'Payment Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'offer-acceptance',
+    label: 'Offer Acceptance Stage',
+    icon: 'CheckSquare',
+    category: 'Admission',
+    defaultConfig: {
+      acceptanceDeadline: 14,
+      requiresDeposit: true,
+      depositAmount: 500,
+      confirmationRequired: true
+    },
+    configSchema: [
+      { key: 'acceptanceDeadline', label: 'Acceptance Deadline (days)', type: 'number' },
+      { key: 'requiresDeposit', label: 'Requires Deposit', type: 'checkbox' },
+      { key: 'depositAmount', label: 'Deposit Amount', type: 'number' },
+      { key: 'confirmationRequired', label: 'Confirmation Required', type: 'checkbox' },
+      { key: 'terms', label: 'Terms & Conditions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'visa-study-permit',
+    label: 'Visa and Study Permit',
+    icon: 'BookOpen',
+    category: 'Immigration',
+    defaultConfig: {
+      documentType: 'study_permit',
+      assistanceProvided: true,
+      processingSupport: true,
+      required: true
+    },
+    configSchema: [
+      { key: 'documentType', label: 'Document Type', type: 'select', options: [
+        { label: 'Study Permit', value: 'study_permit' },
+        { label: 'Student Visa', value: 'student_visa' },
+        { label: 'Both', value: 'both' }
+      ]},
+      { key: 'assistanceProvided', label: 'Provide Assistance', type: 'checkbox' },
+      { key: 'processingSupport', label: 'Processing Support', type: 'checkbox' },
+      { key: 'required', label: 'Required', type: 'checkbox' },
+      { key: 'supportInstructions', label: 'Support Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'registration',
+    label: 'Registration',
+    icon: 'UserCheck',
+    category: 'Enrollment',
+    defaultConfig: {
+      registrationType: 'online',
+      courseSelection: true,
+      scheduleBuilding: true,
+      advisorMeeting: true
+    },
+    configSchema: [
+      { key: 'registrationType', label: 'Registration Type', type: 'select', options: [
+        { label: 'Online', value: 'online' },
+        { label: 'In-Person', value: 'in_person' },
+        { label: 'Hybrid', value: 'hybrid' }
+      ]},
+      { key: 'courseSelection', label: 'Course Selection Required', type: 'checkbox' },
+      { key: 'scheduleBuilding', label: 'Schedule Building', type: 'checkbox' },
+      { key: 'advisorMeeting', label: 'Advisor Meeting Required', type: 'checkbox' },
+      { key: 'instructions', label: 'Registration Instructions', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'orientation-enrollment',
+    label: 'Orientation and Enrollment Completion',
+    icon: 'GraduationCap',
+    category: 'Enrollment',
+    defaultConfig: {
+      orientationType: 'mandatory',
+      duration: 4,
+      includesCampusTour: true,
+      welcomePackage: true,
+      finalSteps: true
+    },
+    configSchema: [
+      { key: 'orientationType', label: 'Orientation Type', type: 'select', options: [
+        { label: 'Mandatory', value: 'mandatory' },
+        { label: 'Optional', value: 'optional' },
+        { label: 'Online Only', value: 'online' },
+        { label: 'Hybrid', value: 'hybrid' }
+      ]},
+      { key: 'duration', label: 'Duration (hours)', type: 'number' },
+      { key: 'includesCampusTour', label: 'Includes Campus Tour', type: 'checkbox' },
+      { key: 'welcomePackage', label: 'Welcome Package', type: 'checkbox' },
+      { key: 'finalSteps', label: 'Final Enrollment Steps', type: 'checkbox' },
+      { key: 'orientationAgenda', label: 'Orientation Agenda', type: 'textarea' }
+    ]
   }
 ];
 

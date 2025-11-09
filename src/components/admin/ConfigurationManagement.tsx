@@ -9,7 +9,7 @@ import { CampusesConfiguration } from './config/sections/CampusesConfiguration';
 import { TeamManagement } from './routing/TeamManagement';
 import { CompanyProfileConfiguration } from './config/sections/CompanyProfileConfiguration';
 import { EnhancedIntegrationHub } from './database/EnhancedIntegrationHub';
-import { SetupOnboardingPage } from '@/pages/admin/config/SetupOnboardingPage';
+import { SetupDashboard } from '@/pages/admin/setup/SetupDashboard';
 
 export const ConfigurationManagement = () => {
   const location = useLocation();
@@ -22,7 +22,7 @@ export const ConfigurationManagement = () => {
     if (path.includes('/scoring')) return <LeadScoringConfiguration />;
     if (path.includes('/students')) return <StudentManagementConfiguration />;
     if (path.includes('/applicants')) return <ApplicantManagementConfiguration />;
-    if (path.includes('/setup')) return <SetupOnboardingPage />;
+    if (path.includes('/setup')) return <SetupDashboard />;
     if (path.includes('/custom-fields')) return <CustomFieldsManagement />;
     if (path.includes('/campuses')) return <CampusesConfiguration />;
     if (path.includes('/teams')) return <TeamManagement />;

@@ -27,7 +27,6 @@ import { LeadSelector } from './LeadSelector';
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from 'react-hook-form';
 import { MessageDetailModal } from './modals/MessageDetailModal';
-import { AutomationBuilderModal } from './modals/AutomationBuilderModal';
 import { CommunicationSettingsModal } from './modals/CommunicationSettingsModal';
 import { AITemplateAssistant } from './AITemplateAssistant';
 import { 
@@ -66,9 +65,7 @@ import { supabase } from '@/integrations/supabase/client';
 const CommunicationHub: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
-  const [selectedAutomation, setSelectedAutomation] = useState<any>(null);
   const [messageDetailOpen, setMessageDetailOpen] = useState(false);
-  const [automationBuilderOpen, setAutomationBuilderOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [showLeadSelector, setShowLeadSelector] = useState(false);
@@ -149,32 +146,6 @@ const CommunicationHub: React.FC = () => {
     channel: comm.type
   }));
 
-  const automations = [
-    {
-      id: "1",
-      name: "Welcome Email Sequence",
-      trigger: "New application submitted",
-      status: "active",
-      lastSent: "2 hours ago",
-      recipients: 25
-    },
-    {
-      id: "2",
-      name: "Document Reminder",
-      trigger: "7 days after document request",
-      status: "active", 
-      lastSent: "1 day ago",
-      recipients: 12
-    },
-    {
-      id: "3",
-      name: "Payment Due Reminder",
-      trigger: "3 days before payment deadline",
-      status: "paused",
-      lastSent: "5 days ago",
-      recipients: 0
-    }
-  ];
 
   const filteredMessages = messages.filter(message => {
     const matchesSearch = message.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,15 +162,6 @@ const CommunicationHub: React.FC = () => {
     setMessageDetailOpen(true);
   };
 
-  const handleCreateAutomation = () => {
-    setSelectedAutomation(null);
-    setAutomationBuilderOpen(true);
-  };
-
-  const handleEditAutomation = (automation: any) => {
-    setSelectedAutomation(automation);
-    setAutomationBuilderOpen(true);
-  };
 
   const handleBulkAction = (action: string) => {
     if (selectedMessages.length === 0) {
@@ -411,7 +373,6 @@ const CommunicationHub: React.FC = () => {
         <TabsList>
           <TabsTrigger value="messages">Messages</TabsTrigger>
           <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="automations">Automations</TabsTrigger>
         </TabsList>
 
         <TabsContent value="messages" className="space-y-4">
@@ -871,49 +832,6 @@ const CommunicationHub: React.FC = () => {
           </Tabs>
         </TabsContent>
 
-        <TabsContent value="automations" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Communication Automations</CardTitle>
-                <Button onClick={handleCreateAutomation}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Automation
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {automations.map((automation) => (
-                  <div key={automation.id} className="flex items-center justify-between p-4 border rounded-lg cursor-pointer hover:bg-accent/50">
-                    <div>
-                      <h3 className="font-medium">{automation.name}</h3>
-                      <p className="text-sm text-muted-foreground">Trigger: {automation.trigger}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Last sent: {automation.lastSent} • {automation.recipients} recipients
-                      </p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={automation.status === 'active' ? 'default' : 'secondary'}>
-                        {automation.status}
-                      </Badge>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEditAutomation(automation);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
       </Tabs>
 
@@ -936,13 +854,6 @@ const CommunicationHub: React.FC = () => {
         />
       )}
 
-      {automationBuilderOpen && (
-        <AutomationBuilderModal
-          automation={selectedAutomation}
-          isOpen={automationBuilderOpen}
-          onClose={() => setAutomationBuilderOpen(false)}
-        />
-      )}
 
       {settingsOpen && (
         <CommunicationSettingsModal

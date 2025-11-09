@@ -197,9 +197,66 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
     return (
       <div className="flex flex-col items-center justify-center h-full min-h-[500px] p-8">
         <div className="text-center space-y-6">
-          <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-            <Plus className="w-8 h-8 text-primary" />
-          </div>
+          <Popover 
+            open={openPopoverId === 'empty-state'} 
+            onOpenChange={(open) => setOpenPopoverId(open ? 'empty-state' : null)}
+          >
+            <PopoverTrigger asChild>
+              <button className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto hover:bg-primary/20 transition-all cursor-pointer hover:scale-110">
+                <Plus className="w-8 h-8 text-primary" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-72 p-2" align="center">
+              <div className="space-y-1">
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+                  Add First Action
+                </div>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start h-auto py-3 px-3 hover:bg-accent"
+                  onClick={() => {
+                    onAddElement('trigger');
+                    setOpenPopoverId(null);
+                  }}
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Plus className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-medium text-sm">Trigger</div>
+                      <div className="text-xs text-muted-foreground">
+                        Start your campaign
+                      </div>
+                    </div>
+                  </div>
+                </Button>
+                {getCampaignActions().map((action) => {
+                  const ActionIcon = getElementIcon(action.type);
+                  return (
+                    <Button
+                      key={action.type}
+                      variant="ghost"
+                      className="w-full justify-start h-auto py-3 px-3 hover:bg-accent"
+                      onClick={() => handleAddAction(action.type, 'empty-state')}
+                    >
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="flex-shrink-0 w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <ActionIcon className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="font-medium text-sm">{action.label}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {action.category}
+                          </div>
+                        </div>
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
           
           <div>
             <h3 className="text-lg font-semibold mb-2">
@@ -210,19 +267,12 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
             </p>
           </div>
           
-          <div className="flex gap-3">
+          <div className="flex gap-3 justify-center">
             <Button 
               onClick={() => onAddElement('trigger')}
               className="flex items-center gap-2"
             >
-              Task is completed
-            </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => onAddElement('trigger')}
-              className="border-dashed"
-            >
-              Add a new trigger
+              Add Trigger
             </Button>
           </div>
         </div>

@@ -26,7 +26,6 @@ import RequirementsStep from "@/components/admin/wizard/RequirementsStep";
 import { ProgramJourneyStep } from "@/components/admin/ProgramJourneyStep";
 import PracticumConfigurationStep from "@/components/admin/wizard/PracticumConfigurationStep";
 import FeeStructureStep from "@/components/admin/wizard/FeeStructureStep";
-import IntakeQuestionsStep from "@/components/admin/wizard/IntakeQuestionsStep";
 import PreviewStep from "@/components/admin/wizard/PreviewStep";
 
 const STEPS = [
@@ -35,7 +34,6 @@ const STEPS = [
   { id: 'journey', title: 'Academic Journey', description: 'Student journey and workflow configuration' },
   { id: 'practicum', title: 'Practicum Configuration', description: 'Practicum requirements, sites, and competencies' },
   { id: 'fees', title: 'Fee Structure', description: 'Tuition, payment plans, and scholarships' },
-  { id: 'questions', title: 'Custom Questions', description: 'Application form customization' },
   { id: 'preview', title: 'Review & Preview', description: 'Final review before creating program' }
 ];
 
@@ -274,8 +272,6 @@ const ProgramWizardPage: React.FC = () => {
       case 4:
         return <FeeStructureStep {...stepProps} />;
       case 5:
-        return <IntakeQuestionsStep {...stepProps} />;
-      case 6:
         return <PreviewStep {...stepProps} onSave={handleSave} />;
       default:
         return null;

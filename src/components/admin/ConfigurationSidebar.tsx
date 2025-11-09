@@ -15,7 +15,11 @@ import {
   Menu,
   X,
   TrendingUp,
-  Zap
+  Zap,
+  Cog,
+  Building2,
+  Users,
+  Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -75,6 +79,17 @@ const configurationGroups: ConfigurationGroup[] = [
     items: [
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
       { name: "System Configuration", href: "/admin/configuration/system", icon: Server },
+    ]
+  },
+  {
+    name: "Setup & Configuration",
+    items: [
+      { name: "Setup Dashboard", href: "/admin/setup", icon: Cog },
+      { name: "Institution Setup", href: "/admin/setup/institution", icon: Building2 },
+      { name: "Application Setup", href: "/admin/setup/applications", icon: FileText },
+      { name: "Business Setup", href: "/admin/setup/business", icon: Briefcase },
+      { name: "Team Setup", href: "/admin/setup/team", icon: Users },
+      { name: "Data Setup", href: "/admin/setup/data", icon: Database },
     ]
   }
 ];

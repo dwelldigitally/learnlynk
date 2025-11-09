@@ -766,7 +766,15 @@ export default function LeadDetailTestPage() {
               </TabsContent>
 
               <TabsContent value="docs" className="mt-0">
-                <PresetDocumentUpload leadId={leadId || ''} programName={lead?.program_interest?.[0] || 'General'} documents={presetDocuments} onDocumentUploaded={refetchDocuments} onDocumentDeleted={refetchDocuments} onStatusUpdated={refetchDocuments} />
+                <PresetDocumentUpload 
+                  leadId={leadId || ''} 
+                  leadName={`${lead.first_name} ${lead.last_name}`}
+                  programName={lead?.program_interest?.[0] || 'General'} 
+                  documents={presetDocuments} 
+                  onDocumentUploaded={refetchDocuments} 
+                  onDocumentDeleted={refetchDocuments} 
+                  onStatusUpdated={refetchDocuments} 
+                />
               </TabsContent>
 
               <TabsContent value="payments" className="mt-0">

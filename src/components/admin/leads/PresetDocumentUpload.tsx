@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { RequestDocumentDialog } from './RequestDocumentDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -21,12 +22,14 @@ import {
   CheckCircle,
   Clock,
   Edit,
-  Download
+  Download,
+  Plus
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
 
 interface PresetDocumentUploadProps {
   leadId: string;
+  leadName?: string;
   programName: string;
   documents: UploadedDocument[];
   onDocumentUploaded: () => void;
@@ -36,6 +39,7 @@ interface PresetDocumentUploadProps {
 
 export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   leadId,
+  leadName = 'the student',
   programName,
   documents,
   onDocumentUploaded,
@@ -48,6 +52,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   const [reviewingDoc, setReviewingDoc] = useState<string | null>(null);
   const [reviewStatus, setReviewStatus] = useState<string>('');
   const [reviewComments, setReviewComments] = useState<string>('');
+  const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { toast } = useToast();
 
@@ -343,17 +348,26 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
               <CardTitle>Required Documents</CardTitle>
               <CardDescription>Upload and manage all required documents for this program</CardDescription>
             </div>
-            {documents.filter(doc => doc.admin_status === 'approved').length > 0 && (
+            <div className="flex gap-2 flex-shrink-0">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={handleBulkDownload}
-                className="flex-shrink-0"
+                onClick={() => setRequestDialogOpen(true)}
               >
-                <Download className="h-4 w-4 mr-2" />
-                Download All Approved
+                <Plus className="h-4 w-4 mr-2" />
+                Request Document
               </Button>
-            )}
+              {documents.filter(doc => doc.admin_status === 'approved').length > 0 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkDownload}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download All Approved
+                </Button>
+              )}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -580,6 +594,18 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Request Document Dialog */}
+      <RequestDocumentDialog
+        open={requestDialogOpen}
+        onOpenChange={setRequestDialogOpen}
+        leadId={leadId}
+        leadName={leadName}
+        programName={programName}
+        onRequestSent={() => {
+          onDocumentUploaded();
+        }}
+      />
 
       {/* Review Dialog */}
       <Dialog open={!!reviewingDoc} onOpenChange={(open) => !open && setReviewingDoc(null)}>

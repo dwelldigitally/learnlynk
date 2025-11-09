@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 import { Program, ProgramWizardState } from "@/types/program";
 import { ProgramService } from "@/services/programService";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 
 // Import step components
 import BasicInfoStep from "@/components/admin/wizard/BasicInfoStep";
@@ -44,6 +45,7 @@ const ProgramWizardPage: React.FC = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const autoSaveRef = useRef<NodeJS.Timeout>();
+  const { isMvpMode } = useMvpMode();
 
   // Check if we're editing an existing program
   const editingProgramId = searchParams.get('edit');
@@ -331,23 +333,30 @@ const ProgramWizardPage: React.FC = () => {
 
         {/* Step Navigation */}
         <div className="flex overflow-x-auto gap-1 pb-2">
-          {STEPS.map((step, index) => (
-            <Button
-              key={step.id}
-              variant={index === wizardState.currentStep ? "default" : "outline"}
-              size="sm"
-              className="flex-shrink-0"
-              onClick={() => goToStep(index)}
-            >
-              {wizardState.completed[index] && (
-                <CheckCircle className="h-3 w-3 mr-1" />
-              )}
-              {!wizardState.completed[index] && !validateStep(index) && index < wizardState.currentStep && (
-                <AlertCircle className="h-3 w-3 mr-1" />
-              )}
-              {step.title}
-            </Button>
-          ))}
+          {STEPS.map((step, index) => {
+            // Hide Practicum Configuration in MVP mode
+            if (step.id === 'practicum' && isMvpMode) {
+              return null;
+            }
+            
+            return (
+              <Button
+                key={step.id}
+                variant={index === wizardState.currentStep ? "default" : "outline"}
+                size="sm"
+                className="flex-shrink-0"
+                onClick={() => goToStep(index)}
+              >
+                {wizardState.completed[index] && (
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                )}
+                {!wizardState.completed[index] && !validateStep(index) && index < wizardState.currentStep && (
+                  <AlertCircle className="h-3 w-3 mr-1" />
+                )}
+                {step.title}
+              </Button>
+            );
+          })}
         </div>
 
         {/* Step Content */}

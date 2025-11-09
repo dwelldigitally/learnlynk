@@ -202,6 +202,38 @@ export const workflowElementTypes: ElementTypeConfig[] = [
 // Campaign Element Types
 export const campaignElementTypes: ElementTypeConfig[] = [
   {
+    type: 'trigger',
+    label: 'Trigger',
+    icon: 'Play',
+    category: 'Flow Control',
+    defaultConfig: {
+      triggerEvent: 'property_changed',
+      conditionGroups: [],
+      evaluationMode: 'OR'
+    },
+    configSchema: [
+      {
+        key: 'triggerEvent',
+        label: 'Trigger Event',
+        type: 'select',
+        options: [
+          { label: 'Form Submitted', value: 'form_submitted' },
+          { label: 'Status Changed', value: 'status_changed' },
+          { label: 'Tag Added', value: 'tag_added' },
+          { label: 'Date Reached', value: 'date_reached' },
+          { label: 'Property Changed', value: 'property_changed' },
+          { label: 'Manual Trigger', value: 'manual' }
+        ]
+      },
+      {
+        key: 'conditionGroups',
+        label: 'Conditions',
+        type: 'array',
+        helpText: 'Define when this trigger should activate'
+      }
+    ]
+  },
+  {
     type: 'email',
     label: 'Email',
     icon: 'Mail',

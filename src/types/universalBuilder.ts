@@ -31,12 +31,15 @@ export interface WorkflowElement extends BaseElement {
 
 export interface CampaignElement extends BaseElement {
   elementType: 'campaign';
-  type: 'email' | 'sms' | 'wait' | 'condition' | 'split';
+  type: 'trigger' | 'email' | 'sms' | 'wait' | 'condition' | 'split';
   subject?: string;
   content?: string;
   template?: string;
   waitTime?: { value: number; unit: string };
   splitPercentage?: number;
+  triggerConfig?: TriggerConfig;
+  triggerEvent?: 'form_submitted' | 'status_changed' | 'tag_added' | 'date_reached' | 'property_changed' | 'manual';
+  conditionGroups?: ConditionGroup[];
 }
 
 export interface JourneyElement extends BaseElement {
@@ -110,6 +113,26 @@ export interface PropertySchema {
   options?: { label: string; value: string }[];
   placeholder?: string;
   helpText?: string;
+}
+
+export interface TriggerCondition {
+  id: string;
+  field: string; // The lead property field
+  fieldType: 'text' | 'numeric' | 'array' | 'date' | 'select';
+  operator: string; // The comparison operator
+  value: any; // The comparison value(s)
+}
+
+export interface ConditionGroup {
+  id: string;
+  operator: 'AND' | 'OR';
+  conditions: TriggerCondition[];
+}
+
+export interface TriggerConfig {
+  triggerEvent: 'form_submitted' | 'status_changed' | 'tag_added' | 'date_reached' | 'property_changed' | 'manual';
+  conditionGroups: ConditionGroup[];
+  evaluationMode: 'AND' | 'OR'; // How to evaluate multiple condition groups
 }
 
 export interface BuilderState {

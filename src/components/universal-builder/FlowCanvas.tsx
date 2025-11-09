@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useBuilder } from '@/contexts/BuilderContext';
-import { UniversalElement } from '@/types/universalBuilder';
+import { UniversalElement, CampaignElement } from '@/types/universalBuilder';
 import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone } from 'lucide-react';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 
@@ -44,6 +44,30 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
         return Mail;
     }
   };
+
+  const getTriggerSummary = (trigger: CampaignElement): string => {
+    const conditionGroups = trigger.conditionGroups || trigger.config?.conditionGroups || [];
+    
+    if (conditionGroups.length === 0 || !conditionGroups[0]?.conditions || conditionGroups[0].conditions.length === 0) {
+      return 'No conditions set';
+    }
+
+    const conditions = conditionGroups[0].conditions;
+    
+    if (conditions.length === 1) {
+      const cond = conditions[0];
+      const value = Array.isArray(cond.value) ? cond.value.join(', ') : cond.value;
+      return `${cond.field} ${cond.operator} ${value}`;
+    }
+    
+    if (conditions.length === 2) {
+      const operator = conditionGroups[0].operator;
+      return `${conditions[0].field} ${operator} ${conditions[1].field}`;
+    }
+    
+    return `${conditions.length} conditions defined`;
+  };
+
 
   const renderFlowElement = (element: UniversalElement, index: number) => {
     const Icon = getElementIcon(element.type);
@@ -173,17 +197,30 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
           </h2>
           
           {/* Trigger buttons */}
-          <div className="flex justify-center gap-3 mb-6">
-            {state.config.elements.filter(el => el.type === 'trigger').map((trigger) => (
-              <Button 
-                key={trigger.id}
-                variant={state.selectedElementId === trigger.id ? "default" : "outline"}
-                onClick={() => handleSelectElement(trigger.id)}
-                className="flex items-center gap-2"
-              >
-                {trigger.title}
-              </Button>
-            ))}
+          <div className="flex justify-center gap-3 mb-6 flex-wrap">
+            {state.config.elements.filter(el => el.type === 'trigger').map((trigger) => {
+              const campaignTrigger = trigger as CampaignElement;
+              const summary = getTriggerSummary(campaignTrigger);
+              const conditionCount = campaignTrigger.conditionGroups?.[0]?.conditions?.length || 
+                                   campaignTrigger.config?.conditionGroups?.[0]?.conditions?.length || 0;
+              
+              return (
+                <Button 
+                  key={trigger.id}
+                  variant={state.selectedElementId === trigger.id ? "default" : "outline"}
+                  onClick={() => handleSelectElement(trigger.id)}
+                  className="flex items-center gap-2"
+                >
+                  <span>{trigger.title}</span>
+                  {conditionCount > 0 && (
+                    <Badge variant="secondary" className="ml-1 text-xs">
+                      {conditionCount}
+                    </Badge>
+                  )}
+                  <span className="text-xs opacity-70 ml-1">— {summary}</span>
+                </Button>
+              );
+            })}
             <Button 
               variant="outline" 
               onClick={() => onAddElement('trigger')}

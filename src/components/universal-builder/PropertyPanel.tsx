@@ -11,6 +11,7 @@ import { useBuilder } from '@/contexts/BuilderContext';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { PropertySchema } from '@/types/universalBuilder';
 import { Plus, X } from 'lucide-react';
+import { TriggerConditionBuilder } from './TriggerConditionBuilder';
 
 export function PropertyPanel() {
   const { state, dispatch } = useBuilder();
@@ -151,6 +152,16 @@ export function PropertyPanel() {
         );
 
       case 'array':
+        // Special handling for trigger conditions
+        if (schema.key === 'conditionGroups' && selectedElement.type === 'trigger') {
+          return (
+            <TriggerConditionBuilder
+              conditionGroups={value || []}
+              onChange={(groups) => handlePropertyChange(schema.key, groups)}
+            />
+          );
+        }
+        
         if (schema.key === 'options') {
           return (
             <div className="space-y-2">

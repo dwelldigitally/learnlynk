@@ -73,7 +73,8 @@ export function AdminSidebar({
   if (!currentSection) return null;
 
   // Filter items based on MVP mode (for data-management, leads-marketing, students-applications, and configuration sections)
-  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode ? currentSection.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href)) : currentSection.items;
+  // Don't filter out parent items that have subitems - only filter their subitems
+  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode ? currentSection.items.filter(item => item.subItems && item.subItems.length > 0 || !MVP_HIDDEN_PAGES.includes(item.href)) : currentSection.items;
   const filteredItems = sectionItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups);

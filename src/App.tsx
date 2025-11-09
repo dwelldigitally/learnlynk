@@ -161,9 +161,9 @@ const App = () => {
                <Route path="/instructor/review/journal/:journalId" element={<InstructorReviewJournal />} />
                <Route path="/instructor/review/evaluation/:evaluationId" element={<InstructorReviewEvaluation />} />
                
-               {/* Configuration routes */}
-               <Route path="/admin/configuration/setup" element={<ProtectedRoute element={<SetupOnboardingPage />} />} />
-               
+                
+                {/* Configuration routes are handled by AdminDashboard wildcard route below */}
+                
                {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
                <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />
               

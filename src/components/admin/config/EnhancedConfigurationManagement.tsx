@@ -277,7 +277,7 @@ export const EnhancedConfigurationManagement = () => {
                                           {section.badge}
                                         </Badge>}
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                                    <p className={cn("text-xs mt-1 line-clamp-2", isActive ? "text-primary-foreground/80" : "text-muted-foreground")}>
                                       {section.description}
                                     </p>
                                   </div>

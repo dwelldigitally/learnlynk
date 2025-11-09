@@ -119,7 +119,6 @@ export const navigationStructure: NavigationStructure = {
         { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
         { name: "Academic Terms & Schedules", href: "/admin/academic-terms", icon: Calendar },
         { name: "Document Templates", href: "/admin/document-templates", icon: FileCheck },
-        { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Recruiter Management", href: "/admin/recruiters", icon: Building2 },
         { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileCheck },
         { name: "Practicum Dashboard", href: "/admin/practicum", icon: BarChart3 },
@@ -134,6 +133,7 @@ export const navigationStructure: NavigationStructure = {
       name: "System Configuration", 
       icon: Settings,
       items: [
+        { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Custom Fields", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
         { name: "Integrations", href: "/admin/configuration/integrations", icon: Link },

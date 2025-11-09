@@ -305,13 +305,15 @@ function UniversalBuilderContent({
           </TabsList>
 
           <TabsContent value="build" className="flex-1 flex overflow-hidden m-0">
-            <div className="flex-1 flex gap-4 p-4">
+            <div className="flex-1 flex gap-4 p-4 overflow-hidden">
               {/* Journey Builder Layout */}
               {state.config.type === 'journey' && (
                 <>
-                  {/* Left Sidebar - Journey Element Palette */}
-                  <div className="w-80 flex flex-col h-full">
-                    <JourneyElementPalette onAddElement={handleAddElement} />
+                  {/* Left Sidebar - Journey Element Palette - Sticky */}
+                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                    <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                      <JourneyElementPalette onAddElement={handleAddElement} />
+                    </div>
                   </div>
 
                   {/* Center - Sequential Journey Canvas */}
@@ -323,9 +325,11 @@ function UniversalBuilderContent({
                     )}
                   </div>
 
-                  {/* Right Sidebar - Journey Property Panel */}
-                  <div className="w-80 space-y-4">
-                    <JourneyPropertyPanel />
+                  {/* Right Sidebar - Journey Property Panel - Sticky */}
+                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                    <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                      <JourneyPropertyPanel />
+                    </div>
                   </div>
                 </>
               )}
@@ -333,9 +337,11 @@ function UniversalBuilderContent({
               {/* Form Builder Layout */}
               {state.config.type === 'form' && (
                 <>
-                  {/* Left Sidebar - Element Palette */}
-                  <div className="w-64 flex-shrink-0">
-                    <ElementPalette onAddElement={handleAddElement} />
+                  {/* Left Sidebar - Element Palette - Sticky */}
+                  <div className="w-64 flex-shrink-0 overflow-hidden">
+                    <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                      <ElementPalette onAddElement={handleAddElement} />
+                    </div>
                   </div>
 
                   {/* Center - Canvas */}
@@ -347,9 +353,11 @@ function UniversalBuilderContent({
                     )}
                   </div>
 
-                  {/* Right Sidebar - Properties */}
-                  <div className="w-80 flex-shrink-0">
-                    <PropertyPanel />
+                  {/* Right Sidebar - Properties - Sticky */}
+                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                    <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                      <PropertyPanel />
+                    </div>
                   </div>
                 </>
               )}
@@ -357,9 +365,11 @@ function UniversalBuilderContent({
               {/* Workflow/Campaign Builder Layout */}
               {(state.config.type === 'workflow' || state.config.type === 'campaign') && (
                 <>
-                  {/* Left Sidebar - Actions (Element Palette) */}
-                  <div className="w-80 flex-shrink-0">
-                    <ActionsSidebar onAddElement={handleAddElement} />
+                  {/* Left Sidebar - Actions (Element Palette) - Sticky */}
+                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                    <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                      <ActionsSidebar onAddElement={handleAddElement} />
+                    </div>
                   </div>
 
                   {/* Center - Canvas */}
@@ -371,9 +381,11 @@ function UniversalBuilderContent({
                     )}
                   </div>
 
-                  {/* Right Sidebar - Properties */}
-                  <div className="w-80 flex-shrink-0">
-                    <PropertyPanel />
+                  {/* Right Sidebar - Properties - Sticky */}
+                  <div className="w-80 flex-shrink-0 overflow-hidden">
+                    <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                      <PropertyPanel />
+                    </div>
                   </div>
                 </>
               )}

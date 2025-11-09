@@ -197,13 +197,7 @@ export const EnhancedConfigurationManagement = () => {
         {/* Sidebar */}
         <div className={cn("border-r bg-card/50 backdrop-blur-sm transition-all duration-300 flex flex-col", isCollapsed ? "w-20" : "w-80")}>
           {/* Header */}
-          <div className={cn("border-b bg-card/80 backdrop-blur-sm flex items-center", isCollapsed ? "p-3 justify-center" : "p-6 justify-between")}>
-            {!isCollapsed && <div>
-                <h2 className="text-2xl font-bold text-foreground">Configuration</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Manage all system configurations
-                </p>
-              </div>}
+          <div className={cn("border-b bg-card/80 backdrop-blur-sm flex items-center", isCollapsed ? "p-3 justify-center" : "p-6 justify-end")}>
             <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="flex-shrink-0 hover:bg-primary/10">
               <Menu className="h-5 w-5" />
             </Button>

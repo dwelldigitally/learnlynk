@@ -113,7 +113,8 @@ const ProgramManagement: React.FC = () => {
       status: dbProgram.enrollment_status === 'open' ? 'active' : 'inactive',
       enrolled: enrollment.enrolled,
       capacity: enrollment.capacity,
-      tuitionFee: dbProgram.tuition || 0,
+      tuitionFeeDomestic: dbProgram.tuition || 0,
+      tuitionFeeInternational: dbProgram.tuition ? dbProgram.tuition * 1.2 : 0,
       nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0],
     };
   };
@@ -123,27 +124,29 @@ const ProgramManagement: React.FC = () => {
     {
       id: "demo-1",
       name: "Health Care Assistant",
-      description: "Comprehensive healthcare training program preparing students for careers in healthcare support.",
+      description: "Comprehensive healthcare training program preparing students for careers in patient care, including clinical skills, medical terminology, and professional standards in healthcare settings.",
       duration: "10 months",
       type: "certificate" as const,
       color: "#3B82F6",
       status: "active" as const,
       enrolled: 245,
       capacity: 280,
-      tuitionFee: 15500,
+      tuitionFeeDomestic: 15500,
+      tuitionFeeInternational: 18500,
       nextIntake: "2024-04-15",
     },
     {
       id: "demo-2",
       name: "Early Childhood Education",
-      description: "Develop skills needed to work with children in various educational settings.",
+      description: "Develop essential skills needed to work with children in various educational settings, including child development, curriculum planning, and classroom management techniques.",
       duration: "12 months",
       type: "diploma" as const,
       color: "#10B981",
       status: "active" as const,
       enrolled: 156,
       capacity: 180,
-      tuitionFee: 18500,
+      tuitionFeeDomestic: 18500,
+      tuitionFeeInternational: 22000,
       nextIntake: "2024-05-01",
     }
   ];
@@ -251,24 +254,26 @@ const ProgramManagement: React.FC = () => {
           {programs.map((program) => (
             <ModernCard key={program.id}>
               <CardContent className="p-6">
-                <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
-                    <GraduationCap className="h-5 w-5 text-primary" />
+                <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
+                      <GraduationCap className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-base text-foreground mb-1 truncate">
+                        {program.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        {program.type} • {program.duration}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-base text-foreground mb-1 truncate">
-                      {program.name}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {program.type} • {program.duration}
-                    </p>
-                    <InfoBadge variant={program.status === 'active' ? 'success' : 'secondary'}>
-                      {program.status.toUpperCase()}
-                    </InfoBadge>
-                  </div>
+                  <InfoBadge variant={program.status === 'active' ? 'success' : 'secondary'} className="flex-shrink-0">
+                    {program.status.toUpperCase()}
+                  </InfoBadge>
                 </div>
 
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                <p className="text-sm text-muted-foreground line-clamp-3 mb-4 leading-relaxed">
                   {program.description}
                 </p>
 
@@ -287,11 +292,18 @@ const ProgramManagement: React.FC = () => {
                     )}
                   </div>
 
-                  <MetadataItem
-                    icon={DollarSign}
-                    label="Tuition Fee"
-                    value={`$${program.tuitionFee.toLocaleString()}`}
-                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <MetadataItem
+                      icon={DollarSign}
+                      label="Domestic Fee"
+                      value={`$${(program.tuitionFeeDomestic || 0).toLocaleString()}`}
+                    />
+                    <MetadataItem
+                      icon={DollarSign}
+                      label="International Fee"
+                      value={`$${(program.tuitionFeeInternational || 0).toLocaleString()}`}
+                    />
+                  </div>
 
                   <MetadataItem
                     icon={Calendar}

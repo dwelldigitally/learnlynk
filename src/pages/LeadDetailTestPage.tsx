@@ -946,29 +946,55 @@ export default function LeadDetailTestPage() {
                         </>
                       ) : (
                         <div className="space-y-4">
-                          {/* Default timeline when no journey data */}
-                          <div className="flex items-start gap-3">
-                            <div className="p-1.5 bg-green-100 rounded-full">
-                              <CheckCircle className="h-4 w-4 text-green-600" />
+                          {/* Default timeline stages */}
+                          {[
+                            { name: 'Lead Created', completed: true, date: lead.created_at },
+                            { name: 'Initial Contact', completed: true, date: null },
+                            { name: 'Documents Submitted', completed: false, active: true, date: null },
+                            { name: 'Application Review', completed: false, active: false, date: null },
+                            { name: 'Offer Extended', completed: false, active: false, date: null },
+                            { name: 'Enrollment Confirmed', completed: false, active: false, date: null },
+                          ].map((stage, index, array) => (
+                            <div key={index} className="flex items-start gap-3">
+                              <div className="relative">
+                                {stage.completed ? (
+                                  <div className="p-1.5 bg-green-100 rounded-full">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  </div>
+                                ) : stage.active ? (
+                                  <div className="p-1.5 bg-blue-100 rounded-full animate-pulse">
+                                    <Clock className="h-4 w-4 text-blue-600" />
+                                  </div>
+                                ) : (
+                                  <div className="p-1.5 bg-muted rounded-full">
+                                    <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/40" />
+                                  </div>
+                                )}
+                                {index < array.length - 1 && (
+                                  <div className={`absolute left-1/2 top-8 w-0.5 h-8 -translate-x-1/2 ${
+                                    stage.completed ? 'bg-green-600' : 'bg-border'
+                                  }`} />
+                                )}
+                              </div>
+                              <div className="flex-1 pb-6">
+                                <div className="flex items-center justify-between">
+                                  <p className={`font-medium ${stage.active ? 'text-primary' : 'text-foreground'}`}>
+                                    {stage.name}
+                                  </p>
+                                  {stage.completed && stage.date && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {new Date(stage.date).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                                {stage.active && (
+                                  <Badge variant="outline" className="mt-1 text-xs">
+                                    Current Stage
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-foreground">Lead Created</p>
-                              <p className="text-sm text-muted-foreground">
-                                {lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'Unknown'}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-3">
-                            <div className="p-1.5 bg-blue-100 rounded-full animate-pulse">
-                              <Clock className="h-4 w-4 text-blue-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="font-medium text-foreground">Application In Progress</p>
-                              <Badge variant="outline" className="mt-1 text-xs">
-                                Current Stage
-                              </Badge>
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       )}
                     </div>

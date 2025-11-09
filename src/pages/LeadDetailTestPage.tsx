@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { LeadTimeline } from '@/components/admin/lead-details/LeadTimeline';
 import { ComprehensiveTimeline } from '@/components/admin/leads/ComprehensiveTimeline';
 import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, Brain, Target, AlertTriangle, TrendingUp, TrendingDown, Calendar, Phone, Mail, MapPin, GraduationCap, Star, Shield, Eye, Edit, Send, Zap, CheckCircle, XCircle, Pause, Play, Flag, Award, Activity, Download, Upload, Plus, PieChart, Filter, User, DollarSign } from 'lucide-react';
@@ -760,262 +761,270 @@ export default function LeadDetailTestPage() {
                   </CardContent>
                 </Card>
 
-                {/* Personal Information and Document Overview - 2 column layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Personal Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <User className="h-5 w-5 text-primary" />
-                        Personal Information
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Full Name</p>
-                            <p className="font-medium">{lead.first_name} {lead.last_name}</p>
+                {/* Personal Information and Document Overview - Resizable */}
+                <ResizablePanelGroup direction="horizontal" className="rounded-lg border border-border">
+                  <ResizablePanel defaultSize={50} minSize={30}>
+                    <Card className="h-full border-0 rounded-none">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <User className="h-5 w-5 text-primary" />
+                          Personal Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Full Name</p>
+                              <p className="font-medium">{lead.first_name} {lead.last_name}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Email</p>
+                              <p className="font-medium flex items-center gap-2">
+                                <Mail className="h-3 w-3" />
+                                {lead.email}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Phone</p>
+                              <p className="font-medium flex items-center gap-2">
+                                <Phone className="h-3 w-3" />
+                                {lead.phone || 'Not provided'}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Email</p>
-                            <p className="font-medium flex items-center gap-2">
-                              <Mail className="h-3 w-3" />
-                              {lead.email}
+                          <div className="space-y-3">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Location</p>
+                              <p className="font-medium flex items-center gap-2">
+                                <MapPin className="h-3 w-3" />
+                                {lead.city || lead.country || 'Not provided'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Program Interest</p>
+                              <p className="font-medium flex items-center gap-2">
+                                <GraduationCap className="h-3 w-3" />
+                                {lead.program_interest?.[0] || 'Not specified'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Lead Created</p>
+                              <p className="font-medium flex items-center gap-2">
+                                <Calendar className="h-3 w-3" />
+                                {lead.created_at ? new Date(lead.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </ResizablePanel>
+                  
+                  <ResizableHandle withHandle={true} />
+                  
+                  <ResizablePanel defaultSize={50} minSize={30}>
+                    <Card className="h-full border-0 rounded-none">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center justify-between">
+                          <span className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-primary" />
+                            Document Overview
+                          </span>
+                          <Badge variant={progress.isComplete ? 'default' : 'secondary'}>
+                            {progress.approved}/{progress.total} Complete
+                          </Badge>
+                        </CardTitle>
+                        <CardDescription>
+                          Track document submission and approval status
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-green-100 rounded-full">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">Approved</p>
+                                <p className="text-sm text-muted-foreground">Ready for review</p>
+                              </div>
+                            </div>
+                            <span className="text-2xl font-bold text-green-600">{progress.approved}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-yellow-100 rounded-full">
+                                <Clock className="h-4 w-4 text-yellow-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">Pending Review</p>
+                                <p className="text-sm text-muted-foreground">Awaiting approval</p>
+                              </div>
+                            </div>
+                            <span className="text-2xl font-bold text-yellow-600">{progress.pending}</span>
+                          </div>
+
+                          <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-red-100 rounded-full">
+                                <XCircle className="h-4 w-4 text-red-600" />
+                              </div>
+                              <div>
+                                <p className="font-medium">Rejected</p>
+                                <p className="text-sm text-muted-foreground">Needs resubmission</p>
+                              </div>
+                            </div>
+                            <span className="text-2xl font-bold text-red-600">{progress.rejected}</span>
+                          </div>
+
+                          <div className="pt-2">
+                            <Progress value={(progress.approved / progress.total) * 100} className="h-2" />
+                            <p className="text-xs text-muted-foreground text-center mt-2">
+                              Overall completion: {Math.round((progress.approved / progress.total) * 100)}%
                             </p>
                           </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+
+                {/* Program Details and Intake Deadline - Resizable */}
+                <ResizablePanelGroup direction="horizontal" className="rounded-lg border border-border">
+                  <ResizablePanel defaultSize={50} minSize={30}>
+                    <Card className="h-full border-0 rounded-none">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <GraduationCap className="h-5 w-5 text-primary" />
+                          Program Details
+                        </CardTitle>
+                        <CardDescription>
+                          Selected program and requirements
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
                           <div>
-                            <p className="text-sm text-muted-foreground">Phone</p>
-                            <p className="font-medium flex items-center gap-2">
-                              <Phone className="h-3 w-3" />
-                              {lead.phone || 'Not provided'}
+                            <p className="text-sm text-muted-foreground">Program Name</p>
+                            <p className="font-semibold text-lg text-foreground">
+                              {lead.program_interest?.[0] || 'No program selected'}
                             </p>
                           </div>
+                          
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Duration</p>
+                              <p className="font-medium text-foreground">2 Years</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Level</p>
+                              <p className="font-medium text-foreground">
+                                {lead.program_interest?.[0]?.includes('Diploma') ? 'Diploma' : 
+                                 lead.program_interest?.[0]?.includes('Certificate') ? 'Certificate' : 
+                                 'Degree'}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Study Mode</p>
+                              <p className="font-medium text-foreground">Full-time</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Campus</p>
+                              <p className="font-medium text-foreground">Main Campus</p>
+                            </div>
+                          </div>
                         </div>
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Location</p>
-                            <p className="font-medium flex items-center gap-2">
-                              <MapPin className="h-3 w-3" />
-                              {lead.city || lead.country || 'Not provided'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Program Interest</p>
-                            <p className="font-medium flex items-center gap-2">
-                              <GraduationCap className="h-3 w-3" />
-                              {lead.program_interest?.[0] || 'Not specified'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Lead Created</p>
-                            <p className="font-medium flex items-center gap-2">
-                              <Calendar className="h-3 w-3" />
-                              {lead.created_at ? new Date(lead.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </ResizablePanel>
 
-                  {/* Document Overview */}
-                  <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-primary" />
-                        Document Overview
-                      </span>
-                      <Badge variant={progress.isComplete ? 'default' : 'secondary'}>
-                        {progress.approved}/{progress.total} Complete
-                      </Badge>
-                    </CardTitle>
-                    <CardDescription>
-                      Track document submission and approval status
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-green-100 rounded-full">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Approved</p>
-                            <p className="text-sm text-muted-foreground">Ready for review</p>
-                          </div>
-                        </div>
-                        <span className="text-2xl font-bold text-green-600">{progress.approved}</span>
-                      </div>
+                  <ResizableHandle withHandle={true} />
 
-                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-yellow-100 rounded-full">
-                            <Clock className="h-4 w-4 text-yellow-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Pending Review</p>
-                            <p className="text-sm text-muted-foreground">Awaiting approval</p>
-                          </div>
-                        </div>
-                        <span className="text-2xl font-bold text-yellow-600">{progress.pending}</span>
-                      </div>
-
-                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-                        <div className="flex items-center gap-3">
-                          <div className="p-2 bg-red-100 rounded-full">
-                            <XCircle className="h-4 w-4 text-red-600" />
-                          </div>
-                          <div>
-                            <p className="font-medium">Rejected</p>
-                            <p className="text-sm text-muted-foreground">Needs resubmission</p>
-                          </div>
-                        </div>
-                        <span className="text-2xl font-bold text-red-600">{progress.rejected}</span>
-                      </div>
-
-                      <div className="pt-2">
-                        <Progress value={(progress.approved / progress.total) * 100} className="h-2" />
-                        <p className="text-xs text-muted-foreground text-center mt-2">
-                          Overall completion: {Math.round((progress.approved / progress.total) * 100)}%
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                </div>
-
-                {/* Program Details and Intake Deadline - 2 column layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Program Details */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <GraduationCap className="h-5 w-5 text-primary" />
-                        Program Details
-                      </CardTitle>
-                      <CardDescription>
-                        Selected program and requirements
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-sm text-muted-foreground">Program Name</p>
-                          <p className="font-semibold text-lg text-foreground">
-                            {lead.program_interest?.[0] || 'No program selected'}
-                          </p>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <p className="text-sm text-muted-foreground">Duration</p>
-                            <p className="font-medium text-foreground">2 Years</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Level</p>
-                            <p className="font-medium text-foreground">
-                              {lead.program_interest?.[0]?.includes('Diploma') ? 'Diploma' : 
-                               lead.program_interest?.[0]?.includes('Certificate') ? 'Certificate' : 
-                               'Degree'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Study Mode</p>
-                            <p className="font-medium text-foreground">Full-time</p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-muted-foreground">Campus</p>
-                            <p className="font-medium text-foreground">Main Campus</p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Intake Deadline */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <Calendar className="h-5 w-5 text-primary" />
-                        Intake Deadline
-                      </CardTitle>
-                      <CardDescription>
-                        Important dates and deadlines
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm text-muted-foreground">Next Intake</p>
-                            <Badge variant="default" className="text-xs">Upcoming</Badge>
-                          </div>
-                          <p className="text-2xl font-bold text-primary">
-                            {(() => {
-                              const nextIntake = new Date();
-                              nextIntake.setMonth(nextIntake.getMonth() + 2);
-                              return nextIntake.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                            })()}
-                          </p>
-                        </div>
-
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Application Deadline</span>
-                            <span className="font-medium text-foreground">
+                  <ResizablePanel defaultSize={50} minSize={30}>
+                    <Card className="h-full border-0 rounded-none">
+                      <CardHeader>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Calendar className="h-5 w-5 text-primary" />
+                          Intake Deadline
+                        </CardTitle>
+                        <CardDescription>
+                          Important dates and deadlines
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-4">
+                          <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-sm text-muted-foreground">Next Intake</p>
+                              <Badge variant="default" className="text-xs">Upcoming</Badge>
+                            </div>
+                            <p className="text-2xl font-bold text-primary">
                               {(() => {
-                                const deadline = new Date();
-                                deadline.setMonth(deadline.getMonth() + 1);
-                                deadline.setDate(15);
-                                return deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                const nextIntake = new Date();
+                                nextIntake.setMonth(nextIntake.getMonth() + 2);
+                                return nextIntake.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
                               })()}
-                            </span>
+                            </p>
                           </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Document Deadline</span>
-                            <span className="font-medium text-foreground">
-                              {(() => {
-                                const docDeadline = new Date();
-                                docDeadline.setMonth(docDeadline.getMonth() + 1);
-                                docDeadline.setDate(20);
-                                return docDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                              })()}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Tuition Payment</span>
-                            <span className="font-medium text-foreground">
-                              {(() => {
-                                const paymentDate = new Date();
-                                paymentDate.setMonth(paymentDate.getMonth() + 1);
-                                paymentDate.setDate(25);
-                                return paymentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                              })()}
-                            </span>
-                          </div>
-                        </div>
 
-                        <div className="pt-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <Clock className="h-4 w-4 text-amber-500" />
-                            <span className="text-muted-foreground">
-                              {(() => {
-                                const deadline = new Date();
-                                deadline.setMonth(deadline.getMonth() + 1);
-                                deadline.setDate(15);
-                                const daysLeft = Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                                return `${daysLeft} days left to apply`;
-                              })()}
-                            </span>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Application Deadline</span>
+                              <span className="font-medium text-foreground">
+                                {(() => {
+                                  const deadline = new Date();
+                                  deadline.setMonth(deadline.getMonth() + 1);
+                                  deadline.setDate(15);
+                                  return deadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                })()}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Document Deadline</span>
+                              <span className="font-medium text-foreground">
+                                {(() => {
+                                  const docDeadline = new Date();
+                                  docDeadline.setMonth(docDeadline.getMonth() + 1);
+                                  docDeadline.setDate(20);
+                                  return docDeadline.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                })()}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-muted-foreground">Tuition Payment</span>
+                              <span className="font-medium text-foreground">
+                                {(() => {
+                                  const paymentDate = new Date();
+                                  paymentDate.setMonth(paymentDate.getMonth() + 1);
+                                  paymentDate.setDate(25);
+                                  return paymentDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                                })()}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className="pt-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Clock className="h-4 w-4 text-amber-500" />
+                              <span className="text-muted-foreground">
+                                {(() => {
+                                  const deadline = new Date();
+                                  deadline.setMonth(deadline.getMonth() + 1);
+                                  deadline.setDate(15);
+                                  const daysLeft = Math.ceil((deadline.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                                  return `${daysLeft} days left to apply`;
+                                })()}
+                              </span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                      </CardContent>
+                    </Card>
+                  </ResizablePanel>
+                </ResizablePanelGroup>
 
                 {/* Application Timeline */}
                 <Card>

@@ -12,6 +12,8 @@ import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { PropertySchema } from '@/types/universalBuilder';
 import { Plus, X } from 'lucide-react';
 import { TriggerConditionBuilder } from './TriggerConditionBuilder';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { Badge } from '@/components/ui/badge';
 
 export function PropertyPanel() {
   const { state, dispatch } = useBuilder();
@@ -112,6 +114,50 @@ export function PropertyPanel() {
             placeholder={schema.placeholder}
             rows={3}
           />
+        );
+
+      case 'richtext':
+        return (
+          <RichTextEditor
+            content={value || ''}
+            onChange={(html) => handlePropertyChange(schema.key, html)}
+            placeholder={schema.placeholder}
+            className="min-h-[400px]"
+          />
+        );
+
+      case 'sms':
+        const smsContent = value || '';
+        const charCount = smsContent.length;
+        const segmentCount = Math.ceil(charCount / 160) || 1;
+        const remaining = (segmentCount * 160) - charCount;
+        
+        return (
+          <div className="space-y-2">
+            <Textarea
+              value={smsContent}
+              onChange={(e) => handlePropertyChange(schema.key, e.target.value)}
+              placeholder={schema.placeholder}
+              rows={4}
+              className="font-mono text-sm"
+            />
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex gap-3">
+                <Badge variant={charCount > 160 ? "secondary" : "outline"}>
+                  {charCount} characters
+                </Badge>
+                <Badge variant={segmentCount > 1 ? "secondary" : "outline"}>
+                  {segmentCount} SMS {segmentCount > 1 ? 'segments' : 'segment'}
+                </Badge>
+              </div>
+              <span className="text-muted-foreground">
+                {remaining} chars until next segment
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              💡 Tip: Use variables like {'{{firstName}}'} to personalize messages
+            </p>
+          </div>
         );
 
       case 'number':

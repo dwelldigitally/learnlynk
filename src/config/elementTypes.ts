@@ -239,13 +239,24 @@ export const campaignElementTypes: ElementTypeConfig[] = [
     icon: 'Mail',
     category: 'Communication',
     defaultConfig: {
+      fromName: 'Your Organization',
+      fromEmail: 'noreply@example.com',
+      replyTo: '',
       subject: 'Email Subject',
-      content: 'Email content...'
+      preheader: '',
+      content: '<p>Start writing your email content here...</p>',
+      trackOpens: true,
+      trackClicks: true
     },
     configSchema: [
-      { key: 'subject', label: 'Subject', type: 'text' },
-      { key: 'content', label: 'Content', type: 'textarea' },
-      { key: 'template', label: 'Template', type: 'text' }
+      { key: 'fromName', label: 'From Name', type: 'text', placeholder: 'Your Organization' },
+      { key: 'fromEmail', label: 'From Email', type: 'text', placeholder: 'noreply@example.com' },
+      { key: 'replyTo', label: 'Reply-To Email', type: 'text', placeholder: 'Optional reply-to address' },
+      { key: 'subject', label: 'Subject Line', type: 'text', placeholder: 'Compelling subject line' },
+      { key: 'preheader', label: 'Preheader Text', type: 'text', placeholder: 'Preview text shown in inbox (50-100 chars)' },
+      { key: 'content', label: 'Email Content', type: 'richtext' },
+      { key: 'trackOpens', label: 'Track Email Opens', type: 'checkbox' },
+      { key: 'trackClicks', label: 'Track Link Clicks', type: 'checkbox' }
     ]
   },
   {
@@ -254,10 +265,10 @@ export const campaignElementTypes: ElementTypeConfig[] = [
     icon: 'MessageSquare',
     category: 'Communication',
     defaultConfig: {
-      content: 'SMS message...'
+      content: 'Hi {{firstName}}, this is your message...'
     },
     configSchema: [
-      { key: 'content', label: 'Message', type: 'textarea' }
+      { key: 'content', label: 'Message Content', type: 'sms', placeholder: 'Write your SMS message (160 chars = 1 SMS)' }
     ]
   },
   {

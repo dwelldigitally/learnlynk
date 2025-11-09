@@ -109,7 +109,7 @@ export interface ElementTypeConfig {
 export interface PropertySchema {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'array';
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'array' | 'richtext' | 'sms';
   required?: boolean;
   options?: { label: string; value: string }[];
   placeholder?: string;

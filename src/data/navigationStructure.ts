@@ -90,8 +90,7 @@ export const navigationStructure: NavigationStructure = {
           ]
         },
         { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
-        { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase },
-        { name: "Intake Management", href: "/admin/intake", icon: GitBranch }
+        { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase }
       ]
     },
     {

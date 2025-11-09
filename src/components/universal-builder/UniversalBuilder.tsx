@@ -264,67 +264,146 @@ function UniversalBuilderContent({
         )}
         
         {/* Header */}
-      <div className="border-b bg-card">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-4">
-            <div>
-              <h1 className="text-xl font-semibold">{getBuilderTitle()}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline">{state.config.type}</Badge>
-                <span className="text-sm text-muted-foreground">
-                  {state.config.elements.length} elements
-                </span>
+        <div className="border-b bg-gradient-to-br from-background via-background to-muted/20 backdrop-blur-sm">
+          <div className="px-6 py-5">
+            {/* Top Row: Title and Main Actions */}
+            <div className="flex items-start justify-between gap-6 mb-4">
+              {/* Left: Title & Meta */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                    {getBuilderTitle()}
+                  </h1>
+                  <Badge 
+                    variant="secondary" 
+                    className="font-medium text-xs uppercase tracking-wide bg-primary/10 text-primary hover:bg-primary/20"
+                  >
+                    {state.config.type}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-1.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                    {state.config.elements.length} {state.config.elements.length === 1 ? 'element' : 'elements'}
+                  </span>
+                  {state.config.name && (
+                    <>
+                      <span className="text-muted-foreground/40">•</span>
+                      <span className="truncate max-w-xs">{state.config.name}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Right: Primary Actions */}
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {state.config.type === 'campaign' && onSelectTemplate && onStartBlank && (
+                  <>
+                    <TemplateSelector
+                      onSelectTemplate={onSelectTemplate}
+                      onStartBlank={onStartBlank}
+                    />
+                    <div className="h-8 w-px bg-border/50" />
+                  </>
+                )}
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleExport}
+                  className="gap-2 hover:bg-accent/50"
+                >
+                  <Download className="h-4 w-4" />
+                  <span className="hidden sm:inline">Export</span>
+                </Button>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handlePreview}
+                  className="gap-2 hover:bg-accent/50"
+                >
+                  {state.isPreviewMode ? (
+                    <>
+                      <EyeOff className="h-4 w-4" />
+                      <span className="hidden sm:inline">Edit Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4" />
+                      <span className="hidden sm:inline">Preview</span>
+                    </>
+                  )}
+                </Button>
+
+                <div className="h-8 w-px bg-border/50" />
+
+                <Button 
+                  variant="default"
+                  size="sm"
+                  onClick={handleSave}
+                  className="gap-2 bg-primary hover:bg-primary/90 shadow-sm"
+                >
+                  <Save className="h-4 w-4" />
+                  Save Changes
+                </Button>
+                
+                {onCancel && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={onCancel}
+                    className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                  >
+                    Cancel
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Bottom Row: History Controls & Status */}
+            <div className="flex items-center justify-between pt-3 border-t border-border/40">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 bg-muted/40 rounded-md p-0.5">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleUndo}
+                    disabled={state.historyIndex <= 0}
+                    className="h-7 w-7 p-0 disabled:opacity-40"
+                    title="Undo (Ctrl+Z)"
+                  >
+                    <Undo className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRedo}
+                    disabled={state.historyIndex >= state.history.length - 1}
+                    className="h-7 w-7 p-0 disabled:opacity-40"
+                    title="Redo (Ctrl+Y)"
+                  >
+                    <Redo className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+                
+                {state.history.length > 1 && (
+                  <span className="text-xs text-muted-foreground ml-2">
+                    {state.historyIndex + 1} / {state.history.length} changes
+                  </span>
+                )}
+              </div>
+
+              {/* Status Indicator */}
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-green-500/80 animate-pulse" />
+                  <span>All changes saved</span>
+                </div>
               </div>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            {state.config.type === 'campaign' && onSelectTemplate && onStartBlank && (
-              <>
-                <TemplateSelector
-                  onSelectTemplate={onSelectTemplate}
-                  onStartBlank={onStartBlank}
-                />
-                <Separator orientation="vertical" className="h-6" />
-              </>
-            )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleUndo}
-              disabled={state.historyIndex <= 0}
-            >
-              <Undo className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRedo}
-              disabled={state.historyIndex >= state.history.length - 1}
-            >
-              <Redo className="h-4 w-4" />
-            </Button>
-            <Separator orientation="vertical" className="h-6" />
-            <Button variant="ghost" size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button variant="ghost" size="sm" onClick={handlePreview}>
-              {state.isPreviewMode ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
-              {state.isPreviewMode ? 'Edit' : 'Preview'}
-            </Button>
-            <Button onClick={handleSave}>
-              <Save className="h-4 w-4 mr-2" />
-              Save
-            </Button>
-            {onCancel && (
-              <Button variant="outline" onClick={onCancel}>
-                Cancel
-              </Button>
-            )}
-          </div>
         </div>
-      </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">

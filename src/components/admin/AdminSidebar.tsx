@@ -157,7 +157,7 @@ export function AdminSidebar({
                                 <DropdownMenuItem asChild>
                                   
                                 </DropdownMenuItem>
-                                {item.subItems?.map(subItem => <DropdownMenuItem key={subItem.href} asChild>
+                                {item.subItems?.filter(subItem => !isMvpMode || !MVP_HIDDEN_PAGES.includes(subItem.href)).map(subItem => <DropdownMenuItem key={subItem.href} asChild>
                                     <NavLink to={subItem.href} className="flex items-center space-x-3 w-full px-3 py-2 hover:bg-muted rounded-sm">
                                       <subItem.icon className="w-4 h-4" />
                                       <span>{subItem.name}</span>
@@ -179,7 +179,7 @@ export function AdminSidebar({
                         
                         {!isCollapsed && <CollapsibleContent className="ml-4 mt-1">
                             <ul className="space-y-1">
-                              {item.subItems.map(subItem => {
+                              {item.subItems.filter(subItem => !isMvpMode || !MVP_HIDDEN_PAGES.includes(subItem.href)).map(subItem => {
                       const isSubActive = location.pathname === subItem.href || location.pathname.startsWith(subItem.href + '/');
                       return <li key={subItem.href}>
                                     <NavLink to={subItem.href} className={cn("flex items-center space-x-3 pl-6 h-10 rounded-md transition-colors", isSubActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>

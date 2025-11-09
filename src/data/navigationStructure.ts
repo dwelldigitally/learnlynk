@@ -43,6 +43,7 @@ export const MVP_HIDDEN_PAGES = [
   '/admin/leads/workflow',
   '/admin/leads/ai',
   '/admin/leads/bulk',
+  '/admin/enrollment/today', // Hide Today page in MVP mode
   // Students & Applications
   '/admin/registrar/command-center',
   '/admin/registrar/intelligence',

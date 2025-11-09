@@ -36,8 +36,12 @@ import {
   Trash2,
   Video,
   Clock,
-  Eye
+  Eye,
+  TrendingUp
 } from "lucide-react";
+import { PageHeader } from '@/components/modern/PageHeader';
+import { ModernCard } from '@/components/modern/ModernCard';
+import { GlassCard } from '@/components/modern/GlassCard';
 
 const EventManagement: React.FC = () => {
   const { toast } = useToast();
@@ -208,165 +212,235 @@ const EventManagement: React.FC = () => {
   );
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Event Management</h1>
-          <p className="text-muted-foreground">Create and manage student events and sessions</p>
-        </div>
-        <Button onClick={() => setIsWizardOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Event
-        </Button>
-      </div>
-
-      {/* Event Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {[
-          { title: "Upcoming Events", count: 12, icon: Calendar, color: "text-blue-600" },
-          { title: "Total Registrations", count: 384, icon: Users, color: "text-green-600" },
-          { title: "This Month", count: 8, icon: Clock, color: "text-purple-600" },
-          { title: "Virtual Events", count: 5, icon: Video, color: "text-orange-600" }
-        ].map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <p className="text-2xl font-bold text-foreground">{stat.count}</p>
-                </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Tabs defaultValue="upcoming" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="upcoming">Upcoming Events</TabsTrigger>
-          <TabsTrigger value="past">Past Events</TabsTrigger>
-          <TabsTrigger value="draft">Drafts</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="upcoming" className="space-y-4">
-          <ConditionalDataWrapper
-            isLoading={eventsData.isLoading}
-            showEmptyState={eventsData.showEmptyState}
-            hasDemoAccess={eventsData.hasDemoAccess}
-            hasRealData={eventsData.hasRealData}
-            emptyTitle="No Events Found"
-            emptyDescription="Create your first event to start engaging with students."
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {events.map((event) => (
-                <Card key={event.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between items-start">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg line-clamp-2">{event.title}</CardTitle>
-                        <Badge variant="outline">
-                          {event.type.replace('_', ' ')}
-                        </Badge>
-                      </div>
-                      <div className="flex space-x-1">
-                        <Button variant="ghost" size="sm">
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {event.description}
-                    </p>
-
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center space-x-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span>{new Date(event.date).toLocaleDateString()} at {event.time}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {event.type === 'webinar' ? (
-                          <Video className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <MapPin className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{event.registrations || 0}/{event.capacity} registered</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Registration</span>
-                        <span>{Math.round(((event.registrations || 0) / event.capacity) * 100)}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <div 
-                          className="bg-primary h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${((event.registrations || 0) / event.capacity) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1">
-                        <Users className="h-4 w-4 mr-1" />
-                        Attendees
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ConditionalDataWrapper>
-        </TabsContent>
-
-        <TabsContent value="past">
-          <Card>
-            <CardHeader>
-              <CardTitle>Past Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">View completed events and their analytics.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="draft">
-          <Card>
-            <CardHeader>
-              <CardTitle>Draft Events</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Events that are being planned but not yet published.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-      
-      {isWizardOpen && (
-        <EventWizard
-          onClose={() => {
-            setIsWizardOpen(false);
-            setEditingEvent(null);
-          }}
-          onSave={handleCreateEvent}
-          editingEvent={editingEvent || undefined}
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <PageHeader 
+          title="Event Management"
+          subtitle="Create and manage student events and sessions"
+          action={
+            <Button size="lg" onClick={() => setIsWizardOpen(true)} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create Event
+            </Button>
+          }
         />
-      )}
+
+        {/* Event Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Upcoming Events</p>
+                <h3 className="text-3xl font-bold text-foreground">12</h3>
+                <p className="text-xs text-muted-foreground mt-1">Next 30 days</p>
+              </div>
+              <div className="p-3 bg-blue-500/10 rounded-lg">
+                <Calendar className="h-5 w-5 text-blue-500" />
+              </div>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Registrations</p>
+                <h3 className="text-3xl font-bold text-foreground">384</h3>
+                <p className="text-xs text-muted-foreground mt-1">All events</p>
+              </div>
+              <div className="p-3 bg-emerald-500/10 rounded-lg">
+                <Users className="h-5 w-5 text-emerald-500" />
+              </div>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">This Month</p>
+                <h3 className="text-3xl font-bold text-foreground">8</h3>
+                <p className="text-xs text-muted-foreground mt-1">Events scheduled</p>
+              </div>
+              <div className="p-3 bg-purple-500/10 rounded-lg">
+                <Clock className="h-5 w-5 text-purple-500" />
+              </div>
+            </div>
+          </GlassCard>
+
+          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Virtual Events</p>
+                <h3 className="text-3xl font-bold text-foreground">5</h3>
+                <p className="text-xs text-muted-foreground mt-1">Online sessions</p>
+              </div>
+              <div className="p-3 bg-orange-500/10 rounded-lg">
+                <Video className="h-5 w-5 text-orange-500" />
+              </div>
+            </div>
+          </GlassCard>
+        </div>
+
+        <Tabs defaultValue="upcoming" className="space-y-6">
+          <div className="flex items-center justify-center">
+            <TabsList className="grid w-full max-w-md grid-cols-3">
+              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+              <TabsTrigger value="past">Past</TabsTrigger>
+              <TabsTrigger value="draft">Drafts</TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="upcoming" className="space-y-4">
+            <ConditionalDataWrapper
+              isLoading={eventsData.isLoading}
+              showEmptyState={eventsData.showEmptyState}
+              hasDemoAccess={eventsData.hasDemoAccess}
+              hasRealData={eventsData.hasRealData}
+              emptyTitle="No Events Found"
+              emptyDescription="Create your first event to start engaging with students."
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {events.map((event) => (
+                  <ModernCard key={event.id} className="group overflow-hidden">
+                    <CardHeader className="pb-3 bg-gradient-to-br from-primary/5 to-transparent">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-2 flex-1">
+                          <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                            {event.title}
+                          </CardTitle>
+                          <Badge variant="outline" className="w-fit">
+                            {event.type.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4 pt-4">
+                      <p className="text-sm text-muted-foreground line-clamp-2">
+                        {event.description}
+                      </p>
+
+                      <div className="space-y-3 text-sm">
+                        <div className="flex items-center gap-3 text-muted-foreground">
+                          <Calendar className="h-4 w-4 flex-shrink-0" />
+                          <span className="truncate">{new Date(event.date).toLocaleDateString()} at {event.time}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-muted-foreground">
+                          {event.type === 'webinar' ? (
+                            <Video className="h-4 w-4 flex-shrink-0" />
+                          ) : (
+                            <MapPin className="h-4 w-4 flex-shrink-0" />
+                          )}
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-muted-foreground">
+                          <Users className="h-4 w-4 flex-shrink-0" />
+                          <span>{event.registrations || 0}/{event.capacity} registered</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2">
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>Registration</span>
+                          <span className="font-medium">{Math.round(((event.registrations || 0) / event.capacity) * 100)}%</span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                          <div 
+                            className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500" 
+                            style={{ width: `${((event.registrations || 0) / event.capacity) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
+                        <Button variant="outline" size="sm" className="flex-1 gap-2">
+                          <Eye className="h-3.5 w-3.5" />
+                          View
+                        </Button>
+                        <Button variant="outline" size="sm" className="flex-1 gap-2">
+                          <Users className="h-3.5 w-3.5" />
+                          Attendees
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </ModernCard>
+                ))}
+              </div>
+            </ConditionalDataWrapper>
+          </TabsContent>
+
+          <TabsContent value="past">
+            <ModernCard>
+              <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">Past Events</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">View completed events and their analytics</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-12">
+                <div className="text-center">
+                  <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                    <TrendingUp className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No Past Events</h3>
+                  <p className="text-muted-foreground">Past events will appear here once they're completed</p>
+                </div>
+              </CardContent>
+            </ModernCard>
+          </TabsContent>
+
+          <TabsContent value="draft">
+            <ModernCard>
+              <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-primary/10 rounded-lg">
+                    <Edit className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">Draft Events</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">Events that are being planned but not yet published</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="p-12">
+                <div className="text-center">
+                  <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                    <Edit className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">No Draft Events</h3>
+                  <p className="text-muted-foreground mb-4">Create a new event to get started</p>
+                  <Button onClick={() => setIsWizardOpen(true)} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Event
+                  </Button>
+                </div>
+              </CardContent>
+            </ModernCard>
+          </TabsContent>
+        </Tabs>
+        
+        {isWizardOpen && (
+          <EventWizard
+            onClose={() => {
+              setIsWizardOpen(false);
+              setEditingEvent(null);
+            }}
+            onSave={handleCreateEvent}
+            editingEvent={editingEvent || undefined}
+          />
+        )}
+      </div>
     </div>
   );
 };

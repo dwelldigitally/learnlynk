@@ -25,6 +25,7 @@ import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflow
 import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunicationPanel';
 import { SMSCommunicationPanel } from '@/components/admin/leads/SMSCommunicationPanel';
 import { LeadEditForm } from '@/components/admin/leads/LeadEditForm';
+import { presetDocumentService } from '@/services/presetDocumentService';
 import { CommunicationCenter } from '@/components/admin/applicants/CommunicationCenter';
 import { DocumentUpload } from '@/components/admin/leads/DocumentUpload';
 import { PresetDocumentUpload } from '@/components/admin/leads/PresetDocumentUpload';
@@ -441,6 +442,13 @@ export default function LeadDetailTestPage() {
       </div>
     );
   }
+  
+  // Calculate document progress
+  const progress = presetDocumentService.getDocumentProgress(
+    lead?.program_interest?.[0] || 'General',
+    presetDocuments
+  );
+  
   return (
     <ModernAdminLayout>
       <div className="min-h-screen bg-background">
@@ -748,6 +756,218 @@ export default function LeadDetailTestPage() {
                           <span className="font-medium">{showDemoData ? '2 hours ago' : 'No activity'}</span>
                         </div>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Personal Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <User className="h-5 w-5 text-primary" />
+                      Personal Information
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Full Name</p>
+                          <p className="font-medium">{lead.first_name} {lead.last_name}</p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium flex items-center gap-2">
+                            <Mail className="h-3 w-3" />
+                            {lead.email}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Phone</p>
+                          <p className="font-medium flex items-center gap-2">
+                            <Phone className="h-3 w-3" />
+                            {lead.phone || 'Not provided'}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Location</p>
+                          <p className="font-medium flex items-center gap-2">
+                            <MapPin className="h-3 w-3" />
+                            {lead.city || lead.country || 'Not provided'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Program Interest</p>
+                          <p className="font-medium flex items-center gap-2">
+                            <GraduationCap className="h-3 w-3" />
+                            {lead.program_interest?.[0] || 'Not specified'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Lead Created</p>
+                          <p className="font-medium flex items-center gap-2">
+                            <Calendar className="h-3 w-3" />
+                            {lead.created_at ? new Date(lead.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Document Overview */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        Document Overview
+                      </span>
+                      <Badge variant={progress.isComplete ? 'default' : 'secondary'}>
+                        {progress.approved}/{progress.total} Complete
+                      </Badge>
+                    </CardTitle>
+                    <CardDescription>
+                      Track document submission and approval status
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-green-100 rounded-full">
+                            <CheckCircle className="h-4 w-4 text-green-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Approved</p>
+                            <p className="text-sm text-muted-foreground">Ready for review</p>
+                          </div>
+                        </div>
+                        <span className="text-2xl font-bold text-green-600">{progress.approved}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-yellow-100 rounded-full">
+                            <Clock className="h-4 w-4 text-yellow-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Pending Review</p>
+                            <p className="text-sm text-muted-foreground">Awaiting approval</p>
+                          </div>
+                        </div>
+                        <span className="text-2xl font-bold text-yellow-600">{progress.pending}</span>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-red-100 rounded-full">
+                            <XCircle className="h-4 w-4 text-red-600" />
+                          </div>
+                          <div>
+                            <p className="font-medium">Rejected</p>
+                            <p className="text-sm text-muted-foreground">Needs resubmission</p>
+                          </div>
+                        </div>
+                        <span className="text-2xl font-bold text-red-600">{progress.rejected}</span>
+                      </div>
+
+                      <div className="pt-2">
+                        <Progress value={(progress.approved / progress.total) * 100} className="h-2" />
+                        <p className="text-xs text-muted-foreground text-center mt-2">
+                          Overall completion: {Math.round((progress.approved / progress.total) * 100)}%
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Application Timeline */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Route className="h-5 w-5 text-primary" />
+                      Application Timeline
+                    </CardTitle>
+                    <CardDescription>
+                      Key milestones in the application journey
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {journey && journey.stages && journey.stages.length > 0 ? (
+                        <>
+                          {journey.stages.map((stage: any, index: number) => (
+                            <div key={index} className="flex items-start gap-3">
+                              <div className="relative">
+                                {stage.completed ? (
+                                  <div className="p-1.5 bg-green-100 rounded-full">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  </div>
+                                ) : stage.active ? (
+                                  <div className="p-1.5 bg-blue-100 rounded-full animate-pulse">
+                                    <Clock className="h-4 w-4 text-blue-600" />
+                                  </div>
+                                ) : (
+                                  <div className="p-1.5 bg-gray-100 rounded-full">
+                                    <div className="h-4 w-4 rounded-full border-2 border-gray-400" />
+                                  </div>
+                                )}
+                                {index < journey.stages.length - 1 && (
+                                  <div className={`absolute left-1/2 top-8 w-0.5 h-8 -translate-x-1/2 ${
+                                    stage.completed ? 'bg-green-600' : 'bg-gray-300'
+                                  }`} />
+                                )}
+                              </div>
+                              <div className="flex-1 pb-6">
+                                <div className="flex items-center justify-between">
+                                  <p className={`font-medium ${stage.active ? 'text-primary' : ''}`}>
+                                    {stage.name}
+                                  </p>
+                                  {stage.completed && stage.date && (
+                                    <span className="text-xs text-muted-foreground">
+                                      {new Date(stage.date).toLocaleDateString()}
+                                    </span>
+                                  )}
+                                </div>
+                                {stage.active && (
+                                  <Badge variant="outline" className="mt-1 text-xs">
+                                    Current Stage
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </>
+                      ) : (
+                        <div className="space-y-4">
+                          {/* Default timeline when no journey data */}
+                          <div className="flex items-start gap-3">
+                            <div className="p-1.5 bg-green-100 rounded-full">
+                              <CheckCircle className="h-4 w-4 text-green-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium">Lead Created</p>
+                              <p className="text-sm text-muted-foreground">
+                                {lead.created_at ? new Date(lead.created_at).toLocaleDateString() : 'Unknown'}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3">
+                            <div className="p-1.5 bg-blue-100 rounded-full animate-pulse">
+                              <Clock className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-medium">Application In Progress</p>
+                              <Badge variant="outline" className="mt-1 text-xs">
+                                Current Stage
+                              </Badge>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

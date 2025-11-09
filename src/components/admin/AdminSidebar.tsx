@@ -72,9 +72,23 @@ export function AdminSidebar({
   const currentSection = navigationStructure.sections.find(section => section.id === currentActiveSection);
   if (!currentSection) return null;
 
-  // Filter items based on MVP mode (for data-management, leads-marketing, students-applications, and configuration sections)
-  // Don't filter out parent items that have subitems - only filter their subitems
-  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode ? currentSection.items.filter(item => item.subItems && item.subItems.length > 0 || !MVP_HIDDEN_PAGES.includes(item.href)) : currentSection.items;
+  // Filter items based on MVP mode
+  const sectionItems = (currentActiveSection === 'data-management' || currentActiveSection === 'leads-marketing' || currentActiveSection === 'students-applications' || currentActiveSection === 'configuration') && isMvpMode 
+    ? currentSection.items.map(item => {
+        // If item has subitems, filter them
+        if (item.subItems && item.subItems.length > 0) {
+          const filteredSubItems = item.subItems.filter(subItem => !MVP_HIDDEN_PAGES.includes(subItem.href));
+          // Only include parent if it has visible subitems
+          if (filteredSubItems.length > 0) {
+            return { ...item, subItems: filteredSubItems };
+          }
+          return null;
+        }
+        // For items without subitems, check if they're hidden
+        return MVP_HIDDEN_PAGES.includes(item.href) ? null : item;
+      }).filter(item => item !== null)
+    : currentSection.items;
+  
   const filteredItems = sectionItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const toggleGroup = (groupName: string) => {
     const newExpanded = new Set(expandedGroups);

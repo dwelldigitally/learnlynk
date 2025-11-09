@@ -422,14 +422,18 @@ function UniversalBuilderContent({
           </TabsContent>
 
           {/* Audience Tab - Only for Campaigns */}
-          {state.config.type === 'campaign' && (
-            <TabsContent value="audience" className="flex-1 overflow-auto m-4">
+          <TabsContent value="audience" className="flex-1 overflow-auto m-4">
+            {state.config.type === 'campaign' ? (
               <AudienceSelector
                 selectedAudience={campaignAudience}
                 onAudienceSelect={handleAudienceSelect}
               />
-            </TabsContent>
-          )}
+            ) : (
+              <div className="text-center text-muted-foreground py-8">
+                Audience selection is only available for campaign builders.
+              </div>
+            )}
+          </TabsContent>
 
           <TabsContent value="settings" className="flex-1 overflow-auto m-4">
             <Card>

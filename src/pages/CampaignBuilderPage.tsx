@@ -9,7 +9,7 @@ export function CampaignBuilderPage() {
   const navigate = useNavigate();
   const { campaignId } = useParams();
   const { toast } = useToast();
-  const [initialConfig, setInitialConfig] = useState<any>(campaignId ? null : {
+  const [initialConfig, setInitialConfig] = useState<any>({
     name: '',
     description: '',
     type: 'campaign',

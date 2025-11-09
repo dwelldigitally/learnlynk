@@ -372,17 +372,17 @@ Admissions Team`,
       </ModernCard>
 
       {/* Email List and Detail View */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-[calc(100vh-200px)]">
         {/* Email List */}
         <div className="lg:col-span-1">
-          <ModernCard className="h-[calc(100vh-400px)]">
+          <ModernCard className="h-[calc(100vh-200px)]">
             <div className="p-4 border-b bg-card/50">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 Inbox ({filteredEmails.length})
               </h3>
             </div>
-            <div className="space-y-1 overflow-y-auto p-2 max-h-[calc(100vh-480px)]">
+            <div className="space-y-1 overflow-y-auto p-2 max-h-[calc(100vh-280px)]">
               {filteredEmails.map(email => <Card key={email.id} className={`cursor-pointer transition-all hover:shadow-md border-l-4 ${selectedEmail === email.id ? 'border-l-primary bg-primary/5 ring-1 ring-primary/20' : 'border-l-transparent hover:border-l-muted-foreground/30'} ${!email.is_read ? 'bg-blue-50/30 dark:bg-blue-950/20' : ''}`} onClick={() => setSelectedEmail(email.id)}>
                   <CardContent className="p-3">
                     <div className="space-y-2">
@@ -434,7 +434,7 @@ Admissions Team`,
 
         {/* Email Detail View */}
         <div className="lg:col-span-2">
-          {selectedEmailData ? <ModernCard className="h-[calc(100vh-400px)] flex flex-col">
+          {selectedEmailData ? <ModernCard className="h-[calc(100vh-200px)] flex flex-col">
               {/* Email Header */}
               <div className="p-6 border-b bg-card/50">
                 <div className="flex items-start justify-between gap-4">

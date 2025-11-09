@@ -67,9 +67,10 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
     }
   };
 
-  // Check if we're on the home page or configuration pages
+  // Check if we're on the home page
   const isHomePage = location.pathname === '/admin';
   const isConfigurationPage = location.pathname.startsWith('/admin/configuration');
+  const isTeamPage = location.pathname === '/admin/team';
 
   return (
     <div className="min-h-screen bg-background flex flex-col w-full">
@@ -81,15 +82,15 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
 
       {/* Main Layout: Sidebar + Content */}
       <div className="flex flex-1 w-full">
-        {/* Admin Sidebar - Hide on home page and configuration pages */}
-        {!isHomePage && !isConfigurationPage && (
+        {/* Admin Sidebar - Hide only on home page, show on configuration and team pages */}
+        {!isHomePage && (
           <div className="flex-shrink-0">
             <AdminSidebar activeSection={currentActiveSection} />
           </div>
         )}
 
         {/* Main Content Area */}
-        <div className={`flex-1 min-w-0 pt-14 sm:pt-16 lg:pt-20 ${!isHomePage && !isConfigurationPage ? 'ml-20' : ''}`}>
+        <div className={`flex-1 min-w-0 pt-14 sm:pt-16 lg:pt-20 ${!isHomePage ? 'ml-20' : ''}`}>
           <main className="w-full p-6">
             <div className="max-w-full overflow-x-hidden">
               {children || <Outlet />}

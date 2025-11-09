@@ -124,7 +124,7 @@ const ProgramManagement: React.FC = () => {
     {
       id: "demo-1",
       name: "Health Care Assistant",
-      description: "Comprehensive healthcare training program preparing students for careers in patient care, including clinical skills, medical terminology, and professional standards in healthcare settings.",
+      description: "Gain practical skills to provide compassionate care in hospitals, long-term care facilities, and home care settings. This program covers vital signs monitoring, infection control, patient mobility assistance, and ethical healthcare practices. Graduates are prepared to work as certified Health Care Assistants supporting nurses and other healthcare professionals.",
       duration: "10 months",
       type: "certificate" as const,
       color: "#3B82F6",
@@ -138,7 +138,7 @@ const ProgramManagement: React.FC = () => {
     {
       id: "demo-2",
       name: "Early Childhood Education",
-      description: "Develop essential skills needed to work with children in various educational settings, including child development, curriculum planning, and classroom management techniques.",
+      description: "Learn to nurture and educate children from birth to age 12 through play-based learning, developmental psychology, and curriculum planning. This comprehensive program prepares you to create safe, engaging environments where young minds thrive. Complete with practicum placements in licensed childcare centers and kindergarten settings.",
       duration: "12 months",
       type: "diploma" as const,
       color: "#10B981",

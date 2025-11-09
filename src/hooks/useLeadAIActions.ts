@@ -111,14 +111,6 @@ export function useLeadAIActions() {
 
       await Promise.all(promises);
       setLeadActions(actions);
-      
-      // Only show toast if actions were actually generated
-      if (actions.size > 0) {
-        toast({
-          title: "AI Actions Generated",
-          description: `Generated ${actions.size} intelligent actions for your leads`,
-        });
-      }
 
       return actions;
     } catch (error) {

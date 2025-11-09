@@ -17,8 +17,8 @@ interface DocumentOverviewWidgetProps {
 
 export function DocumentOverviewWidget({ progress }: DocumentOverviewWidgetProps) {
   return (
-    <Card className="h-full">
-      <CardHeader className="cursor-move drag-handle">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="cursor-move drag-handle flex-shrink-0">
         <CardTitle className="text-lg flex items-center justify-between">
           <span className="flex items-center gap-2">
             <GripVertical className="h-4 w-4 text-muted-foreground" />
@@ -33,7 +33,7 @@ export function DocumentOverviewWidget({ progress }: DocumentOverviewWidgetProps
           Track document submission and approval status
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-auto">
         <div className="space-y-4">
           <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
             <div className="flex items-center gap-3">

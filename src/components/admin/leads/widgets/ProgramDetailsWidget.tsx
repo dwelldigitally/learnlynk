@@ -8,8 +8,8 @@ interface ProgramDetailsWidgetProps {
 
 export function ProgramDetailsWidget({ lead }: ProgramDetailsWidgetProps) {
   return (
-    <Card className="h-full">
-      <CardHeader className="cursor-move drag-handle">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="cursor-move drag-handle flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
           <GripVertical className="h-4 w-4 text-muted-foreground" />
           <GraduationCap className="h-5 w-5 text-primary" />
@@ -19,7 +19,7 @@ export function ProgramDetailsWidget({ lead }: ProgramDetailsWidgetProps) {
           Selected program and requirements
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-auto">
         <div className="space-y-4">
           <div>
             <p className="text-sm text-muted-foreground">Program Name</p>

@@ -8,15 +8,15 @@ interface PersonalInfoWidgetProps {
 
 export function PersonalInfoWidget({ lead }: PersonalInfoWidgetProps) {
   return (
-    <Card className="h-full">
-      <CardHeader className="cursor-move drag-handle">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="cursor-move drag-handle flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
           <GripVertical className="h-4 w-4 text-muted-foreground" />
           <User className="h-5 w-5 text-primary" />
           Personal Information
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-3">
             <div>

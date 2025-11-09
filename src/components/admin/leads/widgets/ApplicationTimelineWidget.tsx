@@ -20,8 +20,8 @@ interface ApplicationTimelineWidgetProps {
 
 export function ApplicationTimelineWidget({ journey }: ApplicationTimelineWidgetProps) {
   return (
-    <Card className="h-full">
-      <CardHeader className="cursor-move drag-handle">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="cursor-move drag-handle flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
           <GripVertical className="h-4 w-4 text-muted-foreground" />
           <Route className="h-5 w-5 text-primary" />
@@ -31,7 +31,7 @@ export function ApplicationTimelineWidget({ journey }: ApplicationTimelineWidget
           Key milestones in the application journey
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 overflow-auto">
         <div className="space-y-4">
           {journey && journey.stages && journey.stages.length > 0 ? (
             <>

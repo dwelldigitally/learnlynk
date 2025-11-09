@@ -22,7 +22,6 @@ import { ProgramService } from "@/services/programService";
 // Import step components
 import BasicInfoStep from "@/components/admin/wizard/BasicInfoStep";
 import RequirementsStep from "@/components/admin/wizard/RequirementsStep";
-import DocumentsStep from "@/components/admin/wizard/DocumentsStep";
 import { ProgramJourneyStep } from "@/components/admin/ProgramJourneyStep";
 import PracticumConfigurationStep from "@/components/admin/wizard/PracticumConfigurationStep";
 import FeeStructureStep from "@/components/admin/wizard/FeeStructureStep";
@@ -32,7 +31,6 @@ import PreviewStep from "@/components/admin/wizard/PreviewStep";
 const STEPS = [
   { id: 'basic', title: 'Basic Information', description: 'Program name, description, and basic details' },
   { id: 'requirements', title: 'Entry Requirements', description: 'Academic and other admission criteria' },
-  { id: 'documents', title: 'Required Documents', description: 'Document requirements and specifications' },
   { id: 'journey', title: 'Academic Journey', description: 'Student journey and workflow configuration' },
   { id: 'practicum', title: 'Practicum Configuration', description: 'Practicum requirements, sites, and competencies' },
   { id: 'fees', title: 'Fee Structure', description: 'Tuition, payment plans, and scholarships' },
@@ -122,17 +120,15 @@ const ProgramWizardPage: React.FC = () => {
         return !!(data.name && data.description && data.type && data.duration && data.campus?.length);
       case 1: // Requirements
         return true; // Optional step
-      case 2: // Documents
+      case 2: // Journey
         return true; // Optional step
-      case 3: // Journey
+      case 3: // Practicum 
         return true; // Optional step
-      case 4: // Practicum 
-        return true; // Optional step
-      case 5: // Fee Structure
+      case 4: // Fee Structure
         return !!(data.feeStructure && (data.feeStructure.domesticFees.length > 0 || data.feeStructure.internationalFees.length > 0));
-      case 6: // Custom Questions
+      case 5: // Custom Questions
         return true; // Optional step
-      case 7: // Preview
+      case 6: // Preview
         return true;
       default:
         return false;
@@ -270,16 +266,14 @@ const ProgramWizardPage: React.FC = () => {
       case 1:
         return <RequirementsStep {...stepProps} />;
       case 2:
-        return <DocumentsStep {...stepProps} />;
-      case 3:
         return <ProgramJourneyStep {...stepProps} />;
-      case 4:
+      case 3:
         return <PracticumConfigurationStep {...stepProps} />;
-      case 5:
+      case 4:
         return <FeeStructureStep {...stepProps} />;
-      case 6:
+      case 5:
         return <IntakeQuestionsStep {...stepProps} />;
-      case 7:
+      case 6:
         return <PreviewStep {...stepProps} onSave={handleSave} />;
       default:
         return null;

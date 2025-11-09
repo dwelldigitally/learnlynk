@@ -8,21 +8,23 @@ import { ScheduleTemplatesTab } from './ScheduleTemplatesTab';
 import { IntakePipelineManagement } from '../intake/IntakePipelineManagement';
 import { CalendarViewTab } from './CalendarViewTab';
 import { PageHeader } from '@/components/modern/PageHeader';
+import { useMvpMode } from '@/contexts/MvpModeContext';
 
 export function AcademicTermsSchedules() {
   const [activeTab, setActiveTab] = useState('terms');
+  const { isMvpMode } = useMvpMode();
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       <PageHeader
         title="Academic Terms & Schedules"
-        subtitle="Manage academic terms, schedule templates, and intake scheduling"
+        subtitle={isMvpMode ? "Manage academic terms and intake scheduling" : "Manage academic terms, schedule templates, and intake scheduling"}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-muted/50 p-1">
+        <TabsList className={`grid w-full ${isMvpMode ? 'grid-cols-3' : 'grid-cols-4'} bg-muted/50 p-1`}>
           <TabsTrigger value="terms">Academic Terms</TabsTrigger>
-          <TabsTrigger value="schedules">Schedule Templates</TabsTrigger>
+          {!isMvpMode && <TabsTrigger value="schedules">Schedule Templates</TabsTrigger>}
           <TabsTrigger value="intake-scheduling">Intake Scheduling</TabsTrigger>
           <TabsTrigger value="calendar">Calendar View</TabsTrigger>
         </TabsList>
@@ -31,9 +33,11 @@ export function AcademicTermsSchedules() {
           <AcademicTermsTab />
         </TabsContent>
 
-        <TabsContent value="schedules" className="space-y-6">
-          <ScheduleTemplatesTab />
-        </TabsContent>
+        {!isMvpMode && (
+          <TabsContent value="schedules" className="space-y-6">
+            <ScheduleTemplatesTab />
+          </TabsContent>
+        )}
 
         <TabsContent value="intake-scheduling" className="space-y-6">
           <IntakePipelineManagement />

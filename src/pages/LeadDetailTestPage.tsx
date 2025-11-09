@@ -902,47 +902,55 @@ export default function LeadDetailTestPage() {
                     <div className="space-y-4">
                       {journey && journey.stages && journey.stages.length > 0 ? (
                         <>
-                          {journey.stages.map((stage: any, index: number) => (
-                            <div key={index} className="flex items-start gap-3">
-                              <div className="relative">
-                                {stage.completed ? (
-                                  <div className="p-1.5 bg-green-100 rounded-full">
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
-                                  </div>
-                                ) : stage.active ? (
-                                  <div className="p-1.5 bg-blue-100 rounded-full animate-pulse">
-                                    <Clock className="h-4 w-4 text-blue-600" />
-                                  </div>
-                                ) : (
-                                  <div className="p-1.5 bg-gray-100 rounded-full">
-                                    <div className="h-4 w-4 rounded-full border-2 border-gray-400" />
-                                  </div>
-                                )}
-                                {index < journey.stages.length - 1 && (
-                                  <div className={`absolute left-1/2 top-8 w-0.5 h-8 -translate-x-1/2 ${
-                                    stage.completed ? 'bg-green-600' : 'bg-gray-300'
-                                  }`} />
-                                )}
-                              </div>
-                              <div className="flex-1 pb-6">
-                                <div className="flex items-center justify-between">
-                                  <p className={`font-medium ${stage.active ? 'text-primary' : 'text-foreground'}`}>
-                                    {stage.name}
-                                  </p>
-                                  {stage.completed && stage.date && (
-                                    <span className="text-xs text-muted-foreground">
-                                      {new Date(stage.date).toLocaleDateString()}
-                                    </span>
+                          {journey.stages.map((stage: any, index: number) => {
+                            const isActive = journey.current_stage_name === stage.stage_name;
+                            const isCompleted = stage.completed;
+                            
+                            return (
+                              <div key={stage.id || index} className="flex items-start gap-3">
+                                <div className="relative">
+                                  {isCompleted ? (
+                                    <div className="p-1.5 bg-green-100 rounded-full">
+                                      <CheckCircle className="h-4 w-4 text-green-600" />
+                                    </div>
+                                  ) : isActive ? (
+                                    <div className="p-1.5 bg-blue-100 rounded-full animate-pulse">
+                                      <Clock className="h-4 w-4 text-blue-600" />
+                                    </div>
+                                  ) : (
+                                    <div className="p-1.5 bg-muted rounded-full">
+                                      <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/40" />
+                                    </div>
+                                  )}
+                                  {index < journey.stages.length - 1 && (
+                                    <div className={`absolute left-1/2 top-8 w-0.5 h-8 -translate-x-1/2 ${
+                                      isCompleted ? 'bg-green-600' : 'bg-border'
+                                    }`} />
                                   )}
                                 </div>
-                                {stage.active && (
-                                  <Badge variant="outline" className="mt-1 text-xs">
-                                    Current Stage
-                                  </Badge>
-                                )}
+                                <div className="flex-1 pb-6">
+                                  <div className="flex items-center justify-between">
+                                    <p className={`font-medium ${isActive ? 'text-primary' : 'text-foreground'}`}>
+                                      {stage.stage_name}
+                                    </p>
+                                    {isCompleted && stage.completed_at && (
+                                      <span className="text-xs text-muted-foreground">
+                                        {new Date(stage.completed_at).toLocaleDateString()}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {isActive && (
+                                    <Badge variant="outline" className="mt-1 text-xs">
+                                      Current Stage
+                                    </Badge>
+                                  )}
+                                  {stage.notes && (
+                                    <p className="text-sm text-muted-foreground mt-1">{stage.notes}</p>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </>
                       ) : (
                         <div className="space-y-4">

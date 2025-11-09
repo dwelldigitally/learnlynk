@@ -33,6 +33,10 @@ export interface LeadDocument {
   user_id: string;
   created_at: string;
   updated_at: string;
+  requirement_id?: string;
+  requirement_verification_status?: string;
+  extracted_value?: string;
+  requirement_notes?: string;
 }
 
 export interface LeadTask {

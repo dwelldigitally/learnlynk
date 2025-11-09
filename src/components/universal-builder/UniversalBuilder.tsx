@@ -16,6 +16,8 @@ import { ActionsSidebar } from './ActionsSidebar';
 import { PreviewPanel } from './PreviewPanel';
 import { JourneyElementPalette } from '@/components/journey-builder/JourneyElementPalette';
 import { JourneyPropertyPanel } from '@/components/journey-builder/JourneyPropertyPanel';
+import { TemplateSelector } from '@/components/campaign-builder/TemplateSelector';
+import { CampaignTemplate } from '@/config/campaignTemplates';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
 import { 
@@ -37,13 +39,17 @@ interface UniversalBuilderProps {
   initialConfig?: any;
   onSave?: (config: any) => void;
   onCancel?: () => void;
+  onSelectTemplate?: (template: CampaignTemplate) => void;
+  onStartBlank?: () => void;
 }
 
 export function UniversalBuilder({ 
   builderType = 'form', 
   initialConfig, 
   onSave, 
-  onCancel 
+  onCancel,
+  onSelectTemplate,
+  onStartBlank
 }: UniversalBuilderProps) {
   return (
     <BuilderProvider>
@@ -52,6 +58,8 @@ export function UniversalBuilder({
         initialConfig={initialConfig}
         onSave={onSave}
         onCancel={onCancel}
+        onSelectTemplate={onSelectTemplate}
+        onStartBlank={onStartBlank}
       />
     </BuilderProvider>
   );
@@ -61,7 +69,9 @@ function UniversalBuilderContent({
   builderType, 
   initialConfig, 
   onSave, 
-  onCancel 
+  onCancel,
+  onSelectTemplate,
+  onStartBlank
 }: UniversalBuilderProps) {
   const { state, dispatch } = useBuilder();
   const [activeTab, setActiveTab] = useState('build');
@@ -187,6 +197,15 @@ function UniversalBuilderContent({
           </div>
 
           <div className="flex items-center gap-2">
+            {state.config.type === 'campaign' && onSelectTemplate && onStartBlank && (
+              <>
+                <TemplateSelector
+                  onSelectTemplate={onSelectTemplate}
+                  onStartBlank={onStartBlank}
+                />
+                <Separator orientation="vertical" className="h-6" />
+              </>
+            )}
             <Button
               variant="ghost"
               size="sm"

@@ -3,17 +3,13 @@ import { UniversalBuilder } from '@/components/universal-builder/UniversalBuilde
 import { useNavigate, useParams } from 'react-router-dom';
 import { CampaignService } from '@/services/campaignService';
 import { useToast } from '@/hooks/use-toast';
-import { TemplateSelector } from '@/components/campaign-builder/TemplateSelector';
 import { CampaignTemplate } from '@/config/campaignTemplates';
-import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
 
 export function CampaignBuilderPage() {
   const navigate = useNavigate();
   const { campaignId } = useParams();
   const { toast } = useToast();
   const [initialConfig, setInitialConfig] = useState<any>(null);
-  const [showTemplateSelector, setShowTemplateSelector] = useState(!campaignId);
 
   useEffect(() => {
     if (campaignId) {
@@ -28,7 +24,6 @@ export function CampaignBuilderPage() {
       const campaign = campaigns.find(c => c.id === campaignId);
       if (campaign && campaign.campaign_data) {
         setInitialConfig(campaign.campaign_data);
-        setShowTemplateSelector(false);
       }
     } catch (error) {
       toast({
@@ -44,9 +39,8 @@ export function CampaignBuilderPage() {
       ...template.config,
       type: 'campaign',
     });
-    setShowTemplateSelector(false);
     toast({
-      title: "Template Selected",
+      title: "Template Applied",
       description: `Using ${template.name} template`,
     });
   };
@@ -59,7 +53,6 @@ export function CampaignBuilderPage() {
       elements: [],
       settings: {},
     });
-    setShowTemplateSelector(false);
   };
 
   const handleSave = async (config: any) => {
@@ -103,35 +96,13 @@ export function CampaignBuilderPage() {
   };
 
   return (
-    <div className="relative h-screen">
-      {showTemplateSelector && !campaignId ? (
-        <div className="flex items-center justify-center h-full bg-background">
-          <div className="max-w-6xl w-full p-8">
-            <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold mb-2">Create New Campaign</h1>
-              <p className="text-muted-foreground">
-                Choose a template to get started quickly or build from scratch
-              </p>
-            </div>
-            <div className="flex justify-center gap-4">
-              <TemplateSelector
-                onSelectTemplate={handleSelectTemplate}
-                onStartBlank={handleStartBlank}
-              />
-              <Button variant="outline" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <UniversalBuilder
-          builderType="campaign"
-          initialConfig={initialConfig}
-          onSave={handleSave}
-          onCancel={handleCancel}
-        />
-      )}
-    </div>
+    <UniversalBuilder
+      builderType="campaign"
+      initialConfig={initialConfig}
+      onSave={handleSave}
+      onCancel={handleCancel}
+      onSelectTemplate={handleSelectTemplate}
+      onStartBlank={handleStartBlank}
+    />
   );
 }

@@ -422,7 +422,7 @@ function UniversalBuilderContent({
           </TabsContent>
 
           {/* Audience Tab - Only for Campaigns */}
-          <TabsContent value="audience" className="flex-1 overflow-auto m-4">
+          <TabsContent value="audience" className="flex-1 overflow-auto p-4 pt-0">
             {state.config.type === 'campaign' ? (
               <AudienceSelector
                 selectedAudience={campaignAudience}
@@ -435,7 +435,7 @@ function UniversalBuilderContent({
             )}
           </TabsContent>
 
-          <TabsContent value="settings" className="flex-1 overflow-auto m-4">
+          <TabsContent value="settings" className="flex-1 overflow-auto p-4 pt-0">
             <Card>
               <CardHeader>
                 <CardTitle>Configuration Settings</CardTitle>
@@ -490,7 +490,7 @@ function UniversalBuilderContent({
             </Card>
           </TabsContent>
 
-          <TabsContent value="preview" className="flex-1 overflow-auto m-4">
+          <TabsContent value="preview" className="flex-1 overflow-auto p-4 pt-0">
             <PreviewPanel />
           </TabsContent>
         </Tabs>

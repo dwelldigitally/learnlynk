@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { UniversalElement, CampaignElement } from '@/types/universalBuilder';
-import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone } from 'lucide-react';
+import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone, ChevronDown, ChevronUp } from 'lucide-react';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
+import { TriggerConditionBuilder } from './TriggerConditionBuilder';
 
 interface FlowCanvasProps {
   onAddElement: (elementType: string) => void;
@@ -196,38 +197,89 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
             Start this {state.config.type} when one of these actions takes place
           </h2>
           
-          {/* Trigger buttons */}
-          <div className="flex justify-center gap-3 mb-6 flex-wrap">
+          {/* Trigger buttons and expanded condition builder */}
+          <div className="space-y-6 mb-6">
             {state.config.elements.filter(el => el.type === 'trigger').map((trigger) => {
               const campaignTrigger = trigger as CampaignElement;
               const summary = getTriggerSummary(campaignTrigger);
               const conditionCount = campaignTrigger.conditionGroups?.[0]?.conditions?.length || 
                                    campaignTrigger.config?.conditionGroups?.[0]?.conditions?.length || 0;
+              const isSelected = state.selectedElementId === trigger.id;
               
               return (
-                <Button 
-                  key={trigger.id}
-                  variant={state.selectedElementId === trigger.id ? "default" : "outline"}
-                  onClick={() => handleSelectElement(trigger.id)}
-                  className="flex items-center gap-2"
-                >
-                  <span>{trigger.title}</span>
-                  {conditionCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 text-xs">
-                      {conditionCount}
-                    </Badge>
+                <div key={trigger.id} className="max-w-3xl mx-auto">
+                  {/* Trigger Button */}
+                  <Button 
+                    variant={isSelected ? "default" : "outline"}
+                    onClick={() => handleSelectElement(trigger.id)}
+                    className="w-full flex items-center justify-between gap-2 h-auto py-3 px-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{trigger.title}</span>
+                      {conditionCount > 0 && (
+                        <Badge variant="secondary" className="ml-1">
+                          {conditionCount} condition{conditionCount !== 1 ? 's' : ''}
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm opacity-70">{summary}</span>
+                      {isSelected ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </div>
+                  </Button>
+
+                  {/* Expanded Condition Builder */}
+                  {isSelected && (
+                    <Card className="mt-2 border-2">
+                      <CardContent className="p-6">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold">Configure Trigger Conditions</h3>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteElement(trigger.id)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete Trigger
+                            </Button>
+                          </div>
+                          
+                          <TriggerConditionBuilder
+                            conditionGroups={campaignTrigger.conditionGroups || campaignTrigger.config?.conditionGroups || []}
+                            onChange={(groups) => {
+                              dispatch({
+                                type: 'UPDATE_ELEMENT',
+                                payload: {
+                                  id: trigger.id,
+                                  updates: {
+                                    conditionGroups: groups,
+                                    config: { ...trigger.config, conditionGroups: groups }
+                                  }
+                                }
+                              });
+                            }}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
                   )}
-                  <span className="text-xs opacity-70 ml-1">— {summary}</span>
-                </Button>
+                </div>
               );
             })}
-            <Button 
-              variant="outline" 
-              onClick={() => onAddElement('trigger')}
-              className="border-dashed"
-            >
-              Add a new trigger
-            </Button>
+
+            {/* Add New Trigger Button */}
+            <div className="max-w-3xl mx-auto">
+              <Button 
+                variant="outline" 
+                onClick={() => onAddElement('trigger')}
+                className="w-full border-dashed h-12"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add a new trigger
+              </Button>
+            </div>
           </div>
         </div>
 

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { UniversalElement, CampaignElement } from '@/types/universalBuilder';
-import { Plus, Trash2, Mail, Clock, Eye, Send, MessageSquare, Phone, ChevronDown, ChevronUp, GitBranch, Split, GripVertical } from 'lucide-react';
+import { Plus, Trash2, Mail, Clock, MessageSquare, ChevronDown, ChevronUp, GitBranch, Split, GripVertical, UserCog, UserCheck, Bell, Target, LogOut, Copy, CheckSquare, Eye, Send } from 'lucide-react';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { TriggerConditionBuilder } from './TriggerConditionBuilder';
 
@@ -38,6 +38,20 @@ export function FlowCanvas({ onAddElement }: FlowCanvasProps) {
         return GitBranch;
       case 'split':
         return Split;
+      case 'update-lead':
+        return UserCog;
+      case 'assign-advisor':
+        return UserCheck;
+      case 'internal-notification':
+        return Bell;
+      case 'goal-tracking':
+        return Target;
+      case 'remove-from-campaign':
+        return LogOut;
+      case 'copy-to-campaign':
+        return Copy;
+      case 'create-task':
+        return CheckSquare;
       default:
         return Mail;
     }

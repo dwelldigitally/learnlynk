@@ -307,6 +307,178 @@ export const campaignElementTypes: ElementTypeConfig[] = [
     configSchema: [
       { key: 'splitPercentage', label: 'Split Percentage', type: 'number' }
     ]
+  },
+  {
+    type: 'update-lead',
+    label: 'Update Lead',
+    icon: 'UserCog',
+    category: 'Lead Management',
+    defaultConfig: {
+      updateType: 'status',
+      newStatus: '',
+      tags: [],
+      customFields: {}
+    },
+    configSchema: [
+      {
+        key: 'updateType',
+        label: 'Update Type',
+        type: 'select',
+        options: [
+          { label: 'Change Status', value: 'status' },
+          { label: 'Add Tags', value: 'add_tags' },
+          { label: 'Remove Tags', value: 'remove_tags' },
+          { label: 'Update Custom Fields', value: 'custom_fields' }
+        ]
+      },
+      { key: 'newStatus', label: 'New Status', type: 'text', placeholder: 'e.g., Qualified' },
+      { key: 'tags', label: 'Tags (comma-separated)', type: 'text', placeholder: 'e.g., hot-lead, contacted' }
+    ]
+  },
+  {
+    type: 'assign-advisor',
+    label: 'Assign to Advisor',
+    icon: 'UserCheck',
+    category: 'Lead Management',
+    defaultConfig: {
+      assignmentMethod: 'round_robin',
+      specificAdvisorId: '',
+      teamId: ''
+    },
+    configSchema: [
+      {
+        key: 'assignmentMethod',
+        label: 'Assignment Method',
+        type: 'select',
+        options: [
+          { label: 'Round Robin', value: 'round_robin' },
+          { label: 'Specific Advisor', value: 'specific' },
+          { label: 'Load Balanced', value: 'load_balanced' },
+          { label: 'Team Assignment', value: 'team' }
+        ]
+      },
+      { key: 'specificAdvisorId', label: 'Advisor ID', type: 'text', placeholder: 'Enter advisor ID' },
+      { key: 'teamId', label: 'Team ID', type: 'text', placeholder: 'Enter team ID' }
+    ]
+  },
+  {
+    type: 'internal-notification',
+    label: 'Internal Notification',
+    icon: 'Bell',
+    category: 'Communication',
+    defaultConfig: {
+      notifyType: 'email',
+      recipients: [],
+      subject: 'Campaign Notification',
+      message: ''
+    },
+    configSchema: [
+      {
+        key: 'notifyType',
+        label: 'Notification Type',
+        type: 'select',
+        options: [
+          { label: 'Email', value: 'email' },
+          { label: 'In-App', value: 'in_app' },
+          { label: 'Both', value: 'both' }
+        ]
+      },
+      { key: 'recipients', label: 'Recipients (comma-separated emails)', type: 'text' },
+      { key: 'subject', label: 'Subject', type: 'text' },
+      { key: 'message', label: 'Message', type: 'textarea' }
+    ]
+  },
+  {
+    type: 'goal-tracking',
+    label: 'Goal Tracking',
+    icon: 'Target',
+    category: 'Analytics',
+    defaultConfig: {
+      goalName: '',
+      goalType: 'conversion',
+      goalValue: 0
+    },
+    configSchema: [
+      { key: 'goalName', label: 'Goal Name', type: 'text', placeholder: 'e.g., Application Submitted' },
+      {
+        key: 'goalType',
+        label: 'Goal Type',
+        type: 'select',
+        options: [
+          { label: 'Conversion', value: 'conversion' },
+          { label: 'Engagement', value: 'engagement' },
+          { label: 'Revenue', value: 'revenue' }
+        ]
+      },
+      { key: 'goalValue', label: 'Goal Value', type: 'number', placeholder: 'Optional numeric value' }
+    ]
+  },
+  {
+    type: 'remove-from-campaign',
+    label: 'Remove from Campaign',
+    icon: 'LogOut',
+    category: 'Flow Control',
+    defaultConfig: {
+      reason: 'completed',
+      notifyLead: false
+    },
+    configSchema: [
+      {
+        key: 'reason',
+        label: 'Removal Reason',
+        type: 'select',
+        options: [
+          { label: 'Completed', value: 'completed' },
+          { label: 'Unsubscribed', value: 'unsubscribed' },
+          { label: 'Converted', value: 'converted' },
+          { label: 'Disqualified', value: 'disqualified' }
+        ]
+      },
+      { key: 'notifyLead', label: 'Notify Lead', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'copy-to-campaign',
+    label: 'Copy to Another Campaign',
+    icon: 'Copy',
+    category: 'Flow Control',
+    defaultConfig: {
+      targetCampaignId: '',
+      removeFromCurrent: false
+    },
+    configSchema: [
+      { key: 'targetCampaignId', label: 'Target Campaign ID', type: 'text', placeholder: 'Enter campaign ID' },
+      { key: 'removeFromCurrent', label: 'Remove from Current Campaign', type: 'checkbox' }
+    ]
+  },
+  {
+    type: 'create-task',
+    label: 'Create Task',
+    icon: 'CheckSquare',
+    category: 'Lead Management',
+    defaultConfig: {
+      taskTitle: '',
+      taskDescription: '',
+      assignToAdvisor: true,
+      dueInDays: 1,
+      priority: 'medium'
+    },
+    configSchema: [
+      { key: 'taskTitle', label: 'Task Title', type: 'text', placeholder: 'e.g., Follow up with lead' },
+      { key: 'taskDescription', label: 'Task Description', type: 'textarea' },
+      { key: 'assignToAdvisor', label: 'Assign to Lead\'s Advisor', type: 'checkbox' },
+      { key: 'dueInDays', label: 'Due In (days)', type: 'number' },
+      {
+        key: 'priority',
+        label: 'Priority',
+        type: 'select',
+        options: [
+          { label: 'Low', value: 'low' },
+          { label: 'Medium', value: 'medium' },
+          { label: 'High', value: 'high' }
+        ]
+      }
+    ]
   }
 ];
 

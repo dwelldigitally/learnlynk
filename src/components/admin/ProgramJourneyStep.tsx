@@ -10,11 +10,13 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useJourneyTemplates } from '@/services/academicJourneyService';
 import { usePrograms } from '@/services/programService';
 import { JourneyTemplate, JourneyWizardState } from '@/types/academicJourney';
 import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye, Globe, Copy, Sparkles } from 'lucide-react';
 import { ProgramJourneySelector } from './wizard/journey-steps/ProgramJourneySelector';
+import { JourneyTypeTab } from './wizard/journey-steps/JourneyTypeTab';
 import { useMasterJourneyTemplates } from '@/hooks/useMasterJourneyTemplates';
 
 interface ProgramJourneyStepProps {
@@ -32,9 +34,6 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
   );
   const [selectedTemplate, setSelectedTemplate] = useState<JourneyTemplate | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
-  const [selectedStudentTypes, setSelectedStudentTypes] = useState<('domestic' | 'international')[]>(
-    data.journeyConfiguration?.studentTypes || ['domestic', 'international']
-  );
   const [journeyData, setJourneyData] = useState<JourneyWizardState>({
     name: data.journeyName || '',
     description: data.journeyDescription || '',
@@ -44,15 +43,34 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     metadata: {}
   });
   const [activeTab, setActiveTab] = useState<'mode' | 'configure' | 'preview'>('mode');
+  
+  // Journey stages state
+  const [domesticStages, setDomesticStages] = useState<any[]>(
+    data.journeyConfiguration?.domestic?.stages || []
+  );
+  const [internationalStages, setInternationalStages] = useState<any[]>(
+    data.journeyConfiguration?.international?.stages || []
+  );
 
   const { data: templates, isLoading } = useJourneyTemplates();
   const { data: programs } = usePrograms();
   const { domesticTemplate, internationalTemplate, isLoading: masterLoading } = useMasterJourneyTemplates();
 
+  // Initialize stages from master templates if available
+  useEffect(() => {
+    if (selectionMode === 'master') {
+      if (domesticTemplate && domesticStages.length === 0) {
+        setDomesticStages(domesticTemplate.template_data?.stages || []);
+      }
+      if (internationalTemplate && internationalStages.length === 0) {
+        setInternationalStages(internationalTemplate.template_data?.stages || []);
+      }
+    }
+  }, [domesticTemplate, internationalTemplate, selectionMode]);
+
   useEffect(() => {
     if (data.journeyConfiguration) {
       setSelectionMode(data.journeyConfiguration.mode);
-      setSelectedStudentTypes(data.journeyConfiguration.studentTypes || ['domestic', 'international']);
     }
     if (data.selectedJourneyTemplate) {
       const template = templates?.find(t => t.id === data.selectedJourneyTemplate);
@@ -71,8 +89,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       ...data,
       journeyConfiguration: {
         ...(data.journeyConfiguration || {}),
-        mode,
-        studentTypes: selectedStudentTypes
+        mode
       }
     });
   };
@@ -95,8 +112,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       journeyEstimatedDuration: template.estimated_duration_days,
       journeyConfiguration: {
         ...data.journeyConfiguration,
-        mode: selectionMode,
-        studentTypes: selectedStudentTypes
+        mode: selectionMode
       }
     });
   };
@@ -108,29 +124,51 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       ...data,
       journeyConfiguration: {
         mode: 'copy',
-        sourceProgram: program.id,
-        domesticJourneyId: studentType !== 'international' ? program.journeyConfiguration?.domesticJourneyId : undefined,
-        internationalJourneyId: studentType !== 'domestic' ? program.journeyConfiguration?.internationalJourneyId : undefined,
-        studentTypes: selectedStudentTypes
+        sourceProgram: {
+          programId: program.id,
+          copiedAt: new Date().toISOString()
+        },
+        domestic: studentType !== 'international' ? {
+          enabled: true,
+          journeyId: program.journeyConfiguration?.domestic?.journeyId
+        } : undefined,
+        international: studentType !== 'domestic' ? {
+          enabled: true,
+          journeyId: program.journeyConfiguration?.international?.journeyId
+        } : undefined
       }
     });
   };
 
-  const handleStudentTypeToggle = (type: 'domestic' | 'international') => {
-    setSelectedStudentTypes(prev => {
-      const newTypes = prev.includes(type) 
-        ? prev.filter(t => t !== type)
-        : [...prev, type];
-      
-      onDataChange({
-        ...data,
-        journeyConfiguration: {
-          ...data.journeyConfiguration,
-          studentTypes: newTypes
+  const handleStudentTypeToggle = (type: 'domestic' | 'international', enabled: boolean) => {
+    onDataChange({
+      ...data,
+      journeyConfiguration: {
+        ...data.journeyConfiguration,
+        [type]: {
+          ...(data.journeyConfiguration?.[type] || {}),
+          enabled,
         }
-      });
-      
-      return newTypes;
+      }
+    });
+  };
+
+  const handleStagesChange = (type: 'domestic' | 'international', stages: any[]) => {
+    if (type === 'domestic') {
+      setDomesticStages(stages);
+    } else {
+      setInternationalStages(stages);
+    }
+
+    onDataChange({
+      ...data,
+      journeyConfiguration: {
+        ...data.journeyConfiguration,
+        [type]: {
+          ...(data.journeyConfiguration?.[type] || {}),
+          stages,
+        }
+      }
     });
   };
 
@@ -347,14 +385,52 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     </div>
   );
 
+  const renderJourneyTypeTab = (type: 'domestic' | 'international') => {
+    const template = type === 'domestic' ? domesticTemplate : internationalTemplate;
+    const stages = type === 'domestic' ? domesticStages : internationalStages;
+    const enabled = data.journeyConfiguration?.[type]?.enabled ?? true;
+
+    return (
+      <JourneyTypeTab
+        studentType={type}
+        enabled={enabled}
+        onToggleEnabled={(enabled) => handleStudentTypeToggle(type, enabled)}
+        masterTemplate={selectionMode === 'master' ? template : undefined}
+        stages={stages}
+        onStagesChange={(newStages) => handleStagesChange(type, newStages)}
+      />
+    );
+  };
+
   const renderJourneyConfiguration = () => {
-    if (selectionMode === 'master') {
-      return renderMasterTemplateConfiguration();
-    } else if (selectionMode === 'copy') {
-      return renderCopyProgramConfiguration();
-    } else {
-      return renderCustomTemplateConfiguration();
-    }
+    return (
+      <Tabs defaultValue="domestic" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="domestic" className="gap-2">
+            <Users className="h-4 w-4" />
+            Domestic Journey
+            {data.journeyConfiguration?.domestic?.enabled && (
+              <CheckCircle className="h-3 w-3 ml-1 text-green-600" />
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="international" className="gap-2">
+            <Globe className="h-4 w-4" />
+            International Journey
+            {data.journeyConfiguration?.international?.enabled && (
+              <CheckCircle className="h-3 w-3 ml-1 text-green-600" />
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="domestic" className="mt-6">
+          {renderJourneyTypeTab('domestic')}
+        </TabsContent>
+
+        <TabsContent value="international" className="mt-6">
+          {renderJourneyTypeTab('international')}
+        </TabsContent>
+      </Tabs>
+    );
   };
 
   const renderMasterTemplateConfiguration = () => (
@@ -380,8 +456,8 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="domestic"
-                checked={selectedStudentTypes.includes('domestic')}
-                onCheckedChange={() => handleStudentTypeToggle('domestic')}
+                checked={data.journeyConfiguration?.domestic?.enabled ?? true}
+                onCheckedChange={(checked) => handleStudentTypeToggle('domestic', checked as boolean)}
               />
               <Label htmlFor="domestic" className="flex-1 cursor-pointer">
                 <div className="font-medium">Domestic Students</div>
@@ -394,8 +470,8 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="international"
-                checked={selectedStudentTypes.includes('international')}
-                onCheckedChange={() => handleStudentTypeToggle('international')}
+                checked={data.journeyConfiguration?.international?.enabled ?? true}
+                onCheckedChange={(checked) => handleStudentTypeToggle('international', checked as boolean)}
               />
               <Label htmlFor="international" className="flex-1 cursor-pointer">
                 <div className="font-medium">International Students</div>
@@ -410,7 +486,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
 
       {(domesticTemplate || internationalTemplate) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {selectedStudentTypes.includes('domestic') && domesticTemplate && (
+          {(data.journeyConfiguration?.domestic?.enabled ?? true) && domesticTemplate && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
@@ -435,7 +511,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
             </Card>
           )}
 
-          {selectedStudentTypes.includes('international') && internationalTemplate && (
+          {(data.journeyConfiguration?.international?.enabled ?? true) && internationalTemplate && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
@@ -730,7 +806,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
         {activeTab === 'preview' && renderJourneyPreview()}
       </div>
 
-      {(selectionMode === 'master' && selectedStudentTypes.length > 0) ||
+      {(selectionMode === 'master' && (data.journeyConfiguration?.domestic?.enabled || data.journeyConfiguration?.international?.enabled)) ||
        (selectionMode === 'copy' && selectedProgram) ||
        (selectionMode === 'custom' && selectedTemplate) ? (
         <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">

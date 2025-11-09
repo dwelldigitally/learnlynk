@@ -43,11 +43,28 @@ export interface Program {
   // Journey configuration
   journeyConfiguration?: {
     mode: 'master' | 'copy' | 'custom';
-    domesticJourneyId?: string;
-    internationalJourneyId?: string;
-    sourceProgram?: string; // Program ID if copied from another program
-    customizations?: Record<string, any>;
-    studentTypes?: ('domestic' | 'international')[];
+    
+    // For domestic students
+    domestic?: {
+      enabled: boolean;
+      journeyId?: string; // Reference to academic_journeys table
+      masterTemplateId?: string; // If using master
+      customizations?: Record<string, any>; // Overrides to master template
+    };
+    
+    // For international students
+    international?: {
+      enabled: boolean;
+      journeyId?: string;
+      masterTemplateId?: string;
+      customizations?: Record<string, any>;
+    };
+    
+    // If copied from another program
+    sourceProgram?: {
+      programId: string;
+      copiedAt: string;
+    };
   };
   
   // Metadata

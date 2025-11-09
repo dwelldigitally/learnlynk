@@ -1,6 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { ConfigurationSidebar } from './ConfigurationSidebar';
+import { useLocation } from 'react-router-dom';
 import { LeadRoutingRulesConfiguration } from './config/LeadRoutingRulesConfiguration';
 import { LeadScoringConfiguration } from './config/LeadScoringConfiguration';
 import { StudentManagementConfiguration } from './config/StudentManagementConfiguration';
@@ -11,29 +10,32 @@ import { TeamManagement } from './routing/TeamManagement';
 import { CompanyProfileConfiguration } from './config/sections/CompanyProfileConfiguration';
 import { EnhancedIntegrationHub } from './database/EnhancedIntegrationHub';
 import { SetupOnboardingPage } from '@/pages/admin/config/SetupOnboardingPage';
-import { useMvpMode } from '@/contexts/MvpModeContext';
 
 export const ConfigurationManagement = () => {
-  const { isMvpMode } = useMvpMode();
+  const location = useLocation();
+  
+  // Route to the correct configuration component based on path
+  const renderConfigurationContent = () => {
+    const path = location.pathname;
+    
+    if (path.includes('/routing')) return <LeadRoutingRulesConfiguration />;
+    if (path.includes('/scoring')) return <LeadScoringConfiguration />;
+    if (path.includes('/students')) return <StudentManagementConfiguration />;
+    if (path.includes('/applicants')) return <ApplicantManagementConfiguration />;
+    if (path.includes('/setup')) return <SetupOnboardingPage />;
+    if (path.includes('/custom-fields')) return <CustomFieldsManagement />;
+    if (path.includes('/campuses')) return <CampusesConfiguration />;
+    if (path.includes('/teams')) return <TeamManagement />;
+    if (path.includes('/company')) return <CompanyProfileConfiguration />;
+    if (path.includes('/integrations')) return <EnhancedIntegrationHub />;
+    
+    // Default to routing rules
+    return <LeadRoutingRulesConfiguration />;
+  };
   
   return (
-    <div className="flex h-full w-full">
-      <ConfigurationSidebar />
-      <div className="flex-1 overflow-y-auto">
-        <Routes>
-          <Route path="routing" element={<LeadRoutingRulesConfiguration />} />
-          <Route path="scoring" element={<LeadScoringConfiguration />} />
-          <Route path="students" element={<StudentManagementConfiguration />} />
-          <Route path="applicants" element={<ApplicantManagementConfiguration />} />
-          <Route path="setup" element={<SetupOnboardingPage />} />
-          <Route path="custom-fields" element={<CustomFieldsManagement />} />
-          <Route path="campuses" element={<CampusesConfiguration />} />
-          <Route path="teams" element={<TeamManagement />} />
-          <Route path="company" element={<CompanyProfileConfiguration />} />
-          <Route path="integrations" element={<EnhancedIntegrationHub />} />
-          <Route index element={<Navigate to={isMvpMode ? "routing" : "routing"} replace />} />
-        </Routes>
-      </div>
+    <div className="w-full h-full">
+      {renderConfigurationContent()}
     </div>
   );
 };

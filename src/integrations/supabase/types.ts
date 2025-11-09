@@ -2200,6 +2200,63 @@ export type Database = {
           },
         ]
       }
+      entry_requirements: {
+        Row: {
+          alternatives: string[] | null
+          applicable_programs: string[] | null
+          category: string | null
+          created_at: string | null
+          description: string
+          details: string | null
+          id: string
+          is_system_template: boolean | null
+          linked_document_templates: string[] | null
+          mandatory: boolean
+          minimum_grade: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          usage_count: number | null
+          user_id: string
+        }
+        Insert: {
+          alternatives?: string[] | null
+          applicable_programs?: string[] | null
+          category?: string | null
+          created_at?: string | null
+          description: string
+          details?: string | null
+          id?: string
+          is_system_template?: boolean | null
+          linked_document_templates?: string[] | null
+          mandatory?: boolean
+          minimum_grade?: string | null
+          title: string
+          type: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id: string
+        }
+        Update: {
+          alternatives?: string[] | null
+          applicable_programs?: string[] | null
+          category?: string | null
+          created_at?: string | null
+          description?: string
+          details?: string | null
+          id?: string
+          is_system_template?: boolean | null
+          linked_document_templates?: string[] | null
+          mandatory?: boolean
+          minimum_grade?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           capacity: number | null
@@ -4320,6 +4377,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           is_mandatory: boolean | null
+          linked_document_templates: string[] | null
           maximum_value: string | null
           minimum_value: string | null
           name: string
@@ -4338,6 +4396,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_mandatory?: boolean | null
+          linked_document_templates?: string[] | null
           maximum_value?: string | null
           minimum_value?: string | null
           name: string
@@ -4356,6 +4415,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           is_mandatory?: boolean | null
+          linked_document_templates?: string[] | null
           maximum_value?: string | null
           minimum_value?: string | null
           name?: string

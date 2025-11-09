@@ -213,7 +213,6 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
 
   const navigationItems = [
     { id: 'rules', label: 'Routing Rules', icon: Settings },
-    { id: 'teams', label: 'Team Management', icon: Users },
     { id: 'advisors', label: 'Advisor Management', icon: UserCheck }
   ];
 
@@ -434,6 +433,14 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
 
   return (
     <div className="space-y-6">
+      {/* Page Header */}
+      <div className="pb-4 border-b border-border/50">
+        <h1 className="text-3xl font-bold text-foreground mb-2">Lead Routing Rules</h1>
+        <p className="text-muted-foreground">
+          Configure intelligent lead assignment and routing rules to automatically distribute leads to the right team members
+        </p>
+      </div>
+
       <div className="flex items-center justify-end">
         {activeView === 'rules' && (
           <Button onClick={() => { setEditingRule(null); setShowRuleWizard(true); }}>
@@ -463,7 +470,6 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
 
       {/* Content based on active view */}
       {activeView === 'rules' && renderRulesContent()}
-      {activeView === 'teams' && <TeamManagement onTeamCreated={onRuleCreated} />}
       {activeView === 'advisors' && <AdvisorManagement onAdvisorUpdated={onRuleCreated} />}
     </div>
   );

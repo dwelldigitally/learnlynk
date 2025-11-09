@@ -64,6 +64,30 @@ export interface EntryRequirement {
   minimumGrade?: string;
   alternatives?: string[];
   linkedDocumentTemplates?: string[];
+  
+  // Program-specific configuration
+  programSpecific?: {
+    // Reference to master requirement (if selected from library)
+    masterRequirementId?: string;
+    
+    // Student type applicability
+    applicableTo: "both" | "domestic" | "international";
+    
+    // Program-specific thresholds
+    thresholds: {
+      domestic?: {
+        value: string;
+        description?: string;
+      };
+      international?: {
+        value: string;
+        description?: string;
+      };
+    };
+    
+    // Override mandatory status for this program
+    mandatoryOverride?: boolean;
+  };
 }
 
 export interface DocumentRequirement {

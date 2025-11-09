@@ -19,9 +19,11 @@ import { JourneyElementPalette } from '@/components/journey-builder/JourneyEleme
 import { JourneyPropertyPanel } from '@/components/journey-builder/JourneyPropertyPanel';
 import { TemplateSelector } from '@/components/campaign-builder/TemplateSelector';
 import { InitialTemplateDialog } from '@/components/campaign-builder/InitialTemplateDialog';
+import { AudienceSelector } from '@/components/campaign-builder/AudienceSelector';
 import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 import { CampaignTemplate } from '@/config/campaignTemplates';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
+import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
 import { 
   Play, 
@@ -81,10 +83,19 @@ function UniversalBuilderContent({
   const [activeTab, setActiveTab] = useState('build');
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [hasShownDialog, setHasShownDialog] = useState(false);
+  
+  // Audience selection state for campaigns
+  const [campaignAudience, setCampaignAudience] = useState<{
+    filters: EnhancedLeadFilters;
+    count: number;
+  } | undefined>(initialConfig?.settings?.audience);
 
   React.useEffect(() => {
     if (initialConfig) {
       dispatch({ type: 'SET_CONFIG', payload: initialConfig });
+      if (initialConfig.settings?.audience) {
+        setCampaignAudience(initialConfig.settings.audience);
+      }
     } else {
       dispatch({ type: 'SET_BUILDER_TYPE', payload: builderType });
     }
@@ -154,12 +165,27 @@ function UniversalBuilderContent({
       return;
     }
 
+    // For campaigns, include audience data in settings
+    const configToSave = state.config.type === 'campaign' 
+      ? {
+          ...state.config,
+          settings: {
+            ...state.config.settings,
+            audience: campaignAudience
+          }
+        }
+      : state.config;
+
     if (onSave) {
-      onSave(state.config);
+      onSave(configToSave);
     }
     
     dispatch({ type: 'SAVE_STATE' });
     toast.success('Configuration saved successfully');
+  };
+
+  const handleAudienceSelect = (filters: EnhancedLeadFilters, count: number) => {
+    setCampaignAudience({ filters, count });
   };
 
   const handlePreview = () => {
@@ -300,6 +326,9 @@ function UniversalBuilderContent({
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <TabsList className="m-4 w-fit">
             <TabsTrigger value="build">Build</TabsTrigger>
+            {state.config.type === 'campaign' && (
+              <TabsTrigger value="audience">Audience</TabsTrigger>
+            )}
             <TabsTrigger value="settings">Settings</TabsTrigger>
             <TabsTrigger value="preview">Preview</TabsTrigger>
           </TabsList>
@@ -391,6 +420,16 @@ function UniversalBuilderContent({
               )}
             </div>
           </TabsContent>
+
+          {/* Audience Tab - Only for Campaigns */}
+          {state.config.type === 'campaign' && (
+            <TabsContent value="audience" className="flex-1 overflow-auto m-4">
+              <AudienceSelector
+                selectedAudience={campaignAudience}
+                onAudienceSelect={handleAudienceSelect}
+              />
+            </TabsContent>
+          )}
 
           <TabsContent value="settings" className="flex-1 overflow-auto m-4">
             <Card>

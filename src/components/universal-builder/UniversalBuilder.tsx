@@ -77,6 +77,7 @@ function UniversalBuilderContent({
   const { state, dispatch } = useBuilder();
   const [activeTab, setActiveTab] = useState('build');
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [hasShownDialog, setHasShownDialog] = useState(false);
 
   React.useEffect(() => {
     if (initialConfig) {
@@ -85,9 +86,10 @@ function UniversalBuilderContent({
       dispatch({ type: 'SET_BUILDER_TYPE', payload: builderType });
     }
     
-    // Show template dialog for new campaigns
-    if (builderType === 'campaign' && !initialConfig?.name && !initialConfig?.elements?.length) {
+    // Show template dialog only once for new campaigns
+    if (builderType === 'campaign' && !hasShownDialog && !initialConfig?.name && !initialConfig?.elements?.length) {
       setShowTemplateDialog(true);
+      setHasShownDialog(true);
     }
   }, [initialConfig, builderType, dispatch]);
 

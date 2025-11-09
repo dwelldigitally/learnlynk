@@ -7,7 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { Settings, Database, Users, Building2, MapPin, TrendingUp, FileText, Target, Zap, Search, Brain, GraduationCap, Route, Menu } from "lucide-react";
+import { Settings, Database, Users, Building2, MapPin, TrendingUp, FileText, Target, Zap, Search, Brain, GraduationCap, Route, Menu, Rocket } from "lucide-react";
 import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
 import { useMvpMode } from '@/contexts/MvpModeContext';
@@ -93,6 +93,29 @@ const configurationSections: ConfigurationSection[] = [
   component: <ApplicantAIAgentConfiguration />
 },
 // System - Data & Database
+{
+  id: 'setup-onboarding',
+  label: 'Setup & Onboarding',
+  icon: Rocket,
+  description: 'Initial system setup and onboarding configuration',
+  category: 'System',
+  component: <div className="p-6">
+    <Card>
+      <CardHeader>
+        <CardTitle>Setup & Onboarding</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-muted-foreground mb-4">
+          Complete system setup and onboarding configuration here.
+        </p>
+        <Button onClick={() => window.location.href = '/admin/configuration/setup'}>
+          Go to Setup Wizard
+        </Button>
+      </CardContent>
+    </Card>
+  </div>,
+  isNew: true
+},
 {
   id: 'custom-fields',
   label: 'Custom Fields & Stages',

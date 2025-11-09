@@ -50,6 +50,7 @@ import PreceptorReviewCompetency from "./pages/PreceptorReviewCompetency";
 import PreceptorReviewReflection from "./pages/PreceptorReviewReflection";
 import PreceptorReviewEvaluation from "./pages/PreceptorReviewEvaluation";
 import { PracticumSchedulingPage } from "./pages/PracticumSchedulingPage";
+import { SetupOnboardingPage } from "./pages/admin/config/SetupOnboardingPage";
 import InstructorLogin from "./pages/InstructorLogin";
 import InstructorDashboard from "./pages/InstructorDashboard";
 import InstructorBatchOverview from "./pages/InstructorBatchOverview";
@@ -156,6 +157,9 @@ const App = () => {
                <Route path="/instructor/review/competency/:competencyId" element={<InstructorReviewCompetency />} />
                <Route path="/instructor/review/journal/:journalId" element={<InstructorReviewJournal />} />
                <Route path="/instructor/review/evaluation/:evaluationId" element={<InstructorReviewEvaluation />} />
+               
+               {/* Configuration routes */}
+               <Route path="/admin/configuration/setup" element={<ProtectedRoute element={<SetupOnboardingPage />} />} />
                
                {/* General admin routes - this handles all /admin/* static routes including enrollment optimization */}
                <Route path="/admin/*" element={<ProtectedRoute element={<AdminDashboard />} />} />

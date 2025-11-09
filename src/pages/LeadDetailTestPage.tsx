@@ -923,7 +923,7 @@ export default function LeadDetailTestPage() {
                               </div>
                               <div className="flex-1 pb-6">
                                 <div className="flex items-center justify-between">
-                                  <p className={`font-medium ${stage.active ? 'text-primary' : ''}`}>
+                                  <p className={`font-medium ${stage.active ? 'text-primary' : 'text-foreground'}`}>
                                     {stage.name}
                                   </p>
                                   {stage.completed && stage.date && (

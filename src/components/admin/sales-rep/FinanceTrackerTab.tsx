@@ -4,7 +4,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { DollarSign, TrendingUp, Clock, CheckCircle2, Eye, FileText, Mail, Loader2, CreditCard } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DollarSign, TrendingUp, Clock, CheckCircle2, Eye, FileText, Mail, Loader2, CreditCard, Filter, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { salesRepService, StudentPaymentPending, RecentPayment } from '@/services/salesRepService';
@@ -14,6 +19,17 @@ import { useNavigate } from 'react-router-dom';
 export function FinanceTrackerTab() {
   const navigate = useNavigate();
   const [paymentDaysFilter, setPaymentDaysFilter] = useState<7 | 30 | 90>(30);
+  
+  // Advanced Filters State
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    paymentStatus: 'all',
+    paymentType: 'all',
+    minAmount: '',
+    maxAmount: '',
+    program: 'all',
+    pendingStatus: 'all'
+  });
 
   // Mock data for demonstration
   const mockPaymentPendingStudents: StudentPaymentPending[] = [
@@ -244,15 +260,45 @@ export function FinanceTrackerTab() {
 
   const isLoading = loadingPending || loadingPayments;
 
-  // Calculate stats
-  const totalRevenue = recentPayments
+  // Apply filters
+  const filteredPayments = recentPayments.filter(payment => {
+    if (filters.paymentStatus !== 'all' && payment.status !== filters.paymentStatus) return false;
+    if (filters.paymentType !== 'all' && payment.payment_type !== filters.paymentType) return false;
+    if (filters.minAmount && Number(payment.amount) < Number(filters.minAmount)) return false;
+    if (filters.maxAmount && Number(payment.amount) > Number(filters.maxAmount)) return false;
+    return true;
+  });
+
+  const filteredPendingStudents = paymentPendingStudents.filter(student => {
+    if (filters.pendingStatus !== 'all' && student.payment_status !== filters.pendingStatus) return false;
+    if (filters.program !== 'all' && !student.program.toLowerCase().includes(filters.program.toLowerCase())) return false;
+    if (filters.minAmount && student.outstanding_amount < Number(filters.minAmount)) return false;
+    if (filters.maxAmount && student.outstanding_amount > Number(filters.maxAmount)) return false;
+    return true;
+  });
+
+  // Calculate stats with filtered data
+  const totalRevenue = filteredPayments
     .filter(p => p.status === 'paid')
     .reduce((sum, p) => sum + Number(p.amount), 0);
   
-  const pendingRevenue = paymentPendingStudents.reduce(
+  const pendingRevenue = filteredPendingStudents.reduce(
     (sum, s) => sum + s.outstanding_amount, 
     0
   );
+
+  const resetFilters = () => {
+    setFilters({
+      paymentStatus: 'all',
+      paymentType: 'all',
+      minAmount: '',
+      maxAmount: '',
+      program: 'all',
+      pendingStatus: 'all'
+    });
+  };
+
+  const hasActiveFilters = Object.values(filters).some(v => v !== 'all' && v !== '');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -294,6 +340,118 @@ export function FinanceTrackerTab() {
 
   return (
     <div className="space-y-6">
+      {/* Advanced Filters */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Filter className="w-5 h-5" />
+              Advanced Filters
+              {hasActiveFilters && (
+                <Badge variant="secondary" className="ml-2">
+                  {Object.values(filters).filter(v => v !== 'all' && v !== '').length} active
+                </Badge>
+              )}
+            </CardTitle>
+            <div className="flex gap-2">
+              {hasActiveFilters && (
+                <Button variant="outline" size="sm" onClick={resetFilters}>
+                  <X className="w-4 h-4 mr-1" />
+                  Clear All
+                </Button>
+              )}
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                {showFilters ? 'Hide' : 'Show'} Filters
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        {showFilters && (
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Payment Status</Label>
+                <Select value={filters.paymentStatus} onValueChange={(v) => setFilters({...filters, paymentStatus: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="partial">Partial</SelectItem>
+                    <SelectItem value="failed">Failed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Payment Type</Label>
+                <Select value={filters.paymentType} onValueChange={(v) => setFilters({...filters, paymentType: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="tuition_deposit">Tuition Deposit</SelectItem>
+                    <SelectItem value="full_tuition">Full Tuition</SelectItem>
+                    <SelectItem value="partial_payment">Partial Payment</SelectItem>
+                    <SelectItem value="application_fee">Application Fee</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Pending Status</Label>
+                <Select value={filters.pendingStatus} onValueChange={(v) => setFilters({...filters, pendingStatus: v})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="partial">Partial</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Min Amount</Label>
+                <Input 
+                  type="number" 
+                  placeholder="$0"
+                  value={filters.minAmount}
+                  onChange={(e) => setFilters({...filters, minAmount: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Max Amount</Label>
+                <Input 
+                  type="number" 
+                  placeholder="$100,000"
+                  value={filters.maxAmount}
+                  onChange={(e) => setFilters({...filters, maxAmount: e.target.value})}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Program</Label>
+                <Input 
+                  placeholder="Search program..."
+                  value={filters.program === 'all' ? '' : filters.program}
+                  onChange={(e) => setFilters({...filters, program: e.target.value || 'all'})}
+                />
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200">
@@ -320,7 +478,7 @@ export function FinanceTrackerTab() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Students Awaiting</p>
-              <p className="text-2xl font-bold text-foreground">{paymentPendingStudents.length}</p>
+              <p className="text-2xl font-bold text-foreground">{filteredPendingStudents.length}</p>
             </div>
             <DollarSign className="w-8 h-8 text-primary" />
           </div>
@@ -346,13 +504,15 @@ export function FinanceTrackerTab() {
           </div>
 
           <div className="space-y-3 max-h-[600px] overflow-y-auto">
-            {recentPayments.length === 0 ? (
+            {filteredPayments.length === 0 ? (
               <div className="text-center py-8 bg-card rounded-lg border border-border">
                 <DollarSign className="w-10 h-10 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No payments in the last {paymentDaysFilter} days</p>
+                <p className="text-sm text-muted-foreground">
+                  {hasActiveFilters ? 'No payments match your filters' : `No payments in the last ${paymentDaysFilter} days`}
+                </p>
               </div>
             ) : (
-              recentPayments.map((payment) => {
+              filteredPayments.map((payment) => {
                 const statusConfig = getPaymentStatusConfig(payment.status);
                 
                 return (
@@ -402,13 +562,15 @@ export function FinanceTrackerTab() {
           </h3>
 
           <div className="space-y-3 max-h-[600px] overflow-y-auto">
-            {paymentPendingStudents.length === 0 ? (
+            {filteredPendingStudents.length === 0 ? (
               <div className="text-center py-8 bg-card rounded-lg border border-border">
                 <CheckCircle2 className="w-10 h-10 text-green-500 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">All students have completed payments!</p>
+                <p className="text-sm text-muted-foreground">
+                  {hasActiveFilters ? 'No students match your filters' : 'All students have completed payments!'}
+                </p>
               </div>
             ) : (
-              paymentPendingStudents.map((student) => (
+              filteredPendingStudents.map((student) => (
                 <div
                   key={student.id}
                   className={cn(

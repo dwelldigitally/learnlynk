@@ -16,6 +16,7 @@ export interface EntryRequirementDB {
   usage_count: number;
   is_system_template: boolean;
   applicable_programs: string[];
+  linked_document_templates?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -30,6 +31,7 @@ export interface EntryRequirementFormData {
   alternatives?: string[];
   category?: string;
   applicable_programs?: string[];
+  linked_document_templates?: string[];
 }
 
 export class EntryRequirementsService {
@@ -160,7 +162,8 @@ export class EntryRequirementsService {
         category: requirementData.category || 'Custom',
         usage_count: 0,
         is_system_template: false,
-        applicable_programs: requirementData.applicable_programs || ['All Programs']
+        applicable_programs: requirementData.applicable_programs || ['All Programs'],
+        linked_document_templates: requirementData.linked_document_templates || []
       };
 
       const { data, error } = await supabase
@@ -194,6 +197,7 @@ export class EntryRequirementsService {
       if (updates.alternatives !== undefined) dbUpdates.alternatives = updates.alternatives;
       if (updates.category !== undefined) dbUpdates.category = updates.category;
       if (updates.applicable_programs !== undefined) dbUpdates.applicable_programs = updates.applicable_programs;
+      if (updates.linked_document_templates !== undefined) dbUpdates.linked_document_templates = updates.linked_document_templates;
 
       const { data, error } = await supabase
         .from('entry_requirements' as any)
@@ -325,7 +329,8 @@ export class EntryRequirementsService {
       mandatory: req.mandatory,
       details: req.details || undefined,
       minimumGrade: req.minimum_grade || undefined,
-      alternatives: req.alternatives || undefined
+      alternatives: req.alternatives || undefined,
+      linkedDocumentTemplates: req.linked_document_templates || undefined
     }));
   }
 

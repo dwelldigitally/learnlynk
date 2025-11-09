@@ -23,9 +23,13 @@ import {
   AlertCircle,
   Copy,
   Filter,
-  CheckCircle
+  CheckCircle,
+  FileText,
+  X
 } from 'lucide-react';
 import { EntryRequirementsService, EntryRequirementFormData as ServiceFormData } from '@/services/entryRequirementsService';
+import { DocumentTemplateService } from '@/services/documentTemplateService';
+import type { DocumentTemplate } from '@/services/documentTemplateService';
 import { useToast } from '@/hooks/use-toast';
 import type { EntryRequirement } from '@/types/program';
 import { PageHeader } from '@/components/modern/PageHeader';
@@ -45,10 +49,12 @@ const REQUIREMENT_TYPES = [
 interface RequirementFormData extends ServiceFormData {
   id?: string;
   student_type?: string[];
+  linked_document_templates?: string[];
 }
 
 export const RequirementsManagement = () => {
   const [requirements, setRequirements] = useState<EntryRequirement[]>([]);
+  const [documentTemplates, setDocumentTemplates] = useState<DocumentTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
@@ -56,11 +62,22 @@ export const RequirementsManagement = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [editingRequirement, setEditingRequirement] = useState<RequirementFormData | null>(null);
   const [alternativeInput, setAlternativeInput] = useState('');
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchRequirements();
+    fetchDocumentTemplates();
   }, []);
+
+  const fetchDocumentTemplates = async () => {
+    try {
+      const data = await DocumentTemplateService.getTemplates();
+      setDocumentTemplates(data);
+    } catch (error) {
+      console.error('Error fetching document templates:', error);
+    }
+  };
 
   const fetchRequirements = async () => {
     try {
@@ -221,8 +238,17 @@ export const RequirementsManagement = () => {
       alternatives: requirement?.alternatives || [],
       category: requirement?.category || 'Custom',
       applicable_programs: requirement?.applicable_programs || ['All Programs'],
-      student_type: requirement?.student_type || ['All Students']
+      student_type: requirement?.student_type || ['All Students'],
+      linked_document_templates: requirement?.linked_document_templates || []
     });
+
+    useEffect(() => {
+      if (requirement) {
+        setSelectedTemplateIds(requirement.linked_document_templates || []);
+      } else {
+        setSelectedTemplateIds([]);
+      }
+    }, [requirement]);
 
     const addAlternative = () => {
       if (alternativeInput.trim()) {
@@ -251,7 +277,8 @@ export const RequirementsManagement = () => {
         return;
       }
 
-      onSave(formData);
+      const dataToSave = { ...formData, linked_document_templates: selectedTemplateIds };
+      onSave(dataToSave);
     };
 
     return (
@@ -385,6 +412,63 @@ export const RequirementsManagement = () => {
               </Badge>
             ))}
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Linked Document Templates</Label>
+          <p className="text-xs text-muted-foreground mb-2">
+            Select which document types can be used to verify this requirement
+          </p>
+          
+          <Select 
+            value="" 
+            onValueChange={(templateId) => {
+              if (!selectedTemplateIds.includes(templateId)) {
+                setSelectedTemplateIds([...selectedTemplateIds, templateId]);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select document templates..." />
+            </SelectTrigger>
+            <SelectContent>
+              {documentTemplates
+                .filter(t => !selectedTemplateIds.includes(t.id))
+                .map(template => (
+                  <SelectItem key={template.id} value={template.id}>
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-3 w-3" />
+                      {template.name} ({template.category})
+                    </div>
+                  </SelectItem>
+                ))
+              }
+            </SelectContent>
+          </Select>
+          
+          {selectedTemplateIds.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {selectedTemplateIds.map(templateId => {
+                const template = documentTemplates.find(t => t.id === templateId);
+                return template ? (
+                  <Badge key={templateId} variant="secondary" className="flex items-center gap-1 bg-indigo-50 text-indigo-700 border-indigo-200">
+                    <FileText className="h-3 w-3" />
+                    {template.name}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto p-0 ml-1 hover:bg-transparent"
+                      onClick={() => setSelectedTemplateIds(
+                        selectedTemplateIds.filter(id => id !== templateId)
+                      )}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </Badge>
+                ) : null;
+              })}
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-2 pt-4">
@@ -538,7 +622,8 @@ export const RequirementsManagement = () => {
                             minimum_grade: requirement.minimumGrade,
                             alternatives: requirement.alternatives,
                             category: 'Custom',
-                            applicable_programs: ['All Programs']
+                            applicable_programs: ['All Programs'],
+                            linked_document_templates: requirement.linkedDocumentTemplates || []
                           });
                           setShowDialog(true);
                         }}
@@ -591,6 +676,41 @@ export const RequirementsManagement = () => {
                       )}
                     </div>
                   )}
+
+                  {/* Linked Document Templates Section */}
+                  <div className="pt-3 mt-3 border-t border-border">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        Verified by Documents:
+                      </p>
+                      {(!requirement.linkedDocumentTemplates || 
+                        requirement.linkedDocumentTemplates.length === 0) && (
+                        <div className="flex items-center gap-1 text-xs text-amber-600">
+                          <AlertCircle className="w-3 h-3" />
+                          <span>No documents linked</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {requirement.linkedDocumentTemplates && 
+                     requirement.linkedDocumentTemplates.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {requirement.linkedDocumentTemplates.map(templateId => {
+                          const template = documentTemplates.find(t => t.id === templateId);
+                          return template ? (
+                            <Badge 
+                              key={templateId} 
+                              variant="outline" 
+                              className="text-xs bg-indigo-50 text-indigo-700 border-indigo-200"
+                            >
+                              <FileText className="w-3 h-3 mr-1" />
+                              {template.name}
+                            </Badge>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </ModernCard>
             );

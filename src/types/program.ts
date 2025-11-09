@@ -55,7 +55,7 @@ export interface ProgramImage {
 }
 
 export interface EntryRequirement {
-  id: string;
+  id?: string;
   type: "academic" | "language" | "experience" | "health" | "age" | "other";
   title: string;
   description: string;
@@ -63,6 +63,7 @@ export interface EntryRequirement {
   details?: string;
   minimumGrade?: string;
   alternatives?: string[];
+  linkedDocumentTemplates?: string[];
 }
 
 export interface DocumentRequirement {

@@ -23,24 +23,20 @@ import { useMvpMode } from "@/contexts/MvpModeContext";
 // Import step components
 import BasicInfoStep from "@/components/admin/wizard/BasicInfoStep";
 import RequirementsStep from "@/components/admin/wizard/RequirementsStep";
-import DocumentsStep from "@/components/admin/wizard/DocumentsStep";
 import CoursesStep from "@/components/admin/wizard/CoursesStep";
 import { ProgramJourneyStep } from "@/components/admin/ProgramJourneyStep";
 import PracticumConfigurationStep from "@/components/admin/wizard/PracticumConfigurationStep";
 import FeeStructureStep from "@/components/admin/wizard/FeeStructureStep";
-import IntakeQuestionsStep from "@/components/admin/wizard/IntakeQuestionsStep";
 import IntakeDatesStep from "@/components/admin/wizard/IntakeDatesStep";
 import PreviewStep from "@/components/admin/wizard/PreviewStep";
 
 const STEPS = [
   { id: 'basic', title: 'Basic Information', description: 'Program name, description, and basic details' },
   { id: 'requirements', title: 'Entry Requirements', description: 'Academic and other admission criteria' },
-  { id: 'documents', title: 'Required Documents', description: 'Document requirements and specifications' },
   { id: 'courses', title: 'Courses', description: 'Program curriculum and course structure' },
   { id: 'journey', title: 'Academic Journey', description: 'Student journey and workflow configuration' },
   { id: 'practicum', title: 'Practicum Configuration', description: 'Practicum requirements, sites, and competencies' },
   { id: 'fees', title: 'Fee Structure', description: 'Tuition, payment plans, and scholarships' },
-  { id: 'questions', title: 'Custom Questions', description: 'Application form customization' },
   { id: 'intakes', title: 'Intake Dates', description: 'Schedule and capacity management' },
   { id: 'preview', title: 'Review & Preview', description: 'Final review before creating program' }
 ];
@@ -129,21 +125,17 @@ const ProgramWizardPage: React.FC = () => {
         return !!(data.name && data.description && data.type && data.duration && data.campus?.length);
       case 1: // Requirements
         return true; // Optional step
-      case 2: // Documents
+      case 2: // Courses
         return true; // Optional step
-      case 3: // Courses
+      case 3: // Journey
         return true; // Optional step
-      case 4: // Journey
+      case 4: // Practicum 
         return true; // Optional step
-      case 5: // Practicum 
-        return true; // Optional step
-      case 6: // Fee Structure
+      case 5: // Fee Structure
         return !!(data.feeStructure && (data.feeStructure.domesticFees.length > 0 || data.feeStructure.internationalFees.length > 0));
-      case 7: // Custom Questions
-        return true; // Optional step
-      case 8: // Intake Dates
+      case 6: // Intake Dates
         return !!(data.intakes && data.intakes.length > 0);
-      case 9: // Preview
+      case 7: // Preview
         return true;
       default:
         return false;
@@ -281,20 +273,16 @@ const ProgramWizardPage: React.FC = () => {
       case 1:
         return <RequirementsStep {...stepProps} />;
       case 2:
-        return <DocumentsStep {...stepProps} />;
-      case 3:
         return <CoursesStep {...stepProps} />;
-      case 4:
+      case 3:
         return <ProgramJourneyStep {...stepProps} />;
-      case 5:
+      case 4:
         return <PracticumConfigurationStep {...stepProps} />;
-      case 6:
+      case 5:
         return <FeeStructureStep {...stepProps} />;
-      case 7:
-        return <IntakeQuestionsStep {...stepProps} />;
-      case 8:
+      case 6:
         return <IntakeDatesStep {...stepProps} />;
-      case 9:
+      case 7:
         return <PreviewStep {...stepProps} onSave={handleSave} />;
       default:
         return null;

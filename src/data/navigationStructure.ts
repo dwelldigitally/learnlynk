@@ -35,7 +35,8 @@ import {
   Building,
   Server,
   DollarSign,
-  LayoutDashboard
+  LayoutDashboard,
+  Sliders
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -143,6 +144,7 @@ export const navigationStructure: NavigationStructure = {
         { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
         { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
         
+        { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
         { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
         { name: "Company Profile", href: "/admin/configuration/company", icon: Building },

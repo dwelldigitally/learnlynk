@@ -131,6 +131,7 @@ const AdminDashboard: React.FC = () => {
         return <LeadForms />;
       case "/admin/configuration":
       case "/admin/configuration/custom-fields":
+      case "/admin/configuration/properties":
       case "/admin/configuration/master-data":
       case "/admin/configuration/integrations":
       case "/admin/configuration/templates":

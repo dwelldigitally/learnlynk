@@ -271,6 +271,27 @@ const AdminHome: React.FC = () => {
       <QuickTaskModal open={showTaskModal} onOpenChange={setShowTaskModal} />
       <QuickNoteModal open={showNoteModal} onOpenChange={setShowNoteModal} />
       <QuickStudentLookupModal open={showLookupModal} onOpenChange={setShowLookupModal} />
+      
+      {/* Demo Banner Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => {
+            if (user?.id) {
+              localStorage.removeItem(`setup_banner_dismissed_${user.id}`);
+              toast({
+                title: "Banner Reset",
+                description: "Setup banner will appear on next page load",
+              });
+              setTimeout(() => window.location.reload(), 500);
+            }
+          }}
+          size="sm"
+          className="shadow-lg"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Demo Setup Banner
+        </Button>
+      </div>
     </div>;
 };
 export default AdminHome;

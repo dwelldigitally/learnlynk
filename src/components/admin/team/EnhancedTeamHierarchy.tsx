@@ -3,30 +3,140 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useTeamHierarchy, useCreateTeamNode, useUpdateTeamNode, useDeleteTeamNode } from '@/hooks/useTeamHierarchy';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ChevronRight, ChevronDown, Plus, Edit, Trash2, Building2, Users as UsersIcon, User } from 'lucide-react';
 import type { TeamHierarchyNode } from '@/types/team-management';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+
+// Mock data for demonstration
+const mockHierarchy: TeamHierarchyNode[] = [
+  {
+    id: 'team_root',
+    name: 'Western College',
+    type: 'department',
+    parent_id: null,
+    manager_id: null,
+    description: 'Root organization node',
+    is_active: true,
+    metadata: {},
+    created_at: '2024-01-01T00:00:00Z',
+    updated_at: '2024-01-01T00:00:00Z',
+    memberCount: 8,
+    children: [
+      {
+        id: 'team_admissions',
+        name: 'Admissions & Enrollment',
+        type: 'department',
+        parent_id: 'team_root',
+        manager_id: null,
+        description: 'Manages all admissions and enrollment activities',
+        is_active: true,
+        metadata: {},
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        memberCount: 3,
+        children: [
+          {
+            id: 'team_domestic',
+            name: 'Domestic Admissions Team',
+            type: 'team',
+            parent_id: 'team_admissions',
+            manager_id: '2',
+            description: 'Handles domestic student admissions',
+            is_active: true,
+            metadata: {},
+            created_at: '2024-01-01T00:00:00Z',
+            updated_at: '2024-01-01T00:00:00Z',
+            memberCount: 2
+          },
+          {
+            id: 'team_international',
+            name: 'International Admissions Team',
+            type: 'team',
+            parent_id: 'team_admissions',
+            manager_id: '6',
+            description: 'Handles international student admissions',
+            is_active: true,
+            metadata: {},
+            created_at: '2024-01-01T00:00:00Z',
+            updated_at: '2024-01-01T00:00:00Z',
+            memberCount: 1
+          }
+        ]
+      },
+      {
+        id: 'team_academic',
+        name: 'Academic Affairs',
+        type: 'department',
+        parent_id: 'team_root',
+        manager_id: null,
+        description: 'Oversees academic programs and policies',
+        is_active: true,
+        metadata: {},
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        memberCount: 3,
+        children: [
+          {
+            id: 'team_advisors',
+            name: 'Program Advisors',
+            type: 'team',
+            parent_id: 'team_academic',
+            manager_id: null,
+            description: 'Provides academic advising services',
+            is_active: true,
+            metadata: {},
+            created_at: '2024-01-01T00:00:00Z',
+            updated_at: '2024-01-01T00:00:00Z',
+            memberCount: 2
+          },
+          {
+            id: 'team_registrar',
+            name: 'Registrar Office',
+            type: 'team',
+            parent_id: 'team_academic',
+            manager_id: null,
+            description: 'Manages student records and registration',
+            is_active: true,
+            metadata: {},
+            created_at: '2024-01-01T00:00:00Z',
+            updated_at: '2024-01-01T00:00:00Z',
+            memberCount: 1
+          }
+        ]
+      },
+      {
+        id: 'team_financial',
+        name: 'Financial Services',
+        type: 'department',
+        parent_id: 'team_root',
+        manager_id: '1',
+        description: 'Handles all financial operations',
+        is_active: true,
+        metadata: {},
+        created_at: '2024-01-01T00:00:00Z',
+        updated_at: '2024-01-01T00:00:00Z',
+        memberCount: 2
+      }
+    ]
+  }
+];
 
 export function EnhancedTeamHierarchy() {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
-  const [editingNode, setEditingNode] = useState<TeamHierarchyNode | null>(null);
+  const hierarchy = mockHierarchy;
+  const isLoading = false;
+  
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['team_root']));
   const [showDialog, setShowDialog] = useState(false);
+  const [editingNode, setEditingNode] = useState<TeamHierarchyNode | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     type: 'team' as 'team' | 'department' | 'individual',
     description: '',
     parent_id: null as string | null,
   });
-
-  const { data: hierarchy = [], isLoading } = useTeamHierarchy();
-  const createNode = useCreateTeamNode();
-  const updateNode = useUpdateTeamNode();
-  const deleteNode = useDeleteTeamNode();
-  const { toast } = useToast();
 
   const toggleNode = (nodeId: string) => {
     setExpandedNodes(prev => {
@@ -37,27 +147,11 @@ export function EnhancedTeamHierarchy() {
     });
   };
 
-  const handleSave = async () => {
-    try {
-      if (editingNode) {
-        await updateNode.mutateAsync({
-          id: editingNode.id,
-          updates: formData,
-        });
-        toast({ title: 'Success', description: 'Node updated successfully' });
-      } else {
-        await createNode.mutateAsync(formData);
-        toast({ title: 'Success', description: 'Node created successfully' });
-      }
-      setShowDialog(false);
-      resetForm();
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save node',
-        variant: 'destructive',
-      });
-    }
+  const handleSave = () => {
+    console.log('Mock save:', formData);
+    toast.success(editingNode ? 'Node updated (demo)' : 'Node created (demo)');
+    setShowDialog(false);
+    resetForm();
   };
 
   const handleEdit = (node: TeamHierarchyNode) => {
@@ -71,18 +165,10 @@ export function EnhancedTeamHierarchy() {
     setShowDialog(true);
   };
 
-  const handleDelete = async (nodeId: string) => {
-    if (!confirm('Are you sure you want to delete this node? This will also delete all children.')) return;
-    
-    try {
-      await deleteNode.mutateAsync(nodeId);
-      toast({ title: 'Success', description: 'Node deleted successfully' });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to delete node',
-        variant: 'destructive',
-      });
+  const handleDelete = (nodeId: string) => {
+    if (confirm('Are you sure you want to delete this node? This will also delete all children.')) {
+      console.log('Mock delete:', nodeId);
+      toast.success('Node deleted (demo)');
     }
   };
 
@@ -128,6 +214,10 @@ export function EnhancedTeamHierarchy() {
               <div className="text-xs text-muted-foreground">{node.description}</div>
             )}
           </div>
+
+          {node.memberCount !== undefined && (
+            <Badge variant="outline">{node.memberCount} members</Badge>
+          )}
 
           <Badge variant="outline" className="capitalize">{node.type}</Badge>
           
@@ -239,8 +329,8 @@ export function EnhancedTeamHierarchy() {
               <Button variant="outline" onClick={() => setShowDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSave} disabled={createNode.isPending || updateNode.isPending}>
-                {createNode.isPending || updateNode.isPending ? 'Saving...' : 'Save'}
+              <Button onClick={handleSave}>
+                Save
               </Button>
             </div>
           </div>

@@ -5,10 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useAllUserRoles, useAssignRole, useRevokeRole } from '@/hooks/useSystemRoles';
 import { Search, UserPlus, Shield, X } from 'lucide-react';
 import type { AppRole } from '@/types/team-management';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 const ALL_ROLES: { value: AppRole; label: string; description: string }[] = [
   { value: 'admin', label: 'Admin', description: 'Full system access' },
@@ -19,64 +18,40 @@ const ALL_ROLES: { value: AppRole; label: string; description: string }[] = [
   { value: 'viewer', label: 'Viewer', description: 'Read-only access' },
 ];
 
+// Mock data
+const mockUserRoleMap = new Map<string, { roles: AppRole[], name: string }>([
+  ['tash@frasermarketing.ca', { roles: ['admin'], name: 'Tash Fraser' }],
+  ['tushar@wcc.ca', { roles: ['team_lead'], name: 'Tushar Malhotra' }],
+  ['rockingtushar123@gmail.com', { roles: ['advisor'], name: 'Tushar Advisor' }],
+  ['malhotratushar37@gmail.com', { roles: ['finance_officer'], name: 'Tushar Finance' }],
+  ['sarah.johnson@wcc.ca', { roles: ['registrar', 'advisor'], name: 'Sarah Johnson' }],
+  ['mike.chen@wcc.ca', { roles: ['team_lead'], name: 'Mike Chen' }],
+  ['emma.davis@wcc.ca', { roles: ['advisor'], name: 'Emma Davis' }],
+  ['james.wilson@wcc.ca', { roles: ['viewer'], name: 'James Wilson' }],
+]);
+
 export function SystemRoleManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedRole, setSelectedRole] = useState<AppRole>('viewer');
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   
-  const { data: userRoles = [] } = useAllUserRoles();
-  const assignRole = useAssignRole();
-  const revokeRole = useRevokeRole();
-  const { toast } = useToast();
+  const isLoading = false;
+  const userRoleMap = mockUserRoleMap;
 
-  // Group by user
-  const userRoleMap = userRoles.reduce((acc, ur) => {
-    if (!acc[ur.user_id]) acc[ur.user_id] = [];
-    acc[ur.user_id].push(ur);
-    return acc;
-  }, {} as Record<string, typeof userRoles>);
-
-  const handleAssignRole = async () => {
+  const handleAssignRole = () => {
     if (!selectedUserId) {
-      toast({
-        title: 'Error',
-        description: 'Please select a user',
-        variant: 'destructive',
-      });
+      toast.error('Please enter a user email');
       return;
     }
-
-    try {
-      await assignRole.mutateAsync({ userId: selectedUserId, role: selectedRole });
-      toast({
-        title: 'Success',
-        description: `Role ${selectedRole} assigned successfully`,
-      });
-      setShowAssignDialog(false);
-      setSelectedUserId('');
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to assign role',
-        variant: 'destructive',
-      });
-    }
+    toast.success(`Role ${selectedRole} assigned successfully (demo)`);
+    setShowAssignDialog(false);
+    setSelectedUserId('');
   };
 
-  const handleRevokeRole = async (userId: string, role: AppRole) => {
-    try {
-      await revokeRole.mutateAsync({ userId, role });
-      toast({
-        title: 'Success',
-        description: `Role ${role} revoked successfully`,
-      });
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to revoke role',
-        variant: 'destructive',
-      });
+  const handleRevokeRole = (userId: string, role: AppRole) => {
+    if (confirm(`Are you sure you want to revoke the ${role} role?`)) {
+      toast.success(`Role ${role} revoked successfully (demo)`);
     }
   };
 
@@ -116,9 +91,9 @@ export function SystemRoleManagement() {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">User ID</label>
+                <label className="text-sm font-medium mb-2 block">User Email</label>
                 <Input
-                  placeholder="Enter user ID"
+                  placeholder="Enter user email"
                   value={selectedUserId}
                   onChange={(e) => setSelectedUserId(e.target.value)}
                 />
@@ -141,8 +116,8 @@ export function SystemRoleManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleAssignRole} className="w-full" disabled={assignRole.isPending}>
-                {assignRole.isPending ? 'Assigning...' : 'Assign Role'}
+              <Button onClick={handleAssignRole} className="w-full">
+                Assign Role
               </Button>
             </div>
           </DialogContent>
@@ -151,7 +126,10 @@ export function SystemRoleManagement() {
 
       <div className="grid gap-4">
         {ALL_ROLES.map(roleInfo => {
-          const usersWithRole = userRoles.filter(ur => ur.role === roleInfo.value);
+          const usersWithRole = Array.from(userRoleMap.entries()).filter(
+            ([, data]) => data.roles.includes(roleInfo.value)
+          );
+          
           return (
             <Card key={roleInfo.value}>
               <CardHeader>
@@ -172,18 +150,16 @@ export function SystemRoleManagement() {
                   <div className="text-sm text-muted-foreground">No users assigned to this role</div>
                 ) : (
                   <div className="space-y-2">
-                    {usersWithRole.map(ur => (
-                      <div key={ur.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    {usersWithRole.map(([email, data]) => (
+                      <div key={email} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                         <div>
-                          <div className="font-medium">User ID: {ur.user_id.substring(0, 8)}...</div>
-                          <div className="text-xs text-muted-foreground">
-                            Assigned {new Date(ur.assigned_at).toLocaleDateString()}
-                          </div>
+                          <div className="font-medium">{data.name}</div>
+                          <div className="text-xs text-muted-foreground">{email}</div>
                         </div>
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => handleRevokeRole(ur.user_id, ur.role)}
+                          onClick={() => handleRevokeRole(email, roleInfo.value)}
                         >
                           <X className="h-4 w-4" />
                         </Button>

@@ -158,6 +158,9 @@ const AdminDashboard: React.FC = () => {
         return <LeadAnalytics />;
       case "/admin/leads/advanced-analytics":
         return <LeadAdvancedAnalytics />;
+      case "/admin/leads/team-goals":
+        const TeamGoalsPage = require("@/components/admin/leads/TeamGoalsAnalytics").TeamGoalsAnalytics;
+        return <TeamGoalsPage />;
       case "/admin/leads/bulk":
         return <LeadBulkOperations />;
       case "/admin/students":

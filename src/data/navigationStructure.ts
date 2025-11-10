@@ -169,7 +169,8 @@ export const navigationStructure: NavigationStructure = {
         { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
         { name: "Reports", href: "/admin/reports", icon: PieChart },
         { name: "Lead Analytics", href: "/admin/leads/analytics", icon: BarChart3 },
-        { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: PieChart }
+        { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: PieChart },
+        { name: "Team Goals & Analytics", href: "/admin/leads/team-goals", icon: Target }
       ]
     }
   ]

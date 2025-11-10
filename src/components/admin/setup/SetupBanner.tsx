@@ -11,18 +11,25 @@ export const SetupBanner: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { progress, loading } = useSetupTasks();
-  const [isDismissed, setIsDismissed] = useState(true);
+  const [isDismissed, setIsDismissed] = useState(false);
 
   useEffect(() => {
     const checkBannerStatus = async () => {
       if (!user) return;
 
+      console.log('SetupBanner: Checking status', { progress, loading, user: user.id });
+
       // Check if banner was dismissed
       const dismissed = localStorage.getItem(`setup_banner_dismissed_${user.id}`);
+      console.log('SetupBanner: Dismissed status', dismissed);
       
       // Show banner if not dismissed and setup is incomplete
       if (!dismissed && progress < 100) {
+        console.log('SetupBanner: Showing banner');
         setIsDismissed(false);
+      } else {
+        console.log('SetupBanner: Hiding banner', { dismissed, progress });
+        setIsDismissed(true);
       }
     };
 
@@ -52,6 +59,8 @@ export const SetupBanner: React.FC = () => {
   const handleGetStarted = () => {
     navigate('/admin/setup');
   };
+
+  console.log('SetupBanner render:', { isDismissed, loading, progress });
 
   if (isDismissed || loading || progress === 100) {
     return null;

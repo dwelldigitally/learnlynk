@@ -34,7 +34,8 @@ import {
   Award,
   Building,
   Server,
-  DollarSign
+  DollarSign,
+  LayoutDashboard
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -77,6 +78,7 @@ export const navigationStructure: NavigationStructure = {
       name: "Leads & Marketing",
       icon: UserPlus,
       items: [
+        { name: "My Dashboard", href: "/admin/sales-rep-dashboard", icon: LayoutDashboard },
         { name: "Lead Management", href: "/admin/leads", icon: Users },
         { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
         { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },

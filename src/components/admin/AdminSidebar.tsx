@@ -101,7 +101,7 @@ export function AdminSidebar({
   };
   return <div className={cn("border-r border-border h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] lg:h-[calc(100vh-5rem)] bg-card flex flex-col transition-all duration-300 fixed left-0 top-14 sm:top-16 lg:top-20 z-40", isCollapsed ? "w-20" : "w-80")}>
       {/* Collapse Button - Top position when collapsed */}
-      {isCollapsed && <div className="flex justify-end p-2 border-b border-border">
+      {isCollapsed && <div className="flex justify-center p-2 border-b border-border">
           <Button variant="ghost" size="icon" onClick={() => setIsCollapsed(!isCollapsed)} className="h-8 w-8">
             <Menu className="h-4 w-4" />
           </Button>

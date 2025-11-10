@@ -1,0 +1,112 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X, Sparkles, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { useSetupTasks } from '@/hooks/useSetupTasks';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+export const SetupBanner: React.FC = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { progress, loading } = useSetupTasks();
+  const [isDismissed, setIsDismissed] = useState(true);
+
+  useEffect(() => {
+    const checkBannerStatus = async () => {
+      if (!user) return;
+
+      // Check if banner was dismissed
+      const dismissed = localStorage.getItem(`setup_banner_dismissed_${user.id}`);
+      
+      // Show banner if not dismissed and setup is incomplete
+      if (!dismissed && progress < 100) {
+        setIsDismissed(false);
+      }
+    };
+
+    if (!loading) {
+      checkBannerStatus();
+    }
+  }, [user, progress, loading]);
+
+  const handleDismiss = async () => {
+    if (!user) return;
+
+    // Save dismissal to localStorage
+    localStorage.setItem(`setup_banner_dismissed_${user.id}`, 'true');
+    setIsDismissed(true);
+
+    // Optionally save to database (when column is added)
+    try {
+      await supabase
+        .from('profiles')
+        .update({ updated_at: new Date().toISOString() } as any)
+        .eq('user_id', user.id);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+    }
+  };
+
+  const handleGetStarted = () => {
+    navigate('/admin/setup');
+  };
+
+  if (isDismissed || loading || progress === 100) {
+    return null;
+  }
+
+  return (
+    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20">
+      <div className="container mx-auto px-4 py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold text-foreground mb-1">
+                Welcome! Let's get you set up
+              </h3>
+              <p className="text-xs text-muted-foreground mb-2">
+                Complete your setup to unlock the full potential of your institution portal
+              </p>
+              
+              <div className="flex items-center gap-2">
+                <Progress value={progress} className="h-2 flex-1 max-w-xs" />
+                <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  {progress}% complete
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Button 
+              onClick={handleGetStarted}
+              size="sm"
+              className="gap-2"
+            >
+              Get Started
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+            
+            <Button
+              onClick={handleDismiss}
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+            >
+              <X className="w-4 h-4" />
+              <span className="sr-only">Dismiss</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

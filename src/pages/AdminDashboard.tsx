@@ -70,6 +70,7 @@ import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntellig
 import { AIAdvisorAnalytics } from "@/components/admin/ai-agents/AIAdvisorAnalytics";
 import { EnhancedTodayCommandCentre } from "@/components/enrollment/EnhancedTodayCommandCentre";
 import SetupPage from "./SetupPage";
+import { SetupBanner } from '@/components/admin/setup/SetupBanner';
 import { InstitutionSetup } from "./admin/setup/InstitutionSetup";
 import { ApplicationSetup } from "./admin/setup/ApplicationSetup";
 import { BusinessSetup } from "./admin/setup/BusinessSetup";
@@ -272,9 +273,12 @@ const AdminDashboard: React.FC = () => {
 
   // Use modern layout only
   return (
-    <ModernAdminLayout>
-      {renderContent()}
-    </ModernAdminLayout>
+    <>
+      <SetupBanner />
+      <ModernAdminLayout>
+        {renderContent()}
+      </ModernAdminLayout>
+    </>
   );
 };
 

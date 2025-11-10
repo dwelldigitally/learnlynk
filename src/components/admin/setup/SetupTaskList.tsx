@@ -44,12 +44,12 @@ export const SetupTaskList: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-6 h-6 text-primary" />
-                <CardTitle className="text-2xl">Complete Your Setup</CardTitle>
+                <CardTitle className="text-2xl">Getting Started Guide</CardTitle>
               </div>
               <CardDescription className="text-base">
                 {isSetupComplete 
-                  ? "🎉 Congratulations! You've completed all setup tasks."
-                  : `Follow these steps to get your institution portal fully configured. ${incompleteRequiredTasks.length} required ${incompleteRequiredTasks.length === 1 ? 'task' : 'tasks'} remaining.`
+                  ? "🎉 Great job! You've completed all recommended setup tasks."
+                  : `Follow these steps to get the most out of your institution portal. ${incompleteRequiredTasks.length > 0 ? `We recommend completing ${incompleteRequiredTasks.length} essential ${incompleteRequiredTasks.length === 1 ? 'task' : 'tasks'} first.` : 'Complete tasks at your own pace.'}`
                 }
               </CardDescription>
             </div>
@@ -78,11 +78,11 @@ export const SetupTaskList: React.FC = () => {
         </CardHeader>
       </Card>
 
-      {/* Required Tasks Warning */}
+      {/* Recommended Tasks Info */}
       {incompleteRequiredTasks.length > 0 && (
-        <Alert className="mb-6 border-yellow-600/50 bg-yellow-50 dark:bg-yellow-950/20">
+        <Alert className="mb-6 border-primary/50 bg-primary/5">
           <AlertDescription className="text-sm">
-            <strong>Action Required:</strong> Please complete the {incompleteRequiredTasks.length} required {incompleteRequiredTasks.length === 1 ? 'task' : 'tasks'} to ensure your portal functions properly: {' '}
+            <strong>Recommended:</strong> These {incompleteRequiredTasks.length} {incompleteRequiredTasks.length === 1 ? 'task is' : 'tasks are'} essential for core functionality: {' '}
             {incompleteRequiredTasks.map(t => t.title).join(', ')}
           </AlertDescription>
         </Alert>
@@ -93,7 +93,7 @@ export const SetupTaskList: React.FC = () => {
         <Alert className="mb-6 border-green-600/50 bg-green-50 dark:bg-green-950/20">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
           <AlertDescription className="text-sm text-green-800 dark:text-green-200">
-            <strong>Setup Complete!</strong> Your institution portal is now fully configured and ready to use. You can always revisit these tasks to make updates.
+            <strong>All Done!</strong> You've completed all the recommended setup tasks. Feel free to explore or revisit these anytime.
           </AlertDescription>
         </Alert>
       )}

@@ -28,7 +28,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     description: 'Define admission requirements and prerequisites',
     link: '/admin/configuration/properties',
     icon: CheckSquare,
-    required: true,
+    required: false, // Changed to recommended instead of required
     estimatedMinutes: 8,
     order: 3
   },
@@ -38,7 +38,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     description: 'Create academic programs with courses, fees, and intake dates',
     link: '/admin/programs',
     icon: GraduationCap,
-    required: true,
+    required: false, // Changed to recommended instead of required
     estimatedMinutes: 15,
     order: 4
   },
@@ -48,7 +48,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     description: 'Set up your online lead capture form',
     link: '/admin/builder/forms',
     icon: FileInput,
-    required: true,
+    required: false, // Changed to recommended instead of required
     estimatedMinutes: 10,
     order: 5
   },

@@ -11,7 +11,7 @@ import EnhancedDocumentManagement from "@/components/admin/EnhancedDocumentManag
 import EventManagement from "@/components/admin/EventManagement";
 import CommunicationHub from "@/components/admin/CommunicationHub";
 import FinancialManagement from "@/components/admin/FinancialManagement";
-import TeamManagement from "@/components/admin/TeamManagement";
+import { TeamManagement } from "@/components/admin/routing/TeamManagement";
 import AnalyticsReporting from "@/components/admin/AnalyticsReporting";
 import SystemConfiguration from "@/components/admin/SystemConfiguration";
 import ProfilePage from "@/components/admin/ProfilePage";

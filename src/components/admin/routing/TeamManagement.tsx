@@ -27,6 +27,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   const [managingTeam, setManagingTeam] = useState<AdvisorTeam | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('teams');
   const { toast } = useToast();
 
   // Mock teams for demonstration
@@ -353,10 +354,24 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Team Management</h2>
-          <p className="text-muted-foreground">Organize advisors into teams and manage team settings</p>
+          <h2 className="text-2xl font-bold">Internal Teams</h2>
+          <p className="text-muted-foreground">Manage routing teams and internal team organization</p>
         </div>
       </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="teams" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Routing Teams
+          </TabsTrigger>
+          <TabsTrigger value="advisors" className="flex items-center gap-2">
+            <UserCog className="h-4 w-4" />
+            Team Advisors
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="teams" className="space-y-6">
 
       <Dialog open={showTeamForm} onOpenChange={setShowTeamForm}>
         <DialogTrigger asChild>
@@ -605,20 +620,128 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
         )}
       </div>
 
-      {/* Team Member Management Dialog */}
-      <Dialog open={!!managingTeam} onOpenChange={() => setManagingTeam(null)}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Manage Team Members</DialogTitle>
-          </DialogHeader>
-          {managingTeam && (
-            <TeamMembersList
-              teamId={managingTeam.id}
-              teamName={managingTeam.name}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+        {/* Team Member Management Dialog */}
+        <Dialog open={!!managingTeam} onOpenChange={() => setManagingTeam(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Manage Team Members</DialogTitle>
+            </DialogHeader>
+            {managingTeam && (
+              <TeamMembersList
+                teamId={managingTeam.id}
+                teamName={managingTeam.name}
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+        </TabsContent>
+
+        <TabsContent value="advisors" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserCog className="h-5 w-5" />
+                Team Advisors
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                View and manage advisors across all teams
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search advisors by name or email..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {filteredAdvisors.map(advisor => {
+                  const capacityPercentage = getCapacityPercentage(advisor.current_assignments, advisor.max_assignments);
+                  const team = teams.find(t => t.id === advisor.team_id);
+                  
+                  return (
+                    <div key={advisor.id} className="p-4 border rounded-lg">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
+                            {advisor.name.split(' ').map((n: string) => n[0]).join('')}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-medium">{advisor.name}</h4>
+                              <Badge variant={advisor.status === 'active' ? 'default' : 'secondary'}>
+                                {advisor.status}
+                              </Badge>
+                              <Badge variant="outline">{advisor.performance_tier}</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{advisor.email}</p>
+                            {team && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Team: {team.name}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Open advisor settings dialog
+                          }}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 mb-3">
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Capacity</Label>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Progress value={capacityPercentage} className="h-2" />
+                            <span className="text-sm font-medium whitespace-nowrap">
+                              {advisor.current_assignments}/{advisor.max_assignments}
+                            </span>
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Performance</Label>
+                          <div className="grid grid-cols-2 gap-2 mt-1">
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Conv:</span>{' '}
+                              <span className="font-medium">{advisor.conversion_rate}%</span>
+                            </div>
+                            <div className="text-sm">
+                              <span className="text-muted-foreground">Resp:</span>{' '}
+                              <span className="font-medium">{advisor.response_time_avg}m</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Calendar className="h-3 w-3" />
+                        <span>{formatSchedule(advisor.schedule)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+
+                {filteredAdvisors.length === 0 && (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No advisors found matching your search.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

@@ -163,17 +163,15 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
             className="border-none shadow-none resize-none text-sm text-muted-foreground min-h-[60px]"
           />
         </div>
+      </div>
 
-        {/* Tabs */}
+      {/* Tabs - Wraps both TabsList and TabsContent */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <TabsList className="grid w-full max-w-md grid-cols-3 mx-6">
           <TabsTrigger value="workflow">Workflow</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
-      </div>
-
-      {/* Main Content - Wrapped in Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <TabsContent value="workflow" className="flex-1 flex m-0 data-[state=inactive]:hidden">
           <div className="flex flex-1 overflow-hidden">
             {/* Left Sidebar - Action Library */}

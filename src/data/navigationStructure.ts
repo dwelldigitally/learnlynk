@@ -83,14 +83,8 @@ export const navigationStructure: NavigationStructure = {
         { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
         { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
         { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
-        { 
-          name: "Communication Hub", 
-          href: "/admin/communication", 
-          icon: MessageSquare,
-          subItems: [
-            { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail }
-          ]
-        },
+        { name: "Communication Hub", href: "/admin/communication", icon: MessageSquare },
+        { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail },
         { 
           name: "Enrollment Optimization", 
           href: "/admin/enrollment/today", 

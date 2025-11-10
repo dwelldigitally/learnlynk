@@ -27,7 +27,6 @@ import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
 import { LeadConfiguration } from './LeadConfiguration';
 import { LeadRoutingRulesConfiguration } from './LeadRoutingRulesConfiguration';
 import { LeadScoringConfiguration } from './LeadScoringConfiguration';
-import { StudentManagementConfiguration } from './StudentManagementConfiguration';
 import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
 import { ApplicantAIAgentConfiguration } from './ApplicantAIAgentConfiguration';
 import { StudentPortalAdminConfiguration } from './StudentPortalAdminConfiguration';
@@ -66,15 +65,6 @@ const configurationSections: ConfigurationSection[] = [
   description: 'Configure automatic lead scoring rules and algorithms',
   category: 'Leads',
   component: <LeadScoringConfiguration />
-},
-// Students Configuration  
-{
-  id: 'student-management',
-  label: 'Student Management',
-  icon: GraduationCap,
-  description: 'Configure student lifecycle and management settings',
-  category: 'Students',
-  component: <StudentManagementConfiguration />
 },
 // Applicants Configuration
 {

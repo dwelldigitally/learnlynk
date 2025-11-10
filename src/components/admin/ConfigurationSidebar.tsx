@@ -49,7 +49,6 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
   {
     name: "Student & Applicant Management",
     items: [
-      { name: "Student Management", href: "/admin/configuration/students", icon: Users },
       { name: "Applicant Management", href: "/admin/configuration/applicants", icon: Briefcase },
     ]
   },

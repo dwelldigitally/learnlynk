@@ -165,17 +165,15 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="px-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="workflow">Workflow</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <TabsList className="grid w-full max-w-md grid-cols-3 mx-6">
+          <TabsTrigger value="workflow">Workflow</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+        </TabsList>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      {/* Main Content - Wrapped in Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
         <TabsContent value="workflow" className="flex-1 flex m-0 data-[state=inactive]:hidden">
           <div className="flex flex-1 overflow-hidden">
             {/* Left Sidebar - Action Library */}
@@ -267,7 +265,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
             </div>
           </div>
         </TabsContent>
-      </div>
+      </Tabs>
     </div>
   );
 }

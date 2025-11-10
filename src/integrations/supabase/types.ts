@@ -9246,6 +9246,45 @@ export type Database = {
           },
         ]
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          email_signature: string | null
+          id: string
+          outlook_access_token: string | null
+          outlook_connected: boolean | null
+          outlook_email: string | null
+          outlook_refresh_token: string | null
+          outlook_token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_signature?: string | null
+          id?: string
+          outlook_access_token?: string | null
+          outlook_connected?: boolean | null
+          outlook_email?: string | null
+          outlook_refresh_token?: string | null
+          outlook_token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_signature?: string | null
+          id?: string
+          outlook_access_token?: string | null
+          outlook_connected?: boolean | null
+          outlook_email?: string | null
+          outlook_refresh_token?: string | null
+          outlook_token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       waste_radar: {
         Row: {
           created_at: string

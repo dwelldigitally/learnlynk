@@ -23,6 +23,9 @@ export interface Program {
     graduateEmploymentRate?: number;
   };
   
+  // Courses
+  courses?: ProgramCourse[];
+  
   // Entry requirements
   entryRequirements: EntryRequirement[];
   
@@ -282,4 +285,13 @@ export interface ProgramValidation {
   field: string;
   message: string;
   type: "error" | "warning";
+}
+
+export interface ProgramCourse {
+  id: string;
+  title: string;
+  description: string;
+  hours: number;
+  modality: "in-person" | "online" | "hybrid";
+  order: number;
 }

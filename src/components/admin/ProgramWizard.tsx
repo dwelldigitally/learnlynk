@@ -28,6 +28,7 @@ import { ProgramService } from "@/services/programService";
 import BasicInfoStep from "./wizard/BasicInfoStep";
 import RequirementsStep from "./wizard/RequirementsStep";
 import DocumentsStep from "./wizard/DocumentsStep";
+import CoursesStep from "./wizard/CoursesStep";
 import { ProgramJourneyStep } from "./ProgramJourneyStep";
 import PracticumConfigurationStep from "./wizard/PracticumConfigurationStep";
 import FeeStructureStep from "./wizard/FeeStructureStep";
@@ -46,6 +47,7 @@ const STEPS = [
   { id: 'basic', title: 'Basic Information', description: 'Program name, description, and basic details' },
   { id: 'requirements', title: 'Entry Requirements', description: 'Academic and other admission criteria' },
   { id: 'documents', title: 'Required Documents', description: 'Document requirements and specifications' },
+  { id: 'courses', title: 'Courses', description: 'Program curriculum and course structure' },
   { id: 'journey', title: 'Academic Journey', description: 'Student journey and workflow configuration' },
   { id: 'practicum', title: 'Practicum Configuration', description: 'Practicum requirements, sites, and competencies' },
   { id: 'fees', title: 'Fee Structure', description: 'Tuition, payment plans, and scholarships' },
@@ -138,17 +140,19 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
         return true; // Optional step
       case 2: // Documents
         return true; // Optional step
-      case 3: // Journey
+      case 3: // Courses
         return true; // Optional step
-      case 4: // Practicum 
+      case 4: // Journey
         return true; // Optional step
-      case 5: // Fee Structure
+      case 5: // Practicum 
+        return true; // Optional step
+      case 6: // Fee Structure
         return !!(data.feeStructure && (data.feeStructure.domesticFees.length > 0 || data.feeStructure.internationalFees.length > 0));
-      case 6: // Custom Questions
+      case 7: // Custom Questions
         return true; // Optional step
-      case 7: // Intake Dates
+      case 8: // Intake Dates
         return !!(data.intakes && data.intakes.length > 0);
-      case 8: // Preview
+      case 9: // Preview
         return true;
       default:
         return false;
@@ -285,16 +289,18 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
       case 2:
         return <DocumentsStep {...stepProps} />;
       case 3:
-        return <ProgramJourneyStep {...stepProps} />;
+        return <CoursesStep {...stepProps} />;
       case 4:
-        return <PracticumConfigurationStep {...stepProps} />;
+        return <ProgramJourneyStep {...stepProps} />;
       case 5:
-        return <FeeStructureStep {...stepProps} />;
+        return <PracticumConfigurationStep {...stepProps} />;
       case 6:
-        return <IntakeQuestionsStep {...stepProps} />;
+        return <FeeStructureStep {...stepProps} />;
       case 7:
-        return <IntakeDatesStep {...stepProps} />;
+        return <IntakeQuestionsStep {...stepProps} />;
       case 8:
+        return <IntakeDatesStep {...stepProps} />;
+      case 9:
         return <PreviewStep {...stepProps} onSave={handleSave} />;
       default:
         return null;

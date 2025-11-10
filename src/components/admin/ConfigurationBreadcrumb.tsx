@@ -12,6 +12,7 @@ import { Settings } from 'lucide-react';
 
 const routeLabels: Record<string, string> = {
   'custom-fields': 'Custom Fields',
+  'properties': 'Properties Management',
   'master-data': 'Master Data',
   'integrations': 'Integrations',
   'templates': 'Templates',

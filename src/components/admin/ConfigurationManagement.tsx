@@ -10,6 +10,7 @@ import { CompanySettingsRedesigned } from './config/sections/CompanySettingsRede
 import { EnhancedIntegrationHub } from './database/EnhancedIntegrationHub';
 import { SetupDashboard } from '@/pages/admin/setup/SetupDashboard';
 import { PaymentConfiguration } from './config/PaymentConfiguration';
+import { PropertiesManagement } from './config/PropertiesManagement';
 
 export const ConfigurationManagement = () => {
   const location = useLocation();
@@ -22,6 +23,7 @@ export const ConfigurationManagement = () => {
     if (path.includes('/scoring')) return <LeadScoringConfiguration />;
     
     if (path.includes('/setup')) return <SetupDashboard />;
+    if (path.includes('/properties')) return <PropertiesManagement />;
     if (path.includes('/custom-fields')) return <CustomFieldsManagement />;
     if (path.includes('/campuses')) return <CampusesConfiguration />;
     if (path.includes('/teams')) return <TeamManagement />;

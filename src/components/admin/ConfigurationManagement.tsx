@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { LeadRoutingRulesConfiguration } from './config/LeadRoutingRulesConfiguration';
 import { LeadScoringConfiguration } from './config/LeadScoringConfiguration';
 
-import { CustomFieldsManagement } from './database/CustomFieldsManagement';
 import { CampusesConfiguration } from './config/sections/CampusesConfiguration';
 import { TeamManagement } from './routing/TeamManagement';
 import { CompanySettingsRedesigned } from './config/sections/CompanySettingsRedesigned';
@@ -24,7 +23,6 @@ export const ConfigurationManagement = () => {
     
     if (path.includes('/setup')) return <SetupDashboard />;
     if (path.includes('/properties')) return <PropertiesManagement />;
-    if (path.includes('/custom-fields')) return <CustomFieldsManagement />;
     if (path.includes('/campuses')) return <CampusesConfiguration />;
     if (path.includes('/teams')) return <TeamManagement />;
     if (path.includes('/company')) return <CompanySettingsRedesigned />;

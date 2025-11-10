@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSystemProperties } from '@/hooks/useSystemProperties';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyEditor } from './components/PropertyEditor';
 import { SystemProperty } from '@/types/systemProperties';
@@ -16,20 +15,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+
+// Dummy data
+const DUMMY_PAYMENT_METHODS: SystemProperty[] = [
+  { id: '1', user_id: 'demo', category: 'payment_method', property_key: 'credit_card', property_label: 'Credit Card', color: '#3B82F6', icon: 'CreditCard', order_index: 1, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '2', user_id: 'demo', category: 'payment_method', property_key: 'bank_transfer', property_label: 'Bank Transfer', color: '#10B981', icon: 'Building2', order_index: 2, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '3', user_id: 'demo', category: 'payment_method', property_key: 'check', property_label: 'Check', color: '#8B5CF6', icon: 'FileCheck', order_index: 3, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '4', user_id: 'demo', category: 'payment_method', property_key: 'cash', property_label: 'Cash', color: '#F59E0B', icon: 'Wallet', order_index: 4, is_active: true, is_system: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
 
 export function PaymentPropertiesTab() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
+  const [properties, setProperties] = useState(DUMMY_PAYMENT_METHODS);
 
-  const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties('payment_method');
-
-  const handleSave = async (data: any) => {
+  const handleSave = (data: any) => {
     if (selectedProperty) {
-      await updateProperty.mutateAsync({ id: selectedProperty.id, data });
+      const updated = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
+      setProperties(properties.map(p => p.id === selectedProperty.id ? updated : p));
+      toast.success('Payment method updated');
     } else {
-      await createProperty.mutateAsync({ category: 'payment_method', data });
+      const newProp: SystemProperty = {
+        id: Date.now().toString(),
+        user_id: 'demo',
+        category: 'payment_method',
+        ...data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setProperties([...properties, newProp]);
+      toast.success('Payment method created');
     }
     setEditorOpen(false);
     setSelectedProperty(undefined);
@@ -45,19 +63,19 @@ export function PaymentPropertiesTab() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (propertyToDelete) {
-      await deleteProperty.mutateAsync(propertyToDelete.id);
+      setProperties(properties.filter(p => p.id !== propertyToDelete.id));
+      toast.success('Payment method deleted');
       setDeleteDialogOpen(false);
       setPropertyToDelete(undefined);
     }
   };
 
-  const handleToggleActive = async (property: SystemProperty) => {
-    await updateProperty.mutateAsync({
-      id: property.id,
-      data: { is_active: !property.is_active },
-    });
+  const handleToggleActive = (property: SystemProperty) => {
+    const updated = { ...property, is_active: !property.is_active };
+    setProperties(properties.map(p => p.id === property.id ? updated : p));
+    toast.success('Payment method updated');
   };
 
   const handleAddNew = () => {
@@ -83,16 +101,12 @@ export function PaymentPropertiesTab() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
-          ) : (
-            <PropertyTable
-              properties={properties}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onToggleActive={handleToggleActive}
-            />
-          )}
+          <PropertyTable
+            properties={properties}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleActive={handleToggleActive}
+          />
         </CardContent>
       </Card>
 

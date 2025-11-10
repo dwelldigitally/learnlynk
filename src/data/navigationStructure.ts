@@ -145,7 +145,6 @@ export const navigationStructure: NavigationStructure = {
         { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
         
         { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
-        { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
         { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
         { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },

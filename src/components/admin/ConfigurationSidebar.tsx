@@ -52,7 +52,6 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
     name: "System Configuration",
     items: [
       { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
-      { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
       { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
       { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSystemProperties } from '@/hooks/useSystemProperties';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyEditor } from './components/PropertyEditor';
 import { SystemProperty } from '@/types/systemProperties';
@@ -17,6 +16,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+
+// Dummy data for demonstration
+const DUMMY_PROGRAM_LEVELS: SystemProperty[] = [
+  { id: '1', user_id: 'demo', category: 'program_level', property_key: 'certificate', property_label: 'Certificate', color: '#3B82F6', icon: 'Award', order_index: 1, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '2', user_id: 'demo', category: 'program_level', property_key: 'diploma', property_label: 'Diploma', color: '#8B5CF6', icon: 'GraduationCap', order_index: 2, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '3', user_id: 'demo', category: 'program_level', property_key: 'degree', property_label: 'Degree', color: '#EC4899', icon: 'BookOpen', order_index: 3, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
+
+const DUMMY_PROGRAM_CATEGORIES: SystemProperty[] = [
+  { id: '4', user_id: 'demo', category: 'program_category', property_key: 'business', property_label: 'Business', color: '#10B981', icon: 'Briefcase', order_index: 1, is_active: true, is_system: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '5', user_id: 'demo', category: 'program_category', property_key: 'healthcare', property_label: 'Healthcare', color: '#F59E0B', icon: 'Heart', order_index: 2, is_active: true, is_system: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
+
+const DUMMY_DELIVERY_MODES: SystemProperty[] = [
+  { id: '6', user_id: 'demo', category: 'delivery_mode', property_key: 'in_person', property_label: 'In-Person', color: '#06B6D4', icon: 'Users', order_index: 1, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '7', user_id: 'demo', category: 'delivery_mode', property_key: 'online', property_label: 'Online', color: '#F59E0B', icon: 'Monitor', order_index: 2, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '8', user_id: 'demo', category: 'delivery_mode', property_key: 'hybrid', property_label: 'Hybrid', color: '#8B5CF6', icon: 'Layers', order_index: 3, is_active: true, is_system: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
 
 export function ProgramPropertiesTab() {
   const [activeSubTab, setActiveSubTab] = useState('levels');
@@ -24,18 +42,44 @@ export function ProgramPropertiesTab() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
+  
+  // Use dummy data based on active tab
+  const [programLevels, setProgramLevels] = useState(DUMMY_PROGRAM_LEVELS);
+  const [programCategories, setProgramCategories] = useState(DUMMY_PROGRAM_CATEGORIES);
+  const [deliveryModes, setDeliveryModes] = useState(DUMMY_DELIVERY_MODES);
+  
+  const properties = activeSubTab === 'levels' ? programLevels : 
+                     activeSubTab === 'categories' ? programCategories : 
+                     deliveryModes;
 
-  const category = activeSubTab === 'levels' ? 'program_level' : 
-                   activeSubTab === 'categories' ? 'program_category' : 
-                   'delivery_mode';
-
-  const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties(category);
-
-  const handleSave = async (data: any) => {
+  const handleSave = (data: any) => {
     if (selectedProperty) {
-      await updateProperty.mutateAsync({ id: selectedProperty.id, data });
+      const updatedProperty = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
+      if (activeSubTab === 'levels') {
+        setProgramLevels(programLevels.map(p => p.id === selectedProperty.id ? updatedProperty : p));
+      } else if (activeSubTab === 'categories') {
+        setProgramCategories(programCategories.map(p => p.id === selectedProperty.id ? updatedProperty : p));
+      } else {
+        setDeliveryModes(deliveryModes.map(p => p.id === selectedProperty.id ? updatedProperty : p));
+      }
+      toast.success('Property updated successfully');
     } else {
-      await createProperty.mutateAsync({ category, data });
+      const newProperty: SystemProperty = {
+        id: Date.now().toString(),
+        user_id: 'demo',
+        category: activeSubTab === 'levels' ? 'program_level' : activeSubTab === 'categories' ? 'program_category' : 'delivery_mode',
+        ...data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      if (activeSubTab === 'levels') {
+        setProgramLevels([...programLevels, newProperty]);
+      } else if (activeSubTab === 'categories') {
+        setProgramCategories([...programCategories, newProperty]);
+      } else {
+        setDeliveryModes([...deliveryModes, newProperty]);
+      }
+      toast.success('Property created successfully');
     }
     setEditorOpen(false);
     setSelectedProperty(undefined);
@@ -51,19 +95,31 @@ export function ProgramPropertiesTab() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (propertyToDelete) {
-      await deleteProperty.mutateAsync(propertyToDelete.id);
+      if (activeSubTab === 'levels') {
+        setProgramLevels(programLevels.filter(p => p.id !== propertyToDelete.id));
+      } else if (activeSubTab === 'categories') {
+        setProgramCategories(programCategories.filter(p => p.id !== propertyToDelete.id));
+      } else {
+        setDeliveryModes(deliveryModes.filter(p => p.id !== propertyToDelete.id));
+      }
+      toast.success('Property deleted successfully');
       setDeleteDialogOpen(false);
       setPropertyToDelete(undefined);
     }
   };
 
-  const handleToggleActive = async (property: SystemProperty) => {
-    await updateProperty.mutateAsync({
-      id: property.id,
-      data: { is_active: !property.is_active },
-    });
+  const handleToggleActive = (property: SystemProperty) => {
+    const updatedProperty = { ...property, is_active: !property.is_active };
+    if (activeSubTab === 'levels') {
+      setProgramLevels(programLevels.map(p => p.id === property.id ? updatedProperty : p));
+    } else if (activeSubTab === 'categories') {
+      setProgramCategories(programCategories.map(p => p.id === property.id ? updatedProperty : p));
+    } else {
+      setDeliveryModes(deliveryModes.map(p => p.id === property.id ? updatedProperty : p));
+    }
+    toast.success('Property updated successfully');
   };
 
   const handleAddNew = () => {
@@ -97,16 +153,12 @@ export function ProgramPropertiesTab() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading...</div>
-              ) : (
-                <PropertyTable
-                  properties={properties}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onToggleActive={handleToggleActive}
-                />
-              )}
+              <PropertyTable
+                properties={properties}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggleActive={handleToggleActive}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -128,16 +180,12 @@ export function ProgramPropertiesTab() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading...</div>
-              ) : (
-                <PropertyTable
-                  properties={properties}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onToggleActive={handleToggleActive}
-                />
-              )}
+              <PropertyTable
+                properties={properties}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggleActive={handleToggleActive}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -159,16 +207,12 @@ export function ProgramPropertiesTab() {
               </div>
             </CardHeader>
             <CardContent>
-              {isLoading ? (
-                <div className="text-center py-8 text-muted-foreground">Loading...</div>
-              ) : (
-                <PropertyTable
-                  properties={properties}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onToggleActive={handleToggleActive}
-                />
-              )}
+              <PropertyTable
+                properties={properties}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onToggleActive={handleToggleActive}
+              />
             </CardContent>
           </Card>
         </TabsContent>

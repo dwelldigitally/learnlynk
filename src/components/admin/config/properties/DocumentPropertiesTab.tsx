@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useSystemProperties } from '@/hooks/useSystemProperties';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyEditor } from './components/PropertyEditor';
 import { SystemProperty } from '@/types/systemProperties';
@@ -16,20 +15,38 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
+
+// Dummy data
+const DUMMY_DOCUMENT_TYPES: SystemProperty[] = [
+  { id: '1', user_id: 'demo', category: 'document_type', property_key: 'transcript', property_label: 'Transcript', color: '#3B82F6', icon: 'FileText', order_index: 1, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '2', user_id: 'demo', category: 'document_type', property_key: 'id_document', property_label: 'ID Document', color: '#10B981', icon: 'CreditCard', order_index: 2, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '3', user_id: 'demo', category: 'document_type', property_key: 'resume', property_label: 'Resume/CV', color: '#F59E0B', icon: 'Briefcase', order_index: 3, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
 
 export function DocumentPropertiesTab() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
+  const [properties, setProperties] = useState(DUMMY_DOCUMENT_TYPES);
 
-  const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties('document_type');
-
-  const handleSave = async (data: any) => {
+  const handleSave = (data: any) => {
     if (selectedProperty) {
-      await updateProperty.mutateAsync({ id: selectedProperty.id, data });
+      const updated = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
+      setProperties(properties.map(p => p.id === selectedProperty.id ? updated : p));
+      toast.success('Document type updated');
     } else {
-      await createProperty.mutateAsync({ category: 'document_type', data });
+      const newProp: SystemProperty = {
+        id: Date.now().toString(),
+        user_id: 'demo',
+        category: 'document_type',
+        ...data,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      setProperties([...properties, newProp]);
+      toast.success('Document type created');
     }
     setEditorOpen(false);
     setSelectedProperty(undefined);
@@ -45,19 +62,19 @@ export function DocumentPropertiesTab() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = async () => {
+  const confirmDelete = () => {
     if (propertyToDelete) {
-      await deleteProperty.mutateAsync(propertyToDelete.id);
+      setProperties(properties.filter(p => p.id !== propertyToDelete.id));
+      toast.success('Document type deleted');
       setDeleteDialogOpen(false);
       setPropertyToDelete(undefined);
     }
   };
 
-  const handleToggleActive = async (property: SystemProperty) => {
-    await updateProperty.mutateAsync({
-      id: property.id,
-      data: { is_active: !property.is_active },
-    });
+  const handleToggleActive = (property: SystemProperty) => {
+    const updated = { ...property, is_active: !property.is_active };
+    setProperties(properties.map(p => p.id === property.id ? updated : p));
+    toast.success('Document type updated');
   };
 
   const handleAddNew = () => {
@@ -83,16 +100,12 @@ export function DocumentPropertiesTab() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading...</div>
-          ) : (
-            <PropertyTable
-              properties={properties}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onToggleActive={handleToggleActive}
-            />
-          )}
+          <PropertyTable
+            properties={properties}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onToggleActive={handleToggleActive}
+          />
         </CardContent>
       </Card>
 

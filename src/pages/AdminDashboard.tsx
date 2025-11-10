@@ -130,7 +130,6 @@ const AdminDashboard: React.FC = () => {
       case "/admin/leads/forms":
         return <LeadForms />;
       case "/admin/configuration":
-      case "/admin/configuration/custom-fields":
       case "/admin/configuration/properties":
       case "/admin/configuration/master-data":
       case "/admin/configuration/integrations":

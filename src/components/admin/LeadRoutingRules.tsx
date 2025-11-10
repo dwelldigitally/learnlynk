@@ -217,44 +217,47 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
   ];
 
   const renderRulesContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-border/50 hover:border-border transition-colors duration-300 bg-gradient-to-br from-card to-card/50 group">
-          <CardContent className="p-6">
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card via-card to-primary/5 group overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <CardContent className="p-8 relative">
             <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total Rules</p>
-                <p className="text-3xl font-semibold text-foreground tracking-tight">{rules.length}</p>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Total Rules</p>
+                <p className="text-4xl font-bold text-foreground">{rules.length}</p>
               </div>
-              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center ring-1 ring-primary/10 group-hover:ring-primary/20 transition-all duration-300">
-                <Settings className="h-7 w-7 text-primary" />
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-1 ring-primary/10 group-hover:ring-primary/30 transition-all duration-300 group-hover:scale-110">
+                <Settings className="h-8 w-8 text-primary" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 hover:border-border transition-colors duration-300 bg-gradient-to-br from-card to-card/50 group">
-          <CardContent className="p-6">
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card via-card to-green-500/5 group overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <CardContent className="p-8 relative">
             <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Active Rules</p>
-                <p className="text-3xl font-semibold text-foreground tracking-tight">{rules.filter(r => r.is_active).length}</p>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Active Rules</p>
+                <p className="text-4xl font-bold text-foreground">{rules.filter(r => r.is_active).length}</p>
               </div>
-              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center ring-1 ring-primary/10 group-hover:ring-primary/20 transition-all duration-300">
-                <Zap className="h-7 w-7 text-primary" />
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center ring-1 ring-green-500/10 group-hover:ring-green-500/30 transition-all duration-300 group-hover:scale-110">
+                <Zap className="h-8 w-8 text-green-600" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-border/50 hover:border-border transition-colors duration-300 bg-gradient-to-br from-card to-card/50 group">
-          <CardContent className="p-6">
+        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card via-card to-blue-500/5 group overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <CardContent className="p-8 relative">
             <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Total Created</p>
-                <p className="text-3xl font-semibold text-foreground tracking-tight">{rules.length}</p>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Performance</p>
+                <p className="text-4xl font-bold text-foreground">{rules.length}</p>
               </div>
-              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center ring-1 ring-primary/10 group-hover:ring-primary/20 transition-all duration-300">
-                <BarChart3 className="h-7 w-7 text-primary" />
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center ring-1 ring-blue-500/10 group-hover:ring-blue-500/30 transition-all duration-300 group-hover:scale-110">
+                <BarChart3 className="h-8 w-8 text-blue-600" />
               </div>
             </div>
           </CardContent>
@@ -262,30 +265,29 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       </div>
 
       {/* Rules List */}
-      <div className="grid gap-4">
-        {rules.map(rule => {
+      <div className="space-y-6">{rules.map(rule => {
           return (
             <Card 
               key={rule.id} 
               className={`
                 group relative overflow-hidden
                 transition-all duration-300 ease-out
-                hover:shadow-lg hover:shadow-primary/5
-                border border-border/50
-                ${!rule.is_active ? 'opacity-60' : ''}
-                bg-gradient-to-br from-card to-card/50
+                hover:shadow-xl
+                border-0 shadow-lg
+                ${!rule.is_active ? 'opacity-70' : ''}
+                bg-card
               `}
             >
               {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="relative p-6">
+              <div className="relative p-8">
                 {/* Header Row */}
-                <div className="flex items-start justify-between mb-6 pb-4 border-b border-border/40">
+                <div className="flex items-start justify-between mb-8 pb-6 border-b border-border/30">
                   <div className="flex items-center gap-4 flex-1 min-w-0">
                     {/* Icon Badge */}
-                    <div className="flex-shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center ring-1 ring-primary/10">
-                      <Settings className="h-5 w-5 text-primary" />
+                    <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/20 shadow-sm">
+                      <Settings className="h-6 w-6 text-primary" />
                     </div>
                     
                     <div className="flex flex-col gap-2 flex-1 min-w-0">
@@ -420,10 +422,19 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
         })}
         
         {rules.length === 0 && (
-          <Card className="border-dashed">
-            <CardContent className="py-8 text-center">
-              <Settings className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No routing rules configured yet. Create your first rule to get started.</p>
+          <Card className="border-0 shadow-lg">
+            <CardContent className="py-16 text-center">
+              <div className="h-20 w-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                <Settings className="h-10 w-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">No Routing Rules Yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                Create your first routing rule to automatically assign leads to the right team members based on conditions you define.
+              </p>
+              <Button onClick={() => { setEditingRule(null); setShowRuleWizard(true); }} size="lg">
+                <Plus className="h-5 w-5 mr-2" />
+                Create Your First Rule
+              </Button>
             </CardContent>
           </Card>
         )}
@@ -432,45 +443,64 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="pb-4 border-b border-border/50">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Lead Routing Rules</h1>
-        <p className="text-muted-foreground">
-          Configure intelligent lead assignment and routing rules to automatically distribute leads to the right team members
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Lead Routing Rules</h1>
+          <p className="text-lg text-muted-foreground max-w-3xl">
+            Configure intelligent lead assignment and routing rules to automatically distribute leads to the right team members
+          </p>
+        </div>
 
-      <div className="flex items-center justify-end">
-        {activeView === 'rules' && (
-          <Button onClick={() => { setEditingRule(null); setShowRuleWizard(true); }}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Rule
-          </Button>
-        )}
-      </div>
+        {/* Action Bar */}
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Navigation Tabs */}
+          <div className="flex gap-2 bg-muted/30 p-1.5 rounded-xl backdrop-blur-sm border border-border/50">
+            {navigationItems.map(item => {
+              const IconComponent = item.icon;
+              const isActive = activeView === item.id;
+              return (
+                <Button
+                  key={item.id}
+                  variant={isActive ? "default" : "ghost"}
+                  onClick={() => setActiveView(item.id as 'rules' | 'advisors')}
+                  className={`flex items-center gap-2 rounded-lg transition-all ${
+                    isActive 
+                      ? 'shadow-sm' 
+                      : 'hover:bg-muted/50'
+                  }`}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span className="font-medium">{item.label}</span>
+                </Button>
+              );
+            })}
+          </div>
 
-      {/* Navigation Buttons */}
-      <div className="flex space-x-1 bg-muted p-1 rounded-lg w-fit">
-        {navigationItems.map(item => {
-          const IconComponent = item.icon;
-          return (
-            <Button
-              key={item.id}
-              variant={activeView === item.id ? "secondary" : "ghost"}
-              onClick={() => setActiveView(item.id as 'rules' | 'teams' | 'advisors')}
-              className="flex items-center gap-2"
+          {/* Create Rule Button */}
+          {activeView === 'rules' && (
+            <Button 
+              onClick={() => { setEditingRule(null); setShowRuleWizard(true); }}
+              className="shadow-lg hover:shadow-xl transition-all"
+              size="lg"
             >
-              <IconComponent className="h-4 w-4" />
-              {item.label}
+              <Plus className="h-5 w-5 mr-2" />
+              Create New Rule
             </Button>
-          );
-        })}
-      </div>
+          )}
+        </div>
 
-      {/* Content based on active view */}
-      {activeView === 'rules' && renderRulesContent()}
-      {activeView === 'advisors' && <AdvisorManagement onAdvisorUpdated={onRuleCreated} />}
+        {/* Content */}
+        <div className="space-y-6">
+          {activeView === 'rules' && renderRulesContent()}
+          {activeView === 'advisors' && (
+            <div className="bg-card rounded-2xl border border-border/50 shadow-sm p-8">
+              <AdvisorManagement onAdvisorUpdated={onRuleCreated} />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ import TeamMembersList from '@/components/team/TeamMembersList';
 import { EnhancedTeamHierarchy } from '@/components/admin/team/EnhancedTeamHierarchy';
 import { SystemRoleManagement } from '@/components/admin/team/SystemRoleManagement';
 import { PermissionMatrix } from '@/components/admin/team/PermissionMatrix';
+import { UserDirectory } from '@/components/admin/team/UserDirectory';
 
 interface TeamManagementProps {
   onTeamCreated?: () => void;
@@ -30,7 +31,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   const [managingTeam, setManagingTeam] = useState<AdvisorTeam | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('teams');
+  const [activeTab, setActiveTab] = useState('directory');
   const { toast } = useToast();
 
   // Mock teams for demonstration
@@ -424,7 +425,11 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+        <TabsList className="grid w-full grid-cols-5 h-auto p-1">
+          <TabsTrigger value="directory" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Users className="h-4 w-4" />
+            User Directory
+          </TabsTrigger>
           <TabsTrigger value="hierarchy" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Network className="h-4 w-4" />
             Team Hierarchy
@@ -442,6 +447,10 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
             Permissions
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="directory" className="space-y-6">
+          <UserDirectory />
+        </TabsContent>
 
         <TabsContent value="hierarchy" className="space-y-6">
           <EnhancedTeamHierarchy />

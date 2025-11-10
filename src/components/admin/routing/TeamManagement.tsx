@@ -12,8 +12,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorTeam, TeamMember } from '@/types/routing';
-import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp, UserCog } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp, UserCog, Shield, Network, Workflow } from 'lucide-react';
 import TeamMembersList from '@/components/team/TeamMembersList';
+import { EnhancedTeamHierarchy } from '@/components/admin/team/EnhancedTeamHierarchy';
+import { SystemRoleManagement } from '@/components/admin/team/SystemRoleManagement';
+import { PermissionMatrix } from '@/components/admin/team/PermissionMatrix';
 
 interface TeamManagementProps {
   onTeamCreated?: () => void;
@@ -354,22 +357,95 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Internal Teams</h2>
-          <p className="text-muted-foreground">Manage routing teams and internal team organization</p>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Team Management
+          </h2>
+          <p className="text-muted-foreground mt-1">Comprehensive team organization, roles, and permissions</p>
         </div>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Active Teams</p>
+                <p className="text-2xl font-bold mt-1">{teams.filter(t => t.is_active).length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Team Members</p>
+                <p className="text-2xl font-bold mt-1">{advisors.filter(a => a.status === 'active').length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
+                <UserCog className="h-6 w-6 text-info" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">System Roles</p>
+                <p className="text-2xl font-bold mt-1">6</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <Shield className="h-6 w-6 text-success" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Permissions</p>
+                <p className="text-2xl font-bold mt-1">12</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
+                <Workflow className="h-6 w-6 text-warning" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="teams" className="flex items-center gap-2">
+        <TabsList className="grid w-full grid-cols-4 h-auto p-1">
+          <TabsTrigger value="hierarchy" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Network className="h-4 w-4" />
+            Team Hierarchy
+          </TabsTrigger>
+          <TabsTrigger value="teams" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             <Users className="h-4 w-4" />
             Routing Teams
           </TabsTrigger>
-          <TabsTrigger value="advisors" className="flex items-center gap-2">
-            <UserCog className="h-4 w-4" />
-            Team Advisors
+          <TabsTrigger value="roles" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Shield className="h-4 w-4" />
+            Role Management
+          </TabsTrigger>
+          <TabsTrigger value="permissions" className="flex items-center gap-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            <Workflow className="h-4 w-4" />
+            Permissions
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="hierarchy" className="space-y-6">
+          <EnhancedTeamHierarchy />
+        </TabsContent>
 
         <TabsContent value="teams" className="space-y-6">
 
@@ -636,6 +712,14 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
         </Dialog>
         </TabsContent>
 
+        <TabsContent value="roles" className="space-y-6">
+          <SystemRoleManagement />
+        </TabsContent>
+
+        <TabsContent value="permissions" className="space-y-6">
+          <PermissionMatrix />
+        </TabsContent>
+
         <TabsContent value="advisors" className="space-y-6">
           <Card>
             <CardHeader>
@@ -666,77 +750,65 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                   const team = teams.find(t => t.id === advisor.team_id);
                   
                   return (
-                    <div key={advisor.id} className="p-4 border rounded-lg">
+                    <div key={advisor.id} className="p-4 border rounded-lg hover:bg-muted/30 transition-colors">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-medium">
-                            {advisor.name.split(' ').map((n: string) => n[0]).join('')}
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <span className="text-sm font-medium">{advisor.name.split(' ').map(n => n[0]).join('')}</span>
                           </div>
                           <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">{advisor.name}</h4>
-                              <Badge variant={advisor.status === 'active' ? 'default' : 'secondary'}>
-                                {advisor.status}
-                              </Badge>
-                              <Badge variant="outline">{advisor.performance_tier}</Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{advisor.email}</p>
-                            {team && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Team: {team.name}
-                              </p>
-                            )}
+                            <div className="font-medium">{advisor.name}</div>
+                            <div className="text-sm text-muted-foreground">{advisor.email}</div>
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            // Open advisor settings dialog
-                          }}
-                        >
-                          <Settings className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          {team && (
+                            <Badge variant="outline">
+                              <Users className="h-3 w-3 mr-1" />
+                              {team.name}
+                            </Badge>
+                          )}
+                          <Badge className={advisor.status === 'active' ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}>
+                            {advisor.status}
+                          </Badge>
+                          <Badge variant="secondary">{advisor.performance_tier}</Badge>
+                        </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 mb-3">
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Capacity</Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Progress value={capacityPercentage} className="h-2" />
-                            <span className="text-sm font-medium whitespace-nowrap">
-                              {advisor.current_assignments}/{advisor.max_assignments}
-                            </span>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Capacity</span>
+                            <span className="font-medium">{advisor.current_assignments}/{advisor.max_assignments}</span>
                           </div>
+                          <Progress 
+                            value={capacityPercentage} 
+                            className={`h-2 ${getCapacityColor(capacityPercentage)}`}
+                          />
                         </div>
-                        <div>
-                          <Label className="text-xs text-muted-foreground">Performance</Label>
-                          <div className="grid grid-cols-2 gap-2 mt-1">
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Conv:</span>{' '}
+
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">Performance</div>
+                          <div className="flex items-center gap-4 text-sm">
+                            <div className="flex items-center gap-1">
+                              <TrendingUp className="h-3 w-3 text-success" />
                               <span className="font-medium">{advisor.conversion_rate}%</span>
                             </div>
-                            <div className="text-sm">
-                              <span className="text-muted-foreground">Resp:</span>{' '}
-                              <span className="font-medium">{advisor.response_time_avg}m</span>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3 text-info" />
+                              <span className="font-medium">{advisor.response_time_avg}min</span>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        <span>{formatSchedule(advisor.schedule)}</span>
+                        <div className="space-y-1">
+                          <div className="text-sm text-muted-foreground">Schedule</div>
+                          <div className="text-xs">{formatSchedule(advisor.schedule)}</div>
+                        </div>
                       </div>
                     </div>
                   );
                 })}
-
-                {filteredAdvisors.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No advisors found matching your search.
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>

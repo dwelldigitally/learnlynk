@@ -1,0 +1,251 @@
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { useTeamHierarchy, useCreateTeamNode, useUpdateTeamNode, useDeleteTeamNode } from '@/hooks/useTeamHierarchy';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { ChevronRight, ChevronDown, Plus, Edit, Trash2, Building2, Users as UsersIcon, User } from 'lucide-react';
+import type { TeamHierarchyNode } from '@/types/team-management';
+import { useToast } from '@/hooks/use-toast';
+
+export function EnhancedTeamHierarchy() {
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [editingNode, setEditingNode] = useState<TeamHierarchyNode | null>(null);
+  const [showDialog, setShowDialog] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    type: 'team' as 'team' | 'department' | 'individual',
+    description: '',
+    parent_id: null as string | null,
+  });
+
+  const { data: hierarchy = [], isLoading } = useTeamHierarchy();
+  const createNode = useCreateTeamNode();
+  const updateNode = useUpdateTeamNode();
+  const deleteNode = useDeleteTeamNode();
+  const { toast } = useToast();
+
+  const toggleNode = (nodeId: string) => {
+    setExpandedNodes(prev => {
+      const next = new Set(prev);
+      if (next.has(nodeId)) next.delete(nodeId);
+      else next.add(nodeId);
+      return next;
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      if (editingNode) {
+        await updateNode.mutateAsync({
+          id: editingNode.id,
+          updates: formData,
+        });
+        toast({ title: 'Success', description: 'Node updated successfully' });
+      } else {
+        await createNode.mutateAsync(formData);
+        toast({ title: 'Success', description: 'Node created successfully' });
+      }
+      setShowDialog(false);
+      resetForm();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to save node',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleEdit = (node: TeamHierarchyNode) => {
+    setEditingNode(node);
+    setFormData({
+      name: node.name,
+      type: node.type,
+      description: node.description || '',
+      parent_id: node.parent_id,
+    });
+    setShowDialog(true);
+  };
+
+  const handleDelete = async (nodeId: string) => {
+    if (!confirm('Are you sure you want to delete this node? This will also delete all children.')) return;
+    
+    try {
+      await deleteNode.mutateAsync(nodeId);
+      toast({ title: 'Success', description: 'Node deleted successfully' });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to delete node',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      type: 'team',
+      description: '',
+      parent_id: null,
+    });
+    setEditingNode(null);
+  };
+
+  const renderNode = (node: TeamHierarchyNode, level = 0) => {
+    const hasChildren = node.children && node.children.length > 0;
+    const isExpanded = expandedNodes.has(node.id);
+    const Icon = node.type === 'department' ? Building2 : node.type === 'team' ? UsersIcon : User;
+
+    return (
+      <div key={node.id} className="mb-2">
+        <div
+          className="flex items-center gap-2 p-3 rounded-lg hover:bg-muted/50 transition-colors"
+          style={{ marginLeft: `${level * 24}px` }}
+        >
+          {hasChildren ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => toggleNode(node.id)}
+            >
+              {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+            </Button>
+          ) : (
+            <div className="h-6 w-6" />
+          )}
+          
+          <Icon className="h-4 w-4 text-muted-foreground" />
+          
+          <div className="flex-1">
+            <div className="font-medium">{node.name}</div>
+            {node.description && (
+              <div className="text-xs text-muted-foreground">{node.description}</div>
+            )}
+          </div>
+
+          <Badge variant="outline" className="capitalize">{node.type}</Badge>
+          
+          {node.is_active ? (
+            <Badge className="bg-success text-success-foreground">Active</Badge>
+          ) : (
+            <Badge variant="secondary">Inactive</Badge>
+          )}
+
+          <div className="flex gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => handleEdit(node)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={() => handleDelete(node.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+
+        {isExpanded && hasChildren && (
+          <div>
+            {node.children!.map(child => renderNode(child, level + 1))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-12">Loading hierarchy...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Team Hierarchy</h3>
+          <p className="text-sm text-muted-foreground">Organizational structure and reporting lines</p>
+        </div>
+        <Button onClick={() => { resetForm(); setShowDialog(true); }}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Node
+        </Button>
+      </div>
+
+      <Card>
+        <CardContent className="pt-6">
+          {hierarchy.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              No hierarchy nodes yet. Create your first one above.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {hierarchy.map(node => renderNode(node))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingNode ? 'Edit Node' : 'Create Node'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Name</label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Enter node name"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Type</label>
+              <Select
+                value={formData.type}
+                onValueChange={(v) => setFormData(prev => ({ ...prev, type: v as any }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="department">Department</SelectItem>
+                  <SelectItem value="team">Team</SelectItem>
+                  <SelectItem value="individual">Individual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Description</label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Optional description"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSave} disabled={createNode.isPending || updateNode.isPending}>
+                {createNode.isPending || updateNode.isPending ? 'Saving...' : 'Save'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

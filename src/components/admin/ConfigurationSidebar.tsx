@@ -19,7 +19,8 @@ import {
   Cog,
   Building2,
   Users,
-  Briefcase
+  Briefcase,
+  DollarSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -58,6 +59,7 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
       { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
       { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
+      { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
     ]
   }

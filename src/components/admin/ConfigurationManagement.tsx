@@ -9,6 +9,7 @@ import { TeamManagement } from './routing/TeamManagement';
 import { CompanyProfileConfiguration } from './config/sections/CompanyProfileConfiguration';
 import { EnhancedIntegrationHub } from './database/EnhancedIntegrationHub';
 import { SetupDashboard } from '@/pages/admin/setup/SetupDashboard';
+import { PaymentConfiguration } from './config/PaymentConfiguration';
 
 export const ConfigurationManagement = () => {
   const location = useLocation();
@@ -25,6 +26,7 @@ export const ConfigurationManagement = () => {
     if (path.includes('/campuses')) return <CampusesConfiguration />;
     if (path.includes('/teams')) return <TeamManagement />;
     if (path.includes('/company')) return <CompanyProfileConfiguration />;
+    if (path.includes('/payments')) return <PaymentConfiguration />;
     if (path.includes('/integrations')) return <EnhancedIntegrationHub />;
     
     // Default to routing rules

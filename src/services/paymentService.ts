@@ -173,6 +173,127 @@ export class PaymentService {
       pendingCount: payments.filter(p => p.status === 'pending').length
     };
   }
+
+  static async getPaymentOverviewStats() {
+    const { data: payments, error } = await supabase
+      .from('payments')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching payment overview:', error);
+      throw error;
+    }
+
+    const allPayments = payments || [];
+    const paidPayments = allPayments.filter(p => p.status === 'paid');
+    const pendingPayments = allPayments.filter(p => p.status === 'pending');
+    
+    const totalRevenue = paidPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+    const outstandingAmount = pendingPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+    
+    return {
+      totalRevenue,
+      totalPaidInvoices: paidPayments.length,
+      outstandingInvoices: pendingPayments.length,
+      outstandingAmount,
+      totalPayments: allPayments.length,
+      averagePayment: paidPayments.length > 0 ? totalRevenue / paidPayments.length : 0
+    };
+  }
+
+  static async createInvoiceTemplate(template: Partial<InvoiceTemplate>): Promise<InvoiceTemplate> {
+    const { data, error } = await supabase
+      .from('invoice_templates')
+      .insert([template as any])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async updateInvoiceTemplate(id: string, template: Partial<InvoiceTemplate>): Promise<InvoiceTemplate> {
+    const { data, error } = await supabase
+      .from('invoice_templates')
+      .update(template as any)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async deleteInvoiceTemplate(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('invoice_templates')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  static async setDefaultInvoiceTemplate(id: string): Promise<void> {
+    // First, unset all defaults
+    await supabase
+      .from('invoice_templates')
+      .update({ is_default: false });
+
+    // Then set the new default
+    const { error } = await supabase
+      .from('invoice_templates')
+      .update({ is_default: true })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  static async createReceiptTemplate(template: Partial<ReceiptTemplate>): Promise<ReceiptTemplate> {
+    const { data, error } = await supabase
+      .from('receipt_templates')
+      .insert([template as any])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async updateReceiptTemplate(id: string, template: Partial<ReceiptTemplate>): Promise<ReceiptTemplate> {
+    const { data, error } = await supabase
+      .from('receipt_templates')
+      .update(template as any)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  static async deleteReceiptTemplate(id: string): Promise<void> {
+    const { error } = await supabase
+      .from('receipt_templates')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  static async setDefaultReceiptTemplate(id: string): Promise<void> {
+    // First, unset all defaults
+    await supabase
+      .from('receipt_templates')
+      .update({ is_default: false });
+
+    // Then set the new default
+    const { error } = await supabase
+      .from('receipt_templates')
+      .update({ is_default: true })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
 }
 
 // React Query hooks
@@ -255,6 +376,149 @@ export function useSendReceipt() {
       toast({
         title: 'Error',
         description: `Failed to send receipt: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function usePaymentOverviewStats() {
+  return useQuery({
+    queryKey: ['payment-overview-stats'],
+    queryFn: () => PaymentService.getPaymentOverviewStats(),
+  });
+}
+
+export function useCreateInvoiceTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (template: Partial<InvoiceTemplate>) =>
+      PaymentService.createInvoiceTemplate(template),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoice-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Invoice template created successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to create template: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useUpdateInvoiceTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, template }: { id: string; template: Partial<InvoiceTemplate> }) =>
+      PaymentService.updateInvoiceTemplate(id, template),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoice-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Invoice template updated successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update template: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useDeleteInvoiceTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: string) => PaymentService.deleteInvoiceTemplate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invoice-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Invoice template deleted successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to delete template: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useCreateReceiptTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (template: Partial<ReceiptTemplate>) =>
+      PaymentService.createReceiptTemplate(template),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receipt-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Receipt template created successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to create template: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useUpdateReceiptTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, template }: { id: string; template: Partial<ReceiptTemplate> }) =>
+      PaymentService.updateReceiptTemplate(id, template),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receipt-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Receipt template updated successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to update template: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+}
+
+export function useDeleteReceiptTemplate() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: string) => PaymentService.deleteReceiptTemplate(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['receipt-templates'] });
+      toast({
+        title: 'Success',
+        description: 'Receipt template deleted successfully',
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to delete template: ${error.message}`,
         variant: 'destructive',
       });
     },

@@ -24,6 +24,7 @@ const routeLabels: Record<string, string> = {
   'routing': 'Routing Rules',
   'scoring': 'Scoring Engine',
   'company': 'Company Profile',
+  'payments': 'Payment Configuration',
   'system': 'System Configuration',
 };
 

@@ -33,7 +33,8 @@ import {
   ClipboardList,
   Award,
   Building,
-  Server
+  Server,
+  DollarSign
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -149,6 +150,7 @@ export const navigationStructure: NavigationStructure = {
         { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
         { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
+        { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
         { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
         // Full Mode Only - AI & Advanced
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },

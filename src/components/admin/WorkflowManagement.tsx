@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,6 +24,7 @@ interface Workflow {
 }
 
 const WorkflowManagement: React.FC = () => {
+  const navigate = useNavigate();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);
@@ -85,8 +87,7 @@ const WorkflowManagement: React.FC = () => {
   };
 
   const handleCreateWorkflow = () => {
-    setEditingWorkflow(null);
-    setShowBuilder(true);
+    navigate('/admin/workflows/builder');
   };
 
   const handleEditWorkflow = (workflow: Workflow) => {

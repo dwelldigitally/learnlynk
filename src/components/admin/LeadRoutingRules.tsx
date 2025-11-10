@@ -11,42 +11,38 @@ import { TeamManagement } from './routing/TeamManagement';
 import { AdvisorManagement } from './routing/AdvisorManagement';
 import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck, MoreVertical, Filter, GitBranch, Power, PowerOff } from 'lucide-react';
 import { ConditionGroupsDisplay, AssignmentDisplay, getPriorityColor } from './routing/RuleCardHelpers';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 interface LeadRoutingRulesProps {
   onRuleCreated?: () => void;
 }
-
-export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
+export function LeadRoutingRules({
+  onRuleCreated
+}: LeadRoutingRulesProps) {
   const [rules, setRules] = useState<EnhancedRoutingRule[]>([]);
   const [showRuleWizard, setShowRuleWizard] = useState(false);
   const [editingRule, setEditingRule] = useState<EnhancedRoutingRule | null>(null);
   const [activeView, setActiveView] = useState<'rules' | 'teams' | 'advisors'>('rules');
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Fetch rules from database
   useEffect(() => {
     fetchRules();
   }, []);
-
   const fetchRules = async () => {
     try {
       setLoading(true);
       // Use any to bypass TypeScript errors until types are regenerated
-      const { data, error } = await (supabase as any)
-        .from('lead_routing_rules')
-        .select('*')
-        .order('priority', { ascending: false });
-
+      const {
+        data,
+        error
+      } = await (supabase as any).from('lead_routing_rules').select('*').order('priority', {
+        ascending: false
+      });
       if (error) throw error;
-      
+
       // Transform database format to component format
       const transformedRules = (data || []).map((rule: any) => ({
         ...rule,
@@ -55,7 +51,6 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
         schedule: rule.schedule || undefined,
         performance_config: rule.performance_config || undefined
       }));
-      
       setRules(transformedRules);
     } catch (error) {
       console.error('Error fetching routing rules:', error);
@@ -68,56 +63,47 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       setLoading(false);
     }
   };
-
   const handleSaveRule = async (ruleData: Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
-      
       if (editingRule) {
         // Update existing rule
-        const { error } = await (supabase as any)
-          .from('lead_routing_rules')
-          .update({
-            name: ruleData.name,
-            description: ruleData.description,
-            priority: ruleData.priority,
-            is_active: ruleData.is_active,
-            conditions: ruleData.condition_groups,
-            assignment_config: ruleData.assignment_config
-          })
-          .eq('id', editingRule.id);
-
+        const {
+          error
+        } = await (supabase as any).from('lead_routing_rules').update({
+          name: ruleData.name,
+          description: ruleData.description,
+          priority: ruleData.priority,
+          is_active: ruleData.is_active,
+          conditions: ruleData.condition_groups,
+          assignment_config: ruleData.assignment_config
+        }).eq('id', editingRule.id);
         if (error) throw error;
-        
         toast({
           title: 'Success',
           description: 'Routing rule updated successfully'
         });
       } else {
         // Create new rule
-        const { error } = await (supabase as any)
-          .from('lead_routing_rules')
-          .insert([{
-            name: ruleData.name,
-            description: ruleData.description,
-            priority: ruleData.priority,
-            is_active: ruleData.is_active,
-            conditions: ruleData.condition_groups,
-            assignment_config: ruleData.assignment_config
-          }]);
-
+        const {
+          error
+        } = await (supabase as any).from('lead_routing_rules').insert([{
+          name: ruleData.name,
+          description: ruleData.description,
+          priority: ruleData.priority,
+          is_active: ruleData.is_active,
+          conditions: ruleData.condition_groups,
+          assignment_config: ruleData.assignment_config
+        }]);
         if (error) throw error;
-        
         toast({
           title: 'Success',
           description: 'Routing rule created successfully'
         });
       }
-
       await fetchRules();
       setShowRuleWizard(false);
       setEditingRule(null);
-      
       if (onRuleCreated) {
         onRuleCreated();
       }
@@ -132,21 +118,16 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       setLoading(false);
     }
   };
-
   const handleEdit = (rule: EnhancedRoutingRule) => {
     setEditingRule(rule);
     setShowRuleWizard(true);
   };
-
   const handleDelete = async (ruleId: string) => {
     try {
-      const { error } = await (supabase as any)
-        .from('lead_routing_rules')
-        .delete()
-        .eq('id', ruleId);
-
+      const {
+        error
+      } = await (supabase as any).from('lead_routing_rules').delete().eq('id', ruleId);
       if (error) throw error;
-      
       await fetchRules();
       toast({
         title: 'Success',
@@ -161,19 +142,16 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       });
     }
   };
-
   const toggleRuleStatus = async (ruleId: string) => {
     try {
       const rule = rules.find(r => r.id === ruleId);
       if (!rule) return;
-
-      const { error } = await (supabase as any)
-        .from('lead_routing_rules')
-        .update({ is_active: !rule.is_active })
-        .eq('id', ruleId);
-
+      const {
+        error
+      } = await (supabase as any).from('lead_routing_rules').update({
+        is_active: !rule.is_active
+      }).eq('id', ruleId);
       if (error) throw error;
-      
       await fetchRules();
       toast({
         title: 'Success',
@@ -188,96 +166,47 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
       });
     }
   };
-
   const getMethodIcon = (method: string) => {
     switch (method) {
-      case 'round_robin': return <Users className="h-4 w-4" />;
-      case 'geography': return <MapPin className="h-4 w-4" />;
-      case 'performance': return <Star className="h-4 w-4" />;
-      default: return <Settings className="h-4 w-4" />;
+      case 'round_robin':
+        return <Users className="h-4 w-4" />;
+      case 'geography':
+        return <MapPin className="h-4 w-4" />;
+      case 'performance':
+        return <Star className="h-4 w-4" />;
+      default:
+        return <Settings className="h-4 w-4" />;
     }
   };
-
   if (showRuleWizard) {
-    return (
-      <RuleWizard
-        onSave={handleSaveRule}
-        onCancel={() => {
-          setShowRuleWizard(false);
-          setEditingRule(null);
-        }}
-        editingRule={editingRule || undefined}
-      />
-    );
+    return <RuleWizard onSave={handleSaveRule} onCancel={() => {
+      setShowRuleWizard(false);
+      setEditingRule(null);
+    }} editingRule={editingRule || undefined} />;
   }
-
-  const navigationItems = [
-    { id: 'rules', label: 'Routing Rules', icon: Settings },
-    { id: 'advisors', label: 'Advisor Management', icon: UserCheck }
-  ];
-
-  const renderRulesContent = () => (
-    <div className="space-y-8">
+  const navigationItems = [{
+    id: 'rules',
+    label: 'Routing Rules',
+    icon: Settings
+  }, {
+    id: 'advisors',
+    label: 'Advisor Management',
+    icon: UserCheck
+  }];
+  const renderRulesContent = () => <div className="space-y-8">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card via-card to-primary/5 group overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardContent className="p-8 relative">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Total Rules</p>
-                <p className="text-4xl font-bold text-foreground">{rules.length}</p>
-              </div>
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center ring-1 ring-primary/10 group-hover:ring-primary/30 transition-all duration-300 group-hover:scale-110">
-                <Settings className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card via-card to-green-500/5 group overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardContent className="p-8 relative">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Active Rules</p>
-                <p className="text-4xl font-bold text-foreground">{rules.filter(r => r.is_active).length}</p>
-              </div>
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center ring-1 ring-green-500/10 group-hover:ring-green-500/30 transition-all duration-300 group-hover:scale-110">
-                <Zap className="h-8 w-8 text-green-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card via-card to-blue-500/5 group overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-          <CardContent className="p-8 relative">
-            <div className="flex items-center justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Performance</p>
-                <p className="text-4xl font-bold text-foreground">{rules.length}</p>
-              </div>
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-blue-500/5 flex items-center justify-center ring-1 ring-blue-500/10 group-hover:ring-blue-500/30 transition-all duration-300 group-hover:scale-110">
-                <BarChart3 className="h-8 w-8 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      
 
       {/* Rules List */}
       <div className="space-y-6">{rules.map(rule => {
-          return (
-            <Card 
-              key={rule.id} 
-              className={`
+        return <Card key={rule.id} className={`
                 group relative overflow-hidden
                 transition-all duration-300 ease-out
                 hover:shadow-xl
                 border-0 shadow-lg
                 ${!rule.is_active ? 'opacity-70' : ''}
                 bg-card
-              `}
-            >
+              `}>
               {/* Subtle gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
@@ -297,57 +226,42 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
                           Priority {rule.priority}
                         </Badge>
                       </div>
-                      {rule.is_active ? (
-                        <div className="flex items-center gap-2">
+                      {rule.is_active ? <div className="flex items-center gap-2">
                           <div className="relative flex h-2 w-2">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                           </div>
                           <span className="text-xs text-muted-foreground font-medium">Active & Running</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
+                        </div> : <div className="flex items-center gap-2">
                           <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
                           <span className="text-xs text-muted-foreground/60 font-medium">Inactive</span>
-                        </div>
-                      )}
+                        </div>}
                     </div>
                   </div>
                   
                   {/* Action Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-9 w-9 p-0 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                      >
+                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => toggleRuleStatus(rule.id)}>
-                        {rule.is_active ? (
-                          <>
+                        {rule.is_active ? <>
                             <PowerOff className="h-4 w-4 mr-2" />
                             Disable Rule
-                          </>
-                        ) : (
-                          <>
+                          </> : <>
                             <Power className="h-4 w-4 mr-2" />
                             Enable Rule
-                          </>
-                        )}
+                          </>}
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => handleEdit(rule)}>
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Rule
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={() => handleDelete(rule.id)}
-                        className="text-destructive focus:text-destructive"
-                      >
+                      <DropdownMenuItem onClick={() => handleDelete(rule.id)} className="text-destructive focus:text-destructive">
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete Rule
                       </DropdownMenuItem>
@@ -365,29 +279,14 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
                       </div>
                       <span className="text-sm font-semibold text-foreground">Sources</span>
                     </div>
-                    {rule.sources && rule.sources.length > 0 ? (
-                      <div className="flex flex-wrap gap-2 pl-10">
-                        {rule.sources.slice(0, 3).map((source: string) => (
-                          <Badge 
-                            key={source} 
-                            variant="outline" 
-                            className="text-xs py-1 px-2.5 bg-background/50 text-foreground border-border/50 font-normal rounded-lg hover:bg-muted/50 transition-colors"
-                          >
+                    {rule.sources && rule.sources.length > 0 ? <div className="flex flex-wrap gap-2 pl-10">
+                        {rule.sources.slice(0, 3).map((source: string) => <Badge key={source} variant="outline" className="text-xs py-1 px-2.5 bg-background/50 text-foreground border-border/50 font-normal rounded-lg hover:bg-muted/50 transition-colors">
                             {source.replace('_', ' ')}
-                          </Badge>
-                        ))}
-                        {rule.sources.length > 3 && (
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs py-1 px-2.5 bg-background/50 text-muted-foreground border-border/50 font-normal rounded-lg"
-                          >
+                          </Badge>)}
+                        {rule.sources.length > 3 && <Badge variant="outline" className="text-xs py-1 px-2.5 bg-background/50 text-muted-foreground border-border/50 font-normal rounded-lg">
                             +{rule.sources.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground pl-10">All sources</p>
-                    )}
+                          </Badge>}
+                      </div> : <p className="text-sm text-muted-foreground pl-10">All sources</p>}
                   </div>
 
                   {/* Conditions Section */}
@@ -417,12 +316,10 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
                   </div>
                 </div>
               </div>
-            </Card>
-          );
-        })}
+            </Card>;
+      })}
         
-        {rules.length === 0 && (
-          <Card className="border-0 shadow-lg">
+        {rules.length === 0 && <Card className="border-0 shadow-lg">
             <CardContent className="py-16 text-center">
               <div className="h-20 w-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
                 <Settings className="h-10 w-10 text-muted-foreground" />
@@ -431,19 +328,18 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Create your first routing rule to automatically assign leads to the right team members based on conditions you define.
               </p>
-              <Button onClick={() => { setEditingRule(null); setShowRuleWizard(true); }} size="lg">
+              <Button onClick={() => {
+            setEditingRule(null);
+            setShowRuleWizard(true);
+          }} size="lg">
                 <Plus className="h-5 w-5 mr-2" />
                 Create Your First Rule
               </Button>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
       </div>
-    </div>
-  );
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    </div>;
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Page Header */}
         <div className="space-y-2">
@@ -458,49 +354,32 @@ export function LeadRoutingRules({ onRuleCreated }: LeadRoutingRulesProps) {
           {/* Navigation Tabs */}
           <div className="flex gap-2 bg-muted/30 p-1.5 rounded-xl backdrop-blur-sm border border-border/50">
             {navigationItems.map(item => {
-              const IconComponent = item.icon;
-              const isActive = activeView === item.id;
-              return (
-                <Button
-                  key={item.id}
-                  variant={isActive ? "default" : "ghost"}
-                  onClick={() => setActiveView(item.id as 'rules' | 'advisors')}
-                  className={`flex items-center gap-2 rounded-lg transition-all ${
-                    isActive 
-                      ? 'shadow-sm' 
-                      : 'hover:bg-muted/50'
-                  }`}
-                >
+            const IconComponent = item.icon;
+            const isActive = activeView === item.id;
+            return <Button key={item.id} variant={isActive ? "default" : "ghost"} onClick={() => setActiveView(item.id as 'rules' | 'advisors')} className={`flex items-center gap-2 rounded-lg transition-all ${isActive ? 'shadow-sm' : 'hover:bg-muted/50'}`}>
                   <IconComponent className="h-4 w-4" />
                   <span className="font-medium">{item.label}</span>
-                </Button>
-              );
-            })}
+                </Button>;
+          })}
           </div>
 
           {/* Create Rule Button */}
-          {activeView === 'rules' && (
-            <Button 
-              onClick={() => { setEditingRule(null); setShowRuleWizard(true); }}
-              className="shadow-lg hover:shadow-xl transition-all"
-              size="lg"
-            >
+          {activeView === 'rules' && <Button onClick={() => {
+          setEditingRule(null);
+          setShowRuleWizard(true);
+        }} className="shadow-lg hover:shadow-xl transition-all" size="lg">
               <Plus className="h-5 w-5 mr-2" />
               Create New Rule
-            </Button>
-          )}
+            </Button>}
         </div>
 
         {/* Content */}
         <div className="space-y-6">
           {activeView === 'rules' && renderRulesContent()}
-          {activeView === 'advisors' && (
-            <div className="bg-card rounded-2xl border border-border/50 shadow-sm p-8">
+          {activeView === 'advisors' && <div className="bg-card rounded-2xl border border-border/50 shadow-sm p-8">
               <AdvisorManagement onAdvisorUpdated={onRuleCreated} />
-            </div>
-          )}
+            </div>}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }

@@ -147,6 +147,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/configuration/campuses":
       case "/admin/configuration/teams":
       case "/admin/configuration/company":
+      case "/admin/configuration/payments":
       case "/admin/configuration/system":
         return <ConfigurationManagement />;
       case "/admin/leads/templates":

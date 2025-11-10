@@ -64,7 +64,7 @@ import { AIFeaturesPage } from "./AIFeaturesPage";
 import { EnrollmentCommandCenter } from "@/components/enrollment/EnrollmentCommandCenter";
 import { ModernPoliciesConfiguration } from "@/components/enrollment/ModernPoliciesConfiguration";
 import { PlaybookOrchestrator } from "@/components/enrollment/PlaybookOrchestrator";
-
+import { TeamGoalsAnalytics } from "@/components/admin/leads/TeamGoalsAnalytics";
 import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyManager";
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 import { AIAdvisorAnalytics } from "@/components/admin/ai-agents/AIAdvisorAnalytics";
@@ -159,8 +159,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/leads/advanced-analytics":
         return <LeadAdvancedAnalytics />;
       case "/admin/leads/team-goals":
-        const TeamGoalsPage = require("@/components/admin/leads/TeamGoalsAnalytics").TeamGoalsAnalytics;
-        return <TeamGoalsPage />;
+        return <TeamGoalsAnalytics />;
       case "/admin/leads/bulk":
         return <LeadBulkOperations />;
       case "/admin/students":

@@ -5816,6 +5816,8 @@ export type Database = {
           notification_sms: boolean | null
           onboarding_completed_at: string | null
           phone: string | null
+          setup_completed_at: string | null
+          setup_progress: number | null
           theme_preference: string | null
           timezone: string | null
           title: string | null
@@ -5838,6 +5840,8 @@ export type Database = {
           notification_sms?: boolean | null
           onboarding_completed_at?: string | null
           phone?: string | null
+          setup_completed_at?: string | null
+          setup_progress?: number | null
           theme_preference?: string | null
           timezone?: string | null
           title?: string | null
@@ -5860,6 +5864,8 @@ export type Database = {
           notification_sms?: boolean | null
           onboarding_completed_at?: string | null
           phone?: string | null
+          setup_completed_at?: string | null
+          setup_progress?: number | null
           theme_preference?: string | null
           timezone?: string | null
           title?: string | null
@@ -6928,6 +6934,36 @@ export type Database = {
           table_name?: string | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      setup_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          status: string
+          task_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          task_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          status?: string
+          task_id?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }

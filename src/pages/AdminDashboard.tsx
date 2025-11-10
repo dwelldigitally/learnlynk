@@ -69,7 +69,7 @@ import { ProgramJourneyManager } from "@/components/enrollment/ProgramJourneyMan
 import { AIIntelligenceDashboard } from "@/components/ai-intelligence/AIIntelligenceDashboard";
 import { AIAdvisorAnalytics } from "@/components/admin/ai-agents/AIAdvisorAnalytics";
 import { EnhancedTodayCommandCentre } from "@/components/enrollment/EnhancedTodayCommandCentre";
-import { SetupDashboard } from "./admin/setup/SetupDashboard";
+import SetupPage from "./SetupPage";
 import { InstitutionSetup } from "./admin/setup/InstitutionSetup";
 import { ApplicationSetup } from "./admin/setup/ApplicationSetup";
 import { BusinessSetup } from "./admin/setup/BusinessSetup";
@@ -254,7 +254,7 @@ const AdminDashboard: React.FC = () => {
       
       // Setup routes
       case "/admin/setup":
-        return <SetupDashboard />;
+        return <SetupPage />;
       case "/admin/setup/institution":
         return <InstitutionSetup />;
       case "/admin/setup/applications":

@@ -13,7 +13,8 @@ import ModernSignIn from "./pages/ModernSignIn";
 import ModernSignUp from "./pages/ModernSignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import ComprehensiveOnboarding from "./components/onboarding/ComprehensiveOnboarding";
+import { SimplifiedOnboarding } from "./components/onboarding/SimplifiedOnboarding";
+import SetupPage from "./pages/SetupPage";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -90,8 +91,9 @@ const App = () => {
                  {/* Embeddable Form Routes */}
                  <Route path="/embed/document-form" element={<EmbedDocumentForm />} />
                  <Route path="/embed/webform" element={<EmbedWebForm />} />
-              <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
-              <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
+               <Route path="/onboarding" element={<ProtectedRoute element={<SimplifiedOnboarding />} />} />
+               <Route path="/admin/setup" element={<ProtectedRoute element={<SetupPage />} />} />
+               <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               
                {/* HubSpot OAuth callback route - matches what HubSpot sends */}
                <Route path="/hubspot/oauth/callback" element={<HubSpotOAuthCallback />} />

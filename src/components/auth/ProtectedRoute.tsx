@@ -11,22 +11,24 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState<boolean | null>(null);
+  const [setupProgress, setSetupProgress] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
-      // Check if user has completed onboarding
+      // Check if user has completed onboarding and setup status
       const checkOnboardingStatus = async () => {
         try {
-          // First check database for persistent onboarding completion
+          // Check database for onboarding and setup completion
           const { data: profile } = await supabase
             .from('profiles')
-            .select('onboarding_completed_at')
+            .select('onboarding_completed_at, setup_progress')
             .eq('user_id', user.id)
             .maybeSingle();
 
           if (profile?.onboarding_completed_at) {
-            // User has completed onboarding in database
+            // User has completed onboarding
             setHasCompletedOnboarding(true);
+            setSetupProgress(profile.setup_progress ?? 0);
             // Sync with localStorage for future performance
             localStorage.setItem('onboarding-completed', 'true');
             return;
@@ -42,11 +44,13 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
           const hasOnboardingData = onboardingCompleted === 'true';
           
           setHasCompletedOnboarding(hasOnboardingData || !isAdmin);
+          setSetupProgress(0);
         } catch (error) {
           console.error('Error checking onboarding status:', error);
           // Fallback to localStorage on error
           const onboardingCompleted = localStorage.getItem('onboarding-completed');
           setHasCompletedOnboarding(onboardingCompleted === 'true');
+          setSetupProgress(0);
         }
       };
 
@@ -84,14 +88,22 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
   // Check if user is admin and hasn't completed onboarding
   const isAdmin = user.user_metadata?.user_role === 'admin';
   const isOnOnboardingPage = location.pathname === '/onboarding';
+  const isOnSetupPage = location.pathname === '/admin/setup';
   
+  // If admin hasn't completed onboarding, redirect to onboarding
   if (isAdmin && !hasCompletedOnboarding && !isOnOnboardingPage) {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // If user completed onboarding but is still on onboarding page, redirect to admin
+  // If user completed onboarding but is still on onboarding page, redirect to setup
   if (hasCompletedOnboarding && isOnOnboardingPage) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/admin/setup" replace />;
+  }
+
+  // If user completed onboarding but hasn't completed setup and is accessing dashboard
+  // Redirect to setup page (but allow access to other admin pages)
+  if (hasCompletedOnboarding && !isOnSetupPage && location.pathname === '/admin' && setupProgress !== null && setupProgress < 100) {
+    return <Navigate to="/admin/setup" replace />;
   }
 
   // If user is not admin and trying to access admin routes, redirect to home

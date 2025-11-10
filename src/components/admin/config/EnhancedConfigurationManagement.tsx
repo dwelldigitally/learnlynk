@@ -27,7 +27,7 @@ import { EnhancedIntegrationHub } from '../database/EnhancedIntegrationHub';
 import { LeadConfiguration } from './LeadConfiguration';
 import { LeadRoutingRulesConfiguration } from './LeadRoutingRulesConfiguration';
 import { LeadScoringConfiguration } from './LeadScoringConfiguration';
-import { ApplicantManagementConfiguration } from './ApplicantManagementConfiguration';
+
 import { ApplicantAIAgentConfiguration } from './ApplicantAIAgentConfiguration';
 import { StudentPortalAdminConfiguration } from './StudentPortalAdminConfiguration';
 interface ConfigurationSection {
@@ -66,15 +66,7 @@ const configurationSections: ConfigurationSection[] = [
   category: 'Leads',
   component: <LeadScoringConfiguration />
 },
-// Applicants Configuration
 {
-  id: 'applicant-management',
-  label: 'Applicant Management',
-  icon: FileText,
-  description: 'Configure application process and requirements',
-  category: 'Applicants',
-  component: <ApplicantManagementConfiguration />
-}, {
   id: 'applicant-ai-intelligence',
   label: 'Registrar AI Intelligence',
   icon: Brain,

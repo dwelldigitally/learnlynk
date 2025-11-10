@@ -146,7 +146,7 @@ export const navigationStructure: NavigationStructure = {
         { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
         { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
-        { name: "Applicant Management", href: "/admin/configuration/applicants", icon: FileText },
+        
         { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
         { name: "Company Profile", href: "/admin/configuration/company", icon: Building },

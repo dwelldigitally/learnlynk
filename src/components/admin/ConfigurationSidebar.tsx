@@ -48,12 +48,6 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
     ]
   },
   {
-    name: "Student & Applicant Management",
-    items: [
-      { name: "Applicant Management", href: "/admin/configuration/applicants", icon: Briefcase },
-    ]
-  },
-  {
     name: "System Configuration",
     items: [
       { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },

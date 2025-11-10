@@ -143,7 +143,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/configuration/routing":
       case "/admin/configuration/scoring":
       case "/admin/configuration/students":
-      case "/admin/configuration/applicants":
+      
       case "/admin/configuration/campuses":
       case "/admin/configuration/teams":
       case "/admin/configuration/company":

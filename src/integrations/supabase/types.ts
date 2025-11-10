@@ -1651,75 +1651,123 @@ export type Database = {
       }
       company_profile: {
         Row: {
+          accent_color: string | null
           address: string | null
           city: string | null
+          core_values: string | null
           country: string | null
           created_at: string
+          currency: string | null
+          data_residency_region: string | null
+          default_language: string | null
           description: string | null
           email: string | null
           employee_count: number | null
           founded_year: number | null
+          holidays: Json | null
           id: string
           logo_url: string | null
           mission: string | null
+          mission_statement: string | null
           name: string
           phone: string | null
+          postal_code: string | null
           primary_color: string | null
           secondary_color: string | null
+          social_facebook: string | null
+          social_instagram: string | null
+          social_linkedin: string | null
+          social_twitter: string | null
           state: string | null
+          state_province: string | null
+          street_address: string | null
           timezone: string | null
           updated_at: string
           values: string | null
           vision: string | null
+          vision_statement: string | null
           website: string | null
+          working_hours: Json | null
           zip_code: string | null
         }
         Insert: {
+          accent_color?: string | null
           address?: string | null
           city?: string | null
+          core_values?: string | null
           country?: string | null
           created_at?: string
+          currency?: string | null
+          data_residency_region?: string | null
+          default_language?: string | null
           description?: string | null
           email?: string | null
           employee_count?: number | null
           founded_year?: number | null
+          holidays?: Json | null
           id?: string
           logo_url?: string | null
           mission?: string | null
+          mission_statement?: string | null
           name: string
           phone?: string | null
+          postal_code?: string | null
           primary_color?: string | null
           secondary_color?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
           state?: string | null
+          state_province?: string | null
+          street_address?: string | null
           timezone?: string | null
           updated_at?: string
           values?: string | null
           vision?: string | null
+          vision_statement?: string | null
           website?: string | null
+          working_hours?: Json | null
           zip_code?: string | null
         }
         Update: {
+          accent_color?: string | null
           address?: string | null
           city?: string | null
+          core_values?: string | null
           country?: string | null
           created_at?: string
+          currency?: string | null
+          data_residency_region?: string | null
+          default_language?: string | null
           description?: string | null
           email?: string | null
           employee_count?: number | null
           founded_year?: number | null
+          holidays?: Json | null
           id?: string
           logo_url?: string | null
           mission?: string | null
+          mission_statement?: string | null
           name?: string
           phone?: string | null
+          postal_code?: string | null
           primary_color?: string | null
           secondary_color?: string | null
+          social_facebook?: string | null
+          social_instagram?: string | null
+          social_linkedin?: string | null
+          social_twitter?: string | null
           state?: string | null
+          state_province?: string | null
+          street_address?: string | null
           timezone?: string | null
           updated_at?: string
           values?: string | null
           vision?: string | null
+          vision_statement?: string | null
           website?: string | null
+          working_hours?: Json | null
           zip_code?: string | null
         }
         Relationships: []

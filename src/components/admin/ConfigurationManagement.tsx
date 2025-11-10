@@ -6,7 +6,7 @@ import { LeadScoringConfiguration } from './config/LeadScoringConfiguration';
 import { CustomFieldsManagement } from './database/CustomFieldsManagement';
 import { CampusesConfiguration } from './config/sections/CampusesConfiguration';
 import { TeamManagement } from './routing/TeamManagement';
-import { CompanyProfileConfiguration } from './config/sections/CompanyProfileConfiguration';
+import { CompanySettingsRedesigned } from './config/sections/CompanySettingsRedesigned';
 import { EnhancedIntegrationHub } from './database/EnhancedIntegrationHub';
 import { SetupDashboard } from '@/pages/admin/setup/SetupDashboard';
 import { PaymentConfiguration } from './config/PaymentConfiguration';
@@ -25,7 +25,7 @@ export const ConfigurationManagement = () => {
     if (path.includes('/custom-fields')) return <CustomFieldsManagement />;
     if (path.includes('/campuses')) return <CampusesConfiguration />;
     if (path.includes('/teams')) return <TeamManagement />;
-    if (path.includes('/company')) return <CompanyProfileConfiguration />;
+    if (path.includes('/company')) return <CompanySettingsRedesigned />;
     if (path.includes('/payments')) return <PaymentConfiguration />;
     if (path.includes('/integrations')) return <EnhancedIntegrationHub />;
     

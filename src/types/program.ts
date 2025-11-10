@@ -15,6 +15,14 @@ export interface Program {
   tags: string[];
   urlSlug: string;
   
+  // Program facts
+  programFacts?: {
+    totalProgramHours?: number;
+    practiceExperienceHours?: number;
+    graduateEmploymentHourlyRate?: number;
+    graduateEmploymentRate?: number;
+  };
+  
   // Entry requirements
   entryRequirements: EntryRequirement[];
   

@@ -295,6 +295,77 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               ))}
             </div>
           </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Program Facts (Optional)</Label>
+            <p className="text-xs text-muted-foreground mb-3">Add key statistics about the program</p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Total Program Hours</Label>
+                <Input
+                  type="number"
+                  value={data.programFacts?.totalProgramHours || ''}
+                  onChange={(e) => onDataChange({ 
+                    programFacts: { 
+                      ...data.programFacts, 
+                      totalProgramHours: e.target.value ? parseInt(e.target.value) : undefined 
+                    } 
+                  })}
+                  placeholder="e.g., 900"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Practice Experience Hours</Label>
+                <Input
+                  type="number"
+                  value={data.programFacts?.practiceExperienceHours || ''}
+                  onChange={(e) => onDataChange({ 
+                    programFacts: { 
+                      ...data.programFacts, 
+                      practiceExperienceHours: e.target.value ? parseInt(e.target.value) : undefined 
+                    } 
+                  })}
+                  placeholder="e.g., 400"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Graduate Employment Rate (%)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={data.programFacts?.graduateEmploymentRate || ''}
+                  onChange={(e) => onDataChange({ 
+                    programFacts: { 
+                      ...data.programFacts, 
+                      graduateEmploymentRate: e.target.value ? parseFloat(e.target.value) : undefined 
+                    } 
+                  })}
+                  placeholder="e.g., 95"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs">Graduate Employment Hourly Rate ($)</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={data.programFacts?.graduateEmploymentHourlyRate || ''}
+                  onChange={(e) => onDataChange({ 
+                    programFacts: { 
+                      ...data.programFacts, 
+                      graduateEmploymentHourlyRate: e.target.value ? parseFloat(e.target.value) : undefined 
+                    } 
+                  })}
+                  placeholder="e.g., 25.50"
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

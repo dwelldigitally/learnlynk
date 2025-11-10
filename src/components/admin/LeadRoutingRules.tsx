@@ -198,51 +198,50 @@ export function LeadRoutingRules({
       
 
       {/* Rules List */}
-      <div className="space-y-6">{rules.map(rule => {
+      <div className="space-y-5">{rules.map(rule => {
         return <Card key={rule.id} className={`
                 group relative overflow-hidden
-                transition-all duration-300 ease-out
-                hover:shadow-xl
-                border-0 shadow-lg
-                ${!rule.is_active ? 'opacity-70' : ''}
-                bg-card
+                transition-all duration-300
+                hover:shadow-lg hover:border-primary/20
+                border border-border/50
+                ${!rule.is_active ? 'opacity-60' : ''}
+                bg-card/50 backdrop-blur-sm
               `}>
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="relative p-8">
+              <div className="relative p-6">
                 {/* Header Row */}
-                <div className="flex items-start justify-between mb-8 pb-6 border-b border-border/30">
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
                     {/* Icon Badge */}
-                    <div className="flex-shrink-0 h-12 w-12 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center ring-1 ring-primary/20 shadow-sm">
-                      <Settings className="h-6 w-6 text-primary" />
+                    <div className="flex-shrink-0 h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                      <Settings className="h-5 w-5 text-primary" />
                     </div>
                     
                     <div className="flex flex-col gap-2 flex-1 min-w-0">
-                      <div className="flex items-center gap-2.5 flex-wrap">
-                        <h3 className="font-semibold text-lg text-foreground tracking-tight">{rule.name}</h3>
-                        <Badge variant="outline" className="text-xs px-2.5 py-0.5 bg-muted/50 text-muted-foreground border-border/50 font-medium">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <h3 className="font-semibold text-base text-foreground">{rule.name}</h3>
+                        <Badge variant="secondary" className="text-xs px-2 py-0.5 font-medium">
                           Priority {rule.priority}
                         </Badge>
-                      </div>
-                      {rule.is_active ? <div className="flex items-center gap-2">
-                          <div className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                        {rule.is_active ? (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            <span className="text-xs text-muted-foreground">Active</span>
                           </div>
-                          <span className="text-xs text-muted-foreground font-medium">Active & Running</span>
-                        </div> : <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
-                          <span className="text-xs text-muted-foreground/60 font-medium">Inactive</span>
-                        </div>}
+                        ) : (
+                          <div className="flex items-center gap-1.5">
+                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" />
+                            <span className="text-xs text-muted-foreground/60">Inactive</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
                   {/* Action Menu */}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -270,47 +269,49 @@ export function LeadRoutingRules({
                 </div>
 
                 {/* Content Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-border/40">
                   {/* Sources Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                        <Filter className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">Sources</span>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Sources</span>
                     </div>
-                    {rule.sources && rule.sources.length > 0 ? <div className="flex flex-wrap gap-2 pl-10">
-                        {rule.sources.slice(0, 3).map((source: string) => <Badge key={source} variant="outline" className="text-xs py-1 px-2.5 bg-background/50 text-foreground border-border/50 font-normal rounded-lg hover:bg-muted/50 transition-colors">
+                    {rule.sources && rule.sources.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {rule.sources.slice(0, 3).map((source: string) => (
+                          <Badge key={source} variant="outline" className="text-xs py-0.5 px-2 bg-background">
                             {source.replace('_', ' ')}
-                          </Badge>)}
-                        {rule.sources.length > 3 && <Badge variant="outline" className="text-xs py-1 px-2.5 bg-background/50 text-muted-foreground border-border/50 font-normal rounded-lg">
+                          </Badge>
+                        ))}
+                        {rule.sources.length > 3 && (
+                          <Badge variant="outline" className="text-xs py-0.5 px-2">
                             +{rule.sources.length - 3}
-                          </Badge>}
-                      </div> : <p className="text-sm text-muted-foreground pl-10">All sources</p>}
+                          </Badge>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">All sources</p>
+                    )}
                   </div>
 
                   {/* Conditions Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                        <GitBranch className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">Conditions</span>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <GitBranch className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Conditions</span>
                     </div>
-                    <div className="pl-10">
+                    <div>
                       <ConditionGroupsDisplay groups={rule.condition_groups} maxVisible={3} />
                     </div>
                   </div>
 
                   {/* Assignment Section */}
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-lg bg-muted/50 flex items-center justify-center">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                      <span className="text-sm font-semibold text-foreground">Assignment</span>
+                  <div className="space-y-2.5">
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Assignment</span>
                     </div>
-                    <div className="pl-10">
+                    <div>
                       <AssignmentDisplay config={rule.assignment_config} />
                     </div>
                   </div>
@@ -318,7 +319,6 @@ export function LeadRoutingRules({
               </div>
             </Card>;
       })}
-        
         {rules.length === 0 && <Card className="border-0 shadow-lg">
             <CardContent className="py-16 text-center">
               <div className="h-20 w-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">

@@ -85,6 +85,7 @@ const ProgramWizard: React.FC<ProgramWizardProps> = ({
       urlSlug: '',
       entryRequirements: [],
       documentRequirements: [],
+      courses: [],
       feeStructure: {
         domesticFees: [],
         internationalFees: [],

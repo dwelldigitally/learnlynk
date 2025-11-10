@@ -1,9 +1,11 @@
-export const SUPPORTED_CURRENCIES = ['USD', 'CAD'] as const;
+export const SUPPORTED_CURRENCIES = ['USD', 'CAD', 'EUR', 'GBP'] as const;
 export type Currency = typeof SUPPORTED_CURRENCIES[number];
 
 export const CURRENCY_SYMBOLS: Record<Currency, string> = {
   USD: '$',
   CAD: 'CAD$',
+  EUR: '€',
+  GBP: '£',
 };
 
 export function formatCurrency(amount: number, currency: Currency): string {

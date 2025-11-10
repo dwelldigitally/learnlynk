@@ -1,1 +1,4 @@
 project_id = "rpxygdaimdiarjpfmswl"
+
+[functions.outlook-auth]
+verify_jwt = true

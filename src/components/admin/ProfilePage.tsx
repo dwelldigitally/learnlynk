@@ -11,8 +11,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Bell, Shield, Settings, Activity, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Building2, Palette, Eye } from "lucide-react";
+import { User, Bell, Shield, Settings, Activity, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Building2, Palette, Eye, CalendarCheck, Link as LinkIcon } from "lucide-react";
 import { useMvpMode } from "@/contexts/MvpModeContext";
+import { useUserSettings } from "@/hooks/useUserSettings";
 
 interface ProfileData {
   id?: string;
@@ -37,6 +38,8 @@ const ProfilePage: React.FC = () => {
   const { toast } = useToast();
   const { isMvpMode, toggleMvpMode } = useMvpMode();
   const [loading, setLoading] = useState(false);
+  const { settings, updateSettings, connectOutlook, disconnectOutlook, loading: settingsLoading } = useUserSettings();
+  const [emailSignature, setEmailSignature] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
     first_name: '',
     last_name: '',
@@ -56,6 +59,12 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (settings?.email_signature) {
+      setEmailSignature(settings.email_signature);
+    }
+  }, [settings]);
 
   const fetchProfile = async () => {
     try {
@@ -125,6 +134,18 @@ const ProfilePage: React.FC = () => {
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleSaveSignature = async () => {
+    await updateSettings({ email_signature: emailSignature });
+  };
+
+  const handleConnectOutlook = async () => {
+    await connectOutlook();
+  };
+
+  const handleDisconnectOutlook = async () => {
+    await disconnectOutlook();
+  };
+
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
       {/* Header */}
@@ -142,10 +163,14 @@ const ProfilePage: React.FC = () => {
       </div>
 
       <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+        <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
           <TabsTrigger value="personal" className="gap-2">
             <User className="h-4 w-4" />
             Personal
+          </TabsTrigger>
+          <TabsTrigger value="email" className="gap-2">
+            <Mail className="h-4 w-4" />
+            Email
           </TabsTrigger>
           <TabsTrigger value="notifications" className="gap-2">
             <Bell className="h-4 w-4" />
@@ -276,6 +301,123 @@ const ProfilePage: React.FC = () => {
                   rows={4}
                 />
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Email & Integrations Tab */}
+        <TabsContent value="email" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Email Signature</CardTitle>
+              <CardDescription>
+                Add a personal signature to your outgoing emails
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="signature">Signature</Label>
+                <Textarea
+                  id="signature"
+                  value={emailSignature}
+                  onChange={(e) => setEmailSignature(e.target.value)}
+                  placeholder="Best regards,&#10;Your Name&#10;Your Title&#10;Your Company"
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  This signature will be automatically added to emails sent through the system
+                </p>
+              </div>
+              <Button onClick={handleSaveSignature} disabled={settingsLoading}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Signature
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarCheck className="h-5 w-5" />
+                Outlook Calendar & Email Integration
+              </CardTitle>
+              <CardDescription>
+                Connect your personal Outlook account to sync calendar and send emails
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {settings?.outlook_connected ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 rounded-full bg-green-500" />
+                      <div>
+                        <p className="font-medium">Connected to Outlook</p>
+                        <p className="text-sm text-muted-foreground">
+                          {settings.outlook_email}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge variant="default">Active</Badge>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Permissions</Label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span>Read and write calendar events</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span>Send emails on your behalf</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        <span>Read your email messages</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    variant="destructive" 
+                    onClick={handleDisconnectOutlook}
+                    disabled={settingsLoading}
+                  >
+                    <LinkIcon className="h-4 w-4 mr-2" />
+                    Disconnect Outlook
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-lg border border-dashed">
+                    <div className="flex items-start gap-3">
+                      <CalendarCheck className="h-5 w-5 text-muted-foreground mt-0.5" />
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium">No Outlook account connected</p>
+                        <p className="text-sm text-muted-foreground">
+                          Connect your personal Outlook account to:
+                        </p>
+                        <ul className="text-sm text-muted-foreground space-y-1 ml-4">
+                          <li>• Sync calendar events automatically</li>
+                          <li>• Send emails directly from Outlook</li>
+                          <li>• Access your contacts and meetings</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={handleConnectOutlook}
+                    disabled={settingsLoading}
+                    className="gap-2"
+                  >
+                    <LinkIcon className="h-4 w-4" />
+                    Connect Outlook Account
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

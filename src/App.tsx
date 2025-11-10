@@ -34,6 +34,7 @@ import SalesRepDashboard from "./pages/SalesRepDashboard";
 import ApplicantDetailPage from "./pages/ApplicantDetailPage";
 import { FullScreenReviewLayout } from "./components/admin/applicants/review/FullScreenReviewLayout";
 import { HubSpotOAuthCallback } from "./pages/HubSpotOAuthCallback";
+import OutlookCallback from "./pages/OutlookCallback";
 import { DataInitializer } from "./components/enrollment/DataInitializer";
 import StudentApplication from "./pages/StudentApplication";
 import EmbedDocumentForm from "./pages/EmbedDocumentForm";
@@ -92,8 +93,11 @@ const App = () => {
               <Route path="/onboarding" element={<ProtectedRoute element={<ComprehensiveOnboarding />} />} />
               <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               
-              {/* HubSpot OAuth callback route - matches what HubSpot sends */}
-              <Route path="/hubspot/oauth/callback" element={<HubSpotOAuthCallback />} />
+               {/* HubSpot OAuth callback route - matches what HubSpot sends */}
+               <Route path="/hubspot/oauth/callback" element={<HubSpotOAuthCallback />} />
+               
+               {/* Outlook OAuth callback route */}
+               <Route path="/outlook/callback" element={<OutlookCallback />} />
               
                {/* Specific admin routes first */}
                <Route path="/admin/practicum/scheduling" element={<ProtectedRoute element={<PracticumSchedulingPage />} />} />

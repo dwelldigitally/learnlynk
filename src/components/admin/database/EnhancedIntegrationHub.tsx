@@ -540,63 +540,72 @@ export const EnhancedIntegrationHub = () => {
       const hubspotAuthUrl = `https://app.hubspot.com/oauth/authorize?client_id=your-client-id&redirect_uri=${encodeURIComponent(window.location.origin + '/admin/integrations/hubspot/callback')}&scope=contacts%20content%20reports&response_type=code`;
       window.open(hubspotAuthUrl, 'hubspot-oauth', 'width=600,height=700,scrollbars=yes,resizable=yes');
     };
-    return <Card key={integration.id} className="relative">
-        {integration.isPopular && <Badge className="absolute -top-2 -right-2 z-10" variant="default">
+    return <Card key={integration.id} className="group relative border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+        {integration.isPopular && <Badge className="absolute -top-2 -right-2 z-10 shadow-md" variant="default">
             Popular
           </Badge>}
-        <CardHeader>
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <integration.icon className="h-8 w-8 text-primary" />
+            <div className="flex items-center space-x-4">
+              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <integration.icon className="h-7 w-7 text-primary" />
+              </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">{integration.name}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">{integration.name}</CardTitle>
                 </div>
-                <CardDescription>{integration.description}</CardDescription>
+                <CardDescription className="text-sm mt-0.5">{integration.description}</CardDescription>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {getStatusBadge(integration.status)}
               <Switch checked={integration.status === 'connected'} onCheckedChange={() => setIsExpanded(!isExpanded)} />
             </div>
           </div>
         </CardHeader>
         
-        {(isExpanded || integration.status === 'connected') && <CardContent className="space-y-4">
-            {integration.status === 'connected' && integration.lastSync && <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+        {(isExpanded || integration.status === 'connected') && <CardContent className="space-y-5 pt-0 border-t border-border/50">
+            {integration.status === 'connected' && integration.lastSync && <Alert className="bg-green-500/5 border-green-500/20">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-sm">
                   Last synchronized: {integration.lastSync}
                 </AlertDescription>
               </Alert>}
             
             {/* HubSpot-specific connection options */}
             <div className="space-y-4">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between p-3 border rounded-lg">
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between p-4 border border-border/50 rounded-xl bg-gradient-to-r from-primary/5 to-transparent hover:from-primary/10 transition-all">
                   <div>
-                    <h4 className="font-medium">Install as Private App</h4>
-                    <p className="text-sm text-muted-foreground">Recommended: OAuth connection with automatic setup</p>
+                    <h4 className="font-semibold text-foreground">Install as Private App</h4>
+                    <p className="text-sm text-muted-foreground mt-0.5">Recommended: OAuth connection with automatic setup</p>
                   </div>
-                  <Button onClick={handleInstallApp} className="flex items-center gap-2">
+                  <Button onClick={handleInstallApp} className="flex items-center gap-2 shadow-sm">
                     <Settings className="w-4 h-4" />
                     Install App
                   </Button>
                 </div>
                 
-                <div className="text-center text-sm text-muted-foreground">or</div>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/50" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
                 
-                <div className="p-3 border rounded-lg space-y-3">
-                  <h4 className="font-medium">Manual API Key Setup</h4>
+                <div className="p-4 border border-border/50 rounded-xl space-y-4 bg-muted/20">
+                  <h4 className="font-semibold text-foreground">Manual API Key Setup</h4>
                   <div className="grid gap-4">
-                    {integration.fields.map(field => <div key={field.key}>
-                        <Label htmlFor={`${integration.id}-${field.key}`}>
+                    {integration.fields.map(field => <div key={field.key} className="space-y-2">
+                        <Label htmlFor={`${integration.id}-${field.key}`} className="text-sm font-medium">
                           {field.label}
                           {field.required && <span className="text-destructive ml-1">*</span>}
                         </Label>
                         <div className="flex space-x-2">
-                          <Input id={`${integration.id}-${field.key}`} type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'} placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`} className="flex-1" />
-                          {field.type === 'password' && <Button type="button" variant="outline" size="sm" onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}>
+                          <Input id={`${integration.id}-${field.key}`} type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'} placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`} className="flex-1 bg-background" />
+                          {field.type === 'password' && <Button type="button" variant="outline" size="icon" onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}>
                               {showApiKeys[`${integration.id}-${field.key}`] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             </Button>}
                         </div>
@@ -606,9 +615,9 @@ export const EnhancedIntegrationHub = () => {
               </div>
             </div>
             
-            <div className="flex space-x-2 pt-4">
-              <Button className="flex-1">
-                {integration.status === 'connected' ? 'Update' : 'Connect'}
+            <div className="flex space-x-2 pt-2">
+              <Button className="flex-1 shadow-sm">
+                {integration.status === 'connected' ? 'Update Configuration' : 'Connect Integration'}
               </Button>
               <Button variant="outline">Test Connection</Button>
               {integration.status === 'connected' && <Button variant="destructive">Disconnect</Button>}
@@ -649,36 +658,38 @@ export const EnhancedIntegrationHub = () => {
       }
     };
     return <>
-        <Card key={integration.id} className="relative">
-          {integration.isPopular && <Badge className="absolute -top-2 -right-2 z-10" variant="default">
+        <Card key={integration.id} className="group relative border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+          {integration.isPopular && <Badge className="absolute -top-2 -right-2 z-10 shadow-md" variant="default">
               Popular
             </Badge>}
-          <CardHeader>
+          <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <integration.icon className="h-8 w-8 text-primary" />
+              <div className="flex items-center space-x-4">
+                <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <integration.icon className="h-7 w-7 text-primary" />
+                </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg">{integration.name}</CardTitle>
+                    <CardTitle className="text-lg font-semibold">{integration.name}</CardTitle>
                     {getSyncStatusBadge()}
                   </div>
-                  <CardDescription>{integration.description}</CardDescription>
+                  <CardDescription className="text-sm mt-0.5">{integration.description}</CardDescription>
                 </div>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3">
                 {getStatusBadge(integration.status)}
                 <Switch checked={integration.status === 'connected'} onCheckedChange={() => setIsExpanded(!isExpanded)} />
               </div>
             </div>
           </CardHeader>
           
-          {(isExpanded || integration.status === 'connected') && <CardContent className="space-y-4">
-              {integration.status === 'connected' && syncStatus && <Alert>
-                  <Database className="h-4 w-4" />
+          {(isExpanded || integration.status === 'connected') && <CardContent className="space-y-5 pt-0 border-t border-border/50">
+              {integration.status === 'connected' && syncStatus && <Alert className="bg-blue-500/5 border-blue-500/20">
+                  <Database className="h-4 w-4 text-blue-600" />
                   <AlertDescription>
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between text-sm">
                       <span>Auto-sync enabled (every 5 minutes)</span>
-                      <Button variant="link" size="sm" onClick={() => setShowDashboard(true)} className="h-auto p-0">
+                      <Button variant="link" size="sm" onClick={() => setShowDashboard(true)} className="h-auto p-0 text-blue-600 hover:text-blue-700">
                         View Sync Dashboard →
                       </Button>
                     </div>
@@ -686,23 +697,23 @@ export const EnhancedIntegrationHub = () => {
                 </Alert>}
               
               <div className="grid gap-4">
-                {integration.fields.map(field => <div key={field.key}>
-                    <Label htmlFor={`${integration.id}-${field.key}`}>
+                {integration.fields.map(field => <div key={field.key} className="space-y-2">
+                    <Label htmlFor={`${integration.id}-${field.key}`} className="text-sm font-medium">
                       {field.label}
                       {field.required && <span className="text-destructive ml-1">*</span>}
                     </Label>
                     <div className="flex space-x-2">
-                      <Input id={`${integration.id}-${field.key}`} type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'} placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`} className="flex-1" />
-                      {field.type === 'password' && <Button type="button" variant="outline" size="sm" onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}>
+                      <Input id={`${integration.id}-${field.key}`} type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'} placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`} className="flex-1 bg-background" />
+                      {field.type === 'password' && <Button type="button" variant="outline" size="icon" onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}>
                           {showApiKeys[`${integration.id}-${field.key}`] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>}
                     </div>
                   </div>)}
               </div>
               
-              <div className="flex space-x-2 pt-4">
-                <Button className="flex-1">
-                  {integration.status === 'connected' ? 'Update' : 'Connect'}
+              <div className="flex space-x-2 pt-2">
+                <Button className="flex-1 shadow-sm">
+                  {integration.status === 'connected' ? 'Update Configuration' : 'Connect Integration'}
                 </Button>
                 <Button variant="outline">Test Connection</Button>
                 {integration.status === 'connected' && <Button variant="destructive">Disconnect</Button>}
@@ -736,45 +747,47 @@ export const EnhancedIntegrationHub = () => {
       return <StripeCard integration={integration} />;
     }
     const [isExpanded, setIsExpanded] = useState(false);
-    return <Card key={integration.id} className="relative">
-        {integration.isPopular && <Badge className="absolute -top-2 -right-2 z-10" variant="default">
+    return <Card key={integration.id} className="group relative border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-lg hover:border-primary/20 transition-all duration-300">
+        {integration.isPopular && <Badge className="absolute -top-2 -right-2 z-10 shadow-md" variant="default">
             Popular
           </Badge>}
-        <CardHeader>
+        <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <integration.icon className="h-8 w-8 text-primary" />
+            <div className="flex items-center space-x-4">
+              <div className="h-14 w-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <integration.icon className="h-7 w-7 text-primary" />
+              </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">{integration.name}</CardTitle>
+                  <CardTitle className="text-lg font-semibold">{integration.name}</CardTitle>
                 </div>
-                <CardDescription>{integration.description}</CardDescription>
+                <CardDescription className="text-sm mt-0.5">{integration.description}</CardDescription>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               {getStatusBadge(integration.status)}
               <Switch checked={integration.status === 'connected'} onCheckedChange={() => setIsExpanded(!isExpanded)} />
             </div>
           </div>
         </CardHeader>
         
-        {(isExpanded || integration.status === 'connected') && <CardContent className="space-y-4">
-            {integration.status === 'connected' && integration.lastSync && <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+        {(isExpanded || integration.status === 'connected') && <CardContent className="space-y-5 pt-0 border-t border-border/50">
+            {integration.status === 'connected' && integration.lastSync && <Alert className="bg-green-500/5 border-green-500/20">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <AlertDescription className="text-sm">
                   Last synchronized: {integration.lastSync}
                 </AlertDescription>
               </Alert>}
             
             <div className="grid gap-4">
-              {integration.fields.map(field => <div key={field.key}>
-                  <Label htmlFor={`${integration.id}-${field.key}`}>
+              {integration.fields.map(field => <div key={field.key} className="space-y-2">
+                  <Label htmlFor={`${integration.id}-${field.key}`} className="text-sm font-medium">
                     {field.label}
                     {field.required && <span className="text-destructive ml-1">*</span>}
                   </Label>
                   <div className="flex space-x-2">
                     {field.type === 'select' ? <Select>
-                        <SelectTrigger className="flex-1">
+                        <SelectTrigger className="flex-1 bg-background">
                           <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
                         </SelectTrigger>
                         <SelectContent>
@@ -782,17 +795,17 @@ export const EnhancedIntegrationHub = () => {
                               {option}
                             </SelectItem>)}
                         </SelectContent>
-                      </Select> : <Input id={`${integration.id}-${field.key}`} type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'} placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`} className="flex-1" />}
-                    {field.type === 'password' && <Button type="button" variant="outline" size="sm" onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}>
+                      </Select> : <Input id={`${integration.id}-${field.key}`} type={field.type === 'password' && !showApiKeys[`${integration.id}-${field.key}`] ? 'password' : 'text'} placeholder={field.placeholder || `Enter ${field.label.toLowerCase()}`} className="flex-1 bg-background" />}
+                    {field.type === 'password' && <Button type="button" variant="outline" size="icon" onClick={() => toggleApiKeyVisibility(`${integration.id}-${field.key}`)}>
                         {showApiKeys[`${integration.id}-${field.key}`] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </Button>}
                   </div>
                 </div>)}
             </div>
             
-            <div className="flex space-x-2 pt-4">
-              <Button className="flex-1">
-                {integration.status === 'connected' ? 'Update' : 'Connect'}
+            <div className="flex space-x-2 pt-2">
+              <Button className="flex-1 shadow-sm">
+                {integration.status === 'connected' ? 'Update Configuration' : 'Connect Integration'}
               </Button>
               <Button variant="outline">Test Connection</Button>
               {integration.status === 'connected' && <Button variant="destructive">Disconnect</Button>}
@@ -809,19 +822,119 @@ export const EnhancedIntegrationHub = () => {
   const learningIntegrations = integrations.filter(i => i.category === 'learning');
   const aiIntegrations = integrations.filter(i => i.category === 'ai');
   const documentIntegrations = integrations.filter(i => i.category === 'documents');
-  return <div className="space-y-6">
-      
+  const connectedCount = integrations.filter(i => i.status === 'connected').length;
+  const totalCount = integrations.length;
 
-      <Tabs defaultValue="microsoft" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="microsoft">Microsoft</TabsTrigger>
-          <TabsTrigger value="crm">CRM & Business</TabsTrigger>
-          <TabsTrigger value="communication">Communication</TabsTrigger>
-          <TabsTrigger value="payments">Payments</TabsTrigger>
-          <TabsTrigger value="learning">Learning</TabsTrigger>
-          <TabsTrigger value="ai">AI & Automation</TabsTrigger>
-          <TabsTrigger value="documents">Documents</TabsTrigger>
-        </TabsList>
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Header Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">Integrations</h1>
+              <p className="text-muted-foreground mt-1">Connect your favorite tools and services</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-sm font-medium">{connectedCount}/{totalCount} Connected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Active</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{connectedCount}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
+                  <CheckCircle className="h-6 w-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Available</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">{totalCount}</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Categories</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">7</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <Share2 className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Last Sync</p>
+                  <p className="text-2xl font-bold text-foreground mt-1">5m</p>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center">
+                  <RefreshCw className="h-6 w-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="microsoft" className="space-y-6">
+          <TabsList className="inline-flex h-12 items-center justify-start rounded-lg bg-muted/50 p-1 text-muted-foreground w-full overflow-x-auto">
+            <TabsTrigger value="microsoft" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <Cloud className="h-4 w-4 mr-2" />
+              Microsoft
+            </TabsTrigger>
+            <TabsTrigger value="crm" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <Building className="h-4 w-4 mr-2" />
+              CRM
+            </TabsTrigger>
+            <TabsTrigger value="communication" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Communication
+            </TabsTrigger>
+            <TabsTrigger value="payments" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <CreditCard className="h-4 w-4 mr-2" />
+              Payments
+            </TabsTrigger>
+            <TabsTrigger value="learning" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <BookOpen className="h-4 w-4 mr-2" />
+              Learning
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <Brain className="h-4 w-4 mr-2" />
+              AI
+            </TabsTrigger>
+            <TabsTrigger value="documents" className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm">
+              <FileText className="h-4 w-4 mr-2" />
+              Documents
+            </TabsTrigger>
+          </TabsList>
 
         <TabsContent value="microsoft" className="space-y-4">
           {microsoftIntegrations.map(integration => <IntegrationCard key={integration.id} integration={integration} />)}
@@ -851,5 +964,6 @@ export const EnhancedIntegrationHub = () => {
           {documentIntegrations.map(integration => <IntegrationCard key={integration.id} integration={integration} />)}
         </TabsContent>
       </Tabs>
+      </div>
     </div>;
 };

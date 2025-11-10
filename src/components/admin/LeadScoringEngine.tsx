@@ -370,10 +370,21 @@ export function LeadScoringEngine() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-end">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center space-x-2">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+            Lead Scoring Engine
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Configure automated scoring rules to prioritize and qualify leads
+          </p>
+        </div>
+
+        {/* Controls Bar */}
+        <div className="flex items-center justify-between p-4 bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg">
+          <div className="flex items-center gap-2">
             <Switch
               checked={autoScoringEnabled}
               onCheckedChange={(enabled) => {
@@ -381,270 +392,305 @@ export function LeadScoringEngine() {
                 saveScoringSettings(enabled);
               }}
             />
-            <Label>Auto-scoring enabled</Label>
+            <Label className="text-sm font-medium">Auto-scoring {autoScoringEnabled ? 'enabled' : 'disabled'}</Label>
           </div>
-          <Button 
-            onClick={() => analyzeWithAI('suggestions')} 
-            variant="outline"
-            disabled={isAnalyzing}
-          >
-            <Brain className="h-4 w-4 mr-2" />
-            {isAnalyzing ? 'Analyzing...' : 'AI Suggestions'}
-          </Button>
-          <Button 
-            onClick={() => analyzeWithAI('revamp')} 
-            variant="outline"
-            disabled={isAnalyzing}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            AI Complete Revamp
-          </Button>
-          <Button onClick={saveRules}>
-            <Save className="h-4 w-4 mr-2" />
-            Save Rules
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              onClick={() => analyzeWithAI('suggestions')} 
+              variant="outline"
+              size="sm"
+              disabled={isAnalyzing}
+            >
+              <Brain className="h-4 w-4 mr-2" />
+              {isAnalyzing ? 'Analyzing...' : 'AI Suggestions'}
+            </Button>
+            <Button 
+              onClick={() => analyzeWithAI('revamp')} 
+              variant="outline"
+              size="sm"
+              disabled={isAnalyzing}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              AI Revamp
+            </Button>
+            <Button onClick={saveRules} size="sm">
+              <Save className="h-4 w-4 mr-2" />
+              Save Rules
+            </Button>
+          </div>
         </div>
-      </div>
 
-      {/* Enhanced Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Active Rules</p>
-                <p className="text-2xl font-bold">{scoringRules.filter(r => r.enabled).length}</p>
-              </div>
-              <Target className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Positive Points</p>
-                <p className="text-2xl font-bold text-green-600">+{positivePoints}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center">
-                <span className="text-green-600 font-bold">+</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Negative Points</p>
-                <p className="text-2xl font-bold text-red-600">-{negativePoints}</p>
-              </div>
-              <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center">
-                <span className="text-red-600 font-bold">-</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Status</p>
-                <p className="text-2xl font-bold">{autoScoringEnabled ? 'Active' : 'Paused'}</p>
-              </div>
-              <div className={`h-3 w-3 rounded-full ${autoScoringEnabled ? 'bg-green-500' : 'bg-gray-400'}`} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Scoring Rules with Drag & Drop */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle>Scoring Rules</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Drag to reorder • Use positive points for good indicators • Use negative points for disqualifiers
-            </p>
-          </div>
-          <Button onClick={addRule} size="sm">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Rule
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <DragDropContext onDragEnd={handleDragEnd}>
-            <Droppable droppableId="scoring-rules">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-4">
-                  {scoringRules.map((rule, index) => (
-                    <Draggable key={rule.id} draggableId={rule.id} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`p-4 border rounded-lg space-y-4 transition-shadow ${
-                            snapshot.isDragging ? 'shadow-lg bg-background' : ''
-                          }`}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                              <div
-                                {...provided.dragHandleProps}
-                                className="cursor-grab active:cursor-grabbing"
-                              >
-                                <GripVertical className="h-5 w-5 text-muted-foreground" />
-                              </div>
-                              <Switch
-                                checked={rule.enabled}
-                                onCheckedChange={(enabled) => updateRule(rule.id, { enabled })}
-                              />
-                              <Input
-                                value={rule.name}
-                                onChange={(e) => updateRule(rule.id, { name: e.target.value })}
-                                className="font-medium"
-                                placeholder="Rule name"
-                              />
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {getRuleTypeBadge(rule.points)}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => deleteRule(rule.id)}
-                                className="text-destructive hover:text-destructive"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-12 gap-4 items-center">
-                            <div className="col-span-3">
-                              <Label className="text-sm">Field</Label>
-                              <Select
-                                value={rule.field}
-                                onValueChange={(value) => updateRule(rule.id, { field: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {fieldOptions.map(option => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="col-span-3">
-                              <Label className="text-sm">Condition</Label>
-                              <Select
-                                value={rule.condition}
-                                onValueChange={(value) => updateRule(rule.id, { condition: value })}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {conditionOptions.map(option => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-
-                            <div className="col-span-4">
-                              <Label className="text-sm">Value</Label>
-                              <Input
-                                value={rule.value}
-                                onChange={(e) => updateRule(rule.id, { value: e.target.value })}
-                                placeholder="Enter value to match"
-                              />
-                            </div>
-
-                            <div className="col-span-2">
-                              <Label className="text-sm">Points</Label>
-                              <Input
-                                type="number"
-                                value={rule.points}
-                                onChange={(e) => updateRule(rule.id, { points: parseInt(e.target.value) || 0 })}
-                                min="-100"
-                                max="100"
-                                className={getRuleTypeColor(rule.points)}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Rule Preview */}
-                          <div className="bg-muted/50 p-3 rounded text-sm">
-                            <span className="font-medium">Rule: </span>
-                            When <span className="font-medium">{fieldOptions.find(f => f.value === rule.field)?.label}</span> 
-                            {' '}<span className="font-medium">{conditionOptions.find(c => c.value === rule.condition)?.label}</span>
-                            {' '}<span className="font-medium">"{rule.value}"</span>
-                            {' '}→ <span className={`font-medium ${getRuleTypeColor(rule.points)}`}>
-                              {rule.points > 0 ? '+' : ''}{rule.points} points
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-
-                  {scoringRules.length === 0 && (
-                    <div className="text-center py-8">
-                      <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">No scoring rules configured yet.</p>
-                      <p className="text-sm text-muted-foreground">Add your first rule to start scoring leads automatically.</p>
-                    </div>
-                  )}
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Rules</p>
+                  <p className="text-3xl font-bold mt-2">{scoringRules.filter(r => r.enabled).length}</p>
                 </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </CardContent>
-      </Card>
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Target className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Positive Points</p>
+                  <p className="text-3xl font-bold text-emerald-600 mt-2">+{positivePoints}</p>
+                </div>
+                <div className="h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                  <span className="text-emerald-600 font-bold text-xl">+</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Negative Points</p>
+                  <p className="text-3xl font-bold text-rose-600 mt-2">-{negativePoints}</p>
+                </div>
+                <div className="h-12 w-12 rounded-xl bg-rose-500/10 flex items-center justify-center">
+                  <span className="text-rose-600 font-bold text-xl">-</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</p>
+                  <p className="text-3xl font-bold mt-2">{autoScoringEnabled ? 'Active' : 'Paused'}</p>
+                </div>
+                <div className={`h-3 w-3 rounded-full ${autoScoringEnabled ? 'bg-emerald-500' : 'bg-muted-foreground/40'}`} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-      {/* Enhanced Tips */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">💡 3 Pillars of Lead Scoring</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-              <div className="h-2 bg-gradient-to-r from-green-400 to-green-600 rounded"></div>
-              <h3 className="font-semibold text-green-700">1. Contact Information</h3>
-              <p className="text-sm text-muted-foreground">Demographic data that indicates quality: location, company, job title, sector</p>
-              <p className="text-xs text-green-600">+5 to +25 points</p>
+        {/* Scoring Rules */}
+        <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/40">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-xl font-semibold">Scoring Rules</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Drag to reorder • Positive points for good indicators • Negative points for disqualifiers
+                </p>
+              </div>
+              <Button onClick={addRule} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Rule
+              </Button>
             </div>
-            <div className="space-y-2">
-              <div className="h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded"></div>
-              <h3 className="font-semibold text-blue-700">2. Interactions & Behaviours</h3>
-              <p className="text-sm text-muted-foreground">Engagement signals: website visits, form submissions, email interactions</p>
-              <p className="text-xs text-blue-600">+10 to +30 points</p>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="scoring-rules">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-3">
+                    {scoringRules.map((rule, index) => (
+                      <Draggable key={rule.id} draggableId={rule.id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            className={`p-4 border border-border/50 rounded-lg bg-background space-y-4 transition-all ${
+                              snapshot.isDragging ? 'shadow-lg border-primary/40' : ''
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3 flex-1">
+                                <div
+                                  {...provided.dragHandleProps}
+                                  className="cursor-grab active:cursor-grabbing"
+                                >
+                                  <GripVertical className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                                <Switch
+                                  checked={rule.enabled}
+                                  onCheckedChange={(enabled) => updateRule(rule.id, { enabled })}
+                                />
+                                <Input
+                                  value={rule.name}
+                                  onChange={(e) => updateRule(rule.id, { name: e.target.value })}
+                                  className="font-medium max-w-xs"
+                                  placeholder="Rule name"
+                                />
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {getRuleTypeBadge(rule.points)}
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => deleteRule(rule.id)}
+                                  className="text-destructive hover:text-destructive h-8 w-8 p-0"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-12 gap-3 items-end">
+                              <div className="col-span-3">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Field</Label>
+                                <Select
+                                  value={rule.field}
+                                  onValueChange={(value) => updateRule(rule.id, { field: value })}
+                                >
+                                  <SelectTrigger className="mt-1.5">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {fieldOptions.map(option => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="col-span-3">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Condition</Label>
+                                <Select
+                                  value={rule.condition}
+                                  onValueChange={(value) => updateRule(rule.id, { condition: value })}
+                                >
+                                  <SelectTrigger className="mt-1.5">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {conditionOptions.map(option => (
+                                      <SelectItem key={option.value} value={option.value}>
+                                        {option.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="col-span-4">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Value</Label>
+                                <Input
+                                  value={rule.value}
+                                  onChange={(e) => updateRule(rule.id, { value: e.target.value })}
+                                  placeholder="Enter value"
+                                  className="mt-1.5"
+                                />
+                              </div>
+
+                              <div className="col-span-2">
+                                <Label className="text-xs text-muted-foreground uppercase tracking-wider">Points</Label>
+                                <Input
+                                  type="number"
+                                  value={rule.points}
+                                  onChange={(e) => updateRule(rule.id, { points: parseInt(e.target.value) || 0 })}
+                                  min="-100"
+                                  max="100"
+                                  className={`mt-1.5 ${getRuleTypeColor(rule.points)}`}
+                                />
+                              </div>
+                            </div>
+
+                            {/* Rule Preview */}
+                            <div className="bg-muted/30 p-3 rounded-lg text-sm border border-border/30">
+                              <span className="text-muted-foreground">When </span>
+                              <span className="font-medium">{fieldOptions.find(f => f.value === rule.field)?.label}</span> 
+                              {' '}<span className="text-muted-foreground">{conditionOptions.find(c => c.value === rule.condition)?.label}</span>
+                              {' '}<span className="font-medium">"{rule.value}"</span>
+                              {' '}<span className="text-muted-foreground">→</span>{' '}
+                              <span className={`font-semibold ${getRuleTypeColor(rule.points)}`}>
+                                {rule.points > 0 ? '+' : ''}{rule.points} points
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+
+                    {scoringRules.length === 0 && (
+                      <div className="text-center py-16">
+                        <div className="h-16 w-16 mx-auto mb-4 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Target className="h-8 w-8 text-primary" />
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">No Scoring Rules Yet</h3>
+                        <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                          Add your first rule to start scoring leads automatically based on their attributes and behaviors.
+                        </p>
+                        <Button onClick={addRule}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create First Rule
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          </CardContent>
+        </Card>
+
+        {/* Scoring Tips */}
+        <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
+          <CardHeader className="border-b border-border/40">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <span>💡</span> Lead Scoring Best Practices
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-3">
+                <div className="h-1.5 bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full"></div>
+                <h3 className="font-semibold text-emerald-700">1. Contact Information</h3>
+                <p className="text-sm text-muted-foreground">
+                  Demographic data indicating quality: location, company, job title, industry sector
+                </p>
+                <Badge variant="outline" className="text-emerald-600 border-emerald-200">
+                  +5 to +25 points
+                </Badge>
+              </div>
+              <div className="space-y-3">
+                <div className="h-1.5 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full"></div>
+                <h3 className="font-semibold text-blue-700">2. Interactions & Behavior</h3>
+                <p className="text-sm text-muted-foreground">
+                  Engagement signals: website visits, form submissions, email interactions, downloads
+                </p>
+                <Badge variant="outline" className="text-blue-600 border-blue-200">
+                  +10 to +30 points
+                </Badge>
+              </div>
+              <div className="space-y-3">
+                <div className="h-1.5 bg-gradient-to-r from-rose-400 to-rose-600 rounded-full"></div>
+                <h3 className="font-semibold text-rose-700">3. Disqualifiers</h3>
+                <p className="text-sm text-muted-foreground">
+                  Negative factors: competitors, wrong-fit personas, unengaged contacts, spam indicators
+                </p>
+                <Badge variant="outline" className="text-rose-600 border-rose-200">
+                  -5 to -20 points
+                </Badge>
+              </div>
             </div>
-            <div className="space-y-2">
-              <div className="h-2 bg-gradient-to-r from-red-400 to-red-600 rounded"></div>
-              <h3 className="font-semibold text-red-700">3. Negatives</h3>
-              <p className="text-sm text-muted-foreground">Disqualifying factors: competitors, wrong fit personas, unengaged contacts</p>
-              <p className="text-xs text-red-600">-5 to -20 points</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* AI Suggestions Modal */}
       <Dialog open={showAiSuggestions} onOpenChange={setShowAiSuggestions}>
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
+              <Sparkles className="h-5 w-5 text-primary" />
               AI Lead Scoring Analysis
             </DialogTitle>
           </DialogHeader>
@@ -652,23 +698,23 @@ export function LeadScoringEngine() {
           {aiSuggestions && (
             <div className="space-y-6">
               {aiSuggestions.summary && (
-                <div className="p-4 bg-blue-50 rounded-lg">
+                <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
                   <h3 className="font-semibold mb-2">Analysis Summary</h3>
-                  <p className="text-sm">{aiSuggestions.summary}</p>
+                  <p className="text-sm text-muted-foreground">{aiSuggestions.summary}</p>
                 </div>
               )}
 
               {aiSuggestions.newScoringSystem && (
                 <div>
                   <h3 className="font-semibold mb-3">Recommended New Scoring System</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {aiSuggestions.newScoringSystem.map((rule: any, index: number) => (
-                      <div key={index} className="p-3 border rounded flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{rule.name}</p>
+                      <div key={index} className="p-4 border border-border/50 rounded-lg bg-background flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-medium mb-1">{rule.name}</p>
                           <p className="text-sm text-muted-foreground">{rule.reasoning}</p>
                         </div>
-                        <Badge variant={rule.points > 0 ? "default" : "destructive"}>
+                        <Badge variant={rule.points > 0 ? "default" : "destructive"} className="ml-4">
                           {rule.points > 0 ? '+' : ''}{rule.points}
                         </Badge>
                       </div>
@@ -680,14 +726,14 @@ export function LeadScoringEngine() {
               {aiSuggestions.newRules && (
                 <div>
                   <h3 className="font-semibold mb-3">Suggested New Rules</h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {aiSuggestions.newRules.map((rule: any, index: number) => (
-                      <div key={index} className="p-3 border rounded flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{rule.name}</p>
+                      <div key={index} className="p-4 border border-border/50 rounded-lg bg-background flex justify-between items-start">
+                        <div className="flex-1">
+                          <p className="font-medium mb-1">{rule.name}</p>
                           <p className="text-sm text-muted-foreground">{rule.reasoning}</p>
                         </div>
-                        <Badge variant={rule.points > 0 ? "default" : "destructive"}>
+                        <Badge variant={rule.points > 0 ? "default" : "destructive"} className="ml-4">
                           {rule.points > 0 ? '+' : ''}{rule.points}
                         </Badge>
                       </div>
@@ -696,11 +742,12 @@ export function LeadScoringEngine() {
                 </div>
               )}
 
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button variant="outline" onClick={() => setShowAiSuggestions(false)}>
                   Cancel
                 </Button>
                 <Button onClick={applyAISuggestions}>
+                  <Sparkles className="h-4 w-4 mr-2" />
                   Apply Suggestions
                 </Button>
               </div>

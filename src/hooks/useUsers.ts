@@ -19,7 +19,7 @@ export const useUsers = () => {
       // Fetch all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles' as any)
-        .select('user_id, full_name, avatar_url, created_at, email');
+        .select('user_id, first_name, last_name, email, avatar_url, created_at');
       
       if (profilesError) throw profilesError;
 
@@ -56,16 +56,22 @@ export const useUsers = () => {
       });
 
       // Combine data
-      const users: UserWithDetails[] = (profiles || []).map((profile: any) => ({
-        id: profile.user_id,
-        email: profile.email || 'No email',
-        full_name: profile.full_name,
-        avatar_url: profile.avatar_url,
-        roles: rolesMap.get(profile.user_id) || [],
-        team_name: teamMap.get(profile.user_id)?.name || null,
-        team_type: teamMap.get(profile.user_id)?.type || null,
-        created_at: profile.created_at,
-      }));
+      const users: UserWithDetails[] = (profiles || []).map((profile: any) => {
+        const fullName = profile.first_name && profile.last_name 
+          ? `${profile.first_name} ${profile.last_name}` 
+          : profile.first_name || profile.last_name || null;
+        
+        return {
+          id: profile.user_id,
+          email: profile.email || 'No email',
+          full_name: fullName,
+          avatar_url: profile.avatar_url,
+          roles: rolesMap.get(profile.user_id) || [],
+          team_name: teamMap.get(profile.user_id)?.name || null,
+          team_type: teamMap.get(profile.user_id)?.type || null,
+          created_at: profile.created_at,
+        };
+      });
 
       return users;
     },

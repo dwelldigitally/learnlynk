@@ -4888,6 +4888,36 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          id: string
+          permission_description: string | null
+          permission_name: string
+          risk_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          permission_description?: string | null
+          permission_name: string
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          permission_description?: string | null
+          permission_name?: string
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       play_program_assignments: {
         Row: {
           created_at: string
@@ -6537,6 +6567,29 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "recruiter_companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_permissions: {
+        Row: {
+          permission_id: string
+          role: string
+        }
+        Insert: {
+          permission_id: string
+          role: string
+        }
+        Update: {
+          permission_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
             referencedColumns: ["id"]
           },
         ]
@@ -8851,6 +8904,53 @@ export type Database = {
         }
         Relationships: []
       }
+      team_hierarchy: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          manager_id: string | null
+          metadata: Json | null
+          name: string
+          parent_id: string | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          manager_id?: string | null
+          metadata?: Json | null
+          name: string
+          parent_id?: string | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          manager_id?: string | null
+          metadata?: Json | null
+          name?: string
+          parent_id?: string | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_hierarchy_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "team_hierarchy"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_inbox_members: {
         Row: {
           added_at: string
@@ -9033,6 +9133,38 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_permissions: {
+        Row: {
+          granted_at: string | null
+          granted_by: string | null
+          id: string
+          permission_id: string
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          permission_id: string
+          user_id: string
+        }
+        Update: {
+          granted_at?: string | null
+          granted_by?: string | null
+          id?: string
+          permission_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

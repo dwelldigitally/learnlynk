@@ -145,12 +145,9 @@ export const navigationStructure: NavigationStructure = {
         { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
         { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
-        { name: "Student Management", href: "/admin/configuration/students", icon: GraduationCap },
         { name: "Applicant Management", href: "/admin/configuration/applicants", icon: FileText },
-        { name: "Setup & Onboarding", href: "/admin/configuration/setup", icon: Cog },
         { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
         { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
-        { name: "Internal Teams", href: "/admin/configuration/teams", icon: Users },
         { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
         { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
         // Full Mode Only - AI & Advanced

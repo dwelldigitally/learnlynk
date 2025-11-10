@@ -55,10 +55,8 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
   {
     name: "System Configuration",
     items: [
-      { name: "Setup & Onboarding", href: "/admin/configuration/setup", icon: Cog },
       { name: "Custom Fields & Stages", href: "/admin/configuration/custom-fields", icon: Settings },
       { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
-      { name: "Internal Teams", href: "/admin/configuration/teams", icon: Users },
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
     ]

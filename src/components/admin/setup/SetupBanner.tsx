@@ -19,12 +19,15 @@ export const SetupBanner: React.FC = () => {
 
       console.log('SetupBanner: Checking status', { progress, loading, user: user.id });
 
+      // Check for force show flag (for demo purposes)
+      const forceShow = localStorage.getItem(`setup_banner_force_show_${user.id}`);
+      
       // Check if banner was dismissed
       const dismissed = localStorage.getItem(`setup_banner_dismissed_${user.id}`);
-      console.log('SetupBanner: Dismissed status', dismissed);
+      console.log('SetupBanner: Status', { dismissed, progress, forceShow });
       
-      // Show banner if not dismissed and setup is incomplete
-      if (!dismissed && progress < 100) {
+      // Show banner if forced, or if not dismissed and setup is incomplete
+      if (forceShow || (!dismissed && progress < 100)) {
         console.log('SetupBanner: Showing banner');
         setIsDismissed(false);
       } else {
@@ -41,6 +44,9 @@ export const SetupBanner: React.FC = () => {
   const handleDismiss = async () => {
     if (!user) return;
 
+    // Clear force show flag if it exists
+    localStorage.removeItem(`setup_banner_force_show_${user.id}`);
+    
     // Save dismissal to localStorage
     localStorage.setItem(`setup_banner_dismissed_${user.id}`, 'true');
     setIsDismissed(true);
@@ -62,7 +68,7 @@ export const SetupBanner: React.FC = () => {
 
   console.log('SetupBanner render:', { isDismissed, loading, progress });
 
-  if (isDismissed || loading || progress === 100) {
+  if (isDismissed || loading) {
     return null;
   }
 

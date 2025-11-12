@@ -277,10 +277,12 @@ const AdminHome: React.FC = () => {
         <Button
           onClick={() => {
             if (user?.id) {
+              // Clear dismissal and set force show flag
               localStorage.removeItem(`setup_banner_dismissed_${user.id}`);
+              localStorage.setItem(`setup_banner_force_show_${user.id}`, 'true');
               toast({
-                title: "Banner Reset",
-                description: "Setup banner will appear on next page load",
+                title: "Banner Activated",
+                description: "Setup banner will appear now",
               });
               setTimeout(() => window.location.reload(), 500);
             }

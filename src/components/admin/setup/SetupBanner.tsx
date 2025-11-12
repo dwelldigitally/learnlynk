@@ -13,6 +13,15 @@ export const SetupBanner: React.FC = () => {
   const { progress, loading } = useSetupTasks();
   const [isDismissed, setIsDismissed] = useState(false);
 
+  console.log('🎯 SetupBanner RENDER:', { 
+    user: user?.id, 
+    progress, 
+    loading, 
+    isDismissed,
+    localStorage_dismissed: user ? localStorage.getItem(`setup_banner_dismissed_${user.id}`) : null,
+    localStorage_force: user ? localStorage.getItem(`setup_banner_force_show_${user.id}`) : null
+  });
+
   useEffect(() => {
     const checkBannerStatus = async () => {
       if (!user) return;
@@ -66,11 +75,14 @@ export const SetupBanner: React.FC = () => {
     navigate('/admin/setup');
   };
 
-  console.log('SetupBanner render:', { isDismissed, loading, progress });
+  console.log('🎯 SetupBanner FINAL CHECK:', { isDismissed, loading, progress, willRender: !isDismissed && !loading });
 
   if (isDismissed || loading) {
+    console.log('🎯 SetupBanner HIDDEN because:', { isDismissed, loading });
     return null;
   }
+
+  console.log('🎯 SetupBanner SHOWING!');
 
   return (
     <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20">

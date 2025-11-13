@@ -22,7 +22,8 @@ import {
   Briefcase,
   DollarSign,
   Sliders,
-  ClipboardCheck
+  ClipboardCheck,
+  Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,7 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
     name: "System Configuration",
     items: [
       { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
+      { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
       { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
       { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },

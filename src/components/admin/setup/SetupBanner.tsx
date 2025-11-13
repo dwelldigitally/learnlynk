@@ -85,7 +85,7 @@ export const SetupBanner: React.FC = () => {
   console.log('🎯 SetupBanner SHOWING!');
 
   return (
-    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-b border-primary/20 fixed top-0 left-0 right-0 z-[60]">
+    <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border-t border-primary/20 fixed bottom-0 left-0 right-0 z-50">
       <div className="mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">

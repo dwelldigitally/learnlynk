@@ -7,8 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Search, Users, TrendingUp, FileText, DollarSign, CheckCircle2, 
   Activity, MessageSquare, Calendar, Plus, StickyNote, Sparkles,
-  AlertTriangle, Clock, Target, Mail, Phone, Building, UserPlus
+  AlertTriangle, Clock, Target, Mail, Phone, Building, UserPlus, Bell
 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,6 +48,45 @@ const AdminHome: React.FC = () => {
   };
 
   const firstName = profile?.first_name || "there";
+
+  // Mock Task Data
+  const mockTasks = [
+    {
+      id: '1',
+      title: 'Follow up with John Doe',
+      description: 'Contact regarding program inquiry',
+      priority: 'urgent',
+      dueDate: 'Today, 2:00 PM'
+    },
+    {
+      id: '2',
+      title: 'Review application documents',
+      description: 'Sarah Johnson - Business Administration',
+      priority: 'high',
+      dueDate: 'Today, 4:00 PM'
+    },
+    {
+      id: '3',
+      title: 'Approve payment request',
+      description: 'Michael Chen - Semester 2 fees',
+      priority: 'medium',
+      dueDate: 'Tomorrow, 10:00 AM'
+    },
+    {
+      id: '4',
+      title: 'Schedule meeting with advisor',
+      description: 'Weekly check-in',
+      priority: 'low',
+      dueDate: 'Friday, 3:00 PM'
+    },
+    {
+      id: '5',
+      title: 'Update student records',
+      description: 'Complete data entry for new enrollments',
+      priority: 'medium',
+      dueDate: 'Tomorrow, 2:00 PM'
+    }
+  ];
 
   // Mock KPI Data
   const kpiData = [
@@ -563,14 +603,95 @@ const AdminHome: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column - Notifications */}
+          {/* Right Column - Notifications, Tasks & Activity Feed */}
           <div className="lg:col-span-1">
-            <DashboardNotificationPanel
-              notifications={notifications}
-              onMarkAsRead={handleMarkAsRead}
-              onMarkAllAsRead={handleMarkAllAsRead}
-              onDismiss={handleDismiss}
-            />
+            <Card className="sticky top-6">
+              <Tabs defaultValue="notifications" className="w-full">
+                <CardHeader className="pb-3">
+                  <TabsList className="grid w-full grid-cols-3 gap-1">
+                    <TabsTrigger value="notifications" className="text-xs">
+                      <Bell className="h-4 w-4 mr-1" />
+                      <span className="hidden sm:inline">Alerts</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="tasks" className="text-xs">
+                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                      <span className="hidden sm:inline">Tasks</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="activity" className="text-xs">
+                      <Activity className="h-4 w-4 mr-1" />
+                      <span className="hidden sm:inline">Activity</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </CardHeader>
+                
+                <CardContent className="p-0">
+                  <TabsContent value="notifications" className="mt-0">
+                    <DashboardNotificationPanel
+                      notifications={notifications}
+                      onMarkAsRead={handleMarkAsRead}
+                      onMarkAllAsRead={handleMarkAllAsRead}
+                      onDismiss={handleDismiss}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="tasks" className="mt-0">
+                    <ScrollArea className="h-[600px]">
+                      <div className="space-y-3 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-sm font-semibold text-foreground">My Tasks</h3>
+                          <Badge variant="secondary">{mockTasks.length}</Badge>
+                        </div>
+                        {mockTasks.map((task) => (
+                          <div
+                            key={task.id}
+                            className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
+                          >
+                            <div className="flex items-start gap-3">
+                              <Checkbox className="mt-1" />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-foreground">{task.title}</h4>
+                                <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <Badge variant="outline" className={`text-xs ${
+                                    task.priority === 'urgent' ? 'bg-red-500/10 text-red-600 border-red-200' :
+                                    task.priority === 'high' ? 'bg-orange-500/10 text-orange-600 border-orange-200' :
+                                    task.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-200' :
+                                    'bg-blue-500/10 text-blue-600 border-blue-200'
+                                  }`}>
+                                    {task.priority}
+                                  </Badge>
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {task.dueDate}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                  
+                  <TabsContent value="activity" className="mt-0">
+                    <ScrollArea className="h-[600px]">
+                      <div className="space-y-3 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+                        </div>
+                        {activityFeed.map((activity) => (
+                          <ActivityFeedItem
+                            key={activity.id}
+                            activity={activity}
+                            onClick={() => console.log('View activity:', activity.id)}
+                          />
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </CardContent>
+              </Tabs>
+            </Card>
           </div>
         </div>
       </div>

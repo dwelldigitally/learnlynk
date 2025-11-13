@@ -116,7 +116,7 @@ export const SetupTour: React.FC = () => {
           backgroundColor: 'hsl(var(--popover))',
           overlayColor: 'rgba(0, 0, 0, 0.5)',
           arrowColor: 'hsl(var(--popover))',
-          zIndex: 10000,
+          zIndex: 99999,
         },
         tooltip: {
           borderRadius: 'calc(var(--radius) - 2px)',

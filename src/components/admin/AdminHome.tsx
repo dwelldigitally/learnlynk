@@ -23,6 +23,8 @@ import { QuickInsightsChart } from "./dashboard/QuickInsightsChart";
 import { AIRecommendationCard, AIRecommendation } from "./dashboard/AIRecommendationCard";
 import { DashboardNotificationPanel, Notification } from "./dashboard/DashboardNotificationPanel";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useDemoDataAccess } from '@/services/demoDataService';
+
 const AdminHome: React.FC = () => {
   const {
     profile
@@ -34,6 +36,7 @@ const AdminHome: React.FC = () => {
   const {
     toast
   } = useToast();
+  const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -80,6 +83,44 @@ const AdminHome: React.FC = () => {
     description: 'Complete data entry for new enrollments',
     priority: 'medium',
     dueDate: 'Tomorrow, 2:00 PM'
+  }];
+
+  // Empty KPI Data for new users
+  const emptyKpiData = [{
+    title: "New Leads",
+    value: 0,
+    icon: Users,
+    trend: 'neutral' as const,
+    onClick: () => navigate('/admin/leads')
+  }, {
+    title: "Active Students",
+    value: 0,
+    icon: Building,
+    trend: 'neutral' as const,
+    onClick: () => navigate('/admin/students')
+  }, {
+    title: "Pending Applications",
+    value: 0,
+    icon: FileText,
+    trend: 'neutral' as const,
+    onClick: () => navigate('/admin/applications')
+  }, {
+    title: "Revenue This Month",
+    value: "$0",
+    icon: DollarSign,
+    trend: 'neutral' as const,
+    onClick: () => navigate('/admin/financials')
+  }, {
+    title: "Conversion Rate",
+    value: "0%",
+    icon: TrendingUp,
+    trend: 'neutral' as const
+  }, {
+    title: "Tasks Due Today",
+    value: 0,
+    icon: CheckCircle2,
+    trend: 'neutral' as const,
+    onClick: () => navigate('/admin/tasks')
   }];
 
   // Mock KPI Data
@@ -399,9 +440,37 @@ const AdminHome: React.FC = () => {
             </p>
           </div>
 
+          {/* Demo Mode Banner */}
+          {!hasDemoAccess && !isDemoLoading && (
+            <Card className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                      Welcome to Your Dashboard!
+                    </h3>
+                    <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
+                      Your dashboard is ready. Enable Demo Mode to see what it looks 
+                      like with data, or start adding your own leads and students.
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate('/admin/profile')}
+                      className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
+                    >
+                      Enable Demo Mode in Settings
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
-            {kpiData.map((kpi, index) => <DashboardKPICard key={index} {...kpi} />)}
+            {(hasDemoAccess ? kpiData : emptyKpiData).map((kpi, index) => <DashboardKPICard key={index} {...kpi} />)}
           </div>
 
           {/* AI Search Bar */}
@@ -435,7 +504,15 @@ const AdminHome: React.FC = () => {
                   </TabsList>
 
                   <TabsContent value="urgent" className="space-y-3">
-                    {priorityActions.map(action => <PriorityActionCard key={action.id} action={action} />)}
+                    {hasDemoAccess && priorityActions.length > 0 ? (
+                      priorityActions.map(action => <PriorityActionCard key={action.id} action={action} />)
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                        <p className="font-medium">No urgent actions</p>
+                        <p className="text-sm mt-1">You're all caught up! Great work.</p>
+                      </div>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="schedule">
@@ -491,19 +568,44 @@ const AdminHome: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {aiRecommendations.map(rec => <AIRecommendationCard key={rec.id} recommendation={rec} />)}
-                </div>
+                {hasDemoAccess && aiRecommendations.length > 0 ? (
+                  <div className="space-y-3">
+                    {aiRecommendations.map(rec => <AIRecommendationCard key={rec.id} recommendation={rec} />)}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Sparkles className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="font-medium">No recommendations yet</p>
+                    <p className="text-sm mt-1">AI will analyze your data and provide insights soon.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Quick Insights */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <QuickInsightsChart title="Lead Sources" type="pie" data={leadSourceData} />
-              <QuickInsightsChart title="Application Pipeline" type="bar" data={applicationPipelineData} />
-            </div>
+            {hasDemoAccess ? (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <QuickInsightsChart title="Lead Sources" type="pie" data={leadSourceData} />
+                  <QuickInsightsChart title="Application Pipeline" type="bar" data={applicationPipelineData} />
+                </div>
 
-            <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />
+                <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />
+              </>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Insights</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <p className="font-medium">No insights available</p>
+                    <p className="text-sm mt-1">Start adding data to see analytics and trends.</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Integration Widgets */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -543,26 +645,34 @@ const AdminHome: React.FC = () => {
                       <div className="space-y-3 p-6">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-sm font-semibold text-foreground">My Tasks</h3>
-                          <Badge variant="secondary">{mockTasks.length}</Badge>
+                          <Badge variant="secondary">{hasDemoAccess ? mockTasks.length : 0}</Badge>
                         </div>
-                        {mockTasks.map(task => <div key={task.id} className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
-                            <div className="flex items-start gap-3">
-                              <Checkbox className="mt-1" />
-                              <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-foreground">{task.title}</h4>
-                                <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
-                                <div className="flex items-center gap-2 mt-2">
-                                  <Badge variant="outline" className={`text-xs ${task.priority === 'urgent' ? 'bg-red-500/10 text-red-600 border-red-200' : task.priority === 'high' ? 'bg-orange-500/10 text-orange-600 border-orange-200' : task.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-200' : 'bg-blue-500/10 text-blue-600 border-blue-200'}`}>
-                                    {task.priority}
-                                  </Badge>
-                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {task.dueDate}
-                                  </span>
+                        {hasDemoAccess && mockTasks.length > 0 ? (
+                          mockTasks.map(task => <div key={task.id} className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
+                              <div className="flex items-start gap-3">
+                                <Checkbox className="mt-1" />
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-sm font-medium text-foreground">{task.title}</h4>
+                                  <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <Badge variant="outline" className={`text-xs ${task.priority === 'urgent' ? 'bg-red-500/10 text-red-600 border-red-200' : task.priority === 'high' ? 'bg-orange-500/10 text-orange-600 border-orange-200' : task.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-200' : 'bg-blue-500/10 text-blue-600 border-blue-200'}`}>
+                                      {task.priority}
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {task.dueDate}
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </div>)}
+                            </div>)
+                        ) : (
+                          <div className="text-center py-12 text-muted-foreground">
+                            <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                            <p className="font-medium">No tasks yet</p>
+                            <p className="text-sm mt-1">Create tasks to stay organized.</p>
+                          </div>
+                        )}
                       </div>
                     </ScrollArea>
                   </TabsContent>

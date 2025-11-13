@@ -286,7 +286,7 @@ export function BuilderSelectionPage() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      onClick={() => navigate('/admin/builder/forms/embed')}
+                      onClick={() => navigate('/admin/configuration/embed-forms')}
                       className="flex items-center gap-2"
                     >
                       <Code2 className="h-4 w-4" />

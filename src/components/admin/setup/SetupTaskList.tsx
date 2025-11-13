@@ -8,8 +8,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSetupTasks } from '@/hooks/useSetupTasks';
 import { SETUP_TASKS } from '@/data/setupTasks';
 import { SetupTaskCard } from './SetupTaskCard';
-import { CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Sparkles, ArrowRight, Play } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SetupTour } from './SetupTour';
+import { useSetupTour } from '@/hooks/useSetupTour';
 
 export const SetupTaskList: React.FC = () => {
   const navigate = useNavigate();
@@ -23,6 +25,8 @@ export const SetupTaskList: React.FC = () => {
     skipTask,
     startTask
   } = useSetupTasks();
+  
+  const { startTour } = useSetupTour();
 
   if (loading) {
     return (
@@ -36,7 +40,9 @@ export const SetupTaskList: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className="container mx-auto px-4 py-8 max-w-5xl" data-tour="welcome">
+      <SetupTour />
+      
       {/* Header Card */}
       <Card className="mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <CardHeader>
@@ -63,7 +69,7 @@ export const SetupTaskList: React.FC = () => {
           </div>
 
           {/* Progress Bar */}
-          <div className="mt-6 space-y-2">
+          <div className="mt-6 space-y-2" data-tour="progress-section">
             <div className="flex items-center justify-between text-sm">
               <span className="font-medium text-foreground">Overall Progress</span>
               <Badge variant="secondary" className="text-sm">
@@ -102,24 +108,29 @@ export const SetupTaskList: React.FC = () => {
       <div className="space-y-4">
         <h2 className="text-lg font-semibold text-foreground mb-4">Setup Tasks</h2>
         
-        {SETUP_TASKS.map((taskDef) => {
+        {SETUP_TASKS.map((taskDef, index) => {
           const task = tasks.find(t => t.task_id === taskDef.id);
           
           return (
-            <SetupTaskCard
+            <div 
               key={taskDef.id}
-              taskDefinition={taskDef}
-              task={task}
-              onComplete={() => completeTask(taskDef.id)}
-              onSkip={() => skipTask(taskDef.id)}
-              onStart={() => startTask(taskDef.id)}
-            />
+              data-tour={index === 0 ? "task-status" : undefined}
+            >
+              <SetupTaskCard
+                taskDefinition={taskDef}
+                task={task}
+                onComplete={() => completeTask(taskDef.id)}
+                onSkip={() => skipTask(taskDef.id)}
+                onStart={() => startTask(taskDef.id)}
+                isFirstTask={index === 0}
+              />
+            </div>
           );
         })}
       </div>
 
       {/* Help Section */}
-      <Card className="mt-8 bg-muted/30">
+      <Card className="mt-8 bg-muted/30" data-tour="help-section">
         <CardHeader>
           <CardTitle className="text-base">Need Help?</CardTitle>
           <CardDescription>
@@ -127,12 +138,16 @@ export const SetupTaskList: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button variant="outline" size="sm">
               View Documentation
             </Button>
             <Button variant="outline" size="sm">
               Contact Support
+            </Button>
+            <Button variant="outline" size="sm" onClick={startTour} className="gap-2">
+              <Play className="w-3 h-3" />
+              Take Tour
             </Button>
           </div>
         </CardContent>

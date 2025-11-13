@@ -44,7 +44,7 @@ export function useNotificationPreferences() {
 
   const fetchNotificationTypes = async () => {
     const { data, error } = await supabase
-      .from('notification_types')
+      .from('notification_types' as any)
       .select('*')
       .order('category', { ascending: true })
       .order('display_name', { ascending: true });
@@ -59,7 +59,7 @@ export function useNotificationPreferences() {
       return [];
     }
 
-    return data || [];
+    return (data || []) as unknown as NotificationType[];
   };
 
   const fetchPreferences = async () => {
@@ -74,7 +74,7 @@ export function useNotificationPreferences() {
 
       // Fetch user preferences
       const { data: prefs, error } = await supabase
-        .from('user_notification_preferences')
+        .from('user_notification_preferences' as any)
         .select('*')
         .eq('user_id', user.id);
 
@@ -99,14 +99,14 @@ export function useNotificationPreferences() {
         );
 
         const { data: newPrefs, error: insertError } = await supabase
-          .from('user_notification_preferences')
+          .from('user_notification_preferences' as any)
           .insert(defaultPrefs)
           .select();
 
         if (insertError) throw insertError;
-        setPreferences(newPrefs || []);
+        setPreferences((newPrefs || []) as unknown as NotificationPreference[]);
       } else {
-        setPreferences(prefs);
+        setPreferences(prefs as unknown as NotificationPreference[]);
       }
     } catch (error) {
       console.error('Error fetching preferences:', error);
@@ -130,7 +130,7 @@ export function useNotificationPreferences() {
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase
-        .from('user_notification_preferences')
+        .from('user_notification_preferences' as any)
         .update(updates)
         .eq('user_id', user.id)
         .eq('notification_type', notificationType)
@@ -165,7 +165,7 @@ export function useNotificationPreferences() {
       if (!user) throw new Error('Not authenticated');
 
       let query = supabase
-        .from('user_notification_preferences')
+        .from('user_notification_preferences' as any)
         .update({ enabled: params.enabled })
         .eq('user_id', user.id);
 
@@ -211,7 +211,7 @@ export function useNotificationPreferences() {
 
       // Delete all existing preferences
       const { error: deleteError } = await supabase
-        .from('user_notification_preferences')
+        .from('user_notification_preferences' as any)
         .delete()
         .eq('user_id', user.id);
 

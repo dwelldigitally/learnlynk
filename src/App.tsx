@@ -61,6 +61,7 @@ import InstructorReviewEvaluation from "./pages/InstructorReviewEvaluation";
 import InstructorStudentDetail from "./pages/InstructorStudentDetail";
 import InstructorReviewAttendance from "./pages/InstructorReviewAttendance";
 import InstructorReviewCompetency from "./pages/InstructorReviewCompetency";
+import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,7 @@ const App = () => {
                  <Route path="/embed/webform" element={<EmbedWebForm />} />
                <Route path="/onboarding" element={<ProtectedRoute element={<SimplifiedOnboarding />} />} />
                <Route path="/admin/setup" element={<ProtectedRoute element={<SetupPage />} />} />
+               <Route path="/admin/notifications/preferences" element={<ProtectedRoute element={<NotificationPreferencesPage />} />} />
                <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               
                {/* HubSpot OAuth callback route - matches what HubSpot sends */}

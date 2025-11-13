@@ -214,4 +214,84 @@ export class LeadService {
       assignment_method: 'manual'
     });
   }
+
+  /**
+   * Gets hot leads with high priority and engagement
+   */
+  static async getHotLeads(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', userId)
+        .or('priority.eq.urgent,priority.eq.high')
+        .gte('lead_score', 70)
+        .order('lead_score', { ascending: false })
+        .limit(15);
+
+      if (error) {
+        console.error('Error fetching hot leads:', error);
+        return { data: null, error };
+      }
+
+      return { data: data as Lead[], error: null };
+    } catch (error) {
+      console.error('Error in getHotLeads:', error);
+      return { data: null, error };
+    }
+  }
+
+  /**
+   * Gets today's call list
+   */
+  static async getTodaysCallList(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+    try {
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
+
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', userId)
+        .not('next_follow_up_at', 'is', null)
+        .or(`next_follow_up_at.gte.${startOfDay},next_follow_up_at.lt.${endOfDay},next_follow_up_at.lt.${startOfDay}`)
+        .order('next_follow_up_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching todays call list:', error);
+        return { data: null, error };
+      }
+
+      return { data: data as Lead[], error: null };
+    } catch (error) {
+      console.error('Error in getTodaysCallList:', error);
+      return { data: null, error };
+    }
+  }
+
+  /**
+   * Gets re-enquiry students
+   */
+  static async getReenquiryStudents(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', userId)
+        .or('tags.cs.{upsell,program_change,dormant,reactivation,alumni_referral}')
+        .order('lead_score', { ascending: false })
+        .limit(20);
+
+      if (error) {
+        console.error('Error fetching re-enquiry students:', error);
+        return { data: null, error };
+      }
+
+      return { data: data as Lead[], error: null };
+    } catch (error) {
+      console.error('Error in getReenquiryStudents:', error);
+      return { data: null, error };
+    }
+  }
 }

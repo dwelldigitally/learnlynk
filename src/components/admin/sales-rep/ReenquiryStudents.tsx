@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { RotateCcw, Phone, Mail, Star, ArrowRight, Eye } from 'lucide-react';
+import { LeadService } from '@/services/leadService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface ReenquiryStudent {
   id: string;
@@ -32,70 +34,49 @@ export function ReenquiryStudents() {
 
   const loadReenquiryStudents = async () => {
     try {
-      // Enhanced mock data for re-enquiry students with more variety
-      const mockStudents: ReenquiryStudent[] = [
-        {
-          id: '1',
-          name: 'David Martinez',
-          email: 'david.martinez@email.com',
-          phone: '+1234567890',
-          original_program: 'MBA',
-          new_interest: 'Executive MBA',
-          last_activity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 89,
-          type: 'upsell_opportunity',
-          days_since_last_contact: 2
-        },
-        {
-          id: '2',
-          name: 'Lisa Wong',
-          email: 'lisa.wong@email.com',
-          phone: '+1234567891',
-          original_program: 'Marketing Certificate',
-          new_interest: 'Digital Marketing Master',
-          last_activity: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 76,
-          type: 'program_change',
-          days_since_last_contact: 5
-        },
-        {
-          id: '3',
-          name: 'James Thompson',
-          email: 'james.thompson@email.com',
-          original_program: 'Business Analytics',
-          new_interest: 'Data Science Master',
-          last_activity: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 68,
-          type: 'dormant_reactivation',
-          days_since_last_contact: 12
-        },
-        {
-          id: '4',
-          name: 'Rachel Green',
-          email: 'rachel.green@email.com',
-          phone: '+1234567893',
-          original_program: 'Finance MBA',
-          new_interest: 'Investment Management Certificate',
-          last_activity: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 82,
-          type: 'alumni_referral',
-          days_since_last_contact: 7
-        },
-        {
-          id: '5',
-          name: 'Alex Rodriguez',
-          email: 'alex.rodriguez@email.com',
-          phone: '+1234567894',
-          original_program: 'Project Management',
-          new_interest: 'Agile Master Certification',
-          last_activity: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-          engagement_score: 91,
-          type: 'upsell_opportunity',
-          days_since_last_contact: 1
-        }
-      ];
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
       
-      setStudents(mockStudents);
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+
+      const { data: leads, error } = await LeadService.getReenquiryStudents(user.id);
+      
+      if (error) {
+        console.error('Failed to load re-enquiry students:', error);
+        return;
+      }
+
+      // Transform leads to ReenquiryStudent format
+      const reenquiryData: ReenquiryStudent[] = (leads || []).map(lead => {
+        const tags = lead.tags || [];
+        let type: ReenquiryStudent['type'] = 'dormant_reactivation';
+        
+        if (tags.includes('upsell')) type = 'upsell_opportunity';
+        else if (tags.includes('program_change')) type = 'program_change';
+        else if (tags.includes('alumni_referral')) type = 'alumni_referral';
+        else if (tags.includes('dormant') || tags.includes('reactivation')) type = 'dormant_reactivation';
+
+        const lastContactDate = lead.last_contacted_at ? new Date(lead.last_contacted_at) : new Date(lead.created_at);
+        const daysSinceContact = Math.floor((Date.now() - lastContactDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        return {
+          id: lead.id,
+          name: `${lead.first_name} ${lead.last_name}`,
+          email: lead.email,
+          phone: lead.phone,
+          original_program: lead.program_interest?.[0] || 'Unknown',
+          new_interest: lead.program_interest?.[1] || lead.program_interest?.[0] || 'Unknown',
+          last_activity: lead.last_contacted_at || lead.updated_at,
+          engagement_score: lead.lead_score || lead.ai_score || 0,
+          type,
+          days_since_last_contact: daysSinceContact
+        };
+      });
+      
+      setStudents(reenquiryData);
     } catch (error) {
       console.error('Failed to load re-enquiry students:', error);
     } finally {

@@ -13,6 +13,7 @@ interface SetupTaskCardProps {
   onComplete: () => void;
   onSkip: () => void;
   onStart: () => void;
+  isFirstTask?: boolean;
 }
 
 export const SetupTaskCard: React.FC<SetupTaskCardProps> = ({
@@ -20,7 +21,8 @@ export const SetupTaskCard: React.FC<SetupTaskCardProps> = ({
   task,
   onComplete,
   onSkip,
-  onStart
+  onStart,
+  isFirstTask = false
 }) => {
   const status = task?.status || 'not_started';
   const IconComponent = taskDefinition.icon;
@@ -67,7 +69,7 @@ export const SetupTaskCard: React.FC<SetupTaskCardProps> = ({
 
           {/* Task Icon & Content */}
           <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4 mb-2">
+            <div className="flex items-start justify-between gap-4 mb-2" data-tour={isFirstTask ? "task-info" : undefined}>
               <div className="flex items-center gap-3">
                 <div className={cn(
                   "p-2 rounded-lg",
@@ -104,7 +106,7 @@ export const SetupTaskCard: React.FC<SetupTaskCardProps> = ({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2" data-tour={isFirstTask ? "task-actions" : undefined}>
               <Link to={taskDefinition.link} onClick={onStart}>
                 <Button 
                   size="sm"

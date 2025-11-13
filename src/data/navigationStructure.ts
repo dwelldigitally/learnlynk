@@ -36,7 +36,8 @@ import {
   Server,
   DollarSign,
   LayoutDashboard,
-  Sliders
+  Sliders,
+  ClipboardCheck
 } from "lucide-react";
 import type { NavigationStructure } from "@/types/navigation";
 
@@ -140,6 +141,7 @@ export const navigationStructure: NavigationStructure = {
       name: "System Configuration", 
       icon: Settings,
       items: [
+        { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
         { name: "Team Management", href: "/admin/team", icon: UserCog },
         { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
         { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },

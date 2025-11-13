@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Search, Filter, Edit, Copy, Trash2, BarChart3, FileText, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HelpIcon } from "@/components/ui/help-icon";
 import { useHelpContent } from "@/hooks/useHelpContent";
 import { Input } from "@/components/ui/input";
 import { CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,56 +26,54 @@ interface FormsOverviewProps {
 
 export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) {
   const { getHelpContent } = useHelpContent();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [forms, setForms] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data for demonstration
-  const formsStats = {
-    total: 12,
-    active: 8,
-    draft: 3,
-    archived: 1,
-    submissions: 1247,
-    conversionRate: 68.5
+  useEffect(() => {
+    fetchForms();
+  }, []);
+
+  const fetchForms = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        setForms([]);
+        setIsLoading(false);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('forms')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setForms(data || []);
+    } catch (error) {
+      console.error('Error fetching forms:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load forms",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const mockForms = [
-    {
-      id: "1",
-      name: "Program Application Form",
-      status: "active",
-      submissions: 156,
-      conversionRate: 72.3,
-      lastModified: "2024-01-15",
-      createdBy: "John Doe"
-    },
-    {
-      id: "2", 
-      name: "Contact Us Form",
-      status: "active",
-      submissions: 89,
-      conversionRate: 65.1,
-      lastModified: "2024-01-12",
-      createdBy: "Jane Smith"
-    },
-    {
-      id: "3",
-      name: "Newsletter Signup",
-      status: "draft",
-      submissions: 0,
-      conversionRate: 0,
-      lastModified: "2024-01-10",
-      createdBy: "John Doe"
-    },
-    {
-      id: "4",
-      name: "Event Registration",
-      status: "active", 
-      submissions: 234,
-      conversionRate: 81.2,
-      lastModified: "2024-01-08",
-      createdBy: "Sarah Wilson"
-    }
-  ];
+  // Calculate stats from actual data
+  const formsStats = {
+    total: forms.length,
+    active: forms.filter(f => f.status === 'active').length,
+    draft: forms.filter(f => f.status === 'draft').length,
+    archived: forms.filter(f => f.status === 'archived').length,
+    submissions: 0, // TODO: Calculate from form_submissions table
+    conversionRate: 0 // TODO: Calculate from form_submissions
+  };
 
   const getStatusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'default' | 'secondary' => {
     switch (status) {
@@ -149,8 +149,25 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
       </div>
 
       {/* Forms Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {mockForms.map((form) => (
+      {isLoading ? (
+        <div className="text-center py-12 text-muted-foreground">
+          Loading forms...
+        </div>
+      ) : forms.length === 0 ? (
+        <div className="text-center py-12">
+          <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+          <h3 className="text-lg font-semibold mb-2">No forms yet</h3>
+          <p className="text-muted-foreground mb-6">
+            Create your first lead capture form to start collecting submissions
+          </p>
+          <Button onClick={onCreateForm}>
+            <Plus className="w-4 h-4 mr-2" />
+            Create Your First Form
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {forms.map((form) => (
           <ModernCard key={form.id}>
             <CardContent className="p-6">
               <div className="flex items-start gap-3 mb-4">
@@ -162,7 +179,7 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
                     {form.name}
                   </h3>
                   <InfoBadge variant={getStatusVariant(form.status)}>
-                    {form.status.toUpperCase()}
+                    {form.status?.toUpperCase() || 'DRAFT'}
                   </InfoBadge>
                 </div>
                 <DropdownMenu>
@@ -193,37 +210,34 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
               </div>
 
               <div className="space-y-3 mb-4">
-                <MetadataItem
-                  icon={TrendingUp}
-                  label="Submissions"
-                  value={form.submissions.toLocaleString()}
-                />
-                
-                <MetadataItem
-                  icon={BarChart3}
-                  label="Conversion Rate"
-                  value={`${form.conversionRate}%`}
-                />
-
-                <MetadataItem
-                  label="Created By"
-                  value={form.createdBy}
-                />
+                {form.description && (
+                  <p className="text-sm text-muted-foreground mb-2">{form.description}</p>
+                )}
               </div>
 
               <div className="pt-4 border-t border-border">
-                <p className="text-xs text-muted-foreground">
-                  Last modified {new Date(form.lastModified).toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric', 
-                    year: 'numeric' 
-                  })}
-                </p>
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">
+                    Created {new Date(form.created_at).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Last modified {new Date(form.updated_at).toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
+                  </p>
+                </div>
               </div>
             </CardContent>
           </ModernCard>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

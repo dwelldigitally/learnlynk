@@ -45,9 +45,17 @@ export class DocumentTemplateService {
     mandatory?: boolean;
     stage?: string;
   }): Promise<DocumentTemplate[]> {
+    // Get authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
     let query = supabase
       .from('document_templates')
       .select('*')
+      .eq('user_id', user.id)
       .order('usage_count', { ascending: false });
 
     if (filters?.category) {
@@ -72,9 +80,16 @@ export class DocumentTemplateService {
    * Get templates by category
    */
   static async getTemplatesByCategory(category: string): Promise<DocumentTemplate[]> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('document_templates')
       .select('*')
+      .eq('user_id', user.id)
       .eq('category', category)
       .order('usage_count', { ascending: false });
 

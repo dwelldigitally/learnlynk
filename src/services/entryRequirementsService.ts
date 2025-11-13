@@ -44,10 +44,18 @@ export class EntryRequirementsService {
     includeSystemTemplates?: boolean;
   }): Promise<EntryRequirement[]> {
     try {
+      // Get authenticated user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return [];
+      }
+
       // Try to fetch from database first
       const { data, error } = await supabase
         .from('entry_requirements' as any)
         .select('*')
+        .eq('user_id', user.id)
         .order('usage_count', { ascending: false });
 
       // If query succeeds (even if empty), return the results

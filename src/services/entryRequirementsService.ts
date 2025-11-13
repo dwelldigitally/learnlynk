@@ -50,8 +50,9 @@ export class EntryRequirementsService {
         .select('*')
         .order('usage_count', { ascending: false });
 
-      if (!error && data) {
-        let results = this.transformToFrontend(data);
+      // If query succeeds (even if empty), return the results
+      if (!error) {
+        let results = this.transformToFrontend(data || []);
         
         // Apply filters
         if (filters?.type) {
@@ -67,31 +68,11 @@ export class EntryRequirementsService {
         return results;
       }
     } catch (error) {
-      console.log('Database table not yet available, using sample data');
+      console.log('Database error, returning empty array for new users');
     }
 
-    // Fallback to sample data if database table doesn't exist yet
-    const sampleRequirements = getAllSampleRequirements();
-    let results = sampleRequirements.map(req => ({
-      id: req.id,
-      type: req.type,
-      title: req.title,
-      description: req.description,
-      mandatory: req.mandatory,
-      details: req.details,
-      minimumGrade: req.minimumGrade,
-      alternatives: req.alternatives
-    }));
-
-    // Apply filters to sample data
-    if (filters?.type) {
-      results = results.filter(req => req.type === filters.type);
-    }
-    if (filters?.mandatory !== undefined) {
-      results = results.filter(req => req.mandatory === filters.mandatory);
-    }
-
-    return results;
+    // Return empty array - no fallback to sample data
+    return [];
   }
 
   // Get requirements by type

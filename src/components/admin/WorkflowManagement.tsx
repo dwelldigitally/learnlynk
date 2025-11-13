@@ -36,10 +36,22 @@ const WorkflowManagement: React.FC = () => {
 
   const fetchWorkflows = async () => {
     try {
-    const { data, error } = await supabase
-      .from('plays')
-      .select('*')
-      .order('created_at', { ascending: false });
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user?.id) {
+        toast({
+          title: "Error",
+          description: "User not authenticated",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('plays')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setWorkflows(data || []);

@@ -37,6 +37,12 @@ export class AcademicJourneyService {
 
   // Academic Journeys
   static async getAcademicJourneys(userId?: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
     const query = supabase
       .from('academic_journeys')
       .select(`
@@ -47,11 +53,8 @@ export class AcademicJourneyService {
           journey_channel_rules (*)
         )
       `)
+      .eq('user_id', userId || user.id)
       .order('created_at', { ascending: false });
-
-    if (userId) {
-      query.eq('user_id', userId);
-    }
 
     const { data, error } = await query;
     if (error) throw error;

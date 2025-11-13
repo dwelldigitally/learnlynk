@@ -13,14 +13,14 @@ export class DemoDataService {
       const { data, error } = await supabase.rpc('user_has_demo_data');
       if (error) {
         console.error('Error checking demo data access:', error);
-        // Fallback: enable demo data for all users when RPC fails
-        return true;
+        // Fallback: show empty states when RPC fails
+        return false;
       }
       return data || false;
     } catch (error) {
       console.error('Error checking demo data access:', error);
-      // Fallback: enable demo data for all users when RPC fails
-      return true;
+      // Fallback: show empty states when check fails
+      return false;
     }
   }
 
@@ -1397,16 +1397,16 @@ export function useDemoDataAccess() {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
-          // No user logged in, enable demo data
-          return true;
+          // No user logged in, show empty states
+          return false;
         }
         
         // User is logged in, check their demo data access
         return await DemoDataService.hasUserDemoData();
       } catch (error) {
-        // On any error, enable demo data as fallback
-        console.warn('Error checking demo data access, enabling demo data:', error);
-        return true;
+        // On any error, show empty states as fallback
+        console.warn('Error checking demo data access, defaulting to no demo data:', error);
+        return false;
       }
     },
     enabled: true,

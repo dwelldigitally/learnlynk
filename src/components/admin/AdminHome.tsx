@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Search, Calendar, Users, MessageSquare, Plus, StickyNote, FileText, Activity, HelpCircle, ClipboardList, ChevronDown, CheckCircle2, Sparkles, Play } from "lucide-react";
+import { Search, Calendar, Users, MessageSquare, Plus, StickyNote, FileText, Activity, ChevronDown, CheckCircle2, Sparkles } from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { ProfileService } from "@/services/profileService";
 import { useToast } from "@/hooks/use-toast";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { QuickCommunicationModal } from "./QuickCommunicationModal";
 import { QuickTaskModal } from "./QuickTaskModal";
 import { QuickNoteModal } from "./QuickNoteModal";
@@ -27,9 +25,7 @@ const AdminHome: React.FC = () => {
     user
   } = useAuth();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const { progress, loading } = useSetupTasks();
   const [searchQuery, setSearchQuery] = useState("");
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
@@ -37,7 +33,6 @@ const AdminHome: React.FC = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showLookupModal, setShowLookupModal] = useState(false);
-  const [isResettingOnboarding, setIsResettingOnboarding] = useState(false);
   const [isBannerVisible, setIsBannerVisible] = useState(false);
 
   // Check if setup banner is currently visible
@@ -59,43 +54,6 @@ const AdminHome: React.FC = () => {
     return "Good evening";
   };
   const firstName = profile?.first_name || "there";
-  const handleResetOnboarding = async () => {
-    if (!user?.id) {
-      toast({
-        title: "Error",
-        description: "User not found. Please try again.",
-        variant: "destructive"
-      });
-      return;
-    }
-    setIsResettingOnboarding(true);
-    try {
-      const {
-        error
-      } = await ProfileService.resetOnboarding(user.id);
-      if (error) {
-        throw error;
-      }
-      toast({
-        title: "Success",
-        description: "Onboarding reset successfully! Starting demo..."
-      });
-
-      // Force a page reload to ensure ProtectedRoute re-evaluates onboarding status
-      setTimeout(() => {
-        window.location.href = "/onboarding";
-      }, 1000);
-    } catch (error) {
-      console.error('Failed to reset onboarding:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reset onboarding. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsResettingOnboarding(false);
-    }
-  };
   const quickActions = [{
     title: "Daily Catch Up",
     description: "See what needs your attention today",
@@ -126,26 +84,6 @@ const AdminHome: React.FC = () => {
     icon: StickyNote,
     color: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
     onClick: () => setShowNoteModal(true)
-  }, {
-    title: "Help Center",
-    description: "Get help and browse documentation",
-    icon: HelpCircle,
-    color: "bg-gray-500/10 text-gray-600 hover:bg-gray-500/20",
-    onClick: () => navigate("/admin/help")
-  }, {
-    title: "My Assignments",
-    description: "Tasks assigned to you",
-    icon: ClipboardList,
-    color: "bg-teal-500/10 text-teal-600 hover:bg-teal-500/20",
-    onClick: () => navigate("/admin/assignments")
-  }, {
-    title: "Demo Onboarding",
-    description: "Try the onboarding flow",
-    icon: Play,
-    color: "bg-indigo-500/10 text-indigo-600 hover:bg-indigo-500/20",
-    onClick: () => {},
-    // Will be handled by AlertDialog
-    isDemo: true
   }];
   const quickStartSteps = [{
     title: "Set up your profile",
@@ -195,58 +133,23 @@ const AdminHome: React.FC = () => {
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {quickActions.map((action, index) => {
-          const Icon = action.icon;
-          if (action.isDemo) {
-            return <AlertDialog key={index}>
-                  <AlertDialogTrigger asChild>
-                    <Card className="border-0 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105">
-                      <CardContent className="p-6 text-center space-y-4">
-                        <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-colors ${action.color}`}>
-                          <Icon className="h-8 w-8" />
-                        </div>
-                        <div className="space-y-2">
-                          <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                            {action.title}
-                          </h3>
-                          <p className="text-sm text-muted-foreground">
-                            {action.description}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Reset Onboarding?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This will reset your onboarding progress and allow you to experience the full onboarding flow again for demo purposes.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleResetOnboarding} disabled={isResettingOnboarding}>
-                        {isResettingOnboarding ? "Resetting..." : "Continue"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>;
-          }
-          return <Card key={index} className="border-0 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105" onClick={action.onClick}>
-                <CardContent className="p-6 text-center space-y-4">
-                  <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-colors ${action.color}`}>
-                    <Icon className="h-8 w-8" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                      {action.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {action.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>;
-        })}
+            const Icon = action.icon;
+            return <Card key={index} className="border-0 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105" onClick={action.onClick}>
+                  <CardContent className="p-6 text-center space-y-4">
+                    <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-colors ${action.color}`}>
+                      <Icon className="h-8 w-8" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
+                        {action.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        {action.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>;
+          })}
         </div>
 
         {/* Quick Start Guide */}

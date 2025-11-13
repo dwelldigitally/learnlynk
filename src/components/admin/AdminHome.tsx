@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Search, Calendar, Users, MessageSquare, Plus, StickyNote, FileText, Activity, ChevronDown, CheckCircle2, Sparkles } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Search, Users, TrendingUp, FileText, DollarSign, CheckCircle2, 
+  Activity, MessageSquare, Calendar, Plus, StickyNote, Sparkles,
+  AlertTriangle, Clock, Target, Mail, Phone, Building, UserPlus
+} from "lucide-react";
 import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,36 +19,24 @@ import { QuickNoteModal } from "./QuickNoteModal";
 import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
 import { OutlookCalendarWidget } from "./OutlookCalendarWidget";
 import { OutlookEmailWidget } from "./OutlookEmailWidget";
-import { useSetupTasks } from "@/hooks/useSetupTasks";
+import { DashboardKPICard } from "./dashboard/DashboardKPICard";
+import { ActivityFeedItem, ActivityItem } from "./dashboard/ActivityFeedItem";
+import { PriorityActionCard, PriorityAction } from "./dashboard/PriorityActionCard";
+import { QuickInsightsChart } from "./dashboard/QuickInsightsChart";
+import { AIRecommendationCard, AIRecommendation } from "./dashboard/AIRecommendationCard";
+import { DashboardNotificationPanel, Notification } from "./dashboard/DashboardNotificationPanel";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const AdminHome: React.FC = () => {
-  const {
-    profile
-  } = useProfile();
-  const {
-    user
-  } = useAuth();
+  const { profile } = useProfile();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { progress, loading } = useSetupTasks();
   const [searchQuery, setSearchQuery] = useState("");
-  const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showLookupModal, setShowLookupModal] = useState(false);
-  const [isBannerVisible, setIsBannerVisible] = useState(false);
-
-  // Check if setup banner is currently visible
-  useEffect(() => {
-    if (!user || loading) return;
-
-    const forceShow = localStorage.getItem(`setup_banner_force_show_${user.id}`);
-    const dismissed = localStorage.getItem(`setup_banner_dismissed_${user.id}`);
-    
-    const bannerVisible = !!forceShow || (!dismissed && progress < 100);
-    setIsBannerVisible(bannerVisible);
-  }, [user, progress, loading]);
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -53,167 +45,555 @@ const AdminHome: React.FC = () => {
     if (hour < 17) return "Good afternoon";
     return "Good evening";
   };
-  const firstName = profile?.first_name || "there";
-  const quickActions = [{
-    title: "Daily Catch Up",
-    description: "See what needs your attention today",
-    icon: Calendar,
-    color: "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20",
-    onClick: () => navigate("/admin/sales-rep-dashboard")
-  }, {
-    title: "Student Lookup",
-    description: "Find and view student information",
-    icon: Users,
-    color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
-    onClick: () => setShowLookupModal(true)
-  }, {
-    title: "Send Message",
-    description: "Communicate with students or staff",
-    icon: MessageSquare,
-    color: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
-    onClick: () => setShowCommunicationModal(true)
-  }, {
-    title: "Create Task",
-    description: "Add a new task or reminder",
-    icon: Plus,
-    color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
-    onClick: () => setShowTaskModal(true)
-  }, {
-    title: "Add Note",
-    description: "Quick note about a student or event",
-    icon: StickyNote,
-    color: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
-    onClick: () => setShowNoteModal(true)
-  }];
-  const quickStartSteps = [{
-    title: "Set up your profile",
-    completed: true
-  }, {
-    title: "Configure notification preferences",
-    completed: true
-  }, {
-    title: "Add team members",
-    completed: false
-  }, {
-    title: "Import student data",
-    completed: false
-  }, {
-    title: "Create your first program",
-    completed: false
-  }];
-  const completedSteps = quickStartSteps.filter(step => step.completed).length;
-  const progressPercentage = completedSteps / quickStartSteps.length * 100;
-  return <div className="min-h-screen bg-background p-6 pt-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Greeting Section */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold text-foreground tracking-tight">
-            {getGreeting()}, {firstName}!
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            What would you like to work on today?
-          </p>
-        </div>
 
-        {/* AI Search Bar */}
-        <div className="max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Sparkles className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-primary" />
-            <Input placeholder="How can I help you? Try 'Find students in Biology program' or 'Send reminder emails'" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-12 pr-12 py-6 text-lg bg-card border-2 border-border hover:border-primary/50 focus:border-primary transition-colors" />
+  const firstName = profile?.first_name || "there";
+
+  // Mock KPI Data
+  const kpiData = [
+    {
+      title: "New Leads",
+      value: 12,
+      icon: Users,
+      trend: 'up' as const,
+      trendValue: '+23% from yesterday',
+      onClick: () => navigate('/admin/leads')
+    },
+    {
+      title: "Active Students",
+      value: 156,
+      icon: Building,
+      trend: 'neutral' as const,
+      onClick: () => navigate('/admin/students')
+    },
+    {
+      title: "Pending Applications",
+      value: 8,
+      icon: FileText,
+      trend: 'down' as const,
+      trendValue: '-2 from last week',
+      onClick: () => navigate('/admin/applicants')
+    },
+    {
+      title: "Revenue (MTD)",
+      value: "$45.2K",
+      icon: DollarSign,
+      trend: 'up' as const,
+      trendValue: '+18% vs last month',
+      onClick: () => navigate('/admin/financial-management')
+    },
+    {
+      title: "Conversion Rate",
+      value: "23%",
+      icon: Target,
+      trend: 'up' as const,
+      trendValue: '+5% improvement',
+    },
+    {
+      title: "Tasks Due Today",
+      value: 5,
+      icon: CheckCircle2,
+      trend: 'neutral' as const,
+      onClick: () => navigate('/admin/sales-rep-dashboard')
+    }
+  ];
+
+  // Mock Priority Actions
+  const priorityActions: PriorityAction[] = [
+    {
+      id: '1',
+      title: 'Overdue Tasks',
+      description: 'Complete these tasks to stay on track',
+      urgency: 'critical',
+      count: 3,
+      icon: AlertTriangle,
+      action: () => navigate('/admin/sales-rep-dashboard'),
+      actionLabel: 'View Tasks'
+    },
+    {
+      id: '2',
+      title: 'Follow-ups Needed',
+      description: 'Leads waiting for your response',
+      urgency: 'high',
+      count: 5,
+      icon: Phone,
+      action: () => navigate('/admin/leads'),
+      actionLabel: 'Contact Leads'
+    },
+    {
+      id: '3',
+      title: 'Applications to Review',
+      description: 'Pending applications require attention',
+      urgency: 'high',
+      count: 8,
+      icon: FileText,
+      action: () => navigate('/admin/applicants'),
+      actionLabel: 'Review Applications'
+    },
+    {
+      id: '4',
+      title: 'Documents Pending',
+      description: 'Student documents awaiting verification',
+      urgency: 'medium',
+      count: 12,
+      icon: FileText,
+      action: () => navigate('/admin/documents'),
+      actionLabel: 'Verify Documents'
+    }
+  ];
+
+  // Mock Activity Feed
+  const activityFeed: ActivityItem[] = [
+    {
+      id: '1',
+      type: 'lead',
+      title: 'New Lead: Sarah Johnson',
+      description: 'Interested in Computer Science program',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15),
+      user: { name: 'System', avatar: undefined },
+      icon: UserPlus,
+      priority: 'high'
+    },
+    {
+      id: '2',
+      type: 'application',
+      title: 'Application Submitted',
+      description: 'Michael Chen submitted application for Business Administration',
+      timestamp: new Date(Date.now() - 1000 * 60 * 45),
+      icon: FileText,
+      priority: 'medium'
+    },
+    {
+      id: '3',
+      type: 'payment',
+      title: 'Payment Received',
+      description: 'Emma Wilson paid $2,500 tuition fee',
+      timestamp: new Date(Date.now() - 1000 * 60 * 120),
+      user: { name: 'Finance Team' },
+      icon: DollarSign
+    },
+    {
+      id: '4',
+      type: 'task',
+      title: 'Task Completed',
+      description: 'Follow-up call with David Martinez',
+      timestamp: new Date(Date.now() - 1000 * 60 * 180),
+      user: { name: 'John Smith' },
+      icon: CheckCircle2
+    },
+    {
+      id: '5',
+      type: 'communication',
+      title: 'Email Sent',
+      description: 'Welcome email sent to 15 new applicants',
+      timestamp: new Date(Date.now() - 1000 * 60 * 240),
+      icon: Mail
+    }
+  ];
+
+  // Mock AI Recommendations
+  const aiRecommendations: AIRecommendation[] = [
+    {
+      id: '1',
+      title: 'Re-engage Cold Leads',
+      description: 'You have 5 leads from last week with no follow-up. Consider reaching out to re-engage them.',
+      impact: 'high',
+      category: 'Sales',
+      action: () => navigate('/admin/leads'),
+      actionLabel: 'View Leads'
+    },
+    {
+      id: '2',
+      title: 'Document Verification Backlog',
+      description: '12 student documents are waiting for verification. Clearing this will improve student satisfaction.',
+      impact: 'high',
+      category: 'Operations',
+      action: () => navigate('/admin/documents'),
+      actionLabel: 'Start Verification'
+    },
+    {
+      id: '3',
+      title: 'Response Time Increased',
+      description: 'Your team\'s average response time increased by 20% this week. Consider redistributing workload.',
+      impact: 'medium',
+      category: 'Performance',
+      action: () => navigate('/admin/team-management'),
+      actionLabel: 'View Team'
+    }
+  ];
+
+  // Mock Notifications
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      id: '1',
+      type: 'system',
+      title: 'System Update',
+      message: 'New features available in the reporting module',
+      timestamp: new Date(Date.now() - 1000 * 60 * 30),
+      priority: 'low',
+      read: false
+    },
+    {
+      id: '2',
+      type: 'task',
+      title: 'Task Reminder',
+      message: 'Meeting with admissions team in 30 minutes',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15),
+      priority: 'high',
+      read: false,
+      action: () => navigate('/admin/sales-rep-dashboard')
+    },
+    {
+      id: '3',
+      type: 'financial',
+      title: 'Payment Received',
+      message: '$5,000 payment received from Emma Wilson',
+      timestamp: new Date(Date.now() - 1000 * 60 * 120),
+      priority: 'medium',
+      read: true
+    }
+  ]);
+
+  // Mock Chart Data
+  const leadSourceData = [
+    { name: 'Website', value: 45 },
+    { name: 'Referral', value: 25 },
+    { name: 'Social Media', value: 20 },
+    { name: 'Events', value: 10 }
+  ];
+
+  const applicationPipelineData = [
+    { name: 'Inquiry', value: 120 },
+    { name: 'Applied', value: 85 },
+    { name: 'Accepted', value: 60 },
+    { name: 'Enrolled', value: 45 }
+  ];
+
+  const revenueData = [
+    { name: 'Jan', value: 32000 },
+    { name: 'Feb', value: 38000 },
+    { name: 'Mar', value: 42000 },
+    { name: 'Apr', value: 45000 },
+    { name: 'May', value: 48000 },
+    { name: 'Jun', value: 45200 }
+  ];
+
+  // Quick Actions
+  const quickActions = [
+    {
+      title: "Add Lead",
+      description: "Capture new lead information",
+      icon: UserPlus,
+      color: "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20",
+      onClick: () => navigate("/admin/leads")
+    },
+    {
+      title: "Student Lookup",
+      description: "Find student information",
+      icon: Users,
+      color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
+      onClick: () => setShowLookupModal(true)
+    },
+    {
+      title: "Send Message",
+      description: "Communicate with students",
+      icon: MessageSquare,
+      color: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
+      onClick: () => setShowCommunicationModal(true)
+    },
+    {
+      title: "Create Task",
+      description: "Add new task or reminder",
+      icon: Plus,
+      color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
+      onClick: () => setShowTaskModal(true)
+    },
+    {
+      title: "Add Note",
+      description: "Quick note creation",
+      icon: StickyNote,
+      color: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
+      onClick: () => setShowNoteModal(true)
+    },
+    {
+      title: "Schedule Meeting",
+      description: "Book a new meeting",
+      icon: Calendar,
+      color: "bg-pink-500/10 text-pink-600 hover:bg-pink-500/20",
+      onClick: () => navigate("/admin/calendar")
+    }
+  ];
+
+  const handleMarkAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    toast({ title: "All notifications marked as read" });
+  };
+
+  const handleDismiss = (id: string) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      toast({
+        title: "Search",
+        description: `Searching for: ${searchQuery}`
+      });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero Section with Greeting and KPIs */}
+      <div className="border-b bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
+        <div className="container mx-auto px-6 py-8">
+          {/* Greeting */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              {getGreeting()}, {firstName}! 👋
+            </h1>
+            <p className="text-muted-foreground">
+              {new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </p>
+          </div>
+
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+            {kpiData.map((kpi, index) => (
+              <DashboardKPICard key={index} {...kpi} />
+            ))}
+          </div>
+
+          {/* AI Search Bar */}
+          <form onSubmit={handleSearch} className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="🔍 AI Search: How can I help you today? Try 'Show me hot leads' or 'Students with incomplete documents'"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-12 pr-4 h-12 bg-card border-border text-base"
+            />
+            <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+          </form>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="container mx-auto px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Priority Dashboard */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Priority Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-orange-600" />
+                  Today's Focus
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="urgent" className="w-full">
+                  <TabsList className="w-full mb-4">
+                    <TabsTrigger value="urgent" className="flex-1">Urgent Actions</TabsTrigger>
+                    <TabsTrigger value="schedule" className="flex-1">My Schedule</TabsTrigger>
+                    <TabsTrigger value="leads" className="flex-1">Hot Leads</TabsTrigger>
+                  </TabsList>
+
+                  <TabsContent value="urgent" className="space-y-3">
+                    {priorityActions.map(action => (
+                      <PriorityActionCard key={action.id} action={action} />
+                    ))}
+                  </TabsContent>
+
+                  <TabsContent value="schedule">
+                    <OutlookCalendarWidget />
+                  </TabsContent>
+
+                  <TabsContent value="leads">
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <p>No hot leads at the moment</p>
+                      <Button 
+                        variant="link" 
+                        className="mt-2"
+                        onClick={() => navigate('/admin/leads')}
+                      >
+                        View all leads
+                      </Button>
+                    </div>
+                  </TabsContent>
+                </Tabs>
+              </CardContent>
+            </Card>
+
+            {/* Activity Feed */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    Activity Feed
+                  </CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/admin/activity')}>
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px] pr-4">
+                  <div className="space-y-3">
+                    {activityFeed.map(activity => (
+                      <ActivityFeedItem key={activity.id} activity={activity} />
+                    ))}
+                  </div>
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Quick Actions Grid */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {quickActions.map((action, index) => {
+                    const Icon = action.icon;
+                    return (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className={`h-auto flex-col items-start p-4 ${action.color}`}
+                        onClick={action.onClick}
+                      >
+                        <Icon className="h-5 w-5 mb-2" />
+                        <div className="text-left">
+                          <div className="font-semibold text-sm">{action.title}</div>
+                          <div className="text-xs opacity-80">{action.description}</div>
+                        </div>
+                      </Button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* AI Recommendations */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  AI Recommendations
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {aiRecommendations.map(rec => (
+                    <AIRecommendationCard key={rec.id} recommendation={rec} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Quick Insights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <QuickInsightsChart
+                title="Lead Sources"
+                type="pie"
+                data={leadSourceData}
+              />
+              <QuickInsightsChart
+                title="Application Pipeline"
+                type="bar"
+                data={applicationPipelineData}
+              />
+            </div>
+
+            <QuickInsightsChart
+              title="Revenue Trend"
+              type="line"
+              data={revenueData}
+            />
+
+            {/* Integration Widgets */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <OutlookEmailWidget />
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Integrations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 rounded-lg border">
+                      <div className="flex items-center gap-3">
+                        <Mail className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-medium text-sm">Outlook Email</p>
+                          <p className="text-xs text-muted-foreground">Connected</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="bg-green-500/10 text-green-600">
+                        Active
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between p-3 rounded-lg border">
+                      <div className="flex items-center gap-3">
+                        <Calendar className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-medium text-sm">Outlook Calendar</p>
+                          <p className="text-xs text-muted-foreground">Connected</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="bg-green-500/10 text-green-600">
+                        Active
+                      </Badge>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Right Column - Notifications */}
+          <div className="lg:col-span-1">
+            <DashboardNotificationPanel
+              notifications={notifications}
+              onMarkAsRead={handleMarkAsRead}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onDismiss={handleDismiss}
+            />
           </div>
         </div>
-
-        {/* Outlook Integrations */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <OutlookCalendarWidget />
-          <OutlookEmailWidget />
-        </div>
-
-        {/* Quick Actions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {quickActions.map((action, index) => {
-            const Icon = action.icon;
-            return <Card key={index} className="border-0 shadow-soft hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-105" onClick={action.onClick}>
-                  <CardContent className="p-6 text-center space-y-4">
-                    <div className={`w-16 h-16 mx-auto rounded-2xl flex items-center justify-center transition-colors ${action.color}`}>
-                      <Icon className="h-8 w-8" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                        {action.title}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {action.description}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>;
-          })}
-        </div>
-
-        {/* Quick Start Guide */}
-        <Card className="border-0 shadow-soft">
-          <Collapsible open={isQuickStartOpen} onOpenChange={setIsQuickStartOpen}>
-            <CollapsibleTrigger asChild>
-              
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <div className="px-6 pb-6 space-y-4">
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div className="bg-primary h-2 rounded-full transition-all duration-500" style={{
-                  width: `${progressPercentage}%`
-                }} />
-                </div>
-                <div className="space-y-3">
-                  {quickStartSteps.map((step, index) => <div key={index} className="flex items-center space-x-3">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center ${step.completed ? 'bg-primary text-white' : 'bg-muted border-2 border-border'}`}>
-                        {step.completed && <CheckCircle2 className="h-4 w-4" />}
-                      </div>
-                      <span className={`text-sm ${step.completed ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
-                        {step.title}
-                      </span>
-                      {step.completed && <Badge variant="secondary" className="text-xs">
-                          Done
-                        </Badge>}
-                    </div>)}
-                </div>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        </Card>
       </div>
-      
-      {/* Modal Components */}
-      <QuickCommunicationModal open={showCommunicationModal} onOpenChange={setShowCommunicationModal} />
-      <QuickTaskModal open={showTaskModal} onOpenChange={setShowTaskModal} />
-      <QuickNoteModal open={showNoteModal} onOpenChange={setShowNoteModal} />
-      <QuickStudentLookupModal open={showLookupModal} onOpenChange={setShowLookupModal} />
-      
-      {/* Demo Banner Button - Hidden when banner is visible */}
-      {!isBannerVisible && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <Button
-            onClick={() => {
-              if (user?.id) {
-                // Clear dismissal and set force show flag
-                localStorage.removeItem(`setup_banner_dismissed_${user.id}`);
-                localStorage.setItem(`setup_banner_force_show_${user.id}`, 'true');
-                toast({
-                  title: "Banner Activated",
-                  description: "Setup banner will appear now",
-                });
-                setTimeout(() => window.location.reload(), 500);
-              }
-            }}
-            size="sm"
-            className="shadow-lg"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Demo Setup Banner
-          </Button>
-        </div>
-      )}
-    </div>;
+
+      {/* Modals */}
+      <QuickCommunicationModal
+        open={showCommunicationModal}
+        onOpenChange={setShowCommunicationModal}
+      />
+      <QuickTaskModal
+        open={showTaskModal}
+        onOpenChange={setShowTaskModal}
+      />
+      <QuickNoteModal
+        open={showNoteModal}
+        onOpenChange={setShowNoteModal}
+      />
+      <QuickStudentLookupModal
+        open={showLookupModal}
+        onOpenChange={setShowLookupModal}
+      />
+    </div>
+  );
 };
+
 export default AdminHome;

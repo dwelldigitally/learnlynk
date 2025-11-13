@@ -10,6 +10,7 @@ import { Flame, Phone, Mail, Eye, TrendingUp, Activity, MousePointer, Clock, Zap
 import { Lead } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HotLead extends Lead {
   activity_score: number;
@@ -36,154 +37,34 @@ export function HotLeadsToday() {
 
   const loadHotLeads = async () => {
     try {
-      // Enhanced mock hot leads with more realistic activity data
-      const mockHotLeads: HotLead[] = [
-        {
-          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-          first_name: 'Sarah',
-          last_name: 'Johnson',
-          email: 'sarah.johnson@email.com',
-          phone: '+1 (555) 123-4567',
-          country: 'United States',
-          state: 'California',
-          city: 'San Francisco',
-          source: 'web',
-          source_details: 'MBA Program Landing Page',
-          status: 'qualified',
-          stage: 'QUALIFICATION',
-          priority: 'urgent',
-          lead_score: 93,
-          ai_score: 96,
-          program_interest: ['MBA', 'Executive MBA'],
-          assigned_to: 'current-user',
-          tags: ['hot-lead', 'high-intent'],
-          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-          activity_score: 95,
-          recent_activities: [
-            { type: 'email_open', count: 8, last_activity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
-            { type: 'website_visit', count: 12, last_activity: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
-            { type: 'form_submission', count: 2, last_activity: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() }
-          ],
-          engagement_indicators: ['Multiple email opens today', 'Visited pricing page 3x', 'Downloaded brochure', 'Clicked application link']
-        },
-        {
-          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d480',
-          first_name: 'Michael',
-          last_name: 'Chen',
-          email: 'michael.chen@email.com',
-          phone: '+1 (555) 234-5678',
-          country: 'Canada',
-          state: 'Ontario',
-          city: 'Toronto',
-          source: 'referral',
-          status: 'nurturing',
-          stage: 'NURTURING',
-          priority: 'high',
-          lead_score: 87,
-          ai_score: 91,
-          program_interest: ['Business Analytics', 'Data Science Certificate'],
-          assigned_to: 'current-user',
-          tags: ['referral', 'data-science'],
-          created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-          activity_score: 88,
-          recent_activities: [
-            { type: 'email_open', count: 5, last_activity: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() },
-            { type: 'website_visit', count: 7, last_activity: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString() },
-            { type: 'form_submission', count: 1, last_activity: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString() }
-          ],
-          engagement_indicators: ['Frequent email engagement', 'Career outcomes page views', 'Salary calculator usage']
-        },
-        {
-          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d481',
-          first_name: 'Emily',
-          last_name: 'Rodriguez',
-          email: 'emily.rodriguez@email.com',
-          phone: '+1 (555) 345-6789',
-          country: 'United States',
-          state: 'Texas',
-          city: 'Austin',
-          source: 'social_media',
-          status: 'contacted',
-          stage: 'QUALIFICATION',
-          priority: 'high',
-          lead_score: 84,
-          ai_score: 89,
-          program_interest: ['Digital Marketing', 'Marketing Certificate'],
-          assigned_to: 'current-user',
-          tags: ['linkedin', 'marketing'],
-          created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-          activity_score: 82,
-          recent_activities: [
-            { type: 'email_open', count: 6, last_activity: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
-            { type: 'website_visit', count: 9, last_activity: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
-            { type: 'form_submission', count: 1, last_activity: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() }
-          ],
-          engagement_indicators: ['Social media engagement', 'Marketing curriculum views', 'Case study downloads']
-        },
-        {
-          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d482',
-          first_name: 'David',
-          last_name: 'Kim',
-          email: 'david.kim@email.com',
-          phone: '+1 (555) 456-7890',
-          country: 'United States',
-          state: 'Washington',
-          city: 'Seattle',
-          source: 'email',
-          status: 'qualified',
-          stage: 'PROPOSAL_SENT',
-          priority: 'urgent',
-          lead_score: 91,
-          ai_score: 94,
-          program_interest: ['Executive MBA'],
-          assigned_to: 'current-user',
-          tags: ['executive', 'proposal-sent'],
-          created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-          activity_score: 91,
-          recent_activities: [
-            { type: 'email_open', count: 4, last_activity: new Date(Date.now() - 30 * 60 * 1000).toISOString() },
-            { type: 'website_visit', count: 5, last_activity: new Date(Date.now() - 45 * 60 * 1000).toISOString() },
-            { type: 'form_submission', count: 0, last_activity: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString() }
-          ],
-          engagement_indicators: ['Proposal opened multiple times', 'Leadership track interest', 'Schedule request pending']
-        },
-        {
-          id: 'f47ac10b-58cc-4372-a567-0e02b2c3d483',
-          first_name: 'Jennifer',
-          last_name: 'Wilson',
-          email: 'jennifer.wilson@email.com',
-          phone: '+1 (555) 567-8901',
-          country: 'United States',
-          state: 'Florida',
-          city: 'Miami',
-          source: 'event',
-          status: 'nurturing',
-          stage: 'NURTURING',
-          priority: 'high',
-          lead_score: 79,
-          ai_score: 86,
-          program_interest: ['Finance MBA', 'Investment Management'],
-          assigned_to: 'current-user',
-          tags: ['event-attendee', 'finance'],
-          created_at: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
-          updated_at: new Date().toISOString(),
-          activity_score: 85,
-          recent_activities: [
-            { type: 'email_open', count: 7, last_activity: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString() },
-            { type: 'website_visit', count: 6, last_activity: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString() },
-            { type: 'form_submission', count: 1, last_activity: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString() }
-          ],
-          engagement_indicators: ['Finance specialization interest', 'Alumni network questions', 'ROI calculator usage']
-        }
-      ];
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
       
-      setHotLeads(mockHotLeads.sort((a, b) => b.activity_score - a.activity_score));
+      if (!user) {
+        toast.error('Please log in to view hot leads');
+        return;
+      }
+
+      const { data: leads, error } = await LeadService.getHotLeads(user.id);
+      
+      if (error) {
+        console.error('Failed to load hot leads:', error);
+        toast.error('Failed to load hot leads');
+        return;
+      }
+
+      // Transform leads to HotLead format
+      const hotLeadsData: HotLead[] = (leads || []).map(lead => ({
+        ...lead,
+        activity_score: lead.lead_score || 0,
+        recent_activities: [],
+        engagement_indicators: []
+      }));
+      
+      setHotLeads(hotLeadsData);
     } catch (error) {
       console.error('Failed to load hot leads:', error);
+      toast.error('Failed to load hot leads');
     } finally {
       setLoading(false);
     }

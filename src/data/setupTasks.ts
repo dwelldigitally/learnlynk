@@ -46,7 +46,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     id: 'configure_lead_form',
     title: 'Configure Lead Capture Form',
     description: 'Set up your online lead capture form',
-    link: '/admin/builder/forms',
+    link: '/admin/builder',
     icon: FileInput,
     required: false, // Changed to recommended instead of required
     estimatedMinutes: 10,

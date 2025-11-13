@@ -24,7 +24,7 @@ import OldLeadDetailPage from "./pages/LeadDetailPage";
 import LeadDetailPage from "./pages/LeadDetailTestPage";
 import StudentDetailPage from "./pages/StudentDetailPage";
 
-import { FormBuilderPage } from "./pages/FormBuilderPage";
+
 import { WorkflowBuilderPage } from "./pages/WorkflowBuilderPage";
 import { CampaignBuilderPage } from "./pages/CampaignBuilderPage";
 import RecruiterDashboard from "./pages/RecruiterDashboard";
@@ -113,10 +113,6 @@ const App = () => {
               <Route path="/admin/students/detail/:studentId" element={<ProtectedRoute element={<StudentDetailPage />} />} />
               
               {/* Builder routes */}
-               <Route path="/admin/builder/forms" element={<ProtectedRoute element={<FormBuilderPage />} />} />
-               <Route path="/admin/builder/forms/:formId" element={<ProtectedRoute element={<FormBuilderPage />} />} />
-               <Route path="/admin/builder/forms/:formId/edit" element={<ProtectedRoute element={<FormBuilderPage />} />} />
-               <Route path="/admin/builder/forms/embed" element={<ProtectedRoute element={<FormBuilderPage />} />} />
                <Route path="/admin/builder/workflows" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
                <Route path="/admin/builder/workflows/:workflowId" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />
                <Route path="/admin/builder/workflows/:workflowId/edit" element={<ProtectedRoute element={<WorkflowBuilderPage />} />} />

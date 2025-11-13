@@ -17,9 +17,16 @@ export type CampaignStepInsert = Database['public']['Tables']['campaign_steps'][
 export class CampaignService {
   static async getCampaigns(): Promise<Campaign[]> {
     return supabaseWrapper.retryOperation(async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        return [];
+      }
+
       const { data, error } = await supabase
         .from('campaigns')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

@@ -86,6 +86,12 @@ export class CampaignAnalyticsService {
    * Get all campaigns with their analytics
    */
   static async getCampaignsWithAnalytics() {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('campaigns')
       .select(`
@@ -97,6 +103,7 @@ export class CampaignAnalyticsService {
           user_id
         )
       `)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) throw error;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,8 @@ import { QuickNoteModal } from "./QuickNoteModal";
 import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
 import { OutlookCalendarWidget } from "./OutlookCalendarWidget";
 import { OutlookEmailWidget } from "./OutlookEmailWidget";
+import { useSetupTasks } from "@/hooks/useSetupTasks";
+
 const AdminHome: React.FC = () => {
   const {
     profile
@@ -28,6 +30,7 @@ const AdminHome: React.FC = () => {
   const {
     toast
   } = useToast();
+  const { progress, loading } = useSetupTasks();
   const [searchQuery, setSearchQuery] = useState("");
   const [isQuickStartOpen, setIsQuickStartOpen] = useState(false);
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
@@ -35,6 +38,18 @@ const AdminHome: React.FC = () => {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showLookupModal, setShowLookupModal] = useState(false);
   const [isResettingOnboarding, setIsResettingOnboarding] = useState(false);
+  const [isBannerVisible, setIsBannerVisible] = useState(false);
+
+  // Check if setup banner is currently visible
+  useEffect(() => {
+    if (!user || loading) return;
+
+    const forceShow = localStorage.getItem(`setup_banner_force_show_${user.id}`);
+    const dismissed = localStorage.getItem(`setup_banner_dismissed_${user.id}`);
+    
+    const bannerVisible = !!forceShow || (!dismissed && progress < 100);
+    setIsBannerVisible(bannerVisible);
+  }, [user, progress, loading]);
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -272,28 +287,30 @@ const AdminHome: React.FC = () => {
       <QuickNoteModal open={showNoteModal} onOpenChange={setShowNoteModal} />
       <QuickStudentLookupModal open={showLookupModal} onOpenChange={setShowLookupModal} />
       
-      {/* Demo Banner Button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <Button
-          onClick={() => {
-            if (user?.id) {
-              // Clear dismissal and set force show flag
-              localStorage.removeItem(`setup_banner_dismissed_${user.id}`);
-              localStorage.setItem(`setup_banner_force_show_${user.id}`, 'true');
-              toast({
-                title: "Banner Activated",
-                description: "Setup banner will appear now",
-              });
-              setTimeout(() => window.location.reload(), 500);
-            }
-          }}
-          size="sm"
-          className="shadow-lg"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Demo Setup Banner
-        </Button>
-      </div>
+      {/* Demo Banner Button - Hidden when banner is visible */}
+      {!isBannerVisible && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button
+            onClick={() => {
+              if (user?.id) {
+                // Clear dismissal and set force show flag
+                localStorage.removeItem(`setup_banner_dismissed_${user.id}`);
+                localStorage.setItem(`setup_banner_force_show_${user.id}`, 'true');
+                toast({
+                  title: "Banner Activated",
+                  description: "Setup banner will appear now",
+                });
+                setTimeout(() => window.location.reload(), 500);
+              }
+            }}
+            size="sm"
+            className="shadow-lg"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Demo Setup Banner
+          </Button>
+        </div>
+      )}
     </div>;
 };
 export default AdminHome;

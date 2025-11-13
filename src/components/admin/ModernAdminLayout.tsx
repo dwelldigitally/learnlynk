@@ -90,7 +90,7 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
         )}
 
         {/* Main Content Area */}
-        <div className={`flex-1 min-w-0 pt-14 sm:pt-16 lg:pt-20 ${!isHomePage ? 'ml-20' : ''}`}>
+        <div className={`flex-1 min-w-0 pt-[calc(72px+3.5rem)] sm:pt-[calc(72px+4rem)] lg:pt-[calc(72px+5rem)] ${!isHomePage ? 'ml-20' : ''}`}>
           <main className="w-full p-6">
             <div className="max-w-full overflow-x-hidden">
               {children || <Outlet />}

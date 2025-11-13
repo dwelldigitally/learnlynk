@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { X, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const SetupBanner: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { progress, loading } = useSetupTasks();
   const [isDismissed, setIsDismissed] = useState(false);
@@ -76,6 +77,11 @@ export const SetupBanner: React.FC = () => {
   };
 
   console.log('🎯 SetupBanner FINAL CHECK:', { isDismissed, loading, progress, willRender: !isDismissed && !loading });
+
+  // Hide banner on setup page
+  if (location.pathname === '/admin/setup') {
+    return null;
+  }
 
   if (isDismissed || loading) {
     console.log('🎯 SetupBanner HIDDEN because:', { isDismissed, loading });

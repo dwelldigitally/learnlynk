@@ -1,5 +1,5 @@
 import { SetupTaskDefinition } from '@/types/setup';
-import { MapPin, FileText, CheckSquare, GraduationCap, FileInput, Plug, DollarSign, Users, Settings } from 'lucide-react';
+import { MapPin, FileText, CheckSquare, GraduationCap, FileInput, Plug, DollarSign, Users, Settings, GitBranch } from 'lucide-react';
 
 export const SETUP_TASKS: SetupTaskDefinition[] = [
   {
@@ -48,9 +48,19 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     description: 'Set up your online lead capture form',
     link: '/admin/builder',
     icon: FileInput,
-    required: false, // Changed to recommended instead of required
+    required: false,
     estimatedMinutes: 10,
     order: 5
+  },
+  {
+    id: 'configure_lead_routing',
+    title: 'Configure Lead Routing',
+    description: 'Set up rules for automatic lead distribution to advisors',
+    link: '/admin/configuration/lead-routing',
+    icon: GitBranch,
+    required: false,
+    estimatedMinutes: 12,
+    order: 6
   },
   {
     id: 'connect_integrations',
@@ -60,7 +70,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: Plug,
     required: false,
     estimatedMinutes: 10,
-    order: 6
+    order: 7
   },
   {
     id: 'configure_payments',
@@ -70,7 +80,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: DollarSign,
     required: false,
     estimatedMinutes: 15,
-    order: 7
+    order: 8
   },
   {
     id: 'invite_team_members',
@@ -80,7 +90,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: Users,
     required: false,
     estimatedMinutes: 5,
-    order: 8
+    order: 9
   },
   {
     id: 'additional_settings',
@@ -90,6 +100,6 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: Settings,
     required: false,
     estimatedMinutes: 10,
-    order: 9
+    order: 10
   }
 ];

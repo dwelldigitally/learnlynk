@@ -4,6 +4,7 @@ export type SetupTaskId =
   | 'add_requirements'
   | 'add_programs'
   | 'configure_lead_form'
+  | 'configure_lead_routing'
   | 'connect_integrations'
   | 'configure_payments'
   | 'invite_team_members'

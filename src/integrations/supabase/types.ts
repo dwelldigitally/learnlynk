@@ -4684,6 +4684,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_types: {
+        Row: {
+          available_channels: string[] | null
+          category: string
+          created_at: string | null
+          default_enabled: boolean | null
+          description: string | null
+          display_name: string
+          icon: string | null
+          id: string
+          is_system: boolean | null
+          priority_default: string | null
+          type_key: string
+        }
+        Insert: {
+          available_channels?: string[] | null
+          category: string
+          created_at?: string | null
+          default_enabled?: boolean | null
+          description?: string | null
+          display_name: string
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          priority_default?: string | null
+          type_key: string
+        }
+        Update: {
+          available_channels?: string[] | null
+          category?: string
+          created_at?: string | null
+          default_enabled?: boolean | null
+          description?: string | null
+          display_name?: string
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          priority_default?: string | null
+          type_key?: string
+        }
+        Relationships: []
+      }
       otp_rate_limits: {
         Row: {
           attempts: number
@@ -9214,6 +9256,57 @@ export type Database = {
           tags?: string[] | null
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_notification_preferences: {
+        Row: {
+          channel: string
+          created_at: string | null
+          digest_time: string | null
+          enabled: boolean | null
+          frequency: string | null
+          id: string
+          include_details: boolean | null
+          notification_type: string
+          priority_filter: string | null
+          quiet_hours_enabled: boolean | null
+          quiet_hours_end: string | null
+          quiet_hours_start: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string | null
+          digest_time?: string | null
+          enabled?: boolean | null
+          frequency?: string | null
+          id?: string
+          include_details?: boolean | null
+          notification_type: string
+          priority_filter?: string | null
+          quiet_hours_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string | null
+          digest_time?: string | null
+          enabled?: boolean | null
+          frequency?: string | null
+          id?: string
+          include_details?: boolean | null
+          notification_type?: string
+          priority_filter?: string | null
+          quiet_hours_enabled?: boolean | null
+          quiet_hours_end?: string | null
+          quiet_hours_start?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

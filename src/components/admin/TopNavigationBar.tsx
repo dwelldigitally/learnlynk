@@ -1,14 +1,10 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { ChevronDown, Search, Bell, User, Building2, Settings, LogOut, Menu, X, Plus } from "lucide-react";
+import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { navigationStructure, MVP_HIDDEN_PAGES } from "@/data/navigationStructure";
-import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,314 +17,135 @@ import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
 import { useNotifications } from "@/hooks/useNotifications";
 import { UniversalTaskModal } from "./UniversalTaskModal";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
-interface TopNavigationBarProps {
-  activeSection: string;
-  onSectionChange: (sectionId: string) => void;
-}
-
-export function TopNavigationBar({ 
-  activeSection, 
-  onSectionChange
-}: TopNavigationBarProps) {
+export function TopNavigationBar() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isMvpMode } = useMvpMode();
   const [searchQuery, setSearchQuery] = useState("");
-  const [hoveredSection, setHoveredSection] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const { signOut } = useAuth();
   const isMobile = useIsMobile();
 
-  const getActiveSectionFromPath = () => {
-    const path = location.pathname;
-    for (const section of navigationStructure.sections) {
-      // Sort items by href length in descending order to match most specific paths first
-      const sortedItems = [...section.items].sort((a, b) => b.href.length - a.href.length);
-      if (sortedItems.some(item => path.startsWith(item.href))) {
-        return section.id;
-      }
-    }
-    return navigationStructure.sections[0].id;
-  };
+  const mainNavItems = [
+    { name: "My Dashboard", href: "/admin/sales-rep-dashboard" },
+    { name: "Leads", href: "/admin/leads" },
+    { name: "Communication Hub", href: "/admin/communication" },
+    { name: "Analytics", href: "/admin/analytics" },
+  ];
 
-  const currentActiveSection = activeSection || getActiveSectionFromPath();
+  const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/');
 
   return (
     <>
       <div className="h-14 sm:h-16 lg:h-20 bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] flex items-center justify-between px-2 sm:px-4 lg:px-6 fixed top-0 left-0 right-0 z-50">
-        {/* Left side - Logo + Main Navigation */}
         <div className="flex items-center space-x-2 sm:space-x-4 lg:space-x-8 min-w-0 flex-1">
-
-          {/* Logo */}
-          <Link 
-            to="/admin" 
-            className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0"
-          >
-            <img 
-              src="/lovable-uploads/84dcaa90-0808-4fe4-842d-8a1a6809cd52.png" 
-              alt="WCC Logo" 
-              className="h-8 sm:h-10 lg:h-12 w-auto object-contain max-w-[120px] sm:max-w-none"
-            />
+          <Link to="/admin" className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0">
+            <img src="/lovable-uploads/84dcaa90-0808-4fe4-842d-8a1a6809cd52.png" alt="WCC Logo" className="h-8 sm:h-10 lg:h-12 w-auto object-contain max-w-[120px] sm:max-w-none" />
           </Link>
 
-          {/* Main Navigation - Hidden on mobile */}
           <nav className="hidden lg:flex items-center space-x-1">
-            {navigationStructure.sections
-              .filter(section => {
-                // Hide Students & Applications section in MVP mode
-                if (isMvpMode && section.id === 'students-applications') {
-                  return false;
-                }
-                return true;
-              })
-              .map((section) => {
-              // Filter items based on MVP mode (for data-management, leads-marketing, students-applications, and configuration sections)
-              const sectionItems = (section.id === 'data-management' || section.id === 'leads-marketing' || section.id === 'students-applications' || section.id === 'configuration') && isMvpMode
-                ? section.items.filter(item => !MVP_HIDDEN_PAGES.includes(item.href))
-                : section.items;
-              
-              const isActive = currentActiveSection === section.id;
-              const isSingleItem = sectionItems.length === 1;
-              
-              if (isSingleItem) {
-                return (
-                  <Button
-                    key={section.id}
-                    variant={isActive ? "secondary" : "ghost"}
-                    className={`h-10 px-2 text-sm font-medium transition-colors ${
-                      isActive 
-                        ? "bg-white/20 text-white" 
-                        : "text-white/80 hover:text-white hover:bg-white/10"
-                    }`}
-                    onClick={() => {
-                      navigate(sectionItems[0].href);
-                      onSectionChange(section.id);
-                    }}
-                  >
-                    <section.icon className="w-4 h-4 mr-2" />
-                    {section.name}
-                  </Button>
-                );
-              }
-              
-              return (
-                <DropdownMenu key={section.id}>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant={isActive ? "secondary" : "ghost"}
-                      className={`h-10 px-2 text-sm font-medium transition-colors ${
-                        isActive 
-                          ? "bg-white/20 text-white" 
-                          : "text-white/80 hover:text-white hover:bg-white/10"
-                      }`}
-                      type="button"
-                    >
-                      <section.icon className="w-4 h-4 mr-2" />
-                      {section.name}
-                      <ChevronDown className="w-3 h-3 ml-2 opacity-50" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent 
-                    align="start" 
-                    className="bg-background border border-border shadow-xl rounded-lg z-50 p-0 overflow-hidden"
-                    style={{ 
-                      width: sectionItems.length > 6 ? '720px' : sectionItems.length > 3 ? '480px' : '320px',
-                      maxWidth: '90vw'
-                    }}
-                  >
-                    <div className="p-6">
-                      <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-foreground flex items-center">
-                          <section.icon className="w-5 h-5 mr-2 text-primary" />
-                          {section.name}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {section.id === 'leads-marketing' && 'Manage leads, campaigns, and marketing activities'}
-                          {section.id === 'students-applications' && 'Handle student records, applications, and academic processes'}
-                          {section.id === 'data-management' && 'Configure programs, workflows, and system data'}
-                          {section.id === 'configuration' && 'System settings, templates, and administrative tools'}
-                          {section.id === 'analytics-reports' && 'View analytics, reports, and performance metrics'}
-                        </p>
-                      </div>
-                      
-                      <div className={`grid gap-6 ${
-                        sectionItems.length > 6 ? 'grid-cols-3' : 
-                        sectionItems.length > 3 ? 'grid-cols-2' : 
-                        'grid-cols-1'
-                      }`}>
-                        {(() => {
-                          // Organize items into logical groups
-                          const itemsPerColumn = Math.ceil(sectionItems.length / (
-                            sectionItems.length > 6 ? 3 : 
-                            sectionItems.length > 3 ? 2 : 1
-                          ));
-                          
-                          const columns = [];
-                          for (let i = 0; i < sectionItems.length; i += itemsPerColumn) {
-                            columns.push(sectionItems.slice(i, i + itemsPerColumn));
-                          }
-                          
-                          return columns.map((columnItems, columnIndex) => (
-                            <div key={columnIndex} className="space-y-1">
-                              {columnItems.map((item) => (
-                                <Link
-                                  key={item.href}
-                                  to={item.href}
-                                  onClick={() => onSectionChange(section.id)}
-                                  className="group flex items-center p-3 rounded-lg transition-all duration-200 hover:bg-muted/50 hover:shadow-sm border border-transparent hover:border-border/50"
-                                >
-                                  <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors mr-3 flex-shrink-0">
-                                    <item.icon className="w-5 h-5 text-primary" />
-                                  </div>
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center justify-between">
-                                      <h4 className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
-                                        {item.name}
-                                      </h4>
-                                      {item.count !== undefined && (
-                                        <Badge variant="secondary" className="text-xs ml-2 flex-shrink-0">
-                                          {item.count}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    {item.subItems && item.subItems.length > 0 && (
-                                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                                        {item.subItems.length} sub-items available
-                                      </p>
-                                    )}
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
-                          ));
-                        })()}
-                      </div>
-                    </div>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              );
-            })}
+            {mainNavItems.map((item) => (
+              <Link key={item.href} to={item.href} className={cn("flex items-center px-3 lg:px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap", isActive(item.href) ? "bg-white/20 text-white shadow-sm" : "text-white/90 hover:bg-white/10 hover:text-white")}>
+                {item.name}
+              </Link>
+            ))}
           </nav>
         </div>
 
-        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4 flex-shrink-0">
-          {isMobile && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              className="text-white hover:bg-white/10 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center p-0"
-            >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-          )}
+        <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/admin/communication/ai-emails')} className={cn("hidden lg:flex text-white hover:bg-white/10 relative", isActive('/admin/communication/ai-emails') && "bg-white/20")}>
+                <div className="relative"><Mail className="h-5 w-5" /><Sparkles className="h-3 w-3 absolute -top-1 -right-1 text-yellow-300" /></div>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent><p>AI Email Management</p></TooltipContent>
+          </Tooltip>
 
-          {/* Desktop Search */}
-          {!isMobile && (
-            <div className="relative hidden lg:block">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-48 xl:w-64 h-9"
-              />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/admin/configuration/routing')} className={cn("hidden lg:flex text-white hover:bg-white/10", location.pathname.startsWith('/admin/configuration') && "bg-white/20")}>
+                <SettingsIcon className="h-5 w-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent><p>System Configuration</p></TooltipContent>
+          </Tooltip>
+
+          <Button variant="ghost" size="icon" onClick={() => setTaskModalOpen(true)} className="hidden sm:flex text-white hover:bg-white/10">
+            <Plus className="h-5 w-5" />
+          </Button>
+
+          {!mobileSearchOpen && !isMobile && (
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+              <Input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus:bg-white/20 focus:border-white/30" />
             </div>
           )}
 
-          {/* Add Task Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setTaskModalOpen(true)}
-            className="text-white hover:bg-white/10 w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center p-0"
-            title="Create New Task"
-          >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-          </Button>
+          {isMobile && !mobileSearchOpen && (
+            <Button variant="ghost" size="icon" onClick={() => setMobileSearchOpen(true)} className="text-white hover:bg-white/10">
+              <Search className="h-5 w-5" />
+            </Button>
+          )}
 
-          {/* Notifications */}
-          <div className="relative">
-            <AdminNotificationCentre unreadCount={unreadCount} />
-          </div>
+          <AdminNotificationCentre />
 
-           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="flex items-center space-x-2 text-white hover:bg-white/10 h-8 sm:h-10 px-2"
-              >
-                <Avatar className="w-6 h-6 sm:w-7 sm:h-7">
-                  <AvatarImage src="/placeholder-avatar.jpg" />
-                  <AvatarFallback>
-                    <User className="w-3 h-3 sm:w-4 sm:h-4" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden lg:block text-right">
-                  <div className="text-xs font-medium">Account</div>
-                </div>
-                {!isMobile && <ChevronDown className="w-2 h-2 sm:w-3 sm:h-3 text-white/60" />}
-              </Button>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 relative"><User className="h-5 w-5" /></Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 bg-background border border-border shadow-lg rounded-md z-50">
-              <DropdownMenuLabel className="text-sm font-semibold text-muted-foreground px-3 py-2.5">
-                My Account
-              </DropdownMenuLabel>
-              <DropdownMenuItem asChild className="px-3 py-2.5 transition-colors hover:bg-muted/50 cursor-pointer">
-                <Link to="/admin/profile" className="flex items-center text-sm">
-                  <User className="mr-2 h-4 w-4 flex-shrink-0" />
-                  Profile Settings
-                </Link>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/admin/profile')}><User className="h-4 w-4 mr-2" />Profile</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/admin/configuration/company')}><SettingsIcon className="h-4 w-4 mr-2" />Settings</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => { signOut(); toast.success("Signed out successfully"); }} className="text-destructive focus:text-destructive">
+                <LogOut className="h-4 w-4 mr-2" />Sign Out
               </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={async () => {
-                  const { error } = await signOut();
-                  if (error) {
-                    toast.error("Failed to sign out");
-                  } else {
-                    toast.success("Signed out successfully");
-                    navigate("/");
-                  }
-                }}
-                className="px-3 py-2.5 transition-colors hover:bg-muted/50 cursor-pointer text-sm"
-              >
-                <LogOut className="mr-2 h-4 w-4 flex-shrink-0" />
-                Sign out
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="lg:hidden text-white hover:bg-white/10"><Menu className="h-5 w-5" /></Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Main Navigation</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {mainNavItems.map((item) => (
+                <DropdownMenuItem key={item.href} onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} className={isActive(item.href) ? 'bg-muted' : ''}>{item.name}</DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => { navigate('/admin/communication/ai-emails'); setMobileMenuOpen(false); }} className={isActive('/admin/communication/ai-emails') ? 'bg-muted' : ''}>
+                <Mail className="h-4 w-4 mr-2" />AI Email Management
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => { navigate('/admin/configuration/routing'); setMobileMenuOpen(false); }} className={location.pathname.startsWith('/admin/configuration') ? 'bg-muted' : ''}>
+                <SettingsIcon className="h-4 w-4 mr-2" />System Configuration
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
       {mobileSearchOpen && isMobile && (
-        <div className="bg-[hsl(221,83%,53%)] border-b border-[hsl(221,83%,45%)] px-3 py-3 animate-slide-down">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 w-full h-10"
-              autoFocus
-            />
+        <div className="fixed inset-0 bg-[hsl(221,83%,53%)] z-50 flex items-start pt-20 px-4">
+          <div className="w-full relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
+            <Input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full pl-10 pr-12 py-3 bg-white/10 border-white/20 text-white placeholder:text-white/60 text-base" autoFocus />
+            <Button variant="ghost" size="icon" onClick={() => setMobileSearchOpen(false)} className="absolute right-2 top-1/2 -translate-y-1/2 text-white hover:bg-white/10">
+              <X className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       )}
 
-      {/* Universal Task Modal */}
-      <UniversalTaskModal
-        open={taskModalOpen}
-        onOpenChange={setTaskModalOpen}
-        onTaskCreated={() => {
-          toast.success("Task created successfully!");
-        }}
-      />
+      <UniversalTaskModal open={taskModalOpen} onOpenChange={setTaskModalOpen} />
     </>
   );
 }

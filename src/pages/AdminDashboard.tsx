@@ -1,7 +1,7 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
 import LeadDetailPage from './LeadDetailPage';
-import ModernAdminLayout from "@/components/admin/ModernAdminLayout";
+import { ModernAdminLayout } from "@/components/admin/ModernAdminLayout";
 import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
 import StudentDetailPage from "@/pages/StudentDetailPage";

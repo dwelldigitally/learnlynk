@@ -174,10 +174,7 @@ export default function StudentDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Navigation */}
-      <TopNavigationBar 
-        activeSection="students" 
-        onSectionChange={() => {}} 
-      />
+      <TopNavigationBar />
       
       {/* Header with back button */}
       <div className="border-b bg-card px-6 py-4">

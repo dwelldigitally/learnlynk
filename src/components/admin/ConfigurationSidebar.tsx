@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   Settings, 
-  Database, 
   Link, 
   FileText, 
   Bot, 
@@ -10,24 +9,45 @@ import {
   Route, 
   Target, 
   Building, 
-  Server,
   ChevronRight,
+  ChevronDown,
   Menu,
-  X,
   TrendingUp,
   Zap,
-  Cog,
   Building2,
   Users,
   Briefcase,
   DollarSign,
   Sliders,
   ClipboardCheck,
-  Bell
+  Bell,
+  LayoutDashboard,
+  UserPlus,
+  GraduationCap,
+  MessageSquare,
+  Calendar,
+  BookOpen,
+  Workflow,
+  Upload,
+  BarChart3,
+  Database,
+  Mail,
+  FileCheck,
+  UserCog,
+  MapPin,
+  ClipboardList,
+  Award,
+  Server,
+  Shield,
+  Clock,
+  AlertTriangle,
+  PieChart,
+  Cog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMvpMode } from '@/contexts/MvpModeContext';
 
 interface ConfigurationItem {
@@ -39,18 +59,118 @@ interface ConfigurationItem {
 interface ConfigurationGroup {
   name: string;
   items: ConfigurationItem[];
+  mvpOnly?: boolean; // true = only show in MVP mode
+  fullModeOnly?: boolean; // true = only show in Full mode
 }
 
-// MVP Mode visible pages
-const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
+// All configuration groups - organized by category
+const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
   {
-    name: "Lead Management",
+    name: "My Account",
     items: [
-      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+      { name: "My Dashboard", href: "/admin/sales-rep-dashboard", icon: LayoutDashboard },
     ]
   },
   {
-    name: "System Configuration",
+    name: "Lead Management",
+    items: [
+      { name: "Lead Management", href: "/admin/leads", icon: Users },
+      { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
+      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+      { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase },
+      { name: "Lead Analytics", href: "/admin/leads/analytics", icon: BarChart3 },
+    ]
+  },
+  {
+    name: "Advanced Lead Features",
+    fullModeOnly: true,
+    items: [
+      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
+      { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
+      { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
+      { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
+      { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: TrendingUp },
+      { name: "Team Goals & Analytics", href: "/admin/leads/team-goals", icon: Target },
+    ]
+  },
+  {
+    name: "Enrollment & Students",
+    items: [
+      { name: "Applicant Management", href: "/admin/applicants", icon: FileText },
+      { name: "Student Management", href: "/admin/students", icon: GraduationCap },
+      { name: "Student Portal", href: "/admin/student-portal", icon: Settings },
+      { name: "Events", href: "/admin/events", icon: Calendar },
+      { name: "Documents", href: "/admin/documents", icon: Upload },
+    ]
+  },
+  {
+    name: "Advanced Enrollment",
+    fullModeOnly: true,
+    items: [
+      { name: "Enrollment Optimization", href: "/admin/enrollment/today", icon: Target },
+    ]
+  },
+  {
+    name: "Communications",
+    items: [
+      { name: "Communication Hub", href: "/admin/communication", icon: MessageSquare },
+      { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail },
+    ]
+  },
+  {
+    name: "Academic Programs",
+    items: [
+      { name: "Programs", href: "/admin/programs", icon: BookOpen },
+      { name: "Workflows", href: "/admin/workflows", icon: Workflow },
+      { name: "Requirements", href: "/admin/requirements", icon: FileCheck },
+      { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
+      { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
+    ]
+  },
+  {
+    name: "Advanced Academic",
+    fullModeOnly: true,
+    items: [
+      { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
+      { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: BookOpen },
+      { name: "Program Journeys", href: "/admin/program-journeys", icon: Route },
+    ]
+  },
+  {
+    name: "Registrar & Operations",
+    fullModeOnly: true,
+    items: [
+      { name: "Registrar Command Center", href: "/admin/registrar/command-center", icon: Target },
+      { name: "Intelligence", href: "/admin/registrar/intelligence", icon: Brain },
+    ]
+  },
+  {
+    name: "Practicum Management",
+    fullModeOnly: true,
+    items: [
+      { name: "Practicum Dashboard", href: "/admin/practicum", icon: ClipboardList },
+      { name: "Practicum Sites", href: "/admin/practicum/sites", icon: MapPin },
+      { name: "Student Progress", href: "/admin/practicum/progress", icon: TrendingUp },
+      { name: "Competency Tracker", href: "/admin/practicum/competencies", icon: Award },
+      { name: "Evaluation Center", href: "/admin/practicum/evaluations", icon: FileCheck },
+    ]
+  },
+  {
+    name: "Recruiting",
+    items: [
+      { name: "Recruiter Management", href: "/admin/recruiters", icon: UserCog },
+      { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileText },
+    ]
+  },
+  {
+    name: "Analytics & Reports",
+    items: [
+      { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
+      { name: "Reports", href: "/admin/reports", icon: FileText },
+    ]
+  },
+  {
+    name: "System Administration",
     items: [
       { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
       { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
@@ -59,38 +179,22 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
       { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
-    ]
-  }
-];
-
-// Full Mode additional pages
-const FULL_MODE_ADDITIONAL_GROUPS: ConfigurationGroup[] = [
-  {
-    name: "Lead Management",
-    items: [
-      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
+      { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
     ]
   },
   {
-    name: "AI & Intelligence",
+    name: "AI & Advanced Features",
+    fullModeOnly: true,
     items: [
+      { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },
+      { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
       { name: "AI Agents", href: "/admin/configuration/ai-agents", icon: Bot },
       { name: "AI Models", href: "/admin/configuration/ai-models", icon: Brain },
       { name: "Performance Analytics", href: "/admin/configuration/ai-analytics", icon: TrendingUp },
-    ]
-  },
-  {
-    name: "Advanced Workflow",
-    items: [
-      { name: "Visual Builder", href: "/admin/configuration/workflows", icon: Route },
+      { name: "Visual Workflow Builder", href: "/admin/configuration/workflows", icon: Route },
       { name: "Automation Rules", href: "/admin/configuration/automation-rules", icon: Zap },
       { name: "Behavior Analytics", href: "/admin/configuration/behavior", icon: Brain },
-    ]
-  },
-  {
-    name: "Templates & Communication",
-    items: [
-      { name: "Templates", href: "/admin/configuration/templates", icon: FileText },
+      { name: "System Configuration", href: "/admin/configuration/system", icon: Cog },
     ]
   }
 ];
@@ -102,54 +206,97 @@ interface ConfigurationSidebarContentProps {
 const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = ({ onItemClick }) => {
   const location = useLocation();
   const { isMvpMode } = useMvpMode();
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
+    // Auto-expand groups that contain the active route
+    const initialExpanded = new Set<string>();
+    CONFIGURATION_GROUPS.forEach(group => {
+      if (group.items.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + '/'))) {
+        initialExpanded.add(group.name);
+      }
+    });
+    return initialExpanded;
+  });
   
-  // Determine which groups to show based on MVP mode
-  const configurationGroups = isMvpMode 
-    ? MVP_CONFIG_GROUPS 
-    : [...MVP_CONFIG_GROUPS, ...FULL_MODE_ADDITIONAL_GROUPS];
+  // Filter groups based on MVP mode
+  const visibleGroups = CONFIGURATION_GROUPS.filter(group => {
+    if (group.mvpOnly && !isMvpMode) return false;
+    if (group.fullModeOnly && isMvpMode) return false;
+    return true;
+  });
+
+  const toggleGroup = (groupName: string) => {
+    const newExpanded = new Set(expandedGroups);
+    if (newExpanded.has(groupName)) {
+      newExpanded.delete(groupName);
+    } else {
+      newExpanded.add(groupName);
+    }
+    setExpandedGroups(newExpanded);
+  };
 
   return (
     <div className="flex flex-col h-full bg-background">
       <div className="p-6 border-b border-border/50">
-        <h2 className="text-xl font-semibold text-foreground">Configuration</h2>
-        <p className="text-sm text-muted-foreground mt-1">System settings & controls</p>
+        <h2 className="text-xl font-semibold text-foreground">System Configuration</h2>
+        <p className="text-sm text-muted-foreground mt-1">All settings & controls</p>
       </div>
       
       <div className="flex-1 overflow-y-auto">
-        <nav className="p-4 space-y-6">
-          {configurationGroups.map((group) => (
-            <div key={group.name}>
-              <h3 className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider mb-3 px-3">
-                {group.name}
-              </h3>
-              <div className="space-y-0.5">
-                {group.items.map((item) => {
-                  const isActive = location.pathname === item.href;
-                  return (
-                    <NavLink
-                      key={item.href}
-                      to={item.href}
-                      onClick={onItemClick}
-                      className={({ isActive }) =>
-                        cn(
-                          "flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-all group",
-                          isActive
-                            ? "bg-primary text-primary-foreground shadow-sm"
-                            : "text-foreground hover:bg-muted/50"
-                        )
-                      }
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="h-4 w-4 flex-shrink-0" />
-                        <span className="font-medium">{item.name}</span>
-                      </div>
-                      {isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
-                    </NavLink>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+        <nav className="p-4 space-y-1">
+          {visibleGroups.map((group) => {
+            const isExpanded = expandedGroups.has(group.name);
+            const hasActiveItem = group.items.some(item => 
+              location.pathname === item.href || location.pathname.startsWith(item.href + '/')
+            );
+
+            return (
+              <Collapsible
+                key={group.name}
+                open={isExpanded}
+                onOpenChange={() => toggleGroup(group.name)}
+              >
+                <CollapsibleTrigger className="w-full">
+                  <div className={cn(
+                    "flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-lg transition-all hover:bg-muted/50 group",
+                    hasActiveItem && "text-primary"
+                  )}>
+                    <span className="text-xs uppercase tracking-wider">{group.name}</span>
+                    <ChevronDown className={cn(
+                      "h-4 w-4 transition-transform",
+                      isExpanded && "rotate-180"
+                    )} />
+                  </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-0.5 mt-0.5">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.href || 
+                                    location.pathname.startsWith(item.href + '/');
+                    return (
+                      <NavLink
+                        key={item.href}
+                        to={item.href}
+                        onClick={onItemClick}
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center justify-between px-3 py-2.5 ml-3 text-sm rounded-lg transition-all group",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-sm"
+                              : "text-foreground hover:bg-muted/50"
+                          )
+                        }
+                      >
+                        <div className="flex items-center gap-3">
+                          <item.icon className="h-4 w-4 flex-shrink-0" />
+                          <span className="font-medium">{item.name}</span>
+                        </div>
+                        {isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
+                      </NavLink>
+                    );
+                  })}
+                </CollapsibleContent>
+              </Collapsible>
+            );
+          })}
         </nav>
       </div>
     </div>
@@ -168,7 +315,7 @@ export const ConfigurationSidebar: React.FC = () => {
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="mb-4">
+            <Button variant="outline" size="icon" className="mb-4 ml-4 mt-4">
               <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>

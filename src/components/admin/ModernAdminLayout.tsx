@@ -1,105 +1,34 @@
-import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopNavigationBar } from './TopNavigationBar';
-import { AdminSidebar } from './AdminSidebar';
-
-
-import { navigationStructure } from '@/data/navigationStructure';
-import { useIsMobile, useViewport } from '@/hooks/use-mobile';
+import { ConfigurationSidebar } from './ConfigurationSidebar';
 
 interface ModernAdminLayoutProps {
   children?: React.ReactNode;
 }
 
 export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
-  const [activeSection, setActiveSection] = useState<string>('');
   const location = useLocation();
 
-  // Determine active section from current path
-  const getActiveSectionFromPath = () => {
-    const path = location.pathname;
-    
-    // Handle specific detail page patterns
-    if (path.startsWith('/admin/leads/')) {
-      return 'leads-marketing';
-    }
-    if (path.startsWith('/admin/students/')) {
-      return 'students-applications';
-    }
-    if (path.startsWith('/admin/programs/')) {
-      return 'data-management';
-    }
-    if (path.startsWith('/admin/workflows/')) {
-      return 'data-management';
-    }
-    if (path.startsWith('/admin/requirements/')) {
-      return 'data-management';
-    }
-    if (path.startsWith('/admin/academic-terms/')) {
-      return 'data-management';
-    }
-    if (path.startsWith('/admin/analytics/')) {
-      return 'analytics-reports';
-    }
-    if (path.startsWith('/admin/reports/')) {
-      return 'analytics-reports';
-    }
-    
-    // Find section by exact or prefix match
-    for (const section of navigationStructure.sections) {
-      if (section.items.some(item => path === item.href || path.startsWith(item.href + '/'))) {
-        return section.id;
-      }
-    }
-    
-    // Default to leads-marketing if no match found
-    return 'leads-marketing';
-  };
-
-  const currentActiveSection = activeSection || getActiveSectionFromPath();
-
-  const handleSectionChange = (sectionId: string) => {
-    setActiveSection(sectionId);
-    // Navigate to the first item in the section
-    const section = navigationStructure.sections.find(s => s.id === sectionId);
-    if (section && section.items.length > 0) {
-      // Don't auto-navigate, let user choose from sidebar
-    }
-  };
-
-  // Check if we're on the home page
-  const isHomePage = location.pathname === '/admin';
-  const isConfigurationPage = location.pathname.startsWith('/admin/configuration');
-  const isTeamPage = location.pathname === '/admin/team';
+  // Check if we're on a configuration page
+  const isConfigurationPage = location.pathname.startsWith('/admin/configuration') || 
+                               location.pathname.startsWith('/admin/setup');
 
   return (
-    <div className="min-h-screen bg-background flex flex-col w-full">
-      {/* Top Navigation Bar - Full Width */}
-      <TopNavigationBar
-        activeSection={currentActiveSection}
-        onSectionChange={handleSectionChange}
-      />
-
-      {/* Main Layout: Sidebar + Content */}
-      <div className="flex flex-1 w-full">
-        {/* Admin Sidebar - Hide only on home page, show on configuration and team pages */}
-        {!isHomePage && (
-          <div className="flex-shrink-0">
-            <AdminSidebar activeSection={currentActiveSection} />
-          </div>
+    <div className="min-h-screen bg-background w-full">
+      {/* Top Navigation Bar - Always visible */}
+      <TopNavigationBar />
+      
+      <div className="flex pt-14 sm:pt-16 lg:pt-20 w-full">
+        {/* Configuration Sidebar - Only for configuration pages */}
+        {isConfigurationPage && (
+          <ConfigurationSidebar />
         )}
-
-        {/* Main Content Area */}
-        <div className={`flex-1 min-w-0 pt-14 sm:pt-16 lg:pt-20 pb-20 ${!isHomePage ? 'ml-20' : ''}`}>
-          <main className="w-full p-6">
-            <div className="max-w-full overflow-x-hidden">
-              {children || <Outlet />}
-            </div>
-          </main>
-        </div>
+        
+        {/* Main Content */}
+        <main className="flex-1 min-h-[calc(100vh-3.5rem)] sm:min-h-[calc(100vh-4rem)] lg:min-h-[calc(100vh-5rem)]">
+          {children || <Outlet />}
+        </main>
       </div>
     </div>
   );
 }
-
-export default ModernAdminLayout;

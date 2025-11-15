@@ -93,7 +93,7 @@ export function TopNavigationBar() {
             </Button>
           )}
 
-          <AdminNotificationCentre />
+          <AdminNotificationCentre unreadCount={unreadCount} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

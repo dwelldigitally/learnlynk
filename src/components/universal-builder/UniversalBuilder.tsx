@@ -239,18 +239,7 @@ function UniversalBuilderContent({
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Top Navigation Bar */}
-      <TopNavigationBar
-        activeSection="leads-marketing"
-        onSectionChange={(sectionId) => {
-          // Handle section navigation if needed
-          if (sectionId === 'leads-marketing') {
-            // Stay on current page
-          } else {
-            // Navigate to other sections
-            navigate('/admin');
-          }
-        }}
-      />
+      <TopNavigationBar />
       
       {/* Builder Content */}
       <div className="flex-1 flex flex-col pt-14 sm:pt-16 lg:pt-20">

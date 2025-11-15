@@ -51,6 +51,7 @@ export const MVP_HIDDEN_PAGES = [
   '/admin/enrollment/today',
   '/admin/enrollment/policies',
   '/admin/enrollment/playbooks',
+  '/admin/configuration/scoring',
   // Students & Applications (hide entire section in MVP)
   '/admin/registrar/command-center',
   '/admin/registrar/intelligence',

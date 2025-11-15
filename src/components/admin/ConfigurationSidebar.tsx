@@ -47,7 +47,6 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
     name: "Lead Management",
     items: [
       { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
-      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
     ]
   },
   {
@@ -66,6 +65,12 @@ const MVP_CONFIG_GROUPS: ConfigurationGroup[] = [
 
 // Full Mode additional pages
 const FULL_MODE_ADDITIONAL_GROUPS: ConfigurationGroup[] = [
+  {
+    name: "Lead Management",
+    items: [
+      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
+    ]
+  },
   {
     name: "AI & Intelligence",
     items: [

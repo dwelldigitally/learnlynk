@@ -70,7 +70,7 @@ export function TopNavigationBar() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/admin/configuration/routing')} className={cn("hidden lg:flex text-white hover:bg-white/10", location.pathname.startsWith('/admin/configuration') && "bg-white/20")}>
+              <Button variant="ghost" size="icon" onClick={() => navigate('/admin/profile')} className={cn("hidden lg:flex text-white hover:bg-white/10", location.pathname.startsWith('/admin/configuration') && "bg-white/20")}>
                 <SettingsIcon className="h-5 w-5" />
               </Button>
             </TooltipTrigger>
@@ -126,7 +126,7 @@ export function TopNavigationBar() {
               <DropdownMenuItem onClick={() => { navigate('/admin/communication/ai-emails'); setMobileMenuOpen(false); }} className={isActive('/admin/communication/ai-emails') ? 'bg-muted' : ''}>
                 <Mail className="h-4 w-4 mr-2" />AI Email Management
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { navigate('/admin/configuration/routing'); setMobileMenuOpen(false); }} className={location.pathname.startsWith('/admin/configuration') ? 'bg-muted' : ''}>
+              <DropdownMenuItem onClick={() => { navigate('/admin/profile'); setMobileMenuOpen(false); }} className={location.pathname.startsWith('/admin/configuration') ? 'bg-muted' : ''}>
                 <SettingsIcon className="h-4 w-4 mr-2" />System Configuration
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -200,7 +200,7 @@ export function TodaysTasks() {
         </Badge>
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         {pendingTasks.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <div className="p-3 bg-green-100 rounded-full w-12 h-12 mx-auto mb-3">

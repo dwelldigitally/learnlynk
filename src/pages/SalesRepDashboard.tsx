@@ -35,11 +35,11 @@ export default function SalesRepDashboard() {
   const [activeTab, setActiveTab] = useState('today');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Daily Header */}
       <DailyHeader />
       
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         {/* Tab Navigation */}
         <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
           <TabsTrigger value="today" className="flex items-center space-x-2">
@@ -65,14 +65,14 @@ export default function SalesRepDashboard() {
         </TabsList>
 
         {/* Tab Content */}
-        <TabsContent value="today" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <TabsContent value="today" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Left Column - Priority Items */}
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4">
               <EnhancedCalendar />
 
               <Card>
-                <CardHeader>
+                <CardHeader className="p-5">
                   <CardTitle className="flex items-center space-x-2">
                     <Target className="h-5 w-5 text-primary" />
                     <span>New Assignments</span>
@@ -81,7 +81,7 @@ export default function SalesRepDashboard() {
                     Leads that need your immediate attention
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="px-5 pb-5 pt-0">
                   <NewlyAssignedLeads />
                 </CardContent>
               </Card>
@@ -122,10 +122,10 @@ export default function SalesRepDashboard() {
           </div>
         </TabsContent>
 
-        <TabsContent value="leads" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <TabsContent value="leads" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="p-5">
                 <CardTitle className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-red-600" />
                   <span>Hot Leads</span>
@@ -134,13 +134,13 @@ export default function SalesRepDashboard() {
                   High-priority leads requiring immediate action
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-5 pb-5 pt-0">
                 <HotLeadsToday />
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader>
+              <CardHeader className="p-5">
                 <CardTitle className="flex items-center space-x-2">
                   <Phone className="h-5 w-5 text-blue-600" />
                   <span>Call List</span>
@@ -149,13 +149,13 @@ export default function SalesRepDashboard() {
                   Scheduled calls and follow-ups for today
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-5 pb-5 pt-0">
                 <TodaysCallList />
               </CardContent>
             </Card>
 
             <Card className="lg:col-span-2">
-              <CardHeader>
+              <CardHeader className="p-5">
                 <CardTitle className="flex items-center space-x-2">
                   <Users className="h-5 w-5 text-purple-600" />
                   <span>Re-enquiry Students</span>
@@ -164,7 +164,7 @@ export default function SalesRepDashboard() {
                   Students showing renewed interest
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="px-5 pb-5 pt-0">
                 <ReenquiryStudents />
               </CardContent>
             </Card>

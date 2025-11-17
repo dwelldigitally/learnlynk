@@ -160,7 +160,7 @@ export function UnreadCommunications() {
 
   return (
     <>
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-3">
         <Badge variant="destructive" className="ml-auto">{communications.length} unread</Badge>
         {communications.length > 1 && (
           <Button 
@@ -175,7 +175,7 @@ export function UnreadCommunications() {
         )}
       </div>
       
-      <div className="space-y-3">
+      <div className="space-y-2">
         {communications.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />

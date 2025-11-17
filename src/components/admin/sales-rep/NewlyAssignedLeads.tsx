@@ -281,7 +281,7 @@ export function NewlyAssignedLeads() {
             </div>
             <p className="text-sm">No new assignments</p>
             <p className="text-xs text-muted-foreground mt-1">Check back soon for new leads</p>
-          </div> : <div className="space-y-3">
+          </div> : <div className="space-y-2">
             {/* Select All Header */}
             
 

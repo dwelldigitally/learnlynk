@@ -187,7 +187,7 @@ export function GoalsPerformanceTracker() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Date Range Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -210,14 +210,14 @@ export function GoalsPerformanceTracker() {
       </div>
 
       {/* Performance Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         {performanceMetrics.map((metric, index) => {
           const Icon = metric.icon;
           const isAboveTarget = metric.value >= metric.target;
           
           return (
             <Card key={index} className="border-border">
-              <CardContent className="p-4">
+              <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-primary/10">
@@ -270,14 +270,14 @@ export function GoalsPerformanceTracker() {
 
       {/* Goals Section */}
       <Card>
-        <CardHeader>
+        <CardHeader className="p-5">
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
             Active Goals
             <Badge variant="secondary" className="ml-2">{goals.length}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 px-5 pb-5 pt-0">
           {goals.map((goal) => {
             const Icon = goal.icon;
             const percentage = getProgressPercentage(goal.current, goal.target);

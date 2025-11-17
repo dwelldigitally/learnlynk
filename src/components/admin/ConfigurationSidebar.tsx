@@ -16,6 +16,7 @@ import {
   Zap,
   Building2,
   Users,
+  User,
   Briefcase,
   DollarSign,
   Sliders,
@@ -91,6 +92,7 @@ const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
   {
     name: "System Administration",
     items: [
+      { name: "Profile Settings", href: "/admin/profile", icon: User },
       { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
       { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
       { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
@@ -187,12 +189,10 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
   const location = useLocation();
   const { isMvpMode } = useMvpMode();
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    // Auto-expand groups that contain the active route
+    // Auto-expand all groups by default
     const initialExpanded = new Set<string>();
     CONFIGURATION_GROUPS.forEach(group => {
-      if (group.items.some(item => location.pathname === item.href || location.pathname.startsWith(item.href + '/'))) {
-        initialExpanded.add(group.name);
-      }
+      initialExpanded.add(group.name);
     });
     return initialExpanded;
   });

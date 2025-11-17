@@ -238,10 +238,10 @@ export function DocumentsTrackerTab() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="p-4 rounded-lg bg-card border border-border">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="p-3 rounded-lg bg-card border border-border">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Students</p>
@@ -251,7 +251,7 @@ export function DocumentsTrackerTab() {
           </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-card border border-destructive/30">
+        <div className="p-3 rounded-lg bg-card border border-destructive/30">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Critical Deadlines</p>
@@ -261,7 +261,7 @@ export function DocumentsTrackerTab() {
           </div>
         </div>
 
-        <div className="p-4 rounded-lg bg-card border border-border">
+        <div className="p-3 rounded-lg bg-card border border-border">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Pending Approvals</p>
@@ -303,7 +303,7 @@ export function DocumentsTrackerTab() {
               <div
                 key={student.id}
                 className={cn(
-                  "p-4 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer flex flex-col h-full",
+                  "p-3 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer flex flex-col h-full",
                   priorityConfig.borderColor
                 )}
                 onClick={() => navigate(`/admin/leads/detail/${student.master_record_id}`)}

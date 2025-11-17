@@ -110,10 +110,10 @@ export function EnhancedCalendar() {
       <div className="flex-1 flex flex-col">
         <OutlookIntegrationBanner />
         
-        <div className="flex items-center justify-between p-4 border-b">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between p-3 border-b">
+          <div className="flex items-center gap-3">
             <Button onClick={handleToday} variant="outline">Today</Button>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
               <Button onClick={handlePrevious} variant="ghost" size="icon">
                 <ChevronLeft className="h-4 w-4" />
               </Button>

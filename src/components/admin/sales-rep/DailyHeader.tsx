@@ -190,8 +190,8 @@ export function DailyHeader() {
           </div>
 
           {/* Modern Metrics Cards */}
-          <div className="mt-6 max-w-4xl">
-            <div className="flex items-center gap-2 mb-4">
+          <div className="mt-5 max-w-4xl">
+            <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-6 bg-primary/60 rounded-full"></div>
               <h3 className="text-foreground font-semibold text-sm uppercase tracking-wide">Today's Performance</h3>
             </div>

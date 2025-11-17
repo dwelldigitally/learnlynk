@@ -66,55 +66,9 @@ interface ConfigurationGroup {
 // All configuration groups - organized by category
 const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
   {
-    name: "My Account",
+    name: "Lead & Marketing Setup",
     items: [
-      { name: "My Dashboard", href: "/admin/sales-rep-dashboard", icon: LayoutDashboard },
-    ]
-  },
-  {
-    name: "Lead Management",
-    items: [
-      { name: "Lead Management", href: "/admin/leads", icon: Users },
       { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
-      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
-      { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase },
-      { name: "Lead Analytics", href: "/admin/leads/analytics", icon: BarChart3 },
-    ]
-  },
-  {
-    name: "Advanced Lead Features",
-    fullModeOnly: true,
-    items: [
-      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
-      { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
-      { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
-      { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
-      { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: TrendingUp },
-      { name: "Team Goals & Analytics", href: "/admin/leads/team-goals", icon: Target },
-    ]
-  },
-  {
-    name: "Enrollment & Students",
-    items: [
-      { name: "Applicant Management", href: "/admin/applicants", icon: FileText },
-      { name: "Student Management", href: "/admin/students", icon: GraduationCap },
-      { name: "Student Portal", href: "/admin/student-portal", icon: Settings },
-      { name: "Events", href: "/admin/events", icon: Calendar },
-      { name: "Documents", href: "/admin/documents", icon: Upload },
-    ]
-  },
-  {
-    name: "Advanced Enrollment",
-    fullModeOnly: true,
-    items: [
-      { name: "Enrollment Optimization", href: "/admin/enrollment/today", icon: Target },
-    ]
-  },
-  {
-    name: "Communications",
-    items: [
-      { name: "Communication Hub", href: "/admin/communication", icon: MessageSquare },
-      { name: "AI Email Management", href: "/admin/communication/ai-emails", icon: Mail },
     ]
   },
   {
@@ -125,6 +79,51 @@ const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
       { name: "Requirements", href: "/admin/requirements", icon: FileCheck },
       { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
       { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
+    ]
+  },
+  {
+    name: "Analytics & Reports",
+    items: [
+      { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
+      { name: "Reports", href: "/admin/reports", icon: FileText },
+    ]
+  },
+  {
+    name: "System Administration",
+    items: [
+      { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
+      { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
+      { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
+      { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
+      { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
+      { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
+      { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
+      { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
+    ]
+  },
+  {
+    name: "Advanced Lead Features",
+    fullModeOnly: true,
+    items: [
+      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+      { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
+      { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
+      { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
+      { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
+      { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: TrendingUp },
+      { name: "Team Goals & Analytics", href: "/admin/leads/team-goals", icon: Target },
+    ]
+  },
+  {
+    name: "Enrollment & Students",
+    fullModeOnly: true,
+    items: [
+      { name: "Applicant Management", href: "/admin/applicants", icon: FileText },
+      { name: "Student Management", href: "/admin/students", icon: GraduationCap },
+      { name: "Student Portal", href: "/admin/student-portal", icon: Settings },
+      { name: "Events", href: "/admin/events", icon: Calendar },
+      { name: "Documents", href: "/admin/documents", icon: Upload },
+      { name: "Enrollment Optimization", href: "/admin/enrollment/today", icon: Target },
     ]
   },
   {
@@ -157,29 +156,10 @@ const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
   },
   {
     name: "Recruiting",
+    fullModeOnly: true,
     items: [
       { name: "Recruiter Management", href: "/admin/recruiters", icon: UserCog },
       { name: "Recruiter Applications", href: "/admin/recruiter-applications", icon: FileText },
-    ]
-  },
-  {
-    name: "Analytics & Reports",
-    items: [
-      { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
-      { name: "Reports", href: "/admin/reports", icon: FileText },
-    ]
-  },
-  {
-    name: "System Administration",
-    items: [
-      { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
-      { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
-      { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
-      { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
-      { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
-      { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
-      { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
-      { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
     ]
   },
   {

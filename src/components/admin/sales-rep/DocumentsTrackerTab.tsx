@@ -240,7 +240,7 @@ export function DocumentsTrackerTab() {
   return (
     <div className="max-w-7xl mx-auto space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
         <div className="p-3 rounded-lg bg-card border border-border">
           <div className="flex items-center justify-between">
             <div>
@@ -303,13 +303,13 @@ export function DocumentsTrackerTab() {
               <div
                 key={student.id}
                 className={cn(
-                  "p-3 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer flex flex-col h-full",
+                  "p-4 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer flex flex-col h-full",
                   priorityConfig.borderColor
                 )}
                 onClick={() => navigate(`/admin/leads/detail/${student.master_record_id}`)}
               >
                 {/* Header */}
-                <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
                     <Avatar className="w-10 h-10">
                       <AvatarFallback className="bg-primary/10 text-primary">

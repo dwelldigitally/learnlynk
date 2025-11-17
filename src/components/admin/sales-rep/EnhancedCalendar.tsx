@@ -6,7 +6,6 @@ import { format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays, sta
 import { CalendarMonthView } from './CalendarMonthView';
 import { CalendarWeekView } from './CalendarWeekView';
 import { CalendarDayView } from './CalendarDayView';
-import { CalendarSidebar } from './CalendarSidebar';
 import { BookMeetingDialog } from './BookMeetingDialog';
 import { EventDetailsModal } from './EventDetailsModal';
 import { OutlookIntegrationBanner } from './OutlookIntegrationBanner';
@@ -106,19 +105,8 @@ export function EnhancedCalendar() {
     return format(currentDate, 'EEEE, MMMM d, yyyy');
   };
 
-  const upcomingEvents = events
-    .filter(e => new Date(e.start_time) >= new Date() && e.status === 'scheduled')
-    .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
-
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-background rounded-lg border overflow-hidden">
-      <CalendarSidebar
-        selectedDate={currentDate}
-        onDateSelect={setCurrentDate}
-        upcomingEvents={upcomingEvents}
-        onEventClick={handleEventClick}
-      />
-
       <div className="flex-1 flex flex-col">
         <OutlookIntegrationBanner />
         

@@ -342,7 +342,7 @@ export function FinanceTrackerTab() {
     <div className="space-y-4">
       {/* Advanced Filters */}
       <Card>
-        <CardHeader className="p-5">
+        <CardHeader className="p-6">
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Filter className="w-5 h-5" />
@@ -453,8 +453,8 @@ export function FinanceTrackerTab() {
       </Card>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="p-3 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+        <div className="p-4 rounded-lg bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-green-700">Total Revenue ({paymentDaysFilter}d)</p>

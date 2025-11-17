@@ -210,15 +210,15 @@ export function GoalsPerformanceTracker() {
       </div>
 
       {/* Performance Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         {performanceMetrics.map((metric, index) => {
           const Icon = metric.icon;
           const isAboveTarget = metric.value >= metric.target;
           
           return (
             <Card key={index} className="border-border">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-3">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <div className="p-2 rounded-lg bg-primary/10">
                       <Icon className="w-4 h-4 text-primary" />
@@ -238,7 +238,7 @@ export function GoalsPerformanceTracker() {
                     )}
                   </div>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">{metric.label}</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-bold text-foreground">
@@ -250,7 +250,7 @@ export function GoalsPerformanceTracker() {
                       / {metric.unit === '$' && metric.unit}{metric.target.toLocaleString()}{metric.unit !== '$' && metric.unit}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-2 mt-3">
                     <Progress 
                       value={getProgressPercentage(metric.value, metric.target)} 
                       className="h-1.5 flex-1"
@@ -270,14 +270,14 @@ export function GoalsPerformanceTracker() {
 
       {/* Goals Section */}
       <Card>
-        <CardHeader className="p-5">
+        <CardHeader className="p-6">
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
             Active Goals
             <Badge variant="secondary" className="ml-2">{goals.length}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 px-5 pb-5 pt-0">
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6 pb-6 pt-0">
           {goals.map((goal) => {
             const Icon = goal.icon;
             const percentage = getProgressPercentage(goal.current, goal.target);

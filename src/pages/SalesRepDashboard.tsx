@@ -21,7 +21,7 @@ import { UnreadCommunications } from '@/components/admin/sales-rep/UnreadCommuni
 import { TodaysCallList } from '@/components/admin/sales-rep/TodaysCallList';
 import { ReenquiryStudents } from '@/components/admin/sales-rep/ReenquiryStudents';
 import { TodaysTasks } from '@/components/admin/sales-rep/TodaysTasks';
-import { MyDayCalendar } from '@/components/admin/sales-rep/MyDayCalendar';
+import { EnhancedCalendar } from '@/components/admin/sales-rep/EnhancedCalendar';
 import { HotLeadsToday } from '@/components/admin/sales-rep/HotLeadsToday';
 import { PerformanceTracker } from '@/components/admin/sales-rep/PerformanceTracker';
 import { AIActionCenter } from '@/components/admin/sales-rep/AIActionCenter';
@@ -69,20 +69,7 @@ export default function SalesRepDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left Column - Priority Items */}
             <div className="lg:col-span-2 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-primary" />
-                    <span>My Schedule</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Today's calendar and available time slots - Click events for details
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <MyDayCalendar />
-                </CardContent>
-              </Card>
+              <EnhancedCalendar />
 
               <Card>
                 <CardHeader>

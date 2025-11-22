@@ -22,6 +22,8 @@ import { useForm } from 'react-hook-form';
 import { MessageDetailModal } from './modals/MessageDetailModal';
 import { CommunicationSettingsModal } from './modals/CommunicationSettingsModal';
 import { AITemplateAssistant } from './AITemplateAssistant';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
 import { 
   MessageSquare, 
   Send, 
@@ -332,99 +334,97 @@ const CommunicationHub: React.FC = () => {
   const smsTemplates = templates.filter(t => t.type === 'sms');
 
   return (
-    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 md:p-9">
-      {/* Hero Header with Glassmorphism */}
-      <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-4 sm:p-6 md:p-8 transition-all duration-500 hover:shadow-xl hover:border-border/80">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-            <Mail className="w-6 h-6 text-primary-foreground" />
+    <div className="space-y-8 p-9">
+      <PageHeader
+        title="Communication Hub"
+        subtitle="Manage all student communications in one place"
+        action={
+          <div className={`flex ${isMobile ? 'flex-col' : 'items-center'} gap-2 sm:gap-3`}>
+            <Button 
+              className={isMobile ? 'w-full' : ''}
+              onClick={() => setShowLeadSelector(true)}
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Send Message
+            </Button>
+            <Button 
+              variant="outline" 
+              className={isMobile ? 'w-full' : ''}
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+            <Button 
+              variant="outline" 
+              className={isMobile ? 'w-full' : ''}
+              onClick={() => window.location.href = '/admin/communication/ai-emails'}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {isMobile ? 'AI Emails' : 'AI Email Management'}
+            </Button>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Communication Hub
-            </h1>
-            <p className="text-muted-foreground">Manage all student communications in one place</p>
-          </div>
-        </div>
+        }
+      />
 
-        {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+      {/* Quick Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Unread</p>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-2xl font-bold text-foreground mt-1">
                   {messages.filter(m => m.status === 'unread').length}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-primary" />
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Mail className="w-6 h-6 text-primary" />
               </div>
             </div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+          </CardContent>
+        </GlassCard>
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Messages</p>
-                <p className="text-2xl font-bold text-foreground">{messages.length}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{messages.length}</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-blue-600" />
+              <div className="w-12 h-12 rounded-lg bg-info/10 flex items-center justify-center">
+                <MessageSquare className="w-6 h-6 text-info" />
               </div>
             </div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+          </CardContent>
+        </GlassCard>
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Templates</p>
-                <p className="text-2xl font-bold text-foreground">{templates.length}</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{templates.length}</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-purple-600" />
+              <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <FileText className="w-6 h-6 text-purple-600" />
               </div>
             </div>
-          </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+          </CardContent>
+        </GlassCard>
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Replied</p>
-                <p className="text-2xl font-bold text-foreground">
+                <p className="text-2xl font-bold text-foreground mt-1">
                   {messages.filter(m => m.status === 'replied').length}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-success" />
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Primary Actions */}
-        <div className={`flex ${isMobile ? 'flex-col' : 'items-center'} gap-2 sm:gap-3`}>
-          <Button 
-            className={`bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg ${isMobile ? 'w-full' : ''}`}
-            onClick={() => setShowLeadSelector(true)}
-          >
-            <Send className="w-4 h-4 mr-2" />
-            Send Message
-          </Button>
-          <Button 
-            variant="outline" 
-            className={`border-border/50 hover:bg-accent/50 ${isMobile ? 'w-full' : ''}`}
-            onClick={() => setSettingsOpen(true)}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </Button>
-          <Button 
-            variant="outline" 
-            className={`border-border/50 hover:bg-accent/50 ${isMobile ? 'w-full' : ''}`}
-            onClick={() => window.location.href = '/admin/communication/ai-emails'}
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            {isMobile ? 'AI Emails' : 'AI Email Management'}
-          </Button>
-        </div>
+          </CardContent>
+        </GlassCard>
       </div>
 
       {/* Modern Tab Navigation */}

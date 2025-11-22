@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +32,7 @@ import { GlassCard } from '@/components/modern/GlassCard';
 
 export function CampaignManagement() {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [analytics, setAnalytics] = useState({ totalCampaigns: 0, activeCampaigns: 0, totalExecutions: 0 });
   const [loading, setLoading] = useState(true);
@@ -196,15 +198,15 @@ export function CampaignManagement() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
         <PageHeader 
           title="Campaign Management"
           subtitle="Create and manage marketing campaigns to drive lead generation"
           action={
-            <div className="flex gap-2">
+            <div className={`flex gap-2 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
               <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size="lg" className="gap-2">
+                  <Button variant="outline" size={isMobile ? "default" : "lg"} className={`gap-2 ${isMobile ? 'w-full' : ''}`}>
                     <Bot className="h-4 w-4" />
                     Create with AI
                   </Button>
@@ -230,7 +232,7 @@ export function CampaignManagement() {
                 </DialogContent>
               </Dialog>
               
-              <Button size="lg" onClick={() => navigate('/admin/builder/campaigns')} className="gap-2">
+              <Button size={isMobile ? "default" : "lg"} onClick={() => navigate('/admin/builder/campaigns')} className={`gap-2 ${isMobile ? 'w-full' : ''}`}>
                 <GitBranch className="h-4 w-4" />
                 Campaign Builder
               </Button>
@@ -239,7 +241,7 @@ export function CampaignManagement() {
         />
 
         {/* Analytics Cards */}
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="grid gap-3 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
           <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
             <div className="flex items-start justify-between">
               <div>

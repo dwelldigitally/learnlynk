@@ -15,6 +15,7 @@ import {
   DollarSign
 } from 'lucide-react';
 
+import { PageHeader } from '@/components/modern/PageHeader';
 import { DailyHeader } from '@/components/admin/sales-rep/DailyHeader';
 import { NewlyAssignedLeads } from '@/components/admin/sales-rep/NewlyAssignedLeads';
 import { UnreadCommunications } from '@/components/admin/sales-rep/UnreadCommunications';
@@ -35,7 +36,12 @@ export default function SalesRepDashboard() {
   const [activeTab, setActiveTab] = useState('today');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageHeader 
+        title="My Dashboard"
+        subtitle="Your personalized workspace for managing leads, tasks, and performance"
+      />
+      
       {/* Daily Header */}
       <DailyHeader />
       

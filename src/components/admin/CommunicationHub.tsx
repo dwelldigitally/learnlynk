@@ -52,6 +52,8 @@ import { EmailContentEditor } from './templates/EmailContentEditor';
 import { AttachmentUploader } from './templates/AttachmentUploader';
 import { EmailPreviewModal } from './templates/EmailPreviewModal';
 import { supabase } from '@/integrations/supabase/client';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
 
 const CommunicationHub: React.FC = () => {
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
@@ -330,103 +332,91 @@ const CommunicationHub: React.FC = () => {
   const smsTemplates = templates.filter(t => t.type === 'sms');
 
   return (
-    <div className="space-y-8 p-9">
-      {/* Hero Header with Glassmorphism */}
-      <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-8 transition-all duration-500 hover:shadow-xl hover:border-border/80">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
-            <Mail className="w-6 h-6 text-primary-foreground" />
+    <div className="space-y-6 p-6">
+      <PageHeader 
+        title="Communication Hub"
+        subtitle="Manage all student communications in one place"
+        action={
+          <div className="flex items-center gap-3">
+            <Button 
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              onClick={() => setShowLeadSelector(true)}
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Send Message
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => window.location.href = '/admin/communication/ai-emails'}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              AI Email Management
+            </Button>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
-              Communication Hub
-            </h1>
-            <p className="text-muted-foreground">Manage all student communications in one place</p>
-          </div>
-        </div>
+        }
+      />
 
-        {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Unread</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {messages.filter(m => m.status === 'unread').length}
-                </p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-primary" />
-              </div>
+      {/* Quick Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <GlassCard hover className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Unread</p>
+              <p className="text-2xl font-bold text-foreground">
+                {messages.filter(m => m.status === 'unread').length}
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Mail className="w-5 h-5 text-primary" />
             </div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Messages</p>
-                <p className="text-2xl font-bold text-foreground">{messages.length}</p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-blue-600" />
-              </div>
+        </GlassCard>
+        <GlassCard hover className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Total Messages</p>
+              <p className="text-2xl font-bold text-foreground">{messages.length}</p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-info/10 flex items-center justify-center">
+              <MessageSquare className="w-5 h-5 text-info" />
             </div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Templates</p>
-                <p className="text-2xl font-bold text-foreground">{templates.length}</p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <FileText className="w-5 h-5 text-purple-600" />
-              </div>
+        </GlassCard>
+        <GlassCard hover className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Templates</p>
+              <p className="text-2xl font-bold text-foreground">{templates.length}</p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-success" />
             </div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Replied</p>
-                <p className="text-2xl font-bold text-foreground">
-                  {messages.filter(m => m.status === 'replied').length}
-                </p>
-              </div>
-              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 text-green-600" />
-              </div>
+        </GlassCard>
+        <GlassCard hover className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Replied</p>
+              <p className="text-2xl font-bold text-foreground">
+                {messages.filter(m => m.status === 'replied').length}
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
+              <CheckCircle className="w-5 h-5 text-warning" />
             </div>
           </div>
-        </div>
-
-        {/* Primary Actions */}
-        <div className="flex items-center gap-3">
-          <Button 
-            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
-            onClick={() => setShowLeadSelector(true)}
-          >
-            <Send className="w-4 h-4 mr-2" />
-            Send Message
-          </Button>
-          <Button 
-            variant="outline" 
-            className="border-border/50 hover:bg-accent/50"
-            onClick={() => setSettingsOpen(true)}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Settings
-          </Button>
-          <Button 
-            variant="outline" 
-            className="border-border/50 hover:bg-accent/50"
-            onClick={() => window.location.href = '/admin/communication/ai-emails'}
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            AI Email Management
-          </Button>
-        </div>
+        </GlassCard>
       </div>
 
       {/* Modern Tab Navigation */}
-      <Tabs defaultValue="messages" className="space-y-8">
+      <Tabs defaultValue="messages" className="space-y-6">
         <TabsList className="grid w-full max-w-md grid-cols-2 h-12 bg-muted/30 backdrop-blur-xl border border-border/50 rounded-xl">
           <TabsTrigger 
             value="messages" 
@@ -444,9 +434,9 @@ const CommunicationHub: React.FC = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="messages" className="space-y-6 p-9">
+        <TabsContent value="messages" className="space-y-6">
           {/* Filter Panel */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm hover:shadow-lg transition-all duration-300">
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
@@ -619,9 +609,9 @@ const CommunicationHub: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="templates" className="space-y-6 p-9">
+        <TabsContent value="templates" className="space-y-6">
           {/* Templates Header with Actions */}
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm">
+          <div className="bg-card/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-foreground">Templates</h2>
               <div className="flex items-center gap-3">

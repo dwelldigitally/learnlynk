@@ -23,7 +23,7 @@ export function LeadForms() {
   };
 
   return (
-    <div className="p-6 pt-8 w-full max-w-none">
+    <div className="p-6 space-y-6 w-full max-w-none">
       {view === 'overview' ? (
         <FormsOverview 
           onCreateForm={handleCreateForm}

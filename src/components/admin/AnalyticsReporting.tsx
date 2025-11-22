@@ -19,6 +19,8 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { useConditionalAnalytics } from '@/hooks/useConditionalAnalytics';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
 
 const AnalyticsReporting: React.FC = () => {
   const { data: analyticsDataArray, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalAnalytics();
@@ -111,41 +113,38 @@ const AnalyticsReporting: React.FC = () => {
       loadingRows={3}
     >
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Analytics & Reporting</h1>
-          <p className="text-muted-foreground">Track performance and generate insights</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-          <Button>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Custom Report
-          </Button>
-        </div>
-      </div>
+      <PageHeader 
+        title="Analytics & Reporting"
+        subtitle="Track performance and generate insights"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export Report
+            </Button>
+            <Button>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Custom Report
+            </Button>
+          </div>
+        }
+      />
 
       {/* Key Performance Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {kpis.map((kpi, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
-                <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={kpi.trend === 'up' ? 'default' : 'secondary'} className="text-xs">
-                    {kpi.change}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">{kpi.description}</span>
-                </div>
+          <GlassCard key={index} hover className="p-6">
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
+              <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+              <div className="flex items-center space-x-2">
+                <Badge variant={kpi.trend === 'up' ? 'default' : 'secondary'} className="text-xs">
+                  {kpi.change}
+                </Badge>
+                <span className="text-xs text-muted-foreground">{kpi.description}</span>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </GlassCard>
         ))}
       </div>
 

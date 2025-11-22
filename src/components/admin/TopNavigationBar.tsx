@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X } from "lucide-react";
+import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,20 @@ export function TopNavigationBar() {
     { name: "Analytics", href: "/admin/analytics" },
   ];
 
+  const managementMenuItems = [
+    { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
+    { name: "Programs", href: "/admin/programs", icon: BookOpen },
+    { name: "Workflows", href: "/admin/workflows", icon: Workflow },
+    { name: "Requirements", href: "/admin/requirements", icon: FileCheck },
+    { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
+    { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
+    { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
+    { name: "Reports", href: "/admin/reports", icon: FileText },
+  ];
+
   const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/');
+  
+  const isManagementActive = managementMenuItems.some(item => isActive(item.href));
 
   return (
     <>
@@ -55,6 +68,24 @@ export function TopNavigationBar() {
                 {item.name}
               </Link>
             ))}
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className={cn("flex items-center px-3 lg:px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap", isManagementActive ? "bg-white/20 text-white shadow-sm" : "text-white/90 hover:bg-white/10 hover:text-white")}>
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Management
+                  <ChevronDown className="h-4 w-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                {managementMenuItems.map((item) => (
+                  <DropdownMenuItem key={item.href} onClick={() => navigate(item.href)} className={isActive(item.href) ? 'bg-muted' : ''}>
+                    <item.icon className="h-4 w-4 mr-2" />
+                    {item.name}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </nav>
         </div>
 
@@ -121,6 +152,14 @@ export function TopNavigationBar() {
               <DropdownMenuSeparator />
               {mainNavItems.map((item) => (
                 <DropdownMenuItem key={item.href} onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} className={isActive(item.href) ? 'bg-muted' : ''}>{item.name}</DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs text-muted-foreground">Management</DropdownMenuLabel>
+              {managementMenuItems.map((item) => (
+                <DropdownMenuItem key={item.href} onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} className={isActive(item.href) ? 'bg-muted' : ''}>
+                  <item.icon className="h-4 w-4 mr-2" />
+                  {item.name}
+                </DropdownMenuItem>
               ))}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => { navigate('/admin/communication/ai-emails'); setMobileMenuOpen(false); }} className={isActive('/admin/communication/ai-emails') ? 'bg-muted' : ''}>

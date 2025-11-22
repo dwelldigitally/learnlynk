@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +16,7 @@ import { useSetupTour } from '@/hooks/useSetupTour';
 
 export const SetupTaskList: React.FC = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const {
     tasks,
     loading,
@@ -30,7 +32,7 @@ export const SetupTaskList: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8 max-w-5xl space-y-6">
+      <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl space-y-6">
         <Skeleton className="h-32 w-full" />
         {[1, 2, 3].map(i => (
           <Skeleton key={i} className="h-32 w-full" />
@@ -40,19 +42,19 @@ export const SetupTaskList: React.FC = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl" data-tour="welcome">
+    <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-5xl" data-tour="welcome">
       <SetupTour />
       
       {/* Header Card */}
       <Card className="mb-8 bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
         <CardHeader>
-          <div className="flex items-start justify-between">
+          <div className={`flex items-start gap-4 ${isMobile ? 'flex-col' : 'justify-between'}`}>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="w-6 h-6 text-primary" />
-                <CardTitle className="text-2xl">Getting Started Guide</CardTitle>
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                <CardTitle className="text-xl sm:text-2xl">Getting Started Guide</CardTitle>
               </div>
-              <CardDescription className="text-base">
+              <CardDescription className="text-sm sm:text-base">
                 {isSetupComplete 
                   ? "🎉 Great job! You've completed all recommended setup tasks."
                   : `Follow these steps to get the most out of your institution portal. ${incompleteRequiredTasks.length > 0 ? `We recommend completing ${incompleteRequiredTasks.length} essential ${incompleteRequiredTasks.length === 1 ? 'task' : 'tasks'} first.` : 'Complete tasks at your own pace.'}`
@@ -61,7 +63,7 @@ export const SetupTaskList: React.FC = () => {
             </div>
             
             {isSetupComplete && (
-              <Button onClick={() => navigate('/admin')} className="gap-2">
+              <Button onClick={() => navigate('/admin')} className={`gap-2 ${isMobile ? 'w-full' : ''}`}>
                 Go to Dashboard
                 <ArrowRight className="w-4 h-4" />
               </Button>
@@ -138,14 +140,14 @@ export const SetupTaskList: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" size="sm">
+          <div className={`flex gap-2 ${isMobile ? 'flex-col' : 'flex-wrap'}`}>
+            <Button variant="outline" size="sm" className={isMobile ? 'w-full' : ''}>
               View Documentation
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className={isMobile ? 'w-full' : ''}>
               Contact Support
             </Button>
-            <Button variant="outline" size="sm" onClick={startTour} className="gap-2">
+            <Button variant="outline" size="sm" onClick={startTour} className={`gap-2 ${isMobile ? 'w-full' : ''}`}>
               <Play className="w-3 h-3" />
               Take Tour
             </Button>

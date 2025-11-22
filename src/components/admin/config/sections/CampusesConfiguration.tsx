@@ -11,7 +11,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { MasterCampus } from "@/types/masterData";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Plus, Edit, Trash2, Building2, Users, Globe, Phone, Mail, Search, CheckCircle2, XCircle, Clock, Navigation } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 export const CampusesConfiguration = () => {
+  const isMobile = useIsMobile();
   const [campuses, setCampuses] = useState<MasterCampus[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -158,12 +161,12 @@ export const CampusesConfiguration = () => {
   // Calculate stats
   const activeCampuses = campuses.filter(c => c.is_active).length;
   const totalCapacity = campuses.reduce((sum, c) => sum + (c.capacity || 0), 0);
-  return <div className="space-y-6 p-6">
+  return <div className="space-y-6 p-4 sm:p-6 md:p-9">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Campus Management</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Campus Management</h1>
+          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
             Manage your institution's campus locations and facilities
           </p>
         </div>
@@ -172,8 +175,8 @@ export const CampusesConfiguration = () => {
         
 
         {/* Search and Actions Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="relative flex-1 max-w-md">
+        <div className={`flex gap-4 ${isMobile ? 'flex-col' : 'flex-row items-center justify-between'}`}>
+          <div className={`relative ${isMobile ? 'w-full' : 'flex-1 max-w-md'}`}>
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search campuses..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
           </div>
@@ -181,7 +184,7 @@ export const CampusesConfiguration = () => {
           resetForm();
           setEditingCampus(null);
           setIsModalOpen(true);
-        }} className="bg-primary hover:bg-primary/90">
+        }} className={`bg-primary hover:bg-primary/90 ${isMobile ? 'w-full' : ''}`}>
             <Plus className="h-4 w-4 mr-2" />
             Add Campus
           </Button>
@@ -189,7 +192,7 @@ export const CampusesConfiguration = () => {
       </div>
 
       {/* Campus Grid */}
-      {loading ? <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {loading ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {[1, 2, 3].map(i => <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="h-40 bg-muted rounded" />

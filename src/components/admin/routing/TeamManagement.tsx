@@ -18,12 +18,14 @@ import { EnhancedTeamHierarchy } from '@/components/admin/team/EnhancedTeamHiera
 import { SystemRoleManagement } from '@/components/admin/team/SystemRoleManagement';
 import { PermissionMatrix } from '@/components/admin/team/PermissionMatrix';
 import { UserDirectory } from '@/components/admin/team/UserDirectory';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TeamManagementProps {
   onTeamCreated?: () => void;
 }
 
 export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
+  const isMobile = useIsMobile();
   const [teams, setTeams] = useState<AdvisorTeam[]>([]);
   const [advisors, setAdvisors] = useState<any[]>([]);
   const [showTeamForm, setShowTeamForm] = useState(false);

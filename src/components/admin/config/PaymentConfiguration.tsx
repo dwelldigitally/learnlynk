@@ -6,36 +6,38 @@ import { PaymentStatsDashboard } from '../payments/PaymentStatsDashboard';
 import { InvoiceTemplateTable } from '../payments/InvoiceTemplateTable';
 import { ReceiptTemplateTable } from '../payments/ReceiptTemplateTable';
 import { PaymentSettingsPanel } from '../payments/PaymentSettingsPanel';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const PaymentConfiguration = () => {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-4 sm:p-6 md:p-9">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Payment Configuration</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Payment Configuration</h1>
+        <p className="text-muted-foreground mt-2 text-sm sm:text-base">
           Manage payment templates, view statistics, and configure payment settings
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 lg:w-auto">
-          <TabsTrigger value="overview" className="flex items-center gap-2">
+        <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : "grid w-full grid-cols-4 lg:w-auto"}>
+          <TabsTrigger value="overview" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : ''}`}>
             <DollarSign className="h-4 w-4" />
-            <span className="hidden sm:inline">Overview</span>
+            <span className={isMobile ? '' : 'hidden sm:inline'}>Overview</span>
           </TabsTrigger>
-          <TabsTrigger value="invoices" className="flex items-center gap-2">
+          <TabsTrigger value="invoices" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : ''}`}>
             <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Invoice Templates</span>
+            <span className={isMobile ? '' : 'hidden sm:inline'}>Invoice Templates</span>
           </TabsTrigger>
-          <TabsTrigger value="receipts" className="flex items-center gap-2">
+          <TabsTrigger value="receipts" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : ''}`}>
             <Receipt className="h-4 w-4" />
-            <span className="hidden sm:inline">Receipt Templates</span>
+            <span className={isMobile ? '' : 'hidden sm:inline'}>Receipt Templates</span>
           </TabsTrigger>
-          <TabsTrigger value="settings" className="flex items-center gap-2">
+          <TabsTrigger value="settings" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : ''}`}>
             <Settings className="h-4 w-4" />
-            <span className="hidden sm:inline">Settings</span>
+            <span className={isMobile ? '' : 'hidden sm:inline'}>Settings</span>
           </TabsTrigger>
         </TabsList>
 

@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { MessageSquare, CreditCard, Phone, Mail, Building, Settings, CheckCircle, AlertCircle, Eye, EyeOff, Calendar, FileText, BarChart3, Users, Video, Zap, Bot, BookOpen, GraduationCap, Shield, Workflow, Share2, MessageCircle, DollarSign, Cloud, Brain, TestTube, RefreshCw, Database } from 'lucide-react';
 import { StripeSyncDashboard } from '../stripe/StripeSyncDashboard';
 import { useStripeSyncStatus } from '@/services/stripeDataService';
+import { useIsMobile } from '@/hooks/use-mobile';
 interface IntegrationField {
   key: string;
   label: string;
@@ -36,6 +37,7 @@ interface Integration {
   isPopular?: boolean;
 }
 export const EnhancedIntegrationHub = () => {
+  const isMobile = useIsMobile();
   const [showApiKeys, setShowApiKeys] = useState<{
     [key: string]: boolean;
   }>({});

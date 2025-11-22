@@ -4,8 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Plus, FileText, Download, Calendar, TrendingUp, Loader2 } from 'lucide-react';
 import { ReportService } from '@/services/reportService';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export function ReportsManagement() {
+  const isMobile = useIsMobile();
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -31,21 +33,21 @@ export function ReportsManagement() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="p-4 sm:p-6 md:p-9 space-y-6 md:space-y-8">
+      <div className={`flex items-start gap-4 ${isMobile ? 'flex-col' : 'justify-between items-center'}`}>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports Management</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Reports Management</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Generate and manage comprehensive reports for data-driven insights
           </p>
         </div>
-        <Button>
+        <Button className={isMobile ? 'w-full' : ''}>
           <Plus className="h-4 w-4 mr-2" />
           Create Report
         </Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Generated Reports</CardTitle>
@@ -88,7 +90,7 @@ export function ReportsManagement() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {/* PTIRU Reports */}
         <Card>
           <CardHeader>
@@ -218,7 +220,7 @@ export function ReportsManagement() {
       </div>
 
       {/* Detailed Report Configuration */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>PTIRU Configuration</CardTitle>

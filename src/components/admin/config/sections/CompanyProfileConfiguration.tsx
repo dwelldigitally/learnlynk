@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Building2, MapPin, Phone, Mail, Globe, Clock } from "lucide-react";
+import { PageHeader } from '@/components/modern/PageHeader';
 
 export const CompanyProfileConfiguration = () => {
   const [companyProfile, setCompanyProfile] = useState({
@@ -105,7 +106,12 @@ export const CompanyProfileConfiguration = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
+      <PageHeader 
+        title="Company Profile"
+        subtitle="Manage your institution's profile and branding information"
+      />
+      
       {/* Basic Information */}
       <Card>
         <CardHeader>
@@ -114,7 +120,7 @@ export const CompanyProfileConfiguration = () => {
             Basic Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Company Name</Label>
@@ -180,7 +186,7 @@ export const CompanyProfileConfiguration = () => {
             Contact Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Phone</Label>
@@ -271,7 +277,7 @@ export const CompanyProfileConfiguration = () => {
         <CardHeader>
           <CardTitle>Mission, Vision & Values</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-6 space-y-6">
           <div className="space-y-2">
             <Label htmlFor="mission">Mission Statement</Label>
             <Textarea
@@ -312,7 +318,7 @@ export const CompanyProfileConfiguration = () => {
         <CardHeader>
           <CardTitle>Branding</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="p-6 space-y-6">
           <div className="space-y-2">
             <Label htmlFor="logo_url">Logo URL</Label>
             <Input

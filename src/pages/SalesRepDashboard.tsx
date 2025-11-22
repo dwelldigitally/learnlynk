@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { 
   Calendar, 
   Users, 
@@ -33,39 +34,40 @@ import { FinanceTrackerTab } from '@/components/admin/sales-rep/FinanceTrackerTa
 
 export default function SalesRepDashboard() {
   const [activeTab, setActiveTab] = useState('today');
+  const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 p-4 sm:p-6 md:p-9">
       {/* Daily Header */}
       <DailyHeader />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         {/* Tab Navigation */}
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
-          <TabsTrigger value="today" className="flex items-center space-x-2">
+        <TabsList className={`w-full ${isMobile ? 'flex flex-col h-auto gap-1' : 'grid grid-cols-2 lg:grid-cols-5'}`}>
+          <TabsTrigger value="today" className="flex items-center space-x-2 w-full justify-start sm:justify-center text-sm">
             <Clock className="h-4 w-4" />
             <span>Today's Focus</span>
           </TabsTrigger>
-          <TabsTrigger value="leads" className="flex items-center space-x-2">
+          <TabsTrigger value="leads" className="flex items-center space-x-2 w-full justify-start sm:justify-center text-sm">
             <Users className="h-4 w-4" />
             <span>Leads & Calls</span>
           </TabsTrigger>
-          <TabsTrigger value="documents" className="flex items-center space-x-2">
+          <TabsTrigger value="documents" className="flex items-center space-x-2 w-full justify-start sm:justify-center text-sm">
             <FileText className="h-4 w-4" />
             <span>Documents</span>
           </TabsTrigger>
-          <TabsTrigger value="finance" className="flex items-center space-x-2">
+          <TabsTrigger value="finance" className="flex items-center space-x-2 w-full justify-start sm:justify-center text-sm">
             <DollarSign className="h-4 w-4" />
             <span>Finance</span>
           </TabsTrigger>
-          <TabsTrigger value="performance" className="flex items-center space-x-2">
+          <TabsTrigger value="performance" className="flex items-center space-x-2 w-full justify-start sm:justify-center text-sm">
             <TrendingUp className="h-4 w-4" />
             <span>Performance</span>
           </TabsTrigger>
         </TabsList>
 
         {/* Tab Content */}
-        <TabsContent value="today" className="space-y-4">
+        <TabsContent value="today" className="space-y-4 p-4 sm:p-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Left Column - Priority Items */}
             <div className="lg:col-span-2 space-y-4">

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { 
   Select,
   SelectContent,
@@ -54,6 +55,7 @@ import { EmailPreviewModal } from './templates/EmailPreviewModal';
 import { supabase } from '@/integrations/supabase/client';
 
 const CommunicationHub: React.FC = () => {
+  const isMobile = useIsMobile();
   const [selectedMessages, setSelectedMessages] = useState<string[]>([]);
   const [selectedMessage, setSelectedMessage] = useState<any>(null);
   const [messageDetailOpen, setMessageDetailOpen] = useState(false);
@@ -330,9 +332,9 @@ const CommunicationHub: React.FC = () => {
   const smsTemplates = templates.filter(t => t.type === 'sms');
 
   return (
-    <div className="space-y-8 p-9">
+    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 md:p-9">
       {/* Hero Header with Glassmorphism */}
-      <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-8 transition-all duration-500 hover:shadow-xl hover:border-border/80">
+      <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-4 sm:p-6 md:p-8 transition-all duration-500 hover:shadow-xl hover:border-border/80">
         <div className="flex items-center gap-4 mb-6">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
             <Mail className="w-6 h-6 text-primary-foreground" />
@@ -346,7 +348,7 @@ const CommunicationHub: React.FC = () => {
         </div>
 
         {/* Quick Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
           <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
             <div className="flex items-center justify-between">
               <div>
@@ -398,9 +400,9 @@ const CommunicationHub: React.FC = () => {
         </div>
 
         {/* Primary Actions */}
-        <div className="flex items-center gap-3">
+        <div className={`flex ${isMobile ? 'flex-col' : 'items-center'} gap-2 sm:gap-3`}>
           <Button 
-            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+            className={`bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg ${isMobile ? 'w-full' : ''}`}
             onClick={() => setShowLeadSelector(true)}
           >
             <Send className="w-4 h-4 mr-2" />
@@ -408,7 +410,7 @@ const CommunicationHub: React.FC = () => {
           </Button>
           <Button 
             variant="outline" 
-            className="border-border/50 hover:bg-accent/50"
+            className={`border-border/50 hover:bg-accent/50 ${isMobile ? 'w-full' : ''}`}
             onClick={() => setSettingsOpen(true)}
           >
             <Settings className="w-4 h-4 mr-2" />
@@ -416,35 +418,37 @@ const CommunicationHub: React.FC = () => {
           </Button>
           <Button 
             variant="outline" 
-            className="border-border/50 hover:bg-accent/50"
+            className={`border-border/50 hover:bg-accent/50 ${isMobile ? 'w-full' : ''}`}
             onClick={() => window.location.href = '/admin/communication/ai-emails'}
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            AI Email Management
+            {isMobile ? 'AI Emails' : 'AI Email Management'}
           </Button>
         </div>
       </div>
 
       {/* Modern Tab Navigation */}
-      <Tabs defaultValue="messages" className="space-y-8">
-        <TabsList className="grid w-full max-w-md grid-cols-2 h-12 bg-muted/30 backdrop-blur-xl border border-border/50 rounded-xl">
+      <Tabs defaultValue="messages" className="space-y-6 sm:space-y-8">
+        <TabsList className={`w-full ${isMobile ? 'grid grid-cols-2' : 'max-w-md grid-cols-2'} h-auto sm:h-12 bg-muted/30 backdrop-blur-xl border border-border/50 rounded-xl`}>
           <TabsTrigger 
             value="messages" 
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg transition-all duration-300"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg transition-all duration-300 text-sm sm:text-base py-2 sm:py-3"
           >
-            <Mail className="w-4 h-4 mr-2" />
-            Messages
+            <Mail className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Messages</span>
+            <span className="sm:hidden">Msgs</span>
           </TabsTrigger>
           <TabsTrigger 
             value="templates"
-            className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg transition-all duration-300"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg transition-all duration-300 text-sm sm:text-base py-2 sm:py-3"
           >
-            <FileText className="w-4 h-4 mr-2" />
-            Templates
+            <FileText className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Templates</span>
+            <span className="sm:hidden">Tmpl</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="messages" className="space-y-6 p-9">
+        <TabsContent value="messages" className="space-y-4 sm:space-y-6 p-4 sm:p-6 md:p-9">
           {/* Filter Panel */}
           <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm hover:shadow-lg transition-all duration-300">
             <div className="relative mb-4">

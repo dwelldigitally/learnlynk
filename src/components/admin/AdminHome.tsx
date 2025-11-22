@@ -10,6 +10,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { QuickCommunicationModal } from "./QuickCommunicationModal";
 import { QuickTaskModal } from "./QuickTaskModal";
 import { QuickNoteModal } from "./QuickNoteModal";
@@ -36,6 +37,7 @@ const AdminHome: React.FC = () => {
   const {
     toast
   } = useToast();
+  const isMobile = useIsMobile();
   const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
@@ -424,10 +426,10 @@ const AdminHome: React.FC = () => {
   return <div className="min-h-screen bg-background">
       {/* Hero Section with Greeting and KPIs */}
       <div className="border-b bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
-        <div className="container mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
           {/* Greeting */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               {getGreeting()}, {firstName}! 👋
             </h1>
             <p className="text-muted-foreground">
@@ -469,24 +471,24 @@ const AdminHome: React.FC = () => {
           )}
 
           {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">
             {(hasDemoAccess ? kpiData : emptyKpiData).map((kpi, index) => <DashboardKPICard key={index} {...kpi} />)}
           </div>
 
           {/* AI Search Bar */}
           <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input placeholder="🔍 AI Search: How can I help you today? Try 'Show me hot leads' or 'Students with incomplete documents'" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-12 pr-4 h-12 bg-card border-border text-base" />
-            <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
+            <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
+            <Input placeholder={isMobile ? "🔍 AI Search..." : "🔍 AI Search: How can I help you today? Try 'Show me hot leads' or 'Students with incomplete documents'"} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 sm:pl-12 pr-10 sm:pr-4 h-11 sm:h-12 bg-card border-border text-sm sm:text-base" />
+            <Sparkles className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-primary" />
           </form>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Left Column - Priority Dashboard */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Priority Actions */}
             <Card>
               <CardHeader>
@@ -495,12 +497,12 @@ const AdminHome: React.FC = () => {
                   Today's Focus
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 sm:p-6">
                 <Tabs defaultValue="urgent" className="w-full">
-                  <TabsList className="w-full mb-4">
-                    <TabsTrigger value="urgent" className="flex-1">Urgent Actions</TabsTrigger>
-                    <TabsTrigger value="schedule" className="flex-1">My Schedule</TabsTrigger>
-                    <TabsTrigger value="leads" className="flex-1">Hot Leads</TabsTrigger>
+                  <TabsList className={`w-full mb-4 ${isMobile ? 'grid grid-cols-1 h-auto gap-1' : 'grid grid-cols-3'}`}>
+                    <TabsTrigger value="urgent" className="flex-1 text-xs sm:text-sm">Urgent Actions</TabsTrigger>
+                    <TabsTrigger value="schedule" className="flex-1 text-xs sm:text-sm">My Schedule</TabsTrigger>
+                    <TabsTrigger value="leads" className="flex-1 text-xs sm:text-sm">Hot Leads</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="urgent" className="space-y-3">
@@ -540,18 +542,18 @@ const AdminHome: React.FC = () => {
 
             {/* Quick Actions Grid */}
             <Card>
-              <CardHeader>
-                <CardTitle>Quick Actions</CardTitle>
+              <CardHeader className="p-4 sm:p-6">
+                <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <CardContent className="p-4 sm:p-6 pt-0">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
                   {quickActions.map((action, index) => {
                   const Icon = action.icon;
-                  return <Button key={index} variant="outline" className={`h-auto flex-col items-start p-4 ${action.color}`} onClick={action.onClick}>
-                        <Icon className="h-5 w-5 mb-2" />
-                        <div className="text-left">
-                          <div className="font-semibold text-sm">{action.title}</div>
-                          <div className="text-xs opacity-80">{action.description}</div>
+                  return <Button key={index} variant="outline" className={`h-auto flex-col items-start p-3 sm:p-4 ${action.color} min-h-[80px]`} onClick={action.onClick}>
+                        <Icon className="h-4 w-4 sm:h-5 sm:w-5 mb-2" />
+                        <div className="text-left w-full">
+                          <div className="font-semibold text-xs sm:text-sm">{action.title}</div>
+                          <div className="text-xs opacity-80 hidden sm:block">{action.description}</div>
                         </div>
                       </Button>;
                 })}

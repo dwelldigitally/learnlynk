@@ -58,7 +58,7 @@ export function CalendarMonthView({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 flex-1 overflow-auto">
+      <div className="grid grid-cols-7 flex-1">
         {days.map((day, idx) => {
           const dayEvents = getEventsForDay(day);
           const isCurrentMonth = isSameMonth(day, currentDate);
@@ -70,7 +70,7 @@ export function CalendarMonthView({
             <div
               key={idx}
               className={cn(
-                "min-h-[120px] border-r border-b border-border p-2 cursor-pointer hover:bg-accent/5 transition-colors",
+                "min-h-[90px] border-r border-b border-border p-2 cursor-pointer hover:bg-accent/5 transition-colors",
                 !isCurrentMonth && "bg-muted/20"
               )}
               onClick={() => onDateClick(day)}

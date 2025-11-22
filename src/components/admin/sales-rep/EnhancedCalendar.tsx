@@ -106,7 +106,7 @@ export function EnhancedCalendar() {
   };
 
   return (
-    <div className="flex h-[600px] bg-background rounded-lg border overflow-hidden">
+    <div className="flex h-[650px] bg-background rounded-lg border overflow-hidden">
       <div className="flex-1 flex flex-col">
         <OutlookIntegrationBanner />
         

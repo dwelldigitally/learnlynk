@@ -545,7 +545,7 @@ export function LeadManagement() {
     <div className="h-full flex flex-col bg-muted/30">
       {/* Modern Header */}
       <div className="border-b bg-card/50 backdrop-blur-sm">
-        <div className="px-6 py-6">
+        <div className="px-4 sm:px-6 py-4 sm:py-6">
           <UnifiedLeadHeader
             stages={stageStats}
             activeStage={activeStage}
@@ -566,7 +566,7 @@ export function LeadManagement() {
 
       {/* Main Content - Table with Modern Styling */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full p-6">
+        <div className="h-full p-4 sm:p-6">
           <ConditionalDataWrapper
             isLoading={loading}
             showEmptyState={!hasDemoAccess && leads.length === 0}

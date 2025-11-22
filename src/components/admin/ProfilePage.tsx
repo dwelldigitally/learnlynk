@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { DemoDataService, useDemoDataAccess } from "@/services/demoDataService";
 import { useQueryClient } from "@tanstack/react-query";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,6 +49,7 @@ interface ProfileData {
 }
 
 const ProfilePage: React.FC = () => {
+  const isMobile = useIsMobile();
   const { toast } = useToast();
   const { isMvpMode, toggleMvpMode } = useMvpMode();
   const [loading, setLoading] = useState(false);
@@ -222,40 +225,40 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-8">
+    <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className={cn("flex gap-4", isMobile ? "flex-col items-start" : "items-center justify-between")}>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
-          <p className="text-muted-foreground mt-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Profile Settings</h1>
+          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
             Manage your account settings and preferences
           </p>
         </div>
-        <Button onClick={handleSave} disabled={loading} className="gap-2">
+        <Button onClick={handleSave} disabled={loading} className={cn("gap-2", isMobile && "w-full")}>
           <Save className="h-4 w-4" />
           {loading ? 'Saving...' : 'Save Changes'}
         </Button>
       </div>
 
       <Tabs defaultValue="personal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-          <TabsTrigger value="personal" className="gap-2">
+        <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : "grid w-full grid-cols-5 lg:w-auto lg:inline-grid"}>
+          <TabsTrigger value="personal" className={cn("gap-2", isMobile && "w-full justify-start")}>
             <User className="h-4 w-4" />
             Personal
           </TabsTrigger>
-          <TabsTrigger value="email" className="gap-2">
+          <TabsTrigger value="email" className={cn("gap-2", isMobile && "w-full justify-start")}>
             <Mail className="h-4 w-4" />
             Email
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="gap-2">
+          <TabsTrigger value="notifications" className={cn("gap-2", isMobile && "w-full justify-start")}>
             <Bell className="h-4 w-4" />
             Notifications
           </TabsTrigger>
-          <TabsTrigger value="security" className="gap-2">
+          <TabsTrigger value="security" className={cn("gap-2", isMobile && "w-full justify-start")}>
             <Shield className="h-4 w-4" />
             Security
           </TabsTrigger>
-          <TabsTrigger value="preferences" className="gap-2">
+          <TabsTrigger value="preferences" className={cn("gap-2", isMobile && "w-full justify-start")}>
             <Settings className="h-4 w-4" />
             Preferences
           </TabsTrigger>
@@ -272,15 +275,15 @@ const ProfilePage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Avatar Section */}
-              <div className="flex items-center gap-6">
-                <Avatar className="h-24 w-24">
+              <div className={cn("flex gap-6", isMobile ? "flex-col items-center text-center" : "items-center")}>
+                <Avatar className={isMobile ? "h-20 w-20" : "h-24 w-24"}>
                   <AvatarImage src={profileData.avatar_url} />
                   <AvatarFallback className="text-lg">
                     {profileData.first_name?.[0]}{profileData.last_name?.[0]}
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="gap-2">
+                  <Button variant="outline" size="sm" className={cn("gap-2", isMobile && "w-full")}>
                     <Upload className="h-4 w-4" />
                     Change Photo
                   </Button>
@@ -396,7 +399,7 @@ const ProfilePage: React.FC = () => {
                   This signature will be automatically added to emails sent through the system
                 </p>
               </div>
-              <Button onClick={handleSaveSignature} disabled={settingsLoading}>
+              <Button onClick={handleSaveSignature} disabled={settingsLoading} className={isMobile ? "w-full" : ""}>
                 <Save className="h-4 w-4 mr-2" />
                 Save Signature
               </Button>
@@ -451,6 +454,7 @@ const ProfilePage: React.FC = () => {
                     variant="destructive" 
                     onClick={handleDisconnectOutlook}
                     disabled={settingsLoading}
+                    className={isMobile ? "w-full" : ""}
                   >
                     <LinkIcon className="h-4 w-4 mr-2" />
                     Disconnect Outlook
@@ -478,7 +482,7 @@ const ProfilePage: React.FC = () => {
                   <Button 
                     onClick={handleConnectOutlook}
                     disabled={settingsLoading}
-                    className="gap-2"
+                    className={cn("gap-2", isMobile && "w-full")}
                   >
                     <LinkIcon className="h-4 w-4" />
                     Connect Outlook Account
@@ -559,7 +563,7 @@ const ProfilePage: React.FC = () => {
                       Last changed 3 months ago
                     </p>
                   </div>
-                  <Button variant="outline">Change Password</Button>
+                  <Button variant="outline" className={isMobile ? "w-full" : ""}>Change Password</Button>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-lg border">
                   <div>

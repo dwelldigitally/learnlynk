@@ -13,11 +13,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ModernStatsCard from "../ModernStatsCard";
 import { PageHeader } from "@/components/modern/PageHeader";
 import { ModernCard } from "@/components/modern/ModernCard";
+import { GlassCard } from "@/components/modern/GlassCard";
 import { InfoBadge } from "@/components/modern/InfoBadge";
-import { MetadataItem } from "@/components/modern/MetadataItem";
 
 interface FormsOverviewProps {
   onCreateForm: () => void;
@@ -104,31 +103,42 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <ModernStatsCard
-          title="Total Forms"
-          value={formsStats.total.toString()}
-          change={null}
-          icon={FileText}
-        />
-        <ModernStatsCard
-          title="Active Forms"
-          value={formsStats.active.toString()}
-          change={null}
-          icon={FileText}
-        />
-        <ModernStatsCard
-          title="Total Submissions"
-          value={formsStats.submissions.toLocaleString()}
-          change={{ value: 12.5, type: "increase", period: "last month" }}
-          icon={TrendingUp}
-        />
-        <ModernStatsCard
-          title="Avg. Conversion Rate"
-          value={`${formsStats.conversionRate}%`}
-          change={{ value: 3.2, type: "increase", period: "last month" }}
-          icon={BarChart3}
-          helpContent={getHelpContent('formConversion')}
-        />
+        <GlassCard hover>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">Total Forms</p>
+              <FileText className="h-5 w-5 text-primary" />
+            </div>
+            <p className="text-2xl font-bold">{formsStats.total}</p>
+          </CardContent>
+        </GlassCard>
+        <GlassCard hover>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">Active Forms</p>
+              <FileText className="h-5 w-5 text-success" />
+            </div>
+            <p className="text-2xl font-bold">{formsStats.active}</p>
+          </CardContent>
+        </GlassCard>
+        <GlassCard hover>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">Total Submissions</p>
+              <TrendingUp className="h-5 w-5 text-info" />
+            </div>
+            <p className="text-2xl font-bold">{formsStats.submissions.toLocaleString()}</p>
+          </CardContent>
+        </GlassCard>
+        <GlassCard hover>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm text-muted-foreground">Avg. Conversion Rate</p>
+              <BarChart3 className="h-5 w-5 text-warning" />
+            </div>
+            <p className="text-2xl font-bold">{formsStats.conversionRate}%</p>
+          </CardContent>
+        </GlassCard>
       </div>
 
       {/* Search and Filters */}

@@ -6,14 +6,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
   Select,
   SelectContent,
   SelectItem,
@@ -52,7 +44,6 @@ import {
   Wand2,
   Reply
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useConditionalCommunications } from "@/hooks/useConditionalCommunications";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
 import { CommunicationTemplate, TemplateFormData, TEMPLATE_VARIABLES, AttachmentMetadata } from '@/types/leadEnhancements';
@@ -339,130 +330,212 @@ const CommunicationHub: React.FC = () => {
   const smsTemplates = templates.filter(t => t.type === 'sms');
 
   return (
-    <div className="space-y-6 px-6">{/* Added padding to communication hub */}
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Communication Hub</h1>
-          <p className="text-muted-foreground">Manage messages, templates, and automations in one place</p>
+    <div className="space-y-8 p-9">
+      {/* Hero Header with Glassmorphism */}
+      <div className="bg-gradient-to-r from-card to-card/95 backdrop-blur-sm border border-border/50 rounded-3xl p-8 transition-all duration-500 hover:shadow-xl hover:border-border/80">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg">
+            <Mail className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+              Communication Hub
+            </h1>
+            <p className="text-muted-foreground">Manage all student communications in one place</p>
+          </div>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => setSettingsOpen(true)}>
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-          <Button onClick={() => setShowLeadSelector(true)}>
-            <Send className="h-4 w-4 mr-2" />
+
+        {/* Quick Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Unread</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {messages.filter(m => m.status === 'unread').length}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Mail className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Total Messages</p>
+                <p className="text-2xl font-bold text-foreground">{messages.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-blue-600" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Templates</p>
+                <p className="text-2xl font-bold text-foreground">{templates.length}</p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <FileText className="w-5 h-5 text-purple-600" />
+              </div>
+            </div>
+          </div>
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-4 hover:shadow-lg transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Replied</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {messages.filter(m => m.status === 'replied').length}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Primary Actions */}
+        <div className="flex items-center gap-3">
+          <Button 
+            className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+            onClick={() => setShowLeadSelector(true)}
+          >
+            <Send className="w-4 h-4 mr-2" />
             Send Message
           </Button>
+          <Button 
+            variant="outline" 
+            className="border-border/50 hover:bg-accent/50"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Settings
+          </Button>
+          <Button 
+            variant="outline" 
+            className="border-border/50 hover:bg-accent/50"
+            onClick={() => window.location.href = '/admin/communication/ai-emails'}
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            AI Email Management
+          </Button>
         </div>
       </div>
 
-      <div className="mb-6">
-        <Button 
-          variant="outline" 
-          onClick={() => window.location.href = '/admin/communication/ai-emails'}
-          className="mb-4"
-        >
-          <Sparkles className="h-4 w-4 mr-2" />
-          Go to AI Email Management
-        </Button>
-      </div>
-
-      <Tabs defaultValue="messages" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="messages">Messages</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
+      {/* Modern Tab Navigation */}
+      <Tabs defaultValue="messages" className="space-y-8">
+        <TabsList className="grid w-full max-w-md grid-cols-2 h-12 bg-muted/30 backdrop-blur-xl border border-border/50 rounded-xl">
+          <TabsTrigger 
+            value="messages" 
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg transition-all duration-300"
+          >
+            <Mail className="w-4 h-4 mr-2" />
+            Messages
+          </TabsTrigger>
+          <TabsTrigger 
+            value="templates"
+            className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg transition-all duration-300"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Templates
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="messages" className="space-y-4">
-          {/* Filters */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex flex-wrap gap-4 items-center justify-between">
-                <div className="flex flex-wrap gap-4 items-center">
-                  <div className="flex-1 min-w-[200px]">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input 
-                        placeholder="Search messages..." 
-                        className="pl-10" 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[150px]">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="unread">Unread</SelectItem>
-                      <SelectItem value="replied">Replied</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                {selectedMessages.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleBulkAction('Mark as Read')}
-                    >
-                      Mark as Read
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleBulkAction('Assign')}
-                    >
-                      Assign
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="messages" className="space-y-6 p-9">
+          {/* Filter Panel */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm hover:shadow-lg transition-all duration-300">
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input 
+                placeholder="Search messages..." 
+                className="pl-10 bg-background border-border/50 focus:ring-2 focus:ring-primary/20"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-          {/* Messages Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Student Messages ({filteredMessages.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ConditionalDataWrapper
-                isLoading={commsLoading}
-                showEmptyState={showEmptyState}
-                hasDemoAccess={hasDemoAccess}
-                hasRealData={hasRealData}
-                emptyTitle="No Communications"
-                emptyDescription="Student communications will appear here."
-                loadingRows={5}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <div 
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium border cursor-pointer transition-colors ${
+                  statusFilter === 'unread' 
+                    ? 'bg-primary/10 text-primary border-primary/20' 
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+                onClick={() => setStatusFilter(statusFilter === 'unread' ? 'all' : 'unread')}
               >
-                <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Student</TableHead>
-                    <TableHead>Subject</TableHead>
-                    <TableHead>Channel</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Time</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMessages.map((message) => (
-                    <TableRow 
-                      key={message.id} 
-                      className={`cursor-pointer hover:bg-accent/50 ${message.status === 'unread' ? 'bg-blue-50' : ''}`}
-                      onClick={() => handleMessageClick(message)}
-                    >
-                      <TableCell onClick={(e) => e.stopPropagation()}>
+                <Mail className="w-3 h-3 inline mr-1" />
+                Unread ({messages.filter(m => m.status === 'unread').length})
+              </div>
+              <div 
+                className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm font-medium cursor-pointer hover:bg-muted/80 transition-colors"
+                onClick={() => setStatusFilter('replied')}
+              >
+                <CheckCircle className="w-3 h-3 inline mr-1" />
+                Replied
+              </div>
+              <div 
+                className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-sm font-medium cursor-pointer hover:bg-muted/80 transition-colors"
+                onClick={() => setStatusFilter('all')}
+              >
+                All Messages
+              </div>
+            </div>
+
+            {selectedMessages.length > 0 && (
+              <div className="flex items-center gap-2 pt-4 border-t border-border/30">
+                <span className="text-sm text-muted-foreground">{selectedMessages.length} selected</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkAction('Mark as Read')}
+                >
+                  Mark as Read
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkAction('Assign')}
+                >
+                  Assign
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Messages Card List */}
+          <div>
+            <h2 className="text-xl font-semibold text-foreground mb-4">
+              Student Messages ({filteredMessages.length})
+            </h2>
+            <ConditionalDataWrapper
+              isLoading={commsLoading}
+              showEmptyState={showEmptyState}
+              hasDemoAccess={hasDemoAccess}
+              hasRealData={hasRealData}
+              emptyTitle="No Communications"
+              emptyDescription="Student communications will appear here."
+              loadingRows={5}
+            >
+              <div className="space-y-3">
+                {filteredMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`
+                      bg-white/80 backdrop-blur-sm rounded-xl border p-4
+                      transition-all duration-300 cursor-pointer group
+                      hover:shadow-lg hover:scale-[1.01] hover:border-primary/20
+                      ${message.status === 'unread' ? 'border-l-4 border-l-primary bg-primary/5 border-border/50' : 'border-border/50'}
+                    `}
+                    onClick={() => handleMessageClick(message)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div 
+                        className="flex-shrink-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <input
                           type="checkbox"
                           checked={selectedMessages.includes(message.id)}
@@ -473,246 +546,310 @@ const CommunicationHub: React.FC = () => {
                               setSelectedMessages(selectedMessages.filter(id => id !== message.id));
                             }
                           }}
+                          className="mt-1"
                         />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Avatar className="h-6 w-6">
-                            <AvatarImage src="/placeholder.svg" />
-                            <AvatarFallback>{message.studentName.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                          </Avatar>
-                          <span className="font-medium">{message.studentName}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{message.subject}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-1">{message.message}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-1">
-                          {message.channel === 'email' ? (
-                            <Mail className="h-4 w-4 text-blue-600" />
-                          ) : (
-                            <MessageSquare className="h-4 w-4 text-green-600" />
-                          )}
-                          <span className="text-sm capitalize">{message.channel}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={getStatusColor(message.status)}>
-                          {message.status.replace('-', ' ')}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {new Date(message.timestamp).toLocaleString()}
-                      </TableCell>
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              </ConditionalDataWrapper>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                      </div>
 
-        <TabsContent value="templates" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={handleAIGenerate}>
-                <Sparkles className="h-4 w-4 mr-2" />
-                Generate with AI
-              </Button>
-              <Dialog open={showCreateDialog} onOpenChange={(open) => {
-                setShowCreateDialog(open);
-                if (!open) {
-                  setEditingTemplate(null);
-                  reset();
-                }
-              }}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Template
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingTemplate ? 'Edit Template' : 'Create New Template'}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-medium shadow-sm">
+                          {message.studentName.split(' ').map(n => n[0]).join('')}
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between mb-1">
                           <div>
-                            <Label htmlFor="name">Template Name</Label>
-                            <Input 
-                              {...register('name', { required: true })}
-                              placeholder="Enter template name"
-                            />
+                            <h3 className="font-semibold text-foreground">{message.studentName}</h3>
+                            <p className="text-sm text-muted-foreground truncate">{message.subject}</p>
                           </div>
-                          <div>
-                            <Label htmlFor="type">Type</Label>
-                            <Select onValueChange={(value) => setValue('type', value as any)} defaultValue="email">
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="email">Email</SelectItem>
-                                <SelectItem value="sms">SMS</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-
-                        {watch('type') === 'email' && (
-                          <div>
-                            <Label htmlFor="subject">Subject Line</Label>
-                            <Input 
-                              {...register('subject')}
-                              placeholder="Email subject (can include variables)"
-                            />
-                          </div>
-                        )}
-
-                        {watch('type') === 'email' ? (
-                          <>
-                            <EmailContentEditor
-                              content={watchedContent || ''}
-                              htmlContent={watchedHtmlContent}
-                              contentFormat={watchedContentFormat}
-                              onContentChange={(content, htmlContent, format) => {
-                                setValue('content', content);
-                                if (htmlContent !== undefined) setValue('html_content', htmlContent);
-                                if (format) setValue('content_format', format);
-                              }}
-                              onPreview={() => setShowPreviewModal(true)}
-                            />
-
-                            {currentUserId && (
-                              <AttachmentUploader
-                                attachments={watchedAttachments}
-                                onAttachmentsChange={(attachments) => setValue('attachments', attachments)}
-                                userId={currentUserId}
-                              />
-                            )}
-                          </>
-                        ) : (
-                          <div>
-                            <Label htmlFor="content">Content</Label>
-                            <Textarea 
-                              {...register('content', { required: true })}
-                              placeholder="Template content (use variables like {{first_name}})"
-                              rows={10}
-                            />
-                          </div>
-                        )}
-
-                        <div className="flex justify-end gap-2">
-                          <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
-                            Cancel
-                          </Button>
-                          <Button type="submit" disabled={isCreating}>
-                            {isCreating ? 'Saving...' : editingTemplate ? 'Update Template' : 'Create Template'}
-                          </Button>
-                        </div>
-                      </form>
-                    </div>
-
-                    <div className="lg:col-span-1">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle className="text-sm flex items-center gap-2">
-                            <Code className="h-4 w-4" />
-                            Available Variables
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-2">
-                          {TEMPLATE_VARIABLES.map((variable) => (
-                            <div key={variable.key} className="space-y-1">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="w-full justify-start text-xs h-auto py-2"
-                                onClick={() => insertVariable(variable.key)}
-                              >
-                                <span className="font-mono">{variable.key}</span>
-                              </Button>
-                              <p className="text-xs text-muted-foreground px-2">
-                                {variable.description}
-                              </p>
+                          <div className="flex items-center gap-2 flex-shrink-0 ml-4">
+                            <div className={`px-2 py-1 rounded-md border text-xs font-medium ${
+                              message.channel === 'email' 
+                                ? 'bg-blue-500/10 border-blue-500/20 text-blue-600'
+                                : 'bg-green-500/10 border-green-500/20 text-green-600'
+                            }`}>
+                              {message.channel === 'email' ? (
+                                <Mail className="w-3 h-3 inline mr-1" />
+                              ) : (
+                                <MessageSquare className="w-3 h-3 inline mr-1" />
+                              )}
+                              {message.channel}
                             </div>
-                          ))}
-                        </CardContent>
-                      </Card>
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(message.timestamp).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                          {message.message}
+                        </p>
+
+                        <div className="flex items-center gap-2">
+                          <div className={`px-2 py-0.5 rounded-md text-xs font-medium ${
+                            message.status === 'unread' 
+                              ? 'bg-red-500/10 text-red-600'
+                              : message.status === 'replied'
+                              ? 'bg-green-500/10 text-green-600'
+                              : message.status === 'in-progress'
+                              ? 'bg-yellow-500/10 text-yellow-600'
+                              : 'bg-gray-500/10 text-gray-600'
+                          }`}>
+                            {message.status.replace('-', ' ')}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div 
+                        className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                          <Reply className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                </DialogContent>
-              </Dialog>
+                ))}
+              </div>
+            </ConditionalDataWrapper>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="templates" className="space-y-6 p-9">
+          {/* Templates Header with Actions */}
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold text-foreground">Templates</h2>
+              <div className="flex items-center gap-3">
+                <Button 
+                  className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground shadow-lg hover:shadow-xl transition-all"
+                  onClick={handleAIGenerate}
+                >
+                  <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
+                  AI Generate
+                </Button>
+                <Dialog open={showCreateDialog} onOpenChange={(open) => {
+                  setShowCreateDialog(open);
+                  if (!open) {
+                    setEditingTemplate(null);
+                    reset();
+                  }
+                }}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="border-border/50">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Template
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-background/95 backdrop-blur-xl border border-border/50">
+                    <DialogHeader className="border-b border-border/50 pb-4">
+                      <DialogTitle>
+                        {editingTemplate ? 'Edit Template' : 'Create New Template'}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      <div className="lg:col-span-2">
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label htmlFor="name">Template Name</Label>
+                              <Input 
+                                {...register('name', { required: true })}
+                                placeholder="Enter template name"
+                                className="border-border/50"
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="type">Type</Label>
+                              <Select onValueChange={(value) => setValue('type', value as any)} defaultValue="email">
+                                <SelectTrigger className="border-border/50">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="email">Email</SelectItem>
+                                  <SelectItem value="sms">SMS</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+
+                          {watch('type') === 'email' && (
+                            <div>
+                              <Label htmlFor="subject">Subject Line</Label>
+                              <Input 
+                                {...register('subject')}
+                                placeholder="Email subject (can include variables)"
+                                className="border-border/50"
+                              />
+                            </div>
+                          )}
+
+                          {watch('type') === 'email' ? (
+                            <>
+                              <EmailContentEditor
+                                content={watchedContent || ''}
+                                htmlContent={watchedHtmlContent}
+                                contentFormat={watchedContentFormat}
+                                onContentChange={(content, htmlContent, format) => {
+                                  setValue('content', content);
+                                  if (htmlContent !== undefined) setValue('html_content', htmlContent);
+                                  if (format) setValue('content_format', format);
+                                }}
+                                onPreview={() => setShowPreviewModal(true)}
+                              />
+
+                              {currentUserId && (
+                                <AttachmentUploader
+                                  attachments={watchedAttachments}
+                                  onAttachmentsChange={(attachments) => setValue('attachments', attachments)}
+                                  userId={currentUserId}
+                                />
+                              )}
+                            </>
+                          ) : (
+                            <div>
+                              <Label htmlFor="content">Content</Label>
+                              <Textarea 
+                                {...register('content', { required: true })}
+                                placeholder="Template content (use variables like {{first_name}})"
+                                rows={10}
+                                className="border-border/50"
+                              />
+                            </div>
+                          )}
+
+                          <div className="flex justify-end gap-2">
+                            <Button type="button" variant="outline" onClick={() => setShowCreateDialog(false)}>
+                              Cancel
+                            </Button>
+                            <Button type="submit" disabled={isCreating} className="bg-primary text-primary-foreground">
+                              {isCreating ? 'Saving...' : editingTemplate ? 'Update Template' : 'Create Template'}
+                            </Button>
+                          </div>
+                        </form>
+                      </div>
+
+                      <div className="lg:col-span-1">
+                        <div className="bg-muted/30 backdrop-blur-sm rounded-xl border border-border/50 p-4">
+                          <div className="flex items-center gap-2 mb-4">
+                            <Code className="h-4 w-4 text-primary" />
+                            <h3 className="text-sm font-semibold">Available Variables</h3>
+                          </div>
+                          <div className="space-y-2">
+                            {TEMPLATE_VARIABLES.map((variable) => (
+                              <div key={variable.key} className="space-y-1">
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full justify-start text-xs h-auto py-2 font-mono"
+                                  onClick={() => insertVariable(variable.key)}
+                                >
+                                  {variable.key}
+                                </Button>
+                                <p className="text-xs text-muted-foreground px-2">
+                                  {variable.description}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
             </div>
           </div>
 
+          {/* Template Type Tabs */}
           <Tabs value={activeTemplateTab} onValueChange={setActiveTemplateTab}>
-            <TabsList>
-              <TabsTrigger value="email" className="flex items-center gap-2">
+            <TabsList className="bg-muted/30 backdrop-blur-xl border border-border/50 rounded-xl">
+              <TabsTrigger 
+                value="email" 
+                className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg"
+              >
                 <Mail className="h-4 w-4" />
                 Email Templates ({emailTemplates.length})
               </TabsTrigger>
-              <TabsTrigger value="sms" className="flex items-center gap-2">
+              <TabsTrigger 
+                value="sms" 
+                className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-primary rounded-lg"
+              >
                 <MessageSquare className="h-4 w-4" />
                 SMS Templates ({smsTemplates.length})
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="email" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {emailTemplates.map((template) => (
-                  <Card key={template.id} className="relative">
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle className="text-base">{template.name}</CardTitle>
-                          {template.subject && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Subject: {template.subject}
-                            </p>
+                  <div
+                    key={template.id}
+                    className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 hover:shadow-xl hover:scale-[1.02] hover:border-primary/20 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                          {template.name}
+                        </h3>
+                        {template.subject && (
+                          <p className="text-xs text-muted-foreground mb-2">
+                            Subject: {template.subject}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="px-2 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20 text-blue-600 text-xs font-medium">
+                            <Mail className="w-3 h-3 inline mr-1" />
+                            Email
+                          </div>
+                          {template.ai_generated && (
+                            <div className="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-600 text-xs font-medium">
+                              <Sparkles className="w-3 h-3 inline mr-1" />
+                              AI
+                            </div>
                           )}
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          Used {template.usage_count} times
-                        </Badge>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                    </div>
+
+                    <div className="mb-4 p-3 bg-muted/30 rounded-lg border border-border/30">
+                      <p className="text-sm text-muted-foreground line-clamp-3">
                         {template.content}
                       </p>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {template.ai_generated && (
-                          <Badge variant="outline" className="text-xs">
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            AI Generated
-                          </Badge>
-                        )}
-                        {template.variables?.map((variable, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {variable}
-                          </Badge>
-                        ))}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {template.variables?.slice(0, 3).map((variable, idx) => (
+                        <div 
+                          key={idx}
+                          className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-mono"
+                        >
+                          {variable}
+                        </div>
+                      ))}
+                      {template.variables && template.variables.length > 3 && (
+                        <div className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs">
+                          +{template.variables.length - 3} more
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-border/30">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Badge variant="outline" className="text-xs">
+                          Used {template.usage_count || 0} times
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleEditTemplate(template)}
                         >
                           <Edit className="h-3 w-3" />
@@ -720,6 +857,7 @@ const CommunicationHub: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleAIImprove(template)}
                         >
                           <Wand2 className="h-3 w-3" />
@@ -727,6 +865,7 @@ const CommunicationHub: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleDuplicateTemplate(template)}
                         >
                           <Copy className="h-3 w-3" />
@@ -734,60 +873,95 @@ const CommunicationHub: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleDeleteTemplate(template.id)}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 {emailTemplates.length === 0 && (
-                  <Card className="col-span-full">
-                    <CardContent className="p-8 text-center">
-                      <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">
-                        No email templates yet. Create your first template to get started.
+                  <div className="col-span-full">
+                    <div className="flex flex-col items-center justify-center py-16 px-6 bg-white/80 backdrop-blur-sm rounded-xl border border-border/50">
+                      <div className="w-24 h-24 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                        <Mail className="w-12 h-12 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-foreground mb-2">No email templates yet</h3>
+                      <p className="text-muted-foreground text-center max-w-md mb-6">
+                        Create your first email template to streamline your communications.
                       </p>
-                    </CardContent>
-                  </Card>
+                      <Button className="bg-primary text-primary-foreground" onClick={() => setShowCreateDialog(true)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create First Template
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
             </TabsContent>
 
             <TabsContent value="sms" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {smsTemplates.map((template) => (
-                  <Card key={template.id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <CardTitle className="text-base">{template.name}</CardTitle>
-                        <Badge variant="outline" className="text-xs">
-                          Used {template.usage_count} times
-                        </Badge>
+                  <div
+                    key={template.id}
+                    className="bg-white/80 backdrop-blur-sm rounded-xl border border-border/50 p-6 hover:shadow-xl hover:scale-[1.02] hover:border-primary/20 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                          {template.name}
+                        </h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <div className="px-2 py-0.5 rounded-md bg-green-500/10 border border-green-500/20 text-green-600 text-xs font-medium">
+                            <MessageSquare className="w-3 h-3 inline mr-1" />
+                            SMS
+                          </div>
+                          {template.ai_generated && (
+                            <div className="px-2 py-0.5 rounded-md bg-purple-500/10 border border-purple-500/20 text-purple-600 text-xs font-medium">
+                              <Sparkles className="w-3 h-3 inline mr-1" />
+                              AI
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground mb-4">
+                    </div>
+
+                    <div className="mb-4 p-3 bg-muted/30 rounded-lg border border-border/30">
+                      <p className="text-sm text-muted-foreground">
                         {template.content}
                       </p>
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {template.ai_generated && (
-                          <Badge variant="outline" className="text-xs">
-                            <Sparkles className="h-3 w-3 mr-1" />
-                            AI Generated
-                          </Badge>
-                        )}
-                        {template.variables?.map((variable, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">
-                            {variable}
-                          </Badge>
-                        ))}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {template.variables?.slice(0, 3).map((variable, idx) => (
+                        <div 
+                          key={idx}
+                          className="px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-mono"
+                        >
+                          {variable}
+                        </div>
+                      ))}
+                      {template.variables && template.variables.length > 3 && (
+                        <div className="px-2 py-1 rounded-md bg-muted text-muted-foreground text-xs">
+                          +{template.variables.length - 3} more
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-border/30">
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Badge variant="outline" className="text-xs">
+                          Used {template.usage_count || 0} times
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleEditTemplate(template)}
                         >
                           <Edit className="h-3 w-3" />
@@ -795,6 +969,7 @@ const CommunicationHub: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleAIImprove(template)}
                         >
                           <Wand2 className="h-3 w-3" />
@@ -802,6 +977,7 @@ const CommunicationHub: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleDuplicateTemplate(template)}
                         >
                           <Copy className="h-3 w-3" />
@@ -809,23 +985,31 @@ const CommunicationHub: React.FC = () => {
                         <Button
                           variant="ghost"
                           size="sm"
+                          className="h-7 w-7 p-0"
                           onClick={() => handleDeleteTemplate(template.id)}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
                 {smsTemplates.length === 0 && (
-                  <Card className="col-span-full">
-                    <CardContent className="p-8 text-center">
-                      <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">
-                        No SMS templates yet. Create your first SMS template to get started.
+                  <div className="col-span-full">
+                    <div className="flex flex-col items-center justify-center py-16 px-6 bg-white/80 backdrop-blur-sm rounded-xl border border-border/50">
+                      <div className="w-24 h-24 rounded-full bg-muted/30 flex items-center justify-center mb-6">
+                        <MessageSquare className="w-12 h-12 text-muted-foreground" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-foreground mb-2">No SMS templates yet</h3>
+                      <p className="text-muted-foreground text-center max-w-md mb-6">
+                        Create your first SMS template to streamline your text communications.
                       </p>
-                    </CardContent>
-                  </Card>
+                      <Button className="bg-primary text-primary-foreground" onClick={() => setShowCreateDialog(true)}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create First Template
+                      </Button>
+                    </div>
+                  </div>
                 )}
               </div>
             </TabsContent>

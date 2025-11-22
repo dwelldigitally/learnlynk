@@ -359,7 +359,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="pt-9 space-y-8">
       <PageHeader
         title="Team Management"
         subtitle="Comprehensive team organization, roles, and permissions"

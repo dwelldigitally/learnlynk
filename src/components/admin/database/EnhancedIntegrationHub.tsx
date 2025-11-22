@@ -12,6 +12,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { MessageSquare, CreditCard, Phone, Mail, Building, Settings, CheckCircle, AlertCircle, Eye, EyeOff, Calendar, FileText, BarChart3, Users, Video, Zap, Bot, BookOpen, GraduationCap, Shield, Workflow, Share2, MessageCircle, DollarSign, Cloud, Brain, TestTube, RefreshCw, Database } from 'lucide-react';
 import { StripeSyncDashboard } from '../stripe/StripeSyncDashboard';
 import { useStripeSyncStatus } from '@/services/stripeDataService';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
 interface IntegrationField {
   key: string;
   label: string;
@@ -826,82 +828,69 @@ export const EnhancedIntegrationHub = () => {
   const totalCount = integrations.length;
 
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* Header Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Integrations</h1>
-              <p className="text-muted-foreground mt-1">Connect your favorite tools and services</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-medium">{connectedCount}/{totalCount} Connected</span>
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <PageHeader 
+          title="Integrations"
+          subtitle="Connect your favorite tools and services"
+          action={
+            <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-sm">
+              <div className="flex items-center gap-2">
+                <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-sm font-medium">{connectedCount}/{totalCount} Connected</span>
               </div>
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Active</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{connectedCount}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <GlassCard hover className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Active</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{connectedCount}</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+          </GlassCard>
           
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Available</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{totalCount}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-primary" />
-                </div>
+          <GlassCard hover className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Available</p>
+                <p className="text-2xl font-bold text-foreground mt-1">{totalCount}</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
+                <Zap className="h-6 w-6 text-info" />
+              </div>
+            </div>
+          </GlassCard>
           
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Categories</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">7</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-500/10 flex items-center justify-center">
-                  <Share2 className="h-6 w-6 text-blue-600" />
-                </div>
+          <GlassCard hover className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Categories</p>
+                <p className="text-2xl font-bold text-foreground mt-1">7</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <Share2 className="h-6 w-6 text-success" />
+              </div>
+            </div>
+          </GlassCard>
           
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">Last Sync</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">5m</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-500/10 flex items-center justify-center">
-                  <RefreshCw className="h-6 w-6 text-purple-600" />
-                </div>
+          <GlassCard hover className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Last Sync</p>
+                <p className="text-2xl font-bold text-foreground mt-1">5m</p>
               </div>
-            </CardContent>
-          </Card>
+              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
+                <RefreshCw className="h-6 w-6 text-warning" />
+              </div>
+            </div>
+          </GlassCard>
         </div>
 
         <Tabs defaultValue="microsoft" className="space-y-6">

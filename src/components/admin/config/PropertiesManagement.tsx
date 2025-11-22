@@ -5,21 +5,17 @@ import { DocumentPropertiesTab } from './properties/DocumentPropertiesTab';
 import { PaymentPropertiesTab } from './properties/PaymentPropertiesTab';
 import { CustomFieldsPropertiesTab } from './properties/CustomFieldsPropertiesTab';
 import { Settings, GraduationCap, FileText, Wallet, Sliders } from 'lucide-react';
+import { PageHeader } from '@/components/modern/PageHeader';
 
 export function PropertiesManagement() {
   const [activeTab, setActiveTab] = useState('program');
 
   return (
     <div className="w-full h-full p-6 space-y-6">
-      <div className="flex items-center gap-3">
-        <Settings className="w-8 h-8 text-primary" />
-        <div>
-          <h1 className="text-3xl font-bold">Properties Management</h1>
-          <p className="text-muted-foreground">
-            Manage system properties and custom configurations
-          </p>
-        </div>
-      </div>
+      <PageHeader 
+        title="Properties Management"
+        subtitle="Manage system properties and custom configurations"
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4 h-auto">

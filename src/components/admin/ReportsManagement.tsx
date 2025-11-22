@@ -5,6 +5,9 @@ import { Plus, FileText, Download, Calendar, TrendingUp, Loader2 } from 'lucide-
 import { ReportService } from '@/services/reportService';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
+import { ModernCard } from '@/components/modern/ModernCard';
 
 export function ReportsManagement() {
   const isMobile = useIsMobile();
@@ -33,22 +36,20 @@ export function ReportsManagement() {
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-9 space-y-6 md:space-y-8">
-      <div className={`flex items-start gap-4 ${isMobile ? 'flex-col' : 'justify-between items-center'}`}>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Reports Management</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Generate and manage comprehensive reports for data-driven insights
-          </p>
-        </div>
-        <Button className={isMobile ? 'w-full' : ''}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Report
-        </Button>
-      </div>
+    <div className="p-9 space-y-8">
+      <PageHeader
+        title="Reports Management"
+        subtitle="Generate and manage comprehensive reports for data-driven insights"
+        action={
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Report
+          </Button>
+        }
+      />
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <GlassCard hover>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Generated Reports</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
@@ -57,8 +58,8 @@ export function ReportsManagement() {
             <div className="text-2xl font-bold">847</div>
             <p className="text-xs text-muted-foreground">This month</p>
           </CardContent>
-        </Card>
-        <Card>
+        </GlassCard>
+        <GlassCard hover>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Downloads</CardTitle>
             <Download className="h-4 w-4 text-muted-foreground" />
@@ -67,8 +68,8 @@ export function ReportsManagement() {
             <div className="text-2xl font-bold">3,249</div>
             <p className="text-xs text-muted-foreground">+12% from last month</p>
           </CardContent>
-        </Card>
-        <Card>
+        </GlassCard>
+        <GlassCard hover>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Scheduled Reports</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -77,8 +78,8 @@ export function ReportsManagement() {
             <div className="text-2xl font-bold">23</div>
             <p className="text-xs text-muted-foreground">Auto-generated</p>
           </CardContent>
-        </Card>
-        <Card>
+        </GlassCard>
+        <GlassCard hover>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Data Sources</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -87,12 +88,12 @@ export function ReportsManagement() {
             <div className="text-2xl font-bold">8</div>
             <p className="text-xs text-muted-foreground">Connected sources</p>
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {/* PTIRU Reports */}
-        <Card>
+        <ModernCard>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
@@ -137,10 +138,10 @@ export function ReportsManagement() {
               <p>• Intake models & max enrollment</p>
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
         {/* DQAB Reports */}
-        <Card>
+        <ModernCard>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-secondary" />
@@ -185,10 +186,10 @@ export function ReportsManagement() {
               <p>• Academic structure & timeline</p>
             </div>
           </CardContent>
-        </Card>
+        </ModernCard>
 
         {/* Quick Access Reports */}
-        <Card>
+        <ModernCard>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-accent" />
@@ -216,12 +217,12 @@ export function ReportsManagement() {
               Program Performance Report
             </Button>
           </CardContent>
-        </Card>
+        </ModernCard>
       </div>
 
       {/* Detailed Report Configuration */}
       <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-        <Card>
+        <ModernCard>
           <CardHeader>
             <CardTitle>PTIRU Configuration</CardTitle>
             <CardDescription>
@@ -253,9 +254,9 @@ export function ReportsManagement() {
               Configure PTIRU Settings
             </Button>
           </CardContent>
-        </Card>
+        </ModernCard>
 
-        <Card>
+        <ModernCard>
           <CardHeader>
             <CardTitle>DQAB Configuration</CardTitle>
             <CardDescription>
@@ -287,7 +288,7 @@ export function ReportsManagement() {
               Configure DQAB Settings
             </Button>
           </CardContent>
-        </Card>
+        </ModernCard>
       </div>
     </div>
   );

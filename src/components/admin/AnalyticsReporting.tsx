@@ -20,6 +20,9 @@ import { Progress } from "@/components/ui/progress";
 import { useConditionalAnalytics } from '@/hooks/useConditionalAnalytics';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
+import { ModernCard } from '@/components/modern/ModernCard';
 
 const AnalyticsReporting: React.FC = () => {
   const isMobile = useIsMobile();
@@ -112,29 +115,29 @@ const AnalyticsReporting: React.FC = () => {
       emptyDescription="Analytics will appear here once you have student data and activities."
       loadingRows={3}
     >
-    <div className="p-6 space-y-6">
+    <div className="p-9 space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Analytics & Reporting</h1>
-          <p className="text-muted-foreground">Track performance and generate insights</p>
-        </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-          <Button>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Custom Report
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Analytics & Reporting"
+        subtitle="Track performance and generate insights"
+        action={
+          <div className="flex gap-2">
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export Report
+            </Button>
+            <Button>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Custom Report
+            </Button>
+          </div>
+        }
+      />
 
       {/* Key Performance Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {kpis.map((kpi, index) => (
-          <Card key={index}>
+          <GlassCard key={index} hover>
             <CardContent className="p-6">
               <div className="space-y-2">
                 <p className="text-sm font-medium text-muted-foreground">{kpi.title}</p>
@@ -147,7 +150,7 @@ const AnalyticsReporting: React.FC = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </GlassCard>
         ))}
       </div>
 
@@ -162,7 +165,7 @@ const AnalyticsReporting: React.FC = () => {
         <TabsContent value="overview" className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Enrollment Funnel */}
-            <Card>
+            <ModernCard>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
@@ -190,10 +193,10 @@ const AnalyticsReporting: React.FC = () => {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+            </ModernCard>
 
             {/* Monthly Trends */}
-            <Card>
+            <ModernCard>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <LineChart className="h-5 w-5" />
@@ -223,19 +226,19 @@ const AnalyticsReporting: React.FC = () => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
               { icon: Users, label: "Active Applications", value: "89", color: "text-blue-600" },
               { icon: FileText, label: "Documents Pending", value: "45", color: "text-orange-600" },
               { icon: MessageSquare, label: "Unread Messages", value: "23", color: "text-red-600" },
               { icon: Calendar, label: "Events This Month", value: "8", color: "text-green-600" }
             ].map((stat, index) => (
-              <Card key={index}>
-                <CardContent className="p-4">
+              <GlassCard key={index} hover>
+                <CardContent className="p-6">
                   <div className="flex items-center space-x-3">
                     <stat.icon className={`h-6 w-6 ${stat.color}`} />
                     <div>
@@ -244,13 +247,13 @@ const AnalyticsReporting: React.FC = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </GlassCard>
             ))}
           </div>
         </TabsContent>
 
-        <TabsContent value="programs" className="space-y-4">
-          <Card>
+        <TabsContent value="programs" className="space-y-6">
+          <ModernCard>
             <CardHeader>
               <CardTitle>Program Performance Metrics</CardTitle>
             </CardHeader>
@@ -297,11 +300,11 @@ const AnalyticsReporting: React.FC = () => {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </ModernCard>
         </TabsContent>
 
-        <TabsContent value="marketing" className="space-y-4">
-          <Card>
+        <TabsContent value="marketing" className="space-y-6">
+          <ModernCard>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <PieChart className="h-5 w-5" />
@@ -327,12 +330,12 @@ const AnalyticsReporting: React.FC = () => {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </ModernCard>
         </TabsContent>
 
-        <TabsContent value="financial" className="space-y-4">
+        <TabsContent value="financial" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+            <ModernCard>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
@@ -357,9 +360,9 @@ const AnalyticsReporting: React.FC = () => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
 
-            <Card>
+            <ModernCard>
               <CardHeader>
                 <CardTitle>Payment Trends</CardTitle>
               </CardHeader>
@@ -378,7 +381,7 @@ const AnalyticsReporting: React.FC = () => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </ModernCard>
           </div>
         </TabsContent>
       </Tabs>

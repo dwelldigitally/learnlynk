@@ -19,6 +19,8 @@ import { SystemRoleManagement } from '@/components/admin/team/SystemRoleManageme
 import { PermissionMatrix } from '@/components/admin/team/PermissionMatrix';
 import { UserDirectory } from '@/components/admin/team/UserDirectory';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
+import { GlassCard } from '@/components/modern/GlassCard';
 
 interface TeamManagementProps {
   onTeamCreated?: () => void;
@@ -357,20 +359,16 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Team Management
-          </h2>
-          <p className="text-muted-foreground mt-1">Comprehensive team organization, roles, and permissions</p>
-        </div>
-      </div>
+    <div className="space-y-8">
+      <PageHeader
+        title="Team Management"
+        subtitle="Comprehensive team organization, roles, and permissions"
+      />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-border/40 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Active Teams</p>
@@ -381,10 +379,10 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card className="border-border/40 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Team Members</p>
@@ -395,10 +393,10 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card className="border-border/40 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">System Roles</p>
@@ -409,10 +407,10 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </GlassCard>
 
-        <Card className="border-border/40 hover:shadow-md transition-shadow">
-          <CardContent className="pt-6">
+        <GlassCard hover>
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Permissions</p>
@@ -423,7 +421,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </GlassCard>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

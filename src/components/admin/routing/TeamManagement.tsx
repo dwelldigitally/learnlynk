@@ -14,8 +14,6 @@ import { useToast } from '@/hooks/use-toast';
 import { AdvisorTeam, TeamMember } from '@/types/routing';
 import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp, UserCog, Shield, Network, Workflow } from 'lucide-react';
 import TeamMembersList from '@/components/team/TeamMembersList';
-import { PageHeader } from '@/components/modern/PageHeader';
-import { GlassCard } from '@/components/modern/GlassCard';
 import { EnhancedTeamHierarchy } from '@/components/admin/team/EnhancedTeamHierarchy';
 import { SystemRoleManagement } from '@/components/admin/team/SystemRoleManagement';
 import { PermissionMatrix } from '@/components/admin/team/PermissionMatrix';
@@ -357,61 +355,73 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <PageHeader 
-        title="Team Management"
-        subtitle="Comprehensive team organization, roles, and permissions"
-      />
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Team Management
+          </h2>
+          <p className="text-muted-foreground mt-1">Comprehensive team organization, roles, and permissions</p>
+        </div>
+      </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <GlassCard hover className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Active Teams</p>
-              <p className="text-2xl font-bold mt-1">{teams.filter(t => t.is_active).length}</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Active Teams</p>
+                <p className="text-2xl font-bold mt-1">{teams.filter(t => t.is_active).length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary" />
+              </div>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Users className="h-6 w-6 text-primary" />
-            </div>
-          </div>
-        </GlassCard>
+          </CardContent>
+        </Card>
 
-        <GlassCard hover className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Team Members</p>
-              <p className="text-2xl font-bold mt-1">{advisors.filter(a => a.status === 'active').length}</p>
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Team Members</p>
+                <p className="text-2xl font-bold mt-1">{advisors.filter(a => a.status === 'active').length}</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
+                <UserCog className="h-6 w-6 text-info" />
+              </div>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
-              <UserCog className="h-6 w-6 text-info" />
-            </div>
-          </div>
-        </GlassCard>
+          </CardContent>
+        </Card>
 
-        <GlassCard hover className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">System Roles</p>
-              <p className="text-2xl font-bold mt-1">6</p>
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">System Roles</p>
+                <p className="text-2xl font-bold mt-1">6</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
+                <Shield className="h-6 w-6 text-success" />
+              </div>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-              <Shield className="h-6 w-6 text-success" />
-            </div>
-          </div>
-        </GlassCard>
+          </CardContent>
+        </Card>
 
-        <GlassCard hover className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground">Permissions</p>
-              <p className="text-2xl font-bold mt-1">12</p>
+        <Card className="border-border/40 hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Permissions</p>
+                <p className="text-2xl font-bold mt-1">12</p>
+              </div>
+              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
+                <Workflow className="h-6 w-6 text-warning" />
+              </div>
             </div>
-            <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
-              <Workflow className="h-6 w-6 text-warning" />
-            </div>
-          </div>
-        </GlassCard>
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

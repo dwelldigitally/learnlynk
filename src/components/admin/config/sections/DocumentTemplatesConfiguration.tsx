@@ -10,7 +10,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { MasterDocumentTemplate } from "@/types/masterData";
 import { useToast } from "@/hooks/use-toast";
-import { PageHeader } from '@/components/modern/PageHeader';
 
 export const DocumentTemplatesConfiguration = () => {
   const [templates, setTemplates] = useState<MasterDocumentTemplate[]>([]);
@@ -179,12 +178,7 @@ export const DocumentTemplatesConfiguration = () => {
   ];
 
   return (
-    <div className="space-y-8">
-      <PageHeader 
-        title="Document Templates"
-        subtitle="Manage document requirements and templates for different stages"
-      />
-      
+    <div className="space-y-6">
       <UniversalCRUDTable
         title="Document Templates"
         description="Manage document requirements and templates for different stages"

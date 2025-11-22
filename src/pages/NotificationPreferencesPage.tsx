@@ -9,7 +9,6 @@ import { NotificationChannelToggle } from '@/components/admin/notifications/Noti
 import { NotificationQuietHours } from '@/components/admin/notifications/NotificationQuietHours';
 import { Loader2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { PageHeader } from '@/components/modern/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function NotificationPreferencesPage() {
@@ -74,25 +73,27 @@ export default function NotificationPreferencesPage() {
 
   return (
     <ModernAdminLayout>
-      <div className="space-y-6 p-6">
-        <PageHeader 
-          title="Notification Preferences"
-          subtitle="Control how and when you receive notifications"
-          action={
-            <Button
-              variant="outline"
-              onClick={handleResetToDefaults}
-              disabled={resetting}
-            >
-              {resetting ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <RotateCcw className="h-4 w-4 mr-2" />
-              )}
-              Reset to Defaults
-            </Button>
-          }
-        />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Notification Preferences</h1>
+            <p className="text-muted-foreground mt-1">
+              Control how and when you receive notifications
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            onClick={handleResetToDefaults}
+            disabled={resetting}
+          >
+            {resetting ? (
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            ) : (
+              <RotateCcw className="h-4 w-4 mr-2" />
+            )}
+            Reset to Defaults
+          </Button>
+        </div>
 
         <Tabs defaultValue="channels" className="space-y-6">
           <TabsList>

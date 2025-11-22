@@ -3,7 +3,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { DollarSign, FileText, Receipt, Settings } from 'lucide-react';
 import { PaymentStatsDashboard } from '../payments/PaymentStatsDashboard';
-import { PageHeader } from '@/components/modern/PageHeader';
 import { InvoiceTemplateTable } from '../payments/InvoiceTemplateTable';
 import { ReceiptTemplateTable } from '../payments/ReceiptTemplateTable';
 import { PaymentSettingsPanel } from '../payments/PaymentSettingsPanel';
@@ -13,10 +12,12 @@ export const PaymentConfiguration = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <PageHeader 
-        title="Payment Configuration"
-        subtitle="Manage payment templates, view statistics, and configure payment settings"
-      />
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Payment Configuration</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage payment templates, view statistics, and configure payment settings
+        </p>
+      </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 lg:w-auto">

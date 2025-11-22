@@ -3,8 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Circle, ArrowRight, Clock, Settings, Users, Building2, FileText, CreditCard, Zap } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { PageHeader } from '@/components/modern/PageHeader';
-import { GlassCard } from '@/components/modern/GlassCard';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
@@ -203,15 +201,18 @@ export const SetupDashboard = () => {
   );
 
   return (
-    <div className="space-y-6 p-6">
-      <PageHeader 
-        title="Setup & Configuration"
-        subtitle="Complete these setup steps to get the most out of your institution management system."
-      />
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold mb-2">Setup & Configuration</h1>
+        <p className="text-muted-foreground">
+          Complete these setup steps to get the most out of your institution management system.
+        </p>
+      </div>
 
       {/* Progress Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <GlassCard hover className="p-6">
+        <Card className="p-6">
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 bg-primary/10 rounded-lg">
               <Settings className="w-5 h-5 text-primary" />
@@ -231,9 +232,9 @@ export const SetupDashboard = () => {
             </div>
             <Progress value={essentialProgress} className="h-2" />
           </div>
-        </GlassCard>
+        </Card>
 
-        <GlassCard hover className="p-6">
+        <Card className="p-6">
           <div className="flex items-center space-x-3 mb-4">
             <div className="p-2 bg-muted rounded-lg">
               <Zap className="w-5 h-5 text-muted-foreground" />
@@ -253,7 +254,7 @@ export const SetupDashboard = () => {
             </div>
             <Progress value={overallProgress} className="h-2" />
           </div>
-        </GlassCard>
+        </Card>
       </div>
 
       {/* Essential Setup Steps */}

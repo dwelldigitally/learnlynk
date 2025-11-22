@@ -469,7 +469,7 @@ export const RequirementsManagement = () => {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto px-4 py-8 max-w-7xl">
       <PageHeader
         title="Entry Requirements Management"
         subtitle="Manage standard entry requirements that can be reused across programs"

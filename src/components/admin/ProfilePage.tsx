@@ -16,7 +16,6 @@ import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { DemoDataService, useDemoDataAccess } from "@/services/demoDataService";
 import { useQueryClient } from "@tanstack/react-query";
-import { PageHeader } from '@/components/modern/PageHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -224,18 +223,21 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
-      <PageHeader 
-        title="Profile Settings"
-        subtitle="Manage your account settings and preferences"
-        action={
-          <Button onClick={handleSave} disabled={loading} className="gap-2">
-            <Save className="h-4 w-4" />
-            {loading ? 'Saving...' : 'Save Changes'}
-          </Button>
-        }
-      />
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage your account settings and preferences
+          </p>
+        </div>
+        <Button onClick={handleSave} disabled={loading} className="gap-2">
+          <Save className="h-4 w-4" />
+          {loading ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </div>
 
-      <Tabs defaultValue="personal" className="space-y-8">
+      <Tabs defaultValue="personal" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
           <TabsTrigger value="personal" className="gap-2">
             <User className="h-4 w-4" />
@@ -260,7 +262,7 @@ const ProfilePage: React.FC = () => {
         </TabsList>
 
         {/* Personal Information Tab */}
-        <TabsContent value="personal" className="p-9 space-y-6">
+        <TabsContent value="personal" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
@@ -268,7 +270,7 @@ const ProfilePage: React.FC = () => {
                 Update your personal details and profile information
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-6">
               {/* Avatar Section */}
               <div className="flex items-center gap-6">
                 <Avatar className="h-24 w-24">
@@ -371,7 +373,7 @@ const ProfilePage: React.FC = () => {
         </TabsContent>
 
         {/* Email & Integrations Tab */}
-        <TabsContent value="email" className="p-9 space-y-6">
+        <TabsContent value="email" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Email Signature</CardTitle>
@@ -379,7 +381,7 @@ const ProfilePage: React.FC = () => {
                 Add a personal signature to your outgoing emails
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="signature">Signature</Label>
                 <Textarea
@@ -411,7 +413,7 @@ const ProfilePage: React.FC = () => {
                 Connect your personal Outlook account to sync calendar and send emails
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-4">
               {settings?.outlook_connected ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
@@ -488,7 +490,7 @@ const ProfilePage: React.FC = () => {
         </TabsContent>
 
         {/* Notifications Tab */}
-        <TabsContent value="notifications" className="p-9 space-y-6">
+        <TabsContent value="notifications" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
@@ -496,7 +498,7 @@ const ProfilePage: React.FC = () => {
                 Choose how you want to be notified about important updates
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
@@ -540,7 +542,7 @@ const ProfilePage: React.FC = () => {
         </TabsContent>
 
         {/* Security Tab */}
-        <TabsContent value="security" className="p-9 space-y-6">
+        <TabsContent value="security" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Security Settings</CardTitle>
@@ -548,7 +550,7 @@ const ProfilePage: React.FC = () => {
                 Manage your account security and authentication
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-6">
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-lg border">
                   <div>
@@ -574,7 +576,7 @@ const ProfilePage: React.FC = () => {
         </TabsContent>
 
         {/* Preferences Tab */}
-        <TabsContent value="preferences" className="p-9 space-y-6">
+        <TabsContent value="preferences" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Application Preferences</CardTitle>
@@ -582,7 +584,7 @@ const ProfilePage: React.FC = () => {
                 Customize your application experience
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6 space-y-6">
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="timezone">Timezone</Label>

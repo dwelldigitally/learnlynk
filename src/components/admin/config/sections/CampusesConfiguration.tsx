@@ -11,8 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { MasterCampus } from "@/types/masterData";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Plus, Edit, Trash2, Building2, Users, Globe, Phone, Mail, Search, CheckCircle2, XCircle, Clock, Navigation } from 'lucide-react';
-import { PageHeader } from '@/components/modern/PageHeader';
-
 export const CampusesConfiguration = () => {
   const [campuses, setCampuses] = useState<MasterCampus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,26 +159,32 @@ export const CampusesConfiguration = () => {
   const activeCampuses = campuses.filter(c => c.is_active).length;
   const totalCapacity = campuses.reduce((sum, c) => sum + (c.capacity || 0), 0);
   return <div className="space-y-6 p-6">
-      <PageHeader 
-        title="Campus Management"
-        subtitle="Manage your institution's campus locations and facilities"
-        action={
+      {/* Header */}
+      <div className="flex flex-col gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground">Campus Management</h1>
+          <p className="text-muted-foreground mt-2">
+            Manage your institution's campus locations and facilities
+          </p>
+        </div>
+
+        {/* Stats Cards */}
+        
+
+        {/* Search and Actions Bar */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search campuses..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
+          </div>
           <Button onClick={() => {
-            resetForm();
-            setEditingCampus(null);
-            setIsModalOpen(true);
-          }} className="bg-primary hover:bg-primary/90">
+          resetForm();
+          setEditingCampus(null);
+          setIsModalOpen(true);
+        }} className="bg-primary hover:bg-primary/90">
             <Plus className="h-4 w-4 mr-2" />
             Add Campus
           </Button>
-        }
-      />
-
-      {/* Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search campuses..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10" />
         </div>
       </div>
 

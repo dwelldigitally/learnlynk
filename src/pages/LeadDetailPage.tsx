@@ -187,8 +187,8 @@ export default function LeadDetailPage() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-6">
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col space-y-6">
-              <TabsList className="grid w-full grid-cols-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
+              <TabsList className="grid w-full grid-cols-6 mb-6">
                 <TabsTrigger value="journey" className="flex items-center gap-2">
                   <Route className="h-4 w-4" />
                   Journey

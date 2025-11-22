@@ -72,18 +72,35 @@ export function TopNavigationBar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={cn("flex items-center px-3 lg:px-4 py-2 text-sm font-medium rounded-lg transition-all whitespace-nowrap", isManagementActive ? "bg-white/20 text-white shadow-sm" : "text-white/90 hover:bg-white/10 hover:text-white")}>
-                  <Briefcase className="h-4 w-4 mr-2" />
                   Management
-                  <ChevronDown className="h-4 w-4 ml-1" />
+                  <ChevronDown className="h-4 w-4 ml-2" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
-                {managementMenuItems.map((item) => (
-                  <DropdownMenuItem key={item.href} onClick={() => navigate(item.href)} className={isActive(item.href) ? 'bg-muted' : ''}>
-                    <item.icon className="h-4 w-4 mr-2" />
-                    {item.name}
-                  </DropdownMenuItem>
-                ))}
+              <DropdownMenuContent align="start" className="w-72 p-2">
+                <div className="grid gap-1">
+                  {managementMenuItems.map((item) => (
+                    <DropdownMenuItem 
+                      key={item.href} 
+                      onClick={() => navigate(item.href)} 
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 rounded-md cursor-pointer transition-colors",
+                        isActive(item.href) 
+                          ? 'bg-primary/10 text-primary font-medium' 
+                          : 'hover:bg-muted/50'
+                      )}
+                    >
+                      <div className={cn(
+                        "flex items-center justify-center w-8 h-8 rounded-md transition-colors",
+                        isActive(item.href) 
+                          ? 'bg-primary/20 text-primary' 
+                          : 'bg-muted text-muted-foreground'
+                      )}>
+                        <item.icon className="h-4 w-4" />
+                      </div>
+                      <span className="flex-1">{item.name}</span>
+                    </DropdownMenuItem>
+                  ))}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>

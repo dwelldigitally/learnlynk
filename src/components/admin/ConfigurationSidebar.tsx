@@ -67,29 +67,6 @@ interface ConfigurationGroup {
 // All configuration groups - organized by category
 const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
   {
-    name: "Lead & Marketing Setup",
-    items: [
-      { name: "Lead Forms", href: "/admin/leads/forms", icon: FileText },
-    ]
-  },
-  {
-    name: "Academic Programs",
-    items: [
-      { name: "Programs", href: "/admin/programs", icon: BookOpen },
-      { name: "Workflows", href: "/admin/workflows", icon: Workflow },
-      { name: "Requirements", href: "/admin/requirements", icon: FileCheck },
-      { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
-      { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
-    ]
-  },
-  {
-    name: "Analytics & Reports",
-    items: [
-      { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
-      { name: "Reports", href: "/admin/reports", icon: FileText },
-    ]
-  },
-  {
     name: "System Administration",
     items: [
       { name: "Profile Settings", href: "/admin/profile", icon: User },

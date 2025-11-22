@@ -19,8 +19,10 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { useConditionalAnalytics } from '@/hooks/useConditionalAnalytics';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const AnalyticsReporting: React.FC = () => {
+  const isMobile = useIsMobile();
   const { data: analyticsDataArray, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalAnalytics();
   const kpis = [
     { 

@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Building2, Mail, Phone, MapPin, Globe, Clock, Calendar, Heart, Upload, X, Linkedin, Twitter, Facebook, Instagram } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface WorkingHours {
   [key: string]: {
@@ -67,6 +68,7 @@ const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'satur
 
 export function CompanySettingsRedesigned() {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);

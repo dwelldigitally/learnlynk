@@ -10,8 +10,10 @@ import { NotificationQuietHours } from '@/components/admin/notifications/Notific
 import { Loader2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function NotificationPreferencesPage() {
+  const isMobile = useIsMobile();
   const {
     preferences,
     notificationTypes,
@@ -73,11 +75,11 @@ export default function NotificationPreferencesPage() {
 
   return (
     <ModernAdminLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6 p-4 sm:p-6 md:p-9">
+        <div className={`flex items-start gap-4 ${isMobile ? 'flex-col' : 'items-center justify-between'}`}>
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Notification Preferences</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Notification Preferences</h1>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
               Control how and when you receive notifications
             </p>
           </div>
@@ -85,6 +87,7 @@ export default function NotificationPreferencesPage() {
             variant="outline"
             onClick={handleResetToDefaults}
             disabled={resetting}
+            className={isMobile ? 'w-full' : ''}
           >
             {resetting ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -96,10 +99,10 @@ export default function NotificationPreferencesPage() {
         </div>
 
         <Tabs defaultValue="channels" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="channels">Channels</TabsTrigger>
-            <TabsTrigger value="types">Notification Types</TabsTrigger>
-            <TabsTrigger value="quiet-hours">Quiet Hours</TabsTrigger>
+          <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : ""}>
+            <TabsTrigger value="channels" className={isMobile ? "w-full justify-start" : ""}>Channels</TabsTrigger>
+            <TabsTrigger value="types" className={isMobile ? "w-full justify-start" : ""}>Notification Types</TabsTrigger>
+            <TabsTrigger value="quiet-hours" className={isMobile ? "w-full justify-start" : ""}>Quiet Hours</TabsTrigger>
           </TabsList>
 
           <TabsContent value="channels" className="space-y-4">

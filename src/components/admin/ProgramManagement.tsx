@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -27,6 +28,7 @@ const ProgramManagement: React.FC = () => {
   } = useToast();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const isMobile = useIsMobile();
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -192,15 +194,15 @@ const ProgramManagement: React.FC = () => {
       description: "Program data has been completely refreshed with latest JSONB fields."
     });
   };
-  return <div className="container mx-auto px-4 py-8 max-w-7xl">
+  return <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
       <PageHeader title="Program Management" subtitle="Manage programs, intakes, and enrollment" />
 
-      <div className="mb-6 flex justify-end gap-2">
-        <Button variant="outline" onClick={handleRefreshData}>
+      <div className={`mb-6 flex gap-2 ${isMobile ? 'flex-col' : 'justify-end'}`}>
+        <Button variant="outline" onClick={handleRefreshData} className={isMobile ? 'w-full' : ''}>
           <RefreshCw className="h-4 w-4 mr-2" />
           Refresh Data
         </Button>
-        <Button size="lg" onClick={() => navigate('/admin/programs/new')}>
+        <Button size="lg" onClick={() => navigate('/admin/programs/new')} className={isMobile ? 'w-full' : ''}>
           <Plus className="h-4 w-4 mr-2" />
           Create Program
         </Button>
@@ -254,7 +256,7 @@ const ProgramManagement: React.FC = () => {
               })} />
                 </div>
 
-                <div className="flex gap-2 pt-4 border-t border-border">
+                <div className={`flex gap-2 pt-4 border-t border-border ${isMobile ? 'flex-col' : ''}`}>
                   <Button variant="outline" size="sm" className="flex-1" onClick={() => handleViewProgram(program)}>
                     <Eye className="h-3.5 w-3.5 mr-1.5" />
                     View
@@ -263,7 +265,7 @@ const ProgramManagement: React.FC = () => {
                     <Edit className="h-3.5 w-3.5 mr-1.5" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => handleSettingsProgram(program)}>
+                  <Button variant="outline" size="sm" className={isMobile ? 'w-full' : ''} onClick={() => handleSettingsProgram(program)}>
                     <Settings className="h-3.5 w-3.5" />
                   </Button>
                 </div>

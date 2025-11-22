@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/modern/PageHeader";
 import { ModernCard } from "@/components/modern/ModernCard";
 import { InfoBadge } from "@/components/modern/InfoBadge";
 import { MetadataItem } from "@/components/modern/MetadataItem";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Workflow {
   id: string;
@@ -25,6 +26,7 @@ interface Workflow {
 
 const WorkflowManagement: React.FC = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);

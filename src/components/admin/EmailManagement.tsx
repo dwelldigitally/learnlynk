@@ -48,8 +48,10 @@ import {
   Building
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const EmailManagement: React.FC = () => {
+  const isMobile = useIsMobile();
   const [emails, setEmails] = useState<Email[]>([]);
   const [emailStats, setEmailStats] = useState<EmailStats | null>(null);
   const [loading, setLoading] = useState(true);

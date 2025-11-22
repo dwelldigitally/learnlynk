@@ -2,8 +2,10 @@ import { useState } from "react";
 import { LeadCaptureForm } from "@/components/admin/LeadCaptureForm";
 import { FormsOverview } from "./FormsOverview";
 import { AdvancedFormBuilder } from "../formBuilder/AdvancedFormBuilder";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function LeadForms() {
+  const isMobile = useIsMobile();
   const [view, setView] = useState<'overview' | 'capture' | 'builder'>('overview');
   const [editingFormId, setEditingFormId] = useState<string | null>(null);
 
@@ -23,22 +25,22 @@ export function LeadForms() {
   };
 
   return (
-    <div className="p-6 pt-8 w-full max-w-none">
+    <div className="p-4 sm:p-6 md:p-9 w-full max-w-none">
       {view === 'overview' ? (
         <FormsOverview 
           onCreateForm={handleCreateForm}
           onEditForm={handleEditForm}
         />
       ) : view === 'builder' ? (
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
+        <div className="space-y-4 md:space-y-6">
+          <div className={`flex items-center gap-4 ${isMobile ? 'flex-col items-start' : ''}`}>
             <button 
               onClick={handleBackToOverview}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               ← Back to Forms
             </button>
-            <h1 className="text-2xl font-bold text-foreground">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
               {editingFormId ? 'Edit Form' : 'Create New Form'}
             </h1>
           </div>

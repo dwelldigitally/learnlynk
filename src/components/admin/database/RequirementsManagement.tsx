@@ -36,6 +36,7 @@ import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
 import { InfoBadge } from '@/components/modern/InfoBadge';
 import { MetadataItem } from '@/components/modern/MetadataItem';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const REQUIREMENT_TYPES = [
   { value: 'academic', label: 'Academic', icon: GraduationCap, color: 'text-blue-600' },
@@ -53,6 +54,7 @@ interface RequirementFormData extends ServiceFormData {
 }
 
 export const RequirementsManagement = () => {
+  const isMobile = useIsMobile();
   const [requirements, setRequirements] = useState<EntryRequirement[]>([]);
   const [documentTemplates, setDocumentTemplates] = useState<DocumentTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -469,7 +471,7 @@ export const RequirementsManagement = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
+    <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl">
       <PageHeader
         title="Entry Requirements Management"
         subtitle="Manage standard entry requirements that can be reused across programs"
@@ -478,12 +480,12 @@ export const RequirementsManagement = () => {
       <div className="mb-6 flex justify-end">
         <Dialog open={showDialog} onOpenChange={setShowDialog}>
           <DialogTrigger asChild>
-            <Button size="lg" onClick={() => setEditingRequirement(null)}>
+            <Button size="lg" onClick={() => setEditingRequirement(null)} className={isMobile ? 'w-full' : ''}>
               <Plus className="h-4 w-4 mr-2" />
               Add Requirement
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className={`max-h-[90vh] overflow-y-auto ${isMobile ? 'w-full h-full max-w-full rounded-none' : 'max-w-2xl'}`}>
             <DialogHeader>
               <DialogTitle>
                 {editingRequirement ? 'Edit Requirement' : 'Create New Requirement'}

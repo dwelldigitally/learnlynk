@@ -17,6 +17,7 @@ import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
 import { InfoBadge } from '@/components/modern/InfoBadge';
 import { MetadataItem } from '@/components/modern/MetadataItem';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const DOCUMENT_CATEGORIES = [
   'Academic Documents',
@@ -53,6 +54,7 @@ const FILE_FORMATS = [
 ];
 
 export function DocumentTemplatesManagement() {
+  const isMobile = useIsMobile();
   const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
   const [filteredTemplates, setFilteredTemplates] = useState<DocumentTemplate[]>([]);
   const [searchTerm, setSearchTerm] = useState('');

@@ -25,7 +25,6 @@ import { AIRecommendationCard, AIRecommendation } from "./dashboard/AIRecommenda
 import { DashboardNotificationPanel, Notification } from "./dashboard/DashboardNotificationPanel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDemoDataAccess } from '@/services/demoDataService';
-
 const AdminHome: React.FC = () => {
   const {
     profile
@@ -38,7 +37,10 @@ const AdminHome: React.FC = () => {
     toast
   } = useToast();
   const isMobile = useIsMobile();
-  const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
+  const {
+    data: hasDemoAccess,
+    isLoading: isDemoLoading
+  } = useDemoDataAccess();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -443,8 +445,7 @@ const AdminHome: React.FC = () => {
           </div>
 
           {/* Demo Mode Banner */}
-          {!hasDemoAccess && !isDemoLoading && (
-            <Card className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
+          {!hasDemoAccess && !isDemoLoading && <Card className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
                   <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
@@ -456,19 +457,13 @@ const AdminHome: React.FC = () => {
                       Your dashboard is ready. Enable Demo Mode to see what it looks 
                       like with data, or start adding your own leads and students.
                     </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate('/admin/profile')}
-                      className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => navigate('/admin/profile')} className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900">
                       Enable Demo Mode in Settings
                     </Button>
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          )}
+            </Card>}
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">
@@ -506,15 +501,11 @@ const AdminHome: React.FC = () => {
                   </TabsList>
 
                   <TabsContent value="urgent" className="space-y-3">
-                    {hasDemoAccess && priorityActions.length > 0 ? (
-                      priorityActions.map(action => <PriorityActionCard key={action.id} action={action} />)
-                    ) : (
-                      <div className="text-center py-8 text-muted-foreground">
+                    {hasDemoAccess && priorityActions.length > 0 ? priorityActions.map(action => <PriorityActionCard key={action.id} action={action} />) : <div className="text-center py-8 text-muted-foreground">
                         <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
                         <p className="font-medium">No urgent actions</p>
                         <p className="text-sm mt-1">You're all caught up! Great work.</p>
-                      </div>
-                    )}
+                      </div>}
                   </TabsContent>
 
                   <TabsContent value="schedule">
@@ -570,32 +561,22 @@ const AdminHome: React.FC = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {hasDemoAccess && aiRecommendations.length > 0 ? (
-                  <div className="space-y-3">
+                {hasDemoAccess && aiRecommendations.length > 0 ? <div className="space-y-3">
                     {aiRecommendations.map(rec => <AIRecommendationCard key={rec.id} recommendation={rec} />)}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
+                  </div> : <div className="text-center py-8 text-muted-foreground">
                     <Sparkles className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p className="font-medium">No recommendations yet</p>
                     <p className="text-sm mt-1">AI will analyze your data and provide insights soon.</p>
-                  </div>
-                )}
+                  </div>}
               </CardContent>
             </Card>
 
             {/* Quick Insights */}
-            {hasDemoAccess ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <QuickInsightsChart title="Lead Sources" type="pie" data={leadSourceData} />
-                  <QuickInsightsChart title="Application Pipeline" type="bar" data={applicationPipelineData} />
-                </div>
+            {hasDemoAccess ? <>
+                
 
                 <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />
-              </>
-            ) : (
-              <Card>
+              </> : <Card>
                 <CardHeader>
                   <CardTitle>Quick Insights</CardTitle>
                 </CardHeader>
@@ -606,14 +587,10 @@ const AdminHome: React.FC = () => {
                     <p className="text-sm mt-1">Start adding data to see analytics and trends.</p>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Integration Widgets */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <OutlookEmailWidget />
-              
-            </div>
+            
           </div>
 
           {/* Right Column - Notifications, Tasks & Activity Feed */}
@@ -649,8 +626,7 @@ const AdminHome: React.FC = () => {
                           <h3 className="text-sm font-semibold text-foreground">My Tasks</h3>
                           <Badge variant="secondary">{hasDemoAccess ? mockTasks.length : 0}</Badge>
                         </div>
-                        {hasDemoAccess && mockTasks.length > 0 ? (
-                          mockTasks.map(task => <div key={task.id} className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
+                        {hasDemoAccess && mockTasks.length > 0 ? mockTasks.map(task => <div key={task.id} className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
                               <div className="flex items-start gap-3">
                                 <Checkbox className="mt-1" />
                                 <div className="flex-1 min-w-0">
@@ -667,14 +643,11 @@ const AdminHome: React.FC = () => {
                                   </div>
                                 </div>
                               </div>
-                            </div>)
-                        ) : (
-                          <div className="text-center py-12 text-muted-foreground">
+                            </div>) : <div className="text-center py-12 text-muted-foreground">
                             <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
                             <p className="font-medium">No tasks yet</p>
                             <p className="text-sm mt-1">Create tasks to stay organized.</p>
-                          </div>
-                        )}
+                          </div>}
                       </div>
                     </ScrollArea>
                   </TabsContent>

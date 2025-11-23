@@ -46,12 +46,8 @@ import {
   Cog
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger } from '@/components/ui/select';
 import { useMvpMode } from '@/contexts/MvpModeContext';
-import { useNavigate } from 'react-router-dom';
 
 interface ConfigurationItem {
   name: string;
@@ -59,7 +55,7 @@ interface ConfigurationItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-interface ConfigurationGroup {
+export interface ConfigurationGroup {
   name: string;
   items: ConfigurationItem[];
   mvpOnly?: boolean; // true = only show in MVP mode
@@ -67,7 +63,7 @@ interface ConfigurationGroup {
 }
 
 // All configuration groups - organized by category
-const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
+export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
   {
     name: "System Administration",
     items: [
@@ -262,73 +258,6 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
   );
 };
 
-const ConfigurationMobileTopbar: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { isMvpMode } = useMvpMode();
-
-  // Filter groups based on MVP mode
-  const visibleGroups = CONFIGURATION_GROUPS.filter(group => {
-    if (group.mvpOnly && !isMvpMode) return false;
-    if (group.fullModeOnly && isMvpMode) return false;
-    return true;
-  });
-
-  // Find current page
-  const currentItem = visibleGroups
-    .flatMap(g => g.items)
-    .find(item => location.pathname === item.href || location.pathname.startsWith(item.href + '/'));
-
-  return (
-    <div className="sticky top-[3.5rem] sm:top-[4rem] z-40 bg-background/95 backdrop-blur-sm border-b border-border/50">
-      <div className="px-4 py-3">
-        <Select 
-          value={location.pathname}
-          onValueChange={(value) => navigate(value)}
-        >
-          <SelectTrigger className="w-full">
-            <div className="flex items-center gap-2">
-              {currentItem ? (
-                <>
-                  <currentItem.icon className="h-4 w-4" />
-                  <span>{currentItem.name}</span>
-                </>
-              ) : (
-                <span>Select a page</span>
-              )}
-            </div>
-          </SelectTrigger>
-          <SelectContent className="max-h-[400px]">
-            {visibleGroups.map((group) => (
-              <SelectGroup key={group.name}>
-                <SelectLabel className="text-xs uppercase tracking-wider">
-                  {group.name}
-                </SelectLabel>
-                {group.items.map((item) => {
-                  const isActive = location.pathname === item.href || 
-                                   location.pathname.startsWith(item.href + '/');
-                  return (
-                    <SelectItem 
-                      key={item.href} 
-                      value={item.href}
-                      className={cn(isActive && "bg-primary/10 font-medium")}
-                    >
-                      <div className="flex items-center gap-2">
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.name}</span>
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectGroup>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
-};
-
 export const ConfigurationSidebar: React.FC = () => {
   return (
     <>
@@ -337,10 +266,8 @@ export const ConfigurationSidebar: React.FC = () => {
         <ConfigurationSidebarContent />
       </div>
 
-      {/* Mobile Topbar */}
-      <div className="lg:hidden">
-        <ConfigurationMobileTopbar />
-      </div>
+      {/* Mobile - Navigation handled by TopNavigationBar hamburger menu */}
+      <div className="lg:hidden" />
     </>
   );
 };

@@ -3,8 +3,10 @@ import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMvpMode } from "@/contexts/MvpModeContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CONFIGURATION_GROUPS } from "./ConfigurationSidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +31,20 @@ export function TopNavigationBar() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const { signOut } = useAuth();
+  const { isMvpMode } = useMvpMode();
   const isMobile = useIsMobile();
+
+  // Filter configuration groups based on MVP mode
+  const visibleConfigGroups = CONFIGURATION_GROUPS.filter(group => {
+    if (group.mvpOnly && !isMvpMode) return false;
+    if (group.fullModeOnly && isMvpMode) return false;
+    return true;
+  });
+
+  const isOnConfigPage = location.pathname.startsWith('/admin/configuration') || 
+                         location.pathname.startsWith('/admin/profile') ||
+                         location.pathname.startsWith('/admin/setup') ||
+                         location.pathname.startsWith('/admin/notifications/preferences');
 
   const mainNavItems = [
     { name: "My Dashboard", href: "/admin/sales-rep-dashboard" },
@@ -182,9 +197,34 @@ export function TopNavigationBar() {
               <DropdownMenuItem onClick={() => { navigate('/admin/communication/ai-emails'); setMobileMenuOpen(false); }} className={isActive('/admin/communication/ai-emails') ? 'bg-muted' : ''}>
                 <Mail className="h-4 w-4 mr-2" />AI Email Management
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => { navigate('/admin/profile'); setMobileMenuOpen(false); }} className={location.pathname.startsWith('/admin/configuration') ? 'bg-muted' : ''}>
+              <DropdownMenuItem onClick={() => { navigate('/admin/profile'); setMobileMenuOpen(false); }} className={location.pathname.startsWith('/admin/configuration') || location.pathname === '/admin/profile' ? 'bg-muted' : ''}>
                 <SettingsIcon className="h-4 w-4 mr-2" />System Configuration
               </DropdownMenuItem>
+              
+              {/* Configuration Navigation - Only show when on config pages */}
+              {isOnConfigPage && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-xs text-muted-foreground">Configuration Pages</DropdownMenuLabel>
+                  {visibleConfigGroups.map((group) => (
+                    <div key={group.name}>
+                      <DropdownMenuLabel className="text-xs font-semibold uppercase tracking-wider px-2 py-1.5">
+                        {group.name}
+                      </DropdownMenuLabel>
+                      {group.items.map((item) => (
+                        <DropdownMenuItem 
+                          key={item.href} 
+                          onClick={() => { navigate(item.href); setMobileMenuOpen(false); }} 
+                          className={isActive(item.href) ? 'bg-muted font-medium' : ''}
+                        >
+                          <item.icon className="h-4 w-4 mr-2" />
+                          {item.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </div>
+                  ))}
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

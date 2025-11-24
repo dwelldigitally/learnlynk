@@ -125,7 +125,7 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
   };
 
   return (
-    <div className="w-72 bg-card border-l border-border flex flex-col">
+    <div className="w-full lg:w-72 bg-card lg:border-l border-border flex flex-col">
       {/* Aircall History */}
       <div className="p-4 border-b border-border">
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">

@@ -132,7 +132,7 @@ export function EnhancedLeadDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-full sm:max-w-6xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <User className="h-5 w-5" />
@@ -146,9 +146,9 @@ export function EnhancedLeadDetailModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
           {/* Lead Info Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
+          <div className="lg:col-span-1 space-y-3 md:space-y-4">
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Contact Information</CardTitle>
@@ -249,23 +249,26 @@ export function EnhancedLeadDetailModal({
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-5">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="communications">
-                  <MessageSquare className="h-4 w-4 mr-1" />
-                  Communications
+              <TabsList className="flex overflow-x-auto md:grid md:grid-cols-5 w-full">
+                <TabsTrigger value="overview" className="whitespace-nowrap">
+                  <span className="hidden sm:inline">Overview</span>
+                  <span className="sm:hidden">Info</span>
                 </TabsTrigger>
-                <TabsTrigger value="tasks">
-                  <CheckSquare className="h-4 w-4 mr-1" />
-                  Tasks
+                <TabsTrigger value="communications" className="whitespace-nowrap">
+                  <MessageSquare className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Communications</span>
                 </TabsTrigger>
-                <TabsTrigger value="notes">
-                  <StickyNote className="h-4 w-4 mr-1" />
-                  Notes
+                <TabsTrigger value="tasks" className="whitespace-nowrap">
+                  <CheckSquare className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Tasks</span>
                 </TabsTrigger>
-                <TabsTrigger value="timeline">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  Timeline
+                <TabsTrigger value="notes" className="whitespace-nowrap">
+                  <StickyNote className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Notes</span>
+                </TabsTrigger>
+                <TabsTrigger value="timeline" className="whitespace-nowrap">
+                  <Calendar className="h-4 w-4 sm:mr-1" />
+                  <span className="hidden sm:inline">Timeline</span>
                 </TabsTrigger>
               </TabsList>
 

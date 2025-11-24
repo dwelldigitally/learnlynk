@@ -43,6 +43,7 @@ import {
 import { format } from 'date-fns';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
 import { cn } from '@/lib/utils';
+import { MobileLeadCard } from './MobileLeadCard';
 
 interface SmartLeadTableProps {
   leads: Lead[];
@@ -276,9 +277,9 @@ export function SmartLeadTable({
 
       {/* Bulk Actions Bar */}
       {selectedLeadIds.length > 0 && (
-        <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-2 border-primary/30 rounded-lg shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-semibold text-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-2 border-primary/30 rounded-lg shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-semibold text-sm flex-shrink-0">
               {selectedLeadIds.length}
             </div>
             <span className="text-sm font-semibold">
@@ -288,13 +289,13 @@ export function SmartLeadTable({
               variant="ghost"
               size="sm"
               onClick={() => onSelectAll(false)}
-              className="h-7 px-2 hover:bg-destructive/10"
+              className="h-7 px-2 hover:bg-destructive/10 ml-auto sm:ml-0"
             >
               <X className="h-3 w-3 mr-1" />
               Clear
             </Button>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
             {bulkActions.map((bulkAction) => {
               const Icon = bulkAction.icon;
               return (
@@ -303,16 +304,16 @@ export function SmartLeadTable({
                   variant={bulkAction.variant}
                   size="sm"
                   onClick={() => onBulkAction(bulkAction.action, selectedLeadIds)}
-                  className="gap-2"
+                  className="gap-2 flex-1 sm:flex-initial min-h-[44px]"
                 >
                   <Icon className="h-4 w-4" />
-                  {bulkAction.label}
+                  <span className="hidden sm:inline">{bulkAction.label}</span>
                 </Button>
               );
             })}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" className="min-h-[44px]">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -331,8 +332,8 @@ export function SmartLeadTable({
         </div>
       )}
 
-      {/* Smart Table */}
-      <div className="border rounded-lg overflow-hidden bg-card">
+      {/* Desktop Table - Hidden on Mobile */}
+      <div className="hidden md:block border rounded-lg overflow-hidden bg-card">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -597,6 +598,54 @@ export function SmartLeadTable({
               Next
             </Button>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Cards - Visible only on Mobile */}
+      <div className="md:hidden space-y-3">
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            Loading leads...
+          </div>
+        ) : sortedLeads.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            No leads found
+          </div>
+        ) : (
+          sortedLeads.map((lead) => (
+            <MobileLeadCard
+              key={lead.id}
+              lead={lead}
+              selected={selectedLeadIds.includes(lead.id)}
+              onSelect={onLeadSelect}
+              onClick={onLeadClick}
+            />
+          ))
+        )}
+      </div>
+
+      {/* Mobile Pagination */}
+      <div className="md:hidden flex flex-col gap-4 p-4 border rounded-lg bg-card mt-4">
+        <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+          <span>Page {currentPage} of {Math.ceil(totalCount / pageSize)}</span>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+          >
+            Next
+          </Button>
         </div>
       </div>
     </div>

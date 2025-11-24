@@ -139,79 +139,87 @@ export default function LeadDetailPage() {
       <TopNavigationBar />
       
       {/* Header with back button and lead info */}
-      <div className="border-b bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/leads')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Leads
+      <div className="border-b bg-card px-4 sm:px-6 py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/admin/leads')}
+              className="min-h-[44px]"
+            >
+              <ArrowLeft className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Back to Leads</span>
             </Button>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
+              <h1 className="text-xl sm:text-2xl font-bold truncate">
                 {lead.first_name} {lead.last_name}
               </h1>
-              <Badge className={getStatusColor(lead.status)}>
-                {lead.status}
-              </Badge>
-              <AgenticAIIndicator 
-                isAIManaged={lead.ai_managed || false}
-                aiStatus={lead.ai_managed ? 'active' : undefined}
-                onHumanTakeover={handleAITakeover}
-                className="ml-2"
-              />
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge className={getStatusColor(lead.status)}>
+                  {lead.status}
+                </Badge>
+                <AgenticAIIndicator 
+                  isAIManaged={lead.ai_managed || false}
+                  aiStatus={lead.ai_managed ? 'active' : undefined}
+                  onHumanTakeover={handleAITakeover}
+                />
+              </div>
             </div>
           </div>
           
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
             <Button 
               variant="outline" 
               size="sm" 
               onClick={() => navigate(`/admin/leads/test/${leadId}`)}
-              className="bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+              className="hidden sm:inline-flex bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
             >
               🧪 Try New Design
             </Button>
             <div className="text-sm text-muted-foreground">
-              Lead Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
+              Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
             </div>
           </div>
         </div>
       </div>
       
 
-      {/* Three-column layout */}
-      <div className="flex">
-        {/* Left Sidebar - Enhanced Lead Details with AI Insights */}
-        <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
+      {/* Layout - Three columns on desktop, single column on mobile */}
+      <div className="flex flex-col lg:flex-row">
+        {/* Left Sidebar - Hidden on mobile */}
+        <div className="hidden lg:block">
+          <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
+        </div>
         
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col min-w-0">
-          <div className="flex-1 p-6">
+          <div className="flex-1 p-4 sm:p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
-              <TabsList className="grid w-full grid-cols-6 mb-6">
-                <TabsTrigger value="journey" className="flex items-center gap-2">
+              <TabsList className="flex overflow-x-auto md:grid md:grid-cols-6 mb-6 w-full">
+                <TabsTrigger value="journey" className="flex items-center gap-2 whitespace-nowrap">
                   <Route className="h-4 w-4" />
-                  Journey
+                  <span className="hidden sm:inline">Journey</span>
                 </TabsTrigger>
-                <TabsTrigger value="ai-plays" className="flex items-center gap-2">
+                <TabsTrigger value="ai-plays" className="flex items-center gap-2 whitespace-nowrap">
                   <Bot className="h-4 w-4" />
-                  AI Plays
+                  <span className="hidden sm:inline">AI Plays</span>
                 </TabsTrigger>
-                <TabsTrigger value="communication" className="flex items-center gap-2">
+                <TabsTrigger value="communication" className="flex items-center gap-2 whitespace-nowrap">
                   <MessageSquare className="h-4 w-4" />
-                  Communication
+                  <span className="hidden sm:inline">Communication</span>
                 </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2">
+                <TabsTrigger value="documents" className="flex items-center gap-2 whitespace-nowrap">
                   <FileText className="h-4 w-4" />
-                  Documents
+                  <span className="hidden sm:inline">Documents</span>
                 </TabsTrigger>
-                <TabsTrigger value="timeline" className="flex items-center gap-2">
+                <TabsTrigger value="timeline" className="flex items-center gap-2 whitespace-nowrap">
                   <Clock className="h-4 w-4" />
-                  Activity
+                  <span className="hidden sm:inline">Activity</span>
                 </TabsTrigger>
-                <TabsTrigger value="tasks" className="flex items-center gap-2">
+                <TabsTrigger value="tasks" className="flex items-center gap-2 whitespace-nowrap">
                   <Users className="h-4 w-4" />
-                  Tasks & Notes
+                  <span className="hidden sm:inline">Tasks</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -252,8 +260,10 @@ export default function LeadDetailPage() {
           </div>
         </div>
         
-        {/* Right Sidebar - Aircall History & Appointments */}
-        <EnhancedRightSidebar lead={lead} />
+        {/* Right Sidebar - Hidden on mobile */}
+        <div className="hidden lg:block">
+          <EnhancedRightSidebar lead={lead} />
+        </div>
       </div>
     </div>
   );

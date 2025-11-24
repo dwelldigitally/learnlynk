@@ -137,24 +137,24 @@ export function UnifiedLeadHeader({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Page Title with Actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Lead Management</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Lead Management</h1>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Track and manage your leads through their journey
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative w-80">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               placeholder="Search by name, email, or phone..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-9"
+              className="pl-9 min-h-[44px]"
               maxLength={100}
             />
             {searchQuery && (
@@ -171,58 +171,60 @@ export function UnifiedLeadHeader({
               </Button>
             )}
           </div>
-          {columns.length > 0 && onColumnsChange && (
-            <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Settings2 className="w-4 h-4 mr-2" />
-                  Columns
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-64 bg-popover z-50">
-                <div className="p-2">
-                  <div className="text-sm font-medium mb-2">Manage Columns</div>
-                  <div className="space-y-2">
-                    {columns.map((column) => (
-                      <div 
-                        key={column.id}
-                        className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-move bg-popover"
-                        draggable
-                        onDragStart={() => handleDragStart(column.id)}
-                        onDragOver={(e) => handleDragOver(e, column.id)}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <div className="flex items-center gap-2">
-                          <GripVertical className="h-4 w-4 text-muted-foreground" />
-                          <span className="text-sm">{column.label}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0"
-                          onClick={() => toggleColumnVisibility(column.id)}
+          <div className="flex gap-2">
+            {columns.length > 0 && onColumnsChange && (
+              <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="flex-1 sm:flex-initial min-h-[44px]">
+                    <Settings2 className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Columns</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64 bg-popover z-50">
+                  <div className="p-2">
+                    <div className="text-sm font-medium mb-2">Manage Columns</div>
+                    <div className="space-y-2">
+                      {columns.map((column) => (
+                        <div 
+                          key={column.id}
+                          className="flex items-center justify-between p-2 rounded hover:bg-muted/50 cursor-move bg-popover"
+                          draggable
+                          onDragStart={() => handleDragStart(column.id)}
+                          onDragOver={(e) => handleDragOver(e, column.id)}
+                          onDragEnd={handleDragEnd}
                         >
-                          {column.visible ? (
-                            <Eye className="h-4 w-4" />
-                          ) : (
-                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </div>
-                    ))}
+                          <div className="flex items-center gap-2">
+                            <GripVertical className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm">{column.label}</span>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0"
+                            onClick={() => toggleColumnVisibility(column.id)}
+                          >
+                            {column.visible ? (
+                              <Eye className="h-4 w-4" />
+                            ) : (
+                              <EyeOff className="h-4 w-4 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-          <Button variant="outline" onClick={onExport}>
-            <Download className="w-4 h-4 mr-2" />
-            Export
-          </Button>
-          <Button onClick={onAddLead}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Lead
-          </Button>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+            <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-initial min-h-[44px]">
+              <Download className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+            <Button onClick={onAddLead} className="flex-1 sm:flex-initial min-h-[44px]">
+              <Plus className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Add Lead</span>
+            </Button>
+          </div>
         </div>
       </div>
 

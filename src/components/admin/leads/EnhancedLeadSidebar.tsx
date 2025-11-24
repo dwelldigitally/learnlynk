@@ -263,7 +263,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
   const engagementPrediction = getEngagementPrediction();
 
   return (
-    <div className="w-80 bg-card border-r border-border flex flex-col">
+    <div className="w-full lg:w-80 bg-card lg:border-r border-border flex flex-col">
       {/* Contact Card */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between mb-4">

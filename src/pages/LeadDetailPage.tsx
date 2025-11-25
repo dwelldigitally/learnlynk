@@ -3,13 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot } from 'lucide-react';
+import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { EnhancedLeadSidebar } from '@/components/admin/leads/EnhancedLeadSidebar';
 import { EnhancedRightSidebar } from '@/components/admin/leads/EnhancedRightSidebar';
 import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
+import { MobileLeadInfoSheet } from '@/components/admin/leads/MobileLeadInfoSheet';
 
 import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
@@ -264,6 +265,15 @@ export default function LeadDetailPage() {
         <div className="hidden lg:block">
           <EnhancedRightSidebar lead={lead} />
         </div>
+      </div>
+
+      {/* Mobile FAB + Bottom Sheet */}
+      <div className="lg:hidden">
+        <MobileLeadInfoSheet lead={lead} onUpdate={loadLead}>
+          <button className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center z-50 transition-transform active:scale-95">
+            <User className="h-6 w-6" />
+          </button>
+        </MobileLeadInfoSheet>
       </div>
     </div>
   );

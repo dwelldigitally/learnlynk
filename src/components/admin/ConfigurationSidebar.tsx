@@ -11,6 +11,7 @@ import {
   Building, 
   ChevronRight,
   ChevronDown,
+  ChevronLeft,
   Menu,
   TrendingUp,
   Zap,
@@ -43,11 +44,15 @@ import {
   Clock,
   AlertTriangle,
   PieChart,
-  Cog
+  Cog,
+  PanelLeftClose,
+  PanelLeft
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useMvpMode } from '@/contexts/MvpModeContext';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
 
 interface ConfigurationItem {
   name: string;
@@ -158,13 +163,18 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
 
 interface ConfigurationSidebarContentProps {
   onItemClick?: () => void;
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
 }
 
-const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = ({ onItemClick }) => {
+const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = ({ 
+  onItemClick, 
+  isCollapsed,
+  onToggleCollapse 
+}) => {
   const location = useLocation();
   const { isMvpMode } = useMvpMode();
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(() => {
-    // Auto-expand all groups by default
     const initialExpanded = new Set<string>();
     CONFIGURATION_GROUPS.forEach(group => {
       initialExpanded.add(group.name);
@@ -189,15 +199,95 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
     setExpandedGroups(newExpanded);
   };
 
+  // Collapsed view - show only icons with tooltips
+  if (isCollapsed) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <div className="flex flex-col h-full bg-background">
+          <div className="p-3 border-b border-border/50 flex justify-center">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onToggleCollapse}
+                  className="h-8 w-8"
+                >
+                  <PanelLeft className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Expand sidebar</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          
+          <div className="flex-1 overflow-y-auto py-2">
+            <nav className="space-y-1 px-2">
+              {visibleGroups.map((group) => (
+                <div key={group.name} className="space-y-1">
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.href || 
+                                    location.pathname.startsWith(item.href + '/');
+                    return (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>
+                          <NavLink
+                            to={item.href}
+                            onClick={onItemClick}
+                            className={cn(
+                              "flex items-center justify-center p-2 rounded-lg transition-all",
+                              isActive
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                            )}
+                          >
+                            <item.icon className="h-4 w-4 flex-shrink-0" />
+                          </NavLink>
+                        </TooltipTrigger>
+                        <TooltipContent side="right" className="font-medium">
+                          <p>{item.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  })}
+                  <div className="my-2 border-b border-border/30" />
+                </div>
+              ))}
+            </nav>
+          </div>
+        </div>
+      </TooltipProvider>
+    );
+  }
+
+  // Expanded view - full sidebar
   return (
     <div className="flex flex-col h-full bg-background">
-      <div className="p-6 border-b border-border/50">
-        <h2 className="text-xl font-semibold text-foreground">System Configuration</h2>
-        <p className="text-sm text-muted-foreground mt-1">All settings & controls</p>
+      <div className="p-4 border-b border-border/50 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">Configuration</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Settings & controls</p>
+        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleCollapse}
+              className="h-8 w-8"
+            >
+              <PanelLeftClose className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Collapse sidebar</p>
+          </TooltipContent>
+        </Tooltip>
       </div>
       
       <div className="flex-1 overflow-y-auto">
-        <nav className="p-4 space-y-1">
+        <nav className="p-3 space-y-1">
           {visibleGroups.map((group) => {
             const isExpanded = expandedGroups.has(group.name);
             const hasActiveItem = group.items.some(item => 
@@ -212,12 +302,12 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
               >
                 <CollapsibleTrigger className="w-full">
                   <div className={cn(
-                    "flex items-center justify-between px-3 py-2 text-sm font-semibold rounded-lg transition-all hover:bg-muted/50 group",
+                    "flex items-center justify-between px-2 py-1.5 text-sm font-semibold rounded-lg transition-all hover:bg-muted/50 group",
                     hasActiveItem && "text-primary"
                   )}>
                     <span className="text-xs uppercase tracking-wider">{group.name}</span>
                     <ChevronDown className={cn(
-                      "h-4 w-4 transition-transform",
+                      "h-3 w-3 transition-transform",
                       isExpanded && "rotate-180"
                     )} />
                   </div>
@@ -233,18 +323,18 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
                         onClick={onItemClick}
                         className={({ isActive }) =>
                           cn(
-                            "flex items-center justify-between px-3 py-2.5 ml-3 text-sm rounded-lg transition-all group",
+                            "flex items-center justify-between px-2 py-2 ml-2 text-sm rounded-lg transition-all group",
                             isActive
                               ? "bg-primary text-primary-foreground shadow-sm"
                               : "text-foreground hover:bg-muted/50"
                           )
                         }
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <item.icon className="h-4 w-4 flex-shrink-0" />
-                          <span className="font-medium">{item.name}</span>
+                          <span className="font-medium text-sm">{item.name}</span>
                         </div>
-                        {isActive && <ChevronRight className="h-4 w-4 opacity-70" />}
+                        {isActive && <ChevronRight className="h-3 w-3 opacity-70" />}
                       </NavLink>
                     );
                   })}
@@ -259,15 +349,23 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
 };
 
 export const ConfigurationSidebar: React.FC = () => {
+  const [isCollapsed, setIsCollapsed] = useState(true); // Default to collapsed
+
   return (
-    <>
+    <TooltipProvider>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-80 border-r border-border/50 bg-background">
-        <ConfigurationSidebarContent />
+      <div className={cn(
+        "hidden lg:block border-r border-border/50 bg-background transition-all duration-300",
+        isCollapsed ? "w-14" : "w-64"
+      )}>
+        <ConfigurationSidebarContent 
+          isCollapsed={isCollapsed}
+          onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
+        />
       </div>
 
       {/* Mobile - Navigation handled by TopNavigationBar hamburger menu */}
       <div className="lg:hidden" />
-    </>
+    </TooltipProvider>
   );
 };

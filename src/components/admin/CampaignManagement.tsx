@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -18,17 +16,19 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Plus, Mail, Users, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye, Workflow, GitBranch, TrendingUp, Target, Edit, AlertCircle } from 'lucide-react';
+import { Plus, Mail, BarChart3, Play, Pause, Trash2, MoreHorizontal, Bot, Eye, Workflow, GitBranch, TrendingUp, Target, Edit, AlertCircle } from 'lucide-react';
 import { NaturalLanguageCampaignBuilder } from './database/NaturalLanguageCampaignBuilder';
-import { UniversalBuilder } from '@/components/universal-builder/UniversalBuilder';
 import { CampaignService, type Campaign } from '@/services/campaignService';
 import { CampaignAnalyticsService } from '@/services/campaignAnalyticsService';
 import { CampaignAnalyticsModal } from './CampaignAnalyticsModal';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { PageHeader } from '@/components/modern/PageHeader';
-import { ModernCard } from '@/components/modern/ModernCard';
-import { GlassCard } from '@/components/modern/GlassCard';
+import { HotSheetCard } from '@/components/hotsheet/HotSheetCard';
+import { PastelBadge } from '@/components/hotsheet/PastelBadge';
+import { PillButton } from '@/components/hotsheet/PillButton';
+import { IconContainer } from '@/components/hotsheet/IconContainer';
+import { getCampaignStatusColor } from '@/components/hotsheet/utils';
 
 export function CampaignManagement() {
   const navigate = useNavigate();
@@ -149,7 +149,6 @@ export function CampaignManagement() {
   };
 
   const handleEditCampaign = (campaign: Campaign) => {
-    // Navigate to the campaign builder with the campaign ID
     navigate(`/admin/builder/campaigns/${campaign.id}`);
   };
 
@@ -180,24 +179,17 @@ export function CampaignManagement() {
   };
 
   const handleViewAnalytics = async (campaign: Campaign) => {
-    // Track view action
     await CampaignAnalyticsService.trackAction(campaign.id, 'viewed');
     setAnalyticsCampaign(campaign);
   };
 
   const getStatusBadge = (status: string) => {
-    const variants = {
-      draft: 'secondary',
-      active: 'default',
-      paused: 'outline',
-      completed: 'secondary'
-    } as const;
-    
-    return <Badge variant={variants[status as keyof typeof variants] || 'secondary'}>{status}</Badge>;
+    const color = getCampaignStatusColor(status);
+    return <PastelBadge color={color} size="sm" dot>{status}</PastelBadge>;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
         <PageHeader 
           title="Campaign Management"
@@ -206,10 +198,10 @@ export function CampaignManagement() {
             <div className={`flex gap-2 ${isMobile ? 'flex-col w-full' : 'flex-row'}`}>
               <Dialog open={showBuilder} onOpenChange={setShowBuilder}>
                 <DialogTrigger asChild>
-                  <Button variant="outline" size={isMobile ? "default" : "lg"} className={`gap-2 ${isMobile ? 'w-full' : ''}`}>
-                    <Bot className="h-4 w-4" />
+                  <PillButton variant="outline" size={isMobile ? "md" : "lg"} className={isMobile ? 'w-full' : ''}>
+                    <Bot className="h-4 w-4 mr-2" />
                     Create with AI
-                  </Button>
+                  </PillButton>
                 </DialogTrigger>
                 <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
                   <DialogHeader>
@@ -232,76 +224,76 @@ export function CampaignManagement() {
                 </DialogContent>
               </Dialog>
               
-              <Button size={isMobile ? "default" : "lg"} onClick={() => navigate('/admin/builder/campaigns')} className={`gap-2 ${isMobile ? 'w-full' : ''}`}>
-                <GitBranch className="h-4 w-4" />
+              <PillButton variant="primary" size={isMobile ? "md" : "lg"} onClick={() => navigate('/admin/builder/campaigns')} className={isMobile ? 'w-full' : ''}>
+                <GitBranch className="h-4 w-4 mr-2" />
                 Campaign Builder
-              </Button>
+              </PillButton>
             </div>
           }
         />
 
         {/* Analytics Cards */}
-        <div className="grid gap-3 sm:gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
-          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+        <div className="grid gap-3 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6 sm:mb-8">
+          <HotSheetCard hover radius="2xl" padding="lg">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Total Campaigns</p>
                 <h3 className="text-3xl font-bold text-foreground">{analytics.totalCampaigns}</h3>
                 <p className="text-xs text-muted-foreground mt-1">All time</p>
               </div>
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Mail className="h-5 w-5 text-primary" />
-              </div>
+              <IconContainer color="violet" size="lg">
+                <Mail className="h-5 w-5" />
+              </IconContainer>
             </div>
-          </GlassCard>
+          </HotSheetCard>
 
-          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+          <HotSheetCard hover radius="2xl" padding="lg">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Active Campaigns</p>
                 <h3 className="text-3xl font-bold text-foreground">{analytics.activeCampaigns}</h3>
                 <p className="text-xs text-muted-foreground mt-1">Currently running</p>
               </div>
-              <div className="p-3 bg-emerald-500/10 rounded-lg">
-                <Play className="h-5 w-5 text-emerald-500" />
-              </div>
+              <IconContainer color="emerald" size="lg">
+                <Play className="h-5 w-5" />
+              </IconContainer>
             </div>
-          </GlassCard>
+          </HotSheetCard>
 
-          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+          <HotSheetCard hover radius="2xl" padding="lg">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Total Executions</p>
                 <h3 className="text-3xl font-bold text-foreground">{analytics.totalExecutions}</h3>
                 <p className="text-xs text-muted-foreground mt-1">All campaigns</p>
               </div>
-              <div className="p-3 bg-blue-500/10 rounded-lg">
-                <BarChart3 className="h-5 w-5 text-blue-500" />
-              </div>
+              <IconContainer color="sky" size="lg">
+                <BarChart3 className="h-5 w-5" />
+              </IconContainer>
             </div>
-          </GlassCard>
+          </HotSheetCard>
 
-          <GlassCard className="p-6 hover:scale-105 transition-transform duration-300">
+          <HotSheetCard hover radius="2xl" padding="lg">
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Avg. Performance</p>
                 <h3 className="text-3xl font-bold text-foreground">78%</h3>
                 <p className="text-xs text-muted-foreground mt-1">Success rate</p>
               </div>
-              <div className="p-3 bg-purple-500/10 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-purple-500" />
-              </div>
+              <IconContainer color="amber" size="lg">
+                <TrendingUp className="h-5 w-5" />
+              </IconContainer>
             </div>
-          </GlassCard>
+          </HotSheetCard>
         </div>
 
         {/* Campaign List */}
-        <ModernCard className="overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
+        <HotSheetCard padding="none" radius="2xl">
+          <CardHeader className="border-b border-border/40 p-6">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <Target className="h-5 w-5 text-primary" />
-              </div>
+              <IconContainer color="primary" size="md">
+                <Target className="h-5 w-5" />
+              </IconContainer>
               <div>
                 <CardTitle className="text-xl">Campaign List</CardTitle>
                 <CardDescription>Manage all your marketing campaigns</CardDescription>
@@ -315,57 +307,55 @@ export function CampaignManagement() {
                 <p className="text-muted-foreground">Loading campaigns...</p>
               </div>
             ) : campaigns.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="mb-4 mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Mail className="h-8 w-8 text-primary" />
-                </div>
+              <div className="text-center py-16">
+                <IconContainer color="violet" size="xl" className="mx-auto mb-6">
+                  <Mail className="h-8 w-8" />
+                </IconContainer>
                 <h3 className="text-lg font-semibold mb-2">No campaigns found</h3>
                 <p className="text-muted-foreground mb-6">Get started by creating your first campaign</p>
                 <div className="flex flex-wrap gap-3 justify-center">
-                  <Button 
+                  <PillButton 
                     variant="outline" 
                     onClick={() => setShowBuilder(true)}
-                    className="gap-2"
                   >
-                    <Bot className="h-4 w-4" />
+                    <Bot className="h-4 w-4 mr-2" />
                     Create with AI
-                  </Button>
-                  <Button 
+                  </PillButton>
+                  <PillButton 
+                    variant="primary"
                     onClick={() => navigate('/admin/builder/campaigns')}
-                    className="gap-2"
                   >
-                    <GitBranch className="h-4 w-4" />
+                    <GitBranch className="h-4 w-4 mr-2" />
                     Campaign Builder
-                  </Button>
-                  <Button 
-                    variant="secondary"
+                  </PillButton>
+                  <PillButton 
+                    variant="soft"
                     onClick={handleCreateDummyCampaigns}
                     disabled={loading}
-                    className="gap-2"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 mr-2" />
                     Create Sample Campaigns
-                  </Button>
+                  </PillButton>
                 </div>
               </div>
             ) : (
-              <div className="rounded-lg border overflow-hidden">
+              <div className="rounded-xl border border-border/40 overflow-hidden">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-muted/50">
-                      <TableHead className="font-semibold">Name</TableHead>
-                      <TableHead className="font-semibold">Type</TableHead>
-                      <TableHead className="font-semibold">Status</TableHead>
-                      <TableHead className="font-semibold">Created</TableHead>
-                      <TableHead className="font-semibold">Start Date</TableHead>
-                      <TableHead className="text-right font-semibold">Actions</TableHead>
+                    <TableRow className="bg-muted/10 hover:bg-muted/10">
+                      <TableHead className="font-semibold py-4">Name</TableHead>
+                      <TableHead className="font-semibold py-4">Type</TableHead>
+                      <TableHead className="font-semibold py-4">Status</TableHead>
+                      <TableHead className="font-semibold py-4">Created</TableHead>
+                      <TableHead className="font-semibold py-4">Start Date</TableHead>
+                      <TableHead className="text-right font-semibold py-4">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {campaigns.map((campaign) => (
-                      <TableRow key={campaign.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell className="font-medium">{campaign.name}</TableCell>
-                        <TableCell>
+                      <TableRow key={campaign.id} className="hover:bg-muted/5 transition-colors">
+                        <TableCell className="font-medium py-4">{campaign.name}</TableCell>
+                        <TableCell className="py-4">
                           <div className="flex items-center gap-2">
                             {campaign.campaign_type === 'workflow' && (
                               <Workflow className="h-4 w-4 text-primary" />
@@ -373,21 +363,21 @@ export function CampaignManagement() {
                             <span className="capitalize text-sm">{campaign.campaign_type}</span>
                           </div>
                         </TableCell>
-                        <TableCell>{getStatusBadge(campaign.status)}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="py-4">{getStatusBadge(campaign.status)}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground py-4">
                           {format(new Date(campaign.created_at), 'MMM dd, yyyy')}
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
+                        <TableCell className="text-sm text-muted-foreground py-4">
                           {campaign.start_date ? format(new Date(campaign.start_date), 'MMM dd, yyyy') : 'Not set'}
                         </TableCell>
-                        <TableCell className="text-right">
+                        <TableCell className="text-right py-4">
                           <div className="flex items-center justify-end gap-1">
                             {/* Edit Button */}
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditCampaign(campaign)}
-                              className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                              className="h-9 w-9 p-0 rounded-full hover:bg-muted/10"
                               title="Edit campaign"
                             >
                               <Edit className="h-4 w-4" />
@@ -399,7 +389,7 @@ export function CampaignManagement() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleStatusChange(campaign.id, 'paused')}
-                                className="h-8 w-8 p-0 hover:bg-orange-500/10 hover:text-orange-500"
+                                className="h-9 w-9 p-0 rounded-full hover:bg-muted/10"
                                 title="Pause campaign"
                               >
                                 <Pause className="h-4 w-4" />
@@ -409,7 +399,7 @@ export function CampaignManagement() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleStatusChange(campaign.id, 'active')}
-                                className="h-8 w-8 p-0 hover:bg-emerald-500/10 hover:text-emerald-500"
+                                className="h-9 w-9 p-0 rounded-full hover:bg-muted/10"
                                 title="Activate campaign"
                               >
                                 <Play className="h-4 w-4" />
@@ -421,7 +411,7 @@ export function CampaignManagement() {
                               variant="ghost"
                               size="sm"
                               onClick={() => confirmDeleteCampaign(campaign)}
-                              className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                              className="h-9 w-9 p-0 rounded-full hover:bg-muted/10 hover:text-destructive"
                               title="Delete campaign"
                             >
                               <Trash2 className="h-4 w-4" />
@@ -430,7 +420,7 @@ export function CampaignManagement() {
                             {/* More Actions Dropdown */}
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-accent">
+                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0 rounded-full hover:bg-muted/10">
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -467,7 +457,7 @@ export function CampaignManagement() {
               </div>
             )}
           </CardContent>
-        </ModernCard>
+        </HotSheetCard>
 
         {/* Campaign Detail Modal */}
         {selectedCampaign && (
@@ -500,7 +490,7 @@ export function CampaignManagement() {
                 </div>
                 <div>
                   <h4 className="font-medium">Target Audience</h4>
-                  <pre className="text-xs bg-muted p-2 rounded">
+                  <pre className="text-xs bg-muted/20 p-3 rounded-xl border border-border/40">
                     {JSON.stringify(selectedCampaign.target_audience, null, 2)}
                   </pre>
                 </div>

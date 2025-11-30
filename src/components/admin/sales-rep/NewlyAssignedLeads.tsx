@@ -1,54 +1,23 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Phone, Mail, Eye, Star, Clock, User, Brain, Play, CheckSquare, Loader2, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { Phone, Mail, Star, Clock, User, MapPin, GraduationCap, ChevronRight, Globe, Users, Briefcase } from 'lucide-react';
 import { Lead } from '@/types/lead';
-import { LeadService } from '@/services/leadService';
-import { useLeadAIActions, type LeadAIAction } from '@/hooks/useLeadAIActions';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+
 export function NewlyAssignedLeads() {
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedLeads, setSelectedLeads] = useState<Set<string>>(new Set());
-  const [previewAction, setPreviewAction] = useState<{
-    lead: Lead;
-    action: LeadAIAction;
-  } | null>(null);
-  const [showBulkActions, setShowBulkActions] = useState(false);
-  const [actionsGenerated, setActionsGenerated] = useState(false);
-  const [expandedActions, setExpandedActions] = useState<Set<string>>(new Set());
-  const {
-    isGenerating,
-    isExecuting,
-    leadActions,
-    generateActionsForLeads,
-    executeAction,
-    executeBulkActions
-  } = useLeadAIActions();
+
   useEffect(() => {
     loadNewlyAssignedLeads();
   }, []);
-  const generateActions = useCallback(async () => {
-    if (leads.length > 0 && !actionsGenerated) {
-      const leadIds = leads.map(lead => lead.id);
-      await generateActionsForLeads(leadIds);
-      setActionsGenerated(true);
-    }
-  }, [leads, actionsGenerated, generateActionsForLeads]);
-  useEffect(() => {
-    generateActions();
-  }, [generateActions]);
+
   const loadNewlyAssignedLeads = async () => {
     try {
-      // Enhanced mock data for newly assigned leads
       const mockLeads: Lead[] = [{
         id: 'lead-1',
         first_name: 'Sarah',
@@ -70,7 +39,7 @@ export function NewlyAssignedLeads() {
         assigned_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
         assignment_method: 'ai_based',
         tags: ['high-intent', 'quick-decision'],
-        notes: 'Expressed urgent interest in MBA program. Looking to start ASAP.',
+        notes: 'Expressed urgent interest in MBA program.',
         created_at: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
         updated_at: new Date().toISOString()
       }, {
@@ -177,22 +146,35 @@ export function NewlyAssignedLeads() {
       setLoading(false);
     }
   };
-  const getPriorityColor = (priority: string) => {
+
+  const getPriorityStyles = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return 'text-destructive';
+        return 'bg-destructive/10 text-destructive border-destructive/20';
       case 'high':
-        return 'text-warning';
+        return 'bg-orange-50 text-orange-700 border-orange-200';
       case 'medium':
-        return 'text-primary';
+        return 'bg-primary/10 text-primary border-primary/20';
       default:
-        return 'text-muted-foreground';
+        return 'bg-muted text-muted-foreground border-border';
     }
   };
+
   const getSourceIcon = (source: string) => {
-    // Return appropriate icon based on source
-    return <User className="w-3 h-3" />;
+    switch (source) {
+      case 'web':
+        return <Globe className="w-3.5 h-3.5" />;
+      case 'referral':
+        return <Users className="w-3.5 h-3.5" />;
+      case 'social_media':
+        return <User className="w-3.5 h-3.5" />;
+      case 'event':
+        return <Briefcase className="w-3.5 h-3.5" />;
+      default:
+        return <Mail className="w-3.5 h-3.5" />;
+    }
   };
+
   const formatTimeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -200,263 +182,176 @@ export function NewlyAssignedLeads() {
     if (hours < 24) return `${hours}h ago`;
     return `${Math.floor(hours / 24)}d ago`;
   };
-  const handleLeadSelect = (leadId: string, checked: boolean) => {
-    setSelectedLeads(prev => {
-      const newSet = new Set(prev);
-      if (checked) {
-        newSet.add(leadId);
-      } else {
-        newSet.delete(leadId);
-      }
-      setShowBulkActions(newSet.size > 0);
-      return newSet;
-    });
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-green-600';
+    if (score >= 60) return 'text-amber-600';
+    return 'text-muted-foreground';
   };
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedLeads(new Set(leads.slice(0, 3).map(lead => lead.id)));
-      setShowBulkActions(true);
-    } else {
-      setSelectedLeads(new Set());
-      setShowBulkActions(false);
-    }
-  };
-  const handleBulkExecute = async () => {
-    if (selectedLeads.size === 0) return;
-    await executeBulkActions(Array.from(selectedLeads));
-    setSelectedLeads(new Set());
-    setShowBulkActions(false);
-  };
-  const getActionIcon = (actionType: string) => {
-    switch (actionType) {
-      case 'call':
-        return <Phone className="w-3 h-3" />;
-      case 'email':
-        return <Mail className="w-3 h-3" />;
-      case 'follow_up':
-        return <Clock className="w-3 h-3" />;
-      case 'document':
-        return <Eye className="w-3 h-3" />;
-      default:
-        return <Zap className="w-3 h-3" />;
-    }
-  };
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 80) return 'text-green-700 bg-green-100 border-green-300';
-    if (confidence >= 60) return 'text-amber-700 bg-amber-100 border-amber-300';
-    return 'text-primary bg-primary/10 border-primary/30';
-  };
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case 'critical':
-        return 'text-destructive bg-destructive/10 border-destructive/30';
-      case 'high':
-        return 'text-warning bg-warning/10 border-warning/30';
-      case 'medium':
-        return 'text-primary bg-primary/10 border-primary/30';
-      default:
-        return 'text-muted-foreground bg-muted border-muted-foreground/30';
-    }
-  };
+
   if (loading) {
-    return <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="pb-3 p-6">
-          <div className="text-base flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Loading...
-          </div>
-        </div>
-        <div className="p-6 pt-0">
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => <div key={i} className="animate-pulse bg-muted rounded-lg h-16"></div>)}
-          </div>
-        </div>
-      </div>;
+    return (
+      <div className="space-y-3">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="animate-pulse bg-muted/50 rounded-xl h-24"></div>
+        ))}
+      </div>
+    );
   }
-  return <>
-        <div className="p-6 pt-0">
-        {leads.length === 0 ? <div className="text-center py-8 text-muted-foreground">
-            <div className="p-3 bg-blue-100 rounded-full w-12 h-12 mx-auto mb-3">
-              <User className="w-6 h-6 text-blue-500 mx-auto mt-1.5" />
-            </div>
-            <p className="text-sm">No new assignments</p>
-            <p className="text-xs text-muted-foreground mt-1">Check back soon for new leads</p>
-          </div> : <div className="space-y-2">
-            {/* Select All Header */}
-            
 
-            {leads.slice(0, 3).map(lead => {
-          const aiAction = leadActions.get(lead.id);
-          return <div key={lead.id} className="relative p-3 rounded-lg bg-white border border-blue-100 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <Checkbox checked={selectedLeads.has(lead.id)} onCheckedChange={checked => handleLeadSelect(lead.id, !!checked)} className="mt-2" />
-                    
-                    <Avatar className="w-10 h-10 mt-1">
-                      <AvatarFallback className="text-sm bg-blue-100 text-blue-700">
-                        {lead.first_name[0]}{lead.last_name[0]}
-                      </AvatarFallback>
-                    </Avatar>
+  if (leads.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="p-4 bg-primary/10 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+          <User className="w-8 h-8 text-primary" />
+        </div>
+        <p className="font-medium text-foreground">No new assignments</p>
+        <p className="text-sm text-muted-foreground mt-1">Check back soon for new leads</p>
+      </div>
+    );
+  }
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm truncate cursor-pointer hover:text-blue-600" onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}>
-                          {lead.first_name} {lead.last_name}
-                        </p>
-                        <Badge variant="outline" className={cn("text-xs", getPriorityColor(lead.priority))}>
-                          {lead.priority}
-                        </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
-                        {getSourceIcon(lead.source)}
-                        <span>{lead.source.replace('_', ' ')}</span>
-                        <span>•</span>
-                        <Clock className="w-3 h-3" />
-                        <span>{formatTimeAgo(lead.assigned_at || lead.created_at)}</span>
-                        <span>•</span>
-                        <Star className="w-3 h-3 text-orange-500" />
-                        <span className="font-medium">{lead.lead_score}/100</span>
-                      </div>
+  return (
+    <div className="space-y-3">
+      {leads.slice(0, 4).map((lead) => (
+        <div
+          key={lead.id}
+          className="group relative rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden"
+          onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
+        >
+          {/* Priority indicator strip */}
+          <div className={cn(
+            "absolute left-0 top-0 bottom-0 w-1",
+            lead.priority === 'urgent' && "bg-destructive",
+            lead.priority === 'high' && "bg-orange-500",
+            lead.priority === 'medium' && "bg-primary",
+            lead.priority === 'low' && "bg-muted-foreground"
+          )} />
 
-                      {/* AI Action Section - Collapsible */}
-                      {aiAction ? <Collapsible open={expandedActions.has(lead.id)} onOpenChange={open => {
-                  const newExpanded = new Set(expandedActions);
-                  if (open) {
-                    newExpanded.add(lead.id);
-                  } else {
-                    newExpanded.delete(lead.id);
-                  }
-                  setExpandedActions(newExpanded);
-                }} className="mt-2">
-                          <CollapsibleTrigger asChild>
-                            <Button variant="outline" size="sm" className="w-full h-9 justify-between text-xs">
-                              <div className="flex items-center gap-2">
-                                <Brain className="w-4 h-4 text-primary" />
-                                <span className="font-medium text-primary">AI Next Best Action</span>
-                                <Badge variant="outline" className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}>
-                                  {aiAction.urgency}
-                                </Badge>
-                              </div>
-                              {expandedActions.has(lead.id) ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                            </Button>
-                          </CollapsibleTrigger>
-                          
-                          <CollapsibleContent>
-                            <div className="mt-2 p-3 bg-white rounded-lg border border-gray-300">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Badge variant="outline" className={cn("text-xs border", getConfidenceColor(aiAction.confidence))}>
-                                  {aiAction.confidence}% confidence
-                                </Badge>
-                                <Badge variant="outline" className={cn("text-xs border", getUrgencyColor(aiAction.urgency))}>
-                                  {aiAction.urgency} priority
-                                </Badge>
-                              </div>
-                              <p className="text-xs text-foreground/80 mb-3 leading-relaxed">{aiAction.description}</p>
-                              
-                              <div className="flex items-center justify-between">
-                                <Button size="sm" className="h-7 text-xs px-3 bg-primary hover:bg-primary/90" onClick={e => {
-                          e.stopPropagation();
-                          setPreviewAction({
-                            lead,
-                            action: aiAction
-                          });
-                        }} disabled={isExecuting}>
-                                  {isExecuting ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : getActionIcon(aiAction.actionType)}
-                                  <span className="ml-1">Execute Action</span>
-                                </Button>
-                                <span className="text-xs text-muted-foreground font-medium">
-                                  Est. Impact: {aiAction.estimatedImpact}%
-                                </span>
-                              </div>
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible> : isGenerating ? <div className="mt-2 p-3 bg-muted/50 rounded-lg border border-muted">
-                          <div className="flex items-center gap-2">
-                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                            <span className="text-xs text-muted-foreground">AI analyzing lead for next best action...</span>
-                          </div>
-                        </div> : null}
-                    </div>
+          <div className="p-4 pl-5">
+            <div className="flex items-start gap-4">
+              {/* Avatar */}
+              <Avatar className="w-12 h-12 ring-2 ring-background shadow-sm">
+                <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-primary/20 to-primary/10 text-primary">
+                  {lead.first_name[0]}{lead.last_name[0]}
+                </AvatarFallback>
+              </Avatar>
 
-                    <div className="flex gap-1 mt-2">
-                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
-                        <Phone className="w-3 h-3" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100">
-                        <Mail className="w-3 h-3" />
-                      </Button>
+              {/* Main content */}
+              <div className="flex-1 min-w-0">
+                {/* Header row */}
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <h4 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+                      {lead.first_name} {lead.last_name}
+                    </h4>
+                    <Badge 
+                      variant="outline" 
+                      className={cn("text-[10px] px-1.5 py-0 h-5 font-medium capitalize shrink-0", getPriorityStyles(lead.priority))}
+                    >
+                      {lead.priority}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-muted-foreground shrink-0">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span className="text-xs">{formatTimeAgo(lead.assigned_at || lead.created_at)}</span>
+                  </div>
+                </div>
+
+                {/* Info row */}
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mb-2.5">
+                  <span className="flex items-center gap-1.5">
+                    {getSourceIcon(lead.source)}
+                    <span className="capitalize">{lead.source.replace('_', ' ')}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5" />
+                    <span>{lead.city}, {lead.country}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Star className={cn("w-3.5 h-3.5", getScoreColor(lead.lead_score || 0))} />
+                    <span className={cn("font-semibold", getScoreColor(lead.lead_score || 0))}>{lead.lead_score}</span>
+                  </span>
+                </div>
+
+                {/* Program interest */}
+                {lead.program_interest && lead.program_interest.length > 0 && (
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <GraduationCap className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                    <div className="flex flex-wrap gap-1">
+                      {lead.program_interest.slice(0, 2).map((program, idx) => (
+                        <span 
+                          key={idx} 
+                          className="text-xs px-2 py-0.5 rounded-full bg-primary/5 text-primary/80 font-medium"
+                        >
+                          {program}
+                        </span>
+                      ))}
+                      {lead.program_interest.length > 2 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                          +{lead.program_interest.length - 2}
+                        </span>
+                      )}
                     </div>
                   </div>
-                </div>;
-        })}
-            
-            {leads.length > 3 && <Button 
-                variant="ghost" 
-                size="sm" 
-                className="w-full mt-2"
-                onClick={() => navigate('/admin/leads')}
-              >
-                View all {leads.length} assigned leads
-              </Button>}
-          </div>}
-      </div>
+                )}
 
-      {/* Action Preview Dialog */}
-    <Dialog open={!!previewAction} onOpenChange={() => setPreviewAction(null)}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-primary" />
-            Preview AI Action
-          </DialogTitle>
-          <DialogDescription>
-            Review the action details before execution
-          </DialogDescription>
-        </DialogHeader>
-        
-        {previewAction && <div className="space-y-4">
-            <div className="p-4 bg-muted/50 rounded-lg">
-              <h4 className="font-medium mb-2">Lead: {previewAction.lead.first_name} {previewAction.lead.last_name}</h4>
-              <p className="text-sm text-muted-foreground">{previewAction.lead.email}</p>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-primary" />
-                <span className="font-medium">{previewAction.action.action}</span>
-                <Badge variant="outline" className="text-xs">
-                  {previewAction.action.confidence}% confidence
-                </Badge>
+                {/* Action buttons */}
+                <div className="flex items-center gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="h-8 text-xs gap-1.5 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`tel:${lead.phone}`, '_blank');
+                    }}
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    Call
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    className="h-8 text-xs gap-1.5 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(`mailto:${lead.email}`, '_blank');
+                    }}
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    Email
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="ghost"
+                    className="h-8 text-xs gap-1 ml-auto text-muted-foreground hover:text-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/admin/leads/detail/${lead.id}`);
+                    }}
+                  >
+                    View
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
-              
-              <p className="text-sm text-muted-foreground">
-                {previewAction.action.description}
-              </p>
-              
-              <div className="flex justify-between text-xs text-muted-foreground">
-                <span>Priority: <span className="font-medium">{previewAction.action.urgency}</span></span>
-                <span>Expected Impact: <span className="font-medium">{previewAction.action.estimatedImpact}%</span></span>
-              </div>
             </div>
-          </div>}
-        
-        <DialogFooter className="flex gap-2">
-          <Button variant="outline" onClick={() => setPreviewAction(null)}>
-            Cancel
-          </Button>
-          <Button onClick={() => {
-            if (previewAction) {
-              executeAction(previewAction.lead.id, previewAction.action);
-              setPreviewAction(null);
-            }
-          }} disabled={isExecuting} className="bg-primary hover:bg-primary/90">
-            {isExecuting ? <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Executing...
-              </> : 'Execute Action'}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-      </Dialog>
-    </>;
+          </div>
+        </div>
+      ))}
+
+      {leads.length > 4 && (
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="w-full mt-1 text-muted-foreground hover:text-foreground"
+          onClick={() => navigate('/admin/leads')}
+        >
+          View all {leads.length} assigned leads
+          <ChevronRight className="w-4 h-4 ml-1" />
+        </Button>
+      )}
+    </div>
+  );
 }

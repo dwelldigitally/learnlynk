@@ -12,7 +12,8 @@ export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   // Check if we're on a configuration page
   const isConfigurationPage = location.pathname.startsWith('/admin/configuration') || 
                                location.pathname.startsWith('/admin/setup') ||
-                               location.pathname.startsWith('/admin/profile');
+                               location.pathname.startsWith('/admin/profile') ||
+                               location.pathname.startsWith('/admin/notifications');
 
   return (
     <div className="min-h-screen bg-background w-full">

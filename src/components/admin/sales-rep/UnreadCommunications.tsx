@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Mail, MessageSquare, Phone, Clock, AlertCircle, Reply, Sparkles, Zap } from 'lucide-react';
-import { LeadCommunicationService } from '@/services/leadCommunicationService';
 import { AutoReplyDialog } from './AutoReplyDialog';
 import { BulkAutoReplyDialog } from './BulkAutoReplyDialog';
 
@@ -35,7 +34,6 @@ export function UnreadCommunications() {
 
   const loadUnreadCommunications = async () => {
     try {
-      // Enhanced mock communications with more variety
       const mockCommunications: Communication[] = [
         {
           id: '1',
@@ -108,6 +106,15 @@ export function UnreadCommunications() {
     }
   };
 
+  const getTypeStyles = (type: string) => {
+    switch (type) {
+      case 'email': return 'bg-[hsl(200,80%,92%)] text-[hsl(200,80%,40%)]';
+      case 'sms': return 'bg-[hsl(158,64%,90%)] text-[hsl(158,64%,35%)]';
+      case 'call': return 'bg-[hsl(245,90%,94%)] text-primary';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
   const formatTimeAgo = (date: string) => {
     const diff = Date.now() - new Date(date).getTime();
     const hours = Math.floor(diff / (1000 * 60 * 60));
@@ -118,7 +125,6 @@ export function UnreadCommunications() {
   };
 
   const handleReply = (comm: Communication) => {
-    // Handle reply action
     console.log('Reply to:', comm);
   };
 
@@ -128,7 +134,6 @@ export function UnreadCommunications() {
   };
 
   const handleSingleReplySuccess = (communicationId: string) => {
-    // Remove the replied communication from the list
     setCommunications(prev => prev.filter(comm => comm.id !== communicationId));
   };
 
@@ -140,33 +145,25 @@ export function UnreadCommunications() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="pb-3 p-6">
-          <div className="text-base flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Loading...
-          </div>
-        </div>
-        <div className="p-6 pt-0">
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-muted rounded-lg h-20"></div>
-            ))}
-          </div>
-        </div>
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-muted rounded-2xl h-24"></div>
+        ))}
       </div>
     );
   }
 
   return (
     <>
-      <div className="flex items-center gap-2 mb-3">
-        <Badge variant="destructive" className="ml-auto">{communications.length} unread</Badge>
+      <div className="flex items-center gap-2 mb-4">
+        <Badge className="bg-[hsl(24,95%,92%)] text-[hsl(24,95%,40%)] border-0 rounded-full px-3 py-1 text-xs font-medium ml-auto">
+          {communications.length} unread
+        </Badge>
         {communications.length > 1 && (
           <Button 
             size="sm" 
             variant="outline" 
-            className="h-6 px-2 text-xs gap-1"
+            className="h-7 px-3 text-xs gap-1.5 rounded-full border-border hover:bg-[hsl(245,90%,94%)] hover:border-primary/30"
             onClick={handleBulkAutoReply}
           >
             <Zap className="w-3 h-3" />
@@ -175,11 +172,14 @@ export function UnreadCommunications() {
         )}
       </div>
       
-      <div className="space-y-2">
+      <div className="space-y-3">
         {communications.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Mail className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">All caught up!</p>
+          <div className="text-center py-10">
+            <div className="p-4 bg-[hsl(158,64%,90%)] rounded-2xl w-14 h-14 mx-auto mb-4 flex items-center justify-center">
+              <Mail className="w-6 h-6 text-[hsl(158,64%,40%)]" />
+            </div>
+            <p className="font-semibold text-foreground">All caught up!</p>
+            <p className="text-sm text-muted-foreground mt-1">No unread messages</p>
           </div>
         ) : (
           <>
@@ -187,33 +187,32 @@ export function UnreadCommunications() {
               <div
                 key={comm.id}
                 className={cn(
-                  "p-3 rounded-lg border transition-colors bg-white shadow-sm",
+                  "p-4 rounded-2xl border transition-all duration-200 bg-card hover:shadow-sm",
                   comm.is_urgent 
-                    ? "border-destructive/20 bg-destructive/5" 
-                    : "border-border hover:bg-muted/50"
+                    ? "border-[hsl(24,95%,85%)] bg-[hsl(24,95%,98%)]" 
+                    : "border-border hover:border-primary/20"
                 )}
               >
                 <div className="flex items-start gap-3">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="text-xs">
+                  <Avatar className="w-10 h-10 ring-2 ring-background">
+                    <AvatarFallback className="text-xs font-medium bg-[hsl(245,90%,94%)] text-primary">
                       {comm.lead_name?.split(' ').map(n => n[0]).join('') || 'UN'}
                     </AvatarFallback>
                   </Avatar>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm truncate">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <p className="font-medium text-sm text-foreground truncate">
                         {comm.lead_name || 'Unknown Contact'}
                       </p>
                       {comm.is_urgent && (
-                        <AlertCircle className="w-3 h-3 text-destructive" />
+                        <AlertCircle className="w-3.5 h-3.5 text-[hsl(24,95%,50%)]" />
                       )}
-                      <div className="flex items-center gap-1 ml-auto">
-                        {getTypeIcon(comm.type)}
-                        <Clock className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-xs text-muted-foreground">
-                          {formatTimeAgo(comm.communication_date)}
-                        </span>
+                      <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                        <Badge className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium border-0 flex items-center gap-1", getTypeStyles(comm.type))}>
+                          {getTypeIcon(comm.type)}
+                          <span className="capitalize">{comm.type}</span>
+                        </Badge>
                       </div>
                     </div>
                     
@@ -223,30 +222,36 @@ export function UnreadCommunications() {
                       </p>
                     )}
                     
-                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
                       {comm.content}
                     </p>
 
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 px-2 text-xs"
-                        onClick={() => handleReply(comm)}
-                      >
-                        <Reply className="w-3 h-3 mr-1" />
-                        Reply
-                      </Button>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Clock className="w-3 h-3" />
+                        <span>{formatTimeAgo(comm.communication_date)}</span>
+                      </div>
                       
-                      <Button
-                        size="sm"
-                        variant="default"
-                        className="h-7 px-2 text-xs gap-1 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
-                        onClick={() => handleAutoReply(comm)}
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        AI Reply
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-7 px-3 text-xs rounded-full border-border hover:bg-muted"
+                          onClick={() => handleReply(comm)}
+                        >
+                          <Reply className="w-3 h-3 mr-1.5" />
+                          Reply
+                        </Button>
+                        
+                        <Button
+                          size="sm"
+                          className="h-7 px-3 text-xs gap-1.5 rounded-full bg-primary hover:bg-primary-hover"
+                          onClick={() => handleAutoReply(comm)}
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          AI Reply
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -276,7 +281,6 @@ export function UnreadCommunications() {
         communications={communications}
         onRepliesSent={(sentReplies) => {
           console.log('Bulk replies sent:', sentReplies);
-          // Remove replied communications from the list
           const repliedCommunicationIds = sentReplies.map(reply => reply.communicationId);
           setCommunications(prev => 
             prev.filter(comm => !repliedCommunicationIds.includes(comm.id))

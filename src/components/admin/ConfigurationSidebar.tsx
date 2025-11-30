@@ -236,13 +236,13 @@ const ConfigurationSidebarContent: React.FC<ConfigurationSidebarContentProps> = 
                             to={item.href}
                             onClick={onItemClick}
                             className={cn(
-                              "flex items-center justify-center p-2 rounded-lg transition-all",
+                              "flex items-center justify-center p-2.5 rounded-lg transition-all",
                               isActive
                                 ? "bg-primary text-primary-foreground shadow-sm"
                                 : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                             )}
                           >
-                            <item.icon className="h-4 w-4 flex-shrink-0" />
+                            <item.icon className="h-5 w-5 flex-shrink-0" />
                           </NavLink>
                         </TooltipTrigger>
                         <TooltipContent side="right" className="font-medium">

@@ -8,64 +8,72 @@
  
 @layer base {
   :root {
-    /* Professional minimal color system - Light grey with white cards and blue accents */
-    --background: 0 0% 98%;      /* Very light grey background */
-    --foreground: 210 11% 15%;   /* Dark grey text */
+    /* HotSheet-style color system - Indigo/Purple with soft pastels */
+    --background: 240 20% 98%;      /* Soft off-white with slight purple tint */
+    --foreground: 240 10% 15%;      /* Deep charcoal */
 
-    --card: 0 0% 100%;           /* Pure white cards */
-    --card-foreground: 210 11% 15%;
+    --card: 0 0% 100%;              /* Pure white cards */
+    --card-foreground: 240 10% 15%;
  
-    --popover: 0 0% 100%;        /* White popovers */
-    --popover-foreground: 210 11% 15%;
+    --popover: 0 0% 100%;           /* White popovers */
+    --popover-foreground: 240 10% 15%;
  
-    /* Primary - Professional blue (main CTA color) */
-    --primary: 217 91% 60%;      /* Professional blue */
+    /* Primary - Deep Indigo/Purple (HotSheet style) */
+    --primary: 245 84% 60%;         /* Deep indigo */
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 217 91% 55%;
-    --primary-light: 217 91% 95%;
+    --primary-hover: 245 84% 55%;
+    --primary-light: 245 84% 96%;
     
-    /* Secondary - Light blue accent */
-    --secondary: 210 40% 90%;    /* Very light blue/grey */
-    --secondary-foreground: 210 11% 25%;
-    --secondary-hover: 210 40% 85%;
+    /* Secondary - Soft lavender */
+    --secondary: 245 40% 94%;       /* Very light lavender */
+    --secondary-foreground: 245 30% 30%;
+    --secondary-hover: 245 40% 90%;
  
-    /* Muted colors - Clean greys */
-    --muted: 210 20% 96%;        /* Light grey sections */
-    --muted-foreground: 210 11% 45%; /* Medium grey text */
+    /* Muted colors - Soft greys with purple undertone */
+    --muted: 240 15% 96%;           /* Light grey with subtle purple */
+    --muted-foreground: 240 10% 50%; /* Medium grey text */
  
-    /* Accent - Secondary blue */
-    --accent: 210 40% 88%;       /* Light blue accent */
-    --accent-foreground: 210 11% 15%;
-    --accent-light: 210 40% 95%;
+    /* Accent - Soft purple accent */
+    --accent: 245 40% 92%;          /* Light purple accent */
+    --accent-foreground: 245 30% 20%;
+    --accent-light: 245 40% 97%;
  
-    /* Status colors - Professional and subdued */
-    --success: 142 71% 45%;      /* Professional green */
-    --success-light: 142 71% 96%;
-    --warning: 32 80% 55%;       /* Muted amber */
-    --warning-light: 32 80% 96%;
-    --destructive: 4 75% 55%;    /* Muted coral/red */
+    /* Pastel accent colors - HotSheet style */
+    --pastel-mint: 158 64% 90%;     /* Soft mint green */
+    --pastel-peach: 24 95% 92%;     /* Soft coral/peach */
+    --pastel-sky: 200 80% 92%;      /* Soft sky blue */
+    --pastel-lavender: 248 90% 94%; /* Soft lavender */
+    --pastel-rose: 340 80% 92%;     /* Soft rose pink */
+    
+    /* Status colors - Softer, pastel-ish */
+    --success: 158 64% 52%;         /* Soft mint green */
+    --success-light: 158 64% 94%;
+    --warning: 32 85% 60%;          /* Soft amber */
+    --warning-light: 32 85% 94%;
+    --destructive: 4 70% 60%;       /* Soft coral red */
     --destructive-foreground: 0 0% 100%;
-    --info: 217 91% 60%;         /* Same as primary blue */
-    --info-light: 217 91% 96%;
+    --info: 245 84% 60%;            /* Same as primary indigo */
+    --info-light: 245 84% 96%;
     
-    /* Journey status colors - Professional and minimal */
-    --journey-active: 142 71% 45%;      /* Professional green */
-    --journey-active-light: 142 71% 96%;
-    --journey-inactive: 210 11% 60%;    /* Medium grey */
-    --journey-inactive-light: 210 20% 96%;
-    --journey-draft: 32 80% 55%;        /* Muted amber */
-    --journey-draft-light: 32 80% 96%;
+    /* Journey status colors - Softer pastels */
+    --journey-active: 158 64% 52%;
+    --journey-active-light: 158 64% 94%;
+    --journey-inactive: 240 10% 65%;
+    --journey-inactive-light: 240 15% 96%;
+    --journey-draft: 32 85% 60%;
+    --journey-draft-light: 32 85% 94%;
 
-    /* Borders and inputs - Very subtle */
-    --border: 210 20% 90%;
-    --input: 210 20% 90%;
-    --ring: 217 91% 60%;
+    /* Borders and inputs - Ultra subtle */
+    --border: 240 15% 92%;          /* Almost invisible border */
+    --input: 240 15% 92%;
+    --ring: 245 84% 60%;
  
-    /* Spacing */
-    --radius: 0.75rem;
-    --radius-sm: 0.5rem;
-    --radius-lg: 1rem;
-    --radius-xl: 1.5rem;
+    /* Spacing - Larger radius for pill shapes */
+    --radius: 0.875rem;
+    --radius-sm: 0.625rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.75rem;
+    --radius-pill: 9999px;
     
     /* Shadows - Professional */
     --shadow-soft: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.05);

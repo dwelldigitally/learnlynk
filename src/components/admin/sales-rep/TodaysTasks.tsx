@@ -6,9 +6,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { CheckSquare, Clock, AlertTriangle, Calendar, Plus, Play, X } from 'lucide-react';
+import { CheckSquare, Clock, AlertTriangle, Plus, Play, X } from 'lucide-react';
 import { LeadTask } from '@/types/leadEnhancements';
-import { LeadTaskService } from '@/services/leadTaskService';
 import { useToast } from '@/hooks/use-toast';
 
 export function TodaysTasks() {
@@ -29,14 +28,6 @@ export function TodaysTasks() {
 
   const loadTodaysTasks = async () => {
     try {
-      // Get tasks due today
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-
-      // This would need enhancement in the service to filter by user and date
-      // For now, we'll use mock data
       const mockTasks: LeadTask[] = [
         {
           id: '1',
@@ -62,7 +53,7 @@ export function TodaysTasks() {
           priority: 'medium',
           status: 'pending',
           task_type: 'email',
-          due_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago (overdue)
+          due_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         },
@@ -76,7 +67,7 @@ export function TodaysTasks() {
           priority: 'medium',
           status: 'pending',
           task_type: 'meeting',
-          due_date: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours from now
+          due_date: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         }
@@ -99,7 +90,6 @@ export function TodaysTasks() {
     setCompletingTasks(prev => new Set(prev).add(taskId));
     
     try {
-      // Simulate successful execution
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       setTasks(prev => prev.map(task => 
@@ -131,13 +121,13 @@ export function TodaysTasks() {
     }
   };
 
-  const getPriorityColor = (priority: string) => {
+  const getPriorityStyles = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-destructive';
-      case 'high': return 'text-warning';
-      case 'medium': return 'text-primary';
-      case 'low': return 'text-muted-foreground';
-      default: return 'text-muted-foreground';
+      case 'urgent': return 'bg-[hsl(24,95%,92%)] text-[hsl(24,95%,40%)] border-0';
+      case 'high': return 'bg-[hsl(24,95%,92%)] text-[hsl(24,95%,40%)] border-0';
+      case 'medium': return 'bg-[hsl(245,90%,94%)] text-primary border-0';
+      case 'low': return 'bg-muted text-muted-foreground border-0';
+      default: return 'bg-muted text-muted-foreground border-0';
     }
   };
 
@@ -171,20 +161,10 @@ export function TodaysTasks() {
 
   if (loading) {
     return (
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="pb-3 p-6">
-          <div className="text-base flex items-center gap-2">
-            <CheckSquare className="w-4 h-4" />
-            Loading...
-          </div>
-        </div>
-        <div className="p-6 pt-0">
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="animate-pulse bg-muted rounded-lg h-16"></div>
-            ))}
-          </div>
-        </div>
+      <div className="space-y-3">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="animate-pulse bg-muted rounded-2xl h-20"></div>
+        ))}
       </div>
     );
   }
@@ -192,22 +172,22 @@ export function TodaysTasks() {
   return (
     <>
       <div className="flex items-center gap-2 mb-4">
-        <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-300 ml-auto">
+        <Badge className="bg-[hsl(158,64%,90%)] text-[hsl(158,64%,35%)] border-0 rounded-full px-3 py-1 text-xs font-medium ml-auto">
           {pendingTasks.length} pending
         </Badge>
-        <Badge variant="outline" className="border-green-300 text-green-700">
+        <Badge className="bg-muted text-muted-foreground border-0 rounded-full px-3 py-1 text-xs font-medium">
           {completedToday} done
         </Badge>
       </div>
       
-      <div className="space-y-2">
+      <div className="space-y-3">
         {pendingTasks.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <div className="p-3 bg-green-100 rounded-full w-12 h-12 mx-auto mb-3">
-              <CheckSquare className="w-6 h-6 text-green-500 mx-auto mt-1.5" />
+          <div className="text-center py-10">
+            <div className="p-4 bg-[hsl(158,64%,90%)] rounded-2xl w-14 h-14 mx-auto mb-4 flex items-center justify-center">
+              <CheckSquare className="w-6 h-6 text-[hsl(158,64%,40%)]" />
             </div>
-            <p className="text-sm font-medium text-green-700">All tasks completed! 🎉</p>
-            <p className="text-xs text-muted-foreground mt-1">Great job staying on top of things</p>
+            <p className="font-semibold text-foreground">All tasks completed!</p>
+            <p className="text-sm text-muted-foreground mt-1">Great job staying on top of things</p>
           </div>
         ) : (
           <>
@@ -215,10 +195,10 @@ export function TodaysTasks() {
               <div
                 key={task.id}
                 className={cn(
-                  "p-3 rounded-lg border transition-colors bg-white shadow-sm",
+                  "p-4 rounded-2xl border transition-all duration-200 bg-card hover:shadow-sm",
                   isOverdue(task.due_date)
-                    ? "border-red-200 bg-red-50/50"
-                    : "border-border"
+                    ? "border-[hsl(24,95%,85%)] bg-[hsl(24,95%,98%)]"
+                    : "border-border hover:border-primary/20"
                 )}
               >
                 <div className="flex items-start gap-3">
@@ -226,17 +206,16 @@ export function TodaysTasks() {
                     checked={false}
                     onCheckedChange={() => handleTaskClick(task)}
                     disabled={completingTasks.has(task.id)}
-                    className="mt-0.5 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500 cursor-pointer"
+                    className="mt-0.5 rounded-md data-[state=checked]:bg-[hsl(158,64%,52%)] data-[state=checked]:border-[hsl(158,64%,52%)] cursor-pointer h-5 w-5"
                   />
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-medium text-sm truncate">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <p className="font-medium text-sm text-foreground truncate">
                         {task.title}
                       </p>
                       <Badge 
-                        variant="outline" 
-                        className={cn("text-xs", getPriorityColor(task.priority))}
+                        className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium capitalize", getPriorityStyles(task.priority))}
                       >
                         {task.priority}
                       </Badge>
@@ -251,14 +230,14 @@ export function TodaysTasks() {
                     <div className="flex items-center gap-2 text-xs">
                       {isOverdue(task.due_date) ? (
                         <>
-                          <AlertTriangle className="w-3 h-3 text-red-500" />
-                          <span className="text-red-600 font-medium">
+                          <AlertTriangle className="w-3.5 h-3.5 text-[hsl(24,95%,50%)]" />
+                          <span className="text-[hsl(24,95%,45%)] font-medium">
                             {formatTime(task.due_date)}
                           </span>
                         </>
                       ) : (
                         <>
-                          <Clock className="w-3 h-3 text-muted-foreground" />
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
                           <span className="text-muted-foreground">
                             Due {formatTime(task.due_date)}
                           </span>
@@ -271,7 +250,11 @@ export function TodaysTasks() {
             ))}
             
             {pendingTasks.length > 4 && (
-              <Button variant="ghost" size="sm" className="w-full text-green-600 hover:bg-green-100">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full text-primary hover:bg-[hsl(245,90%,94%)] rounded-full"
+              >
                 View all {pendingTasks.length} pending tasks
               </Button>
             )}
@@ -282,19 +265,18 @@ export function TodaysTasks() {
       <Button 
         variant="outline" 
         size="sm" 
-        className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-100"
-        onClick={() => {/* Navigate to task creation */}}
+        className="w-full mt-4 rounded-full border-border hover:bg-[hsl(245,90%,94%)] hover:border-primary/30 hover:text-primary"
       >
-        <Plus className="w-3 h-3 mr-1" />
+        <Plus className="w-4 h-4 mr-1.5" />
         Add New Task
       </Button>
 
       <Dialog open={showExecutionDialog} onOpenChange={setShowExecutionDialog}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <div className="p-1.5 bg-green-500 rounded-lg">
-                <CheckSquare className="w-4 h-4 text-white" />
+              <div className="p-2 bg-[hsl(158,64%,90%)] rounded-xl">
+                <CheckSquare className="w-4 h-4 text-[hsl(158,64%,40%)]" />
               </div>
               Execute Task
             </DialogTitle>
@@ -305,43 +287,42 @@ export function TodaysTasks() {
 
           {selectedTask && (
             <div className="space-y-4 py-4">
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Task:</span>
-                  <span className="text-sm">{selectedTask.title}</span>
+                  <span className="text-sm text-muted-foreground">Task:</span>
+                  <span className="text-sm font-medium">{selectedTask.title}</span>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Priority:</span>
+                  <span className="text-sm text-muted-foreground">Priority:</span>
                   <Badge 
-                    variant="outline" 
-                    className={cn("text-xs", getPriorityColor(selectedTask.priority))}
+                    className={cn("text-xs rounded-full", getPriorityStyles(selectedTask.priority))}
                   >
                     {selectedTask.priority}
                   </Badge>
                 </div>
                 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">Due:</span>
+                  <span className="text-sm text-muted-foreground">Due:</span>
                   <span className={cn(
                     "text-sm",
-                    isOverdue(selectedTask.due_date) ? "text-red-600 font-medium" : "text-muted-foreground"
+                    isOverdue(selectedTask.due_date) ? "text-[hsl(24,95%,45%)] font-medium" : "text-foreground"
                   )}>
                     {formatTime(selectedTask.due_date)}
                   </span>
                 </div>
                 
                 {selectedTask.description && (
-                  <div className="space-y-1">
-                    <span className="text-sm font-medium">Description:</span>
-                    <p className="text-sm text-muted-foreground">{selectedTask.description}</p>
+                  <div className="space-y-1.5">
+                    <span className="text-sm text-muted-foreground">Description:</span>
+                    <p className="text-sm text-foreground bg-muted/50 p-3 rounded-xl">{selectedTask.description}</p>
                   </div>
                 )}
               </div>
 
-              <div className="p-3 bg-muted rounded-lg">
-                <p className="text-xs text-muted-foreground mb-2">Action Impact:</p>
-                <p className="text-sm">This task will be marked as completed and removed from your pending tasks list.</p>
+              <div className="p-3 bg-[hsl(245,90%,94%)] rounded-xl">
+                <p className="text-xs text-primary font-medium mb-1">Action Impact:</p>
+                <p className="text-sm text-foreground">This task will be marked as completed and removed from your pending tasks list.</p>
               </div>
             </div>
           )}
@@ -351,16 +332,17 @@ export function TodaysTasks() {
               variant="outline"
               onClick={() => setShowExecutionDialog(false)}
               disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
+              className="rounded-full"
             >
-              <X className="w-3 h-3 mr-1" />
+              <X className="w-4 h-4 mr-1.5" />
               Cancel
             </Button>
             <Button
               onClick={() => selectedTask && handleTaskComplete(selectedTask.id)}
               disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
-              className="bg-green-500 hover:bg-green-600"
+              className="rounded-full bg-[hsl(158,64%,52%)] hover:bg-[hsl(158,64%,45%)]"
             >
-              <Play className="w-3 h-3 mr-1" />
+              <Play className="w-4 h-4 mr-1.5" />
               {selectedTask && completingTasks.has(selectedTask.id) ? 'Executing...' : 'Execute Task'}
             </Button>
           </DialogFooter>

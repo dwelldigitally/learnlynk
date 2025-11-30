@@ -150,13 +150,13 @@ export function NewlyAssignedLeads() {
   const getPriorityStyles = (priority: string) => {
     switch (priority) {
       case 'urgent':
-        return 'bg-destructive/10 text-destructive border-destructive/20';
+        return 'bg-[hsl(24,95%,92%)] text-[hsl(24,95%,40%)]';
       case 'high':
-        return 'bg-orange-50 text-orange-700 border-orange-200';
+        return 'bg-[hsl(24,95%,92%)] text-[hsl(24,95%,40%)]';
       case 'medium':
-        return 'bg-primary/10 text-primary border-primary/20';
+        return 'bg-[hsl(245,90%,94%)] text-primary';
       default:
-        return 'bg-muted text-muted-foreground border-border';
+        return 'bg-muted text-muted-foreground';
     }
   };
 
@@ -184,8 +184,8 @@ export function NewlyAssignedLeads() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 60) return 'text-amber-600';
+    if (score >= 80) return 'text-[hsl(158,64%,40%)]';
+    if (score >= 60) return 'text-[hsl(32,85%,50%)]';
     return 'text-muted-foreground';
   };
 
@@ -193,7 +193,7 @@ export function NewlyAssignedLeads() {
     return (
       <div className="space-y-3">
         {[1, 2, 3].map(i => (
-          <div key={i} className="animate-pulse bg-muted/50 rounded-xl h-24"></div>
+          <div key={i} className="animate-pulse bg-muted rounded-2xl h-28"></div>
         ))}
       </div>
     );
@@ -202,10 +202,10 @@ export function NewlyAssignedLeads() {
   if (leads.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="p-4 bg-primary/10 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-          <User className="w-8 h-8 text-primary" />
+        <div className="p-4 bg-[hsl(245,90%,94%)] rounded-2xl w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+          <User className="w-7 h-7 text-primary" />
         </div>
-        <p className="font-medium text-foreground">No new assignments</p>
+        <p className="font-semibold text-foreground">No new assignments</p>
         <p className="text-sm text-muted-foreground mt-1">Check back soon for new leads</p>
       </div>
     );
@@ -216,23 +216,14 @@ export function NewlyAssignedLeads() {
       {leads.slice(0, 4).map((lead) => (
         <div
           key={lead.id}
-          className="group relative rounded-xl border border-border bg-card hover:border-primary/30 hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden"
+          className="group relative rounded-2xl border border-border bg-card hover:border-primary/30 hover:shadow-sm transition-all duration-200 cursor-pointer overflow-hidden"
           onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
         >
-          {/* Priority indicator strip */}
-          <div className={cn(
-            "absolute left-0 top-0 bottom-0 w-1",
-            lead.priority === 'urgent' && "bg-destructive",
-            lead.priority === 'high' && "bg-orange-500",
-            lead.priority === 'medium' && "bg-primary",
-            lead.priority === 'low' && "bg-muted-foreground"
-          )} />
-
-          <div className="p-4 pl-5">
+          <div className="p-5">
             <div className="flex items-start gap-4">
               {/* Avatar */}
               <Avatar className="w-12 h-12 ring-2 ring-background shadow-sm">
-                <AvatarFallback className="text-sm font-semibold bg-gradient-to-br from-primary/20 to-primary/10 text-primary">
+                <AvatarFallback className="text-sm font-semibold bg-[hsl(245,90%,94%)] text-primary">
                   {lead.first_name[0]}{lead.last_name[0]}
                 </AvatarFallback>
               </Avatar>
@@ -240,14 +231,13 @@ export function NewlyAssignedLeads() {
               {/* Main content */}
               <div className="flex-1 min-w-0">
                 {/* Header row */}
-                <div className="flex items-center justify-between gap-2 mb-1.5">
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <h4 className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                       {lead.first_name} {lead.last_name}
                     </h4>
                     <Badge 
-                      variant="outline" 
-                      className={cn("text-[10px] px-1.5 py-0 h-5 font-medium capitalize shrink-0", getPriorityStyles(lead.priority))}
+                      className={cn("text-[10px] px-2 py-0.5 rounded-full font-medium capitalize border-0 shrink-0", getPriorityStyles(lead.priority))}
                     >
                       {lead.priority}
                     </Badge>
@@ -259,7 +249,7 @@ export function NewlyAssignedLeads() {
                 </div>
 
                 {/* Info row */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mb-2.5">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground mb-3">
                   <span className="flex items-center gap-1.5">
                     {getSourceIcon(lead.source)}
                     <span className="capitalize">{lead.source.replace('_', ' ')}</span>
@@ -276,19 +266,19 @@ export function NewlyAssignedLeads() {
 
                 {/* Program interest */}
                 {lead.program_interest && lead.program_interest.length > 0 && (
-                  <div className="flex items-center gap-1.5 mb-3">
+                  <div className="flex items-center gap-1.5 mb-4">
                     <GraduationCap className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1.5">
                       {lead.program_interest.slice(0, 2).map((program, idx) => (
                         <span 
                           key={idx} 
-                          className="text-xs px-2 py-0.5 rounded-full bg-primary/5 text-primary/80 font-medium"
+                          className="text-xs px-2.5 py-1 rounded-full bg-[hsl(245,90%,94%)] text-primary font-medium"
                         >
                           {program}
                         </span>
                       ))}
                       {lead.program_interest.length > 2 && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+                        <span className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
                           +{lead.program_interest.length - 2}
                         </span>
                       )}
@@ -301,7 +291,7 @@ export function NewlyAssignedLeads() {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="h-8 text-xs gap-1.5 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
+                    className="h-8 px-3 text-xs gap-1.5 rounded-full border-border hover:bg-[hsl(158,64%,90%)] hover:text-[hsl(158,64%,35%)] hover:border-[hsl(158,64%,80%)]"
                     onClick={(e) => {
                       e.stopPropagation();
                       window.open(`tel:${lead.phone}`, '_blank');
@@ -313,7 +303,7 @@ export function NewlyAssignedLeads() {
                   <Button 
                     size="sm" 
                     variant="outline"
-                    className="h-8 text-xs gap-1.5 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                    className="h-8 px-3 text-xs gap-1.5 rounded-full border-border hover:bg-[hsl(200,80%,92%)] hover:text-[hsl(200,80%,35%)] hover:border-[hsl(200,80%,80%)]"
                     onClick={(e) => {
                       e.stopPropagation();
                       window.open(`mailto:${lead.email}`, '_blank');
@@ -325,7 +315,7 @@ export function NewlyAssignedLeads() {
                   <Button 
                     size="sm" 
                     variant="ghost"
-                    className="h-8 text-xs gap-1 ml-auto text-muted-foreground hover:text-primary"
+                    className="h-8 px-3 text-xs gap-1 ml-auto text-muted-foreground hover:text-primary hover:bg-[hsl(245,90%,94%)] rounded-full"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/admin/leads/detail/${lead.id}`);
@@ -345,7 +335,7 @@ export function NewlyAssignedLeads() {
         <Button 
           variant="outline" 
           size="sm" 
-          className="w-full mt-1 text-muted-foreground hover:text-foreground"
+          className="w-full mt-2 text-muted-foreground hover:text-primary hover:bg-[hsl(245,90%,94%)] hover:border-primary/30 rounded-full"
           onClick={() => navigate('/admin/leads')}
         >
           View all {leads.length} assigned leads

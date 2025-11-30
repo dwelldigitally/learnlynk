@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { Phone, Mail, CheckCircle, Target, Calendar, Clock, Wifi, WifiOff, Users, AlertCircle, PhoneCall } from 'lucide-react';
+import { Phone, Mail, CheckCircle, Calendar, PhoneCall } from 'lucide-react';
 
 export function DailyHeader() {
   const { user } = useAuth();
@@ -23,7 +22,6 @@ export function DailyHeader() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [lastSync, setLastSync] = useState(new Date());
 
-  // Optimize timer to update less frequently for non-essential updates
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -31,15 +29,13 @@ export function DailyHeader() {
     return () => clearInterval(timer);
   }, []);
 
-  // Sync less frequently to reduce re-renders
   useEffect(() => {
     const syncTimer = setInterval(() => {
       setLastSync(new Date());
-    }, 60000); // Reduced from 30s to 60s
+    }, 60000);
     return () => clearInterval(syncTimer);
   }, []);
 
-  // Memoize event handlers to prevent re-creation
   const handleOnline = useCallback(() => setIsOnline(true), []);
   const handleOffline = useCallback(() => setIsOnline(false), []);
 
@@ -53,7 +49,6 @@ export function DailyHeader() {
     };
   }, [handleOnline, handleOffline]);
 
-  // Memoize expensive calculations to prevent unnecessary re-computations
   const greeting = useMemo(() => {
     const hour = currentTime.getHours();
     if (hour < 12) return 'Good Morning';
@@ -100,203 +95,191 @@ export function DailyHeader() {
   }, [lastSync]);
 
   const handleAircallLaunch = () => {
-    // Open Aircall CTI in a new window/tab
     window.open('https://phone.aircall.io/', '_blank', 'width=400,height=600');
   };
 
+  const metrics = [
+    { 
+      label: 'Calls Made', 
+      value: todaysMetrics.callsMade, 
+      target: 15,
+      icon: Phone,
+      color: 'bg-[hsl(200,80%,92%)]',
+      barColor: 'bg-[hsl(200,80%,60%)]'
+    },
+    { 
+      label: 'Emails Sent', 
+      value: todaysMetrics.emailsSent, 
+      target: 12,
+      icon: Mail,
+      color: 'bg-[hsl(245,90%,94%)]',
+      barColor: 'bg-primary'
+    },
+    { 
+      label: 'Tasks Done', 
+      value: todaysMetrics.tasksCompleted, 
+      target: 8,
+      icon: CheckCircle,
+      color: 'bg-[hsl(158,64%,90%)]',
+      barColor: 'bg-[hsl(158,64%,52%)]'
+    },
+    { 
+      label: 'Meetings', 
+      value: todaysMetrics.appointmentsBooked, 
+      target: 5,
+      icon: Calendar,
+      color: 'bg-[hsl(24,95%,92%)]',
+      barColor: 'bg-[hsl(24,95%,60%)]'
+    }
+  ];
+
   return (
-    <div className="relative overflow-hidden">
-      {/* Background with subtle modern gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-slate-100/95 to-slate-200/90 dark:from-slate-900 dark:via-slate-800/95 dark:to-slate-700/90"></div>
-      <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_50%_120%,rgba(148,163,184,0.4),transparent_50%)]"></div>
-      
-      <div className="relative">
-        <div className={cn("px-4 lg:px-6 xl:px-8", isMobile ? "py-4" : "py-6")}>
-          {/* Main Header Content */}
-          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-            
-            {/* Left Section - Greeting and User Info */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-foreground space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <h1 className={cn("font-bold tracking-tight text-foreground", isMobile ? "text-xl" : "text-3xl")}>
-                      {greeting}, {displayName}! 
-                      <span className="ml-2 text-2xl">👋</span>
-                    </h1>
-                  </div>
-                  
-                  {profile?.title && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Badge variant="secondary" className="bg-muted text-muted-foreground border-border text-xs">
-                        {profile.title}
-                      </Badge>
-                      {profile.department && (
-                        <span className="text-sm opacity-80">• {profile.department}</span>
-                      )}
-                    </div>
-                  )}
-                  
-                   <p className="text-muted-foreground text-base font-medium">
-                     {formattedDate} • Ready to achieve your goals?
-                   </p>
+    <div className="relative overflow-hidden rounded-2xl bg-card border border-border">
+      <div className={cn("px-6 lg:px-8", isMobile ? "py-5" : "py-7")}>
+        {/* Main Header Content */}
+        <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          
+          {/* Left Section - Greeting */}
+          <div className="flex-1">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-2.5 h-2.5 bg-[hsl(158,64%,52%)] rounded-full animate-pulse"></div>
+                  <h1 className={cn("font-bold tracking-tight text-foreground", isMobile ? "text-xl" : "text-2xl")}>
+                    {greeting}, {displayName}
+                  </h1>
                 </div>
                 
-                {/* Real-time Info Panel - Desktop */}
-                {!isMobile && (
-                  <div className="flex items-center gap-4 bg-card backdrop-blur-sm rounded-xl px-4 py-3 border border-border">
-                    <div className="text-center">
-                      <div className="text-2xl font-mono font-bold text-foreground">
-                        {formattedTime}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {currentTime.toLocaleDateString('en-US', { timeZoneName: 'short' }).split(', ')[1]}
-                      </div>
-                    </div>
-                    
-                    <div className="w-px h-8 bg-border"></div>
-                    
-                    <Button
-                      onClick={handleAircallLaunch}
-                      variant="default"
-                      size="sm"
-                      className="h-9 gap-2"
-                      title="Launch Aircall CTI"
+                {profile?.title && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-[hsl(245,90%,94%)] text-primary border-0 rounded-full px-3 py-1 text-xs font-medium"
                     >
-                      <PhoneCall className="w-4 h-4" />
-                      <span className="hidden xl:inline">Aircall</span>
-                    </Button>
-                    
-                    <div className="w-px h-8 bg-border"></div>
-                    
-                    <div className="flex items-center gap-2">
-                      <div className={cn(
-                        "w-2 h-2 rounded-full",
-                        isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
-                      )}></div>
-                      <div className="text-sm text-foreground">
-                        {isOnline ? 'Connected' : 'Offline'}
-                      </div>
-                    </div>
-                    
-                    <div className="text-xs text-muted-foreground">
-                      Synced {relativeTime}
-                    </div>
+                      {profile.title}
+                    </Badge>
+                    {profile.department && (
+                      <span className="text-sm">• {profile.department}</span>
+                    )}
                   </div>
                 )}
+                
+                <p className="text-muted-foreground text-sm">
+                  {formattedDate}
+                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Modern Metrics Cards */}
-          <div className="mt-5 max-w-4xl">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-1 h-6 bg-primary/60 rounded-full"></div>
-              <h3 className="text-foreground font-semibold text-sm uppercase tracking-wide">Today's Performance</h3>
-            </div>
-            
-            <div className={cn("grid gap-3", isMobile ? "grid-cols-2" : "grid-cols-4")}>
-              <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              
+              {/* Real-time Info Panel - Desktop */}
+              {!isMobile && (
+                <div className="flex items-center gap-4 bg-muted/50 rounded-2xl px-5 py-3 border border-border">
+                  <div className="text-center">
+                    <div className="text-xl font-semibold text-foreground font-mono">
+                      {formattedTime}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-foreground">{todaysMetrics.callsMade}</div>
-                      <div className="text-xs text-muted-foreground">Calls Made</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {currentTime.toLocaleDateString('en-US', { timeZoneName: 'short' }).split(', ')[1]}
                     </div>
-                    <div className="text-xs text-muted-foreground font-medium">+2</div>
                   </div>
-                </div>
-              </div>
-
-              <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-foreground">{todaysMetrics.emailsSent}</div>
-                      <div className="text-xs text-muted-foreground">Emails Sent</div>
-                    </div>
-                    <div className="text-xs text-muted-foreground font-medium">+1</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-foreground">{todaysMetrics.tasksCompleted}</div>
-                      <div className="text-xs text-muted-foreground">Tasks Done</div>
-                    </div>
-                    <div className="text-xs text-muted-foreground font-medium">On track</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="group relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-card/50 to-card/20 backdrop-blur-sm rounded-lg"></div>
-                <div className="relative p-3 border border-border rounded-lg hover:border-primary/40 transition-all duration-300">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900/30 backdrop-blur-sm rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Calendar className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-lg font-bold text-foreground">{todaysMetrics.appointmentsBooked}</div>
-                      <div className="text-xs text-muted-foreground">Meetings</div>
-                    </div>
-                    <div className="text-xs text-muted-foreground font-medium">+1</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          {/* Mobile Time/Status Panel */}
-          {isMobile && (
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center justify-between bg-card backdrop-blur-sm rounded-lg px-4 py-3 border border-border">
-                <div className="flex items-center gap-3">
-                  <div className="text-lg font-mono font-bold text-foreground">
-                    {formattedTime}
-                  </div>
-                  <div className="w-px h-4 bg-border"></div>
+                  
+                  <div className="w-px h-8 bg-border"></div>
+                  
+                  <Button
+                    onClick={handleAircallLaunch}
+                    className="h-9 gap-2 rounded-full bg-primary hover:bg-primary-hover"
+                    title="Launch Aircall CTI"
+                  >
+                    <PhoneCall className="w-4 h-4" />
+                    <span className="hidden xl:inline">Aircall</span>
+                  </Button>
+                  
+                  <div className="w-px h-8 bg-border"></div>
+                  
                   <div className="flex items-center gap-2">
                     <div className={cn(
                       "w-2 h-2 rounded-full",
-                      isOnline ? "bg-green-500 animate-pulse" : "bg-red-500"
+                      isOnline ? "bg-[hsl(158,64%,52%)] animate-pulse" : "bg-destructive"
                     )}></div>
-                    <span className="text-sm text-foreground">{isOnline ? 'Online' : 'Offline'}</span>
+                    <span className="text-sm text-foreground">
+                      {isOnline ? 'Connected' : 'Offline'}
+                    </span>
                   </div>
+                  
+                  <span className="text-xs text-muted-foreground">
+                    Synced {relativeTime}
+                  </span>
                 </div>
-                <Button
-                  onClick={handleAircallLaunch}
-                  variant="default"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  title="Launch Aircall CTI"
-                >
-                  <PhoneCall className="w-4 h-4" />
-                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* HotSheet-style Metrics Cards */}
+        <div className="mt-6">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-5 bg-primary rounded-full"></div>
+            <h3 className="text-foreground font-semibold text-sm">Today's Performance</h3>
+          </div>
+          
+          <div className={cn("grid gap-4", isMobile ? "grid-cols-2" : "grid-cols-4")}>
+            {metrics.map((metric, index) => (
+              <div 
+                key={index}
+                className="relative rounded-2xl border border-border bg-card p-4 hover:shadow-sm transition-all duration-200"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className={cn("p-2 rounded-xl", metric.color)}>
+                    <metric.icon className="w-4 h-4 text-foreground/70" />
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {Math.round((metric.value / metric.target) * 100)}%
+                  </span>
+                </div>
+                
+                <div className="text-2xl font-bold text-foreground mb-1">
+                  {metric.value}
+                  <span className="text-sm font-normal text-muted-foreground ml-1">/ {metric.target}</span>
+                </div>
+                
+                <p className="text-xs text-muted-foreground mb-3">{metric.label}</p>
+                
+                {/* Progress bar - HotSheet style */}
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className={cn("h-full rounded-full transition-all duration-500", metric.barColor)}
+                    style={{ width: `${Math.min((metric.value / metric.target) * 100, 100)}%` }}
+                  />
+                </div>
               </div>
-              <div className="text-xs text-muted-foreground text-center">
-                Synced {relativeTime}
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Time/Status Panel */}
+        {isMobile && (
+          <div className="mt-5 flex items-center justify-between bg-muted/50 rounded-2xl px-4 py-3 border border-border">
+            <div className="flex items-center gap-3">
+              <span className="text-lg font-semibold font-mono text-foreground">
+                {formattedTime}
+              </span>
+              <div className="w-px h-4 bg-border"></div>
+              <div className="flex items-center gap-2">
+                <div className={cn(
+                  "w-2 h-2 rounded-full",
+                  isOnline ? "bg-[hsl(158,64%,52%)] animate-pulse" : "bg-destructive"
+                )}></div>
+                <span className="text-sm text-foreground">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
             </div>
-          )}
-        </div>
+            <Button
+              onClick={handleAircallLaunch}
+              size="sm"
+              className="h-9 w-9 p-0 rounded-full bg-primary hover:bg-primary-hover"
+              title="Launch Aircall CTI"
+            >
+              <PhoneCall className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

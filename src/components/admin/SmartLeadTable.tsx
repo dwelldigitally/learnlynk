@@ -116,55 +116,59 @@ export function SmartLeadTable({
   
   const columns = propColumns || DEFAULT_COLUMNS;
 
+  // HotSheet pastel status colors
   const getStatusColor = (status: LeadStatus) => {
     switch (status) {
-      case 'new': return 'bg-blue-500';
-      case 'contacted': return 'bg-yellow-500';
-      case 'qualified': return 'bg-green-500';
-      case 'nurturing': return 'bg-purple-500';
-      case 'converted': return 'bg-emerald-500';
-      case 'lost': return 'bg-red-500';
-      default: return 'bg-gray-500';
+      case 'new': return 'bg-sky-100 text-sky-700 border-sky-200';
+      case 'contacted': return 'bg-amber-100 text-amber-700 border-amber-200';
+      case 'qualified': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'nurturing': return 'bg-violet-100 text-violet-700 border-violet-200';
+      case 'converted': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+      case 'lost': return 'bg-rose-100 text-rose-700 border-rose-200';
+      default: return 'bg-muted text-muted-foreground border-border';
     }
   };
 
+  // Softer priority icons
   const getPriorityIcon = (priority: LeadPriority) => {
     switch (priority) {
-      case 'urgent': return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'high': return <Star className="h-4 w-4 text-orange-500" />;
-      case 'medium': return <Clock className="h-4 w-4 text-yellow-500" />;
-      case 'low': return <Clock className="h-4 w-4 text-gray-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-500" />;
+      case 'urgent': return <AlertTriangle className="h-4 w-4 text-rose-400" />;
+      case 'high': return <Star className="h-4 w-4 text-amber-400" />;
+      case 'medium': return <Clock className="h-4 w-4 text-yellow-400" />;
+      case 'low': return <Clock className="h-4 w-4 text-muted-foreground/60" />;
+      default: return <Clock className="h-4 w-4 text-muted-foreground/60" />;
     }
   };
 
+  // HotSheet pastel score colors
   const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-600 bg-green-50';
-    if (score >= 60) return 'text-yellow-600 bg-yellow-50';
-    if (score >= 40) return 'text-orange-600 bg-orange-50';
-    return 'text-red-600 bg-red-50';
+    if (score >= 80) return 'text-emerald-600 bg-emerald-50 border-emerald-100';
+    if (score >= 60) return 'text-amber-600 bg-amber-50 border-amber-100';
+    if (score >= 40) return 'text-orange-600 bg-orange-50 border-orange-100';
+    return 'text-rose-600 bg-rose-50 border-rose-100';
   };
 
+  // Pastel suggested action colors
   const getSuggestedAction = (lead: Lead) => {
     const daysSinceCreated = Math.floor((Date.now() - new Date(lead.created_at).getTime()) / (24 * 60 * 60 * 1000));
     const score = lead.lead_score || 0;
     
     if (!lead.last_contacted_at && daysSinceCreated > 2) {
-      return { action: 'Call Today', color: 'bg-red-100 text-red-700', icon: Phone };
+      return { action: 'Call Today', color: 'bg-rose-50 text-rose-600 border-rose-100', icon: Phone };
     }
     if (lead.priority === 'urgent') {
-      return { action: 'Priority Follow-up', color: 'bg-orange-100 text-orange-700', icon: AlertTriangle };
+      return { action: 'Priority Follow-up', color: 'bg-amber-50 text-amber-600 border-amber-100', icon: AlertTriangle };
     }
     if (score > 75) {
-      return { action: 'Send Application', color: 'bg-green-100 text-green-700', icon: ArrowRight };
+      return { action: 'Send Application', color: 'bg-emerald-50 text-emerald-600 border-emerald-100', icon: ArrowRight };
     }
     if (score > 50) {
-      return { action: 'Schedule Call', color: 'bg-blue-100 text-blue-700', icon: Phone };
+      return { action: 'Schedule Call', color: 'bg-sky-50 text-sky-600 border-sky-100', icon: Phone };
     }
     if (daysSinceCreated > 7) {
-      return { action: 'Re-engage Campaign', color: 'bg-purple-100 text-purple-700', icon: Mail };
+      return { action: 'Re-engage Campaign', color: 'bg-violet-50 text-violet-600 border-violet-100', icon: Mail };
     }
-    return { action: 'Send Welcome Email', color: 'bg-gray-100 text-gray-700', icon: Mail };
+    return { action: 'Send Welcome Email', color: 'bg-muted text-muted-foreground border-border', icon: Mail };
   };
 
   const handleSort = (column: string) => {
@@ -275,23 +279,23 @@ export function SmartLeadTable({
   return (
     <div className="space-y-4">
 
-      {/* Bulk Actions Bar */}
+      {/* Bulk Actions Bar - HotSheet Style */}
       {selectedLeadIds.length > 0 && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-2 border-primary/30 rounded-lg shadow-sm animate-in fade-in slide-in-from-top-2 duration-200 gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 bg-primary/5 border-2 border-primary/20 rounded-2xl animate-in fade-in slide-in-from-top-2 duration-200 gap-3">
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <div className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-semibold text-sm flex-shrink-0">
+            <div className="bg-primary text-primary-foreground rounded-full h-9 w-9 flex items-center justify-center font-semibold text-sm flex-shrink-0">
               {selectedLeadIds.length}
             </div>
-            <span className="text-sm font-semibold">
+            <span className="text-sm font-medium text-foreground">
               {selectedLeadIds.length} lead{selectedLeadIds.length > 1 ? 's' : ''} selected
             </span>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onSelectAll(false)}
-              className="h-7 px-2 hover:bg-destructive/10 ml-auto sm:ml-0"
+              className="h-8 px-3 hover:bg-destructive/10 hover:text-destructive ml-auto sm:ml-0 rounded-full"
             >
-              <X className="h-3 w-3 mr-1" />
+              <X className="h-3.5 w-3.5 mr-1" />
               Clear
             </Button>
           </div>
@@ -304,7 +308,10 @@ export function SmartLeadTable({
                   variant={bulkAction.variant}
                   size="sm"
                   onClick={() => onBulkAction(bulkAction.action, selectedLeadIds)}
-                  className="gap-2 flex-1 sm:flex-initial min-h-[44px]"
+                  className={cn(
+                    "gap-2 flex-1 sm:flex-initial min-h-[44px] rounded-full transition-all",
+                    bulkAction.variant === 'outline' && "border-border/60 hover:bg-muted/50 hover:border-primary/30"
+                  )}
                 >
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{bulkAction.label}</span>
@@ -313,16 +320,16 @@ export function SmartLeadTable({
             })}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="min-h-[44px]">
+                <Button variant="outline" size="sm" className="min-h-[44px] rounded-full border-border/60 hover:bg-muted/50">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-popover z-50">
-                <DropdownMenuItem onClick={() => onBulkAction('Trigger Journey', selectedLeadIds)}>
+              <DropdownMenuContent align="end" className="bg-popover z-50 rounded-xl border-border/60">
+                <DropdownMenuItem onClick={() => onBulkAction('Trigger Journey', selectedLeadIds)} className="rounded-lg">
                   <Zap className="h-4 w-4 mr-2" />
                   Trigger Journey
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onBulkAction('Delete Selected', selectedLeadIds)} className="text-destructive">
+                <DropdownMenuItem onClick={() => onBulkAction('Delete Selected', selectedLeadIds)} className="text-destructive rounded-lg">
                   <X className="h-4 w-4 mr-2" />
                   Delete Selected
                 </DropdownMenuItem>
@@ -332,24 +339,25 @@ export function SmartLeadTable({
         </div>
       )}
 
-      {/* Desktop Table - Hidden on Mobile */}
-      <div className="hidden md:block border rounded-lg overflow-hidden bg-card">
+      {/* Desktop Table - HotSheet Style */}
+      <div className="hidden md:block overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="p-4 text-left">
+              <tr className="border-b border-border/40 bg-muted/20">
+                <th className="p-5 text-left">
                   <Checkbox
                     checked={selectedLeadIds.length === leads.length && leads.length > 0}
                     onCheckedChange={onSelectAll}
+                    className="rounded-md"
                   />
                 </th>
                 {visibleColumns.map((column) => (
                   <th 
                     key={column.id}
                     className={cn(
-                      "p-4 text-left font-semibold group",
-                      column.sortable && "cursor-pointer hover:bg-muted/50"
+                      "p-5 text-left font-medium text-muted-foreground text-sm group",
+                      column.sortable && "cursor-pointer hover:text-foreground transition-colors"
                     )}
                     onClick={column.sortable ? () => handleSort(column.id) : undefined}
                   >
@@ -359,19 +367,19 @@ export function SmartLeadTable({
                     </div>
                   </th>
                 ))}
-                <th className="p-4 text-left font-semibold">Actions</th>
+                <th className="p-5 text-left font-medium text-muted-foreground text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={visibleColumns.length + 2} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={visibleColumns.length + 2} className="p-12 text-center text-muted-foreground">
                     Loading leads...
                   </td>
                 </tr>
               ) : sortedLeads.length === 0 ? (
                 <tr>
-                  <td colSpan={visibleColumns.length + 2} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={visibleColumns.length + 2} className="p-12 text-center text-muted-foreground">
                     No leads found
                   </td>
                 </tr>
@@ -385,15 +393,15 @@ export function SmartLeadTable({
                     switch (columnId) {
                       case 'name':
                         return (
-                          <td className="p-4">
+                          <td className="p-5">
                             <div className="flex items-center gap-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback>
+                              <Avatar className="h-9 w-9 border border-border/40">
+                                <AvatarFallback className="bg-muted/50 text-sm">
                                   {lead.first_name?.[0]}{lead.last_name?.[0]}
                                 </AvatarFallback>
                               </Avatar>
                               <div>
-                                <div className="font-medium">{lead.first_name} {lead.last_name}</div>
+                                <div className="font-medium text-foreground">{lead.first_name} {lead.last_name}</div>
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger>
@@ -402,7 +410,7 @@ export function SmartLeadTable({
                                         Last: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'MMM d') : 'Never'}
                                       </div>
                                     </TooltipTrigger>
-                                    <TooltipContent>
+                                    <TooltipContent className="rounded-xl">
                                       <p>Last contacted: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'PPP') : 'Never contacted'}</p>
                                     </TooltipContent>
                                   </Tooltip>
@@ -413,32 +421,32 @@ export function SmartLeadTable({
                         );
                       case 'email':
                         return (
-                          <td className="p-4">
-                            <div className="text-sm">{lead.email}</div>
-                            <div className="text-xs text-muted-foreground flex items-center gap-1">
-                              <div className={cn("w-2 h-2 rounded-full", "bg-green-500")} />
+                          <td className="p-5">
+                            <div className="text-sm text-foreground">{lead.email}</div>
+                            <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                               Valid
                             </div>
                           </td>
                         );
                       case 'phone':
                         return (
-                          <td className="p-4">
-                            <div className="text-sm">{lead.phone || '-'}</div>
+                          <td className="p-5">
+                            <div className="text-sm text-foreground">{lead.phone || '-'}</div>
                           </td>
                         );
                       case 'source':
                         return (
-                          <td className="p-4">
-                            <Badge variant="outline" className="text-xs">
+                          <td className="p-5">
+                            <Badge variant="outline" className="text-xs rounded-full px-3 py-1 border-border/60 bg-muted/30">
                               {lead.source.replace('_', ' ').toUpperCase()}
                             </Badge>
                           </td>
                         );
                       case 'created_at':
                         return (
-                          <td className="p-4">
-                            <div className="text-sm">{format(new Date(lead.created_at), 'MMM d, yyyy')}</div>
+                          <td className="p-5">
+                            <div className="text-sm text-foreground">{format(new Date(lead.created_at), 'MMM d, yyyy')}</div>
                             <div className="text-xs text-muted-foreground">
                               {format(new Date(lead.created_at), 'h:mm a')}
                             </div>
@@ -446,12 +454,12 @@ export function SmartLeadTable({
                         );
                       case 'last_activity':
                         return (
-                          <td className="p-4">
+                          <td className="p-5">
                             <div className="flex items-center gap-2">
                               {lead.last_contacted_at ? (
                                 <>
-                                  <Mail className="h-4 w-4 text-blue-500" />
-                                  <span className="text-sm">{Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (60 * 60 * 1000))}h ago</span>
+                                  <Mail className="h-4 w-4 text-sky-400" />
+                                  <span className="text-sm text-foreground">{Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (60 * 60 * 1000))}h ago</span>
                                 </>
                               ) : (
                                 <span className="text-sm text-muted-foreground">No activity</span>
@@ -461,16 +469,16 @@ export function SmartLeadTable({
                         );
                       case 'stage':
                         return (
-                          <td className="p-4">
-                            <Badge className={cn("text-white", getStatusColor(lead.status))}>
+                          <td className="p-5">
+                            <Badge className={cn("rounded-full px-3 py-1 text-xs font-medium border", getStatusColor(lead.status))}>
                               {lead.status.toUpperCase()}
                             </Badge>
                           </td>
                         );
                       case 'lead_score':
                         return (
-                          <td className="p-4">
-                            <div className={cn("inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium", getScoreColor(lead.lead_score || 0))}>
+                          <td className="p-5">
+                            <div className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border", getScoreColor(lead.lead_score || 0))}>
                               <TrendingUp className="h-3 w-3" />
                               {lead.lead_score || 0}
                             </div>
@@ -478,74 +486,75 @@ export function SmartLeadTable({
                         );
                       case 'priority':
                         return (
-                          <td className="p-4">
+                          <td className="p-5">
                             <div className="flex items-center gap-2">
                               {getPriorityIcon(lead.priority)}
-                              <span className="text-sm capitalize">{lead.priority}</span>
+                              <span className="text-sm capitalize text-foreground">{lead.priority}</span>
                             </div>
                           </td>
                         );
                       case 'assigned_to':
                         return (
-                          <td className="p-4">
+                          <td className="p-5">
                             <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span className="text-sm">{lead.assigned_to || 'Unassigned'}</span>
+                              <User className="h-4 w-4 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground">{lead.assigned_to || 'Unassigned'}</span>
                             </div>
                           </td>
                         );
                       case 'suggested_action':
                         return (
-                          <td className="p-4">
-                            <Badge className={cn("text-xs", suggestedAction.color)}>
-                              <ActionIcon className="h-3 w-3 mr-1" />
+                          <td className="p-5">
+                            <Badge className={cn("text-xs rounded-full px-3 py-1 font-medium border", suggestedAction.color)}>
+                              <ActionIcon className="h-3 w-3 mr-1.5" />
                               {suggestedAction.action}
                             </Badge>
                           </td>
                         );
                       default:
-                        return <td className="p-4">-</td>;
+                        return <td className="p-5">-</td>;
                     }
                   };
                   
                   return (
                     <tr 
                       key={lead.id} 
-                      className="border-b hover:bg-muted/30 transition-colors cursor-pointer"
+                      className="border-b border-border/30 hover:bg-muted/10 transition-colors cursor-pointer"
                       onClick={() => onLeadClick(lead)}
                     >
-                      <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                      <td className="p-5" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedLeadIds.includes(lead.id)}
                           onCheckedChange={() => onLeadSelect(lead.id)}
+                          className="rounded-md"
                         />
                       </td>
                       {visibleColumns.map((column) => renderCell(column.id))}
-                      <td className="p-4" onClick={(e) => e.stopPropagation()}>
+                      <td className="p-5" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-muted/50">
                               <MoreHorizontal className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
+                          <DropdownMenuContent align="end" className="rounded-xl border-border/60">
+                            <DropdownMenuItem className="rounded-lg">
                               <Phone className="h-4 w-4 mr-2" />
                               Call
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">
                               <Mail className="h-4 w-4 mr-2" />
                               Email
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">
                               <MessageSquare className="h-4 w-4 mr-2" />
                               SMS
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">
                               <Tag className="h-4 w-4 mr-2" />
                               Add Tag
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">
                               <ArrowRight className="h-4 w-4 mr-2" />
                               Move Stage
                             </DropdownMenuItem>
@@ -560,15 +569,15 @@ export function SmartLeadTable({
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between p-4 border-t bg-muted/20">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        {/* Pagination - HotSheet Style */}
+        <div className="flex items-center justify-between p-5 border-t border-border/40 bg-muted/10">
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
             <span>Show</span>
             <Select value={pageSize.toString()} onValueChange={(value) => onPageSizeChange(Number(value))}>
-              <SelectTrigger className="w-20 h-8">
+              <SelectTrigger className="w-20 h-9 rounded-xl border-border/60">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-xl">
                 <SelectItem value="25">25</SelectItem>
                 <SelectItem value="50">50</SelectItem>
                 <SelectItem value="100">100</SelectItem>
@@ -583,10 +592,11 @@ export function SmartLeadTable({
               size="sm"
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
+              className="rounded-full border-border/60 hover:bg-muted/50"
             >
               Previous
             </Button>
-            <span className="text-sm px-2">
+            <span className="text-sm px-3 text-foreground">
               Page {currentPage} of {Math.ceil(totalCount / pageSize)}
             </span>
             <Button
@@ -594,6 +604,7 @@ export function SmartLeadTable({
               size="sm"
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage >= Math.ceil(totalCount / pageSize)}
+              className="rounded-full border-border/60 hover:bg-muted/50"
             >
               Next
             </Button>
@@ -601,14 +612,14 @@ export function SmartLeadTable({
         </div>
       </div>
 
-      {/* Mobile Cards - Visible only on Mobile */}
+      {/* Mobile Cards - HotSheet Style */}
       <div className="md:hidden space-y-3">
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             Loading leads...
           </div>
         ) : sortedLeads.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
+          <div className="text-center py-12 text-muted-foreground">
             No leads found
           </div>
         ) : (
@@ -624,15 +635,15 @@ export function SmartLeadTable({
         )}
       </div>
 
-      {/* Mobile Pagination */}
-      <div className="md:hidden flex flex-col gap-4 p-4 border rounded-lg bg-card mt-4">
+      {/* Mobile Pagination - HotSheet Style */}
+      <div className="md:hidden flex flex-col gap-4 p-5 border border-border/40 rounded-2xl bg-card mt-4">
         <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
           <span>Page {currentPage} of {Math.ceil(totalCount / pageSize)}</span>
         </div>
         <div className="flex gap-2">
           <Button
             variant="outline"
-            className="flex-1"
+            className="flex-1 rounded-full border-border/60"
             onClick={() => onPageChange(currentPage - 1)}
             disabled={currentPage === 1}
           >
@@ -640,7 +651,7 @@ export function SmartLeadTable({
           </Button>
           <Button
             variant="outline"
-            className="flex-1"
+            className="flex-1 rounded-full border-border/60"
             onClick={() => onPageChange(currentPage + 1)}
             disabled={currentPage >= Math.ceil(totalCount / pageSize)}
           >

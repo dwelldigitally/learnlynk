@@ -34,6 +34,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { format } from 'date-fns';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
+
 export function LeadManagement() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -80,13 +81,13 @@ export function LeadManagement() {
     programs: [] as string[]
   });
   const [stageStats, setStageStats] = useState([
-    { key: 'NEW_INQUIRY', label: 'New Inquiry', count: 0, color: 'bg-blue-500' },
-    { key: 'QUALIFICATION', label: 'Qualification', count: 0, color: 'bg-orange-500' },
-    { key: 'NURTURING', label: 'Nurturing', count: 0, color: 'bg-purple-500' },
-    { key: 'PROPOSAL_SENT', label: 'Proposal Sent', count: 0, color: 'bg-yellow-500' },
-    { key: 'APPLICATION_STARTED', label: 'Application', count: 0, color: 'bg-indigo-500' },
-    { key: 'CONVERTED', label: 'Converted', count: 0, color: 'bg-green-500' },
-    { key: 'LOST', label: 'Lost', count: 0, color: 'bg-red-500' }
+    { key: 'NEW_INQUIRY', label: 'New Inquiry', count: 0, color: 'bg-sky-400' },
+    { key: 'QUALIFICATION', label: 'Qualification', count: 0, color: 'bg-amber-400' },
+    { key: 'NURTURING', label: 'Nurturing', count: 0, color: 'bg-violet-400' },
+    { key: 'PROPOSAL_SENT', label: 'Proposal Sent', count: 0, color: 'bg-yellow-400' },
+    { key: 'APPLICATION_STARTED', label: 'Application', count: 0, color: 'bg-indigo-400' },
+    { key: 'CONVERTED', label: 'Converted', count: 0, color: 'bg-emerald-400' },
+    { key: 'LOST', label: 'Lost', count: 0, color: 'bg-rose-400' }
   ]);
   const {
     toast
@@ -542,10 +543,10 @@ export function LeadManagement() {
     }
   ];
   return (
-    <div className="h-full flex flex-col bg-muted/30">
-      {/* Modern Header */}
-      <div className="border-b bg-card/50 backdrop-blur-sm">
-        <div className="px-4 sm:px-6 py-4 sm:py-6">
+    <div className="h-full flex flex-col bg-background">
+      {/* Modern Header - HotSheet Style */}
+      <div className="border-b border-border/40 bg-card">
+        <div className="px-4 sm:px-8 py-6 sm:py-8">
           <UnifiedLeadHeader
             stages={stageStats}
             activeStage={activeStage}
@@ -564,9 +565,9 @@ export function LeadManagement() {
         </div>
       </div>
 
-      {/* Main Content - Table with Modern Styling */}
+      {/* Main Content - Table with HotSheet Styling */}
       <div className="flex-1 overflow-hidden">
-        <div className="h-full p-4 sm:p-6">
+        <div className="h-full p-4 sm:p-8">
           <ConditionalDataWrapper
             isLoading={loading}
             showEmptyState={!hasDemoAccess && leads.length === 0}
@@ -576,7 +577,7 @@ export function LeadManagement() {
             emptyDescription="Create your first lead to get started with lead management."
             loadingRows={5}
           >
-            <ModernCard className="h-full flex flex-col overflow-hidden">
+            <div className="h-full flex flex-col overflow-hidden bg-card rounded-2xl border border-border/40">
               <div className="flex-1 overflow-auto">
                 <SmartLeadTable
                   leads={leads}
@@ -607,7 +608,7 @@ export function LeadManagement() {
                   columns={tableColumns}
                 />
               </div>
-            </ModernCard>
+            </div>
           </ConditionalDataWrapper>
         </div>
       </div>

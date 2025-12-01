@@ -488,21 +488,11 @@ export function AdvancedFormBuilder({ formId, onSave, onCancel }: AdvancedFormBu
                 </Card>
 
                 {/* Email Notifications Section */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mail className="h-5 w-5" />
-                      Email Notifications
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <EnhancedEmailNotifications
-                      config={emailNotifications}
-                      onConfigUpdate={setEmailNotifications}
-                      availablePrograms={programs}
-                    />
-                  </CardContent>
-                </Card>
+                <EnhancedEmailNotifications
+                  config={emailNotifications}
+                  onConfigUpdate={setEmailNotifications}
+                  availablePrograms={programs}
+                />
               </TabsContent>
 
               {/* Preview Tab */}

@@ -5,6 +5,8 @@ import type { AppRole } from '@/types/team-management';
 interface TeamInvitation {
   id: string;
   email: string;
+  first_name: string;
+  last_name: string | null;
   role: AppRole;
   invited_by: string;
   invite_token: string;
@@ -17,6 +19,8 @@ interface TeamInvitation {
 
 interface CreateInvitationParams {
   email: string;
+  first_name: string;
+  last_name?: string;
   role: AppRole;
   personal_message?: string;
 }

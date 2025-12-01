@@ -9292,9 +9292,11 @@ export type Database = {
           created_at: string | null
           email: string
           expires_at: string | null
+          first_name: string | null
           id: string
           invite_token: string
           invited_by: string | null
+          last_name: string | null
           personal_message: string | null
           role: string
           status: string | null
@@ -9305,9 +9307,11 @@ export type Database = {
           created_at?: string | null
           email: string
           expires_at?: string | null
+          first_name?: string | null
           id?: string
           invite_token?: string
           invited_by?: string | null
+          last_name?: string | null
           personal_message?: string | null
           role: string
           status?: string | null
@@ -9318,9 +9322,11 @@ export type Database = {
           created_at?: string | null
           email?: string
           expires_at?: string | null
+          first_name?: string | null
           id?: string
           invite_token?: string
           invited_by?: string | null
+          last_name?: string | null
           personal_message?: string | null
           role?: string
           status?: string | null

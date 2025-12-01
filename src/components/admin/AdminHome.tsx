@@ -1,9 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Search, Users, TrendingUp, FileText, DollarSign, CheckCircle2, Activity, MessageSquare, Calendar, Plus, StickyNote, Sparkles, AlertTriangle, Clock, Target, Mail, Phone, Building, UserPlus, Bell } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useProfile } from "@/hooks/useProfile";
@@ -16,7 +13,6 @@ import { QuickTaskModal } from "./QuickTaskModal";
 import { QuickNoteModal } from "./QuickNoteModal";
 import { QuickStudentLookupModal } from "./QuickStudentLookupModal";
 import { OutlookCalendarWidget } from "./OutlookCalendarWidget";
-import { OutlookEmailWidget } from "./OutlookEmailWidget";
 import { DashboardKPICard } from "./dashboard/DashboardKPICard";
 import { ActivityFeedItem, ActivityItem } from "./dashboard/ActivityFeedItem";
 import { PriorityActionCard, PriorityAction } from "./dashboard/PriorityActionCard";
@@ -25,22 +21,24 @@ import { AIRecommendationCard, AIRecommendation } from "./dashboard/AIRecommenda
 import { DashboardNotificationPanel, Notification } from "./dashboard/DashboardNotificationPanel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDemoDataAccess } from '@/services/demoDataService';
+import { 
+  HotSheetCard, 
+  IconContainer, 
+  PastelBadge, 
+  PillButton, 
+  HotSheetTabsList, 
+  HotSheetTabsTrigger,
+  HotSheetTabsTriggerCompact,
+  getPriorityColor
+} from '@/components/hotsheet';
+
 const AdminHome: React.FC = () => {
-  const {
-    profile
-  } = useProfile();
-  const {
-    user
-  } = useAuth();
+  const { profile } = useProfile();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const isMobile = useIsMobile();
-  const {
-    data: hasDemoAccess,
-    isLoading: isDemoLoading
-  } = useDemoDataAccess();
+  const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -61,31 +59,31 @@ const AdminHome: React.FC = () => {
     id: '1',
     title: 'Follow up with John Doe',
     description: 'Contact regarding program inquiry',
-    priority: 'urgent',
+    priority: 'urgent' as const,
     dueDate: 'Today, 2:00 PM'
   }, {
     id: '2',
     title: 'Review application documents',
     description: 'Sarah Johnson - Business Administration',
-    priority: 'high',
+    priority: 'high' as const,
     dueDate: 'Today, 4:00 PM'
   }, {
     id: '3',
     title: 'Approve payment request',
     description: 'Michael Chen - Semester 2 fees',
-    priority: 'medium',
+    priority: 'medium' as const,
     dueDate: 'Tomorrow, 10:00 AM'
   }, {
     id: '4',
     title: 'Schedule meeting with advisor',
     description: 'Weekly check-in',
-    priority: 'low',
+    priority: 'low' as const,
     dueDate: 'Friday, 3:00 PM'
   }, {
     id: '5',
     title: 'Update student records',
     description: 'Complete data entry for new enrollments',
-    priority: 'medium',
+    priority: 'medium' as const,
     dueDate: 'Tomorrow, 2:00 PM'
   }];
 
@@ -314,32 +312,6 @@ const AdminHome: React.FC = () => {
   }]);
 
   // Mock Chart Data
-  const leadSourceData = [{
-    name: 'Website',
-    value: 45
-  }, {
-    name: 'Referral',
-    value: 25
-  }, {
-    name: 'Social Media',
-    value: 20
-  }, {
-    name: 'Events',
-    value: 10
-  }];
-  const applicationPipelineData = [{
-    name: 'Inquiry',
-    value: 120
-  }, {
-    name: 'Applied',
-    value: 85
-  }, {
-    name: 'Accepted',
-    value: 60
-  }, {
-    name: 'Enrolled',
-    value: 45
-  }];
   const revenueData = [{
     name: 'Jan',
     value: 32000
@@ -365,45 +337,47 @@ const AdminHome: React.FC = () => {
     title: "Add Lead",
     description: "Capture new lead information",
     icon: UserPlus,
-    color: "bg-blue-500/10 text-blue-600 hover:bg-blue-500/20",
+    color: "sky" as const,
     onClick: () => navigate("/admin/leads")
   }, {
     title: "Student Lookup",
     description: "Find student information",
     icon: Users,
-    color: "bg-green-500/10 text-green-600 hover:bg-green-500/20",
+    color: "emerald" as const,
     onClick: () => setShowLookupModal(true)
   }, {
     title: "Send Message",
     description: "Communicate with students",
     icon: MessageSquare,
-    color: "bg-purple-500/10 text-purple-600 hover:bg-purple-500/20",
+    color: "violet" as const,
     onClick: () => setShowCommunicationModal(true)
   }, {
     title: "Create Task",
     description: "Add new task or reminder",
     icon: Plus,
-    color: "bg-orange-500/10 text-orange-600 hover:bg-orange-500/20",
+    color: "peach" as const,
     onClick: () => setShowTaskModal(true)
   }, {
     title: "Add Note",
     description: "Quick note creation",
     icon: StickyNote,
-    color: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20",
+    color: "amber" as const,
     onClick: () => setShowNoteModal(true)
   }, {
     title: "Schedule Meeting",
     description: "Book a new meeting",
     icon: Calendar,
-    color: "bg-pink-500/10 text-pink-600 hover:bg-pink-500/20",
+    color: "rose" as const,
     onClick: () => navigate("/admin/calendar")
   }];
+
   const handleMarkAsRead = (id: string) => {
     setNotifications(prev => prev.map(n => n.id === id ? {
       ...n,
       read: true
     } : n));
   };
+
   const handleMarkAllAsRead = () => {
     setNotifications(prev => prev.map(n => ({
       ...n,
@@ -413,9 +387,11 @@ const AdminHome: React.FC = () => {
       title: "All notifications marked as read"
     });
   };
+
   const handleDismiss = (id: string) => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -425,9 +401,20 @@ const AdminHome: React.FC = () => {
       });
     }
   };
-  return <div className="min-h-screen bg-background">
+
+  const getTaskPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'urgent': return 'rose';
+      case 'high': return 'peach';
+      case 'medium': return 'amber';
+      default: return 'sky';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
       {/* Hero Section with Greeting and KPIs */}
-      <div className="border-b bg-gradient-to-r from-primary/5 via-transparent to-accent/5">
+      <div className="border-b border-border/40 bg-card/50">
         <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
           {/* Greeting */}
           <div className="mb-4 sm:mb-6">
@@ -436,44 +423,57 @@ const AdminHome: React.FC = () => {
             </h1>
             <p className="text-muted-foreground">
               {new Date().toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
             </p>
           </div>
 
           {/* Demo Mode Banner */}
-          {!hasDemoAccess && !isDemoLoading && <Card className="mb-6 border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3">
-                  <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                      Welcome to Your Dashboard!
-                    </h3>
-                    <p className="text-sm text-blue-800 dark:text-blue-200 mb-3">
-                      Your dashboard is ready. Enable Demo Mode to see what it looks 
-                      like with data, or start adding your own leads and students.
-                    </p>
-                    <Button variant="outline" size="sm" onClick={() => navigate('/admin/profile')} className="border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900">
-                      Enable Demo Mode in Settings
-                    </Button>
-                  </div>
+          {!hasDemoAccess && !isDemoLoading && (
+            <HotSheetCard className="mb-6 border-sky-200 bg-sky-50/50 dark:bg-sky-950/50 dark:border-sky-800">
+              <div className="flex items-start gap-3">
+                <IconContainer color="sky" size="md">
+                  <Sparkles />
+                </IconContainer>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground mb-1">
+                    Welcome to Your Dashboard!
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3">
+                    Your dashboard is ready. Enable Demo Mode to see what it looks 
+                    like with data, or start adding your own leads and students.
+                  </p>
+                  <PillButton 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => navigate('/admin/profile')}
+                  >
+                    Enable Demo Mode in Settings
+                  </PillButton>
                 </div>
-              </CardContent>
-            </Card>}
+              </div>
+            </HotSheetCard>
+          )}
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            {(hasDemoAccess ? kpiData : emptyKpiData).map((kpi, index) => <DashboardKPICard key={index} {...kpi} />)}
+            {(hasDemoAccess ? kpiData : emptyKpiData).map((kpi, index) => (
+              <DashboardKPICard key={index} {...kpi} />
+            ))}
           </div>
 
           {/* AI Search Bar */}
           <form onSubmit={handleSearch} className="relative">
             <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
-            <Input placeholder={isMobile ? "🔍 AI Search..." : "🔍 AI Search: How can I help you today? Try 'Show me hot leads' or 'Students with incomplete documents'"} value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="pl-10 sm:pl-12 pr-10 sm:pr-4 h-11 sm:h-12 bg-card border-border text-sm sm:text-base" />
+            <Input 
+              placeholder={isMobile ? "🔍 AI Search..." : "🔍 AI Search: How can I help you today? Try 'Show me hot leads' or 'Students with incomplete documents'"} 
+              value={searchQuery} 
+              onChange={e => setSearchQuery(e.target.value)} 
+              className="pl-10 sm:pl-12 pr-10 sm:pr-4 h-11 sm:h-12 bg-card border-border/40 text-sm sm:text-base rounded-xl" 
+            />
             <Sparkles className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-primary" />
           </form>
         </div>
@@ -485,27 +485,35 @@ const AdminHome: React.FC = () => {
           {/* Left Column - Priority Dashboard */}
           <div className="lg:col-span-2 space-y-4 sm:space-y-6">
             {/* Priority Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="h-5 w-5 text-orange-600" />
-                  Today's Focus
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6">
+            <HotSheetCard padding="none">
+              <div className="p-6 pb-4 flex items-center gap-2">
+                <IconContainer color="peach" size="md">
+                  <AlertTriangle />
+                </IconContainer>
+                <h2 className="text-xl font-semibold">Today's Focus</h2>
+              </div>
+              <div className="px-6 pb-6">
                 <Tabs defaultValue="urgent" className="w-full">
-                  <TabsList className={`w-full mb-4 ${isMobile ? 'grid grid-cols-1 h-auto gap-1' : 'grid grid-cols-3'}`}>
-                    <TabsTrigger value="urgent" className="flex-1 text-xs sm:text-sm">Urgent Actions</TabsTrigger>
-                    <TabsTrigger value="schedule" className="flex-1 text-xs sm:text-sm">My Schedule</TabsTrigger>
-                    <TabsTrigger value="leads" className="flex-1 text-xs sm:text-sm">Hot Leads</TabsTrigger>
-                  </TabsList>
+                  <HotSheetTabsList className={`w-full mb-4 ${isMobile ? 'grid grid-cols-1 h-auto gap-1' : 'grid grid-cols-3'}`}>
+                    <HotSheetTabsTrigger value="urgent" className="flex-1 text-xs sm:text-sm">Urgent Actions</HotSheetTabsTrigger>
+                    <HotSheetTabsTrigger value="schedule" className="flex-1 text-xs sm:text-sm">My Schedule</HotSheetTabsTrigger>
+                    <HotSheetTabsTrigger value="leads" className="flex-1 text-xs sm:text-sm">Hot Leads</HotSheetTabsTrigger>
+                  </HotSheetTabsList>
 
                   <TabsContent value="urgent" className="space-y-3">
-                    {hasDemoAccess && priorityActions.length > 0 ? priorityActions.map(action => <PriorityActionCard key={action.id} action={action} />) : <div className="text-center py-8 text-muted-foreground">
-                        <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    {hasDemoAccess && priorityActions.length > 0 ? (
+                      priorityActions.map(action => (
+                        <PriorityActionCard key={action.id} action={action} />
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <IconContainer color="emerald" size="xl" className="mx-auto mb-2">
+                          <CheckCircle2 />
+                        </IconContainer>
                         <p className="font-medium">No urgent actions</p>
                         <p className="text-sm mt-1">You're all caught up! Great work.</p>
-                      </div>}
+                      </div>
+                    )}
                   </TabsContent>
 
                   <TabsContent value="schedule">
@@ -514,157 +522,202 @@ const AdminHome: React.FC = () => {
 
                   <TabsContent value="leads">
                     <div className="text-center py-8 text-muted-foreground">
-                      <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                      <IconContainer color="sky" size="xl" className="mx-auto mb-2">
+                        <Users />
+                      </IconContainer>
                       <p>No hot leads at the moment</p>
-                      <Button variant="link" className="mt-2" onClick={() => navigate('/admin/leads')}>
+                      <PillButton 
+                        variant="ghost" 
+                        className="mt-2" 
+                        onClick={() => navigate('/admin/leads')}
+                      >
                         View all leads
-                      </Button>
+                      </PillButton>
                     </div>
                   </TabsContent>
                 </Tabs>
-              </CardContent>
-            </Card>
-
-            {/* Activity Feed */}
-            <Card>
-              
-              
-            </Card>
+              </div>
+            </HotSheetCard>
 
             {/* Quick Actions Grid */}
-            <Card>
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-lg sm:text-xl">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 sm:p-6 pt-0">
+            <HotSheetCard padding="none">
+              <div className="p-4 sm:p-6 pb-4">
+                <h2 className="text-lg sm:text-xl font-semibold">Quick Actions</h2>
+              </div>
+              <div className="px-4 sm:px-6 pb-4 sm:pb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3">
                   {quickActions.map((action, index) => {
-                  const Icon = action.icon;
-                  return <Button key={index} variant="outline" className={`h-auto flex-col items-start p-3 sm:p-4 ${action.color} min-h-[80px]`} onClick={action.onClick}>
-                        <Icon className="h-4 w-4 sm:h-5 sm:w-5 mb-2" />
-                        <div className="text-left w-full">
-                          <div className="font-semibold text-xs sm:text-sm">{action.title}</div>
-                          <div className="text-xs opacity-80 hidden sm:block">{action.description}</div>
+                    const Icon = action.icon;
+                    return (
+                      <HotSheetCard 
+                        key={index} 
+                        hover 
+                        interactive 
+                        padding="md"
+                        onClick={action.onClick}
+                        className="min-h-[80px]"
+                      >
+                        <div className="flex items-start gap-3">
+                          <IconContainer color={action.color} size="md">
+                            <Icon />
+                          </IconContainer>
+                          <div className="text-left flex-1">
+                            <div className="font-semibold text-xs sm:text-sm">{action.title}</div>
+                            <div className="text-xs text-muted-foreground hidden sm:block">{action.description}</div>
+                          </div>
                         </div>
-                      </Button>;
-                })}
+                      </HotSheetCard>
+                    );
+                  })}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </HotSheetCard>
 
             {/* AI Recommendations */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  AI Recommendations
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {hasDemoAccess && aiRecommendations.length > 0 ? <div className="space-y-3">
-                    {aiRecommendations.map(rec => <AIRecommendationCard key={rec.id} recommendation={rec} />)}
-                  </div> : <div className="text-center py-8 text-muted-foreground">
-                    <Sparkles className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <HotSheetCard padding="none">
+              <div className="p-6 pb-4 flex items-center gap-2">
+                <IconContainer color="violet" size="md">
+                  <Sparkles />
+                </IconContainer>
+                <h2 className="text-xl font-semibold">AI Recommendations</h2>
+              </div>
+              <div className="px-6 pb-6">
+                {hasDemoAccess && aiRecommendations.length > 0 ? (
+                  <div className="space-y-3">
+                    {aiRecommendations.map(rec => (
+                      <AIRecommendationCard key={rec.id} recommendation={rec} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <IconContainer color="violet" size="xl" className="mx-auto mb-2">
+                      <Sparkles />
+                    </IconContainer>
                     <p className="font-medium">No recommendations yet</p>
                     <p className="text-sm mt-1">AI will analyze your data and provide insights soon.</p>
-                  </div>}
-              </CardContent>
-            </Card>
+                  </div>
+                )}
+              </div>
+            </HotSheetCard>
 
             {/* Quick Insights */}
-            {hasDemoAccess ? <>
-                
-
-                <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />
-              </> : <Card>
-                <CardHeader>
-                  <CardTitle>Quick Insights</CardTitle>
-                </CardHeader>
-                <CardContent>
+            {hasDemoAccess ? (
+              <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />
+            ) : (
+              <HotSheetCard padding="none">
+                <div className="p-6 pb-4">
+                  <h2 className="text-xl font-semibold">Quick Insights</h2>
+                </div>
+                <div className="px-6 pb-6">
                   <div className="text-center py-8 text-muted-foreground">
-                    <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                    <IconContainer color="emerald" size="xl" className="mx-auto mb-2">
+                      <TrendingUp />
+                    </IconContainer>
                     <p className="font-medium">No insights available</p>
                     <p className="text-sm mt-1">Start adding data to see analytics and trends.</p>
                   </div>
-                </CardContent>
-              </Card>}
-
-            {/* Integration Widgets */}
-            
+                </div>
+              </HotSheetCard>
+            )}
           </div>
 
           {/* Right Column - Notifications, Tasks & Activity Feed */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-6">
+            <HotSheetCard padding="none" className="sticky top-6">
               <Tabs defaultValue="notifications" className="w-full">
-                <CardHeader className="pb-3">
-                  <TabsList className="grid w-full grid-cols-3 gap-1">
-                    <TabsTrigger value="notifications" className="text-xs">
+                <div className="p-6 pb-3">
+                  <HotSheetTabsList className="grid w-full grid-cols-3 gap-1">
+                    <HotSheetTabsTriggerCompact value="notifications" className="text-xs">
                       <Bell className="h-4 w-4 mr-1" />
                       <span className="hidden sm:inline">Alerts</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="tasks" className="text-xs">
+                    </HotSheetTabsTriggerCompact>
+                    <HotSheetTabsTriggerCompact value="tasks" className="text-xs">
                       <CheckCircle2 className="h-4 w-4 mr-1" />
                       <span className="hidden sm:inline">Tasks</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="activity" className="text-xs">
+                    </HotSheetTabsTriggerCompact>
+                    <HotSheetTabsTriggerCompact value="activity" className="text-xs">
                       <Activity className="h-4 w-4 mr-1" />
                       <span className="hidden sm:inline">Activity</span>
-                    </TabsTrigger>
-                  </TabsList>
-                </CardHeader>
+                    </HotSheetTabsTriggerCompact>
+                  </HotSheetTabsList>
+                </div>
                 
-                <CardContent className="p-0">
-                  <TabsContent value="notifications" className="mt-0">
-                    <DashboardNotificationPanel notifications={notifications} onMarkAsRead={handleMarkAsRead} onMarkAllAsRead={handleMarkAllAsRead} onDismiss={handleDismiss} />
-                  </TabsContent>
-                  
-                  <TabsContent value="tasks" className="mt-0">
-                    <ScrollArea className="h-[600px]">
-                      <div className="space-y-3 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-sm font-semibold text-foreground">My Tasks</h3>
-                          <Badge variant="secondary">{hasDemoAccess ? mockTasks.length : 0}</Badge>
-                        </div>
-                        {hasDemoAccess && mockTasks.length > 0 ? mockTasks.map(task => <div key={task.id} className="p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer">
-                              <div className="flex items-start gap-3">
-                                <Checkbox className="mt-1" />
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="text-sm font-medium text-foreground">{task.title}</h4>
-                                  <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
-                                  <div className="flex items-center gap-2 mt-2">
-                                    <Badge variant="outline" className={`text-xs ${task.priority === 'urgent' ? 'bg-red-500/10 text-red-600 border-red-200' : task.priority === 'high' ? 'bg-orange-500/10 text-orange-600 border-orange-200' : task.priority === 'medium' ? 'bg-yellow-500/10 text-yellow-600 border-yellow-200' : 'bg-blue-500/10 text-blue-600 border-blue-200'}`}>
-                                      {task.priority}
-                                    </Badge>
-                                    <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                      <Clock className="h-3 w-3" />
-                                      {task.dueDate}
-                                    </span>
-                                  </div>
+                <TabsContent value="notifications" className="mt-0 p-0">
+                  <DashboardNotificationPanel 
+                    notifications={notifications} 
+                    onMarkAsRead={handleMarkAsRead} 
+                    onMarkAllAsRead={handleMarkAllAsRead} 
+                    onDismiss={handleDismiss} 
+                  />
+                </TabsContent>
+                
+                <TabsContent value="tasks" className="mt-0">
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-3 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold text-foreground">My Tasks</h3>
+                        <PastelBadge color="slate" size="sm">
+                          {hasDemoAccess ? mockTasks.length : 0}
+                        </PastelBadge>
+                      </div>
+                      {hasDemoAccess && mockTasks.length > 0 ? (
+                        mockTasks.map(task => (
+                          <div 
+                            key={task.id} 
+                            className="p-3 rounded-xl border border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-200 cursor-pointer"
+                          >
+                            <div className="flex items-start gap-3">
+                              <Checkbox className="mt-1" />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-foreground">{task.title}</h4>
+                                <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                  <PastelBadge 
+                                    color={getTaskPriorityColor(task.priority) as any} 
+                                    size="sm"
+                                  >
+                                    {task.priority}
+                                  </PastelBadge>
+                                  <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {task.dueDate}
+                                  </span>
                                 </div>
                               </div>
-                            </div>) : <div className="text-center py-12 text-muted-foreground">
-                            <CheckCircle2 className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                            <p className="font-medium">No tasks yet</p>
-                            <p className="text-sm mt-1">Create tasks to stay organized.</p>
-                          </div>}
-                      </div>
-                    </ScrollArea>
-                  </TabsContent>
-                  
-                  <TabsContent value="activity" className="mt-0">
-                    <ScrollArea className="h-[600px]">
-                      <div className="space-y-3 p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <IconContainer color="emerald" size="xl" className="mx-auto mb-2">
+                            <CheckCircle2 />
+                          </IconContainer>
+                          <p className="font-medium">No tasks yet</p>
+                          <p className="text-sm mt-1">Create tasks to stay organized.</p>
                         </div>
-                        {activityFeed.map(activity => <ActivityFeedItem key={activity.id} activity={activity} onClick={() => console.log('View activity:', activity.id)} />)}
+                      )}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+                
+                <TabsContent value="activity" className="mt-0">
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-3 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-sm font-semibold text-foreground">Recent Activity</h3>
                       </div>
-                    </ScrollArea>
-                  </TabsContent>
-                </CardContent>
+                      {activityFeed.map(activity => (
+                        <ActivityFeedItem 
+                          key={activity.id} 
+                          activity={activity} 
+                          onClick={() => console.log('View activity:', activity.id)} 
+                        />
+                      ))}
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
               </Tabs>
-            </Card>
+            </HotSheetCard>
           </div>
         </div>
       </div>
@@ -674,6 +727,8 @@ const AdminHome: React.FC = () => {
       <QuickTaskModal open={showTaskModal} onOpenChange={setShowTaskModal} />
       <QuickNoteModal open={showNoteModal} onOpenChange={setShowNoteModal} />
       <QuickStudentLookupModal open={showLookupModal} onOpenChange={setShowLookupModal} />
-    </div>;
+    </div>
+  );
 };
+
 export default AdminHome;

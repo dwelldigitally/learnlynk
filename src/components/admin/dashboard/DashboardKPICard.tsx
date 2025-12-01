@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { LucideIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { HotSheetCard, IconContainer, PastelBadge, getTrendColor } from '@/components/hotsheet';
 
 interface DashboardKPICardProps {
   title: string;
@@ -33,45 +33,34 @@ export const DashboardKPICard: React.FC<DashboardKPICardProps> = ({
     }
   };
 
-  const getTrendColor = () => {
-    switch (trend) {
-      case 'up':
-        return 'text-green-600';
-      case 'down':
-        return 'text-red-600';
-      default:
-        return 'text-muted-foreground';
-    }
-  };
+  const trendColor = getTrendColor(trend);
 
   return (
-    <Card 
-      className={cn(
-        "transition-all duration-300 hover:shadow-lg",
-        onClick && "cursor-pointer hover:border-primary/50",
-        className
-      )}
+    <HotSheetCard 
+      hover
+      interactive={!!onClick}
       onClick={onClick}
+      className={className}
+      padding="md"
     >
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
-            <p className="text-3xl font-bold text-foreground">{value}</p>
-            {trendValue && (
-              <div className={cn("flex items-center gap-1 mt-2 text-xs font-medium", getTrendColor())}>
-                {getTrendIcon()}
-                <span>{trendValue}</span>
-              </div>
-            )}
-          </div>
-          <div className="ml-4">
-            <div className="p-3 rounded-full bg-primary/10">
-              <Icon className="h-6 w-6 text-primary" />
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <p className="text-sm font-medium text-muted-foreground mb-1">{title}</p>
+          <p className="text-3xl font-bold text-foreground">{value}</p>
+          {trendValue && (
+            <div className="mt-2">
+              <PastelBadge color={trendColor} size="sm" icon={getTrendIcon()}>
+                {trendValue}
+              </PastelBadge>
             </div>
-          </div>
+          )}
         </div>
-      </CardContent>
-    </Card>
+        <div className="ml-4">
+          <IconContainer color="primary" size="lg">
+            <Icon />
+          </IconContainer>
+        </div>
+      </div>
+    </HotSheetCard>
   );
 };

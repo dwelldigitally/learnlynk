@@ -11,8 +11,9 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { ConditionBuilder } from './ConditionBuilder';
 import { TargetSelector } from './TargetSelector';
+import { EnrollmentSettingsStep } from './EnrollmentSettingsStep';
 import { EnhancedRoutingRule, ConditionGroup } from '@/types/routing';
-import { ChevronLeft, ChevronRight, Check, Settings, Eye, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Settings, Eye, Users, RefreshCw } from 'lucide-react';
 
 interface RuleWizardProps {
   onSave: (rule: Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'>) => void;
@@ -24,6 +25,7 @@ const WIZARD_STEPS = [
   { id: 'basics', title: 'Rule Basics', icon: Settings },
   { id: 'conditions', title: 'Conditions', icon: Users },
   { id: 'assignment', title: 'Assignment & Targets', icon: Users },
+  { id: 'enrollment', title: 'Enrollment Settings', icon: RefreshCw },
   { id: 'preview', title: 'Preview', icon: Eye }
 ];
 
@@ -65,6 +67,11 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
       track_analytics: true,
       conversion_weight: 0.7,
       response_time_weight: 0.3
+    },
+    enrollment_config: editingRule?.enrollment_config || {
+      enroll_existing: false,
+      only_unassigned: true,
+      notify_advisors: true
     }
   });
 
@@ -184,6 +191,14 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
               }
             />
           </div>
+        );
+
+      case 'enrollment':
+        return (
+          <EnrollmentSettingsStep
+            data={formData}
+            onDataChange={(updates) => setFormData(prev => ({ ...prev, ...updates }))}
+          />
         );
 
       case 'assignment':

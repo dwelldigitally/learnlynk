@@ -3601,6 +3601,7 @@ export type Database = {
           conditions: Json
           created_at: string
           description: string | null
+          enrollment_config: Json | null
           id: string
           is_active: boolean
           name: string
@@ -3613,6 +3614,7 @@ export type Database = {
           conditions: Json
           created_at?: string
           description?: string | null
+          enrollment_config?: Json | null
           id?: string
           is_active?: boolean
           name: string
@@ -3625,6 +3627,7 @@ export type Database = {
           conditions?: Json
           created_at?: string
           description?: string | null
+          enrollment_config?: Json | null
           id?: string
           is_active?: boolean
           name?: string
@@ -6757,6 +6760,62 @@ export type Database = {
             columns: ["permission_id"]
             isOneToOne: false
             referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      routing_enrollment_logs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          enrollment_type: string
+          error_message: string | null
+          id: string
+          leads_assigned: number
+          leads_processed: number
+          leads_skipped: number
+          options: Json | null
+          rule_id: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          enrollment_type: string
+          error_message?: string | null
+          id?: string
+          leads_assigned?: number
+          leads_processed?: number
+          leads_skipped?: number
+          options?: Json | null
+          rule_id: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          enrollment_type?: string
+          error_message?: string | null
+          id?: string
+          leads_assigned?: number
+          leads_processed?: number
+          leads_skipped?: number
+          options?: Json | null
+          rule_id?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routing_enrollment_logs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "lead_routing_rules"
             referencedColumns: ["id"]
           },
         ]

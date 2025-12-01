@@ -7,9 +7,10 @@ import { AssignmentMethod } from '@/types/lead';
 import { EnhancedRoutingRule } from '@/types/routing';
 import { supabase } from '@/integrations/supabase/client';
 import { RuleWizard } from './routing/RuleWizard';
+import { ReEnrollDialog } from './routing/ReEnrollDialog';
 import { TeamManagement } from './routing/TeamManagement';
 import { AdvisorManagement } from './routing/AdvisorManagement';
-import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck, MoreVertical, Filter, GitBranch, Power, PowerOff } from 'lucide-react';
+import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck, MoreVertical, Filter, GitBranch, Power, PowerOff, RefreshCw } from 'lucide-react';
 import { ConditionGroupsDisplay, AssignmentDisplay, getPriorityColor } from './routing/RuleCardHelpers';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 interface LeadRoutingRulesProps {
@@ -21,6 +22,7 @@ export function LeadRoutingRules({
   const [rules, setRules] = useState<EnhancedRoutingRule[]>([]);
   const [showRuleWizard, setShowRuleWizard] = useState(false);
   const [editingRule, setEditingRule] = useState<EnhancedRoutingRule | null>(null);
+  const [reEnrollRule, setReEnrollRule] = useState<EnhancedRoutingRule | null>(null);
   const [activeView, setActiveView] = useState<'rules' | 'teams' | 'advisors'>('rules');
   const [loading, setLoading] = useState(false);
   const {
@@ -264,6 +266,10 @@ export function LeadRoutingRules({
                         <Edit className="h-4 w-4 mr-2" />
                         Edit Rule
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setReEnrollRule(rule)}>
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Re-enroll Existing Leads
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => handleDelete(rule.id)} className="text-destructive focus:text-destructive">
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -386,5 +392,21 @@ export function LeadRoutingRules({
             </div>}
         </div>
       </div>
+
+      {/* Re-enroll Dialog */}
+      {reEnrollRule && (
+        <ReEnrollDialog
+          open={!!reEnrollRule}
+          onOpenChange={(open) => !open && setReEnrollRule(null)}
+          rule={reEnrollRule}
+          onSuccess={() => {
+            fetchRules();
+            toast({
+              title: "Re-enrollment Complete",
+              description: `Successfully re-enrolled leads for "${reEnrollRule.name}"`
+            });
+          }}
+        />
+      )}
     </div>;
 }

@@ -35,10 +35,13 @@ import {
   XCircle,
   ArrowRight,
   Settings,
-  MoreHorizontal
+  MoreHorizontal,
+  Loader2
 } from 'lucide-react';
 import { format, isValid, parseISO } from 'date-fns';
 import { toast } from 'sonner';
+import { useActiveCampuses } from '@/hooks/useCampuses';
+import { usePrograms } from '@/hooks/usePrograms';
 
 // Helper function to safely format dates
 const safeFormatDate = (dateString: string, formatString: string = 'MMM d'): string => {
@@ -112,9 +115,9 @@ interface StudentData {
 }
 
 // Generate dummy data
-const generateDummyIntakes = (): IntakeData[] => {
-  const programs = ['Health Care Assistant', 'Education Assistant', 'Aviation', 'Hospitality', 'ECE', 'MLA'];
-  const campuses = ['Surrey', 'Vancouver', 'Richmond', 'Burnaby'];
+const generateDummyIntakes = (programNames: string[], campusNames: string[]): IntakeData[] => {
+  const programs = programNames.length > 0 ? programNames : ['Health Care Assistant', 'Education Assistant', 'Aviation', 'Hospitality', 'ECE', 'MLA'];
+  const campuses = campusNames.length > 0 ? campusNames : ['Surrey', 'Vancouver', 'Richmond', 'Burnaby'];
   const statuses = ['active', 'planning', 'closed'] as const;
   const salesApproaches = ['aggressive', 'balanced', 'conservative'] as const;
 
@@ -203,7 +206,13 @@ const generateStudents = (intakeId: string, count: number): StudentData[] => {
 };
 
 export function IntakePipelineManagement() {
-  const [intakes, setIntakes] = useState<IntakeData[]>(generateDummyIntakes());
+  const { data: dbCampuses = [], isLoading: campusesLoading } = useActiveCampuses();
+  const { data: dbPrograms = [], isLoading: programsLoading } = usePrograms();
+  
+  const programNames = dbPrograms.map(p => p.name);
+  const campusNames = dbCampuses.map(c => c.name);
+  
+  const [intakes, setIntakes] = useState<IntakeData[]>([]);
   const [selectedIntake, setSelectedIntake] = useState<IntakeData | null>(null);
   const [activeTab, setActiveTab] = useState('leads');
   const [searchQuery, setSearchQuery] = useState('');
@@ -223,6 +232,13 @@ export function IntakePipelineManagement() {
     endDate: '',
     waitlistEnabled: false
   });
+  
+  // Initialize dummy intakes with real data when available
+  React.useEffect(() => {
+    if (!campusesLoading && !programsLoading) {
+      setIntakes(generateDummyIntakes(programNames, campusNames));
+    }
+  }, [campusesLoading, programsLoading, programNames.join(','), campusNames.join(',')]);
 
   // AI Recommendations data
   const getAIRecommendations = (intake: IntakeData) => {
@@ -427,31 +443,53 @@ export function IntakePipelineManagement() {
                     </div>
                     <div>
                       <Label htmlFor="program">Program</Label>
-                      <Select value={newIntake.program} onValueChange={(value) => setNewIntake(prev => ({ ...prev, program: value }))}>
+                      <Select value={newIntake.program} onValueChange={(value) => setNewIntake(prev => ({ ...prev, program: value }))} disabled={programsLoading}>
                         <SelectTrigger className="mt-1.5">
-                          <SelectValue placeholder="Select program" />
+                          {programsLoading ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Loading...
+                            </span>
+                          ) : (
+                            <SelectValue placeholder="Select program" />
+                          )}
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
-                          <SelectItem value="Education Assistant">Education Assistant</SelectItem>
-                          <SelectItem value="Aviation">Aviation</SelectItem>
-                          <SelectItem value="Hospitality">Hospitality</SelectItem>
-                          <SelectItem value="ECE">ECE</SelectItem>
-                          <SelectItem value="MLA">MLA</SelectItem>
+                          {dbPrograms.length === 0 ? (
+                            <SelectItem value="" disabled>No programs configured</SelectItem>
+                          ) : (
+                            dbPrograms.map((program) => (
+                              <SelectItem key={program.id} value={program.name}>
+                                {program.name}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
                       <Label htmlFor="campus">Campus</Label>
-                      <Select value={newIntake.campus} onValueChange={(value) => setNewIntake(prev => ({ ...prev, campus: value }))}>
+                      <Select value={newIntake.campus} onValueChange={(value) => setNewIntake(prev => ({ ...prev, campus: value }))} disabled={campusesLoading}>
                         <SelectTrigger className="mt-1.5">
-                          <SelectValue placeholder="Select campus" />
+                          {campusesLoading ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Loading...
+                            </span>
+                          ) : (
+                            <SelectValue placeholder="Select campus" />
+                          )}
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Surrey">Surrey</SelectItem>
-                          <SelectItem value="Vancouver">Vancouver</SelectItem>
-                          <SelectItem value="Richmond">Richmond</SelectItem>
-                          <SelectItem value="Burnaby">Burnaby</SelectItem>
+                          {dbCampuses.length === 0 ? (
+                            <SelectItem value="" disabled>No campuses configured</SelectItem>
+                          ) : (
+                            dbCampuses.map((campus) => (
+                              <SelectItem key={campus.id} value={campus.name}>
+                                {campus.name}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
@@ -534,12 +572,11 @@ export function IntakePipelineManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Programs</SelectItem>
-                <SelectItem value="Health Care Assistant">Health Care Assistant</SelectItem>
-                <SelectItem value="Education Assistant">Education Assistant</SelectItem>
-                <SelectItem value="Aviation">Aviation</SelectItem>
-                <SelectItem value="Hospitality">Hospitality</SelectItem>
-                <SelectItem value="ECE">ECE</SelectItem>
-                <SelectItem value="MLA">MLA</SelectItem>
+                {dbPrograms.map((program) => (
+                  <SelectItem key={program.id} value={program.name}>
+                    {program.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 
@@ -549,10 +586,11 @@ export function IntakePipelineManagement() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Campuses</SelectItem>
-                <SelectItem value="Surrey">Surrey</SelectItem>
-                <SelectItem value="Vancouver">Vancouver</SelectItem>
-                <SelectItem value="Richmond">Richmond</SelectItem>
-                <SelectItem value="Burnaby">Burnaby</SelectItem>
+                {dbCampuses.map((campus) => (
+                  <SelectItem key={campus.id} value={campus.name}>
+                    {campus.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
 

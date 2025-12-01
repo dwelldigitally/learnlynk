@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Calendar, Users, Building2, BookOpen } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar, Users, Building2, BookOpen, Loader2 } from 'lucide-react';
 import { IntakeService, IntakeData } from '@/services/intakeService';
 import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
 import { InfoBadge } from '@/components/modern/InfoBadge';
 import { MetadataItem } from '@/components/modern/MetadataItem';
+import { useActiveCampuses } from '@/hooks/useCampuses';
 
 interface IntakeManagementProps {
   programId: string;
@@ -42,6 +43,7 @@ export const IntakeManagement: React.FC<IntakeManagementProps> = ({
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { data: campuses = [], isLoading: campusesLoading } = useActiveCampuses();
 
   const resetForm = () => {
     setFormData({
@@ -234,15 +236,28 @@ export const IntakeManagement: React.FC<IntakeManagementProps> = ({
                   <Select
                     value={formData.campus}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, campus: value }))}
+                    disabled={campusesLoading}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select campus" />
+                      {campusesLoading ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Loading...
+                        </span>
+                      ) : (
+                        <SelectValue placeholder="Select campus" />
+                      )}
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Surrey">Surrey</SelectItem>
-                      <SelectItem value="Vancouver">Vancouver</SelectItem>
-                      <SelectItem value="Richmond">Richmond</SelectItem>
-                      <SelectItem value="Burnaby">Burnaby</SelectItem>
+                      {campuses.length === 0 ? (
+                        <SelectItem value="" disabled>No campuses configured</SelectItem>
+                      ) : (
+                        campuses.map((campus) => (
+                          <SelectItem key={campus.id} value={campus.name}>
+                            {campus.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

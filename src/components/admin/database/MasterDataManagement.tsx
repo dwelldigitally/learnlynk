@@ -7,13 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, MapPin, CreditCard, GraduationCap } from 'lucide-react';
+import { Plus, Edit, Trash2, MapPin, CreditCard, GraduationCap, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { RequirementsManagement as RequirementsManagementComponent } from './RequirementsManagement';
+import { useCampuses } from '@/hooks/useCampuses';
 
 export const MasterDataManagement = () => {
-  const [campuses, setCampuses] = useState([]);
+  const { data: campuses = [], isLoading: campusesLoading, refetch: refetchCampuses } = useCampuses();
   const [paymentTypes, setPaymentTypes] = useState([]);
   const [requirements, setRequirements] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,13 +28,7 @@ export const MasterDataManagement = () => {
     try {
       setIsLoading(true);
       
-      // Use sample data that matches the database structure for now
-      setCampuses([
-        { id: '1', name: 'Sydney Campus', location: 'Sydney CBD', country: 'Australia', is_active: true },
-        { id: '2', name: 'Melbourne Campus', location: 'Melbourne CBD', country: 'Australia', is_active: true },
-        { id: '3', name: 'Brisbane Campus', location: 'Brisbane City', country: 'Australia', is_active: false }
-      ]);
-      
+      // Payment types and requirements still use sample data
       setPaymentTypes([
         { id: '1', name: 'Credit Card', description: 'Visa, MasterCard, AMEX accepted', is_active: true },
         { id: '2', name: 'Bank Transfer', description: 'Direct bank transfer', is_active: true },
@@ -48,12 +43,6 @@ export const MasterDataManagement = () => {
         { id: '4', name: 'Portfolio', description: 'Design or project portfolio', type: 'Creative', is_required: false }
       ]);
 
-      console.log('Master data loaded:', { campuses: campuses.length, paymentTypes: paymentTypes.length, requirements: requirements.length });
-      
-      toast({
-        title: "Success",
-        description: "Master data loaded successfully",
-      });
     } catch (error) {
       console.error('Error fetching master data:', error);
       toast({
@@ -79,58 +68,77 @@ export const MasterDataManagement = () => {
         </Button>
       </div>
 
-      <div className="grid gap-4">
-        {campuses.map((campus: any) => (
-          <Card key={campus.id}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <div>
-                    <CardTitle className="text-base">{campus.name}</CardTitle>
-                    <CardDescription>{campus.location}</CardDescription>
+      {campusesLoading ? (
+        <div className="flex items-center justify-center py-8">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <span className="ml-2 text-muted-foreground">Loading campuses...</span>
+        </div>
+      ) : campuses.length === 0 ? (
+        <div className="text-center py-8 bg-muted/30 rounded-lg border-2 border-dashed border-border">
+          <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-semibold mb-2">No campuses configured</h3>
+          <p className="text-muted-foreground mb-4">
+            Add your first campus location to get started
+          </p>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            Add First Campus
+          </Button>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {campuses.map((campus: any) => (
+            <Card key={campus.id}>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <div>
+                      <CardTitle className="text-base">{campus.name}</CardTitle>
+                      <CardDescription>{campus.city || campus.address || 'No location set'}</CardDescription>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant={campus.is_active ? 'default' : 'secondary'}>
+                      {campus.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
+                    <Button variant="ghost" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm">
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <Badge variant={campus.is_active ? 'default' : 'secondary'}>
-                    {campus.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                  <Button variant="ghost" size="sm">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button variant="ghost" size="sm">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Campus Name</Label>
+                    <Input value={campus.name} readOnly />
+                  </div>
+                  <div>
+                    <Label>City</Label>
+                    <Input value={campus.city || ''} readOnly />
+                  </div>
+                  <div className="col-span-2">
+                    <Label>Address</Label>
+                    <Textarea value={campus.address || ''} readOnly placeholder="No address set" />
+                  </div>
+                  <div>
+                    <Label>Contact Phone</Label>
+                    <Input value={campus.phone || ''} readOnly placeholder="Not set" />
+                  </div>
+                  <div>
+                    <Label>Contact Email</Label>
+                    <Input value={campus.email || ''} readOnly placeholder="Not set" />
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Campus Name</Label>
-                  <Input value={campus.name} />
-                </div>
-                <div>
-                  <Label>Location</Label>
-                  <Input value={campus.location} />
-                </div>
-                <div className="col-span-2">
-                  <Label>Address</Label>
-                  <Textarea placeholder="Full campus address..." />
-                </div>
-                <div>
-                  <Label>Contact Phone</Label>
-                  <Input placeholder="+1 (555) 123-4567" />
-                </div>
-                <div>
-                  <Label>Contact Email</Label>
-                  <Input placeholder="campus@university.edu" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 

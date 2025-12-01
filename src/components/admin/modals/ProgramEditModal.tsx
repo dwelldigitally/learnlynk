@@ -2,7 +2,6 @@ import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
@@ -10,6 +9,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
+import { useActiveCampuses } from "@/hooks/useCampuses";
 
 interface Program {
   id: string;
@@ -48,7 +49,6 @@ const programEditSchema = z.object({
 type ProgramEditForm = z.infer<typeof programEditSchema>;
 
 const programTypes = ["Certificate", "Diploma", "Bachelor", "Master"];
-const campuses = ["Surrey Campus", "Vancouver Campus", "Richmond Campus", "Burnaby Campus"];
 const statuses = ["active", "inactive", "pending"];
 const colors = [
   { name: "Blue", value: "#3B82F6" },
@@ -62,6 +62,7 @@ const colors = [
 ];
 
 export const ProgramEditModal = ({ isOpen, onClose, program, onSave }: ProgramEditModalProps) => {
+  const { data: campuses = [], isLoading: campusesLoading } = useActiveCampuses();
   const form = useForm<ProgramEditForm>({
     resolver: zodResolver(programEditSchema),
     defaultValues: {
@@ -198,18 +199,29 @@ export const ProgramEditModal = ({ isOpen, onClose, program, onSave }: ProgramEd
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Campus</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={campusesLoading}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select campus" />
+                          {campusesLoading ? (
+                            <span className="flex items-center gap-2">
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                              Loading...
+                            </span>
+                          ) : (
+                            <SelectValue placeholder="Select campus" />
+                          )}
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus} value={campus}>
-                            {campus}
-                          </SelectItem>
-                        ))}
+                        {campuses.length === 0 ? (
+                          <SelectItem value="" disabled>No campuses configured</SelectItem>
+                        ) : (
+                          campuses.map((campus) => (
+                            <SelectItem key={campus.id} value={campus.name}>
+                              {campus.name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />

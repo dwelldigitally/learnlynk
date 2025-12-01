@@ -20,9 +20,11 @@ import {
   ImageIcon,
   FileText,
   Type,
-  Hash
+  Hash,
+  Loader2
 } from "lucide-react";
 import { Program } from "@/types/program";
+import { useActiveCampuses } from "@/hooks/useCampuses";
 
 interface BasicInfoStepProps {
   data: Partial<Program>;
@@ -39,6 +41,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: campuses = [], isLoading: campusesLoading } = useActiveCampuses();
 
   const generateSlug = (name: string) => {
     return name
@@ -246,16 +249,29 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 
           <div className="space-y-2">
             <Label>Campus Locations *</Label>
-            <Select onValueChange={addCampus}>
+            <Select onValueChange={addCampus} disabled={campusesLoading}>
               <SelectTrigger>
-                <SelectValue placeholder="Add campus" />
+                {campusesLoading ? (
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading campuses...
+                  </span>
+                ) : (
+                  <SelectValue placeholder="Add campus" />
+                )}
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Surrey Campus">Surrey Campus</SelectItem>
-                <SelectItem value="Vancouver Campus">Vancouver Campus</SelectItem>
-                <SelectItem value="Richmond Campus">Richmond Campus</SelectItem>
-                <SelectItem value="Burnaby Campus">Burnaby Campus</SelectItem>
-                <SelectItem value="Online Campus">Online Campus</SelectItem>
+                {campuses.length === 0 ? (
+                  <SelectItem value="" disabled>
+                    No campuses configured. Add campuses in Campus Management.
+                  </SelectItem>
+                ) : (
+                  campuses.map((campus) => (
+                    <SelectItem key={campus.id} value={campus.name}>
+                      {campus.name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
             <div className="flex flex-wrap gap-2 mt-2">
@@ -269,6 +285,11 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 </Badge>
               ))}
             </div>
+            {campuses.length === 0 && !campusesLoading && (
+              <p className="text-xs text-muted-foreground">
+                Configure campuses in System Configuration → Campuses to see them here.
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">

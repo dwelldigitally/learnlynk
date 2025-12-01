@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ConditionBuilder } from './ConditionBuilder';
 import { TargetSelector } from './TargetSelector';
 import { EnhancedRoutingRule, ConditionGroup } from '@/types/routing';
-import { ChevronLeft, ChevronRight, Check, Zap, Users, Settings, Eye, UserCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Settings, Eye, Users } from 'lucide-react';
 
 interface RuleWizardProps {
   onSave: (rule: Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'>) => void;
@@ -22,25 +22,9 @@ interface RuleWizardProps {
 
 const WIZARD_STEPS = [
   { id: 'basics', title: 'Rule Basics', icon: Settings },
-  { id: 'sources', title: 'Lead Sources', icon: Zap },
   { id: 'conditions', title: 'Conditions', icon: Users },
-  { id: 'assignment', title: 'Assignment', icon: Settings },
-  { id: 'targets', title: 'Select Targets', icon: UserCheck },
+  { id: 'assignment', title: 'Assignment & Targets', icon: Users },
   { id: 'preview', title: 'Preview', icon: Eye }
-];
-
-const LEAD_SOURCES = [
-  { value: 'web', label: 'Website' },
-  { value: 'social_media', label: 'Social Media' },
-  { value: 'event', label: 'Events' },
-  { value: 'agent', label: 'Agent Referral' },
-  { value: 'email', label: 'Email Campaign' },
-  { value: 'referral', label: 'Referral' },
-  { value: 'phone', label: 'Phone Inquiry' },
-  { value: 'walk_in', label: 'Walk-in' },
-  { value: 'chatbot', label: 'Chatbot' },
-  { value: 'ads', label: 'Advertisements' },
-  { value: 'forms', label: 'Forms' }
 ];
 
 const ASSIGNMENT_METHODS = [
@@ -65,8 +49,6 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
     condition_groups: editingRule?.condition_groups || [],
     assignment_config: editingRule?.assignment_config || {
       method: 'round_robin',
-      workload_balance: true,
-      geographic_preference: false,
       max_assignments_per_advisor: 10,
       target_type: 'teams',
       advisors: [],
@@ -110,15 +92,6 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
       return;
     }
 
-    if (formData.sources.length === 0) {
-      toast({
-        title: 'Error',
-        description: 'At least one lead source must be selected',
-        variant: 'destructive'
-      });
-      return;
-    }
-
     // Validate targets
     const targetType = formData.assignment_config.target_type || 'teams';
     if (targetType === 'teams' && (!formData.assignment_config.teams || formData.assignment_config.teams.length === 0)) {
@@ -140,15 +113,6 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
     }
 
     onSave(formData);
-  };
-
-  const toggleSource = (source: string) => {
-    setFormData(prev => ({
-      ...prev,
-      sources: prev.sources.includes(source)
-        ? prev.sources.filter(s => s !== source)
-        : [...prev.sources, source]
-    }));
   };
 
   const renderStepContent = () => {
@@ -203,49 +167,6 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
           </div>
         );
 
-      case 'sources':
-        return (
-          <div className="space-y-6">
-            <div>
-              <Label className="text-base font-semibold">Select Lead Sources</Label>
-              <p className="text-sm text-muted-foreground">Choose which lead sources this rule should apply to</p>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              {LEAD_SOURCES.map(source => (
-                <div key={source.value} className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    id={`source-${source.value}`}
-                    checked={formData.sources.includes(source.value)}
-                    onChange={() => toggleSource(source.value)}
-                    className="rounded border-gray-300"
-                  />
-                  <Label htmlFor={`source-${source.value}`} className="cursor-pointer">
-                    {source.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-            
-            {formData.sources.length > 0 && (
-              <div>
-                <Label className="text-sm font-medium">Selected Sources:</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {formData.sources.map(source => {
-                    const sourceLabel = LEAD_SOURCES.find(s => s.value === source)?.label || source;
-                    return (
-                      <Badge key={source} variant="secondary">
-                        {sourceLabel}
-                      </Badge>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-        );
-
       case 'conditions':
         return (
           <div className="space-y-6">
@@ -267,10 +188,10 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
 
       case 'assignment':
         return (
-          <div className="space-y-6">
+          <div className="space-y-8">
             <div>
               <Label className="text-base font-semibold">Assignment Configuration</Label>
-              <p className="text-sm text-muted-foreground">Configure how leads should be assigned to advisors</p>
+              <p className="text-sm text-muted-foreground">Configure how leads should be assigned</p>
             </div>
             
             <div>
@@ -298,83 +219,54 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
               </Select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="max_assignments">Max Assignments per Advisor</Label>
-                <Input
-                  id="max_assignments"
-                  type="number"
-                  min="1"
-                  value={formData.assignment_config.max_assignments_per_advisor || 10}
-                  onChange={(e) => setFormData(prev => ({
+            <div>
+              <Label htmlFor="max_assignments">Max Assignments per Advisor</Label>
+              <Input
+                id="max_assignments"
+                type="number"
+                min="1"
+                value={formData.assignment_config.max_assignments_per_advisor || 10}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  assignment_config: {
+                    ...prev.assignment_config,
+                    max_assignments_per_advisor: parseInt(e.target.value) || 10
+                  }
+                }))}
+              />
+            </div>
+
+            <div className="border-t pt-6">
+              <TargetSelector
+                targetType={formData.assignment_config.target_type || 'teams'}
+                selectedAdvisors={formData.assignment_config.advisors || []}
+                selectedTeams={formData.assignment_config.teams || []}
+                onTargetTypeChange={(type) =>
+                  setFormData(prev => ({
                     ...prev,
                     assignment_config: {
                       ...prev.assignment_config,
-                      max_assignments_per_advisor: parseInt(e.target.value) || 10
+                      target_type: type,
+                      advisors: type === 'advisors' ? prev.assignment_config.advisors : [],
+                      teams: type === 'teams' ? prev.assignment_config.teams : []
                     }
-                  }))}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="workload_balance"
-                  checked={formData.assignment_config.workload_balance || false}
-                  onCheckedChange={(checked) => setFormData(prev => ({
+                  }))
+                }
+                onAdvisorsChange={(advisors) =>
+                  setFormData(prev => ({
                     ...prev,
-                    assignment_config: { ...prev.assignment_config, workload_balance: checked }
-                  }))}
-                />
-                <Label htmlFor="workload_balance">Enable Workload Balancing</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="geographic_preference"
-                  checked={formData.assignment_config.geographic_preference || false}
-                  onCheckedChange={(checked) => setFormData(prev => ({
+                    assignment_config: { ...prev.assignment_config, advisors }
+                  }))
+                }
+                onTeamsChange={(teams) =>
+                  setFormData(prev => ({
                     ...prev,
-                    assignment_config: { ...prev.assignment_config, geographic_preference: checked }
-                  }))}
-                />
-                <Label htmlFor="geographic_preference">Consider Geographic Location</Label>
-              </div>
+                    assignment_config: { ...prev.assignment_config, teams }
+                  }))
+                }
+              />
             </div>
           </div>
-        );
-
-      case 'targets':
-        return (
-          <TargetSelector
-            targetType={formData.assignment_config.target_type || 'teams'}
-            selectedAdvisors={formData.assignment_config.advisors || []}
-            selectedTeams={formData.assignment_config.teams || []}
-            onTargetTypeChange={(type) =>
-              setFormData(prev => ({
-                ...prev,
-                assignment_config: {
-                  ...prev.assignment_config,
-                  target_type: type,
-                  advisors: type === 'advisors' ? prev.assignment_config.advisors : [],
-                  teams: type === 'teams' ? prev.assignment_config.teams : []
-                }
-              }))
-            }
-            onAdvisorsChange={(advisors) =>
-              setFormData(prev => ({
-                ...prev,
-                assignment_config: { ...prev.assignment_config, advisors }
-              }))
-            }
-            onTeamsChange={(teams) =>
-              setFormData(prev => ({
-                ...prev,
-                assignment_config: { ...prev.assignment_config, teams }
-              }))
-            }
-          />
         );
 
       case 'preview':
@@ -403,20 +295,6 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
                     <Badge variant={formData.is_active ? "default" : "secondary"}>
                       {formData.is_active ? 'Active' : 'Inactive'}
                     </Badge>
-                  </div>
-                </div>
-                
-                <div>
-                  <Label className="text-sm font-medium">Lead Sources</Label>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {formData.sources.map(source => {
-                      const sourceLabel = LEAD_SOURCES.find(s => s.value === source)?.label || source;
-                      return (
-                        <Badge key={source} variant="outline">
-                          {sourceLabel}
-                        </Badge>
-                      );
-                    })}
                   </div>
                 </div>
                 
@@ -476,90 +354,90 @@ export function RuleWizard({ onSave, onCancel, editingRule }: RuleWizardProps) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Progress Header */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">
-            {editingRule ? 'Edit Routing Rule' : 'Create New Routing Rule'}
-          </h2>
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        </div>
-        
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">
-              Step {currentStep + 1} of {WIZARD_STEPS.length}: {WIZARD_STEPS[currentStep].title}
-            </span>
-            <span className="text-sm text-muted-foreground">{Math.round(progress)}% complete</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-
-        {/* Step Navigation */}
-        <div className="flex items-center justify-center space-x-2">
-          {WIZARD_STEPS.map((step, index) => {
-            const Icon = step.icon;
-            const isActive = index === currentStep;
-            const isCompleted = index < currentStep;
-            
-            return (
-              <div
-                key={step.id}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm ${
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : isCompleted
-                    ? 'bg-muted text-muted-foreground'
-                    : 'text-muted-foreground'
-                }`}
-              >
-                {isCompleted ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Icon className="h-4 w-4" />
-                )}
-                <span className="hidden sm:inline">{step.title}</span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Step Content */}
+    <div className="max-w-4xl mx-auto p-6">
       <Card>
-        <CardContent className="p-6">
+        <CardHeader>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">
+                {editingRule ? 'Edit Routing Rule' : 'Create Routing Rule'}
+              </h2>
+              <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+            </div>
+            
+            {/* Progress */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="font-medium">{WIZARD_STEPS[currentStep].title}</span>
+                <span className="text-muted-foreground">
+                  Step {currentStep + 1} of {WIZARD_STEPS.length}
+                </span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+
+            {/* Step Indicators */}
+            <div className="flex justify-between">
+              {WIZARD_STEPS.map((step, index) => {
+                const StepIcon = step.icon;
+                const isActive = index === currentStep;
+                const isCompleted = index < currentStep;
+                
+                return (
+                  <div 
+                    key={step.id}
+                    className={`flex items-center gap-2 ${
+                      isActive ? 'text-primary' : isCompleted ? 'text-muted-foreground' : 'text-muted-foreground/50'
+                    }`}
+                  >
+                    <div className={`
+                      h-8 w-8 rounded-full flex items-center justify-center
+                      ${isActive ? 'bg-primary text-primary-foreground' : ''}
+                      ${isCompleted ? 'bg-primary/20 text-primary' : ''}
+                      ${!isActive && !isCompleted ? 'bg-muted' : ''}
+                    `}>
+                      {isCompleted ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <StepIcon className="h-4 w-4" />
+                      )}
+                    </div>
+                    <span className="hidden md:inline text-sm font-medium">{step.title}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-6">
           {renderStepContent()}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-6 border-t">
+            <Button
+              variant="outline"
+              onClick={prevStep}
+              disabled={currentStep === 0}
+            >
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Previous
+            </Button>
+
+            {currentStep < WIZARD_STEPS.length - 1 ? (
+              <Button onClick={nextStep}>
+                Next
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            ) : (
+              <Button onClick={handleSave}>
+                <Check className="h-4 w-4 mr-2" />
+                {editingRule ? 'Update Rule' : 'Create Rule'}
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
-
-      {/* Navigation Buttons */}
-      <div className="flex justify-between">
-        <Button
-          onClick={prevStep}
-          disabled={currentStep === 0}
-          variant="outline"
-        >
-          <ChevronLeft className="h-4 w-4 mr-2" />
-          Previous
-        </Button>
-        
-        <div className="flex gap-2">
-          {currentStep === WIZARD_STEPS.length - 1 ? (
-            <Button onClick={handleSave}>
-              <Check className="h-4 w-4 mr-2" />
-              {editingRule ? 'Update Rule' : 'Create Rule'}
-            </Button>
-          ) : (
-            <Button onClick={nextStep}>
-              Next
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          )}
-        </div>
-      </div>
     </div>
   );
 }

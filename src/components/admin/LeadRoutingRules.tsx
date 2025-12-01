@@ -66,6 +66,10 @@ export function LeadRoutingRules({
   const handleSaveRule = async (ruleData: Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'>) => {
     try {
       setLoading(true);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       if (editingRule) {
         // Update existing rule
         const {
@@ -93,7 +97,8 @@ export function LeadRoutingRules({
           priority: ruleData.priority,
           is_active: ruleData.is_active,
           conditions: ruleData.condition_groups,
-          assignment_config: ruleData.assignment_config
+          assignment_config: ruleData.assignment_config,
+          user_id: user.id
         }]);
         if (error) throw error;
         toast({

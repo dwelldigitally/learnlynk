@@ -112,6 +112,27 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
     }
   }, [existingForm]);
 
+  // Sync fields between list and grid modes
+  useEffect(() => {
+    if (layoutMode === 'list') {
+      // Sync grid fields to list
+      const gridFields = rows.flatMap(row => row.fields.filter((f): f is FormField => f !== null));
+      if (gridFields.length > 0 && fields.length === 0) {
+        setFields(gridFields);
+      }
+    } else {
+      // Sync list fields to grid
+      if (fields.length > 0 && rows.length === 0) {
+        const newRow: FormRow = {
+          id: uuidv4(),
+          columns: Math.min(fields.length, 3),
+          fields: fields
+        };
+        setRows([newRow]);
+      }
+    }
+  }, [layoutMode]);
+
   // Field management
   const handleFieldAdd = (fieldType: FormFieldType) => {
     const newField: FormField = {
@@ -123,36 +144,50 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
       placeholder: '',
       helpText: '',
     };
-    setFields([...fields, newField]);
+    
+    // Add to list mode
+    setFields(prev => [...prev, newField]);
+    
+    // Also sync to grid mode if there are existing rows
+    if (rows.length > 0) {
+      setRows(prev => prev.map((row, index) => {
+        if (index === prev.length - 1) {
+          // Add to the last row if there's space
+          const emptyIndex = row.fields.findIndex(f => f === null);
+          if (emptyIndex !== -1) {
+            const newFields = [...row.fields];
+            newFields[emptyIndex] = newField;
+            return { ...row, fields: newFields };
+          }
+        }
+        return row;
+      }));
+    }
+    
     setSelectedFieldId(newField.id);
   };
 
   const handleFieldUpdate = (fieldId: string, updates: Partial<FormField>) => {
-    if (layoutMode === 'list') {
-      setFields(fields.map(field => 
-        field.id === fieldId ? { ...field, ...updates } : field
-      ));
-    } else {
-      setRows(rows.map(row => ({
-        ...row,
-        fields: row.fields.map(field => 
-          field && field.id === fieldId ? { ...field, ...updates } : field
-        )
-      })));
-    }
+    // Update in list mode
+    setFields(prev => prev.map(f => f.id === fieldId ? { ...f, ...updates } : f));
+    
+    // Update in grid mode
+    setRows(prev => prev.map(row => ({
+      ...row,
+      fields: row.fields.map(f => f && f.id === fieldId ? { ...f, ...updates } : f)
+    })));
   };
 
   const handleFieldDelete = (fieldId: string) => {
-    if (layoutMode === 'list') {
-      setFields(fields.filter(field => field.id !== fieldId));
-    } else {
-      setRows(rows.map(row => ({
-        ...row,
-        fields: row.fields.map(field => 
-          field && field.id === fieldId ? null : field
-        )
-      })));
-    }
+    // Delete from list mode
+    setFields(prev => prev.filter(f => f.id !== fieldId));
+    
+    // Delete from grid mode
+    setRows(prev => prev.map(row => ({
+      ...row,
+      fields: row.fields.map(f => f && f.id === fieldId ? null : f)
+    })));
+    
     if (selectedFieldId === fieldId) {
       setSelectedFieldId(null);
     }
@@ -183,6 +218,7 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
       helpText: '',
     };
 
+    // Add to grid mode
     setRows(rows.map(row => {
       if (row.id === rowId) {
         const newFields = [...row.fields];
@@ -191,6 +227,10 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
       }
       return row;
     }));
+    
+    // Also add to list mode
+    setFields(prev => [...prev, newField]);
+    
     setSelectedFieldId(newField.id);
   };
 

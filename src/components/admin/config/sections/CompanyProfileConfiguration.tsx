@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Building2, MapPin, Phone, Mail, Globe, Clock } from "lucide-react";
+import { Building2, MapPin, Phone, Mail, Globe, Clock, Save, RotateCcw, Loader2 } from "lucide-react";
 
 export const CompanyProfileConfiguration = () => {
   const [companyProfile, setCompanyProfile] = useState({
@@ -32,6 +32,8 @@ export const CompanyProfileConfiguration = () => {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [initialProfile, setInitialProfile] = useState<any>(null);
 
   useEffect(() => {
     fetchCompanyProfile();
@@ -51,6 +53,7 @@ export const CompanyProfileConfiguration = () => {
 
       if (data) {
         setCompanyProfile(data);
+        setInitialProfile(data);
       }
     } catch (error) {
       console.error('Error fetching company profile:', error);
@@ -84,6 +87,8 @@ export const CompanyProfileConfiguration = () => {
         if (error) throw error;
       }
 
+      setInitialProfile(companyProfile);
+      setHasChanges(false);
       toast.success('Company profile saved successfully');
     } catch (error) {
       console.error('Error saving company profile:', error);
@@ -93,11 +98,20 @@ export const CompanyProfileConfiguration = () => {
     }
   };
 
+  const handleReset = () => {
+    if (initialProfile) {
+      setCompanyProfile(initialProfile);
+      setHasChanges(false);
+      toast.info('Changes have been reset');
+    }
+  };
+
   const handleInputChange = (field: string, value: any) => {
     setCompanyProfile(prev => ({
       ...prev,
       [field]: value
     }));
+    setHasChanges(true);
   };
 
   if (loading) {
@@ -105,7 +119,41 @@ export const CompanyProfileConfiguration = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24">
+      {/* Page Header with Save Button */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight">Company Profile</h2>
+          <p className="text-muted-foreground">
+            Manage your institution's information and branding
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {hasChanges && (
+            <span className="text-sm text-amber-600 dark:text-amber-400">
+              Unsaved changes
+            </span>
+          )}
+          <Button variant="outline" onClick={handleReset} disabled={!hasChanges || saving}>
+            <RotateCcw className="h-4 w-4 mr-2" />
+            Reset
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Changes
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
       {/* Basic Information */}
       <Card>
         <CardHeader>
@@ -326,30 +374,75 @@ export const CompanyProfileConfiguration = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="primary_color">Primary Color</Label>
-              <Input
-                id="primary_color"
-                type="color"
-                value={companyProfile.primary_color}
-                onChange={(e) => handleInputChange('primary_color', e.target.value)}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="primary_color"
+                  type="color"
+                  value={companyProfile.primary_color}
+                  onChange={(e) => handleInputChange('primary_color', e.target.value)}
+                  className="w-16 h-10 p-1"
+                />
+                <Input
+                  value={companyProfile.primary_color}
+                  onChange={(e) => handleInputChange('primary_color', e.target.value)}
+                  placeholder="#3B82F6"
+                  className="flex-1"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="secondary_color">Secondary Color</Label>
-              <Input
-                id="secondary_color"
-                type="color"
-                value={companyProfile.secondary_color}
-                onChange={(e) => handleInputChange('secondary_color', e.target.value)}
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="secondary_color"
+                  type="color"
+                  value={companyProfile.secondary_color}
+                  onChange={(e) => handleInputChange('secondary_color', e.target.value)}
+                  className="w-16 h-10 p-1"
+                />
+                <Input
+                  value={companyProfile.secondary_color}
+                  onChange={(e) => handleInputChange('secondary_color', e.target.value)}
+                  placeholder="#EF4444"
+                  className="flex-1"
+                />
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving...' : 'Save Company Profile'}
-        </Button>
+      {/* Sticky Save Footer */}
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-t p-4 z-50">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {hasChanges && (
+              <span className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                <span className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+                You have unsaved changes
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleReset} disabled={!hasChanges || saving}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Reset
+            </Button>
+            <Button onClick={handleSave} disabled={saving} size="lg">
+              {saving ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Company Profile
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

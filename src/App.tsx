@@ -62,6 +62,7 @@ import InstructorStudentDetail from "./pages/InstructorStudentDetail";
 import InstructorReviewAttendance from "./pages/InstructorReviewAttendance";
 import InstructorReviewCompetency from "./pages/InstructorReviewCompetency";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
+import PublicForm from "./pages/PublicForm";
 
 const queryClient = new QueryClient();
 
@@ -85,9 +86,9 @@ const App = () => {
                <Route path="/forgot-password" element={<ForgotPassword />} />
                <Route path="/reset-password" element={<ResetPassword />} />
                
-                  {/* Webform Routes */}
-                  <Route path="/webform" element={<WebForm />} />
+               <Route path="/webform" element={<WebForm />} />
                   <Route path="/apply" element={<WebForm />} />
+                  <Route path="/form/:formId" element={<PublicForm />} />
                  
                  {/* Embeddable Form Routes */}
                  <Route path="/embed/document-form" element={<EmbedDocumentForm />} />

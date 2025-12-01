@@ -21,6 +21,7 @@ import {
   SMSTemplatesSection,
   MessagesSection,
   CreateTemplateDialog,
+  BulkEmailComposer,
 } from './communication-hub';
 import { 
   Send, 
@@ -29,6 +30,7 @@ import {
   Settings,
   FileText,
   Sparkles,
+  Users,
 } from "lucide-react";
 import { useConditionalCommunications } from "@/hooks/useConditionalCommunications";
 import { CommunicationTemplate, TemplateFormData, AttachmentMetadata } from '@/types/leadEnhancements';
@@ -57,6 +59,7 @@ const CommunicationHub: React.FC = () => {
   const [editingTemplate, setEditingTemplate] = useState<CommunicationTemplate | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [showBulkEmailComposer, setShowBulkEmailComposer] = useState(false);
 
   const { toast } = useToast();
   
@@ -294,7 +297,7 @@ const CommunicationHub: React.FC = () => {
         title="Communication Hub"
         subtitle="Manage all student communications in one place"
         action={
-          <div className={`flex ${isMobile ? 'flex-col' : 'items-center'} gap-3`}>
+          <div className={`flex ${isMobile ? 'flex-col' : 'items-center flex-wrap'} gap-3`}>
             <PillButton 
               variant="primary"
               className={isMobile ? 'w-full' : ''}
@@ -302,6 +305,14 @@ const CommunicationHub: React.FC = () => {
             >
               <Send className="w-4 h-4" />
               Send Message
+            </PillButton>
+            <PillButton 
+              variant="primary"
+              className={isMobile ? 'w-full' : 'bg-emerald-600 hover:bg-emerald-700'}
+              onClick={() => setShowBulkEmailComposer(true)}
+            >
+              <Users className="w-4 h-4" />
+              Bulk Email
             </PillButton>
             <PillButton 
               variant="outline"
@@ -458,6 +469,11 @@ const CommunicationHub: React.FC = () => {
           onSelectLead={handleLeadSelect}
         />
       )}
+
+      <BulkEmailComposer
+        open={showBulkEmailComposer}
+        onOpenChange={setShowBulkEmailComposer}
+      />
     </div>
   );
 };

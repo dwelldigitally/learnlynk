@@ -4,3 +4,5 @@ export { EmailTemplatesSection } from './EmailTemplatesSection';
 export { SMSTemplatesSection } from './SMSTemplatesSection';
 export { MessagesSection } from './MessagesSection';
 export { CreateTemplateDialog } from './CreateTemplateDialog';
+export { BulkLeadSelector } from './BulkLeadSelector';
+export { BulkEmailComposer } from './BulkEmailComposer';

@@ -2,3 +2,6 @@ project_id = "rpxygdaimdiarjpfmswl"
 
 [functions.outlook-auth]
 verify_jwt = true
+
+[functions.send-bulk-email]
+verify_jwt = true

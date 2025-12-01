@@ -178,14 +178,14 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Requirement Type *</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value: any) => setFormData(prev => ({ ...prev, type: value }))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="min-h-[44px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -202,7 +202,7 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label className="flex items-center gap-2">
+              <Label className="flex items-center gap-2 min-h-[44px] items-center">
                 <Checkbox
                   checked={formData.mandatory}
                   onCheckedChange={(checked) => 
@@ -351,13 +351,14 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
             )}
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={onCancel}>
+          <div className="flex flex-col sm:flex-row justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={onCancel} className="w-full sm:w-auto min-h-[44px]">
               Cancel
             </Button>
             <Button 
               onClick={handleSave}
               disabled={!formData.title || !formData.description}
+              className="w-full sm:w-auto min-h-[44px]"
             >
               {requirement ? 'Update' : 'Add'} Requirement
             </Button>
@@ -393,14 +394,16 @@ const RequirementsStep: React.FC<RequirementsStepProps> = ({
 
       {/* Tabs for Library vs Custom */}
       <Tabs defaultValue="library" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="library">
+        <TabsList className="grid w-full grid-cols-2 h-auto">
+          <TabsTrigger value="library" className="min-h-[44px]">
             <Library className="h-4 w-4 mr-2" />
-            Select from Library
+            <span className="hidden sm:inline">Select from Library</span>
+            <span className="sm:hidden">Library</span>
           </TabsTrigger>
-          <TabsTrigger value="custom">
+          <TabsTrigger value="custom" className="min-h-[44px]">
             <Plus className="h-4 w-4 mr-2" />
-            Create Custom
+            <span className="hidden sm:inline">Create Custom</span>
+            <span className="sm:hidden">Custom</span>
           </TabsTrigger>
         </TabsList>
 

@@ -294,17 +294,17 @@ const ProgramWizardPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-6xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-9">
+      <div className="max-w-6xl mx-auto space-y-4 sm:space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={handleCancel}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-1">
+            <Button variant="ghost" size="sm" onClick={handleCancel} className="w-full sm:w-auto">
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Programs
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold flex items-center gap-2">
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold flex flex-wrap items-center gap-2">
                 {editingProgramId ? 'Edit Program' : 'Create New Program'}
                 {wizardState.isDraft && (
                   <Badge variant="outline" className="text-xs">
@@ -313,7 +313,7 @@ const ProgramWizardPage: React.FC = () => {
                   </Badge>
                 )}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground mt-1">
                 {editingProgramId 
                   ? 'Update your program details and configuration' 
                   : 'Follow the steps to create a comprehensive program with all required details'
@@ -321,8 +321,9 @@ const ProgramWizardPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <Button variant="outline" onClick={handleCancel}>
-            <X className="h-4 w-4" />
+          <Button variant="outline" onClick={handleCancel} className="w-full sm:w-auto">
+            <X className="h-4 w-4 sm:mr-2" />
+            <span className="sm:inline hidden">Close</span>
           </Button>
         </div>
 
@@ -343,7 +344,7 @@ const ProgramWizardPage: React.FC = () => {
         </div>
 
         {/* Step Navigation */}
-        <div className="flex overflow-x-auto gap-1 pb-2">
+        <div className="flex overflow-x-auto gap-1 sm:gap-2 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
           {STEPS.map((step, index) => {
             // Hide Practicum Configuration in MVP mode
             if (step.id === 'practicum' && isMvpMode) {
@@ -355,7 +356,7 @@ const ProgramWizardPage: React.FC = () => {
                 key={step.id}
                 variant={index === wizardState.currentStep ? "default" : "outline"}
                 size="sm"
-                className="flex-shrink-0"
+                className="flex-shrink-0 min-h-[44px]"
                 onClick={() => goToStep(index)}
               >
                 {wizardState.completed[index] && (
@@ -364,7 +365,8 @@ const ProgramWizardPage: React.FC = () => {
                 {!wizardState.completed[index] && !validateStep(index) && index < wizardState.currentStep && (
                   <AlertCircle className="h-3 w-3 mr-1" />
                 )}
-                {step.title}
+                <span className="hidden sm:inline">{step.title}</span>
+                <span className="sm:hidden">{index + 1}</span>
               </Button>
             );
           })}
@@ -384,33 +386,34 @@ const ProgramWizardPage: React.FC = () => {
         </Card>
 
         {/* Navigation Buttons */}
-        <div className="flex justify-between items-center pt-4 border-t">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={previousStep}
-              disabled={wizardState.currentStep === 0}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </Button>
-          </div>
+        <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 pt-4 border-t">
+          <Button
+            variant="outline"
+            onClick={previousStep}
+            disabled={wizardState.currentStep === 0}
+            className="w-full sm:w-auto min-h-[44px]"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Previous
+          </Button>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => {}}>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={() => {}} className="w-full sm:w-auto min-h-[44px] order-2 sm:order-1">
               <Save className="h-4 w-4 mr-1" />
-              Save Draft
+              <span className="hidden sm:inline">Save Draft</span>
+              <span className="sm:hidden">Save</span>
             </Button>
             
             {wizardState.currentStep < wizardState.totalSteps - 1 ? (
-              <Button onClick={nextStep}>
+              <Button onClick={nextStep} className="w-full sm:w-auto min-h-[44px] order-1 sm:order-2">
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
             ) : (
-              <Button onClick={handleSave} className="bg-primary">
+              <Button onClick={handleSave} className="bg-primary w-full sm:w-auto min-h-[44px] order-1 sm:order-2">
                 <CheckCircle className="h-4 w-4 mr-1" />
-                {editingProgramId ? 'Update Program' : 'Create Program'}
+                <span className="hidden sm:inline">{editingProgramId ? 'Update Program' : 'Create Program'}</span>
+                <span className="sm:hidden">{editingProgramId ? 'Update' : 'Create'}</span>
               </Button>
             )}
           </div>

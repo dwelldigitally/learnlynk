@@ -111,8 +111,8 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
 
     return (
       <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-medium">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <h3 className="text-base sm:text-lg font-medium">
             {type === 'domestic' ? 'Domestic' : 'International'} Fees
           </h3>
           <Button
@@ -120,6 +120,7 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
             variant="outline"
             size="sm"
             onClick={() => addFee(type)}
+            className="w-full sm:w-auto min-h-[44px]"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Fee
@@ -139,14 +140,14 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
             {fees.map((fee, index) => (
               <Card key={fee.id || index}>
                 <CardContent className="pt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="sm:col-span-2 lg:col-span-1">
                       <Label>Fee Type</Label>
                       <Select 
                         value={fee.type} 
                         onValueChange={(value) => updateFee(type, index, 'type', value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="min-h-[44px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -166,6 +167,7 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
                         value={fee.amount}
                         onChange={(e) => updateFee(type, index, 'amount', Number(e.target.value))}
                         placeholder="0"
+                        className="min-h-[44px]"
                       />
                     </div>
 
@@ -175,7 +177,7 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
                         value={fee.currency} 
                         onValueChange={(value) => updateFee(type, index, 'currency', value)}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="min-h-[44px]">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -193,7 +195,7 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
                         variant="outline"
                         size="sm"
                         onClick={() => removeFee(type, index)}
-                        className="w-full"
+                        className="w-full min-h-[44px]"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -218,18 +220,24 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">Fee Structure</h2>
-        <p className="text-muted-foreground">
+        <h2 className="text-xl sm:text-2xl font-bold">Fee Structure</h2>
+        <p className="text-sm sm:text-base text-muted-foreground">
           Configure tuition and additional fees for domestic and international students
         </p>
       </div>
 
       <Tabs defaultValue="domestic" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="domestic">Domestic Students</TabsTrigger>
-          <TabsTrigger value="international">International Students</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 h-auto">
+          <TabsTrigger value="domestic" className="min-h-[44px]">
+            <span className="hidden sm:inline">Domestic Students</span>
+            <span className="sm:hidden">Domestic</span>
+          </TabsTrigger>
+          <TabsTrigger value="international" className="min-h-[44px]">
+            <span className="hidden sm:inline">International Students</span>
+            <span className="sm:hidden">International</span>
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="domestic" className="space-y-4">

@@ -16,17 +16,17 @@ const PreviewStep: React.FC<PreviewStepProps> = ({
   onSave
 }) => {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex flex-wrap items-center gap-2 text-lg sm:text-xl">
             {data.name}
             <Badge>{data.type}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-4">{data.description}</p>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+          <p className="text-sm sm:text-base text-muted-foreground mb-4">{data.description}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-sm">
             <div><strong>Duration:</strong> {data.duration}</div>
             <div><strong>Campus:</strong> {data.campus?.join(', ')}</div>
             <div><strong>Domestic Tuition:</strong> {

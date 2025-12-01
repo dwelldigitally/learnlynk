@@ -101,7 +101,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Practicum Toggle */}
       <Card>
         <CardHeader>
@@ -136,7 +136,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
               <CardTitle>Basic Configuration</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="duration">Duration (Weeks)</Label>
                   <Input
@@ -145,6 +145,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
                     min="1"
                     value={practicumData.duration_weeks}
                     onChange={(e) => updatePracticumData({ duration_weeks: parseInt(e.target.value) })}
+                    className="min-h-[44px]"
                   />
                 </div>
                 <div className="space-y-2">
@@ -155,6 +156,7 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
                     min="1"
                     value={practicumData.total_hours_required}
                     onChange={(e) => updatePracticumData({ total_hours_required: parseInt(e.target.value) })}
+                    className="min-h-[44px]"
                   />
                 </div>
               </div>
@@ -189,15 +191,15 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {COMMON_DOCUMENTS.map((document) => (
-                  <div key={document} className="flex items-center space-x-2">
+                  <div key={document} className="flex items-center space-x-2 min-h-[44px]">
                     <Checkbox
                       id={document}
                       checked={practicumData.document_requirements.includes(document)}
                       onCheckedChange={() => toggleDocumentRequirement(document)}
                     />
-                    <Label htmlFor={document} className="text-sm">{document}</Label>
+                    <Label htmlFor={document} className="text-sm cursor-pointer">{document}</Label>
                   </div>
                 ))}
               </div>
@@ -340,11 +342,11 @@ const PracticumConfigurationStep: React.FC<PracticumConfigurationStepProps> = ({
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onPrevious}>
+      <div className="flex flex-col sm:flex-row justify-between gap-3 pt-6 border-t">
+        <Button variant="outline" onClick={onPrevious} className="w-full sm:w-auto min-h-[44px]">
           Previous
         </Button>
-        <Button onClick={onNext}>
+        <Button onClick={onNext} className="w-full sm:w-auto min-h-[44px]">
           Next
         </Button>
       </div>

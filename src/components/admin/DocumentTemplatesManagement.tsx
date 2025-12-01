@@ -42,12 +42,7 @@ const DOCUMENT_TYPES = [
   'other'
 ];
 
-const STAGES = [
-  'application',
-  'enrollment',
-  'pre-arrival',
-  'ongoing'
-];
+// Stage removed - no longer needed
 
 const FILE_FORMATS = [
   'pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png', 'gif', 'zip', 'rar'
@@ -60,7 +55,6 @@ export function DocumentTemplatesManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedStage, setSelectedStage] = useState<string>('all');
   const [mandatoryFilter, setMandatoryFilter] = useState<string>('all');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>({});
@@ -78,7 +72,7 @@ export function DocumentTemplatesManagement() {
     mandatory: false,
     accepted_formats: ['pdf'],
     max_size: 5,
-    stage: 'application',
+    stage: 'application', // Default value for database requirement
     instructions: '',
     examples: [],
     applicable_programs: ['All Programs']
@@ -91,7 +85,7 @@ export function DocumentTemplatesManagement() {
 
   useEffect(() => {
     filterTemplates();
-  }, [templates, searchTerm, selectedCategory, selectedType, selectedStage, mandatoryFilter]);
+  }, [templates, searchTerm, selectedCategory, selectedType, mandatoryFilter]);
 
   const loadTemplates = async () => {
     try {
@@ -133,10 +127,6 @@ export function DocumentTemplatesManagement() {
 
     if (selectedType !== 'all') {
       filtered = filtered.filter(template => template.type === selectedType);
-    }
-
-    if (selectedStage !== 'all') {
-      filtered = filtered.filter(template => template.stage === selectedStage);
     }
 
     if (mandatoryFilter !== 'all') {
@@ -216,7 +206,7 @@ export function DocumentTemplatesManagement() {
       mandatory: template.mandatory,
       accepted_formats: template.accepted_formats,
       max_size: template.max_size,
-      stage: template.stage,
+      stage: 'application', // Default value
       instructions: template.instructions,
       examples: template.examples || [],
       applicable_programs: template.applicable_programs
@@ -234,7 +224,7 @@ export function DocumentTemplatesManagement() {
       mandatory: template.mandatory,
       accepted_formats: template.accepted_formats,
       max_size: template.max_size,
-      stage: template.stage,
+      stage: template.stage || 'application', // Keep existing or default
       instructions: template.instructions,
       examples: template.examples || [],
       applicable_programs: template.applicable_programs
@@ -269,22 +259,14 @@ export function DocumentTemplatesManagement() {
       mandatory: false,
       accepted_formats: ['pdf'],
       max_size: 5,
-      stage: 'application',
+      stage: 'application', // Default value for database
       instructions: '',
       examples: [],
       applicable_programs: ['All Programs']
     });
   };
 
-  const getStageColor = (stage: string) => {
-    const colors = {
-      application: 'bg-blue-100 text-blue-800',
-      enrollment: 'bg-green-100 text-green-800',
-      'pre-arrival': 'bg-yellow-100 text-yellow-800',
-      ongoing: 'bg-purple-100 text-purple-800'
-    };
-    return colors[stage as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  };
+  // Stage color function removed - no longer needed
 
   if (loading) {
     return <div className="flex items-center justify-center h-64">Loading templates...</div>;
@@ -392,18 +374,6 @@ export function DocumentTemplatesManagement() {
               </SelectContent>
             </Select>
 
-            <Select value={selectedStage} onValueChange={setSelectedStage}>
-              <SelectTrigger>
-                <SelectValue placeholder="Stage" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Stages</SelectItem>
-                {STAGES.map(stage => (
-                  <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
             <Select value={mandatoryFilter} onValueChange={setMandatoryFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Requirement" />
@@ -419,7 +389,6 @@ export function DocumentTemplatesManagement() {
               setSearchTerm('');
               setSelectedCategory('all');
               setSelectedType('all');
-              setSelectedStage('all');
               setMandatoryFilter('all');
             }}>
               <Filter className="h-4 w-4 mr-2" />
@@ -449,13 +418,6 @@ export function DocumentTemplatesManagement() {
                     <div className="flex flex-wrap gap-2 mb-3">
                       <InfoBadge variant="default">
                         {template.category}
-                      </InfoBadge>
-                      <InfoBadge variant={
-                        template.stage === 'application' ? 'default' :
-                        template.stage === 'enrollment' ? 'success' :
-                        template.stage === 'pre-arrival' ? 'warning' : 'secondary'
-                      }>
-                        {template.stage.toUpperCase()}
                       </InfoBadge>
                       {template.mandatory && (
                         <InfoBadge variant="destructive">REQUIRED</InfoBadge>
@@ -619,22 +581,6 @@ export function DocumentTemplatesManagement() {
                 </Select>
               </div>
               <div>
-                <Label htmlFor="stage">Stage</Label>
-                <Select 
-                  value={formData.stage} 
-                  onValueChange={(value) => setFormData({...formData, stage: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STAGES.map(stage => (
-                      <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
                 <Label htmlFor="maxSize">Max Size (MB)</Label>
                 <Input
                   id="maxSize"
@@ -724,9 +670,6 @@ export function DocumentTemplatesManagement() {
                   <p className="text-muted-foreground">{selectedTemplate.description}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Badge className={getStageColor(selectedTemplate.stage)}>
-                    {selectedTemplate.stage}
-                  </Badge>
                   {selectedTemplate.mandatory && (
                     <Badge variant="destructive">Required</Badge>
                   )}

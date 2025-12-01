@@ -201,7 +201,6 @@ const IntakeDatesStep: React.FC<IntakeDatesStepProps> = ({
                         </SelectItem>
                       ))
                     )}
-                    <SelectItem value="online">Online Campus</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -11,7 +11,7 @@ import {
   PillIconButton,
   HotSheetTabsList, 
   HotSheetTabsTriggerCompact,
-  type PastelColor 
+  getPriorityColor
 } from '@/components/hotsheet';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 
@@ -41,15 +41,6 @@ const getTypeIcon = (type: string) => {
     case 'financial': return DollarSign;
     case 'team': return Users;
     default: return Bell;
-  }
-};
-
-const getPriorityColor = (priority: string): PastelColor => {
-  switch (priority) {
-    case 'high': return 'rose';
-    case 'medium': return 'amber';
-    case 'low': return 'sky';
-    default: return 'slate';
   }
 };
 

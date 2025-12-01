@@ -1,6 +1,6 @@
 import React from 'react';
 import { LucideIcon, ArrowRight } from 'lucide-react';
-import { HotSheetCard, IconContainer, PastelBadge, PillButton, type PastelColor } from '@/components/hotsheet';
+import { HotSheetCard, IconContainer, PastelBadge, PillButton, getUrgencyColor } from '@/components/hotsheet';
 
 export interface PriorityAction {
   id: string;
@@ -16,17 +16,6 @@ export interface PriorityAction {
 interface PriorityActionCardProps {
   action: PriorityAction;
 }
-
-const getUrgencyColor = (urgency: 'critical' | 'high' | 'medium'): PastelColor => {
-  switch (urgency) {
-    case 'critical':
-      return 'rose';
-    case 'high':
-      return 'peach';
-    case 'medium':
-      return 'amber';
-  }
-};
 
 export const PriorityActionCard: React.FC<PriorityActionCardProps> = ({ action }) => {
   const Icon = action.icon;

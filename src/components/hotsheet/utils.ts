@@ -112,3 +112,36 @@ export const getApplicationStatusColor = (status: string): PastelColor => {
   };
   return statusMap[status?.toLowerCase()] || 'slate';
 };
+
+// Urgency to color mapping (for priority actions)
+export const getUrgencyColor = (urgency: 'critical' | 'high' | 'medium'): PastelColor => {
+  const urgencyMap: Record<string, PastelColor> = {
+    critical: 'rose',
+    high: 'peach',
+    medium: 'amber',
+  };
+  return urgencyMap[urgency] || 'slate';
+};
+
+// Impact to color mapping (for AI recommendations)
+export const getImpactColor = (impact: 'high' | 'medium' | 'low'): PastelColor => {
+  const impactMap: Record<string, PastelColor> = {
+    high: 'emerald',
+    medium: 'sky',
+    low: 'slate',
+  };
+  return impactMap[impact] || 'slate';
+};
+
+// Activity type to color mapping
+export const getActivityTypeColor = (type: string): PastelColor => {
+  const typeMap: Record<string, PastelColor> = {
+    lead: 'sky',
+    application: 'violet',
+    payment: 'emerald',
+    task: 'peach',
+    communication: 'rose',
+    system: 'slate',
+  };
+  return typeMap[type?.toLowerCase()] || 'slate';
+};

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sparkles, ArrowRight } from 'lucide-react';
-import { HotSheetCard, IconContainer, PastelBadge, PillButton, type PastelColor } from '@/components/hotsheet';
+import { HotSheetCard, IconContainer, PastelBadge, PillButton, getImpactColor } from '@/components/hotsheet';
 
 export interface AIRecommendation {
   id: string;
@@ -15,17 +15,6 @@ export interface AIRecommendation {
 interface AIRecommendationCardProps {
   recommendation: AIRecommendation;
 }
-
-const getImpactColor = (impact: 'high' | 'medium' | 'low'): PastelColor => {
-  switch (impact) {
-    case 'high':
-      return 'emerald';
-    case 'medium':
-      return 'sky';
-    case 'low':
-      return 'slate';
-  }
-};
 
 export const AIRecommendationCard: React.FC<AIRecommendationCardProps> = ({ recommendation }) => {
   const impactColor = getImpactColor(recommendation.impact);

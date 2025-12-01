@@ -29,7 +29,8 @@ import {
   HotSheetTabsList, 
   HotSheetTabsTrigger,
   HotSheetTabsTriggerCompact,
-  getPriorityColor
+  getPriorityColor,
+  getUrgencyColor
 } from '@/components/hotsheet';
 
 const AdminHome: React.FC = () => {
@@ -402,15 +403,6 @@ const AdminHome: React.FC = () => {
     }
   };
 
-  const getTaskPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'urgent': return 'rose';
-      case 'high': return 'peach';
-      case 'medium': return 'amber';
-      default: return 'sky';
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section with Greeting and KPIs */}
@@ -672,8 +664,8 @@ const AdminHome: React.FC = () => {
                                 <h4 className="text-sm font-medium text-foreground">{task.title}</h4>
                                 <p className="text-xs text-muted-foreground mt-1">{task.description}</p>
                                 <div className="flex items-center gap-2 mt-2">
-                                  <PastelBadge 
-                                    color={getTaskPriorityColor(task.priority) as any} 
+                                <PastelBadge 
+                                    color={getUrgencyColor(task.priority as 'critical' | 'high' | 'medium')} 
                                     size="sm"
                                   >
                                     {task.priority}

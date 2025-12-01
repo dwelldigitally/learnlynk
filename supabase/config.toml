@@ -5,3 +5,6 @@ verify_jwt = true
 
 [functions.send-bulk-email]
 verify_jwt = true
+
+[functions.send-team-invite]
+verify_jwt = true

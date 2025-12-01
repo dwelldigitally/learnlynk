@@ -4,11 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Users, Filter, Mail, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, Users, Filter, Mail, Calendar, UserPlus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import type { AppRole } from '@/types/team-management';
 import { useUsers } from '@/hooks/useUsers';
+import { InviteUserDialog } from './InviteUserDialog';
 
 const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-500/10 text-red-500 border-red-500/20',
@@ -31,6 +33,7 @@ const ROLE_LABELS: Record<string, string> = {
 export const UserDirectory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   
   const { data: users = [], isLoading } = useUsers();
 
@@ -224,6 +227,11 @@ export const UserDirectory = () => {
           )}
         </CardContent>
       </Card>
+
+      <InviteUserDialog 
+        isOpen={showInviteDialog}
+        onClose={() => setShowInviteDialog(false)}
+      />
     </div>
   );
 };

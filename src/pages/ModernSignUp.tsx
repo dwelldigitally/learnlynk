@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { GlassCard } from '@/components/modern/GlassCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle, User, Building } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useValidateInviteToken, useAcceptInvitation } from '@/hooks/useTeamInvitations';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const ModernSignUp: React.FC = () => {
   const { signUp } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [showPassword, setShowPassword] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [userRole, setUserRole] = useState<'admin' | 'student' | null>(null);
+  
+  // Check for invitation token
+  const inviteToken = searchParams.get('invite');
+  const { data: invitation, isLoading: isValidatingInvite } = useValidateInviteToken(inviteToken);
+  const acceptInvitation = useAcceptInvitation();
 
   // Available institutions for student selection
   const institutions = [
@@ -42,6 +51,16 @@ const ModernSignUp: React.FC = () => {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Pre-fill email from invitation
+  useEffect(() => {
+    if (invitation?.email) {
+      setFormData(prev => ({ ...prev, email: invitation.email }));
+      // Auto-select admin role for invitations
+      setUserRole('admin');
+      setCurrentStep(2);
+    }
+  }, [invitation]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -96,6 +115,25 @@ const ModernSignUp: React.FC = () => {
       if (error) {
         setError(error.message);
       } else {
+        // If there's an invitation, accept it and assign role after signup
+        if (invitation && inviteToken) {
+          // Wait a moment for the user to be created, then get the user and accept invitation
+          setTimeout(async () => {
+            try {
+              const { data: { user } } = await supabase.auth.getUser();
+              if (user) {
+                await acceptInvitation.mutateAsync({
+                  userId: user.id,
+                  inviteToken: inviteToken
+                });
+                toast.success(`Account created with ${invitation.role} role`);
+              }
+            } catch (inviteError) {
+              console.error('Failed to accept invitation:', inviteError);
+            }
+          }, 1000);
+        }
+        
         // Redirect to email verification page after successful signup
         navigate('/verify-email');
       }
@@ -108,6 +146,14 @@ const ModernSignUp: React.FC = () => {
 
   const renderStepOne = () => (
     <div className="space-y-6">
+      {invitation && (
+        <Alert className="mb-4">
+          <CheckCircle className="h-4 w-4" />
+          <AlertDescription>
+            You've been invited to join as <strong>{invitation.role.replace('_', ' ')}</strong>
+          </AlertDescription>
+        </Alert>
+      )}
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-foreground mb-2">
           Choose Your Role
@@ -171,6 +217,14 @@ const ModernSignUp: React.FC = () => {
       </div>
 
       <form onSubmit={handleSignUp} className="space-y-4">
+        {invitation && (
+          <Alert className="mb-4">
+            <CheckCircle className="h-4 w-4" />
+            <AlertDescription>
+              You've been invited to join as <strong>{invitation.role.replace('_', ' ')}</strong>
+            </AlertDescription>
+          </Alert>
+        )}
         {error && (
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -218,6 +272,7 @@ const ModernSignUp: React.FC = () => {
             onChange={(e) => handleInputChange('email', e.target.value)}
             placeholder={userRole === 'admin' ? 'admin@institution.edu' : 'student@institution.edu'}
             className="glass-button"
+            disabled={!!invitation}
             required
           />
         </div>

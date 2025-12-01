@@ -65,6 +65,29 @@ export interface FormSection {
   hideWhen?: ConditionalLogic[];
 }
 
+export interface EmailNotificationConfig {
+  enabled: boolean;
+  recipients: Array<{
+    id: string;
+    type: 'admin' | 'user' | 'program_advisor' | 'custom';
+    email?: string;
+    programId?: string;
+  }>;
+  template: {
+    id: string;
+    name: string;
+    subject: string;
+    body: string;
+    variables: string[];
+  };
+  triggerConditions?: any[];
+  deliveryTiming: 'immediate' | 'delayed' | 'scheduled';
+  delayMinutes?: number;
+  scheduledTime?: string;
+  attachments: boolean;
+  format: 'html' | 'plain';
+}
+
 export interface FormConfig {
   id?: string;
   title: string;
@@ -78,6 +101,13 @@ export interface FormConfig {
   multiStep?: boolean;
   showProgress?: boolean;
   theme?: 'default' | 'modern' | 'minimal';
+  layoutMode?: 'list' | 'grid';
+  rows?: Array<{
+    id: string;
+    fields: (FormField | null)[];
+    columns: number;
+  }>;
+  emailNotifications?: EmailNotificationConfig;
 }
 
 export interface FormData {

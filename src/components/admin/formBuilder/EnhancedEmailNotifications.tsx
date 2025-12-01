@@ -45,7 +45,7 @@ interface EmailNotificationConfig {
   enabled: boolean;
   recipients: EmailRecipient[];
   template: EmailTemplate;
-  triggerConditions: any[];
+  triggerConditions?: any[];
   deliveryTiming: 'immediate' | 'delayed' | 'scheduled';
   delayMinutes?: number;
   scheduledTime?: string;

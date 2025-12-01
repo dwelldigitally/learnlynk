@@ -1,17 +1,23 @@
-import { useState, useEffect } from 'react';
-import { FormConfig, FormField, FormFieldType } from '@/types/formBuilder';
-import { FormBuilderLayout } from './FormBuilderLayout';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FormConfig, FormField, FormFieldType, EmailNotificationConfig } from '@/types/formBuilder';
+import { FormRow } from '@/types/formLayout';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, Loader2, Edit } from 'lucide-react';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { v4 as uuidv4 } from 'uuid';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { GridFormBuilder } from './GridFormBuilder';
+import { FieldConfigEditor } from './FieldConfigEditor';
+import { EnhancedEmailNotifications } from './EnhancedEmailNotifications';
 import { useForm, useCreateForm, useUpdateForm } from '@/hooks/useForms';
-import { useNavigate } from 'react-router-dom';
+import { usePrograms } from '@/hooks/usePrograms';
 import { toast } from 'sonner';
+import { LayoutList, LayoutGrid, Save, X } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
 interface AdvancedFormBuilderProps {
   formId?: string | null;
@@ -21,288 +27,418 @@ interface AdvancedFormBuilderProps {
 
 export function AdvancedFormBuilder({ formId, onSave, onCancel }: AdvancedFormBuilderProps) {
   const navigate = useNavigate();
-  const { data: existingForm, isLoading: isLoadingForm } = useForm(formId || null);
+  const { data: existingForm, isLoading } = useForm(formId || null);
+  const { data: programs = [] } = usePrograms();
   const createFormMutation = useCreateForm();
   const updateFormMutation = useUpdateForm();
-  
-  const [selectedFormId, setSelectedFormId] = useState<string>('');
-  const [forms, setForms] = useState<FormConfig[]>([]);
-  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
-  // Load existing form data if editing
+  // Form state
+  const [formTitle, setFormTitle] = useState('Untitled Form');
+  const [formDescription, setFormDescription] = useState('');
+  const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
+  const [fields, setFields] = useState<FormField[]>([]);
+  const [rows, setRows] = useState<FormRow[]>([]);
+  const [submitButtonText, setSubmitButtonText] = useState('Submit');
+  const [successMessage, setSuccessMessage] = useState('Thank you! Your submission has been received.');
+  const [errorMessage, setErrorMessage] = useState('Sorry, there was an error submitting your form. Please try again.');
+  const [privacyText, setPrivacyText] = useState('');
+  const [multiStep, setMultiStep] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
+  const [theme, setTheme] = useState<'default' | 'modern' | 'minimal'>('default');
+  const [emailNotifications, setEmailNotifications] = useState<EmailNotificationConfig>({
+    enabled: false,
+    recipients: [],
+    template: {
+      id: 'default',
+      name: 'Default Template',
+      subject: 'New Form Submission',
+      body: 'You have received a new form submission.',
+      variables: []
+    },
+    deliveryTiming: 'immediate',
+    attachments: false,
+    format: 'html'
+  });
+
+  // Load existing form data
   useEffect(() => {
-    if (existingForm && !isLoadingForm) {
-      const formConfig: FormConfig = {
-        id: existingForm.id,
-        title: existingForm.name,
-        description: existingForm.description || '',
-        fields: existingForm.config?.fields || [],
-        submitButtonText: existingForm.config?.submitButtonText || 'Submit',
-        successMessage: existingForm.config?.successMessage,
-        errorMessage: existingForm.config?.errorMessage,
-        privacyText: existingForm.config?.privacyText,
-        multiStep: existingForm.config?.multiStep || false,
-        showProgress: existingForm.config?.showProgress || false,
-        theme: existingForm.config?.theme || 'default',
-      };
-      setForms([formConfig]);
-      setSelectedFormId(formConfig.id || '');
-    } else if (!formId && forms.length === 0) {
-      // Create new form template
-      const newFormId = uuidv4();
-      const newForm: FormConfig = {
-        id: newFormId,
-        title: 'New Lead Form',
-        description: 'Capture lead information',
-        fields: [],
-        submitButtonText: 'Submit',
-        multiStep: false,
-        showProgress: false,
-        theme: 'default'
-      };
-      setForms([newForm]);
-      setSelectedFormId(newFormId);
+    if (existingForm) {
+      setFormTitle(existingForm.config.title || 'Untitled Form');
+      setFormDescription(existingForm.config.description || '');
+      setLayoutMode(existingForm.config.layoutMode || 'list');
+      setFields(existingForm.config.fields || []);
+      setRows(existingForm.config.rows || []);
+      setSubmitButtonText(existingForm.config.submitButtonText || 'Submit');
+      setSuccessMessage(existingForm.config.successMessage || '');
+      setErrorMessage(existingForm.config.errorMessage || '');
+      setPrivacyText(existingForm.config.privacyText || '');
+      setMultiStep(existingForm.config.multiStep || false);
+      setShowProgress(existingForm.config.showProgress || false);
+      setTheme(existingForm.config.theme || 'default');
+      if (existingForm.config.emailNotifications) {
+        setEmailNotifications(existingForm.config.emailNotifications);
+      }
     }
-  }, [existingForm, isLoadingForm, formId]);
+  }, [existingForm]);
 
-  useEffect(() => {
-    if (forms.length > 0 && !selectedFormId) {
-      setSelectedFormId(forms[0].id || '');
-    }
-  }, [forms, selectedFormId]);
-
+  // Field management for list mode
   const handleFieldAdd = (fieldType: FormFieldType) => {
-    const selectedForm = forms.find(f => f.id === selectedFormId);
-    if (!selectedForm) return;
-
     const newField: FormField = {
       id: uuidv4(),
-      label: `New ${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
+      label: `New ${fieldType} Field`,
       type: fieldType,
       required: false,
       enabled: true,
-      placeholder: `Enter ${fieldType}`
+      placeholder: '',
+      helpText: '',
     };
-
-    const updatedForm = {
-      ...selectedForm,
-      fields: [...selectedForm.fields, newField]
-    };
-
-    setForms(forms.map(f => f.id === selectedFormId ? updatedForm : f));
+    setFields([...fields, newField]);
   };
 
   const handleFieldUpdate = (fieldId: string, updates: Partial<FormField>) => {
-    const selectedForm = forms.find(f => f.id === selectedFormId);
-    if (!selectedForm) return;
-
-    const updatedForm = {
-      ...selectedForm,
-      fields: selectedForm.fields.map(f =>
-        f.id === fieldId ? { ...f, ...updates } : f
-      )
-    };
-
-    setForms(forms.map(f => f.id === selectedFormId ? updatedForm : f));
+    setFields(fields.map(field => 
+      field.id === fieldId ? { ...field, ...updates } : field
+    ));
   };
 
   const handleFieldDelete = (fieldId: string) => {
-    const selectedForm = forms.find(f => f.id === selectedFormId);
-    if (!selectedForm) return;
-
-    const updatedForm = {
-      ...selectedForm,
-      fields: selectedForm.fields.filter(f => f.id !== fieldId)
-    };
-
-    setForms(forms.map(f => f.id === selectedFormId ? updatedForm : f));
+    setFields(fields.filter(field => field.id !== fieldId));
   };
 
-  const handleSave = async () => {
-    const selectedForm = forms.find(f => f.id === selectedFormId);
-    if (!selectedForm) {
-      toast.error('No form selected');
-      return;
-    }
+  // Row & field management for grid mode
+  const handleRowAdd = (columns: number) => {
+    const newRow: FormRow = {
+      id: uuidv4(),
+      fields: Array(columns).fill(null),
+      columns
+    };
+    setRows([...rows, newRow]);
+  };
 
-    setIsSaving(true);
-    
+  const handleRowDelete = (rowId: string) => {
+    setRows(rows.filter(row => row.id !== rowId));
+  };
+
+  const handleFieldAddToGrid = (fieldType: FormFieldType, rowId: string, columnIndex: number) => {
+    const newField: FormField = {
+      id: uuidv4(),
+      label: `New ${fieldType} Field`,
+      type: fieldType,
+      required: false,
+      enabled: true,
+      placeholder: '',
+      helpText: '',
+    };
+
+    setRows(rows.map(row => {
+      if (row.id === rowId) {
+        const newFields = [...row.fields];
+        newFields[columnIndex] = newField;
+        return { ...row, fields: newFields };
+      }
+      return row;
+    }));
+  };
+
+  const handleFieldUpdateInGrid = (fieldId: string, updates: Partial<FormField>) => {
+    setRows(rows.map(row => ({
+      ...row,
+      fields: row.fields.map(field => 
+        field && field.id === fieldId ? { ...field, ...updates } : field
+      )
+    })));
+  };
+
+  const handleFieldDeleteFromGrid = (fieldId: string) => {
+    setRows(rows.map(row => ({
+      ...row,
+      fields: row.fields.map(field => 
+        field && field.id === fieldId ? null : field
+      )
+    })));
+  };
+
+  // Save form
+  const handleSave = async () => {
+    // Collect all fields from either list or grid mode
+    const allFields = layoutMode === 'grid' 
+      ? rows.flatMap(row => row.fields).filter(Boolean) as FormField[]
+      : fields;
+
+    const formConfig: FormConfig = {
+      title: formTitle,
+      description: formDescription,
+      fields: allFields,
+      layoutMode,
+      rows: layoutMode === 'grid' ? rows : undefined,
+      submitButtonText,
+      successMessage,
+      errorMessage,
+      privacyText,
+      multiStep,
+      showProgress,
+      theme,
+      emailNotifications
+    };
+
     try {
       if (formId) {
         // Update existing form
         await updateFormMutation.mutateAsync({
           id: formId,
-          updates: {
-            name: selectedForm.title,
-            description: selectedForm.description,
-            config: selectedForm,
+          updates: { 
+            name: formTitle,
+            description: formDescription,
+            config: formConfig 
           }
         });
+        toast.success('Form updated successfully');
       } else {
         // Create new form
         await createFormMutation.mutateAsync({
-          name: selectedForm.title,
-          description: selectedForm.description,
-          config: selectedForm,
-          status: 'draft',
+          name: formTitle,
+          description: formDescription,
+          config: formConfig,
+          status: 'draft'
         });
-      }
-
-      if (onSave) {
-        onSave(selectedForm);
+        toast.success('Form created successfully');
       }
       
-      // Navigate back to forms overview
-      navigate('/admin/leads/forms');
+      if (onSave) {
+        onSave(formConfig);
+      } else {
+        navigate('/admin/leads/forms');
+      }
     } catch (error: any) {
       console.error('Error saving form:', error);
-      // Error toast already shown by mutation
-    } finally {
-      setIsSaving(false);
+      toast.error('Failed to save form: ' + error.message);
     }
   };
 
-  const selectedForm = forms.find(f => f.id === selectedFormId);
-
-  if (isLoadingForm) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading form...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <FormBuilderLayout
-      forms={forms}
-      selectedFormId={selectedFormId}
-      onFormSelect={setSelectedFormId}
-      onFormCreate={() => {}}
-      onFormDelete={() => {}}
-      onFormDuplicate={() => {}}
-      onFieldAdd={handleFieldAdd}
-      onFieldUpdate={handleFieldUpdate}
-      onFieldDelete={handleFieldDelete}
-    >
-      {selectedForm && (
-        <div className="space-y-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Form Fields</h3>
-            <div className="space-y-4">
-              {selectedForm.fields.map((field) => (
-                <div key={field.id} className="flex items-start gap-3 p-4 border rounded-lg">
-                  <div className="flex-1 space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label>Field Label</Label>
-                        <Input
-                          value={field.label}
-                          onChange={(e) => handleFieldUpdate(field.id, { label: e.target.value })}
-                        />
-                      </div>
-                      <div>
-                        <Label>Placeholder</Label>
-                        <Input
-                          value={field.placeholder || ''}
-                          onChange={(e) => handleFieldUpdate(field.id, { placeholder: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <label className="flex items-center gap-2">
-                        <Switch
-                          checked={field.required}
-                          onCheckedChange={(checked) => handleFieldUpdate(field.id, { required: checked })}
-                        />
-                        <span className="text-sm">Required</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <Switch
-                          checked={field.enabled !== false}
-                          onCheckedChange={(checked) => handleFieldUpdate(field.id, { enabled: checked })}
-                        />
-                        <span className="text-sm">Enabled</span>
-                      </label>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleFieldDelete(field.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">
+          {formId ? 'Edit Form' : 'Create New Form'}
+        </h1>
+        <p className="text-muted-foreground">
+          Configure your lead capture form with custom fields, layout, and email notifications
+        </p>
+      </div>
 
-            {selectedForm.fields.length === 0 && (
-              <p className="text-center text-muted-foreground py-8">
-                Drag fields from the left panel to add them to your form
-              </p>
-            )}
-          </Card>
+      <Tabs defaultValue="builder" className="space-y-6">
+        <div className="flex items-center justify-between">
+          <TabsList>
+            <TabsTrigger value="builder">Builder</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="notifications">Email Notifications</TabsTrigger>
+          </TabsList>
 
-          {/* Settings Card */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Form Settings</h3>
-            <div className="space-y-4">
-              <div>
-                <Label>Success Message</Label>
-                <Input
-                  value={selectedForm.successMessage || ''}
-                  onChange={(e) => {
-                    const updatedForm = { ...selectedForm, successMessage: e.target.value };
-                    setForms(forms.map(f => f.id === selectedFormId ? updatedForm : f));
-                  }}
-                  placeholder="Thank you for your submission!"
-                />
-              </div>
-              <div>
-                <Label>Error Message</Label>
-                <Input
-                  value={selectedForm.errorMessage || ''}
-                  onChange={(e) => {
-                    const updatedForm = { ...selectedForm, errorMessage: e.target.value };
-                    setForms(forms.map(f => f.id === selectedFormId ? updatedForm : f));
-                  }}
-                  placeholder="Something went wrong. Please try again."
-                />
-              </div>
-              <div>
-                <Label>Privacy Text</Label>
-                <Textarea
-                  rows={3}
-                  value={selectedForm.privacyText || ''}
-                  onChange={(e) => {
-                    const updatedForm = { ...selectedForm, privacyText: e.target.value };
-                    setForms(forms.map(f => f.id === selectedFormId ? updatedForm : f));
-                  }}
-                  placeholder="By submitting this form, you agree to our privacy policy..."
-                />
-              </div>
-            </div>
-          </Card>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-2 pt-4 border-t">
+          <div className="flex items-center gap-2">
             <Button variant="outline" onClick={onCancel || (() => navigate('/admin/leads/forms'))}>
+              <X className="h-4 w-4 mr-2" />
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={isSaving}>
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                formId ? 'Update Form' : 'Create Form'
-              )}
+            <Button onClick={handleSave}>
+              <Save className="h-4 w-4 mr-2" />
+              {formId ? 'Update Form' : 'Create Form'}
             </Button>
           </div>
         </div>
-      )}
-    </FormBuilderLayout>
+
+        {/* Builder Tab */}
+        <TabsContent value="builder" className="space-y-6">
+          {/* Form Title & Description */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Form Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="form-title">Form Title</Label>
+                <Input
+                  id="form-title"
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  placeholder="Enter form title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="form-description">Description</Label>
+                <Textarea
+                  id="form-description"
+                  value={formDescription}
+                  onChange={(e) => setFormDescription(e.target.value)}
+                  placeholder="Enter form description"
+                  rows={3}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Layout Mode Toggle */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle>Form Layout</CardTitle>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={layoutMode === 'list' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setLayoutMode('list')}
+                  >
+                    <LayoutList className="h-4 w-4 mr-2" />
+                    List View
+                  </Button>
+                  <Button
+                    variant={layoutMode === 'grid' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setLayoutMode('grid')}
+                  >
+                    <LayoutGrid className="h-4 w-4 mr-2" />
+                    Grid View
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {layoutMode === 'list' ? (
+                <div className="space-y-4">
+                  {fields.map((field) => (
+                    <FieldConfigEditor
+                      key={field.id}
+                      field={field}
+                      onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
+                      onRemove={() => handleFieldDelete(field.id)}
+                      availableFields={fields}
+                      compact={false}
+                    />
+                  ))}
+                  {fields.length === 0 && (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <p>No fields added yet. Use the "Add Field" button below to start building your form.</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <GridFormBuilder
+                  rows={rows}
+                  onRowAdd={handleRowAdd}
+                  onRowDelete={handleRowDelete}
+                  onFieldUpdate={handleFieldUpdateInGrid}
+                  onFieldDelete={handleFieldDeleteFromGrid}
+                  onFieldAdd={handleFieldAddToGrid}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Settings Tab */}
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Form Settings</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label htmlFor="submit-button">Submit Button Text</Label>
+                <Input
+                  id="submit-button"
+                  value={submitButtonText}
+                  onChange={(e) => setSubmitButtonText(e.target.value)}
+                  placeholder="Submit"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="success-message">Success Message</Label>
+                <Textarea
+                  id="success-message"
+                  value={successMessage}
+                  onChange={(e) => setSuccessMessage(e.target.value)}
+                  placeholder="Thank you message"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="error-message">Error Message</Label>
+                <Textarea
+                  id="error-message"
+                  value={errorMessage}
+                  onChange={(e) => setErrorMessage(e.target.value)}
+                  placeholder="Error message"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="privacy-text">Privacy Text (optional)</Label>
+                <Textarea
+                  id="privacy-text"
+                  value={privacyText}
+                  onChange={(e) => setPrivacyText(e.target.value)}
+                  placeholder="Privacy policy or terms text"
+                  rows={2}
+                />
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Multi-Step Form</Label>
+                    <p className="text-sm text-muted-foreground">Split form into multiple steps</p>
+                  </div>
+                  <Switch checked={multiStep} onCheckedChange={setMultiStep} />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Show Progress Bar</Label>
+                    <p className="text-sm text-muted-foreground">Display progress indicator</p>
+                  </div>
+                  <Switch checked={showProgress} onCheckedChange={setShowProgress} />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="theme">Form Theme</Label>
+                <Select value={theme} onValueChange={(value: any) => setTheme(value)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default</SelectItem>
+                    <SelectItem value="modern">Modern</SelectItem>
+                    <SelectItem value="minimal">Minimal</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Email Notifications Tab */}
+        <TabsContent value="notifications">
+          <EnhancedEmailNotifications
+            config={emailNotifications}
+            onConfigUpdate={setEmailNotifications}
+            availablePrograms={programs}
+          />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

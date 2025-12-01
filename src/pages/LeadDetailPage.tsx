@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
@@ -20,6 +18,8 @@ import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 import { AcademicJourneyTracker } from '@/components/admin/leads/AcademicJourneyTracker';
 import { AIPlaysPanel } from '@/components/admin/leads/AIPlaysPanel';
 import { AICommunicationDemo } from '@/components/admin/leads/AICommunicationDemo';
+
+import { PastelBadge, PillButton, PillIconButton, getLeadStatusColor, HotSheetTabsList, HotSheetTabsTrigger } from '@/components/hotsheet';
 
 export default function LeadDetailPage() {
   const navigate = useNavigate();
@@ -99,17 +99,6 @@ export default function LeadDetailPage() {
     }
   };
 
-  const getStatusColor = (status: LeadStatus) => {
-    switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'contacted': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'qualified': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'converted': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
-      case 'lost': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -126,9 +115,9 @@ export default function LeadDetailPage() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-4">
           <h2 className="text-xl font-semibold">Lead not found</h2>
-          <Button onClick={() => navigate('/admin/leads')}>
+          <PillButton onClick={() => navigate('/admin/leads')}>
             Back to Leads
-          </Button>
+          </PillButton>
         </div>
       </div>
     );
@@ -140,26 +129,26 @@ export default function LeadDetailPage() {
       <TopNavigationBar />
       
       {/* Header with back button and lead info */}
-      <div className="border-b bg-card px-4 sm:px-6 py-4">
+      <div className="border-b border-border/40 bg-card px-4 sm:px-6 py-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-            <Button 
+            <PillButton 
               variant="ghost" 
               size="sm" 
               onClick={() => navigate('/admin/leads')}
               className="min-h-[44px]"
+              icon={<ArrowLeft className="h-4 w-4" />}
             >
-              <ArrowLeft className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Back to Leads</span>
-            </Button>
+            </PillButton>
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-1 min-w-0">
               <h1 className="text-xl sm:text-2xl font-bold truncate">
                 {lead.first_name} {lead.last_name}
               </h1>
               <div className="flex items-center gap-2 flex-wrap">
-                <Badge className={getStatusColor(lead.status)}>
+                <PastelBadge color={getLeadStatusColor(lead.status)} dot>
                   {lead.status}
-                </Badge>
+                </PastelBadge>
                 <AgenticAIIndicator 
                   isAIManaged={lead.ai_managed || false}
                   aiStatus={lead.ai_managed ? 'active' : undefined}
@@ -170,17 +159,17 @@ export default function LeadDetailPage() {
           </div>
           
           <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
+            <PillButton 
+              variant="soft" 
               size="sm" 
               onClick={() => navigate(`/admin/leads/test/${leadId}`)}
-              className="hidden sm:inline-flex bg-purple-50 hover:bg-purple-100 text-purple-700 border-purple-200"
+              className="hidden sm:inline-flex"
             >
               🧪 Try New Design
-            </Button>
-            <div className="text-sm text-muted-foreground">
-              Score: <span className="font-semibold text-foreground">{lead.lead_score}</span>
-            </div>
+            </PillButton>
+            <PastelBadge color="primary" size="lg">
+              Score: {lead.lead_score}
+            </PastelBadge>
           </div>
         </div>
       </div>
@@ -197,32 +186,26 @@ export default function LeadDetailPage() {
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-4 sm:p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
-              <TabsList className="flex overflow-x-auto md:grid md:grid-cols-6 mb-6 w-full">
-                <TabsTrigger value="journey" className="flex items-center gap-2 whitespace-nowrap">
-                  <Route className="h-4 w-4" />
+              <HotSheetTabsList className="flex overflow-x-auto md:grid md:grid-cols-6 mb-6 w-full">
+                <HotSheetTabsTrigger value="journey" icon={<Route className="h-4 w-4" />}>
                   <span className="hidden sm:inline">Journey</span>
-                </TabsTrigger>
-                <TabsTrigger value="ai-plays" className="flex items-center gap-2 whitespace-nowrap">
-                  <Bot className="h-4 w-4" />
+                </HotSheetTabsTrigger>
+                <HotSheetTabsTrigger value="ai-plays" icon={<Bot className="h-4 w-4" />}>
                   <span className="hidden sm:inline">AI Plays</span>
-                </TabsTrigger>
-                <TabsTrigger value="communication" className="flex items-center gap-2 whitespace-nowrap">
-                  <MessageSquare className="h-4 w-4" />
+                </HotSheetTabsTrigger>
+                <HotSheetTabsTrigger value="communication" icon={<MessageSquare className="h-4 w-4" />}>
                   <span className="hidden sm:inline">Communication</span>
-                </TabsTrigger>
-                <TabsTrigger value="documents" className="flex items-center gap-2 whitespace-nowrap">
-                  <FileText className="h-4 w-4" />
+                </HotSheetTabsTrigger>
+                <HotSheetTabsTrigger value="documents" icon={<FileText className="h-4 w-4" />}>
                   <span className="hidden sm:inline">Documents</span>
-                </TabsTrigger>
-                <TabsTrigger value="timeline" className="flex items-center gap-2 whitespace-nowrap">
-                  <Clock className="h-4 w-4" />
+                </HotSheetTabsTrigger>
+                <HotSheetTabsTrigger value="timeline" icon={<Clock className="h-4 w-4" />}>
                   <span className="hidden sm:inline">Activity</span>
-                </TabsTrigger>
-                <TabsTrigger value="tasks" className="flex items-center gap-2 whitespace-nowrap">
-                  <Users className="h-4 w-4" />
+                </HotSheetTabsTrigger>
+                <HotSheetTabsTrigger value="tasks" icon={<Users className="h-4 w-4" />}>
                   <span className="hidden sm:inline">Tasks</span>
-                </TabsTrigger>
-              </TabsList>
+                </HotSheetTabsTrigger>
+              </HotSheetTabsList>
 
               <div className="flex-1">
                 <TabsContent value="journey" className="m-0">
@@ -270,9 +253,13 @@ export default function LeadDetailPage() {
       {/* Mobile FAB + Bottom Sheet */}
       <div className="lg:hidden">
         <MobileLeadInfoSheet lead={lead} onUpdate={loadLead}>
-          <button className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 flex items-center justify-center z-50 transition-transform active:scale-95">
-            <User className="h-6 w-6" />
-          </button>
+          <PillIconButton
+            icon={<User className="h-6 w-6" />}
+            size="lg"
+            variant="primary"
+            className="fixed bottom-6 right-6 h-14 w-14 shadow-lg z-50"
+            label="View lead info"
+          />
         </MobileLeadInfoSheet>
       </div>
     </div>

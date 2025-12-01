@@ -14,8 +14,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Mail,
   Phone,
@@ -29,6 +27,7 @@ import {
   User,
   Bot,
 } from "lucide-react";
+import { PastelBadge, PillButton, IconContainer, HotSheetCard, getLeadStatusColor } from "@/components/hotsheet";
 
 interface MobileLeadInfoSheetProps {
   lead: Lead;
@@ -37,28 +36,13 @@ interface MobileLeadInfoSheetProps {
 }
 
 export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfoSheetProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400";
-      case "contacted":
-        return "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400";
-      case "qualified":
-        return "bg-green-500/10 text-green-600 dark:text-green-400";
-      case "converted":
-        return "bg-purple-500/10 text-purple-600 dark:text-purple-400";
-      default:
-        return "bg-muted text-muted-foreground";
-    }
-  };
-
   return (
     <Drawer>
       <DrawerTrigger asChild>
         {children}
       </DrawerTrigger>
       <DrawerContent className="max-h-[85vh] bg-background">
-        <DrawerHeader className="border-b pb-4">
+        <DrawerHeader className="border-b border-border/40 pb-4">
           <DrawerTitle className="text-xl">
             {lead.first_name} {lead.last_name}
           </DrawerTitle>
@@ -68,19 +52,21 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
               Score: {lead.lead_score}
             </span>
             <span>•</span>
-            <Badge variant="outline" className={getStatusColor(lead.status)}>
+            <PastelBadge color={getLeadStatusColor(lead.status)} dot>
               {lead.status}
-            </Badge>
+            </PastelBadge>
           </DrawerDescription>
         </DrawerHeader>
 
         <ScrollArea className="h-full px-4 pb-6">
           <Accordion type="multiple" defaultValue={["info", "calls"]} className="space-y-2">
             {/* Contact Information */}
-            <AccordionItem value="info" className="border rounded-lg px-4">
+            <AccordionItem value="info" className="border rounded-2xl px-4 border-border/40">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
+                  <IconContainer color="sky" size="sm">
+                    <User className="h-4 w-4" />
+                  </IconContainer>
                   <span className="font-semibold">Contact Information</span>
                 </div>
               </AccordionTrigger>
@@ -140,31 +126,31 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
                 </div>
 
                 <div className="flex gap-2 pt-2">
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <PhoneCall className="h-4 w-4 mr-2" />
+                  <PillButton size="sm" variant="outline" className="flex-1" icon={<PhoneCall className="h-4 w-4" />}>
                     Call
-                  </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <Mail className="h-4 w-4 mr-2" />
+                  </PillButton>
+                  <PillButton size="sm" variant="outline" className="flex-1" icon={<Mail className="h-4 w-4" />}>
                     Email
-                  </Button>
+                  </PillButton>
                 </div>
               </AccordionContent>
             </AccordionItem>
 
             {/* Call History */}
-            <AccordionItem value="calls" className="border rounded-lg px-4">
+            <AccordionItem value="calls" className="border rounded-2xl px-4 border-border/40">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-2">
-                  <PhoneCall className="h-4 w-4" />
+                  <IconContainer color="emerald" size="sm">
+                    <PhoneCall className="h-4 w-4" />
+                  </IconContainer>
                   <span className="font-semibold">Call History</span>
-                  <Badge variant="secondary" className="ml-auto mr-2">3</Badge>
+                  <PastelBadge color="slate" size="sm" className="ml-auto mr-2">3</PastelBadge>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-4">
                 {/* Mock call history - in real app, this would be from props/state */}
                 <div className="space-y-3">
-                  <div className="border-l-2 border-green-500 pl-3 py-2">
+                  <HotSheetCard padding="sm" className="border-l-4 border-l-emerald-500">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium">Outbound Call</p>
@@ -173,12 +159,12 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
                           Discussed program requirements and next steps
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-xs">Completed</Badge>
+                      <PastelBadge color="emerald" size="sm">Completed</PastelBadge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">2 hours ago</p>
-                  </div>
+                  </HotSheetCard>
 
-                  <div className="border-l-2 border-yellow-500 pl-3 py-2">
+                  <HotSheetCard padding="sm" className="border-l-4 border-l-amber-500">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium">Inbound Call</p>
@@ -187,42 +173,43 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
                           Questions about application deadline
                         </p>
                       </div>
-                      <Badge variant="outline" className="text-xs">Completed</Badge>
+                      <PastelBadge color="emerald" size="sm">Completed</PastelBadge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">Yesterday</p>
-                  </div>
+                  </HotSheetCard>
 
-                  <div className="border-l-2 border-red-500 pl-3 py-2">
+                  <HotSheetCard padding="sm" className="border-l-4 border-l-rose-500">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium">Outbound Call</p>
                         <p className="text-xs text-muted-foreground">No answer - Left voicemail</p>
                       </div>
-                      <Badge variant="outline" className="text-xs">No Answer</Badge>
+                      <PastelBadge color="rose" size="sm">No Answer</PastelBadge>
                     </div>
                     <p className="text-xs text-muted-foreground mt-2">3 days ago</p>
-                  </div>
+                  </HotSheetCard>
                 </div>
 
-                <Button size="sm" variant="outline" className="w-full mt-2">
-                  <PhoneCall className="h-4 w-4 mr-2" />
+                <PillButton size="sm" variant="outline" className="w-full mt-2" icon={<PhoneCall className="h-4 w-4" />}>
                   Log New Call
-                </Button>
+                </PillButton>
               </AccordionContent>
             </AccordionItem>
 
             {/* Appointments */}
-            <AccordionItem value="appointments" className="border rounded-lg px-4">
+            <AccordionItem value="appointments" className="border rounded-2xl px-4 border-border/40">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
+                  <IconContainer color="violet" size="sm">
+                    <Calendar className="h-4 w-4" />
+                  </IconContainer>
                   <span className="font-semibold">Appointments</span>
-                  <Badge variant="secondary" className="ml-auto mr-2">2</Badge>
+                  <PastelBadge color="slate" size="sm" className="ml-auto mr-2">2</PastelBadge>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-4">
                 <div className="space-y-3">
-                  <div className="border rounded-lg p-3 bg-blue-500/5">
+                  <HotSheetCard padding="sm" className="bg-sky-50/50 border-sky-200">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium">Campus Tour</p>
@@ -235,13 +222,11 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
                           <span>60 minutes</span>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-600">
-                        Upcoming
-                      </Badge>
+                      <PastelBadge color="sky" size="sm">Upcoming</PastelBadge>
                     </div>
-                  </div>
+                  </HotSheetCard>
 
-                  <div className="border rounded-lg p-3">
+                  <HotSheetCard padding="sm">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium">Admissions Interview</p>
@@ -254,31 +239,30 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
                           <span>30 minutes</span>
                         </div>
                       </div>
-                      <Badge variant="outline" className="text-xs">
-                        Scheduled
-                      </Badge>
+                      <PastelBadge color="slate" size="sm">Scheduled</PastelBadge>
                     </div>
-                  </div>
+                  </HotSheetCard>
                 </div>
 
-                <Button size="sm" variant="outline" className="w-full mt-2">
-                  <Calendar className="h-4 w-4 mr-2" />
+                <PillButton size="sm" variant="outline" className="w-full mt-2" icon={<Calendar className="h-4 w-4" />}>
                   Schedule Appointment
-                </Button>
+                </PillButton>
               </AccordionContent>
             </AccordionItem>
 
             {/* AI Sequences */}
-            <AccordionItem value="sequences" className="border rounded-lg px-4">
+            <AccordionItem value="sequences" className="border rounded-2xl px-4 border-border/40">
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex items-center gap-2">
-                  <Bot className="h-4 w-4" />
+                  <IconContainer color="primary" size="sm">
+                    <Bot className="h-4 w-4" />
+                  </IconContainer>
                   <span className="font-semibold">AI Sequences</span>
-                  <Badge variant="secondary" className="ml-auto mr-2">1</Badge>
+                  <PastelBadge color="emerald" size="sm" className="ml-auto mr-2">1</PastelBadge>
                 </div>
               </AccordionTrigger>
               <AccordionContent className="space-y-3 pt-4">
-                <div className="border rounded-lg p-3 bg-purple-500/5">
+                <HotSheetCard padding="sm" className="bg-violet-50/50 border-violet-200">
                   <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex-1">
                       <p className="text-sm font-medium">Welcome & Nurture Sequence</p>
@@ -286,40 +270,37 @@ export function MobileLeadInfoSheet({ lead, children, onUpdate }: MobileLeadInfo
                         5-email sequence over 14 days
                       </p>
                     </div>
-                    <Badge variant="outline" className="text-xs bg-green-500/10 text-green-600">
-                      Active
-                    </Badge>
+                    <PastelBadge color="emerald" size="sm">Active</PastelBadge>
                   </div>
                   
                   <div className="space-y-2 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Email 1: Welcome</span>
-                      <Badge variant="secondary" className="text-xs">Sent</Badge>
+                      <PastelBadge color="emerald" size="sm">Sent</PastelBadge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Email 2: Program Overview</span>
-                      <Badge variant="secondary" className="text-xs">Sent</Badge>
+                      <PastelBadge color="emerald" size="sm">Sent</PastelBadge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Email 3: Application Tips</span>
-                      <Badge variant="outline" className="text-xs">Scheduled</Badge>
+                      <PastelBadge color="slate" size="sm">Scheduled</PastelBadge>
                     </div>
                   </div>
 
                   <div className="flex gap-2 mt-3">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <PillButton size="sm" variant="outline" className="flex-1">
                       Pause
-                    </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    </PillButton>
+                    <PillButton size="sm" variant="outline" className="flex-1">
                       View Details
-                    </Button>
+                    </PillButton>
                   </div>
-                </div>
+                </HotSheetCard>
 
-                <Button size="sm" variant="outline" className="w-full">
-                  <Bot className="h-4 w-4 mr-2" />
+                <PillButton size="sm" variant="outline" className="w-full" icon={<Bot className="h-4 w-4" />}>
                   Enroll in Sequence
-                </Button>
+                </PillButton>
               </AccordionContent>
             </AccordionItem>
           </Accordion>

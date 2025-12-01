@@ -1,7 +1,6 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Bot, User, Clock, MessageSquare, Phone, Hand } from "lucide-react";
+import { PastelBadge, PillButton, type PastelColor } from "@/components/hotsheet";
 
 interface AgenticAIIndicatorProps {
   isAIManaged: boolean;
@@ -25,10 +24,9 @@ export function AgenticAIIndicator({
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger>
-            <Badge variant="outline" className={`${className} bg-gray-50`}>
-              <User className="h-3 w-3 mr-1" />
+            <PastelBadge color="slate" className={className} icon={<User className="h-3 w-3" />}>
               Human
-            </Badge>
+            </PastelBadge>
           </TooltipTrigger>
           <TooltipContent>
             <p>This lead is managed by human advisors</p>
@@ -38,39 +36,39 @@ export function AgenticAIIndicator({
     );
   }
 
-  const getStatusConfig = () => {
+  const getStatusConfig = (): { color: PastelColor; icon: typeof Bot; label: string; description: string } => {
     switch (aiStatus) {
       case 'active':
         return {
-          badge: 'bg-blue-50 text-blue-700 border-blue-200',
+          color: 'sky',
           icon: Bot,
           label: 'AI Active',
           description: 'AI is actively managing this lead'
         };
       case 'paused':
         return {
-          badge: 'bg-yellow-50 text-yellow-700 border-yellow-200',
+          color: 'amber',
           icon: Clock,
           label: 'AI Paused',
           description: 'AI management is temporarily paused'
         };
       case 'handoff_pending':
         return {
-          badge: 'bg-orange-50 text-orange-700 border-orange-200',
+          color: 'peach',
           icon: Hand,
           label: 'Handoff Pending',
           description: 'Lead ready for human advisor takeover'
         };
       case 'human_takeover':
         return {
-          badge: 'bg-purple-50 text-purple-700 border-purple-200',
+          color: 'violet',
           icon: User,
           label: 'Human Override',
           description: 'Human advisor has taken over from AI'
         };
       default:
         return {
-          badge: 'bg-blue-50 text-blue-700 border-blue-200',
+          color: 'sky',
           icon: Bot,
           label: 'AI Managed',
           description: 'This lead is managed by AI'
@@ -86,19 +84,18 @@ export function AgenticAIIndicator({
       <Tooltip>
         <TooltipTrigger asChild>
           <div className={`flex items-center gap-2 ${className}`}>
-            <Badge variant="outline" className={config.badge}>
-              <StatusIcon className="h-3 w-3 mr-1" />
+            <PastelBadge color={config.color} icon={<StatusIcon className="h-3 w-3" />}>
               {config.label}
-            </Badge>
+            </PastelBadge>
             {aiStatus === 'handoff_pending' && onHumanTakeover && (
-              <Button
+              <PillButton
                 size="sm"
-                variant="outline"
+                variant="soft"
                 onClick={onHumanTakeover}
                 className="text-xs px-2 py-1 h-6"
               >
                 Take Over
-              </Button>
+              </PillButton>
             )}
           </div>
         </TooltipTrigger>
@@ -162,8 +159,8 @@ export function AIActivityTimeline({
             const ActivityIcon = getActivityIcon(activity.type);
             return (
               <div key={index} className="flex items-center gap-2 text-xs">
-                <div className={`p-1 rounded ${
-                  activity.success ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'
+                <div className={`p-1 rounded-lg ${
+                  activity.success ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'
                 }`}>
                   <ActivityIcon className="h-3 w-3" />
                 </div>

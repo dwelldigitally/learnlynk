@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,126 +9,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { ChevronRight, ChevronDown, Plus, Edit, Trash2, Building2, Users as UsersIcon, User } from 'lucide-react';
 import type { TeamHierarchyNode } from '@/types/team-management';
 import { toast } from 'sonner';
-
-// Mock data for demonstration
-const mockHierarchy: TeamHierarchyNode[] = [
-  {
-    id: 'team_root',
-    name: 'Western College',
-    type: 'department',
-    parent_id: null,
-    manager_id: null,
-    description: 'Root organization node',
-    is_active: true,
-    metadata: {},
-    created_at: '2024-01-01T00:00:00Z',
-    updated_at: '2024-01-01T00:00:00Z',
-    memberCount: 8,
-    children: [
-      {
-        id: 'team_admissions',
-        name: 'Admissions & Enrollment',
-        type: 'department',
-        parent_id: 'team_root',
-        manager_id: null,
-        description: 'Manages all admissions and enrollment activities',
-        is_active: true,
-        metadata: {},
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-        memberCount: 3,
-        children: [
-          {
-            id: 'team_domestic',
-            name: 'Domestic Admissions Team',
-            type: 'team',
-            parent_id: 'team_admissions',
-            manager_id: '2',
-            description: 'Handles domestic student admissions',
-            is_active: true,
-            metadata: {},
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            memberCount: 2
-          },
-          {
-            id: 'team_international',
-            name: 'International Admissions Team',
-            type: 'team',
-            parent_id: 'team_admissions',
-            manager_id: '6',
-            description: 'Handles international student admissions',
-            is_active: true,
-            metadata: {},
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            memberCount: 1
-          }
-        ]
-      },
-      {
-        id: 'team_academic',
-        name: 'Academic Affairs',
-        type: 'department',
-        parent_id: 'team_root',
-        manager_id: null,
-        description: 'Oversees academic programs and policies',
-        is_active: true,
-        metadata: {},
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-        memberCount: 3,
-        children: [
-          {
-            id: 'team_advisors',
-            name: 'Program Advisors',
-            type: 'team',
-            parent_id: 'team_academic',
-            manager_id: null,
-            description: 'Provides academic advising services',
-            is_active: true,
-            metadata: {},
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            memberCount: 2
-          },
-          {
-            id: 'team_registrar',
-            name: 'Registrar Office',
-            type: 'team',
-            parent_id: 'team_academic',
-            manager_id: null,
-            description: 'Manages student records and registration',
-            is_active: true,
-            metadata: {},
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-            memberCount: 1
-          }
-        ]
-      },
-      {
-        id: 'team_financial',
-        name: 'Financial Services',
-        type: 'department',
-        parent_id: 'team_root',
-        manager_id: '1',
-        description: 'Handles all financial operations',
-        is_active: true,
-        metadata: {},
-        created_at: '2024-01-01T00:00:00Z',
-        updated_at: '2024-01-01T00:00:00Z',
-        memberCount: 2
-      }
-    ]
-  }
-];
+import { useTeamHierarchy, useCreateTeamNode, useUpdateTeamNode, useDeleteTeamNode } from '@/hooks/useTeamHierarchy';
+import { useUsers } from '@/hooks/useUsers';
 
 export function EnhancedTeamHierarchy() {
-  const hierarchy = mockHierarchy;
-  const isLoading = false;
+  const { data: hierarchy = [], isLoading } = useTeamHierarchy();
+  const { data: users = [] } = useUsers();
+  const createNode = useCreateTeamNode();
+  const updateNode = useUpdateTeamNode();
+  const deleteNode = useDeleteTeamNode();
   
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['team_root']));
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   const [showDialog, setShowDialog] = useState(false);
   const [editingNode, setEditingNode] = useState<TeamHierarchyNode | null>(null);
   const [formData, setFormData] = useState({
@@ -136,7 +27,15 @@ export function EnhancedTeamHierarchy() {
     type: 'team' as 'team' | 'department' | 'individual',
     description: '',
     parent_id: null as string | null,
+    manager_id: null as string | null,
   });
+
+  // Auto-expand root nodes on load
+  useEffect(() => {
+    if (hierarchy.length > 0 && expandedNodes.size === 0) {
+      setExpandedNodes(new Set(hierarchy.map(n => n.id)));
+    }
+  }, [hierarchy]);
 
   const toggleNode = (nodeId: string) => {
     setExpandedNodes(prev => {
@@ -147,11 +46,28 @@ export function EnhancedTeamHierarchy() {
     });
   };
 
-  const handleSave = () => {
-    console.log('Mock save:', formData);
-    toast.success(editingNode ? 'Node updated (demo)' : 'Node created (demo)');
-    setShowDialog(false);
-    resetForm();
+  const handleSave = async () => {
+    if (!formData.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+    
+    try {
+      if (editingNode) {
+        await updateNode.mutateAsync({
+          id: editingNode.id,
+          updates: formData
+        });
+        toast.success('Node updated successfully');
+      } else {
+        await createNode.mutateAsync(formData);
+        toast.success('Node created successfully');
+      }
+      setShowDialog(false);
+      resetForm();
+    } catch (error) {
+      toast.error('Failed to save node');
+    }
   };
 
   const handleEdit = (node: TeamHierarchyNode) => {
@@ -161,14 +77,19 @@ export function EnhancedTeamHierarchy() {
       type: node.type,
       description: node.description || '',
       parent_id: node.parent_id,
+      manager_id: node.manager_id,
     });
     setShowDialog(true);
   };
 
-  const handleDelete = (nodeId: string) => {
-    if (confirm('Are you sure you want to delete this node? This will also delete all children.')) {
-      console.log('Mock delete:', nodeId);
-      toast.success('Node deleted (demo)');
+  const handleDelete = async (nodeId: string) => {
+    if (!confirm('Are you sure you want to delete this node? This will also delete all children.')) return;
+    
+    try {
+      await deleteNode.mutateAsync(nodeId);
+      toast.success('Node deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete node');
     }
   };
 
@@ -178,9 +99,26 @@ export function EnhancedTeamHierarchy() {
       type: 'team',
       description: '',
       parent_id: null,
+      manager_id: null,
     });
     setEditingNode(null);
   };
+
+  // Flatten hierarchy for parent selection
+  const flattenHierarchy = (nodes: TeamHierarchyNode[]): TeamHierarchyNode[] => {
+    return nodes.reduce((acc, node) => {
+      acc.push(node);
+      if (node.children) {
+        acc.push(...flattenHierarchy(node.children));
+      }
+      return acc;
+    }, [] as TeamHierarchyNode[]);
+  };
+
+  const allNodes = flattenHierarchy(hierarchy);
+  const availableParents = editingNode 
+    ? allNodes.filter(n => n.id !== editingNode.id) 
+    : allNodes;
 
   const renderNode = (node: TeamHierarchyNode, level = 0) => {
     const hasChildren = node.children && node.children.length > 0;
@@ -314,6 +252,44 @@ export function EnhancedTeamHierarchy() {
                   <SelectItem value="department">Department</SelectItem>
                   <SelectItem value="team">Team</SelectItem>
                   <SelectItem value="individual">Individual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Parent Node</label>
+              <Select
+                value={formData.parent_id || 'none'}
+                onValueChange={(v) => setFormData(prev => ({ ...prev, parent_id: v === 'none' ? null : v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select parent" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Parent (Root)</SelectItem>
+                  {availableParents.map(node => (
+                    <SelectItem key={node.id} value={node.id}>
+                      {node.name} ({node.type})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Manager</label>
+              <Select
+                value={formData.manager_id || 'none'}
+                onValueChange={(v) => setFormData(prev => ({ ...prev, manager_id: v === 'none' ? null : v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select manager" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Manager</SelectItem>
+                  {users.map(user => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.full_name || user.email}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

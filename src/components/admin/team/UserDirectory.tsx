@@ -8,6 +8,7 @@ import { Search, Users, Filter, Mail, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import type { AppRole } from '@/types/team-management';
+import { useUsers } from '@/hooks/useUsers';
 
 const ROLE_COLORS: Record<string, string> = {
   admin: 'bg-red-500/10 text-red-500 border-red-500/20',
@@ -27,95 +28,11 @@ const ROLE_LABELS: Record<string, string> = {
   viewer: 'Viewer',
 };
 
-// Mock data for demonstration
-const mockUsers = [
-  {
-    id: '1',
-    email: 'tash@frasermarketing.ca',
-    full_name: 'Tash Fraser',
-    avatar_url: null,
-    roles: ['admin'],
-    team_name: 'Financial Services',
-    team_type: 'department',
-    created_at: '2024-01-15T10:00:00Z'
-  },
-  {
-    id: '2',
-    email: 'tushar@wcc.ca',
-    full_name: 'Tushar Malhotra',
-    avatar_url: null,
-    roles: ['team_lead'],
-    team_name: 'Domestic Admissions Team',
-    team_type: 'team',
-    created_at: '2024-02-20T10:00:00Z'
-  },
-  {
-    id: '3',
-    email: 'rockingtushar123@gmail.com',
-    full_name: 'Tushar Advisor',
-    avatar_url: null,
-    roles: ['advisor'],
-    team_name: 'Program Advisors',
-    team_type: 'team',
-    created_at: '2024-03-10T10:00:00Z'
-  },
-  {
-    id: '4',
-    email: 'malhotratushar37@gmail.com',
-    full_name: 'Tushar Finance',
-    avatar_url: null,
-    roles: ['finance_officer'],
-    team_name: 'Financial Services',
-    team_type: 'department',
-    created_at: '2024-03-15T10:00:00Z'
-  },
-  {
-    id: '5',
-    email: 'sarah.johnson@wcc.ca',
-    full_name: 'Sarah Johnson',
-    avatar_url: null,
-    roles: ['registrar', 'advisor'],
-    team_name: 'Registrar Office',
-    team_type: 'team',
-    created_at: '2024-04-01T10:00:00Z'
-  },
-  {
-    id: '6',
-    email: 'mike.chen@wcc.ca',
-    full_name: 'Mike Chen',
-    avatar_url: null,
-    roles: ['team_lead'],
-    team_name: 'International Admissions Team',
-    team_type: 'team',
-    created_at: '2024-04-10T10:00:00Z'
-  },
-  {
-    id: '7',
-    email: 'emma.davis@wcc.ca',
-    full_name: 'Emma Davis',
-    avatar_url: null,
-    roles: ['advisor'],
-    team_name: 'Program Advisors',
-    team_type: 'team',
-    created_at: '2024-05-01T10:00:00Z'
-  },
-  {
-    id: '8',
-    email: 'james.wilson@wcc.ca',
-    full_name: 'James Wilson',
-    avatar_url: null,
-    roles: ['viewer'],
-    team_name: null,
-    team_type: null,
-    created_at: '2024-05-15T10:00:00Z'
-  }
-];
-
 export const UserDirectory = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
-  const isLoading = false;
-  const users = mockUsers;
+  
+  const { data: users = [], isLoading } = useUsers();
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -237,7 +154,13 @@ export const UserDirectory = () => {
       {/* User List */}
       <Card>
         <CardContent className="pt-6">
-          {filteredUsers.length === 0 ? (
+          {users.length === 0 && !isLoading ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p className="font-medium mb-2">No users yet</p>
+              <p className="text-sm">Users will appear here once they sign up</p>
+            </div>
+          ) : filteredUsers.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <p>No users found matching your criteria</p>

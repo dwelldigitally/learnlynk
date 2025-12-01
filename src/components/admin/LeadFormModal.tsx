@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +9,10 @@ import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
 import { LeadFormData, LeadSource } from '@/types/lead';
 import { supabase } from '@/integrations/supabase/client';
-import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
-import { IntakeService } from '@/services/intakeService';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useIntakesByProgramName } from '@/hooks/useIntakes';
+import { Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface LeadFormModalProps {
   open: boolean;
@@ -21,8 +23,11 @@ interface LeadFormModalProps {
 export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormModalProps) {
   const [loading, setLoading] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<string>('');
-  const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
-  const [availableIntakeDates, setAvailableIntakeDates] = useState<any[]>([]);
+  const [selectedIntakeId, setSelectedIntakeId] = useState<string>('');
+  
+  // Fetch programs and intakes from database
+  const { data: programs = [], isLoading: programsLoading } = usePrograms();
+  const { data: availableIntakes = [], isLoading: intakesLoading } = useIntakesByProgramName(selectedProgram);
   
   const [formData, setFormData] = useState<LeadFormData>({
     first_name: '',
@@ -39,58 +44,15 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
   });
   const { toast } = useToast();
 
-  // Handle program selection and load intake dates from database
-  const handleProgramChange = async (program: string) => {
-    console.log('🔥 handleProgramChange called with program:', program);
+  // Reset intake when program changes
+  useEffect(() => {
+    setSelectedIntakeId('');
+  }, [selectedProgram]);
+
+  // Handle program selection
+  const handleProgramChange = (program: string) => {
     setSelectedProgram(program);
-    setSelectedIntakeDate(''); // Reset intake date when program changes
-    
-    try {
-      console.log('📊 Fetching all intakes...');
-      // Get all intakes and filter by program
-      const allIntakes = await IntakeService.getAllIntakes();
-      console.log('✅ All intakes fetched:', allIntakes);
-      console.log('📝 Total intakes count:', allIntakes?.length || 0);
-      
-      if (!allIntakes || allIntakes.length === 0) {
-        console.log('❌ No intakes found in database');
-        setAvailableIntakeDates([]);
-        return;
-      }
-      
-      const currentDate = new Date();
-      console.log('⏰ Current date for filtering:', currentDate.toISOString());
-      
-      const programIntakes = allIntakes.filter((intake: any) => {
-        const intakeDate = new Date(intake.start_date);
-        const isFuture = intakeDate > currentDate;
-        const programMatch = intake.program_name === program;
-        const statusOpen = intake.status === 'open';
-        
-        console.log('🔍 Checking intake:', {
-          name: intake.name,
-          program_name: intake.program_name,
-          selected_program: program,
-          start_date: intake.start_date,
-          is_future: isFuture,
-          status: intake.status,
-          program_match: programMatch,
-          status_open: statusOpen,
-          passes_filter: programMatch && isFuture && statusOpen
-        });
-        
-        return programMatch && isFuture && statusOpen;
-      });
-      
-      console.log('🎯 Filtered program intakes for', program, ':', programIntakes);
-      console.log('📊 Found', programIntakes.length, 'matching intakes');
-      setAvailableIntakeDates(programIntakes);
-    } catch (error) {
-      console.error('💥 Error fetching intake dates:', error);
-      setAvailableIntakeDates([]);
-    }
-    
-    // Update form data with selected program
+    setSelectedIntakeId(''); // Reset intake date when program changes
     updateFormData('program_interest', [program]);
   };
 
@@ -124,22 +86,14 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         throw new Error('User not authenticated');
       }
       
-      // Add user_id to form data
-      const leadDataWithUser = {
+      // Add user_id and intake data to form data
+      const leadDataWithUser: any = {
         ...formData,
-        user_id: user.id
+        user_id: user.id,
+        preferred_intake_id: selectedIntakeId || null
       };
-      
-      // Include intake date in notes if selected
-      const selectedIntake = availableIntakeDates.find(d => d.id === selectedIntakeDate);
-      const notesWithIntake = selectedIntake
-        ? `${formData.notes ? formData.notes + '\n\n' : ''}Interested in intake: ${selectedIntake.name} (${new Date(selectedIntake.start_date).toLocaleDateString()})`
-        : formData.notes;
 
-      const result = await LeadService.createLead({
-        ...leadDataWithUser,
-        notes: notesWithIntake
-      });
+      const result = await LeadService.createLead(leadDataWithUser);
       console.log('Lead creation result:', result);
       
       if (result.error) {
@@ -161,8 +115,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         notes: ''
       });
       setSelectedProgram('');
-      setSelectedIntakeDate('');
-      setAvailableIntakeDates([]);
+      setSelectedIntakeId('');
       
       console.log('Calling onLeadCreated');
       onLeadCreated();
@@ -289,17 +242,33 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
             </div>
           </div>
 
+          {programs.length === 0 && !programsLoading && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No programs configured yet. <a href="/admin/programs" className="underline">Add programs</a> to enable program selection.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="program">Program of Interest *</Label>
-              <Select value={selectedProgram} onValueChange={handleProgramChange}>
+              <Select value={selectedProgram} onValueChange={handleProgramChange} disabled={programsLoading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a program" />
+                  {programsLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading programs...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder="Select a program" />
+                  )}
                 </SelectTrigger>
                 <SelectContent>
-                  {STANDARDIZED_PROGRAMS.map((program) => (
-                    <SelectItem key={program} value={program}>
-                      {program}
+                  {programs.map((program) => (
+                    <SelectItem key={program.id} value={program.name}>
+                      {program.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -308,22 +277,29 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
             <div>
               <Label htmlFor="intake_date">Preferred Intake Date</Label>
               <Select 
-                value={selectedIntakeDate} 
-                onValueChange={setSelectedIntakeDate}
-                disabled={!selectedProgram || availableIntakeDates.length === 0}
+                value={selectedIntakeId} 
+                onValueChange={setSelectedIntakeId}
+                disabled={!selectedProgram || intakesLoading || availableIntakes.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={selectedProgram ? "Select intake date" : "Select program first"} />
+                  {intakesLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading intakes...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder={selectedProgram ? "Select intake date" : "Select program first"} />
+                  )}
                 </SelectTrigger>
                 <SelectContent>
-                  {availableIntakeDates.map((intake) => (
+                  {availableIntakes.map((intake) => (
                     <SelectItem key={intake.id} value={intake.id}>
-                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()} ({intake.capacity} spots total)
+                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()} {intake.capacity && `(${intake.capacity} spots)`}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {selectedProgram && availableIntakeDates.length === 0 && (
+              {selectedProgram && !intakesLoading && availableIntakes.length === 0 && (
                 <p className="text-xs text-muted-foreground mt-1">No upcoming intake dates available for this program</p>
               )}
             </div>

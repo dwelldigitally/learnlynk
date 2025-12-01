@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
-import { CalendarIcon, User, Mail, Phone, Clock, TrendingUp, Lightbulb, Brain, ShieldAlert, GraduationCap, Activity, Edit, Save, Trash2, Flag, Calendar } from 'lucide-react';
+import { CalendarIcon, User, Mail, Phone, Clock, TrendingUp, Lightbulb, Brain, ShieldAlert, GraduationCap, Activity, Edit, Save, Trash2, Flag, Calendar, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -18,25 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { HotSheetCard, PastelBadge, PillButton, PillIconButton, IconContainer, getScoreColor } from '@/components/hotsheet';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useIntakesByProgramName } from '@/hooks/useIntakes';
 
 interface EnhancedLeadSidebarProps {
   lead: Lead;
   onUpdate: () => void;
 }
-
-// Data sources for dropdowns
-const availablePrograms = [
-  'Computer Science',
-  'Business Administration', 
-  'Engineering',
-  'Psychology',
-  'Nursing',
-  'Culinary Arts',
-  'Medical Assistant',
-  'Information Technology',
-  'Marketing',
-  'Healthcare Administration'
-];
 
 const leadSources = [
   'web',
@@ -51,15 +39,6 @@ const leadSources = [
   'event'
 ];
 
-const intakeDates = [
-  'March 2025',
-  'June 2025', 
-  'September 2025',
-  'December 2025',
-  'March 2026',
-  'June 2026'
-];
-
 const paymentPlanOptions = [
   'Full Payment Upfront',
   '12 Monthly Payments',
@@ -72,6 +51,7 @@ const paymentPlanOptions = [
 // Extended lead interface for additional fields
 interface ExtendedLead extends Lead {
   program_intake?: string;
+  preferred_intake_id?: string;
   payment_plan?: string;
 }
 
@@ -80,9 +60,15 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
   const [isEditing, setIsEditing] = useState(false);
   const [editedLead, setEditedLead] = useState<ExtendedLead>(lead);
   const [loading, setLoading] = useState(false);
+  const [selectedProgramName, setSelectedProgramName] = useState<string>(lead.program_interest?.[0] || '');
+
+  // Fetch programs and intakes from database
+  const { data: programs = [], isLoading: programsLoading } = usePrograms();
+  const { data: availableIntakes = [], isLoading: intakesLoading } = useIntakesByProgramName(selectedProgramName);
 
   useEffect(() => {
     setEditedLead(lead);
+    setSelectedProgramName(lead.program_interest?.[0] || '');
   }, [lead]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -342,23 +328,36 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               <Select 
                 value={editedLead.program_interest?.[0] || ''} 
                 onValueChange={(value) => {
+                  setSelectedProgramName(value);
                   setEditedLead(prev => ({
                     ...prev,
-                    program_interest: value ? [value] : []
+                    program_interest: value ? [value] : [],
+                    preferred_intake_id: undefined // Reset intake when program changes
                   }));
                 }}
+                disabled={programsLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select program of interest" />
+                  {programsLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder="Select program of interest" />
+                  )}
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-50">
-                  {availablePrograms.map((program) => (
-                    <SelectItem key={program} value={program}>
-                      {program}
+                  {programs.map((program) => (
+                    <SelectItem key={program.id} value={program.name}>
+                      {program.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {!programsLoading && programs.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">No programs configured</p>
+              )}
             </div>
             <div>
               <Label htmlFor="created_at">Created Date</Label>
@@ -408,25 +407,36 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
             <div>
               <Label htmlFor="program_intake">Program Intake</Label>
               <Select 
-                value={(editedLead as ExtendedLead).program_intake || ''} 
+                value={(editedLead as ExtendedLead).preferred_intake_id || ''} 
                 onValueChange={(value) => {
                   setEditedLead(prev => ({
                     ...prev,
-                    program_intake: value
+                    preferred_intake_id: value
                   }));
                 }}
+                disabled={intakesLoading || !selectedProgramName || availableIntakes.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select intake date" />
+                  {intakesLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder={selectedProgramName ? "Select intake date" : "Select program first"} />
+                  )}
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-50">
-                  {intakeDates.map((intake) => (
-                    <SelectItem key={intake} value={intake}>
-                      {intake}
+                  {availableIntakes.map((intake) => (
+                    <SelectItem key={intake.id} value={intake.id}>
+                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
+              {selectedProgramName && !intakesLoading && availableIntakes.length === 0 && (
+                <p className="text-xs text-muted-foreground mt-1">No upcoming intakes for this program</p>
+              )}
             </div>
             <div>
               <Label htmlFor="payment_plan">Payment Plan Preference</Label>

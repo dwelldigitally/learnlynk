@@ -3824,6 +3824,7 @@ export type Database = {
       }
       leads: {
         Row: {
+          academic_term_id: string | null
           ai_score: number | null
           assigned_at: string | null
           assigned_to: string | null
@@ -3844,6 +3845,7 @@ export type Database = {
           next_follow_up_at: string | null
           notes: string | null
           phone: string | null
+          preferred_intake_id: string | null
           priority: Database["public"]["Enums"]["lead_priority"]
           program_interest: string[] | null
           qualification_stage: string | null
@@ -3868,6 +3870,7 @@ export type Database = {
           utm_term: string | null
         }
         Insert: {
+          academic_term_id?: string | null
           ai_score?: number | null
           assigned_at?: string | null
           assigned_to?: string | null
@@ -3888,6 +3891,7 @@ export type Database = {
           next_follow_up_at?: string | null
           notes?: string | null
           phone?: string | null
+          preferred_intake_id?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
           qualification_stage?: string | null
@@ -3912,6 +3916,7 @@ export type Database = {
           utm_term?: string | null
         }
         Update: {
+          academic_term_id?: string | null
           ai_score?: number | null
           assigned_at?: string | null
           assigned_to?: string | null
@@ -3932,6 +3937,7 @@ export type Database = {
           next_follow_up_at?: string | null
           notes?: string | null
           phone?: string | null
+          preferred_intake_id?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
           qualification_stage?: string | null
@@ -3957,10 +3963,24 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "leads_academic_term_id_fkey"
+            columns: ["academic_term_id"]
+            isOneToOne: false
+            referencedRelation: "academic_terms"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "leads_master_record_id_fkey"
             columns: ["master_record_id"]
             isOneToOne: false
             referencedRelation: "master_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_preferred_intake_id_fkey"
+            columns: ["preferred_intake_id"]
+            isOneToOne: false
+            referencedRelation: "intakes"
             referencedColumns: ["id"]
           },
           {

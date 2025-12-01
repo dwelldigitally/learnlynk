@@ -66,6 +66,8 @@ export interface Lead {
   ai_score?: number;
   program_interest: string[];
   intake_period?: string;
+  preferred_intake_id?: string;
+  academic_term_id?: string;
   assigned_to?: string;
   assigned_at?: string;
   assignment_method?: AssignmentMethod;
@@ -141,6 +143,8 @@ export interface LeadFormData {
   source: LeadSource;
   source_details?: string;
   program_interest: string[];
+  preferred_intake_id?: string;
+  academic_term_id?: string;
   utm_source?: string;
   utm_medium?: string;
   utm_campaign?: string;

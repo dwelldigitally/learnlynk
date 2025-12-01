@@ -11,6 +11,8 @@ export interface CreateLeadData {
   city?: string;
   source: any; // Use any to bypass enum issues
   program_interest?: string[];
+  preferred_intake_id?: string;
+  academic_term_id?: string;
   notes?: string;
   utm_source?: string;
   utm_medium?: string;
@@ -40,6 +42,8 @@ export class LeadService {
           city: leadData.city,
           source: leadData.source as any,
           program_interest: leadData.program_interest || [],
+          preferred_intake_id: leadData.preferred_intake_id || null,
+          academic_term_id: leadData.academic_term_id || null,
           notes: leadData.notes,
           utm_source: leadData.utm_source,
           utm_medium: leadData.utm_medium,

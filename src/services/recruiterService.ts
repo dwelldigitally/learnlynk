@@ -908,11 +908,11 @@ export class RecruiterService {
       .eq('recruiter_application_id', applicationId)
       .order('created_at', { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      // Return dummy documents for preview
-      return this.getDummyDocuments(applicationId);
+    if (error) {
+      console.error('Error fetching documents:', error);
+      return [];
     }
-    return data as RecruiterDocument[];
+    return (data || []) as RecruiterDocument[];
   }
 
   static getDummyDocuments(applicationId: string): RecruiterDocument[] {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,13 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, FileText, CheckCircle, AlertCircle, X, Camera, FileImage, Download } from "lucide-react";
+import { Upload, FileText, CheckCircle, AlertCircle, Download, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { usePageEntranceAnimation, useStaggeredReveal } from "@/hooks/useAnimations";
 import { useStudentPortalContext } from "@/pages/StudentPortal";
 import { useDocumentUpload, useStudentDocuments } from "@/hooks/useStudentPortalIntegration";
 import { toast } from "@/hooks/use-toast";
-import { dummyDocuments, dummyStudentProfile } from "@/data/studentPortalDummyData";
+import { useProgramDocumentRequirements } from "@/hooks/useDocumentTemplates";
+import { supabase } from "@/integrations/supabase/client";
 
 const DocumentUpload: React.FC = () => {
   const { sessionId, leadId, isLoading } = useStudentPortalContext();
@@ -22,34 +23,57 @@ const DocumentUpload: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [selectedRequirement, setSelectedRequirement] = useState("");
   const [notes, setNotes] = useState("");
+  const [programName, setProgramName] = useState<string>("");
   const isPageLoaded = usePageEntranceAnimation();
-  const staggerAnimation = useStaggeredReveal(5, 100); // 5 items with 100ms delay
+  const staggerAnimation = useStaggeredReveal(5, 100);
 
   // Get existing documents and upload mutation
   const { data: documents, isLoading: documentsLoading } = useStudentDocuments(sessionId);
   const uploadMutation = useDocumentUpload();
 
+  // Fetch lead's program name
+  useEffect(() => {
+    async function fetchLeadProgram() {
+      if (!leadId) return;
+      
+      try {
+        const { data: lead, error } = await supabase
+          .from('leads')
+          .select('program_interest')
+          .eq('id', leadId)
+          .single();
+
+        if (!error && lead?.program_interest) {
+          // program_interest is an array, take the first one
+          const program = Array.isArray(lead.program_interest) 
+            ? lead.program_interest[0] 
+            : lead.program_interest;
+          if (program) {
+            setProgramName(program);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching lead program:', err);
+      }
+    }
+
+    fetchLeadProgram();
+  }, [leadId]);
+
+  // Fetch document requirements for the program
+  const { templates: documentRequirements, isLoading: requirementsLoading } = useProgramDocumentRequirements(programName);
+
   // Transform database documents to match UI expectations
-  const uploadedDocuments = documents?.map((doc, index) => ({
+  const uploadedDocuments = documents?.map((doc) => ({
     id: doc.id,
     name: doc.document_name,
     type: doc.document_type,
-    status: doc.admin_status,
+    status: doc.admin_status || 'pending',
     uploadDate: new Date(doc.created_at).toISOString().split('T')[0],
     size: doc.file_size ? `${(doc.file_size / (1024 * 1024)).toFixed(1)} MB` : 'Unknown',
-    reviewComments: doc.admin_comments || null
+    reviewComments: doc.admin_comments || null,
+    requirementId: doc.requirement_id
   })) || [];
-
-  const documentRequirements = [
-    { id: "transcript", name: "Academic Transcript", required: true },
-    { id: "language-test", name: "English Language Test", required: true },
-    { id: "personal-statement", name: "Personal Statement", required: true },
-    { id: "recommendation-letter", name: "Letter of Recommendation", required: false },
-    { id: "portfolio", name: "Portfolio/Work Samples", required: false },
-    { id: "financial-docs", name: "Financial Documents", required: false },
-    { id: "passport", name: "Passport Copy", required: true },
-    { id: "other", name: "Other Supporting Documents", required: false }
-  ];
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -223,18 +247,29 @@ const DocumentUpload: React.FC = () => {
               {/* Document Type Selection */}
               <div className="space-y-2">
                 <Label htmlFor="requirement">Document Type *</Label>
-                <Select value={selectedRequirement} onValueChange={setSelectedRequirement}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select document type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {documentRequirements.map((req) => (
-                      <SelectItem key={req.id} value={req.id}>
-                        {req.name} {req.required && "*"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {requirementsLoading ? (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading requirements...
+                  </div>
+                ) : documentRequirements.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">
+                    No document requirements configured for your program.
+                  </p>
+                ) : (
+                  <Select value={selectedRequirement} onValueChange={setSelectedRequirement}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select document type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {documentRequirements.map((req) => (
+                        <SelectItem key={req.id} value={req.id}>
+                          {req.name} {req.mandatory && "*"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               </div>
 
               {/* Upload Zone */}
@@ -270,7 +305,7 @@ const DocumentUpload: React.FC = () => {
                   <Button
                     variant="outline"
                     onClick={() => document.getElementById('file-upload')?.click()}
-                    disabled={!selectedRequirement || isUploading}
+                    disabled={!selectedRequirement || isUploading || documentRequirements.length === 0}
                   >
                     Choose File
                   </Button>
@@ -316,42 +351,56 @@ const DocumentUpload: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {documentRequirements.map((req) => {
-                  const uploaded = uploadedDocuments.find(doc => doc.type === req.id);
-                  return (
-                    <div
-                      key={req.id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-1 rounded-full ${
-                          uploaded 
-                            ? uploaded.status === 'approved' ? 'bg-emerald-100' : 'bg-amber-100'
-                            : 'bg-gray-100'
-                        }`}>
-                          {uploaded ? getStatusIcon(uploaded.status) : <FileText className="h-4 w-4 text-gray-500" />}
+              {requirementsLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : documentRequirements.length === 0 ? (
+                <div className="text-center py-8">
+                  <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">No document requirements found for your program.</p>
+                  <p className="text-sm text-muted-foreground mt-1">Contact your advisor for more information.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {documentRequirements.map((req) => {
+                    const uploaded = uploadedDocuments.find(doc => 
+                      doc.requirementId === req.id || doc.type === req.id
+                    );
+                    return (
+                      <div
+                        key={req.id}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`p-1 rounded-full ${
+                            uploaded 
+                              ? uploaded.status === 'approved' ? 'bg-emerald-100' : 'bg-amber-100'
+                              : 'bg-gray-100'
+                          }`}>
+                            {uploaded ? getStatusIcon(uploaded.status) : <FileText className="h-4 w-4 text-gray-500" />}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{req.name}</p>
+                            {req.mandatory && (
+                              <p className="text-xs text-red-600">Required</p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{req.name}</p>
-                          {req.required && (
-                            <p className="text-xs text-red-600">Required</p>
+                        <div className="text-right">
+                          {uploaded ? (
+                            <Badge className={getStatusColor(uploaded.status)}>
+                              {uploaded.status.replace('-', ' ')}
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline">Pending</Badge>
                           )}
                         </div>
                       </div>
-                      <div className="text-right">
-                        {uploaded ? (
-                          <Badge className={getStatusColor(uploaded.status)}>
-                            {uploaded.status.replace('-', ' ')}
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline">Pending</Badge>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>

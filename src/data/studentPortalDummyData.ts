@@ -182,65 +182,11 @@ WCC Student Services Team`,
   }
 ];
 
-export const dummyDocuments = [
-  {
-    id: "doc-001",
-    name: "Official_Transcripts_2024.pdf",
-    type: "Academic Transcript",
-    status: "approved",
-    uploadDate: "2025-01-14T16:30:00Z",
-    reviewDate: "2025-01-15T10:15:00Z",
-    size: "2.3 MB",
-    reviewer: "Nicole Ye",
-    comments: "Transcripts verified and approved. GPA meets program requirements.",
-    requirement: "transcript"
-  },
-  {
-    id: "doc-002", 
-    name: "Photo_ID_Passport.pdf",
-    type: "Photo Identification",
-    status: "approved",
-    uploadDate: "2025-01-14T16:32:00Z",
-    reviewDate: "2025-01-15T10:16:00Z",
-    size: "1.1 MB",
-    reviewer: "Nicole Ye",
-    comments: "Valid passport copy accepted.",
-    requirement: "passport"
-  },
-  {
-    id: "doc-003",
-    name: "Criminal_Record_Check_2025.pdf",
-    type: "Criminal Record Check",
-    status: "approved",
-    uploadDate: "2025-01-15T09:45:00Z",
-    reviewDate: "2025-01-15T14:20:00Z",
-    size: "856 KB",
-    reviewer: "Nicole Ye",
-    comments: "Clear criminal record check approved.",
-    requirement: "criminal-check"
-  },
-  {
-    id: "doc-004",
-    name: "Immunization_Records_2024.pdf",
-    type: "Immunization Records",
-    status: "under-review",
-    uploadDate: "2025-01-16T11:20:00Z",
-    size: "1.4 MB",
-    requirement: "immunization"
-  },
-  {
-    id: "doc-005",
-    name: "First_Aid_Certificate_2022.pdf",
-    type: "First Aid Certificate",
-    status: "rejected",
-    uploadDate: "2025-01-14T16:35:00Z",
-    reviewDate: "2025-01-17T09:30:00Z",
-    size: "967 KB",
-    reviewer: "Nicole Ye",
-    comments: "Certificate has expired (issued in 2022). Please upload a current First Aid/CPR certification from an approved provider.",
-    requirement: "first-aid"
-  }
-];
+/**
+ * @deprecated Documents should be fetched from the database via useStudentDocuments hook
+ * This is kept for backward compatibility but should not be used for new features
+ */
+export const dummyDocuments: any[] = [];
 
 export const dummyFinancialAid = [
   {

@@ -23,7 +23,6 @@ export const DocumentTemplatesConfiguration = () => {
     type: 'academic',
     category: '',
     description: '',
-    stage: 'application',
     mandatory: false,
     accepted_formats: ['pdf'],
     max_size: 5,
@@ -44,7 +43,6 @@ export const DocumentTemplatesConfiguration = () => {
       const { data, error } = await supabase
         .from('master_document_templates')
         .select('*')
-        .order('stage', { ascending: true })
         .order('name', { ascending: true });
 
       if (error) throw error;
@@ -81,7 +79,7 @@ export const DocumentTemplatesConfiguration = () => {
         user_id: user.id,
         name: formData.name.trim(),
         type: formData.type || 'academic',
-        stage: formData.stage || 'application'
+        stage: formData.stage || 'application' // Default stage value for database requirement
       };
 
       if (editingTemplate) {
@@ -93,7 +91,7 @@ export const DocumentTemplatesConfiguration = () => {
       } else {
         const { error } = await supabase
           .from('master_document_templates')
-          .insert(templateData);
+          .insert([templateData]);
         if (error) throw error;
       }
 
@@ -154,7 +152,6 @@ export const DocumentTemplatesConfiguration = () => {
       type: 'academic',
       category: '',
       description: '',
-      stage: 'application',
       mandatory: false,
       accepted_formats: ['pdf'],
       max_size: 5,
@@ -170,7 +167,6 @@ export const DocumentTemplatesConfiguration = () => {
   const columns = [
     { key: 'name', label: 'Document Name', type: 'text' as const, sortable: true },
     { key: 'type', label: 'Type', type: 'badge' as const },
-    { key: 'stage', label: 'Stage', type: 'badge' as const },
     { key: 'mandatory', label: 'Mandatory', type: 'boolean' as const },
     { key: 'accepted_formats', label: 'Formats', type: 'array' as const },
     { key: 'max_size', label: 'Max Size (MB)', type: 'number' as const },
@@ -238,21 +234,13 @@ export const DocumentTemplatesConfiguration = () => {
             </div>
 
             <div>
-              <Label htmlFor="stage">Stage</Label>
-              <Select 
-                value={formData.stage || 'application'} 
-                onValueChange={(value) => setFormData({...formData, stage: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="inquiry">Inquiry</SelectItem>
-                  <SelectItem value="application">Application</SelectItem>
-                  <SelectItem value="enrollment">Enrollment</SelectItem>
-                  <SelectItem value="completion">Completion</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label htmlFor="category">Category</Label>
+              <Input
+                id="category"
+                value={formData.category || ''}
+                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                placeholder="Academic Records, etc."
+              />
             </div>
 
             <div>

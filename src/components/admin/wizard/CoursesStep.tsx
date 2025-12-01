@@ -105,30 +105,30 @@ const CoursesStep: React.FC<CoursesStepProps> = ({
   const totalHours = courses.reduce((sum, course) => sum + (course.hours || 0), 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header with Stats */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold">Program Courses</h2>
-          <p className="text-muted-foreground mt-1">
+          <h2 className="text-xl sm:text-2xl font-bold">Program Courses</h2>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">
             Add courses that make up this program
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Courses</p>
-            <p className="text-2xl font-bold">{courses.length}</p>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <div className="text-center sm:text-right">
+            <p className="text-xs sm:text-sm text-muted-foreground">Total Courses</p>
+            <p className="text-xl sm:text-2xl font-bold">{courses.length}</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Hours</p>
-            <p className="text-2xl font-bold">{totalHours}</p>
+          <div className="text-center sm:text-right">
+            <p className="text-xs sm:text-sm text-muted-foreground">Total Hours</p>
+            <p className="text-xl sm:text-2xl font-bold">{totalHours}</p>
           </div>
         </div>
       </div>
 
       {/* Add Course Button */}
       {!editingCourse && (
-        <Button onClick={handleAddCourse} className="w-full" variant="outline">
+        <Button onClick={handleAddCourse} className="w-full min-h-[44px]" variant="outline">
           <Plus className="h-4 w-4 mr-2" />
           Add Course
         </Button>
@@ -165,7 +165,7 @@ const CoursesStep: React.FC<CoursesStepProps> = ({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="course-hours" className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
@@ -181,6 +181,7 @@ const CoursesStep: React.FC<CoursesStepProps> = ({
                     hours: parseInt(e.target.value) || 0 
                   })}
                   placeholder="e.g., 40"
+                  className="min-h-[44px]"
                 />
               </div>
 
@@ -193,7 +194,7 @@ const CoursesStep: React.FC<CoursesStepProps> = ({
                   value={editingCourse.modality}
                   onValueChange={(value: any) => setEditingCourse({ ...editingCourse, modality: value })}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="min-h-[44px]">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,19 +206,21 @@ const CoursesStep: React.FC<CoursesStepProps> = ({
               </div>
             </div>
 
-            <div className="flex gap-2 justify-end pt-4 border-t">
+            <div className="flex flex-col sm:flex-row gap-2 justify-end pt-4 border-t">
               <Button 
                 variant="outline" 
                 onClick={() => {
                   setEditingCourse(null);
                   setIsAdding(false);
                 }}
+                className="w-full sm:w-auto min-h-[44px]"
               >
                 Cancel
               </Button>
               <Button 
                 onClick={handleSaveCourse}
                 disabled={!editingCourse.title || editingCourse.hours <= 0}
+                className="w-full sm:w-auto min-h-[44px]"
               >
                 {isAdding ? 'Add Course' : 'Save Changes'}
               </Button>

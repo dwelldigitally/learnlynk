@@ -67,15 +67,15 @@ const IntakeDatesStep: React.FC<IntakeDatesStepProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <h3 className="text-lg font-semibold">Intake Dates & Capacity</h3>
+          <h3 className="text-base sm:text-lg font-semibold">Intake Dates & Capacity</h3>
           <p className="text-sm text-muted-foreground mt-1">
             Configure when this program will accept new students
           </p>
         </div>
-        <Button onClick={addIntake}>
+        <Button onClick={addIntake} className="w-full sm:w-auto min-h-[44px]">
           <Plus className="h-4 w-4 mr-2" />
           Add Intake
         </Button>
@@ -105,7 +105,7 @@ const IntakeDatesStep: React.FC<IntakeDatesStepProps> = ({
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="flex items-center gap-2">
                   <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
@@ -115,6 +115,7 @@ const IntakeDatesStep: React.FC<IntakeDatesStepProps> = ({
                   type="date"
                   value={intake.date}
                   onChange={(e) => updateIntake(intake.id, 'date', e.target.value)}
+                  className="min-h-[44px]"
                 />
               </div>
               <div className="space-y-2">
@@ -127,19 +128,21 @@ const IntakeDatesStep: React.FC<IntakeDatesStepProps> = ({
                   value={intake.capacity}
                   onChange={(e) => updateIntake(intake.id, 'capacity', Number(e.target.value))}
                   min={1}
+                  className="min-h-[44px]"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 sm:col-span-2 md:col-span-1">
                 <Label>Application Deadline</Label>
                 <Input
                   type="date"
                   value={intake.applicationDeadline}
                   onChange={(e) => updateIntake(intake.id, 'applicationDeadline', e.target.value)}
+                  className="min-h-[44px]"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Study Mode</Label>
                 <Select

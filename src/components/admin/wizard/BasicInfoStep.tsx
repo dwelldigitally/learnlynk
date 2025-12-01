@@ -125,9 +125,9 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Basic Details */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="program-name" className="flex items-center gap-2">
@@ -160,14 +160,14 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Program Type *</Label>
               <Select
                 value={data.type || ''}
                 onValueChange={(value: any) => onDataChange({ type: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="min-h-[44px]">
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -184,6 +184,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 value={data.duration || ''}
                 onChange={(e) => onDataChange({ duration: e.target.value })}
                 placeholder="e.g., 12 months"
+                className="min-h-[44px]"
               />
             </div>
           </div>
@@ -321,7 +322,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
             <Label className="text-sm font-semibold">Program Facts (Optional)</Label>
             <p className="text-xs text-muted-foreground mb-3">Add key statistics about the program</p>
             
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Total Program Hours</Label>
                 <Input
@@ -334,6 +335,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                     } 
                   })}
                   placeholder="e.g., 900"
+                  className="min-h-[44px]"
                 />
               </div>
 
@@ -349,6 +351,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                     } 
                   })}
                   placeholder="e.g., 400"
+                  className="min-h-[44px]"
                 />
               </div>
 
@@ -366,6 +369,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                     } 
                   })}
                   placeholder="e.g., 95"
+                  className="min-h-[44px]"
                 />
               </div>
 
@@ -383,6 +387,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                     } 
                   })}
                   placeholder="e.g., 25.50"
+                  className="min-h-[44px]"
                 />
               </div>
             </div>
@@ -474,7 +479,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
         </Card>
 
         {data.images && data.images.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4">
             {data.images.map((image) => (
               <Card key={image.id} className="relative overflow-hidden">
                 <CardContent className="p-0">

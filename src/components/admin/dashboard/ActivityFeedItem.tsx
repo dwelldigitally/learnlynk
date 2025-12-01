@@ -1,9 +1,9 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { IconContainer, PastelBadge, type PastelColor } from '@/components/hotsheet';
 
 export interface ActivityItem {
   id: string;
@@ -24,58 +24,59 @@ interface ActivityFeedItemProps {
   onClick?: () => void;
 }
 
+const getPriorityColor = (priority?: 'low' | 'medium' | 'high'): PastelColor => {
+  switch (priority) {
+    case 'high':
+      return 'rose';
+    case 'medium':
+      return 'amber';
+    case 'low':
+      return 'sky';
+    default:
+      return 'slate';
+  }
+};
+
+const getTypeColor = (type: ActivityItem['type']): PastelColor => {
+  switch (type) {
+    case 'lead':
+      return 'sky';
+    case 'application':
+      return 'violet';
+    case 'payment':
+      return 'emerald';
+    case 'task':
+      return 'peach';
+    case 'communication':
+      return 'rose';
+    default:
+      return 'slate';
+  }
+};
+
 export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({ activity, onClick }) => {
   const Icon = activity.icon;
-  
-  const getPriorityColor = () => {
-    switch (activity.priority) {
-      case 'high':
-        return 'bg-red-500/10 text-red-600 border-red-200';
-      case 'medium':
-        return 'bg-yellow-500/10 text-yellow-600 border-yellow-200';
-      case 'low':
-        return 'bg-blue-500/10 text-blue-600 border-blue-200';
-      default:
-        return 'bg-muted text-muted-foreground border-border';
-    }
-  };
-
-  const getTypeColor = () => {
-    switch (activity.type) {
-      case 'lead':
-        return 'text-blue-600';
-      case 'application':
-        return 'text-purple-600';
-      case 'payment':
-        return 'text-green-600';
-      case 'task':
-        return 'text-orange-600';
-      case 'communication':
-        return 'text-pink-600';
-      default:
-        return 'text-muted-foreground';
-    }
-  };
+  const typeColor = getTypeColor(activity.type);
 
   return (
     <div 
       className={cn(
-        "flex items-start gap-4 p-4 rounded-lg border border-border bg-card hover:bg-accent/50 transition-colors",
+        "flex items-start gap-4 p-4 rounded-xl border border-border/40 bg-card hover:bg-muted/5 hover:border-primary/20 transition-all duration-200",
         onClick && "cursor-pointer"
       )}
       onClick={onClick}
     >
-      <div className={cn("p-2 rounded-full bg-muted", getTypeColor())}>
-        <Icon className="h-4 w-4" />
-      </div>
+      <IconContainer color={typeColor} size="md">
+        <Icon />
+      </IconContainer>
       
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2 mb-1">
           <h4 className="text-sm font-medium text-foreground truncate">{activity.title}</h4>
           {activity.priority && (
-            <Badge variant="outline" className={cn("text-xs shrink-0", getPriorityColor())}>
+            <PastelBadge color={getPriorityColor(activity.priority)} size="sm">
               {activity.priority}
-            </Badge>
+            </PastelBadge>
           )}
         </div>
         <p className="text-sm text-muted-foreground line-clamp-2">{activity.description}</p>

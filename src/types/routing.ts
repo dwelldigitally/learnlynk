@@ -78,7 +78,7 @@ export interface EnhancedRoutingRule {
   description?: string;
   priority: number;
   is_active: boolean;
-  sources: string[];
+  sources?: string[]; // Optional now - sources moved to conditions
   condition_groups: ConditionGroup[];
   assignment_config: {
     method: string;
@@ -86,8 +86,6 @@ export interface EnhancedRoutingRule {
     teams?: string[];
     advisors?: string[];
     fallback_method?: string;
-    workload_balance?: boolean;
-    geographic_preference?: boolean;
     max_assignments_per_advisor?: number;
   };
   schedule?: {

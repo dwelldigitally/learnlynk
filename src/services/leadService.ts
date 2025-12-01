@@ -1,5 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Lead } from '@/types/lead';
+import { LeadRoutingService } from './leadRoutingService';
+import { NotificationService } from './notificationService';
 
 export interface CreateLeadData {
   first_name: string;
@@ -65,7 +67,38 @@ export class LeadService {
         return { data: null, error };
       }
 
-      return { data: data as Lead, error: null };
+      const lead = data as Lead;
+
+      // Auto-route the lead based on routing rules
+      try {
+        const routingResult = await LeadRoutingService.evaluateRoutingRules(lead);
+        
+        if (routingResult.matched && routingResult.assignedTo) {
+          // Update lead with assignment
+          const { data: updatedLead } = await this.updateLead(lead.id, {
+            assigned_to: routingResult.assignedTo,
+            assigned_at: new Date().toISOString(),
+            assignment_method: routingResult.method as any
+          });
+
+          // Send notification to assigned advisor
+          await NotificationService.notifyLeadAssignment(
+            updatedLead?.id || lead.id,
+            routingResult.assignedTo,
+            {
+              leadName: `${lead.first_name} ${lead.last_name}`,
+              ruleName: routingResult.ruleName || 'Routing Rule'
+            }
+          );
+
+          return { data: updatedLead || lead, error: null };
+        }
+      } catch (routingError) {
+        console.error('Error in lead routing:', routingError);
+        // Don't fail lead creation if routing fails
+      }
+
+      return { data: lead, error: null };
     } catch (error) {
       console.error('Error in createLead:', error);
       return { data: null, error };

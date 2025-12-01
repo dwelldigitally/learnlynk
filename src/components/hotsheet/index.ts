@@ -23,4 +23,7 @@ export {
   getTrendColor,
   getMessageStatusColor,
   getApplicationStatusColor,
+  getUrgencyColor,
+  getImpactColor,
+  getActivityTypeColor,
 } from './utils';

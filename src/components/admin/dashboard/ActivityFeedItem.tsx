@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { IconContainer, PastelBadge, type PastelColor } from '@/components/hotsheet';
+import { IconContainer, PastelBadge, getPriorityColor, getActivityTypeColor } from '@/components/hotsheet';
 
 export interface ActivityItem {
   id: string;
@@ -24,39 +24,9 @@ interface ActivityFeedItemProps {
   onClick?: () => void;
 }
 
-const getPriorityColor = (priority?: 'low' | 'medium' | 'high'): PastelColor => {
-  switch (priority) {
-    case 'high':
-      return 'rose';
-    case 'medium':
-      return 'amber';
-    case 'low':
-      return 'sky';
-    default:
-      return 'slate';
-  }
-};
-
-const getTypeColor = (type: ActivityItem['type']): PastelColor => {
-  switch (type) {
-    case 'lead':
-      return 'sky';
-    case 'application':
-      return 'violet';
-    case 'payment':
-      return 'emerald';
-    case 'task':
-      return 'peach';
-    case 'communication':
-      return 'rose';
-    default:
-      return 'slate';
-  }
-};
-
 export const ActivityFeedItem: React.FC<ActivityFeedItemProps> = ({ activity, onClick }) => {
   const Icon = activity.icon;
-  const typeColor = getTypeColor(activity.type);
+  const typeColor = getActivityTypeColor(activity.type);
 
   return (
     <div 

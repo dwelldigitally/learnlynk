@@ -88,13 +88,21 @@ export const UserDirectory = () => {
       {/* Header */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            User Directory
-          </CardTitle>
-          <CardDescription>
-            Search and manage all users, their roles, and team assignments
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                User Directory
+              </CardTitle>
+              <CardDescription>
+                Search and manage all users, their roles, and team assignments
+              </CardDescription>
+            </div>
+            <Button onClick={() => setShowInviteDialog(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Invite User
+            </Button>
+          </div>
         </CardHeader>
       </Card>
 

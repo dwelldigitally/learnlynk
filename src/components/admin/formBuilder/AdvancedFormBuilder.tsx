@@ -211,16 +211,21 @@ export function AdvancedFormBuilder({ formId, onSave, onCancel }: AdvancedFormBu
     
     const { source, destination } = result;
     
-    // Adding field from palette to grid
-    if (source.droppableId === 'field-palette' && destination.droppableId.includes('-')) {
+    // Adding field from palette to grid (droppableId format: "rowId-columnIndex")
+    if (source.droppableId === 'field-palette' && destination.droppableId !== 'field-palette') {
       const fieldType = fieldTypes[source.index];
-      const [rowId, columnIndex] = destination.droppableId.split('-');
-      handleFieldAddToGrid(fieldType.type, rowId, parseInt(columnIndex));
-    }
-    // Adding field from palette to form list
-    else if (source.droppableId === 'field-palette') {
-      const fieldType = fieldTypes[source.index];
-      handleFieldAdd(fieldType.type);
+      
+      // Parse rowId and columnIndex correctly (rowId may contain dashes for UUIDs)
+      const lastDashIndex = destination.droppableId.lastIndexOf('-');
+      const rowId = destination.droppableId.substring(0, lastDashIndex);
+      const columnIndex = parseInt(destination.droppableId.substring(lastDashIndex + 1));
+      
+      if (rowId && !isNaN(columnIndex)) {
+        handleFieldAddToGrid(fieldType.type, rowId, columnIndex);
+      } else {
+        // Fallback to list mode if parsing fails
+        handleFieldAdd(fieldType.type);
+      }
     }
   };
 

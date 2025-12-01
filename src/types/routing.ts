@@ -100,8 +100,39 @@ export interface EnhancedRoutingRule {
     conversion_weight: number;
     response_time_weight: number;
   };
+  enrollment_config?: {
+    enroll_existing: boolean;
+    enrollment_status?: 'not_started' | 'in_progress' | 'completed' | 'failed';
+    last_enrollment_at?: string;
+    leads_enrolled?: number;
+    only_unassigned?: boolean;
+    date_range_days?: number;
+    notify_advisors?: boolean;
+  };
   created_at: string;
   updated_at: string;
+}
+
+export interface EnrollmentOptions {
+  only_unassigned?: boolean;
+  date_range_days?: number;
+  notify_advisors?: boolean;
+}
+
+export interface EnrollmentLog {
+  id: string;
+  rule_id: string;
+  enrollment_type: 'initial' | 're_enrollment';
+  leads_processed: number;
+  leads_assigned: number;
+  leads_skipped: number;
+  started_at: string;
+  completed_at?: string;
+  status: 'in_progress' | 'completed' | 'failed' | 'cancelled';
+  error_message?: string;
+  options?: EnrollmentOptions;
+  created_at: string;
+  created_by?: string;
 }
 
 export interface RoutingRuleFormData extends Omit<EnhancedRoutingRule, 'id' | 'created_at' | 'updated_at'> {}

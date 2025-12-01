@@ -1,50 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FormConfig, FormField, FormFieldType, EmailNotificationConfig } from '@/types/formBuilder';
-import { FormRow } from '@/types/formLayout';
+import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import * as Icons from 'lucide-react';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { FormField, FormFieldType, FormConfig, EmailNotificationConfig } from '@/types/formBuilder';
+import { FormRow } from '@/types/formLayout';
+import { CompactFieldCard } from './CompactFieldCard';
+import { FieldConfigPanel } from './FieldConfigPanel';
 import { GridFormBuilder } from './GridFormBuilder';
-import { FieldConfigEditor } from './FieldConfigEditor';
-import { EnhancedEmailNotifications } from './EnhancedEmailNotifications';
 import { DynamicFormRenderer } from '@/components/forms/DynamicFormRenderer';
-import { WebFormEmbedGenerator } from '@/components/embed/WebFormEmbedGenerator';
+import { EnhancedEmailNotifications } from './EnhancedEmailNotifications';
 import { useForm, useCreateForm, useUpdateForm } from '@/hooks/useForms';
 import { usePrograms } from '@/hooks/usePrograms';
-import { toast } from 'sonner';
-import { 
-  Save, 
-  X, 
-  Copy,
-  Type,
-  Mail,
-  Phone,
-  Calendar,
-  FileText,
-  ToggleLeft,
-  Upload,
-  Link,
-  Hash,
-  CheckSquare,
-  Circle,
-  List,
-  Plus,
-  Edit2,
-  Eye,
-  Settings as SettingsIcon
-} from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { cn } from '@/lib/utils';
 
 interface AdvancedFormBuilderProps {
   formId?: string | null;
@@ -55,20 +34,20 @@ interface AdvancedFormBuilderProps {
 }
 
 const fieldTypes = [
-  { type: 'text' as FormFieldType, label: 'Text Input', icon: Type, color: 'bg-blue-500' },
-  { type: 'email' as FormFieldType, label: 'Email', icon: Mail, color: 'bg-green-500' },
-  { type: 'tel' as FormFieldType, label: 'Phone', icon: Phone, color: 'bg-purple-500' },
-  { type: 'number' as FormFieldType, label: 'Number', icon: Hash, color: 'bg-orange-500' },
-  { type: 'textarea' as FormFieldType, label: 'Textarea', icon: FileText, color: 'bg-indigo-500' },
-  { type: 'select' as FormFieldType, label: 'Dropdown', icon: List, color: 'bg-pink-500' },
-  { type: 'radio' as FormFieldType, label: 'Radio Buttons', icon: Circle, color: 'bg-red-500' },
-  { type: 'checkbox' as FormFieldType, label: 'Checkbox', icon: CheckSquare, color: 'bg-yellow-500' },
-  { type: 'multi-select' as FormFieldType, label: 'Multi-Select', icon: CheckSquare, color: 'bg-cyan-500' },
-  { type: 'intake-date' as FormFieldType, label: 'Intake Date', icon: Calendar, color: 'bg-emerald-500' },
-  { type: 'switch' as FormFieldType, label: 'Switch', icon: ToggleLeft, color: 'bg-teal-500' },
-  { type: 'file' as FormFieldType, label: 'File Upload', icon: Upload, color: 'bg-rose-500' },
-  { type: 'url' as FormFieldType, label: 'URL', icon: Link, color: 'bg-amber-500' },
-  { type: 'program-list' as FormFieldType, label: 'Program List', icon: List, color: 'bg-lime-500' },
+  { type: 'text' as FormFieldType, label: 'Text Input', icon: Icons.Type, color: 'bg-blue-500' },
+  { type: 'email' as FormFieldType, label: 'Email', icon: Icons.Mail, color: 'bg-green-500' },
+  { type: 'tel' as FormFieldType, label: 'Phone', icon: Icons.Phone, color: 'bg-purple-500' },
+  { type: 'number' as FormFieldType, label: 'Number', icon: Icons.Hash, color: 'bg-orange-500' },
+  { type: 'textarea' as FormFieldType, label: 'Textarea', icon: Icons.FileText, color: 'bg-indigo-500' },
+  { type: 'select' as FormFieldType, label: 'Dropdown', icon: Icons.List, color: 'bg-pink-500' },
+  { type: 'radio' as FormFieldType, label: 'Radio Buttons', icon: Icons.Circle, color: 'bg-red-500' },
+  { type: 'checkbox' as FormFieldType, label: 'Checkbox', icon: Icons.CheckSquare, color: 'bg-yellow-500' },
+  { type: 'multi-select' as FormFieldType, label: 'Multi-Select', icon: Icons.CheckSquare, color: 'bg-cyan-500' },
+  { type: 'intake-date' as FormFieldType, label: 'Intake Date', icon: Icons.Calendar, color: 'bg-emerald-500' },
+  { type: 'switch' as FormFieldType, label: 'Switch', icon: Icons.ToggleLeft, color: 'bg-teal-500' },
+  { type: 'file' as FormFieldType, label: 'File Upload', icon: Icons.Upload, color: 'bg-rose-500' },
+  { type: 'url' as FormFieldType, label: 'URL', icon: Icons.Link, color: 'bg-amber-500' },
+  { type: 'program-list' as FormFieldType, label: 'Program List', icon: Icons.List, color: 'bg-lime-500' },
 ];
 
 export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFormTitleChange, onSave, onCancel }: AdvancedFormBuilderProps) {
@@ -78,7 +57,7 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
   const createFormMutation = useCreateForm();
   const updateFormMutation = useUpdateForm();
 
-  // Form state - use external title if provided
+  // Form state
   const [internalFormTitle, setInternalFormTitle] = useState('Untitled Form');
   const formTitle = externalFormTitle ?? internalFormTitle;
   const setFormTitle = (title: string) => {
@@ -89,6 +68,7 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
   const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
   const [fields, setFields] = useState<FormField[]>([]);
   const [rows, setRows] = useState<FormRow[]>([]);
+  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [submitButtonText, setSubmitButtonText] = useState('Submit');
   const [successMessage, setSuccessMessage] = useState('Thank you! Your submission has been received.');
   const [errorMessage, setErrorMessage] = useState('Sorry, there was an error submitting your form. Please try again.');
@@ -111,9 +91,6 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
     format: 'html'
   });
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [embedDialogOpen, setEmbedDialogOpen] = useState(false);
-
   // Load existing form data
   useEffect(() => {
     if (existingForm) {
@@ -135,7 +112,7 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
     }
   }, [existingForm]);
 
-  // Field management for list mode
+  // Field management
   const handleFieldAdd = (fieldType: FormFieldType) => {
     const newField: FormField = {
       id: uuidv4(),
@@ -147,19 +124,41 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
       helpText: '',
     };
     setFields([...fields, newField]);
+    setSelectedFieldId(newField.id);
   };
 
   const handleFieldUpdate = (fieldId: string, updates: Partial<FormField>) => {
-    setFields(fields.map(field => 
-      field.id === fieldId ? { ...field, ...updates } : field
-    ));
+    if (layoutMode === 'list') {
+      setFields(fields.map(field => 
+        field.id === fieldId ? { ...field, ...updates } : field
+      ));
+    } else {
+      setRows(rows.map(row => ({
+        ...row,
+        fields: row.fields.map(field => 
+          field && field.id === fieldId ? { ...field, ...updates } : field
+        )
+      })));
+    }
   };
 
   const handleFieldDelete = (fieldId: string) => {
-    setFields(fields.filter(field => field.id !== fieldId));
+    if (layoutMode === 'list') {
+      setFields(fields.filter(field => field.id !== fieldId));
+    } else {
+      setRows(rows.map(row => ({
+        ...row,
+        fields: row.fields.map(field => 
+          field && field.id === fieldId ? null : field
+        )
+      })));
+    }
+    if (selectedFieldId === fieldId) {
+      setSelectedFieldId(null);
+    }
   };
 
-  // Row & field management for grid mode
+  // Grid mode handlers
   const handleRowAdd = (columns: number) => {
     const newRow: FormRow = {
       id: uuidv4(),
@@ -192,47 +191,36 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
       }
       return row;
     }));
+    setSelectedFieldId(newField.id);
   };
 
-  const handleFieldUpdateInGrid = (fieldId: string, updates: Partial<FormField>) => {
-    setRows(rows.map(row => ({
-      ...row,
-      fields: row.fields.map(field => 
-        field && field.id === fieldId ? { ...field, ...updates } : field
-      )
-    })));
-  };
-
-  const handleFieldDeleteFromGrid = (fieldId: string) => {
-    setRows(rows.map(row => ({
-      ...row,
-      fields: row.fields.map(field => 
-        field && field.id === fieldId ? null : field
-      )
-    })));
-  };
-
-  // Handle drag and drop
-  const handleDragEnd = (result: any) => {
+  // Drag and drop
+  const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     
     const { source, destination } = result;
     
-    // Adding field from palette to grid (droppableId format: "rowId-columnIndex")
-    if (source.droppableId === 'field-palette' && destination.droppableId !== 'field-palette') {
-      const fieldType = fieldTypes[source.index];
+    if (source.droppableId === 'field-types') {
+      const fieldType = fieldTypes[source.index].type;
       
-      // Parse rowId and columnIndex correctly (rowId may contain dashes for UUIDs)
-      const lastDashIndex = destination.droppableId.lastIndexOf('-');
-      const rowId = destination.droppableId.substring(0, lastDashIndex);
-      const columnIndex = parseInt(destination.droppableId.substring(lastDashIndex + 1));
-      
-      if (rowId && !isNaN(columnIndex)) {
-        handleFieldAddToGrid(fieldType.type, rowId, columnIndex);
-      } else {
-        // Fallback to list mode if parsing fails
-        handleFieldAdd(fieldType.type);
+      if (destination.droppableId === 'fields-list') {
+        handleFieldAdd(fieldType);
+      } else if (destination.droppableId.includes('-')) {
+        const lastDashIndex = destination.droppableId.lastIndexOf('-');
+        const rowId = destination.droppableId.substring(0, lastDashIndex);
+        const columnIndex = parseInt(destination.droppableId.substring(lastDashIndex + 1));
+        
+        if (rowId && !isNaN(columnIndex)) {
+          handleFieldAddToGrid(fieldType, rowId, columnIndex);
+        }
       }
+    }
+    
+    if (source.droppableId === 'fields-list' && destination.droppableId === 'fields-list') {
+      const newFields = Array.from(fields);
+      const [removed] = newFields.splice(source.index, 1);
+      newFields.splice(destination.index, 0, removed);
+      setFields(newFields);
     }
   };
 
@@ -290,13 +278,9 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
     }
   };
 
-  const filteredFieldTypes = fieldTypes.filter(field =>
-    field.label.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const totalFieldCount = layoutMode === 'grid'
-    ? rows.flatMap(row => row.fields).filter(Boolean).length
-    : fields.length;
+  const selectedField = layoutMode === 'grid'
+    ? rows.flatMap(r => r.fields).find(f => f?.id === selectedFieldId)
+    : fields.find(f => f.id === selectedFieldId);
 
   if (isLoading) {
     return (
@@ -310,191 +294,190 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {formId ? 'Edit Form' : 'Create New Form'}
-          </h1>
-          <p className="text-muted-foreground">
-            Configure your lead capture form with custom fields, layout, and email notifications
-          </p>
-        </div>
+        <Badge variant="secondary" className="text-sm">
+          {fields.length + rows.flatMap(r => r.fields.filter(Boolean)).length} fields
+        </Badge>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={onCancel || (() => navigate('/admin/leads/forms'))}>
-            <X className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" onClick={onCancel || (() => navigate('/admin/leads/forms'))}>
+            <Icons.X className="h-4 w-4 mr-2" />
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" />
-            {formId ? 'Update Form' : 'Create Form'}
+          <Button size="sm" onClick={handleSave}>
+            <Icons.Save className="h-4 w-4 mr-2" />
+            {formId ? 'Update' : 'Create'}
           </Button>
         </div>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex gap-6 h-[calc(100vh-250px)]">
+        <div className="flex h-[calc(100vh-12rem)] gap-0">
           {/* Left Sidebar - Field Types */}
-          <div className="w-80 flex-shrink-0">
-            <Card className="h-full">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Field Types</CardTitle>
-                <Input
-                  placeholder="Search fields..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-9 mt-2"
-                />
-              </CardHeader>
-              <CardContent className="p-0">
-                <ScrollArea className="h-[calc(100vh-380px)]">
-                  <Droppable droppableId="field-palette">
+          <div className="w-64 border-r bg-muted/30 flex flex-col">
+            <div className="p-4 border-b">
+              <h3 className="font-semibold">Field Types</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Drag fields to the canvas
+              </p>
+            </div>
+            <ScrollArea className="flex-1 p-4">
+              <Droppable droppableId="field-types">
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className="space-y-2"
+                  >
+                    {fieldTypes.map((fieldType, index) => (
+                      <Draggable
+                        key={fieldType.type}
+                        draggableId={`field-type-${fieldType.type}`}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            className={cn(
+                              "flex items-center gap-3 p-3 rounded-lg border cursor-grab active:cursor-grabbing transition-all",
+                              snapshot.isDragging
+                                ? "bg-primary/10 border-primary shadow-lg"
+                                : "bg-background hover:bg-muted/50"
+                            )}
+                          >
+                            <div className={cn("p-2 rounded-md", fieldType.color)}>
+                              <fieldType.icon className="h-4 w-4 text-white" />
+                            </div>
+                            <span className="text-sm font-medium">
+                              {fieldType.label}
+                            </span>
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </ScrollArea>
+          </div>
+
+          {/* Center Panel - Form Canvas */}
+          <div className="flex-1 flex flex-col bg-background">
+            <div className="p-4 border-b flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant={layoutMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setLayoutMode('list')}
+                >
+                  <Icons.Layout className="h-4 w-4 mr-2" />
+                  List
+                </Button>
+                <Button
+                  variant={layoutMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setLayoutMode('grid')}
+                >
+                  <Icons.Grid3x3 className="h-4 w-4 mr-2" />
+                  Grid
+                </Button>
+              </div>
+            </div>
+
+            <Tabs defaultValue="builder" className="flex-1 flex flex-col">
+              <TabsList className="mx-4 mt-4 grid w-auto grid-cols-3">
+                <TabsTrigger value="builder">
+                  <Icons.Layout className="h-4 w-4 mr-2" />
+                  Builder
+                </TabsTrigger>
+                <TabsTrigger value="preview">
+                  <Icons.Eye className="h-4 w-4 mr-2" />
+                  Preview
+                </TabsTrigger>
+                <TabsTrigger value="settings">
+                  <Icons.Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="builder" className="flex-1 p-4 space-y-6 overflow-auto">
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+                  <Label>Layout Mode</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={layoutMode === 'list' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setLayoutMode('list')}
+                    >
+                      <Icons.Layout className="h-4 w-4 mr-2" />
+                      List
+                    </Button>
+                    <Button
+                      variant={layoutMode === 'grid' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setLayoutMode('grid')}
+                    >
+                      <Icons.Grid3x3 className="h-4 w-4 mr-2" />
+                      Grid
+                    </Button>
+                  </div>
+                </div>
+
+                {layoutMode === 'list' && (
+                  <Droppable droppableId="fields-list">
                     {(provided) => (
                       <div
-                        {...provided.droppableProps}
                         ref={provided.innerRef}
-                        className="space-y-2 p-3"
+                        {...provided.droppableProps}
+                        className="space-y-3"
                       >
-                        {filteredFieldTypes.map((field, index) => (
-                          <Draggable
-                            key={field.type}
-                            draggableId={field.type}
-                            index={index}
-                          >
+                        {fields.map((field, index) => (
+                          <Draggable key={field.id} draggableId={field.id} index={index}>
                             {(provided, snapshot) => (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={cn(
-                                  "flex items-center gap-3 p-3 rounded-lg border cursor-move transition-all",
-                                  snapshot.isDragging
-                                    ? 'shadow-lg bg-background border-primary'
-                                    : 'hover:border-primary/50 hover:shadow-md'
-                                )}
-                                onClick={() => layoutMode === 'list' && handleFieldAdd(field.type)}
                               >
-                                <div className={cn("w-8 h-8 rounded flex items-center justify-center text-white", field.color)}>
-                                  <field.icon className="h-4 w-4" />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="font-medium text-sm">{field.label}</p>
-                                </div>
-                                <Plus className="h-4 w-4 text-muted-foreground" />
+                                <CompactFieldCard
+                                  field={field}
+                                  isSelected={selectedFieldId === field.id}
+                                  onSelect={() => setSelectedFieldId(field.id)}
+                                  onDelete={() => handleFieldDelete(field.id)}
+                                  isDragging={snapshot.isDragging}
+                                />
                               </div>
                             )}
                           </Draggable>
                         ))}
                         {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                </ScrollArea>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Right Content - Tabs */}
-          <div className="flex-1 overflow-hidden">
-            <Tabs defaultValue="builder" className="h-full flex flex-col">
-              {/* Tab Header */}
-              <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                <TabsList>
-                  <TabsTrigger value="builder">
-                    <Edit2 className="h-4 w-4 mr-2" />
-                    Builder
-                  </TabsTrigger>
-                  <TabsTrigger value="preview">
-                    <Eye className="h-4 w-4 mr-2" />
-                    Preview
-                  </TabsTrigger>
-                  <TabsTrigger value="settings">
-                    <SettingsIcon className="h-4 w-4 mr-2" />
-                    Settings
-                  </TabsTrigger>
-                </TabsList>
-                
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">
-                    {totalFieldCount} {totalFieldCount === 1 ? 'field' : 'fields'}
-                  </Badge>
-                  <Dialog open={embedDialogOpen} onOpenChange={setEmbedDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        <Copy className="h-4 w-4 mr-2" />
-                        Embed Code
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
-                      <DialogHeader>
-                        <DialogTitle>Generate Embed Code</DialogTitle>
-                      </DialogHeader>
-                      <WebFormEmbedGenerator />
-                    </DialogContent>
-                  </Dialog>
-                </div>
-              </div>
-
-              {/* Builder Tab */}
-              <TabsContent value="builder" className="flex-1 overflow-auto space-y-6 mt-0">
-                {/* Form Layout Section */}
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Form Layout</CardTitle>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground mr-2">Layout Mode:</span>
-                        <Button
-                          variant={layoutMode === 'list' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setLayoutMode('list')}
-                        >
-                          List
-                        </Button>
-                        <Button
-                          variant={layoutMode === 'grid' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setLayoutMode('grid')}
-                        >
-                          Grid
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    {layoutMode === 'list' ? (
-                      <div className="space-y-4">
-                        {fields.map((field) => (
-                          <FieldConfigEditor
-                            key={field.id}
-                            field={field}
-                            onUpdate={(updates) => handleFieldUpdate(field.id, updates)}
-                            onRemove={() => handleFieldDelete(field.id)}
-                            availableFields={fields}
-                            compact={false}
-                          />
-                        ))}
                         {fields.length === 0 && (
-                          <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg">
-                            <p>No fields added yet. Click or drag fields from the left sidebar to start building your form.</p>
+                          <div className="text-center py-12 text-muted-foreground">
+                            <p>Drag field types from the left sidebar to add them to your form</p>
                           </div>
                         )}
                       </div>
-                    ) : (
-                      <GridFormBuilder
-                        rows={rows}
-                        onRowAdd={handleRowAdd}
-                        onRowDelete={handleRowDelete}
-                        onFieldUpdate={handleFieldUpdateInGrid}
-                        onFieldDelete={handleFieldDeleteFromGrid}
-                        onFieldAdd={handleFieldAddToGrid}
-                      />
                     )}
-                  </CardContent>
-                </Card>
+                  </Droppable>
+                )}
 
-                {/* Email Notifications Section */}
+                {layoutMode === 'grid' && (
+                  <GridFormBuilder
+                    rows={rows}
+                    onRowAdd={handleRowAdd}
+                    onRowDelete={handleRowDelete}
+                    onFieldUpdate={handleFieldUpdate}
+                    onFieldDelete={handleFieldDelete}
+                    onFieldAdd={handleFieldAddToGrid}
+                    selectedFieldId={selectedFieldId}
+                    onFieldSelect={setSelectedFieldId}
+                  />
+                )}
+
                 <EnhancedEmailNotifications
                   config={emailNotifications}
                   onConfigUpdate={setEmailNotifications}
@@ -502,158 +485,133 @@ export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFo
                 />
               </TabsContent>
 
-              {/* Preview Tab */}
-              <TabsContent value="preview" className="flex-1 overflow-auto mt-0">
-                <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle>Form Preview</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="max-w-2xl mx-auto">
-                      <DynamicFormRenderer
-                        formConfig={{
-                          title: formTitle,
-                          description: formDescription,
-                          fields: layoutMode === 'grid' 
-                            ? rows.flatMap(row => row.fields).filter(Boolean) as FormField[]
-                            : fields,
-                          layoutMode,
-                          rows: layoutMode === 'grid' ? rows : undefined,
-                          submitButtonText,
-                          successMessage,
-                          errorMessage,
-                          privacyText,
-                          multiStep,
-                          showProgress,
-                          theme
-                        }}
-                        onSuccess={(result) => {
-                          console.log('Preview form submitted:', result);
-                          toast.success('Form preview submitted (not saved)');
-                        }}
-                      />
-                    </div>
+              <TabsContent value="preview" className="flex-1 p-4 overflow-auto">
+                <Card>
+                  <CardContent className="p-6">
+                    <DynamicFormRenderer
+                      formConfig={{
+                        id: formId || undefined,
+                        title: formTitle,
+                        description: formDescription,
+                        fields: layoutMode === 'list' ? fields : rows.flatMap(r => r.fields.filter(Boolean) as FormField[]),
+                        submitButtonText: submitButtonText,
+                        successMessage: successMessage,
+                        errorMessage: errorMessage,
+                        multiStep: multiStep,
+                        showProgress: showProgress,
+                        theme: theme,
+                        layoutMode: layoutMode,
+                        rows: layoutMode === 'grid' ? rows : undefined,
+                        privacyText: privacyText,
+                      }}
+                      onSuccess={(data) => {
+                        console.log('Form submitted:', data);
+                      }}
+                    />
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              {/* Settings Tab */}
-              <TabsContent value="settings" className="flex-1 overflow-auto mt-0">
-                <Card className="h-full">
-                  <CardHeader>
-                    <CardTitle>Form Settings</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {/* Form Information */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold">Form Information</h3>
-                      <div>
-                        <Label htmlFor="form-title">Form Title</Label>
-                        <Input
-                          id="form-title"
-                          value={formTitle}
-                          onChange={(e) => setFormTitle(e.target.value)}
-                          placeholder="Enter form title"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="form-description">Description</Label>
-                        <Textarea
-                          id="form-description"
-                          value={formDescription}
-                          onChange={(e) => setFormDescription(e.target.value)}
-                          placeholder="Enter form description"
-                          rows={3}
-                        />
-                      </div>
+              <TabsContent value="settings" className="flex-1 p-4 space-y-6 overflow-auto">
+                <Card>
+                  <CardContent className="space-y-6 pt-6">
+                    <div>
+                      <Label htmlFor="form-description">Form Description</Label>
+                      <Textarea
+                        id="form-description"
+                        value={formDescription}
+                        onChange={(e) => setFormDescription(e.target.value)}
+                        placeholder="Enter form description"
+                        className="mt-1.5"
+                        rows={3}
+                      />
                     </div>
 
-                    {/* Form Behavior */}
-                    <div className="space-y-4 pt-6 border-t">
-                      <h3 className="text-lg font-semibold">Form Behavior</h3>
-                      <div>
-                        <Label htmlFor="submit-button">Submit Button Text</Label>
-                        <Input
-                          id="submit-button"
-                          value={submitButtonText}
-                          onChange={(e) => setSubmitButtonText(e.target.value)}
-                          placeholder="Submit"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="success-message">Success Message</Label>
-                        <Textarea
-                          id="success-message"
-                          value={successMessage}
-                          onChange={(e) => setSuccessMessage(e.target.value)}
-                          placeholder="Thank you message"
-                          rows={2}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="error-message">Error Message</Label>
-                        <Textarea
-                          id="error-message"
-                          value={errorMessage}
-                          onChange={(e) => setErrorMessage(e.target.value)}
-                          placeholder="Error message"
-                          rows={2}
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor="privacy-text">Privacy Text (optional)</Label>
-                        <Textarea
-                          id="privacy-text"
-                          value={privacyText}
-                          onChange={(e) => setPrivacyText(e.target.value)}
-                          placeholder="Privacy policy or terms text"
-                          rows={2}
-                        />
-                      </div>
+                    <div>
+                      <Label htmlFor="submit-button">Submit Button Text</Label>
+                      <Input
+                        id="submit-button"
+                        value={submitButtonText}
+                        onChange={(e) => setSubmitButtonText(e.target.value)}
+                        className="mt-1.5"
+                      />
                     </div>
 
-                    {/* Advanced Options */}
-                    <div className="space-y-4 pt-6 border-t">
-                      <h3 className="text-lg font-semibold">Advanced Options</h3>
-                      
-                      <div className="flex items-center justify-between py-2">
-                        <div>
-                          <Label>Multi-Step Form</Label>
-                          <p className="text-sm text-muted-foreground">Split form into multiple steps</p>
-                        </div>
-                        <Switch checked={multiStep} onCheckedChange={setMultiStep} />
-                      </div>
+                    <div>
+                      <Label htmlFor="success-message">Success Message</Label>
+                      <Input
+                        id="success-message"
+                        value={successMessage}
+                        onChange={(e) => setSuccessMessage(e.target.value)}
+                        className="mt-1.5"
+                      />
+                    </div>
 
-                      <div className="flex items-center justify-between py-2">
-                        <div>
-                          <Label>Show Progress Bar</Label>
-                          <p className="text-sm text-muted-foreground">Display progress indicator</p>
-                        </div>
-                        <Switch checked={showProgress} onCheckedChange={setShowProgress} />
-                      </div>
+                    <div>
+                      <Label htmlFor="error-message">Error Message</Label>
+                      <Input
+                        id="error-message"
+                        value={errorMessage}
+                        onChange={(e) => setErrorMessage(e.target.value)}
+                        className="mt-1.5"
+                      />
+                    </div>
 
-                      <div>
-                        <Label htmlFor="theme">Form Theme</Label>
-                        <Select value={theme} onValueChange={(value: any) => setTheme(value)}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="default">Default</SelectItem>
-                            <SelectItem value="modern">Modern</SelectItem>
-                            <SelectItem value="minimal">Minimal</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                    <div>
+                      <Label htmlFor="privacy-text">Privacy Text</Label>
+                      <Textarea
+                        id="privacy-text"
+                        value={privacyText}
+                        onChange={(e) => setPrivacyText(e.target.value)}
+                        placeholder="Optional privacy policy text"
+                        className="mt-1.5"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="multi-step">Multi-Step Form</Label>
+                      <Switch
+                        id="multi-step"
+                        checked={multiStep}
+                        onCheckedChange={setMultiStep}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="show-progress">Show Progress Bar</Label>
+                      <Switch
+                        id="show-progress"
+                        checked={showProgress}
+                        onCheckedChange={setShowProgress}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="theme">Theme</Label>
+                      <Select value={theme} onValueChange={(value: any) => setTheme(value)}>
+                        <SelectTrigger id="theme" className="mt-1.5">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background">
+                          <SelectItem value="default">Default</SelectItem>
+                          <SelectItem value="modern">Modern</SelectItem>
+                          <SelectItem value="minimal">Minimal</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </CardContent>
                 </Card>
               </TabsContent>
             </Tabs>
           </div>
+
+          {/* Right Panel - Field Configuration */}
+          <FieldConfigPanel
+            field={selectedField || null}
+            onUpdate={handleFieldUpdate}
+            availableFields={layoutMode === 'list' ? fields : rows.flatMap(r => r.fields.filter(Boolean) as FormField[])}
+          />
         </div>
       </DragDropContext>
     </div>

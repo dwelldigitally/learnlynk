@@ -474,6 +474,8 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
                 onFieldUpdate={handleGridFieldUpdate}
                 onFieldDelete={handleGridFieldDelete}
                 onFieldAdd={handleGridFieldAdd}
+                selectedFieldId={null}
+                onFieldSelect={() => {}}
               />
             )}
           </CardContent>

@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, CheckCircle, User, Users, Mail, Phone, MessageSquare, FileText, Clock, AlertTriangle, TrendingUp, Lightbulb, Brain, ShieldAlert, GraduationCap, BookOpenCheck, Activity, UserPlus, UserCheck, UserX, Briefcase, Building2, MapPin, Link, Tag, Edit, Save, Trash2, Flag } from 'lucide-react';
+import { CalendarIcon, User, Mail, Phone, Clock, TrendingUp, Lightbulb, Brain, ShieldAlert, GraduationCap, Activity, Edit, Save, Trash2, Flag, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DatePicker } from '@/components/ui/date-picker';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { useToast } from '@/hooks/use-toast';
@@ -23,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion"
+import { HotSheetCard, PastelBadge, PillButton, PillIconButton, IconContainer, getScoreColor } from '@/components/hotsheet';
 
 interface EnhancedLeadSidebarProps {
   lead: Lead;
@@ -159,17 +148,6 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
     }
   };
 
-  const getStatusColor = (status: LeadStatus) => {
-    switch (status) {
-      case 'new': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'contacted': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
-      case 'qualified': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      case 'converted': return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200';
-      case 'lost': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
-    }
-  };
-
   const calculateAIScore = () => {
     // Mock AI score calculation based on lead data
     const firstNameScore = lead.first_name ? 10 : 0;
@@ -263,35 +241,47 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
   const engagementPrediction = getEngagementPrediction();
 
   return (
-    <div className="w-full lg:w-80 bg-card lg:border-r border-border flex flex-col">
+    <div className="w-full lg:w-80 bg-card lg:border-r border-border/40 flex flex-col">
       {/* Contact Card */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/40">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <User className="h-5 w-5 text-blue-500" />
+            <IconContainer color="sky" size="sm">
+              <User className="h-4 w-4" />
+            </IconContainer>
             <h3 className="text-lg font-semibold">Contact Information</h3>
           </div>
           {isEditing ? (
             <div className="flex gap-2">
-              <Button
+              <PillIconButton
+                icon={<Trash2 className="h-4 w-4" />}
                 variant="ghost"
-                size="icon"
+                size="sm"
                 onClick={() => {
                   setEditedLead(lead); // Revert changes
                   setIsEditing(false);
                 }}
                 disabled={loading}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon" onClick={handleSaveChanges} disabled={loading}>
-                <Save className="h-4 w-4" />
-              </Button>
+                label="Cancel"
+              />
+              <PillIconButton
+                icon={<Save className="h-4 w-4" />}
+                variant="ghost"
+                size="sm"
+                onClick={handleSaveChanges}
+                disabled={loading}
+                label="Save"
+              />
             </div>
           ) : (
-            <Button variant="ghost" size="icon" onClick={() => setIsEditing(true)} disabled={loading}>
-              <Edit className="h-4 w-4" />
-            </Button>
+            <PillIconButton
+              icon={<Edit className="h-4 w-4" />}
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              disabled={loading}
+              label="Edit"
+            />
           )}
         </div>
 
@@ -374,8 +364,8 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               <Label htmlFor="created_at">Created Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
+                  <PillButton
+                    variant="outline"
                     className={cn(
                       "w-[240px] justify-start text-left font-normal",
                       !editedLead.created_at && "text-muted-foreground"
@@ -388,7 +378,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
                     ) : (
                       <span>No date set</span>
                     )}
-                  </Button>
+                  </PillButton>
                 </PopoverTrigger>
               </Popover>
             </div>
@@ -537,13 +527,15 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* AI Insights Card */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/40">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Brain className="h-5 w-5 text-primary" />
+            <IconContainer color="violet" size="sm">
+              <Brain className="h-4 w-4" />
+            </IconContainer>
             <h3 className="text-lg font-semibold">AI Insights</h3>
           </div>
-          <Badge variant="secondary">{aiScore}%</Badge>
+          <PastelBadge color={getScoreColor(aiScore)}>{aiScore}%</PastelBadge>
         </div>
         <Progress value={aiScore} className="mb-4" />
         <p className="text-sm text-muted-foreground">
@@ -552,10 +544,12 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* Lead Scoring Card */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/40">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-green-500" />
+            <IconContainer color="emerald" size="sm">
+              <TrendingUp className="h-4 w-4" />
+            </IconContainer>
             <h3 className="text-lg font-semibold">Lead Scoring</h3>
           </div>
           {isEditing ? (
@@ -571,7 +565,7 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
               className="w-20 h-8 text-sm"
             />
           ) : (
-            <Badge variant="secondary">{lead.lead_score}</Badge>
+            <PastelBadge color={getScoreColor(lead.lead_score)}>{lead.lead_score}</PastelBadge>
           )}
         </div>
         <p className="text-sm text-muted-foreground mb-2">
@@ -590,9 +584,11 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* Next Best Actions Card */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/40">
         <div className="flex items-center gap-2 mb-4">
-          <Lightbulb className="h-5 w-5 text-yellow-500" />
+          <IconContainer color="amber" size="sm">
+            <Lightbulb className="h-4 w-4" />
+          </IconContainer>
           <h3 className="text-lg font-semibold">Next Best Actions</h3>
         </div>
         <ul className="list-disc pl-4 space-y-2">
@@ -605,9 +601,11 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* Risk Assessment Card */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/40">
         <div className="flex items-center gap-2 mb-4">
-          <ShieldAlert className="h-5 w-5 text-red-500" />
+          <IconContainer color="rose" size="sm">
+            <ShieldAlert className="h-4 w-4" />
+          </IconContainer>
           <h3 className="text-lg font-semibold">Risk Assessment</h3>
         </div>
         {riskAssessment.length > 0 ? (
@@ -624,9 +622,11 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* Engagement Prediction Card */}
-      <div className="p-6 border-b border-border">
+      <div className="p-6 border-b border-border/40">
         <div className="flex items-center gap-2 mb-4">
-          <GraduationCap className="h-5 w-5 text-purple-500" />
+          <IconContainer color="indigo" size="sm">
+            <GraduationCap className="h-4 w-4" />
+          </IconContainer>
           <h3 className="text-lg font-semibold">Engagement Prediction</h3>
         </div>
         <div className="text-center">
@@ -639,24 +639,26 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       </div>
 
       {/* Recent Activity Timeline */}
-      <div className="p-6 pb-4 border-b border-border">
+      <div className="p-6 pb-4 border-b border-border/40">
         <div className="flex items-center gap-2 mb-3">
-          <Activity className="h-5 w-5 text-gray-500" />
+          <IconContainer color="slate" size="sm">
+            <Activity className="h-4 w-4" />
+          </IconContainer>
           <h3 className="text-lg font-semibold">Recent Activity</h3>
         </div>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-green-500"></div>
+            <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
             <span className="text-sm text-muted-foreground">Email sent</span>
             <span className="ml-auto text-xs">2 hours ago</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div className="w-2 h-2 rounded-full bg-sky-500"></div>
             <span className="text-sm text-muted-foreground">Call scheduled</span>
             <span className="ml-auto text-xs">1 day ago</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-orange-500"></div>
+            <div className="w-2 h-2 rounded-full bg-amber-500"></div>
             <span className="text-sm text-muted-foreground">Status updated</span>
             <span className="ml-auto text-xs">2 days ago</span>
           </div>
@@ -667,22 +669,18 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
       <div className="p-4">
         <h3 className="text-sm font-semibold mb-3">Quick Actions</h3>
         <div className="space-y-2">
-          <Button variant="outline" size="sm" className="w-full justify-start">
-            <Phone className="h-4 w-4 mr-2" />
+          <PillButton variant="outline" size="sm" className="w-full justify-start" icon={<Phone className="h-4 w-4" />}>
             Schedule Call
-          </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start">
-            <Mail className="h-4 w-4 mr-2" />
+          </PillButton>
+          <PillButton variant="outline" size="sm" className="w-full justify-start" icon={<Mail className="h-4 w-4" />}>
             Send Email
-          </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start">
-            <Calendar className="h-4 w-4 mr-2" />
+          </PillButton>
+          <PillButton variant="outline" size="sm" className="w-full justify-start" icon={<Calendar className="h-4 w-4" />}>
             Book Meeting
-          </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start">
-            <Flag className="h-4 w-4 mr-2" />
+          </PillButton>
+          <PillButton variant="outline" size="sm" className="w-full justify-start" icon={<Flag className="h-4 w-4" />}>
             Flag for Review
-          </Button>
+          </PillButton>
         </div>
       </div>
     </div>

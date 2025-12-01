@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, Clock, AlertCircle, FileText, Phone, MessageSquare, Calendar } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { AcademicJourneyService } from '@/services/academicJourneyService';
 import { supabase } from '@/integrations/supabase/client';
+import { HotSheetCard, PastelBadge, PillButton, IconContainer, type PastelColor } from '@/components/hotsheet';
 
 interface JourneyStage {
   id: string;
@@ -213,12 +211,12 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
     }
   };
 
-  const getStageColor = (status: string) => {
+  const getStageColor = (status: string): PastelColor => {
     switch (status) {
-      case 'completed': return 'text-white bg-purple-500 border-purple-500';
-      case 'active': return 'text-blue-600 bg-blue-50 border-blue-200';
-      case 'pending': return 'text-gray-600 bg-gray-50 border-gray-200';
-      default: return 'text-gray-600 bg-gray-50 border-gray-200';
+      case 'completed': return 'emerald';
+      case 'active': return 'sky';
+      case 'pending': return 'slate';
+      default: return 'slate';
     }
   };
 
@@ -228,6 +226,15 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
       case 'interview': return Phone;
       case 'scheduling': return Calendar;
       default: return MessageSquare;
+    }
+  };
+
+  const getRequirementStatusColor = (status: string): PastelColor => {
+    switch (status) {
+      case 'completed': return 'emerald';
+      case 'in_progress': return 'sky';
+      case 'overdue': return 'rose';
+      default: return 'slate';
     }
   };
 
@@ -252,75 +259,77 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
 
   if (loading) {
     return (
-      <Card className="h-full">
-        <CardHeader>
-          <CardTitle>Academic Journey</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <HotSheetCard className="h-full">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Academic Journey</h3>
           <div className="flex items-center justify-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </HotSheetCard>
     );
   }
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Academic Journey</CardTitle>
-          <Badge variant="outline" className="text-xs">
+    <HotSheetCard className="h-full flex flex-col">
+      <div className="p-6 pb-4">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Academic Journey</h3>
+          <PastelBadge color="primary">
             {calculateOverallProgress()}% Complete
-          </Badge>
+          </PastelBadge>
         </div>
         <Progress value={calculateOverallProgress()} className="h-2" />
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-1 space-y-4 overflow-y-auto">
+      <div className="flex-1 px-6 pb-6 space-y-4 overflow-y-auto">
         {/* Journey Timeline */}
         <div className="space-y-3">
           {stages.map((stage, index) => {
             const StageIcon = getStageIcon(stage.status);
             const isSelected = selectedStage === stage.id;
+            const stageColor = getStageColor(stage.status);
 
             return (
               <div key={stage.id} className="relative">
                 {/* Connection line */}
                 {index < stages.length - 1 && (
-                  <div className="absolute left-4 top-8 w-0.5 h-6 bg-border"></div>
+                  <div className="absolute left-4 top-10 w-0.5 h-6 bg-border/40"></div>
                 )}
 
-                <div
-                  className={`flex items-start gap-3 p-3 rounded-lg border transition-all cursor-pointer hover:shadow-sm ${
-                    getStageColor(stage.status)
-                  } ${isSelected ? 'ring-2 ring-primary/20' : ''}`}
+                <HotSheetCard
+                  padding="sm"
+                  hover
+                  interactive
                   onClick={() => setSelectedStage(isSelected ? null : stage.id)}
+                  className={`${isSelected ? 'ring-2 ring-primary/20' : ''}`}
                 >
-                  <div className="flex-shrink-0 mt-0.5">
-                    <StageIcon className="h-4 w-4" />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-medium text-sm">{stage.name}</h4>
-                      <Badge variant="outline" className="text-xs">
-                        {stage.completion_percentage}%
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">{stage.description}</p>
+                  <div className="flex items-start gap-3">
+                    <IconContainer color={stageColor} size="sm">
+                      <StageIcon className="h-4 w-4" />
+                    </IconContainer>
                     
-                    {stage.status === 'active' && (
-                      <div className="mt-2">
-                        <Progress value={stage.completion_percentage} className="h-1" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-sm">{stage.name}</h4>
+                        <PastelBadge color={stageColor} size="sm">
+                          {stage.completion_percentage}%
+                        </PastelBadge>
                       </div>
-                    )}
+                      <p className="text-xs text-muted-foreground mt-1">{stage.description}</p>
+                      
+                      {stage.status === 'active' && (
+                        <div className="mt-2">
+                          <Progress value={stage.completion_percentage} className="h-1" />
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </HotSheetCard>
 
                 {/* Expanded stage details */}
                 {isSelected && (
-                  <div className="mt-2 ml-7 p-3 bg-muted/50 rounded-lg border">
+                  <HotSheetCard padding="sm" className="mt-2 ml-7 bg-muted/30">
                     <h5 className="font-medium text-sm mb-2">Requirements</h5>
                     <div className="space-y-2">
                       {stage.requirements.map((req) => {
@@ -329,17 +338,14 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
                           <div key={req.id} className="flex items-center gap-2 text-xs">
                             <ReqIcon className="h-3 w-3 text-muted-foreground" />
                             <span className={req.is_mandatory ? 'font-medium' : ''}>{req.name}</span>
-                            <Badge 
-                              variant={req.status === 'completed' ? 'default' : 'outline'} 
-                              className="text-xs"
-                            >
+                            <PastelBadge color={getRequirementStatusColor(req.status)} size="sm">
                               {req.status}
-                            </Badge>
+                            </PastelBadge>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
+                  </HotSheetCard>
                 )}
               </div>
             );
@@ -355,32 +361,36 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
             {getNextActions().map((action) => {
               const ActionIcon = getRequirementIcon(action.requirement_type);
               return (
-                <div key={action.id} className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg">
-                  <ActionIcon className="h-4 w-4 text-primary" />
-                  <span className="text-sm flex-1">{action.name}</span>
-                  <Button size="sm" variant="outline" className="text-xs px-2 py-1 h-6">
-                    Action
-                  </Button>
-                </div>
+                <HotSheetCard key={action.id} padding="sm" hover className="bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <IconContainer color="primary" size="sm">
+                      <ActionIcon className="h-4 w-4" />
+                    </IconContainer>
+                    <span className="text-sm flex-1">{action.name}</span>
+                    <PillButton size="sm" variant="outline" className="text-xs px-2 py-1 h-6">
+                      Action
+                    </PillButton>
+                  </div>
+                </HotSheetCard>
               );
             })}
           </div>
         </div>
 
         {/* Stage Summary */}
-        <div className="pt-2 border-t">
+        <div className="pt-2 border-t border-border/40">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <div className="text-lg font-semibold text-primary">{stages.filter(s => s.status === 'completed').length}</div>
+              <div className="text-lg font-semibold text-emerald-600">{stages.filter(s => s.status === 'completed').length}</div>
               <div className="text-xs text-muted-foreground">Completed</div>
             </div>
             <div>
-              <div className="text-lg font-semibold text-blue-600">{stages.filter(s => s.status === 'active').length}</div>
+              <div className="text-lg font-semibold text-sky-600">{stages.filter(s => s.status === 'active').length}</div>
               <div className="text-xs text-muted-foreground">Active</div>
             </div>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </HotSheetCard>
   );
 }

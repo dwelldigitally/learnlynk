@@ -1,14 +1,12 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { 
-  Phone, Clock, Calendar, Users, 
+  Phone, Clock, Calendar, 
   Video, CheckCircle, XCircle, Timer,
   Mail, TrendingUp, Zap, PlayCircle,
   PauseCircle, StopCircle
 } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { SmartAdvisorMatch } from './SmartAdvisorMatch';
+import { HotSheetCard, PastelBadge, PillButton, IconContainer, type PastelColor } from '@/components/hotsheet';
 
 interface EnhancedRightSidebarProps {
   lead: Lead;
@@ -102,20 +100,29 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
     }
   ];
 
-  const getCallStatusIcon = (status: string) => {
+  const getCallStatusColor = (status: string): PastelColor => {
     switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'missed': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Timer className="h-4 w-4 text-yellow-500" />;
+      case 'completed': return 'emerald';
+      case 'missed': return 'rose';
+      default: return 'amber';
     }
   };
 
-  const getAppointmentStatusIcon = (status: string) => {
+  const getAppointmentStatusColor = (status: string): PastelColor => {
     switch (status) {
-      case 'completed': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'scheduled': return <Calendar className="h-4 w-4 text-blue-500" />;
-      case 'cancelled': return <XCircle className="h-4 w-4 text-red-500" />;
-      default: return <Timer className="h-4 w-4 text-yellow-500" />;
+      case 'completed': return 'emerald';
+      case 'scheduled': return 'sky';
+      case 'cancelled': return 'rose';
+      default: return 'amber';
+    }
+  };
+
+  const getSequenceTypeColor = (type: string): PastelColor => {
+    switch (type) {
+      case 'nurture': return 'sky';
+      case 'deadline-driven': return 'rose';
+      case 'educational': return 'violet';
+      default: return 'slate';
     }
   };
 
@@ -125,11 +132,13 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
   };
 
   return (
-    <div className="w-full lg:w-72 bg-card lg:border-l border-border flex flex-col">
+    <div className="w-full lg:w-72 bg-card lg:border-l border-border/40 flex flex-col">
       {/* Aircall History */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border/40">
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Phone className="h-4 w-4 text-blue-500" />
+          <IconContainer color="sky" size="sm">
+            <Phone className="h-4 w-4" />
+          </IconContainer>
           Call History
         </h3>
         <div className="space-y-3">
@@ -137,13 +146,15 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
             <p className="text-sm text-muted-foreground">No calls yet</p>
           ) : (
             aircallHistory.map((call) => (
-              <div key={call.id} className="p-3 rounded-lg bg-muted/50 border">
+              <HotSheetCard key={call.id} padding="sm" hover className="border-border/40">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    {getCallStatusIcon(call.status)}
-                    <Badge variant="outline" className="text-xs">
+                    <PastelBadge color={getCallStatusColor(call.status)} size="sm">
+                      {call.status}
+                    </PastelBadge>
+                    <PastelBadge color="slate" size="sm">
                       {call.type}
-                    </Badge>
+                    </PastelBadge>
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {call.duration}
@@ -155,16 +166,18 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
                 {call.notes && (
                   <p className="text-xs text-foreground">{call.notes}</p>
                 )}
-              </div>
+              </HotSheetCard>
             ))
           )}
         </div>
       </div>
 
       {/* Appointment History */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border/40">
         <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-green-500" />
+          <IconContainer color="emerald" size="sm">
+            <Calendar className="h-4 w-4" />
+          </IconContainer>
           Appointments
         </h3>
         <div className="space-y-3">
@@ -172,14 +185,18 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
             <p className="text-sm text-muted-foreground">No appointments yet</p>
           ) : (
             appointmentHistory.map((appointment) => (
-              <div key={appointment.id} className="p-3 rounded-lg bg-muted/50 border">
+              <HotSheetCard key={appointment.id} padding="sm" hover className="border-border/40">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    {getAppointmentStatusIcon(appointment.status)}
-                    <span className="text-sm font-medium">{appointment.title}</span>
+                    <PastelBadge color={getAppointmentStatusColor(appointment.status)} size="sm">
+                      {appointment.status}
+                    </PastelBadge>
+                    <span className="text-sm font-medium truncate">{appointment.title}</span>
                   </div>
                   {appointment.type === 'video_call' && (
-                    <Video className="h-4 w-4 text-purple-500" />
+                    <IconContainer color="violet" size="sm">
+                      <Video className="h-3 w-3" />
+                    </IconContainer>
                   )}
                 </div>
                 <div className="text-xs text-muted-foreground mb-1">
@@ -191,26 +208,27 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
                 {appointment.notes && (
                   <p className="text-xs text-foreground">{appointment.notes}</p>
                 )}
-              </div>
+              </HotSheetCard>
             ))
           )}
         </div>
-        <Button variant="outline" size="sm" className="w-full mt-3">
-          <Calendar className="h-4 w-4 mr-2" />
+        <PillButton variant="outline" size="sm" className="w-full mt-3" icon={<Calendar className="h-4 w-4" />}>
           Schedule Meeting
-        </Button>
+        </PillButton>
       </div>
 
       {/* AI Sequences Section */}
-      <div className="p-4 border-b border-border">
+      <div className="p-4 border-b border-border/40">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Zap className="h-5 w-5 text-primary" />
+            <IconContainer color="primary" size="sm">
+              <Zap className="h-4 w-4" />
+            </IconContainer>
             <h3 className="text-lg font-semibold">AI Sequences</h3>
           </div>
-          <Badge variant="secondary" className="text-xs">
+          <PastelBadge color="emerald" size="sm">
             {aiSequences.filter(s => s.enrolled).length} Active
-          </Badge>
+          </PastelBadge>
         </div>
         
         <p className="text-sm text-muted-foreground mb-4">
@@ -222,88 +240,84 @@ export function EnhancedRightSidebar({ lead }: EnhancedRightSidebarProps) {
             const isEnrolled = sequence.enrolled;
             
             return (
-              <div key={sequence.id} className={`rounded-lg border transition-all duration-200 ${
-                isEnrolled 
-                  ? 'bg-green-50 border-green-200 shadow-sm' 
-                  : 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm'
-              }`}>
-                <div className="p-3 overflow-hidden">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="text-sm font-semibold truncate">{sequence.name}</h4>
-                        <Badge 
-                          variant={sequence.type === 'deadline-driven' ? 'destructive' : 'outline'} 
-                          className="text-xs px-2 py-0"
-                        >
-                          {sequence.type}
-                        </Badge>
-                        {isEnrolled && (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        )}
+              <HotSheetCard 
+                key={sequence.id} 
+                padding="sm"
+                hover={!isEnrolled}
+                className={isEnrolled ? 'border-emerald-200 bg-emerald-50/50' : 'border-border/40'}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h4 className="text-sm font-semibold truncate">{sequence.name}</h4>
+                      <PastelBadge color={getSequenceTypeColor(sequence.type)} size="sm">
+                        {sequence.type}
+                      </PastelBadge>
+                      {isEnrolled && (
+                        <CheckCircle className="h-4 w-4 text-emerald-600" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-2 break-words">{sequence.description}</p>
+                    
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Clock className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{sequence.duration}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-2 break-words">{sequence.description}</p>
-                      
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1 min-w-0">
-                          <Clock className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{sequence.duration}</span>
-                        </div>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <Mail className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{sequence.emails} emails</span>
-                        </div>
-                        <div className="flex items-center gap-1 min-w-0">
-                          <TrendingUp className="h-3 w-3 flex-shrink-0" />
-                          <span className="truncate">{sequence.conversionRate}%</span>
-                        </div>
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Mail className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{sequence.emails} emails</span>
+                      </div>
+                      <div className="flex items-center gap-1 min-w-0">
+                        <TrendingUp className="h-3 w-3 flex-shrink-0" />
+                        <span className="truncate">{sequence.conversionRate}%</span>
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-2">
-                    {isEnrolled ? (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 h-7 text-xs"
-                          onClick={() => handleSequenceAction(sequence.id, 'pause')}
-                        >
-                          <PauseCircle className="h-3 w-3 mr-1" />
-                          Pause
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="flex-1 h-7 text-xs"
-                          onClick={() => handleSequenceAction(sequence.id, 'stop')}
-                        >
-                          <StopCircle className="h-3 w-3 mr-1" />
-                          Stop
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        size="sm"
-                        className="flex-1 h-7 text-xs"
-                        onClick={() => handleSequenceAction(sequence.id, 'enroll')}
-                      >
-                        <PlayCircle className="h-3 w-3 mr-1" />
-                        Enroll Lead
-                      </Button>
-                    )}
-                  </div>
                 </div>
-              </div>
+                
+                <div className="flex gap-2">
+                  {isEnrolled ? (
+                    <>
+                      <PillButton
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => handleSequenceAction(sequence.id, 'pause')}
+                        icon={<PauseCircle className="h-3 w-3" />}
+                      >
+                        Pause
+                      </PillButton>
+                      <PillButton
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-7 text-xs"
+                        onClick={() => handleSequenceAction(sequence.id, 'stop')}
+                        icon={<StopCircle className="h-3 w-3" />}
+                      >
+                        Stop
+                      </PillButton>
+                    </>
+                  ) : (
+                    <PillButton
+                      size="sm"
+                      variant="primary"
+                      className="flex-1 h-7 text-xs"
+                      onClick={() => handleSequenceAction(sequence.id, 'enroll')}
+                      icon={<PlayCircle className="h-3 w-3" />}
+                    >
+                      Enroll Lead
+                    </PillButton>
+                  )}
+                </div>
+              </HotSheetCard>
             );
           })}
         </div>
 
-        <Button variant="outline" size="sm" className="w-full mt-3">
-          <Zap className="h-4 w-4 mr-2" />
+        <PillButton variant="outline" size="sm" className="w-full mt-3" icon={<Zap className="h-4 w-4" />}>
           Manage Sequences
-        </Button>
+        </PillButton>
       </div>
 
       {/* Smart Advisor Match */}

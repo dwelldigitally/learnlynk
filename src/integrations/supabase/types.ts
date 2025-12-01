@@ -3606,6 +3606,7 @@ export type Database = {
           name: string
           priority: number
           updated_at: string
+          user_id: string
         }
         Insert: {
           assignment_config: Json
@@ -3617,6 +3618,7 @@ export type Database = {
           name: string
           priority?: number
           updated_at?: string
+          user_id?: string
         }
         Update: {
           assignment_config?: Json
@@ -3628,6 +3630,7 @@ export type Database = {
           name?: string
           priority?: number
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

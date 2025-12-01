@@ -133,16 +133,47 @@ export function DynamicFormRenderer({ formConfig, onSuccess, className }: Dynami
     );
   }
 
-  return (
-    <Card className={`p-6 ${className}`}>
-      <div className="mb-6">
-        <h2 className="text-2xl font-bold mb-2">{formConfig.title}</h2>
-        {formConfig.description && (
-          <p className="text-muted-foreground">{formConfig.description}</p>
-        )}
-      </div>
+  // Render grid layout
+  const renderGridLayout = () => {
+    if (!formConfig.rows || formConfig.rows.length === 0) {
+      return renderListLayout();
+    }
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+    return (
+      <div className="space-y-6">
+        {formConfig.rows.map((row) => (
+          <div 
+            key={row.id} 
+            className={`grid gap-4 ${
+              row.columns === 1 ? 'grid-cols-1' :
+              row.columns === 2 ? 'grid-cols-1 md:grid-cols-2' :
+              row.columns === 3 ? 'grid-cols-1 md:grid-cols-3' :
+              'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+            }`}
+          >
+            {row.fields.map((field, index) => 
+              field && field.enabled !== false && visibleFields.has(field.id) ? (
+                <div key={field.id}>
+                  <FieldRenderer
+                    field={field}
+                    value={formData[field.id]}
+                    onChange={(value) => handleFieldChange(field.id, value)}
+                    error={errors[field.id]}
+                    formData={formData}
+                  />
+                </div>
+              ) : null
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // Render list layout
+  const renderListLayout = () => {
+    return (
+      <div className="space-y-6">
         {formConfig.fields
           .filter(field => field.enabled !== false && visibleFields.has(field.id))
           .map(field => (
@@ -155,6 +186,21 @@ export function DynamicFormRenderer({ formConfig, onSuccess, className }: Dynami
               formData={formData}
             />
           ))}
+      </div>
+    );
+  };
+
+  return (
+    <Card className={`p-6 ${className}`}>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold mb-2">{formConfig.title}</h2>
+        {formConfig.description && (
+          <p className="text-muted-foreground">{formConfig.description}</p>
+        )}
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {formConfig.layoutMode === 'grid' ? renderGridLayout() : renderListLayout()}
 
         {formConfig.privacyText && (
           <p className="text-xs text-muted-foreground">

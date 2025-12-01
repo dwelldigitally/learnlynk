@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface AdminNotification {
   id: string;
-  type: 'new_lead' | 'pending_document' | 'task_overdue' | 'payment_due' | 'new_message';
+  type: 'new_lead' | 'pending_document' | 'task_overdue' | 'payment_due' | 'new_message' | 'lead_assigned';
   title: string;
   description: string;
   count?: number;
@@ -10,6 +10,13 @@ export interface AdminNotification {
   created_at: string;
   related_id?: string;
   priority: 'low' | 'medium' | 'high';
+}
+
+export interface NotificationData {
+  leadId?: string;
+  leadName?: string;
+  ruleName?: string;
+  [key: string]: any;
 }
 
 export class NotificationService {
@@ -204,5 +211,60 @@ export class NotificationService {
   static getActualUnreadCount(notifications: AdminNotification[]): number {
     const readNotifications = this.getReadNotifications();
     return notifications.filter(n => !readNotifications.has(n.id)).length;
+  }
+
+  /**
+   * Notifies an advisor when a lead is assigned to them
+   */
+  static async notifyLeadAssignment(
+    leadId: string,
+    advisorId: string,
+    data: NotificationData
+  ): Promise<void> {
+    try {
+      await supabase.from('notifications').insert({
+        user_id: advisorId,
+        type: 'lead_assigned',
+        title: 'New Lead Assigned',
+        message: `You have been assigned a new lead: ${data.leadName}`,
+        data: {
+          lead_id: leadId,
+          lead_name: data.leadName,
+          rule_name: data.ruleName,
+          assigned_at: new Date().toISOString()
+        },
+        is_read: false
+      });
+
+      console.log(`Notification sent to advisor ${advisorId} for lead ${leadId}`);
+    } catch (error) {
+      console.error('Error sending lead assignment notification:', error);
+    }
+  }
+
+  /**
+   * Creates a notification for a user
+   */
+  static async createNotification(
+    userId: string,
+    notification: {
+      type: string;
+      title: string;
+      message?: string;
+      data?: NotificationData;
+    }
+  ): Promise<void> {
+    try {
+      await supabase.from('notifications').insert({
+        user_id: userId,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data,
+        is_read: false
+      });
+    } catch (error) {
+      console.error('Error creating notification:', error);
+    }
   }
 }

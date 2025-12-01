@@ -10,6 +10,8 @@ const corsHeaders = {
 };
 
 interface InviteRequest {
+  first_name: string;
+  last_name?: string;
   email: string;
   role: string;
   personal_message?: string;
@@ -51,15 +53,16 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { email, role, personal_message }: InviteRequest = await req.json();
+    // Parse request body
+    const { first_name, last_name, email, role, personal_message } = await req.json() as InviteRequest;
 
-    console.log(`Creating invitation for ${email} with role ${role}`);
+    console.log(`Creating invitation for ${first_name} ${last_name || ''} (${email}) with role ${role}`);
 
-    // Validate inputs
-    if (!email || !role) {
+    // Validate input
+    if (!first_name || !email || !role) {
       return new Response(
-        JSON.stringify({ error: "Email and role are required" }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ error: 'First name, email, and role are required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -98,6 +101,8 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: invitation, error: inviteError } = await supabase
       .from('team_invitations')
       .insert({
+        first_name,
+        last_name,
         email,
         role,
         invited_by: userId,
@@ -128,13 +133,15 @@ const handler = async (req: Request): Promise<Response> => {
     };
 
     // Send invitation email
+    const fullName = `${first_name}${last_name ? ' ' + last_name : ''}`;
+    
     const emailResponse = await resend.emails.send({
       from: "Team Invitation <onboarding@resend.dev>",
       to: [email],
-      subject: `You've been invited to join the team!`,
+      subject: `${first_name}, you've been invited to join ${inviterName}'s team!`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #333;">You're Invited!</h1>
+          <h1 style="color: #333;">Hi ${first_name}!</h1>
           
           <p style="font-size: 16px; color: #555;">
             ${inviterName} has invited you to join their team with the role of <strong>${role.replace('_', ' ')}</strong>.

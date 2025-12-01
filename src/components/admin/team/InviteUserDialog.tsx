@@ -50,6 +50,8 @@ const roleOptions: Array<{ value: AppRole; label: string; description: string }>
 ];
 
 export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDialogProps) {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState<AppRole>('viewer');
   const [personalMessage, setPersonalMessage] = useState('');
@@ -59,6 +61,11 @@ export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDi
   const selectedRoleInfo = roleOptions.find(r => r.value === role);
 
   const handleSendInvite = async () => {
+    if (!firstName.trim()) {
+      toast.error('Please enter a first name');
+      return;
+    }
+
     if (!email.trim()) {
       toast.error('Please enter an email address');
       return;
@@ -73,14 +80,18 @@ export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDi
 
     try {
       await createInvitation.mutateAsync({
+        first_name: firstName.trim(),
+        last_name: lastName.trim() || undefined,
         email: email.trim(),
         role,
         personal_message: personalMessage.trim() || undefined
       });
 
-      toast.success(`Invitation sent to ${email}`);
+      toast.success(`Invitation sent to ${firstName} ${lastName}`.trim());
       
       // Reset form
+      setFirstName('');
+      setLastName('');
       setEmail('');
       setRole('viewer');
       setPersonalMessage('');
@@ -93,6 +104,8 @@ export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDi
   };
 
   const handleClose = () => {
+    setFirstName('');
+    setLastName('');
     setEmail('');
     setRole('viewer');
     setPersonalMessage('');
@@ -110,11 +123,41 @@ export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDi
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* First Name Input */}
+          <div className="space-y-2">
+            <Label htmlFor="firstName" className="flex items-center gap-2">
+              First Name <span className="text-destructive">*</span>
+            </Label>
+            <Input
+              id="firstName"
+              type="text"
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              disabled={createInvitation.isPending}
+            />
+          </div>
+
+          {/* Last Name Input */}
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className="flex items-center gap-2">
+              Last Name
+            </Label>
+            <Input
+              id="lastName"
+              type="text"
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              disabled={createInvitation.isPending}
+            />
+          </div>
+
           {/* Email Input */}
           <div className="space-y-2">
             <Label htmlFor="email" className="flex items-center gap-2">
               <Mail className="h-4 w-4" />
-              Email Address
+              Email Address <span className="text-destructive">*</span>
             </Label>
             <Input
               id="email"

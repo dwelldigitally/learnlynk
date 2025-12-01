@@ -22,32 +22,28 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Create client with anon key for auth verification
-    const supabaseAuth = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      {
-        global: {
-          headers: { Authorization: req.headers.get("Authorization")! },
-        },
-      }
-    );
-
-    // Get authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseAuth.auth.getUser();
-
-    if (authError || !user) {
-      console.error("Auth error:", authError);
+    // Get JWT token from Authorization header
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
       return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
+        JSON.stringify({ error: "Missing authorization header" }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log("Authenticated user:", user.id);
+    // Decode JWT to get user ID (JWT verification is handled by Supabase)
+    const token = authHeader.replace("Bearer ", "");
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const userId = payload.sub;
+
+    if (!userId) {
+      return new Response(
+        JSON.stringify({ error: "Invalid token" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Authenticated user:", userId);
 
     // Create admin client with service role for database operations
     const supabase = createClient(
@@ -93,7 +89,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: inviterProfile } = await supabase
       .from('profiles')
       .select('full_name, email')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single();
 
     const inviterName = inviterProfile?.full_name || inviterProfile?.email || 'Team Administrator';
@@ -104,7 +100,7 @@ const handler = async (req: Request): Promise<Response> => {
       .insert({
         email,
         role,
-        invited_by: user.id,
+        invited_by: userId,
         personal_message,
       })
       .select()

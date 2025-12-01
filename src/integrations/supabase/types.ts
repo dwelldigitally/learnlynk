@@ -3850,6 +3850,7 @@ export type Database = {
           recruiter_company_id: string | null
           recruiter_id: string | null
           referrer_url: string | null
+          search_vector: unknown
           source: Database["public"]["Enums"]["lead_source"]
           source_details: string | null
           state: string | null
@@ -3893,6 +3894,7 @@ export type Database = {
           recruiter_company_id?: string | null
           recruiter_id?: string | null
           referrer_url?: string | null
+          search_vector?: unknown
           source: Database["public"]["Enums"]["lead_source"]
           source_details?: string | null
           state?: string | null
@@ -3936,6 +3938,7 @@ export type Database = {
           recruiter_company_id?: string | null
           recruiter_id?: string | null
           referrer_url?: string | null
+          search_vector?: unknown
           source?: Database["public"]["Enums"]["lead_source"]
           source_details?: string | null
           state?: string | null
@@ -9534,9 +9537,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      array_remove_all: {
+        Args: { arr: string[]; elements: string[] }
+        Returns: string[]
+      }
       assign_demo_data_to_user: {
         Args: { demo_enabled?: boolean; target_email: string }
         Returns: boolean
+      }
+      bulk_update_lead_tags: {
+        Args: { p_lead_ids: string[]; p_operation: string; p_tags: string[] }
+        Returns: number
       }
       cleanup_expired_otps: { Args: never; Returns: undefined }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }

@@ -81,13 +81,13 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
       { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
       { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
+      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
     ]
   },
   {
     name: "Advanced Lead Features",
     fullModeOnly: true,
     items: [
-      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
       { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
       { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
       { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },

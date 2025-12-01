@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { Search, Users, TrendingUp, FileText, DollarSign, CheckCircle2, Activity, MessageSquare, Calendar, Plus, StickyNote, Sparkles, AlertTriangle, Clock, Target, Mail, Phone, Building, UserPlus, Bell } from "lucide-react";
@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useDebounce } from "@/hooks/useDebounce";
 import { QuickCommunicationModal } from "./QuickCommunicationModal";
 import { QuickTaskModal } from "./QuickTaskModal";
 import { QuickNoteModal } from "./QuickNoteModal";
@@ -19,6 +20,8 @@ import { PriorityActionCard, PriorityAction } from "./dashboard/PriorityActionCa
 import { QuickInsightsChart } from "./dashboard/QuickInsightsChart";
 import { AIRecommendationCard, AIRecommendation } from "./dashboard/AIRecommendationCard";
 import { DashboardNotificationPanel, Notification } from "./dashboard/DashboardNotificationPanel";
+import { GlobalSearchResults } from "./dashboard/GlobalSearchResults";
+import { GlobalSearchService, GlobalSearchResponse, GlobalSearchResult } from "@/services/globalSearchService";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { 
@@ -45,6 +48,15 @@ const AdminHome: React.FC = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [showLookupModal, setShowLookupModal] = useState(false);
+  
+  // Search state
+  const [searchResults, setSearchResults] = useState<GlobalSearchResponse | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [selectedResultIndex, setSelectedResultIndex] = useState(0);
+  const [smartShortcut, setSmartShortcut] = useState<{ path: string; description: string } | null>(null);
+  
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -393,15 +405,100 @@ const AdminHome: React.FC = () => {
     setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
-  const handleSearch = (e: React.FormEvent) => {
+  // Perform search when debounced query changes
+  useEffect(() => {
+    const performSearch = async () => {
+      if (!debouncedSearchQuery || debouncedSearchQuery.length < 2) {
+        setSearchResults(null);
+        setShowSearchResults(false);
+        setSmartShortcut(null);
+        return;
+      }
+
+      // Check for smart shortcuts first
+      const shortcut = GlobalSearchService.checkSmartShortcut(debouncedSearchQuery);
+      if (shortcut) {
+        setSmartShortcut(shortcut);
+        setSearchResults(null);
+        setShowSearchResults(true);
+        return;
+      }
+
+      setSmartShortcut(null);
+      setIsSearching(true);
+      setShowSearchResults(true);
+
+      try {
+        const results = await GlobalSearchService.search(debouncedSearchQuery);
+        setSearchResults(results);
+        setSelectedResultIndex(0);
+      } catch (error) {
+        console.error('Search error:', error);
+        toast({
+          title: "Search error",
+          description: "Failed to search. Please try again.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsSearching(false);
+      }
+    };
+
+    performSearch();
+  }, [debouncedSearchQuery, toast]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      toast({
-        title: "Search",
-        description: `Searching for: ${searchQuery}`
-      });
+    
+    // If smart shortcut is active, navigate to it
+    if (smartShortcut) {
+      navigate(smartShortcut.path);
+      setShowSearchResults(false);
+      setSearchQuery("");
+      return;
+    }
+
+    // If we have results and one is selected, navigate to it
+    if (searchResults && searchResults.results.length > 0) {
+      const flatResults = searchResults.results;
+      if (flatResults[selectedResultIndex]) {
+        handleSelectResult(flatResults[selectedResultIndex]);
+      }
     }
   };
+
+  const handleSelectResult = useCallback((result: GlobalSearchResult) => {
+    navigate(result.link);
+    setShowSearchResults(false);
+    setSearchQuery("");
+    setSearchResults(null);
+  }, [navigate]);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSearchResults || (!searchResults && !smartShortcut)) return;
+
+    const flatResults = searchResults?.results || [];
+    
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedResultIndex(prev => 
+          Math.min(prev + 1, flatResults.length - 1)
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedResultIndex(prev => Math.max(prev - 1, 0));
+        break;
+      case 'Escape':
+        setShowSearchResults(false);
+        break;
+    }
+  };
+
+  const handleCloseSearch = useCallback(() => {
+    setShowSearchResults(false);
+  }, []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -458,15 +555,30 @@ const AdminHome: React.FC = () => {
           </div>
 
           {/* AI Search Bar */}
-          <form onSubmit={handleSearch} className="relative">
+          <form onSubmit={handleSearchSubmit} className="relative">
             <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-muted-foreground" />
             <Input 
-              placeholder={isMobile ? "🔍 AI Search..." : "🔍 AI Search: How can I help you today? Try 'Show me hot leads' or 'Students with incomplete documents'"} 
+              placeholder={isMobile ? "🔍 AI Search..." : "🔍 AI Search: How can I help you today? Try 'hot leads' or search by name"} 
               value={searchQuery} 
               onChange={e => setSearchQuery(e.target.value)} 
+              onKeyDown={handleSearchKeyDown}
+              onFocus={() => {
+                if (searchQuery.length >= 2) setShowSearchResults(true);
+              }}
               className="pl-10 sm:pl-12 pr-10 sm:pr-4 h-11 sm:h-12 bg-card border-border/40 text-sm sm:text-base rounded-xl" 
             />
             <Sparkles className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 h-4 sm:h-5 w-4 sm:w-5 text-primary" />
+            
+            {/* Search Results Dropdown */}
+            <GlobalSearchResults
+              results={searchResults}
+              isLoading={isSearching}
+              isOpen={showSearchResults}
+              onClose={handleCloseSearch}
+              selectedIndex={selectedResultIndex}
+              onSelect={handleSelectResult}
+              smartShortcut={smartShortcut}
+            />
           </form>
         </div>
       </div>

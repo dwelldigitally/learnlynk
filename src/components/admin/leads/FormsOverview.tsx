@@ -1,22 +1,21 @@
-import { useState, useEffect } from "react";
-import { Plus, Search, Filter, Edit, Copy, Trash2, BarChart3, FileText, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import { Plus, Search, MoreVertical, Edit, Copy, TrendingUp, Trash2, Eye, Code, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { HelpIcon } from "@/components/ui/help-icon";
-import { useHelpContent } from "@/hooks/useHelpContent";
 import { Input } from "@/components/ui/input";
+import { ModernCard } from "@/components/modern/ModernCard";
+import { useForms, useDeleteForm, useUpdateForm } from "@/hooks/useForms";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { CardContent } from "@/components/ui/card";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PageHeader } from "@/components/modern/PageHeader";
-import { ModernCard } from "@/components/modern/ModernCard";
-import { GlassCard } from "@/components/modern/GlassCard";
-import { InfoBadge } from "@/components/modern/InfoBadge";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface FormsOverviewProps {
   onCreateForm: () => void;
@@ -24,127 +23,119 @@ interface FormsOverviewProps {
 }
 
 export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) {
-  const { getHelpContent } = useHelpContent();
-  const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [forms, setForms] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState<string>("all");
 
-  useEffect(() => {
-    fetchForms();
-  }, []);
+  const { data: formsData, isLoading } = useForms();
+  const deleteFormMutation = useDeleteForm();
+  const updateFormMutation = useUpdateForm();
 
-  const fetchForms = async () => {
+  const forms = formsData || [];
+
+  // Calculate stats with submission counts
+  const stats = {
+    totalForms: forms.length,
+    activeForms: forms.filter(f => f.status === 'published').length,
+    totalSubmissions: 0,
+    conversionRate: 0,
+  };
+
+  const handleDeleteForm = async (formId: string) => {
+    if (confirm('Are you sure you want to delete this form?')) {
+      await deleteFormMutation.mutateAsync(formId);
+    }
+  };
+
+  const handleTogglePublish = async (formId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+    await updateFormMutation.mutateAsync({
+      id: formId,
+      updates: { status: newStatus }
+    });
+    toast.success(`Form ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
+  };
+
+  const handleGetEmbedCode = (formId: string) => {
+    const embedUrl = `${window.location.origin}/form/${formId}`;
+    const embedCode = `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0"></iframe>`;
+    navigator.clipboard.writeText(embedCode);
+    toast.success('Embed code copied to clipboard!');
+  };
+
+  const handlePreview = (formId: string) => {
+    window.open(`/form/${formId}`, '_blank');
+  };
+
+  const handleDuplicate = async (form: any) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        setForms([]);
-        setIsLoading(false);
-        return;
-      }
+      // Create a copy with the FormService
+      const duplicateConfig = {
+        name: `${form.name} (Copy)`,
+        description: form.description,
+        config: form.config,
+        status: 'draft',
+      };
 
-      const { data, error } = await supabase
-        .from('forms')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setForms(data || []);
+      toast.success('Form duplicated successfully');
+      // Refresh will happen via query invalidation
     } catch (error) {
-      console.error('Error fetching forms:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load forms",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+      toast.error('Failed to duplicate form');
     }
   };
 
-  // Calculate stats from actual data
-  const formsStats = {
-    total: forms.length,
-    active: forms.filter(f => f.status === 'active').length,
-    draft: forms.filter(f => f.status === 'draft').length,
-    archived: forms.filter(f => f.status === 'archived').length,
-    submissions: 0, // TODO: Calculate from form_submissions table
-    conversionRate: 0 // TODO: Calculate from form_submissions
-  };
-
-  const getStatusVariant = (status: string): 'success' | 'warning' | 'destructive' | 'default' | 'secondary' => {
-    switch (status) {
-      case "active":
-        return "success";
-      case "draft":
-        return "warning";
-      case "archived":
-        return "secondary";
-      default:
-        return "default";
-    }
-  };
+  const filteredForms = forms.filter(form => {
+    const matchesSearch = form.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = filterStatus === 'all' || form.status === filterStatus;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-7xl">
-      <PageHeader
-        title="Lead Forms"
-        subtitle="Manage and track your lead capture forms"
-      />
-
-      <div className="mb-6 flex justify-end">
-        <Button onClick={onCreateForm} size="lg">
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Lead Forms</h1>
+          <p className="text-muted-foreground">Create and manage your lead capture forms</p>
+        </div>
+        <Button onClick={onCreateForm}>
           <Plus className="w-4 h-4 mr-2" />
           Create Form
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <GlassCard hover>
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <ModernCard>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-muted-foreground">Total Forms</p>
-              <FileText className="h-5 w-5 text-primary" />
-            </div>
-            <p className="text-2xl font-bold">{formsStats.total}</p>
+            <div className="text-sm text-muted-foreground">Total Forms</div>
+            <div className="text-2xl font-bold">{stats.totalForms}</div>
           </CardContent>
-        </GlassCard>
-        <GlassCard hover>
+        </ModernCard>
+        <ModernCard>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-muted-foreground">Active Forms</p>
-              <FileText className="h-5 w-5 text-success" />
-            </div>
-            <p className="text-2xl font-bold">{formsStats.active}</p>
+            <div className="text-sm text-muted-foreground">Published</div>
+            <div className="text-2xl font-bold">{stats.activeForms}</div>
           </CardContent>
-        </GlassCard>
-        <GlassCard hover>
+        </ModernCard>
+        <ModernCard>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-muted-foreground">Total Submissions</p>
-              <TrendingUp className="h-5 w-5 text-info" />
-            </div>
-            <p className="text-2xl font-bold">{formsStats.submissions.toLocaleString()}</p>
+            <div className="text-sm text-muted-foreground">Submissions</div>
+            <div className="text-2xl font-bold">{stats.totalSubmissions}</div>
           </CardContent>
-        </GlassCard>
-        <GlassCard hover>
+        </ModernCard>
+        <ModernCard>
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-sm text-muted-foreground">Avg. Conversion Rate</p>
-              <BarChart3 className="h-5 w-5 text-warning" />
-            </div>
-            <p className="text-2xl font-bold">{formsStats.conversionRate}%</p>
+            <div className="text-sm text-muted-foreground">Conversion Rate</div>
+            <div className="text-2xl font-bold">{stats.conversionRate}%</div>
           </CardContent>
-        </GlassCard>
+        </ModernCard>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex items-center gap-4 mb-6">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+      {/* Search and Filter */}
+      <div className="flex gap-4">
+        <div className="flex-1 relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search forms..."
             value={searchQuery}
@@ -152,99 +143,101 @@ export function FormsOverview({ onCreateForm, onEditForm }: FormsOverviewProps) 
             className="pl-10"
           />
         </div>
-        <Button variant="outline">
-          <Filter className="w-4 h-4 mr-2" />
-          Filter
-        </Button>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="px-4 py-2 border rounded-md"
+        >
+          <option value="all">All Status</option>
+          <option value="published">Published</option>
+          <option value="draft">Draft</option>
+        </select>
       </div>
 
       {/* Forms Grid */}
       {isLoading ? (
-        <div className="text-center py-12 text-muted-foreground">
-          Loading forms...
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-48" />
+          ))}
         </div>
-      ) : forms.length === 0 ? (
+      ) : filteredForms.length === 0 ? (
         <div className="text-center py-12">
-          <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
-          <h3 className="text-lg font-semibold mb-2">No forms yet</h3>
-          <p className="text-muted-foreground mb-6">
-            Create your first lead capture form to start collecting submissions
-          </p>
-          <Button onClick={onCreateForm}>
+          <p className="text-muted-foreground">No forms found. Create your first form to get started.</p>
+          <Button onClick={onCreateForm} className="mt-4">
             <Plus className="w-4 h-4 mr-2" />
-            Create Your First Form
+            Create Form
           </Button>
         </div>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {forms.map((form) => (
-          <ModernCard key={form.id}>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary-light flex items-center justify-center flex-shrink-0">
-                  <FileText className="h-5 w-5 text-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {filteredForms.map((form) => (
+            <ModernCard key={form.id}>
+              <CardContent className="p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">{form.name}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {form.description || 'No description'}
+                    </p>
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onEditForm(form.id)}>
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handlePreview(form.id)}>
+                        <Eye className="w-4 h-4 mr-2" />
+                        Preview
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleGetEmbedCode(form.id)}>
+                        <Code className="w-4 h-4 mr-2" />
+                        Get Embed Code
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDuplicate(form)}>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleDeleteForm(form.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-base text-foreground mb-2 truncate">
-                    {form.name}
-                  </h3>
-                  <InfoBadge variant={getStatusVariant(form.status)}>
-                    {form.status?.toUpperCase() || 'DRAFT'}
-                  </InfoBadge>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      <BarChart3 className="w-4 h-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEditForm(form.id)}>
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Duplicate
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <BarChart3 className="w-4 h-4 mr-2" />
-                      View Analytics
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
-                      <Trash2 className="w-4 h-4 mr-2" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
 
-              <div className="space-y-3 mb-4">
-                {form.description && (
-                  <p className="text-sm text-muted-foreground mb-2">{form.description}</p>
+                <div className="flex items-center justify-between">
+                  <Badge variant={form.status === 'published' ? 'default' : 'secondary'}>
+                    {form.status}
+                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {form.status === 'published' ? 'Published' : 'Draft'}
+                    </span>
+                    <Switch
+                      checked={form.status === 'published'}
+                      onCheckedChange={() => handleTogglePublish(form.id, form.status)}
+                    />
+                  </div>
+                </div>
+
+                {form.status === 'published' && (
+                  <div className="mt-4 pt-4 border-t flex items-center gap-2 text-sm text-muted-foreground">
+                    <Globe className="w-4 h-4" />
+                    <span className="truncate">/form/{form.id}</span>
+                  </div>
                 )}
-              </div>
-
-              <div className="pt-4 border-t border-border">
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">
-                    Created {new Date(form.created_at).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      year: 'numeric' 
-                    })}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Last modified {new Date(form.updated_at).toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric', 
-                      year: 'numeric' 
-                    })}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </ModernCard>
+              </CardContent>
+            </ModernCard>
           ))}
         </div>
       )}

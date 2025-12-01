@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyEditor } from './components/PropertyEditor';
 import { SystemProperty } from '@/types/systemProperties';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   AlertDialog,
@@ -16,40 +16,87 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-
-// Dummy data
-const DUMMY_DOCUMENT_TYPES: SystemProperty[] = [
-  { id: '1', user_id: 'demo', category: 'document_type', property_key: 'transcript', property_label: 'Transcript', color: '#3B82F6', icon: 'FileText', order_index: 1, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '2', user_id: 'demo', category: 'document_type', property_key: 'id_document', property_label: 'ID Document', color: '#10B981', icon: 'CreditCard', order_index: 2, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '3', user_id: 'demo', category: 'document_type', property_key: 'resume', property_label: 'Resume/CV', color: '#F59E0B', icon: 'Briefcase', order_index: 3, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-];
+import { useDocumentTypes } from '@/hooks/useDocumentTemplates';
+import { supabase } from '@/integrations/supabase/client';
 
 export function DocumentPropertiesTab() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
-  const [properties, setProperties] = useState(DUMMY_DOCUMENT_TYPES);
+  const [properties, setProperties] = useState<SystemProperty[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSave = (data: any) => {
-    if (selectedProperty) {
-      const updated = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
-      setProperties(properties.map(p => p.id === selectedProperty.id ? updated : p));
-      toast.success('Document type updated');
-    } else {
-      const newProp: SystemProperty = {
-        id: Date.now().toString(),
-        user_id: 'demo',
+  // Fetch document types from document_templates table
+  const { types: documentTypes, isLoading: typesLoading } = useDocumentTypes();
+
+  // Convert document types to SystemProperty format
+  useEffect(() => {
+    if (!typesLoading && documentTypes) {
+      const mappedProperties: SystemProperty[] = documentTypes.map((type, index) => ({
+        id: type.value,
+        user_id: 'system',
         category: 'document_type',
-        ...data,
+        property_key: type.value,
+        property_label: type.label,
+        color: getTypeColor(type.value),
+        icon: 'FileText',
+        order_index: index + 1,
+        is_active: true,
+        is_system: true,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      };
-      setProperties([...properties, newProp]);
-      toast.success('Document type created');
+        description: `${type.count} templates of this type`
+      }));
+      setProperties(mappedProperties);
+      setLoading(false);
     }
-    setEditorOpen(false);
-    setSelectedProperty(undefined);
+  }, [documentTypes, typesLoading]);
+
+  // Get color based on type
+  function getTypeColor(type: string): string {
+    const colorMap: Record<string, string> = {
+      'transcript': '#3B82F6',
+      'identification': '#10B981',
+      'certificate': '#F59E0B',
+      'financial': '#8B5CF6',
+      'academic': '#EC4899',
+      'legal': '#6366F1',
+      'medical': '#14B8A6',
+      'personal': '#F97316',
+      'professional': '#84CC16',
+      'other': '#6B7280'
+    };
+    return colorMap[type.toLowerCase()] || '#6B7280';
+  }
+
+  const handleSave = async (data: any) => {
+    try {
+      if (selectedProperty) {
+        // Update existing - for now just update local state
+        // In production, this would update document_templates or a document_types table
+        const updated = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
+        setProperties(properties.map(p => p.id === selectedProperty.id ? updated : p));
+        toast.success('Document type updated');
+      } else {
+        // Create new document type - would need a document_types table
+        const newProp: SystemProperty = {
+          id: `type-${Date.now()}`,
+          user_id: 'system',
+          category: 'document_type',
+          ...data,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+        setProperties([...properties, newProp]);
+        toast.success('Document type created');
+      }
+      setEditorOpen(false);
+      setSelectedProperty(undefined);
+    } catch (error) {
+      console.error('Error saving document type:', error);
+      toast.error('Failed to save document type');
+    }
   };
 
   const handleEdit = (property: SystemProperty) => {
@@ -58,6 +105,10 @@ export function DocumentPropertiesTab() {
   };
 
   const handleDelete = (property: SystemProperty) => {
+    if (property.is_system) {
+      toast.error('System document types cannot be deleted');
+      return;
+    }
     setPropertyToDelete(property);
     setDeleteDialogOpen(true);
   };
@@ -82,6 +133,14 @@ export function DocumentPropertiesTab() {
     setEditorOpen(true);
   };
 
+  if (loading || typesLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -90,7 +149,8 @@ export function DocumentPropertiesTab() {
             <div>
               <CardTitle>Document Types</CardTitle>
               <CardDescription>
-                Define document types used for uploads: Transcript, ID Document, Resume, etc.
+                Document types are automatically derived from your document templates. 
+                Manage templates in Document Templates to add new types.
               </CardDescription>
             </div>
             <Button onClick={handleAddNew}>
@@ -100,12 +160,19 @@ export function DocumentPropertiesTab() {
           </div>
         </CardHeader>
         <CardContent>
-          <PropertyTable
-            properties={properties}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleActive={handleToggleActive}
-          />
+          {properties.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <p>No document types found.</p>
+              <p className="text-sm mt-1">Create document templates to automatically generate types.</p>
+            </div>
+          ) : (
+            <PropertyTable
+              properties={properties}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onToggleActive={handleToggleActive}
+            />
+          )}
         </CardContent>
       </Card>
 

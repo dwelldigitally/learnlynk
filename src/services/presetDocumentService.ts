@@ -31,288 +31,105 @@ export interface UploadedDocument {
   updated_at: string;
 }
 
-// Preset document requirements for each program
-const PRESET_REQUIREMENTS: Record<string, PresetDocumentRequirement[]> = {
-  'Aviation': [
-    {
-      id: 'passport',
-      name: 'Passport',
-      description: 'Valid passport copy (all pages)',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'high_school_diploma',
-      name: 'High School Diploma',
-      description: 'High school diploma or equivalent certificate',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'transcript',
-      name: 'Academic Transcripts',
-      description: 'Official transcripts from all educational institutions',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'english_test',
-      name: 'English Proficiency Test',
-      description: 'IELTS, TOEFL, or equivalent test results',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'medical_certificate',
-      name: 'Medical Certificate',
-      description: 'Aviation medical examination certificate (Class 1 or 2)',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'photos',
-      name: 'Passport Photos',
-      description: 'Recent passport-sized photographs (2x2 inches)',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'statement_purpose',
-      name: 'Statement of Purpose',
-      description: 'Personal statement explaining your aviation career goals',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'cv_resume',
-      name: 'CV/Resume',
-      description: 'Current curriculum vitae or resume',
-      required: false,
-      programName: 'Aviation'
-    },
-    {
-      id: 'financial_documents',
-      name: 'Financial Support Documents',
-      description: 'Bank statements or sponsorship letters showing financial capability',
-      required: true,
-      programName: 'Aviation'
-    },
-    {
-      id: 'criminal_background_check',
-      name: 'Criminal Background Check',
-      description: 'Clear criminal background check (required for aviation security clearance)',
-      required: true,
-      programName: 'Aviation'
-    }
-  ],
-  'Master of Landscape Architecture': [
-    {
-      id: 'passport',
-      name: 'Passport',
-      description: 'Valid passport copy (all pages)',
-      required: true,
-      programName: 'Master of Landscape Architecture'
-    },
-    {
-      id: 'transcript',
-      name: 'Official Transcripts',
-      description: 'Official transcripts from all post-secondary institutions',
-      required: true,
-      programName: 'Master of Landscape Architecture'
-    },
-    {
-      id: 'portfolio',
-      name: 'Portfolio',
-      description: 'Design portfolio showcasing your creative work',
-      required: true,
-      programName: 'Master of Landscape Architecture'
-    },
-    {
-      id: 'english_test',
-      name: 'English Proficiency Test',
-      description: 'IELTS, TOEFL, or equivalent test results',
-      required: true,
-      programName: 'Master of Landscape Architecture'
-    },
-    {
-      id: 'statement_purpose',
-      name: 'Statement of Purpose',
-      description: 'Personal statement explaining your academic goals',
-      required: true,
-      programName: 'Master of Landscape Architecture'
-    }
-  ],
-  'Health Care Assistant': [
-    {
-      id: 'passport',
-      name: 'Passport',
-      description: 'Valid passport copy (all pages)',
-      required: true,
-      programName: 'Health Care Assistant'
-    },
-    {
-      id: 'high_school_diploma',
-      name: 'High School Diploma',
-      description: 'High school diploma or equivalent',
-      required: true,
-      programName: 'Health Care Assistant'
-    },
-    {
-      id: 'english_test',
-      name: 'English Proficiency Test',
-      description: 'IELTS, TOEFL, or equivalent test results',
-      required: true,
-      programName: 'Health Care Assistant'
-    },
-    {
-      id: 'immunization_records',
-      name: 'Immunization Records',
-      description: 'Complete immunization records',
-      required: true,
-      programName: 'Health Care Assistant'
-    },
-    {
-      id: 'criminal_background_check',
-      name: 'Criminal Background Check',
-      description: 'Clear criminal background check',
-      required: true,
-      programName: 'Health Care Assistant'
-    }
-  ],
-  'Computer Science': [
-    {
-      id: 'passport',
-      name: 'Passport',
-      description: 'Valid passport copy (all pages)',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'transcript',
-      name: 'Official Transcripts',
-      description: 'Official transcripts from all post-secondary institutions',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'english_test',
-      name: 'English Proficiency Test',
-      description: 'IELTS, TOEFL, or equivalent test results',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'cv_resume',
-      name: 'CV/Resume',
-      description: 'Current curriculum vitae or resume',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'statement_purpose',
-      name: 'Statement of Purpose',
-      description: 'Personal statement explaining your academic goals and career objectives',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'recommendation_letter_1',
-      name: 'Letter of Recommendation #1',
-      description: 'Academic or professional reference letter',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'recommendation_letter_2',
-      name: 'Letter of Recommendation #2',
-      description: 'Second academic or professional reference letter',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'gre_scores',
-      name: 'GRE Scores',
-      description: 'Graduate Record Examination scores (if applicable)',
-      required: false,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'financial_documents',
-      name: 'Financial Support Documents',
-      description: 'Bank statements or sponsorship letters showing financial capability',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'birth_certificate',
-      name: 'Birth Certificate',
-      description: 'Copy of birth certificate',
-      required: false,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'photos',
-      name: 'Passport Photos',
-      description: 'Recent passport-sized photographs (2x2 inches)',
-      required: true,
-      programName: 'Computer Science'
-    },
-    {
-      id: 'previous_visa',
-      name: 'Previous Visa Documents',
-      description: 'Copies of any previous visas or study permits (if applicable)',
-      required: false,
-      programName: 'Computer Science'
-    }
-  ],
-  'General': [
-    {
-      id: 'passport',
-      name: 'Passport',
-      description: 'Valid passport copy (all pages)',
-      required: true,
-      programName: 'General'
-    },
-    {
-      id: 'transcript',
-      name: 'Academic Transcripts',
-      description: 'Official transcripts from previous institutions',
-      required: true,
-      programName: 'General'
-    },
-    {
-      id: 'english_test',
-      name: 'English Proficiency Test',
-      description: 'IELTS, TOEFL, or equivalent test results',
-      required: true,
-      programName: 'General'
-    },
-    {
-      id: 'statement_purpose',
-      name: 'Statement of Purpose',
-      description: 'Personal statement outlining your goals',
-      required: true,
-      programName: 'General'
-    },
-    {
-      id: 'cv_resume',
-      name: 'CV/Resume',
-      description: 'Current curriculum vitae or resume',
-      required: false,
-      programName: 'General'
-    }
-  ]
-};
-
 class PresetDocumentService {
-  // Get preset requirements for a program
-  getPresetRequirements(programName: string): PresetDocumentRequirement[] {
-    return PRESET_REQUIREMENTS[programName] || [];
+  /**
+   * Get document requirements for a program from database
+   * First checks program's document_requirements field, then falls back to document_templates
+   */
+  async getPresetRequirementsAsync(programName: string): Promise<PresetDocumentRequirement[]> {
+    try {
+      // First, try to get requirements from program's document_requirements field
+      const { data: programs, error: programError } = await supabase
+        .from('master_programs')
+        .select('document_requirements')
+        .or(`name.eq.${programName},code.eq.${programName}`)
+        .limit(1);
+
+      if (!programError && programs?.[0]?.document_requirements) {
+        const requirements = programs[0].document_requirements as any[];
+        if (Array.isArray(requirements) && requirements.length > 0) {
+          return requirements.map((req: any, index: number) => ({
+            id: req.id || `req-${index}`,
+            name: req.name || req.title || 'Unknown Document',
+            description: req.description || '',
+            required: req.mandatory ?? req.required ?? false,
+            programName
+          }));
+        }
+      }
+
+      // Fallback: Get from document_templates table
+      const { data: templates, error: templateError } = await supabase
+        .from('document_templates')
+        .select('*')
+        .order('stage', { ascending: true })
+        .order('name', { ascending: true });
+
+      if (templateError) {
+        console.error('Error fetching document templates:', templateError);
+        return [];
+      }
+
+      // Filter templates that apply to this program or have no program restriction
+      const filteredTemplates = (templates || []).filter(template => {
+        if (!template.applicable_programs || template.applicable_programs.length === 0) {
+          return true;
+        }
+        return template.applicable_programs.includes(programName);
+      });
+
+      return filteredTemplates.map(template => ({
+        id: template.id,
+        name: template.name,
+        description: template.description || '',
+        required: template.mandatory,
+        programName
+      }));
+    } catch (error) {
+      console.error('Error in getPresetRequirementsAsync:', error);
+      return [];
+    }
   }
 
-  // Get all programs that have preset requirements
+  /**
+   * Synchronous version that returns empty array
+   * Use getPresetRequirementsAsync for actual data
+   * @deprecated Use getPresetRequirementsAsync instead
+   */
+  getPresetRequirements(programName: string): PresetDocumentRequirement[] {
+    console.warn('getPresetRequirements is deprecated. Use getPresetRequirementsAsync instead.');
+    return [];
+  }
+
+  /**
+   * Get all available programs from database
+   */
+  async getAvailableProgramsAsync(): Promise<string[]> {
+    try {
+      const { data, error } = await supabase
+        .from('master_programs')
+        .select('name')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) {
+        console.error('Error fetching programs:', error);
+        return [];
+      }
+
+      return (data || []).map(p => p.name);
+    } catch (error) {
+      console.error('Error in getAvailableProgramsAsync:', error);
+      return [];
+    }
+  }
+
+  /**
+   * @deprecated Use getAvailableProgramsAsync instead
+   */
   getAvailablePrograms(): string[] {
-    return Object.keys(PRESET_REQUIREMENTS);
+    console.warn('getAvailablePrograms is deprecated. Use getAvailableProgramsAsync instead.');
+    return [];
   }
 
   // Get uploaded documents for a lead
@@ -346,9 +163,11 @@ class PresetDocumentService {
 
     if (uploadError) throw uploadError;
 
-    // Find the requirement details
-    const requirement = this.getPresetRequirements(programName).find(r => r.id === requirementId);
-    if (!requirement) throw new Error('Invalid requirement ID');
+    // Find the requirement details from database
+    const requirements = await this.getPresetRequirementsAsync(programName);
+    const requirement = requirements.find(r => r.id === requirementId);
+    
+    const documentName = requirement?.name || file.name;
 
     // Create document record
     const { data, error } = await supabase
@@ -356,7 +175,7 @@ class PresetDocumentService {
       .insert({
         lead_id: leadId,
         user_id: (await supabase.auth.getUser()).data.user?.id,
-        document_name: requirement.name,
+        document_name: documentName,
         document_type: file.type,
         file_path: uploadData.path,
         file_size: file.size,
@@ -428,15 +247,15 @@ class PresetDocumentService {
   }
 
   // Check if all required documents are approved for a program
-  getDocumentProgress(programName: string, uploadedDocs: UploadedDocument[]): {
+  async getDocumentProgressAsync(programName: string, uploadedDocs: UploadedDocument[]): Promise<{
     total: number;
     uploaded: number;
     approved: number;
     pending: number;
     rejected: number;
     isComplete: boolean;
-  } {
-    const requirements = this.getPresetRequirements(programName);
+  }> {
+    const requirements = await this.getPresetRequirementsAsync(programName);
     const requiredDocs = requirements.filter(req => req.required);
     
     const uploaded = uploadedDocs.length;
@@ -460,6 +279,32 @@ class PresetDocumentService {
       pending,
       rejected,
       isComplete: allRequiredApproved
+    };
+  }
+
+  /**
+   * @deprecated Use getDocumentProgressAsync instead
+   */
+  getDocumentProgress(programName: string, uploadedDocs: UploadedDocument[]): {
+    total: number;
+    uploaded: number;
+    approved: number;
+    pending: number;
+    rejected: number;
+    isComplete: boolean;
+  } {
+    const uploaded = uploadedDocs.length;
+    const approved = uploadedDocs.filter(doc => doc.admin_status === 'approved').length;
+    const pending = uploadedDocs.filter(doc => doc.admin_status === 'pending').length;
+    const rejected = uploadedDocs.filter(doc => doc.admin_status === 'rejected').length;
+
+    return {
+      total: 0,
+      uploaded,
+      approved,
+      pending,
+      rejected,
+      isComplete: false
     };
   }
 }

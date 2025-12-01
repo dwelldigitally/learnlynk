@@ -27,7 +27,7 @@ export class ProgramService {
   }
 
   /**
-   * Create a new program
+   * Create a new program with all related data
    */
   static async createProgram(program: any) {
     const { data: { user } } = await supabase.auth.getUser();
@@ -42,15 +42,17 @@ export class ProgramService {
       type: program.type,
       description: program.description,
       duration: program.duration,
-      tuition: program.tuition,
-      next_intake: program.next_intake,
+      tuition: program.tuition || 0,
+      next_intake: program.next_intake || null,
       enrollment_status: program.enrollment_status || 'open',
       requirements: program.requirements || [],
-      // New JSONB fields
+      // JSONB fields
       entry_requirements: program.entryRequirements || [],
       document_requirements: program.documentRequirements || [],
       fee_structure: program.feeStructure || {},
       custom_questions: program.customQuestions || [],
+      courses: program.courses || [],
+      journey_config: program.journeyConfiguration || {},
       practicum_config: program.practicum || null,
       metadata: {
         images: program.images || [],
@@ -80,17 +82,26 @@ export class ProgramService {
       throw error;
     }
 
-    // TODO: Handle practicum program creation in future enhancement
+    // Save intakes to the intakes table
+    if (program.intakes && program.intakes.length > 0) {
+      await this.saveIntakes(data.id, program.intakes, user.id);
+    }
 
     return data;
   }
 
   /**
-   * Update a program
+   * Update a program with all related data
    */
   static async updateProgram(id: string, program: any) {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
     // Prepare the update data with proper JSONB field mapping
-    const updateData = {
+    const updateData: Record<string, any> = {
       name: program.name,
       type: program.type,
       description: program.description,
@@ -99,12 +110,14 @@ export class ProgramService {
       next_intake: program.next_intake,
       enrollment_status: program.enrollment_status,
       requirements: program.requirements,
-      // New JSONB fields
+      // JSONB fields
       entry_requirements: program.entryRequirements || program.entry_requirements,
       document_requirements: program.documentRequirements || program.document_requirements,
       fee_structure: program.feeStructure || program.fee_structure,
       custom_questions: program.customQuestions || program.custom_questions,
-      practicum_config: program.practicum !== undefined ? program.practicum : undefined,
+      courses: program.courses,
+      journey_config: program.journeyConfiguration || program.journey_config,
+      practicum_config: program.practicum || program.practicum_config,
       metadata: {
         ...(program.metadata || {}),
         images: program.images || [],
@@ -139,15 +152,74 @@ export class ProgramService {
       throw error;
     }
 
-    // TODO: Handle practicum program updates in future enhancement
+    // Update intakes - delete existing and re-insert
+    if (program.intakes) {
+      await this.deleteIntakesByProgramId(id);
+      if (program.intakes.length > 0) {
+        await this.saveIntakes(id, program.intakes, user.id);
+      }
+    }
 
     return data;
+  }
+
+  /**
+   * Save intakes to the intakes table
+   */
+  private static async saveIntakes(programId: string, intakes: any[], userId: string) {
+    const intakeRecords = intakes.map((intake, index) => ({
+      program_id: programId,
+      user_id: userId,
+      name: intake.name || `Intake ${index + 1}`,
+      start_date: intake.date,
+      capacity: intake.capacity || 30,
+      application_deadline: intake.applicationDeadline || null,
+      early_bird_deadline: intake.earlyBirdDeadline || null,
+      status: intake.status || 'planning',
+      study_mode: intake.studyMode || 'full-time',
+      delivery_method: intake.deliveryMethod || 'in-class',
+      campus_location: intake.campusLocation || intake.location || null,
+      notes: intake.notes || null,
+      metadata: {
+        time: intake.time || null,
+        waitlistCapacity: intake.waitlistCapacity || null,
+        earlyBirdDiscount: intake.earlyBirdDiscount || null,
+        notifications: intake.notifications || []
+      }
+    }));
+
+    const { error } = await supabase
+      .from('intakes')
+      .insert(intakeRecords);
+
+    if (error) {
+      console.error('Error saving intakes:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete all intakes for a program
+   */
+  private static async deleteIntakesByProgramId(programId: string) {
+    const { error } = await supabase
+      .from('intakes')
+      .delete()
+      .eq('program_id', programId);
+
+    if (error) {
+      console.error('Error deleting intakes:', error);
+      // Don't throw - intakes might not exist yet
+    }
   }
 
   /**
    * Delete a program
    */
   static async deleteProgram(id: string) {
+    // Delete associated intakes first
+    await this.deleteIntakesByProgramId(id);
+
     const { error } = await supabase
       .from('programs')
       .delete()

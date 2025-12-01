@@ -6123,6 +6123,7 @@ export type Database = {
       }
       programs: {
         Row: {
+          courses: Json | null
           created_at: string
           custom_questions: Json | null
           description: string | null
@@ -6132,9 +6133,11 @@ export type Database = {
           entry_requirements: Json | null
           fee_structure: Json | null
           id: string
+          journey_config: Json | null
           metadata: Json | null
           name: string
           next_intake: string | null
+          practicum_config: Json | null
           requirements: string[] | null
           tuition: number | null
           type: string
@@ -6142,6 +6145,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          courses?: Json | null
           created_at?: string
           custom_questions?: Json | null
           description?: string | null
@@ -6151,9 +6155,11 @@ export type Database = {
           entry_requirements?: Json | null
           fee_structure?: Json | null
           id?: string
+          journey_config?: Json | null
           metadata?: Json | null
           name: string
           next_intake?: string | null
+          practicum_config?: Json | null
           requirements?: string[] | null
           tuition?: number | null
           type: string
@@ -6161,6 +6167,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          courses?: Json | null
           created_at?: string
           custom_questions?: Json | null
           description?: string | null
@@ -6170,9 +6177,11 @@ export type Database = {
           entry_requirements?: Json | null
           fee_structure?: Json | null
           id?: string
+          journey_config?: Json | null
           metadata?: Json | null
           name?: string
           next_intake?: string | null
+          practicum_config?: Json | null
           requirements?: string[] | null
           tuition?: number | null
           type?: string

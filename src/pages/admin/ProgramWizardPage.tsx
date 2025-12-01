@@ -121,20 +121,20 @@ const ProgramWizardPage: React.FC = () => {
     const data = wizardState.data;
     
     switch (stepIndex) {
-      case 0: // Basic Info
+      case 0: // Basic Info - Required
         return !!(data.name && data.description && data.type && data.duration && data.campus?.length);
-      case 1: // Requirements
-        return true; // Optional step
-      case 2: // Courses
-        return true; // Optional step
-      case 3: // Journey
-        return true; // Optional step
-      case 4: // Practicum 
-        return true; // Optional step
-      case 5: // Fee Structure
-        return !!(data.feeStructure && (data.feeStructure.domesticFees.length > 0 || data.feeStructure.internationalFees.length > 0));
-      case 6: // Intake Dates
-        return !!(data.intakes && data.intakes.length > 0);
+      case 1: // Requirements - Optional
+        return true;
+      case 2: // Courses - Optional
+        return true;
+      case 3: // Journey - Optional
+        return true;
+      case 4: // Practicum - Optional
+        return true;
+      case 5: // Fee Structure - Optional (can be configured later)
+        return true;
+      case 6: // Intake Dates - Optional (can be added later)
+        return true;
       case 7: // Preview
         return true;
       default:
@@ -196,12 +196,12 @@ const ProgramWizardPage: React.FC = () => {
         type: wizardState.data.type,
         duration: wizardState.data.duration,
         requirements: wizardState.data.entryRequirements?.map(req => req.description || req.title) || [],
-        tuition: wizardState.data.feeStructure?.domesticFees?.[0]?.amount || 
-                wizardState.data.feeStructure?.internationalFees?.[0]?.amount || 0,
+        tuition: wizardState.data.feeStructure?.domesticFees?.find(f => f.type === 'Tuition Fee')?.amount || 
+                wizardState.data.feeStructure?.internationalFees?.find(f => f.type === 'Tuition Fee')?.amount || 0,
         next_intake: wizardState.data.intakes?.[0]?.date || null,
         enrollment_status: wizardState.data.status === 'active' ? 'open' : 'closed',
         
-        // Rich data structures saved to JSONB columns
+        // JSONB fields - all wizard data persisted
         entryRequirements: wizardState.data.entryRequirements || [],
         documentRequirements: wizardState.data.documentRequirements || [],
         feeStructure: wizardState.data.feeStructure || {
@@ -211,6 +211,10 @@ const ProgramWizardPage: React.FC = () => {
           scholarships: []
         },
         customQuestions: wizardState.data.customQuestions || [],
+        courses: wizardState.data.courses || [],
+        journeyConfiguration: wizardState.data.journeyConfiguration || {},
+        practicum: wizardState.data.practicum || null,
+        intakes: wizardState.data.intakes || [],
         
         // Additional metadata
         images: wizardState.data.images || [],

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Send, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
+import { usePublicPrograms, Program } from '@/hooks/usePrograms';
+import { usePublicIntakesByProgramName, Intake } from '@/hooks/useIntakes';
 
 interface WebFormProps {
   onSuccess?: (data: { accessToken: string; portalUrl: string }) => void;
@@ -17,14 +18,22 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
-  const [availableIntakeDates, setAvailableIntakeDates] = useState<any[]>([]);
+  const [selectedIntakeId, setSelectedIntakeId] = useState<string>('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     programInterest: ''
   });
+
+  // Fetch programs and intakes from database
+  const { data: programs = [], isLoading: programsLoading } = usePublicPrograms();
+  const { data: availableIntakes = [], isLoading: intakesLoading } = usePublicIntakesByProgramName(formData.programInterest);
+
+  // Reset intake when program changes
+  useEffect(() => {
+    setSelectedIntakeId('');
+  }, [formData.programInterest]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -33,74 +42,10 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
     }));
   };
 
-  // Handle program selection and load intake dates from database
-  const handleProgramChange = async (program: string) => {
+  // Handle program selection
+  const handleProgramChange = (program: string) => {
     handleInputChange('programInterest', program);
-    setSelectedIntakeDate(''); // Reset intake date when program changes
-    setAvailableIntakeDates([]); // Clear previous intake dates
-    
-    if (!program) {
-      setAvailableIntakeDates([]);
-      return;
-    }
-
-    try {
-      console.log('🔍 Fetching intake dates for program:', program);
-      
-      const currentDate = new Date();
-      
-      // First get the program ID by name
-      const { data: programData, error: programError } = await supabase
-        .from('programs')
-        .select('id')
-        .eq('name', program)
-        .single();
-      
-      if (programError || !programData) {
-        console.error('💥 Error fetching program:', programError);
-        setAvailableIntakeDates([]);
-        return;
-      }
-      
-      // Then query intakes for that program
-      const { data: intakes, error } = await supabase
-        .from('intakes')
-        .select('*')
-        .eq('program_id', programData.id)
-        .order('start_date', { ascending: true });
-      
-      if (error) {
-        console.error('💥 Error fetching intakes:', error);
-        throw error;
-      }
-      
-      console.log('📅 Found intakes:', intakes);
-      
-      // Filter for future intakes and open status
-      const programIntakes = (intakes || [])
-        .filter(intake => {
-          const intakeDate = new Date(intake.start_date);
-          const isFuture = intakeDate > currentDate;
-          const isOpen = intake.status === 'open';
-          console.log(`Intake ${intake.name}: Future=${isFuture}, Open=${isOpen}, Date=${intake.start_date}`);
-          return isFuture && isOpen;
-        })
-        .map(intake => ({
-          id: intake.id,
-          name: intake.name,
-          start_date: intake.start_date,
-          capacity: intake.capacity
-        }))
-        .sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
-      
-      console.log('✅ Filtered program intakes:', programIntakes);
-      setAvailableIntakeDates(programIntakes);
-      
-    } catch (error) {
-      console.error('💥 Error fetching intake dates:', error);
-      setAvailableIntakeDates([]);
-      // Don't show error toast to users for this, as it's not critical
-    }
+    setSelectedIntakeId(''); // Reset intake date when program changes
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -119,7 +64,7 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
 
     try {
       // Include intake date information in notes if selected
-      const selectedIntake = availableIntakeDates.find(d => d.id === selectedIntakeDate);
+      const selectedIntake = availableIntakes.find(d => d.id === selectedIntakeId);
       const intakeInfo = selectedIntake 
         ? `${formData.programInterest}\n\nPreferred Intake: ${selectedIntake.name} (${new Date(selectedIntake.start_date).toLocaleDateString()})`
         : formData.programInterest;
@@ -134,7 +79,7 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
           programInterest: [formData.programInterest],
           notes: `Application submitted via webform for ${intakeInfo}`,
           applicationType: 'webform',
-          preferredIntakeId: selectedIntakeDate || null
+          preferredIntakeId: selectedIntakeId || null
         }
       });
 
@@ -237,40 +182,57 @@ export const WebForm: React.FC<WebFormProps> = ({ onSuccess }) => {
             <Select 
               value={formData.programInterest} 
               onValueChange={handleProgramChange}
-              disabled={isSubmitting}
+              disabled={isSubmitting || programsLoading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select a program" />
+                {programsLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading programs...</span>
+                  </div>
+                ) : (
+                  <SelectValue placeholder="Select a program" />
+                )}
               </SelectTrigger>
               <SelectContent>
-                {STANDARDIZED_PROGRAMS.map((program) => (
-                  <SelectItem key={program} value={program}>
-                    {program}
+                {programs.map((program) => (
+                  <SelectItem key={program.id} value={program.name}>
+                    {program.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            {!programsLoading && programs.length === 0 && (
+              <p className="text-xs text-muted-foreground mt-1">No programs available at this time</p>
+            )}
           </div>
 
           <div>
             <Label htmlFor="intakeDate">Preferred Intake Date</Label>
             <Select 
-              value={selectedIntakeDate} 
-              onValueChange={setSelectedIntakeDate}
-              disabled={!formData.programInterest || availableIntakeDates.length === 0 || isSubmitting}
+              value={selectedIntakeId} 
+              onValueChange={setSelectedIntakeId}
+              disabled={!formData.programInterest || intakesLoading || availableIntakes.length === 0 || isSubmitting}
             >
               <SelectTrigger>
-                <SelectValue placeholder={formData.programInterest ? "Select intake date (optional)" : "Select program first"} />
+                {intakesLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading intakes...</span>
+                  </div>
+                ) : (
+                  <SelectValue placeholder={formData.programInterest ? "Select intake date (optional)" : "Select program first"} />
+                )}
               </SelectTrigger>
               <SelectContent>
-                {availableIntakeDates.map((intake) => (
+                {availableIntakes.map((intake) => (
                   <SelectItem key={intake.id} value={intake.id}>
-                    {intake.name} - {new Date(intake.start_date).toLocaleDateString()} ({intake.capacity} spots total)
+                    {intake.name} - {new Date(intake.start_date).toLocaleDateString()} {intake.capacity && `(${intake.capacity} spots)`}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {formData.programInterest && availableIntakeDates.length === 0 && (
+            {formData.programInterest && !intakesLoading && availableIntakes.length === 0 && (
               <p className="text-xs text-muted-foreground mt-1">No upcoming intake dates available for this program</p>
             )}
           </div>

@@ -7,12 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { X, Save, User, MapPin, GraduationCap, Tag, FileText } from 'lucide-react';
+import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { useToast } from '@/hooks/use-toast';
-import { STANDARDIZED_PROGRAMS } from '@/constants/programs';
-import { IntakeService } from '@/services/intakeService';
+import { usePrograms } from '@/hooks/usePrograms';
+import { useIntakesByProgramName } from '@/hooks/useIntakes';
+import { useAcademicTerms } from '@/hooks/useAcademicTerms';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface LeadEditFormProps {
   lead: Lead;
@@ -24,8 +26,13 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<string>(lead.program_interest?.[0] || '');
-  const [selectedIntakeDate, setSelectedIntakeDate] = useState<string>('');
-  const [availableIntakeDates, setAvailableIntakeDates] = useState<any[]>([]);
+  const [selectedIntakeId, setSelectedIntakeId] = useState<string>((lead as any).preferred_intake_id || '');
+  const [selectedTermId, setSelectedTermId] = useState<string>((lead as any).academic_term_id || '');
+  
+  // Fetch programs, intakes, and academic terms from database
+  const { data: programs = [], isLoading: programsLoading } = usePrograms();
+  const { data: availableIntakes = [], isLoading: intakesLoading } = useIntakesByProgramName(selectedProgram);
+  const { data: academicTerms = [], isLoading: termsLoading } = useAcademicTerms();
   
   const [formData, setFormData] = useState({
     first_name: lead.first_name,
@@ -49,56 +56,17 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
     utm_term: lead.utm_term || ''
   });
 
-  // Load intake dates when component mounts or program changes
+  // Reset intake when program changes
   useEffect(() => {
-    const loadIntakeDates = async () => {
-      if (selectedProgram) {
-        try {
-          console.log('🔥 Loading intake dates for program:', selectedProgram);
-          const allIntakes = await IntakeService.getAllIntakes();
-          console.log('📊 All intakes fetched:', allIntakes);
-          
-          const currentDate = new Date();
-          const programIntakes = allIntakes.filter((intake: any) => {
-            const intakeDate = new Date(intake.start_date);
-            const isFuture = intakeDate > currentDate;
-            const programMatch = intake.program_name === selectedProgram;
-            const statusOpen = intake.status === 'open';
-            
-            console.log('🔍 Checking intake:', {
-              name: intake.name,
-              program_name: intake.program_name,
-              selected_program: selectedProgram,
-              start_date: intake.start_date,
-              is_future: isFuture,
-              status: intake.status,
-              program_match: programMatch,
-              status_open: statusOpen,
-              passes_filter: programMatch && isFuture && statusOpen
-            });
-            
-            return programMatch && isFuture && statusOpen;
-          });
-          
-          console.log('🎯 Filtered program intakes for', selectedProgram, ':', programIntakes);
-          setAvailableIntakeDates(programIntakes);
-        } catch (error) {
-          console.error('💥 Error loading intake dates:', error);
-          setAvailableIntakeDates([]);
-        }
-      } else {
-        setAvailableIntakeDates([]);
-      }
-    };
-    
-    loadIntakeDates();
-  }, [selectedProgram]);
+    if (selectedProgram !== lead.program_interest?.[0]) {
+      setSelectedIntakeId('');
+    }
+  }, [selectedProgram, lead.program_interest]);
 
-  // Handle program selection and load intake dates
-  const handleProgramChange = async (program: string) => {
-    console.log('🔥 handleProgramChange called with program:', program);
+  // Handle program selection
+  const handleProgramChange = (program: string) => {
     setSelectedProgram(program);
-    setSelectedIntakeDate(''); // Reset intake date when program changes
+    setSelectedIntakeId(''); // Reset intake date when program changes
     handleInputChange('program_interest', program);
   };
 
@@ -107,17 +75,13 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
     setSaving(true);
 
     try {
-      // Include intake date in notes if selected
-      const notesWithIntake = selectedIntakeDate 
-        ? `${formData.notes ? formData.notes + '\n\n' : ''}Interested in intake: ${availableIntakeDates.find(d => d.id === selectedIntakeDate)?.label || selectedIntakeDate}`
-        : formData.notes;
-
-      const updateData = {
+      const updateData: any = {
         ...formData,
         program_interest: selectedProgram ? [selectedProgram] : [],
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        notes: notesWithIntake,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
+        preferred_intake_id: selectedIntakeId || null,
+        academic_term_id: selectedTermId || null
       };
 
       const { data, error } = await LeadService.updateLead(lead.id, updateData);
@@ -339,17 +303,33 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
             />
           </div>
 
+          {programs.length === 0 && !programsLoading && (
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                No programs configured yet. <a href="/admin/programs" className="underline">Add programs</a> to enable program selection.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="program">Program of Interest</Label>
-              <Select value={selectedProgram} onValueChange={handleProgramChange}>
+              <Select value={selectedProgram} onValueChange={handleProgramChange} disabled={programsLoading}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a program" />
+                  {programsLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading programs...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder="Select a program" />
+                  )}
                 </SelectTrigger>
                 <SelectContent>
-                  {STANDARDIZED_PROGRAMS.map((program) => (
-                    <SelectItem key={program} value={program}>
-                      {program}
+                  {programs.map((program) => (
+                    <SelectItem key={program.id} value={program.name}>
+                      {program.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -358,25 +338,55 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
             <div className="space-y-2">
               <Label htmlFor="intake_date">Preferred Intake Date</Label>
               <Select 
-                value={selectedIntakeDate} 
-                onValueChange={setSelectedIntakeDate}
-                disabled={!selectedProgram || availableIntakeDates.length === 0}
+                value={selectedIntakeId} 
+                onValueChange={setSelectedIntakeId}
+                disabled={!selectedProgram || intakesLoading || availableIntakes.length === 0}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={selectedProgram ? "Select intake date" : "Select program first"} />
+                  {intakesLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading intakes...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder={selectedProgram ? "Select intake date" : "Select program first"} />
+                  )}
                 </SelectTrigger>
                 <SelectContent>
-                  {availableIntakeDates.map((intake) => (
+                  {availableIntakes.map((intake) => (
                     <SelectItem key={intake.id} value={intake.id}>
-                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()} ({intake.capacity} spots total)
+                      {intake.name} - {new Date(intake.start_date).toLocaleDateString()} {intake.capacity && `(${intake.capacity} spots)`}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {selectedProgram && availableIntakeDates.length === 0 && (
+              {selectedProgram && !intakesLoading && availableIntakes.length === 0 && (
                 <p className="text-xs text-muted-foreground mt-1">No upcoming intake dates available for this program</p>
               )}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="academic_term">Academic Term</Label>
+            <Select value={selectedTermId} onValueChange={setSelectedTermId} disabled={termsLoading}>
+              <SelectTrigger>
+                {termsLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading terms...</span>
+                  </div>
+                ) : (
+                  <SelectValue placeholder="Select academic term (optional)" />
+                )}
+              </SelectTrigger>
+              <SelectContent>
+                {academicTerms.map((term) => (
+                  <SelectItem key={term.id} value={term.id}>
+                    {term.name} ({term.academic_year})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

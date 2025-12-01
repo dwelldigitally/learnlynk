@@ -174,18 +174,11 @@ export class ProgramService {
       start_date: intake.date,
       capacity: intake.capacity || 30,
       application_deadline: intake.applicationDeadline || null,
-      early_bird_deadline: intake.earlyBirdDeadline || null,
       status: intake.status || 'planning',
       study_mode: intake.studyMode || 'full-time',
       delivery_method: intake.deliveryMethod || 'in-class',
-      campus_location: intake.campusLocation || intake.location || null,
-      notes: intake.notes || null,
-      metadata: {
-        time: intake.time || null,
-        waitlistCapacity: intake.waitlistCapacity || null,
-        earlyBirdDiscount: intake.earlyBirdDiscount || null,
-        notifications: intake.notifications || []
-      }
+      campus: intake.campusLocation || intake.campus || intake.location || null,
+      sales_approach: 'balanced'
     }));
 
     const { error } = await supabase

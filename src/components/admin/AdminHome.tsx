@@ -565,33 +565,6 @@ const AdminHome: React.FC = () => {
               </div>
             </HotSheetCard>
 
-            {/* AI Recommendations */}
-            <HotSheetCard padding="none">
-              <div className="p-6 pb-4 flex items-center gap-2">
-                <IconContainer color="violet" size="md">
-                  <Sparkles />
-                </IconContainer>
-                <h2 className="text-xl font-semibold">AI Recommendations</h2>
-              </div>
-              <div className="px-6 pb-6">
-                {hasDemoAccess && aiRecommendations.length > 0 ? (
-                  <div className="space-y-3">
-                    {aiRecommendations.map(rec => (
-                      <AIRecommendationCard key={rec.id} recommendation={rec} />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <IconContainer color="violet" size="xl" className="mx-auto mb-2">
-                      <Sparkles />
-                    </IconContainer>
-                    <p className="font-medium">No recommendations yet</p>
-                    <p className="text-sm mt-1">AI will analyze your data and provide insights soon.</p>
-                  </div>
-                )}
-              </div>
-            </HotSheetCard>
-
             {/* Quick Insights */}
             {hasDemoAccess ? (
               <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />

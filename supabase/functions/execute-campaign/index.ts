@@ -12,19 +12,20 @@ interface ExecuteCampaignRequest {
   testMode?: boolean;
 }
 
+// Batch processing configuration
+const BATCH_SIZE = 100;
+const BATCH_DELAY_MS = 100; // Small delay between batches to prevent overload
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Parse request body
     const { campaignId, leadIds, testMode = false }: ExecuteCampaignRequest = await req.json();
 
     console.log(`Starting campaign execution for campaign: ${campaignId}`);
@@ -51,79 +52,96 @@ serve(async (req) => {
       throw new Error(`Failed to load campaign steps: ${stepsError.message}`);
     }
 
-    // Get target leads
-    let targetLeads;
+    // Get target leads with pagination for large datasets
+    let targetLeads: any[] = [];
+    
     if (leadIds && leadIds.length > 0) {
-      // Execute for specific leads
-      const { data: leads, error: leadsError } = await supabase
-        .from('leads')
-        .select('*')
-        .in('id', leadIds);
+      // Process specific leads in batches
+      for (let i = 0; i < leadIds.length; i += BATCH_SIZE) {
+        const batchIds = leadIds.slice(i, i + BATCH_SIZE);
+        const { data: leads, error: leadsError } = await supabase
+          .from('leads')
+          .select('*')
+          .in('id', batchIds);
 
-      if (leadsError) {
-        throw new Error(`Failed to load target leads: ${leadsError.message}`);
+        if (leadsError) {
+          console.error(`Batch ${i / BATCH_SIZE + 1} failed:`, leadsError);
+          continue;
+        }
+        targetLeads.push(...(leads || []));
       }
-      targetLeads = leads;
     } else {
-      // Execute for all eligible leads based on campaign criteria
-      const { data: leads, error: leadsError } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('user_id', campaign.user_id)
-        .in('status', ['new', 'contacted', 'qualified']);
+      // Fetch all eligible leads with cursor-based pagination
+      let lastId: string | null = null;
+      let hasMore = true;
+      
+      while (hasMore) {
+        let query = supabase
+          .from('leads')
+          .select('*')
+          .eq('user_id', campaign.user_id)
+          .in('status', ['new', 'contacted', 'qualified'])
+          .order('id', { ascending: true })
+          .limit(BATCH_SIZE);
 
-      if (leadsError) {
-        throw new Error(`Failed to load leads: ${leadsError.message}`);
+        if (lastId) {
+          query = query.gt('id', lastId);
+        }
+
+        const { data: leads, error: leadsError } = await query;
+
+        if (leadsError) {
+          console.error('Error fetching leads batch:', leadsError);
+          break;
+        }
+
+        if (!leads || leads.length === 0) {
+          hasMore = false;
+        } else {
+          targetLeads.push(...leads);
+          lastId = leads[leads.length - 1].id;
+          hasMore = leads.length === BATCH_SIZE;
+        }
       }
-      targetLeads = leads;
     }
 
-    console.log(`Found ${targetLeads?.length || 0} leads to process`);
+    console.log(`Found ${targetLeads.length} leads to process`);
 
-    // Process each lead through the campaign workflow
-    const executionPromises = (targetLeads || []).map(async (lead) => {
-      try {
-        // Create campaign execution record
-        const { data: execution, error: executionError } = await supabase
-          .from('campaign_executions')
-          .insert({
-            campaign_id: campaignId,
-            lead_id: lead.id,
-            status: testMode ? 'test' : 'pending',
-            started_at: new Date().toISOString(),
-            execution_data: {
-              leadInfo: {
-                id: lead.id,
-                email: lead.email,
-                firstName: lead.first_name,
-                lastName: lead.last_name
-              },
-              testMode,
-              stepCount: steps?.length || 0
+    // Process leads in batches to prevent memory issues
+    const allResults: any[] = [];
+    
+    for (let i = 0; i < targetLeads.length; i += BATCH_SIZE) {
+      const batch = targetLeads.slice(i, i + BATCH_SIZE);
+      const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+      const totalBatches = Math.ceil(targetLeads.length / BATCH_SIZE);
+      
+      console.log(`Processing batch ${batchNumber}/${totalBatches} (${batch.length} leads)`);
+
+      // Process batch with controlled concurrency
+      const batchResults = await processBatch(supabase, campaignId, batch, steps, testMode);
+      allResults.push(...batchResults);
+
+      // Update campaign progress
+      await supabase
+        .from('campaigns')
+        .update({
+          campaign_data: {
+            ...campaign.campaign_data,
+            execution_progress: {
+              processed: i + batch.length,
+              total: targetLeads.length,
+              batch: batchNumber,
+              totalBatches
             }
-          })
-          .select()
-          .single();
+          }
+        })
+        .eq('id', campaignId);
 
-        if (executionError) {
-          console.error(`Failed to create execution record for lead ${lead.id}:`, executionError);
-          return { leadId: lead.id, status: 'failed', error: executionError.message };
-        }
-
-        // Process immediate steps (non-wait steps)
-        if (steps && steps.length > 0) {
-          const firstStep = steps[0];
-          await processWorkflowStep(supabase, execution.id, firstStep, lead, testMode);
-        }
-
-        return { leadId: lead.id, status: 'started', executionId: execution.id };
-      } catch (error) {
-        console.error(`Error processing lead ${lead.id}:`, error);
-        return { leadId: lead.id, status: 'failed', error: error.message };
+      // Small delay between batches to prevent overload
+      if (i + BATCH_SIZE < targetLeads.length) {
+        await delay(BATCH_DELAY_MS);
       }
-    });
-
-    const results = await Promise.all(executionPromises);
+    }
 
     // Update campaign status if not test mode
     if (!testMode) {
@@ -136,8 +154,8 @@ serve(async (req) => {
         .eq('id', campaignId);
     }
 
-    const successCount = results.filter(r => r.status === 'started').length;
-    const failureCount = results.filter(r => r.status === 'failed').length;
+    const successCount = allResults.filter(r => r.status === 'started').length;
+    const failureCount = allResults.filter(r => r.status === 'failed').length;
 
     console.log(`Campaign execution completed: ${successCount} started, ${failureCount} failed`);
 
@@ -146,10 +164,11 @@ serve(async (req) => {
         success: true,
         message: `Campaign execution ${testMode ? 'tested' : 'started'} successfully`,
         results: {
-          totalLeads: targetLeads?.length || 0,
+          totalLeads: targetLeads.length,
           successfulExecutions: successCount,
           failedExecutions: failureCount,
-          details: results
+          batches: Math.ceil(targetLeads.length / BATCH_SIZE),
+          details: allResults.slice(0, 100) // Limit response size
         }
       }),
       { 
@@ -177,6 +196,86 @@ serve(async (req) => {
     );
   }
 });
+
+// Helper function for delay
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+// Process a batch of leads with controlled concurrency
+async function processBatch(
+  supabase: any,
+  campaignId: string,
+  leads: any[],
+  steps: any[],
+  testMode: boolean
+): Promise<any[]> {
+  // Use Promise.allSettled for better error handling
+  const results = await Promise.allSettled(
+    leads.map(lead => processLead(supabase, campaignId, lead, steps, testMode))
+  );
+
+  return results.map((result, index) => {
+    if (result.status === 'fulfilled') {
+      return result.value;
+    } else {
+      return {
+        leadId: leads[index].id,
+        status: 'failed',
+        error: result.reason?.message || 'Unknown error'
+      };
+    }
+  });
+}
+
+// Process a single lead
+async function processLead(
+  supabase: any,
+  campaignId: string,
+  lead: any,
+  steps: any[],
+  testMode: boolean
+) {
+  try {
+    // Create campaign execution record
+    const { data: execution, error: executionError } = await supabase
+      .from('campaign_executions')
+      .insert({
+        campaign_id: campaignId,
+        lead_id: lead.id,
+        status: testMode ? 'test' : 'pending',
+        started_at: new Date().toISOString(),
+        execution_data: {
+          leadInfo: {
+            id: lead.id,
+            email: lead.email,
+            firstName: lead.first_name,
+            lastName: lead.last_name
+          },
+          testMode,
+          stepCount: steps?.length || 0
+        }
+      })
+      .select()
+      .single();
+
+    if (executionError) {
+      console.error(`Failed to create execution record for lead ${lead.id}:`, executionError);
+      return { leadId: lead.id, status: 'failed', error: executionError.message };
+    }
+
+    // Process immediate steps (non-wait steps)
+    if (steps && steps.length > 0) {
+      const firstStep = steps[0];
+      await processWorkflowStep(supabase, execution.id, firstStep, lead, testMode);
+    }
+
+    return { leadId: lead.id, status: 'started', executionId: execution.id };
+  } catch (error) {
+    console.error(`Error processing lead ${lead.id}:`, error);
+    return { leadId: lead.id, status: 'failed', error: error.message };
+  }
+}
 
 async function processWorkflowStep(
   supabase: any, 
@@ -233,7 +332,6 @@ async function processWorkflowStep(
 
 async function processEmailStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
   try {
-    // Create communication record
     const emailData = {
       lead_id: lead.id,
       user_id: lead.user_id,
@@ -271,7 +369,6 @@ async function processSMSStep(supabase: any, executionId: string, stepConfig: an
       return;
     }
 
-    // Create communication record
     const smsData = {
       lead_id: lead.id,
       user_id: lead.user_id,
@@ -305,7 +402,6 @@ async function processSMSStep(supabase: any, executionId: string, stepConfig: an
 
 async function processCallStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
   try {
-    // Create task for advisor to call lead
     const taskData = {
       lead_id: lead.id,
       user_id: lead.user_id,
@@ -314,7 +410,7 @@ async function processCallStep(supabase: any, executionId: string, stepConfig: a
       task_type: 'call',
       priority: 'medium',
       status: testMode ? 'test' : 'pending',
-      due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Due in 24 hours
+      due_date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
       assigned_to: lead.assigned_to
     };
 
@@ -335,8 +431,6 @@ async function processCallStep(supabase: any, executionId: string, stepConfig: a
 async function processWaitStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
   try {
     console.log(`Wait step processed for lead ${lead.id} - delay: ${JSON.stringify(stepConfig.delay)}`);
-    // In a real implementation, this would schedule the next step
-    // For now, we just log the wait step
   } catch (error) {
     console.error('Error processing wait step:', error);
   }
@@ -345,8 +439,6 @@ async function processWaitStep(supabase: any, executionId: string, stepConfig: a
 async function processConditionStep(supabase: any, executionId: string, stepConfig: any, lead: any, testMode: boolean) {
   try {
     console.log(`Condition step processed for lead ${lead.id} - conditions: ${JSON.stringify(stepConfig.conditions)}`);
-    // In a real implementation, this would evaluate conditions and branch the workflow
-    // For now, we just log the condition step
   } catch (error) {
     console.error('Error processing condition step:', error);
   }
@@ -446,7 +538,6 @@ async function processGoalTrackingStep(supabase: any, executionId: string, stepC
     };
 
     console.log(`Goal tracking ${testMode ? 'simulated' : 'recorded'}:`, goalData);
-    // Note: You may need to create a campaign_goals table to store this data
   } catch (error) {
     console.error('Error processing goal tracking step:', error);
   }
@@ -462,7 +553,6 @@ async function processRemoveCampaignStep(supabase: any, executionId: string, ste
     }
 
     if (!testMode) {
-      // Mark campaign executions as stopped for this lead and campaign
       const { error } = await supabase
         .from('campaign_executions')
         .update({ 
@@ -496,7 +586,6 @@ async function processCopyCampaignStep(supabase: any, executionId: string, stepC
     }
 
     if (!testMode) {
-      // Create a new execution for the target campaign
       const { error } = await supabase
         .from('campaign_executions')
         .insert({
@@ -508,7 +597,9 @@ async function processCopyCampaignStep(supabase: any, executionId: string, stepC
             copiedFrom: executionId,
             leadInfo: {
               id: lead.id,
-              email: lead.email
+              email: lead.email,
+              firstName: lead.first_name,
+              lastName: lead.last_name
             }
           }
         });
@@ -533,10 +624,10 @@ async function processCreateTaskStep(supabase: any, executionId: string, stepCon
       user_id: lead.user_id,
       title: stepConfig.title || 'Campaign Task',
       description: personalizeContent(stepConfig.description || '', lead),
-      task_type: stepConfig.taskType || 'follow-up',
+      task_type: stepConfig.taskType || 'other',
       priority: stepConfig.priority || 'medium',
       status: testMode ? 'test' : 'pending',
-      due_date: stepConfig.dueDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      due_date: stepConfig.dueDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       assigned_to: stepConfig.assignedTo || lead.assigned_to
     };
 
@@ -556,9 +647,11 @@ async function processCreateTaskStep(supabase: any, executionId: string, stepCon
 
 function personalizeContent(content: string, lead: any): string {
   return content
-    .replace(/\[First Name\]/g, lead.first_name || 'there')
-    .replace(/\[Last Name\]/g, lead.last_name || '')
-    .replace(/\[Full Name\]/g, `${lead.first_name || ''} ${lead.last_name || ''}`.trim() || 'there')
-    .replace(/\[Email\]/g, lead.email || '')
-    .replace(/\[Program\]/g, lead.program_interest?.[0] || 'our programs');
+    .replace(/\{\{first_name\}\}/g, lead.first_name || '')
+    .replace(/\{\{last_name\}\}/g, lead.last_name || '')
+    .replace(/\{\{email\}\}/g, lead.email || '')
+    .replace(/\{\{phone\}\}/g, lead.phone || '')
+    .replace(/\{\{company\}\}/g, lead.company || '')
+    .replace(/\{\{program_interest\}\}/g, (lead.program_interest || []).join(', '))
+    .replace(/\{\{lead_name\}\}/g, `${lead.first_name || ''} ${lead.last_name || ''}`.trim());
 }

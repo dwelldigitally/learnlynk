@@ -466,19 +466,7 @@ export function AdvancedFormBuilder({
               </TabsList>
 
               <TabsContent value="builder" className="flex-1 p-4 space-y-6 overflow-auto">
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
-                  <Label>Layout Mode</Label>
-                  <div className="flex gap-2">
-                    <Button variant={layoutMode === 'list' ? 'default' : 'outline'} size="sm" onClick={() => setLayoutMode('list')}>
-                      <Icons.Layout className="h-4 w-4 mr-2" />
-                      List
-                    </Button>
-                    <Button variant={layoutMode === 'grid' ? 'default' : 'outline'} size="sm" onClick={() => setLayoutMode('grid')}>
-                      <Icons.Grid3x3 className="h-4 w-4 mr-2" />
-                      Grid
-                    </Button>
-                  </div>
-                </div>
+                
 
                 {layoutMode === 'list' && <Droppable droppableId="fields-list">
                     {provided => <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-3">

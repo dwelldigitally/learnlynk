@@ -122,7 +122,7 @@ export function BatchManagement() {
                     <SelectValue placeholder="Select program" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Programs</SelectItem>
+                    <SelectItem value="all">All Programs</SelectItem>
                     {programs.map((program) => (
                       <SelectItem key={program.id} value={program.id}>
                         {program.program_name}

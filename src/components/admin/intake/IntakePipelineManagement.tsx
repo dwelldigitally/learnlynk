@@ -277,7 +277,7 @@ export function IntakePipelineManagement() {
                         </SelectTrigger>
                         <SelectContent>
                           {dbPrograms.length === 0 ? (
-                            <SelectItem value="" disabled>No programs configured</SelectItem>
+                            <SelectItem value="no-programs" disabled>No programs configured</SelectItem>
                           ) : (
                             dbPrograms.map((program) => (
                               <SelectItem key={program.id} value={program.id}>

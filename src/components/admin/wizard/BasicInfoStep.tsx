@@ -262,7 +262,7 @@ const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
               </SelectTrigger>
               <SelectContent>
                 {campuses.length === 0 ? (
-                  <SelectItem value="" disabled>
+                  <SelectItem value="no-campuses" disabled>
                     No campuses configured. Add campuses in Campus Management.
                   </SelectItem>
                 ) : (

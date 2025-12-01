@@ -48,6 +48,8 @@ import { cn } from '@/lib/utils';
 
 interface AdvancedFormBuilderProps {
   formId?: string | null;
+  formTitle?: string;
+  onFormTitleChange?: (title: string) => void;
   onSave?: (formConfig: FormConfig) => void;
   onCancel?: () => void;
 }
@@ -69,15 +71,20 @@ const fieldTypes = [
   { type: 'program-list' as FormFieldType, label: 'Program List', icon: List, color: 'bg-lime-500' },
 ];
 
-export function AdvancedFormBuilder({ formId, onSave, onCancel }: AdvancedFormBuilderProps) {
+export function AdvancedFormBuilder({ formId, formTitle: externalFormTitle, onFormTitleChange, onSave, onCancel }: AdvancedFormBuilderProps) {
   const navigate = useNavigate();
   const { data: existingForm, isLoading } = useForm(formId || null);
   const { data: programs = [] } = usePrograms();
   const createFormMutation = useCreateForm();
   const updateFormMutation = useUpdateForm();
 
-  // Form state
-  const [formTitle, setFormTitle] = useState('Untitled Form');
+  // Form state - use external title if provided
+  const [internalFormTitle, setInternalFormTitle] = useState('Untitled Form');
+  const formTitle = externalFormTitle ?? internalFormTitle;
+  const setFormTitle = (title: string) => {
+    setInternalFormTitle(title);
+    onFormTitleChange?.(title);
+  };
   const [formDescription, setFormDescription] = useState('');
   const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
   const [fields, setFields] = useState<FormField[]>([]);

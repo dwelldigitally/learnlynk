@@ -12,12 +12,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { User, Bell, Shield, Settings, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Palette, Eye, CalendarCheck, Link as LinkIcon, Database, Sparkles, AlertCircle } from "lucide-react";
+import { User, Bell, Shield, Settings, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Palette, Eye, CalendarCheck, Link as LinkIcon, Database, Sparkles, AlertCircle, Loader2, EyeOff, Lock } from "lucide-react";
 import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { DemoDataService, useDemoDataAccess } from "@/services/demoDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +29,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface ProfileData {
   id?: string;
@@ -52,6 +61,7 @@ const ProfilePage: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { isMvpMode, toggleMvpMode } = useMvpMode();
+  const { updatePassword } = useAuth();
   const [loading, setLoading] = useState(false);
   const { settings, updateSettings, connectOutlook, disconnectOutlook, loading: settingsLoading } = useUserSettings();
   const [emailSignature, setEmailSignature] = useState('');
@@ -59,6 +69,17 @@ const ProfilePage: React.FC = () => {
   const [demoActionType, setDemoActionType] = useState<'enable' | 'disable'>('enable');
   const queryClient = useQueryClient();
   const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
+  
+  // Change password state
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
   const [profileData, setProfileData] = useState<ProfileData>({
     first_name: '',
     last_name: '',
@@ -175,6 +196,62 @@ const ProfilePage: React.FC = () => {
         description: "Failed to disconnect Outlook account.",
         variant: "destructive",
       });
+    }
+  };
+
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return 'Password must be at least 8 characters long';
+    }
+    if (!/[A-Z]/.test(password)) {
+      return 'Password must contain at least one uppercase letter';
+    }
+    if (!/[a-z]/.test(password)) {
+      return 'Password must contain at least one lowercase letter';
+    }
+    if (!/[0-9]/.test(password)) {
+      return 'Password must contain at least one number';
+    }
+    return null;
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError('');
+    
+    // Validate new password
+    const validationError = validatePassword(passwordData.newPassword);
+    if (validationError) {
+      setPasswordError(validationError);
+      return;
+    }
+    
+    // Check passwords match
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+    
+    setPasswordLoading(true);
+    try {
+      const { error } = await updatePassword(passwordData.newPassword);
+      
+      if (error) {
+        setPasswordError(error.message || 'Failed to update password');
+        return;
+      }
+      
+      toast({
+        title: "Password Updated",
+        description: "Your password has been changed successfully.",
+      });
+      
+      // Reset form and close dialog
+      setPasswordData({ newPassword: '', confirmPassword: '' });
+      setShowPasswordDialog(false);
+    } catch (error: any) {
+      setPasswordError(error.message || 'An unexpected error occurred');
+    } finally {
+      setPasswordLoading(false);
     }
   };
 
@@ -556,16 +633,29 @@ const ProfilePage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-lg border">
+                <div className={cn(
+                  "flex items-center justify-between p-4 rounded-lg border",
+                  isMobile && "flex-col gap-3 items-start"
+                )}>
                   <div>
                     <h4 className="font-medium">Password</h4>
                     <p className="text-sm text-muted-foreground">
-                      Last changed 3 months ago
+                      Update your password to keep your account secure
                     </p>
                   </div>
-                  <Button variant="outline" className={isMobile ? "w-full" : ""}>Change Password</Button>
+                  <Button 
+                    variant="outline" 
+                    className={isMobile ? "w-full" : ""}
+                    onClick={() => setShowPasswordDialog(true)}
+                  >
+                    <Lock className="h-4 w-4 mr-2" />
+                    Change Password
+                  </Button>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-lg border">
+                <div className={cn(
+                  "flex items-center justify-between p-4 rounded-lg border",
+                  isMobile && "flex-col gap-3 items-start"
+                )}>
                   <div>
                     <h4 className="font-medium">Two-Factor Authentication</h4>
                     <p className="text-sm text-muted-foreground">
@@ -802,6 +892,123 @@ const ProfilePage: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Change Password Dialog */}
+      <Dialog open={showPasswordDialog} onOpenChange={(open) => {
+        setShowPasswordDialog(open);
+        if (!open) {
+          setPasswordData({ newPassword: '', confirmPassword: '' });
+          setPasswordError('');
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Enter your new password below. Password must be at least 8 characters with uppercase, lowercase, and a number.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            {passwordError && (
+              <div className="flex items-center gap-2 p-3 rounded-md bg-destructive/10 text-destructive text-sm">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                {passwordError}
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="new-password"
+                  type={showNewPassword ? "text" : "password"}
+                  placeholder="Enter new password"
+                  value={passwordData.newPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm new password"
+                  value={passwordData.confirmPassword}
+                  onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </Button>
+              </div>
+            </div>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>Password requirements:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li className={passwordData.newPassword.length >= 8 ? "text-green-600" : ""}>
+                  At least 8 characters
+                </li>
+                <li className={/[A-Z]/.test(passwordData.newPassword) ? "text-green-600" : ""}>
+                  One uppercase letter
+                </li>
+                <li className={/[a-z]/.test(passwordData.newPassword) ? "text-green-600" : ""}>
+                  One lowercase letter
+                </li>
+                <li className={/[0-9]/.test(passwordData.newPassword) ? "text-green-600" : ""}>
+                  One number
+                </li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setShowPasswordDialog(false)}
+              disabled={passwordLoading}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleChangePassword}
+              disabled={passwordLoading || !passwordData.newPassword || !passwordData.confirmPassword}
+            >
+              {passwordLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                'Update Password'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

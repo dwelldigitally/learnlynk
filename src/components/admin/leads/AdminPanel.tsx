@@ -424,7 +424,7 @@ export function AdminPanel({ lead, onUpdate, onStatusChange }: AdminPanelProps) 
                         <SelectValue placeholder="Select advisor" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
                         <SelectItem value="advisor1@university.edu">Sarah Johnson</SelectItem>
                         <SelectItem value="advisor2@university.edu">Michael Chen</SelectItem>
                         <SelectItem value="advisor3@university.edu">Emily Davis</SelectItem>

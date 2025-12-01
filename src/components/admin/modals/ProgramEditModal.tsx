@@ -214,7 +214,7 @@ export const ProgramEditModal = ({ isOpen, onClose, program, onSave }: ProgramEd
                       </FormControl>
                       <SelectContent>
                         {campuses.length === 0 ? (
-                          <SelectItem value="" disabled>No campuses configured</SelectItem>
+                          <SelectItem value="no-campuses" disabled>No campuses configured</SelectItem>
                         ) : (
                           campuses.map((campus) => (
                             <SelectItem key={campus.id} value={campus.name}>

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, Columns2, Columns3, Columns4, Trash2, GripVertical } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { FormRow, FormFieldWithPosition } from '@/types/formLayout';
-import { FieldConfigEditor } from './FieldConfigEditor';
+import { CompactFieldCard } from './CompactFieldCard';
 import { FieldInsertButton } from './FieldInsertButton';
 import { FormFieldType, FormField } from '@/types/formBuilder';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,8 @@ interface GridFormBuilderProps {
   onFieldUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onFieldDelete: (fieldId: string) => void;
   onFieldAdd: (fieldType: FormFieldType, rowId: string, columnIndex: number) => void;
+  selectedFieldId: string | null;
+  onFieldSelect: (fieldId: string) => void;
 }
 
 const DropZone = ({ 
@@ -68,7 +70,9 @@ export function GridFormBuilder({
   onRowDelete,
   onFieldUpdate,
   onFieldDelete,
-  onFieldAdd
+  onFieldAdd,
+  selectedFieldId,
+  onFieldSelect
 }: GridFormBuilderProps) {
   const getGridClasses = (columns: number) => {
     switch (columns) {
@@ -140,12 +144,11 @@ export function GridFormBuilder({
                   <div key={`${row.id}-${columnIndex}`}>
                     {field ? (
                       <div className="transition-all">
-                        <FieldConfigEditor
+                        <CompactFieldCard
                           field={field}
-                          onUpdate={(updates) => onFieldUpdate(field.id, updates)}
-                          onRemove={() => onFieldDelete(field.id)}
-                          availableFields={[]}
-                          compact={false}
+                          isSelected={selectedFieldId === field.id}
+                          onSelect={() => onFieldSelect(field.id)}
+                          onDelete={() => onFieldDelete(field.id)}
                         />
                       </div>
                     ) : (

@@ -11,20 +11,7 @@ import { FileText, Upload, Download, Eye, Plus, CheckCircle, XCircle, Clock, Ale
 import { Lead } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-
-interface LeadDocument {
-  id: string;
-  lead_id: string;
-  name: string;
-  type: string;
-  file_url: string;
-  file_size: number;
-  status: 'pending' | 'approved' | 'rejected' | 'under_review';
-  uploaded_at: string;
-  reviewed_at?: string;
-  reviewed_by?: string;
-  comments?: string;
-}
+import { documentService, LeadDocument } from '@/services/documentService';
 
 interface DocumentsSectionProps {
   lead: Lead;
@@ -37,7 +24,8 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState('');
-  const [comments, setComments] = useState('');
+  const [documentName, setDocumentName] = useState('');
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -47,50 +35,11 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
   const loadDocuments = async () => {
     try {
       setLoading(true);
-      // Mock document data for now - in real app would fetch from documents table
-      const mockDocuments: LeadDocument[] = [
-        {
-          id: '1',
-          lead_id: lead.id,
-          name: 'Academic Transcript.pdf',
-          type: 'transcript',
-          file_url: '/documents/transcript.pdf',
-          file_size: 1024000,
-          status: 'approved',
-          uploaded_at: '2024-01-10T10:00:00Z',
-          reviewed_at: '2024-01-11T15:30:00Z',
-          reviewed_by: 'admin@university.edu',
-          comments: 'Excellent academic record. All requirements met.'
-        },
-        {
-          id: '2',
-          lead_id: lead.id,
-          name: 'Personal Statement.docx',
-          type: 'personal_statement',
-          file_url: '/documents/personal_statement.docx',
-          file_size: 512000,
-          status: 'under_review',
-          uploaded_at: '2024-01-12T14:20:00Z'
-        },
-        {
-          id: '3',
-          lead_id: lead.id,
-          name: 'Passport Copy.jpg',
-          type: 'identification',
-          file_url: '/documents/passport.jpg',
-          file_size: 2048000,
-          status: 'pending',
-          uploaded_at: '2024-01-13T09:15:00Z'
-        }
-      ];
-      setDocuments(mockDocuments);
+      const docs = await documentService.getLeadDocuments(lead.id);
+      setDocuments(docs);
     } catch (error) {
       console.error('Error loading documents:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load documents",
-        variant: "destructive"
-      });
+      setDocuments([]);
     } finally {
       setLoading(false);
     }
@@ -106,24 +55,19 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
       return;
     }
 
+    setUploading(true);
     try {
-      // In real app, would upload to Supabase storage
-      const newDocument: LeadDocument = {
-        id: `new-${Date.now()}`,
-        lead_id: lead.id,
-        name: selectedFile.name,
-        type: documentType,
-        file_url: `/documents/${selectedFile.name}`,
-        file_size: selectedFile.size,
-        status: 'pending',
-        uploaded_at: new Date().toISOString(),
-        comments: comments || undefined
-      };
+      const newDocument = await documentService.uploadDocument(
+        lead.id,
+        selectedFile,
+        undefined,
+        documentName || selectedFile.name
+      );
 
       setDocuments(prev => [newDocument, ...prev]);
       setSelectedFile(null);
       setDocumentType('');
-      setComments('');
+      setDocumentName('');
       setUploadDialogOpen(false);
       onUpdate();
 
@@ -138,19 +82,22 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
         description: "Failed to upload document",
         variant: "destructive"
       });
+    } finally {
+      setUploading(false);
     }
   };
 
-  const handleStatusUpdate = async (documentId: string, newStatus: LeadDocument['status'], reviewComments?: string) => {
+  const handleStatusUpdate = async (documentId: string, newStatus: string, reviewComments?: string) => {
     try {
+      await documentService.updateDocumentStatus(documentId, newStatus, reviewComments);
+      
       setDocuments(prev => prev.map(doc => 
         doc.id === documentId 
           ? { 
               ...doc, 
-              status: newStatus, 
-              reviewed_at: new Date().toISOString(),
-              reviewed_by: 'current_user@university.edu',
-              comments: reviewComments || doc.comments
+              admin_status: newStatus, 
+              admin_reviewed_at: new Date().toISOString(),
+              admin_comments: reviewComments || doc.admin_comments
             }
           : doc
       ));
@@ -169,7 +116,58 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
     }
   };
 
-  const getStatusIcon = (status: LeadDocument['status']) => {
+  const handleViewDocument = async (doc: LeadDocument) => {
+    if (!doc.file_path) {
+      toast({
+        title: "Error",
+        description: "Document file not found",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const url = await documentService.getDocumentUrl(doc.file_path);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error getting document URL:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open document",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDownloadDocument = async (doc: LeadDocument) => {
+    if (!doc.file_path) {
+      toast({
+        title: "Error",
+        description: "Document file not found",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      const url = await documentService.getDocumentUrl(doc.file_path);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = doc.original_filename || doc.document_name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download document",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusIcon = (status?: string) => {
     switch (status) {
       case 'approved': return <CheckCircle className="h-4 w-4 text-green-500" />;
       case 'rejected': return <XCircle className="h-4 w-4 text-red-500" />;
@@ -179,7 +177,7 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
     }
   };
 
-  const getStatusVariant = (status: LeadDocument['status']) => {
+  const getStatusVariant = (status?: string): "default" | "destructive" | "secondary" | "outline" => {
     switch (status) {
       case 'approved': return 'default';
       case 'rejected': return 'destructive';
@@ -189,7 +187,8 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
     }
   };
 
-  const formatFileSize = (bytes: number) => {
+  const formatFileSize = (bytes?: number) => {
+    if (!bytes) return 'Unknown size';
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     if (bytes === 0) return '0 Bytes';
     const i = Math.floor(Math.log(bytes) / Math.log(1024));
@@ -217,7 +216,9 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-4">Loading documents...</div>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
         </CardContent>
       </Card>
     );
@@ -273,21 +274,32 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div>
-                  <Label htmlFor="document-comments">Comments (Optional)</Label>
-                  <Textarea
-                    id="document-comments"
-                    value={comments}
-                    onChange={(e) => setComments(e.target.value)}
-                    placeholder="Additional notes about this document..."
-                    rows={3}
+                  <Label htmlFor="document-name">Document Name (Optional)</Label>
+                  <Input
+                    id="document-name"
+                    value={documentName}
+                    onChange={(e) => setDocumentName(e.target.value)}
+                    placeholder="Enter a custom name for this document"
                   />
                 </div>
                 
-                <Button onClick={handleFileUpload} disabled={!selectedFile || !documentType}>
-                  <Upload className="h-4 w-4 mr-2" />
-                  Upload Document
+                <Button 
+                  onClick={handleFileUpload} 
+                  disabled={!selectedFile || !documentType || uploading}
+                >
+                  {uploading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Document
+                    </>
+                  )}
                 </Button>
               </div>
             </DialogContent>
@@ -310,45 +322,52 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
                     <FileText className="h-5 w-5 mt-0.5 text-muted-foreground" />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{doc.name}</span>
+                        <span className="font-medium">{doc.document_name}</span>
                         <Badge variant="outline" className="text-xs">
-                          {documentTypes.find(t => t.value === doc.type)?.label || doc.type}
+                          {documentTypes.find(t => t.value === doc.document_type)?.label || doc.document_type}
                         </Badge>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-muted-foreground">
                         <span>{formatFileSize(doc.file_size)}</span>
-                        <span>Uploaded {format(new Date(doc.uploaded_at), 'MMM d, yyyy')}</span>
+                        <span>Uploaded {format(new Date(doc.created_at), 'MMM d, yyyy')}</span>
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
-                      {getStatusIcon(doc.status)}
-                      <Badge variant={getStatusVariant(doc.status)} className="text-xs">
-                        {doc.status.replace('_', ' ')}
+                      {getStatusIcon(doc.admin_status)}
+                      <Badge variant={getStatusVariant(doc.admin_status)} className="text-xs">
+                        {(doc.admin_status || 'pending').replace('_', ' ')}
                       </Badge>
                     </div>
                   </div>
                 </div>
 
-                {doc.comments && (
+                {doc.admin_comments && (
                   <div className="bg-muted/50 p-2 rounded text-sm">
                     <span className="font-medium">Comments: </span>
-                    {doc.comments}
+                    {doc.admin_comments}
+                  </div>
+                )}
+
+                {doc.ai_insight && (
+                  <div className="bg-primary/5 p-2 rounded text-sm">
+                    <span className="font-medium">AI Insight: </span>
+                    {doc.ai_insight}
                   </div>
                 )}
 
                 <div className="flex items-center gap-2">
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" onClick={() => handleViewDocument(doc)}>
                     <Eye className="h-3 w-3 mr-1" />
                     View
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button size="sm" variant="outline" onClick={() => handleDownloadDocument(doc)}>
                     <Download className="h-3 w-3 mr-1" />
                     Download
                   </Button>
                   
-                  {doc.status === 'pending' && (
+                  {doc.admin_status === 'pending' && (
                     <>
                       <Button 
                         size="sm" 

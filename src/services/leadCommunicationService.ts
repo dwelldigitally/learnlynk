@@ -1,6 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
 import { LeadCommunication, CommunicationFormData } from '@/types/leadEnhancements';
-import { DummyLeadDataService } from './dummyLeadDataService';
 
 export class LeadCommunicationService {
   static async getCommunications(leadId: string): Promise<LeadCommunication[]> {
@@ -13,19 +12,13 @@ export class LeadCommunicationService {
 
       if (response.error) {
         console.error('Error fetching communications:', response.error);
-        // Return dummy data if database fetch fails
-        return DummyLeadDataService.generateDummyCommunications(leadId);
+        return [];
       }
 
-      // If no data found, return dummy data for demonstration
-      if (!response.data || response.data.length === 0) {
-        return DummyLeadDataService.generateDummyCommunications(leadId);
-      }
-
-      return response.data as LeadCommunication[];
+      return (response.data || []) as LeadCommunication[];
     } catch (error) {
       console.error('Database connection error:', error);
-      return DummyLeadDataService.generateDummyCommunications(leadId);
+      return [];
     }
   }
 
@@ -146,12 +139,34 @@ export class LeadCommunicationService {
   }
 
   static async getAICommunications(leadId: string): Promise<any[]> {
-    // Temporarily simplified to avoid TypeScript issues
-    return [];
+    const response = await supabase
+      .from('lead_communications')
+      .select('*')
+      .eq('lead_id', leadId)
+      .eq('is_ai_generated', true)
+      .order('communication_date', { ascending: false });
+
+    if (response.error) {
+      console.error('Error fetching AI communications:', response.error);
+      return [];
+    }
+
+    return response.data || [];
   }
 
   static async getHumanCommunications(leadId: string): Promise<any[]> {
-    // Temporarily simplified to avoid TypeScript issues  
-    return [];
+    const response = await supabase
+      .from('lead_communications')
+      .select('*')
+      .eq('lead_id', leadId)
+      .or('is_ai_generated.is.null,is_ai_generated.eq.false')
+      .order('communication_date', { ascending: false });
+
+    if (response.error) {
+      console.error('Error fetching human communications:', response.error);
+      return [];
+    }
+
+    return response.data || [];
   }
 }

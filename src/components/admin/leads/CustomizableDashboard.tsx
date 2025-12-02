@@ -150,7 +150,7 @@ export function CustomizableDashboard({ lead, journey, progress }: CustomizableD
           <ProgramDetailsWidget lead={lead} />
         </div>
         <div key="intake-deadline">
-          <IntakeDeadlineWidget />
+          <IntakeDeadlineWidget lead={lead} />
         </div>
         <div key="application-timeline">
           <ApplicationTimelineWidget journey={journey} />

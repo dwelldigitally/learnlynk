@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ModernAdminLayout } from '@/components/admin/ModernAdminLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,33 @@ export default function NotificationPreferencesPage() {
   
   const { toast } = useToast();
   const [resetting, setResetting] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userPhone, setUserPhone] = useState<string | null>(null);
+
+  // Fetch user profile for email and phone
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // First try to get from profiles table
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('email, phone')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile) {
+        setUserEmail(profile.email || user.email || null);
+        setUserPhone(profile.phone || null);
+      } else {
+        // Fallback to auth user email
+        setUserEmail(user.email || null);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleResetToDefaults = async () => {
     setResetting(true);
@@ -50,14 +77,12 @@ export default function NotificationPreferencesPage() {
   };
 
   const handleQuietHoursUpdate = async (channel: string, updates: any) => {
-    // Update all preferences for this channel
     const channelPrefs = preferences.filter(p => p.channel === channel);
     for (const pref of channelPrefs) {
       await updatePreference(pref.notification_type, channel, updates);
     }
   };
 
-  // Get quiet hours from first email preference (they should all be the same)
   const emailPref = preferences.find(p => p.channel === 'email');
   const quietHoursEnabled = emailPref?.quiet_hours_enabled || false;
   const quietHoursStart = emailPref?.quiet_hours_start || null;
@@ -118,12 +143,13 @@ export default function NotificationPreferencesPage() {
                   channel="email"
                   enabled={isChannelEnabled('email')}
                   onToggle={(enabled) => handleChannelToggle('email', enabled)}
-                  verifiedEmail="user@example.com"
+                  verifiedEmail={userEmail || undefined}
                 />
                 <NotificationChannelToggle
                   channel="sms"
                   enabled={isChannelEnabled('sms')}
                   onToggle={(enabled) => handleChannelToggle('sms', enabled)}
+                  verifiedPhone={userPhone || undefined}
                 />
                 <NotificationChannelToggle
                   channel="in_app"

@@ -1079,6 +1079,7 @@ export type Database = {
           assigned_at: string | null
           assigned_to: string | null
           created_at: string
+          custom_data: Json | null
           decision: string | null
           decision_date: string | null
           decision_notes: string | null
@@ -1103,6 +1104,7 @@ export type Database = {
           assigned_at?: string | null
           assigned_to?: string | null
           created_at?: string
+          custom_data?: Json | null
           decision?: string | null
           decision_date?: string | null
           decision_notes?: string | null
@@ -1127,6 +1129,7 @@ export type Database = {
           assigned_at?: string | null
           assigned_to?: string | null
           created_at?: string
+          custom_data?: Json | null
           decision?: string | null
           decision_date?: string | null
           decision_notes?: string | null
@@ -3885,6 +3888,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          custom_data: Json | null
           email: string
           first_name: string
           id: string
@@ -3931,6 +3935,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          custom_data?: Json | null
           email: string
           first_name: string
           id?: string
@@ -3977,6 +3982,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          custom_data?: Json | null
           email?: string
           first_name?: string
           id?: string
@@ -4513,6 +4519,7 @@ export type Database = {
           created_at: string
           current_stage: string
           current_substage: string | null
+          custom_data: Json | null
           email: string
           first_name: string
           id: string
@@ -4541,6 +4548,7 @@ export type Database = {
           created_at?: string
           current_stage: string
           current_substage?: string | null
+          custom_data?: Json | null
           email: string
           first_name: string
           id?: string
@@ -4569,6 +4577,7 @@ export type Database = {
           created_at?: string
           current_stage?: string
           current_substage?: string | null
+          custom_data?: Json | null
           email?: string
           first_name?: string
           id?: string
@@ -9138,6 +9147,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_properties: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          is_system: boolean | null
+          metadata: Json | null
+          order_index: number | null
+          property_description: string | null
+          property_key: string
+          property_label: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_system?: boolean | null
+          metadata?: Json | null
+          order_index?: number | null
+          property_description?: string | null
+          property_key: string
+          property_label: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_system?: boolean | null
+          metadata?: Json | null
+          order_index?: number | null
+          property_description?: string | null
+          property_key?: string
+          property_label?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       tasks: {
         Row: {

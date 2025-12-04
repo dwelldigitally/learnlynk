@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -17,13 +18,27 @@ import {
 interface PropertyEditorProps {
   open: boolean;
   onClose: () => void;
-  onSave: (data: PropertyFormData) => void;
+  onSave: (data: PropertyFormData) => void | Promise<void>;
   property?: SystemProperty;
   title: string;
   description: string;
+  isLoading?: boolean;
 }
 
-export function PropertyEditor({ open, onClose, onSave, property, title, description }: PropertyEditorProps) {
+const COLORS = [
+  '#3B82F6', // Blue
+  '#10B981', // Green
+  '#F59E0B', // Amber
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#EC4899', // Pink
+  '#06B6D4', // Cyan
+  '#F97316', // Orange
+  '#6366F1', // Indigo
+  '#84CC16', // Lime
+];
+
+export function PropertyEditor({ open, onClose, onSave, property, title, description, isLoading = false }: PropertyEditorProps) {
   const [formData, setFormData] = useState<PropertyFormData>({
     property_key: '',
     property_label: '',
@@ -50,7 +65,7 @@ export function PropertyEditor({ open, onClose, onSave, property, title, descrip
         property_key: '',
         property_label: '',
         property_description: '',
-        color: '#3B82F6',
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
         icon: '',
         order_index: 0,
         is_active: true,
@@ -58,15 +73,18 @@ export function PropertyEditor({ open, onClose, onSave, property, title, descrip
     }
   }, [property, open]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    await onSave(formData);
   };
 
-  const handleKeyChange = (value: string) => {
-    // Convert to snake_case
-    const snakeCase = value.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
-    setFormData({ ...formData, property_key: snakeCase });
+  const handleLabelChange = (label: string) => {
+    const key = label.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    setFormData({
+      ...formData,
+      property_label: label,
+      property_key: property ? formData.property_key : key, // Only auto-generate for new properties
+    });
   };
 
   return (
@@ -83,7 +101,7 @@ export function PropertyEditor({ open, onClose, onSave, property, title, descrip
               <Input
                 id="property_label"
                 value={formData.property_label}
-                onChange={(e) => setFormData({ ...formData, property_label: e.target.value })}
+                onChange={(e) => handleLabelChange(e.target.value)}
                 placeholder="e.g., Certificate"
                 required
               />
@@ -94,14 +112,14 @@ export function PropertyEditor({ open, onClose, onSave, property, title, descrip
               <Input
                 id="property_key"
                 value={formData.property_key}
-                onChange={(e) => handleKeyChange(e.target.value)}
+                onChange={(e) => setFormData({ ...formData, property_key: e.target.value.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') })}
                 placeholder="e.g., certificate"
                 required
-                disabled={property?.is_system}
+                disabled={!!property}
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Lowercase with underscores (auto-formatted)
+                Unique identifier (auto-generated from label)
               </p>
             </div>
 
@@ -112,37 +130,25 @@ export function PropertyEditor({ open, onClose, onSave, property, title, descrip
                 value={formData.property_description}
                 onChange={(e) => setFormData({ ...formData, property_description: e.target.value })}
                 placeholder="Optional description..."
-                rows={3}
+                rows={2}
               />
             </div>
 
             <div>
-              <Label htmlFor="color">Color</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="color"
-                  type="color"
-                  value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  className="w-20 h-10"
-                />
-                <Input
-                  value={formData.color}
-                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  placeholder="#3B82F6"
-                  className="flex-1 font-mono"
-                />
+              <Label>Color</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {COLORS.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`w-8 h-8 rounded-full border-2 transition-all ${
+                      formData.color === color ? 'border-foreground scale-110' : 'border-transparent'
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setFormData({ ...formData, color })}
+                  />
+                ))}
               </div>
-            </div>
-
-            <div>
-              <Label htmlFor="icon">Icon (Lucide name)</Label>
-              <Input
-                id="icon"
-                value={formData.icon}
-                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                placeholder="e.g., Award, GraduationCap"
-              />
             </div>
 
             <div className="flex items-center justify-between">
@@ -159,7 +165,8 @@ export function PropertyEditor({ open, onClose, onSave, property, title, descrip
             <Button type="button" variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit">
+            <Button type="submit" disabled={!formData.property_label || !formData.property_key || isLoading}>
+              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {property ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>

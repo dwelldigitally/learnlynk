@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { supabase } from "@/integrations/supabase/client";
 import { MasterDocumentTemplate } from "@/types/masterData";
 import { useToast } from "@/hooks/use-toast";
+import { useDocumentTypeOptions } from "@/hooks/usePropertyOptions";
 
 export const DocumentTemplatesConfiguration = () => {
   const [templates, setTemplates] = useState<MasterDocumentTemplate[]>([]);
@@ -17,6 +18,7 @@ export const DocumentTemplatesConfiguration = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<MasterDocumentTemplate | null>(null);
   const { toast } = useToast();
+  const { options: documentTypeOptions } = useDocumentTypeOptions();
 
   const [formData, setFormData] = useState<Partial<MasterDocumentTemplate>>({
     name: '',
@@ -214,21 +216,21 @@ export const DocumentTemplatesConfiguration = () => {
             <div>
               <Label htmlFor="type">Document Type</Label>
               <Select 
-                value={formData.type || 'academic'} 
+                value={formData.type || 'academic_transcript'} 
                 onValueChange={(value) => setFormData({...formData, type: value})}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="identification">Identification</SelectItem>
-                  <SelectItem value="financial">Financial</SelectItem>
-                  <SelectItem value="personal">Personal Statement</SelectItem>
-                  <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="medical">Medical</SelectItem>
-                  <SelectItem value="legal">Legal</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
+                  {documentTypeOptions.map(option => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                  {documentTypeOptions.length === 0 && (
+                    <SelectItem value="other">Other</SelectItem>
+                  )}
                 </SelectContent>
               </Select>
             </div>

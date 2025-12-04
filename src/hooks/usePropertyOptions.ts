@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SystemProperty, PropertyCategory, PropertyFormData } from '@/types/systemProperties';
-import { toast } from 'sonner';
+import { PropertyCategory, SystemProperty } from '@/types/systemProperties';
+import { useEffect } from 'react';
 
 // Default system properties to seed for each category
 const DEFAULT_PROPERTIES: Record<string, Array<{ key: string; label: string; description?: string; color?: string; icon?: string }>> = {
@@ -90,30 +90,31 @@ async function seedDefaultProperties(userId: string, category: PropertyCategory)
     .insert(propertiesToInsert);
 }
 
-export function useSystemProperties(category?: PropertyCategory) {
+// Generic hook to fetch properties for a category with auto-seeding
+function usePropertyOptionsForCategory(category: PropertyCategory) {
   const queryClient = useQueryClient();
 
-  const { data: properties = [], isLoading, error } = useQuery({
-    queryKey: ['system-properties', category],
+  const { data: properties = [], isLoading, refetch } = useQuery({
+    queryKey: ['property-options', category],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) return [];
 
-      let query = supabase
+      const { data, error } = await supabase
         .from('system_properties' as any)
         .select('*')
         .eq('user_id', user.id)
+        .eq('category', category)
+        .eq('is_active', true)
         .order('order_index', { ascending: true });
 
-      if (category) {
-        query = query.eq('category', category);
+      if (error) {
+        console.error(`Error fetching ${category} properties:`, error);
+        return [];
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-
-      // If category is specified and no properties exist, seed defaults
-      if (category && (!data || data.length === 0)) {
+      // If no properties exist, seed defaults
+      if (!data || data.length === 0) {
         await seedDefaultProperties(user.id, category);
         
         // Re-fetch after seeding
@@ -122,6 +123,7 @@ export function useSystemProperties(category?: PropertyCategory) {
           .select('*')
           .eq('user_id', user.id)
           .eq('category', category)
+          .eq('is_active', true)
           .order('order_index', { ascending: true });
 
         return (seededData || []) as unknown as SystemProperty[];
@@ -129,101 +131,47 @@ export function useSystemProperties(category?: PropertyCategory) {
 
       return (data || []) as unknown as SystemProperty[];
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
-  const createProperty = useMutation({
-    mutationFn: async ({ category, data }: { category: PropertyCategory; data: PropertyFormData }) => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+  // Transform to options format
+  const options = properties.map(prop => ({
+    value: prop.property_key,
+    label: prop.property_label,
+    description: prop.property_description,
+    color: prop.color,
+    icon: prop.icon,
+  }));
 
-      const { data: result, error } = await supabase
-        .from('system_properties' as any)
-        .insert({
-          user_id: user.id,
-          category,
-          ...data,
-        })
-        .select()
-        .single();
+  return { options, properties, isLoading, refetch };
+}
 
-      if (error) throw error;
-      return result as unknown as SystemProperty;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system-properties'] });
-      toast.success('Property created successfully');
-    },
-    onError: (error: any) => {
-      toast.error('Failed to create property: ' + error.message);
-    },
-  });
+// Specific hooks for each category
+export function useDocumentTypeOptions() {
+  return usePropertyOptionsForCategory('document_type');
+}
 
-  const updateProperty = useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<PropertyFormData> }) => {
-      const { data: result, error } = await supabase
-        .from('system_properties' as any)
-        .update(data)
-        .eq('id', id)
-        .select()
-        .single();
+export function useProgramLevelOptions() {
+  return usePropertyOptionsForCategory('program_level');
+}
 
-      if (error) throw error;
-      return result as unknown as SystemProperty;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system-properties'] });
-      toast.success('Property updated successfully');
-    },
-    onError: (error: any) => {
-      toast.error('Failed to update property: ' + error.message);
-    },
-  });
+export function useProgramCategoryOptions() {
+  return usePropertyOptionsForCategory('program_category');
+}
 
-  const deleteProperty = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('system_properties' as any)
-        .delete()
-        .eq('id', id);
+export function useDeliveryModeOptions() {
+  return usePropertyOptionsForCategory('delivery_mode');
+}
 
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system-properties'] });
-      toast.success('Property deleted successfully');
-    },
-    onError: (error: any) => {
-      toast.error('Failed to delete property: ' + error.message);
-    },
-  });
+export function usePaymentMethodOptions() {
+  return usePropertyOptionsForCategory('payment_method');
+}
 
-  const reorderProperties = useMutation({
-    mutationFn: async (reorderedProperties: { id: string; order_index: number }[]) => {
-      const updates = reorderedProperties.map(({ id, order_index }) =>
-        supabase
-          .from('system_properties' as any)
-          .update({ order_index })
-          .eq('id', id)
-      );
+export function useFeeTypeOptions() {
+  return usePropertyOptionsForCategory('fee_type');
+}
 
-      await Promise.all(updates);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system-properties'] });
-      toast.success('Properties reordered successfully');
-    },
-    onError: (error: any) => {
-      toast.error('Failed to reorder properties: ' + error.message);
-    },
-  });
-
-  return {
-    properties,
-    isLoading,
-    error,
-    createProperty,
-    updateProperty,
-    deleteProperty,
-    reorderProperties,
-  };
+// Generic hook that can be used with any category
+export function usePropertyOptions(category: PropertyCategory) {
+  return usePropertyOptionsForCategory(category);
 }

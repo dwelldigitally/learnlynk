@@ -6,12 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { FileText, Upload, Download, Eye, Plus, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { documentService, LeadDocument } from '@/services/documentService';
+import { useDocumentTypeOptions } from '@/hooks/usePropertyOptions';
 
 interface DocumentsSectionProps {
   lead: Lead;
@@ -27,6 +27,7 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
   const [documentName, setDocumentName] = useState('');
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const { options: documentTypeOptions } = useDocumentTypeOptions();
 
   useEffect(() => {
     loadDocuments();
@@ -195,16 +196,10 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  const documentTypes = [
-    { value: 'transcript', label: 'Academic Transcript' },
-    { value: 'personal_statement', label: 'Personal Statement' },
-    { value: 'cv_resume', label: 'CV/Resume' },
-    { value: 'identification', label: 'ID/Passport' },
-    { value: 'language_certificate', label: 'Language Certificate' },
-    { value: 'recommendation_letter', label: 'Recommendation Letter' },
-    { value: 'portfolio', label: 'Portfolio' },
-    { value: 'other', label: 'Other' }
-  ];
+  // Use dynamic document types from Properties Management
+  const documentTypes = documentTypeOptions.length > 0 
+    ? documentTypeOptions 
+    : [{ value: 'other', label: 'Other' }];
 
   if (loading) {
     return (

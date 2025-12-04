@@ -83,7 +83,24 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (existingUser) {
       return new Response(
-        JSON.stringify({ error: "User already exists with this email" }),
+        JSON.stringify({ 
+          error: "User already exists with this email. Use 'Edit Role' in User Directory to change their role instead." 
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Check if there's already a pending invitation
+    const { data: existingInvite } = await supabase
+      .from('team_invitations')
+      .select('id')
+      .eq('email', email)
+      .eq('status', 'pending')
+      .single();
+
+    if (existingInvite) {
+      return new Response(
+        JSON.stringify({ error: "A pending invitation already exists for this email" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

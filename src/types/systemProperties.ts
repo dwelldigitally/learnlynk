@@ -26,6 +26,7 @@ export type PropertyCategory =
   | 'email_category'
   | 'sms_category'
   | 'lead_source'
+  | 'lead_status'
   | 'lead_priority'
   | 'student_status'
   | 'custom';

@@ -65,6 +65,35 @@ const DEFAULT_PROPERTIES: Record<string, Array<{ key: string; label: string; des
     { key: 'late_fee', label: 'Late Payment Fee', description: 'Penalty for late payments', color: '#64748B', icon: 'AlertTriangle' },
     { key: 'graduation_fee', label: 'Graduation Fee', description: 'Graduation ceremony and certificate', color: '#6366F1', icon: 'Award' },
   ],
+  lead_source: [
+    { key: 'web', label: 'Website', description: 'Direct website traffic', color: '#3B82F6', icon: 'Globe' },
+    { key: 'social_media', label: 'Social Media', description: 'Facebook, Instagram, LinkedIn, etc.', color: '#EC4899', icon: 'Share2' },
+    { key: 'event', label: 'Event', description: 'Open days, fairs, exhibitions', color: '#F59E0B', icon: 'Calendar' },
+    { key: 'referral', label: 'Referral', description: 'Word of mouth, student referrals', color: '#10B981', icon: 'Users' },
+    { key: 'phone', label: 'Phone Inquiry', description: 'Inbound phone calls', color: '#8B5CF6', icon: 'Phone' },
+    { key: 'walk_in', label: 'Walk-In', description: 'Campus visitors', color: '#6366F1', icon: 'Building' },
+    { key: 'chatbot', label: 'Chatbot', description: 'Website chatbot conversations', color: '#14B8A6', icon: 'MessageSquare' },
+    { key: 'ads', label: 'Paid Ads', description: 'Google Ads, Meta Ads, etc.', color: '#EF4444', icon: 'Megaphone' },
+    { key: 'email', label: 'Email Campaign', description: 'Marketing email responses', color: '#84CC16', icon: 'Mail' },
+    { key: 'webform', label: 'Web Form', description: 'Lead capture forms', color: '#06B6D4', icon: 'FileText' },
+    { key: 'api_import', label: 'API Import', description: 'Third-party integrations', color: '#A855F7', icon: 'Plug' },
+    { key: 'csv_import', label: 'CSV Import', description: 'Bulk data imports', color: '#78716C', icon: 'Upload' },
+  ],
+  lead_status: [
+    { key: 'new', label: 'New', description: 'Freshly captured lead', color: '#3B82F6', icon: 'Sparkles' },
+    { key: 'contacted', label: 'Contacted', description: 'Initial contact made', color: '#F59E0B', icon: 'Phone' },
+    { key: 'qualified', label: 'Qualified', description: 'Meets qualification criteria', color: '#10B981', icon: 'CheckCircle' },
+    { key: 'nurturing', label: 'Nurturing', description: 'In long-term follow-up', color: '#8B5CF6', icon: 'Heart' },
+    { key: 'converted', label: 'Converted', description: 'Successfully enrolled', color: '#22C55E', icon: 'Trophy' },
+    { key: 'lost', label: 'Lost', description: 'Did not convert', color: '#EF4444', icon: 'XCircle' },
+    { key: 'unqualified', label: 'Unqualified', description: 'Does not meet criteria', color: '#78716C', icon: 'Ban' },
+  ],
+  lead_priority: [
+    { key: 'low', label: 'Low', description: 'Standard follow-up', color: '#78716C', icon: 'Minus' },
+    { key: 'medium', label: 'Medium', description: 'Regular priority', color: '#F59E0B', icon: 'Equal' },
+    { key: 'high', label: 'High', description: 'Priority follow-up', color: '#EF4444', icon: 'ArrowUp' },
+    { key: 'urgent', label: 'Urgent', description: 'Immediate attention required', color: '#DC2626', icon: 'AlertTriangle' },
+  ],
 };
 
 // Seed default properties for a category if none exist
@@ -169,6 +198,19 @@ export function usePaymentMethodOptions() {
 
 export function useFeeTypeOptions() {
   return usePropertyOptionsForCategory('fee_type');
+}
+
+// Lead property hooks
+export function useLeadSourceOptions() {
+  return usePropertyOptionsForCategory('lead_source');
+}
+
+export function useLeadStatusOptions() {
+  return usePropertyOptionsForCategory('lead_status');
+}
+
+export function useLeadPriorityOptions() {
+  return usePropertyOptionsForCategory('lead_priority');
 }
 
 // Generic hook that can be used with any category

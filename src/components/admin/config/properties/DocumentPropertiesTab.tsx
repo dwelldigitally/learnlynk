@@ -17,6 +17,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useSystemProperties } from '@/hooks/useSystemProperties';
+import { usePropertyUsage } from '@/hooks/usePropertyUsage';
 
 export function DocumentPropertiesTab() {
   const [editorOpen, setEditorOpen] = useState(false);
@@ -26,6 +27,7 @@ export function DocumentPropertiesTab() {
 
   const category: PropertyCategory = 'document_type';
   const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties(category);
+  const { getUsageCount, isLoading: usageLoading } = usePropertyUsage(category);
 
   const handleSave = async (data: any) => {
     if (selectedProperty) {
@@ -44,6 +46,8 @@ export function DocumentPropertiesTab() {
 
   const handleDelete = (property: SystemProperty) => {
     if (property.is_system) return;
+    const usage = getUsageCount(property.property_key);
+    if (usage > 0) return;
     setPropertyToDelete(property);
     setDeleteDialogOpen(true);
   };
@@ -83,7 +87,7 @@ export function DocumentPropertiesTab() {
           </div>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
+          {isLoading || usageLoading ? (
             <div className="space-y-2">
               <Skeleton className="h-12 w-full" />
               <Skeleton className="h-12 w-full" />
@@ -95,6 +99,7 @@ export function DocumentPropertiesTab() {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onToggleActive={handleToggleActive}
+              getUsageCount={getUsageCount}
             />
           )}
         </CardContent>

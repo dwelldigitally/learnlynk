@@ -5,12 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Search, Users, Filter, Mail, Calendar, UserPlus, X } from 'lucide-react';
+import { Search, Users, Filter, Mail, Calendar, UserPlus, X, Edit } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import type { AppRole } from '@/types/team-management';
 import { useUsers } from '@/hooks/useUsers';
 import { InviteUserDialog } from './InviteUserDialog';
+import { ChangeRoleDialog } from './ChangeRoleDialog';
 import { useTeamInvitations, useCancelInvitation } from '@/hooks/useTeamInvitations';
 import { toast } from 'sonner';
 import {
@@ -47,6 +48,7 @@ export const UserDirectory = () => {
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [cancelInviteId, setCancelInviteId] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<typeof users[0] | null>(null);
   
   const { data: users = [], isLoading } = useUsers();
   const { data: invitations = [], isLoading: invitationsLoading } = useTeamInvitations();
@@ -319,6 +321,18 @@ export const UserDirectory = () => {
                     )}
                   </div>
 
+                  {/* Actions */}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setEditingUser(user)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                  </div>
+
                   {/* Joined Date */}
                   <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground min-w-[140px]">
                     <Calendar className="h-3 w-3" />
@@ -334,6 +348,12 @@ export const UserDirectory = () => {
       <InviteUserDialog 
         isOpen={showInviteDialog}
         onClose={() => setShowInviteDialog(false)}
+      />
+
+      <ChangeRoleDialog
+        isOpen={!!editingUser}
+        onClose={() => setEditingUser(null)}
+        user={editingUser}
       />
 
       <AlertDialog open={!!cancelInviteId} onOpenChange={(open) => !open && setCancelInviteId(null)}>

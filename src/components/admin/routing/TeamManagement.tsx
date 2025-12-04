@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { AdvisorTeam, TeamMember } from '@/types/routing';
-import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp, UserCog, Shield, Network, Workflow } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, MapPin, Search, Calendar, Settings, TrendingUp, UserCog, Shield, Network, Workflow, Loader2 } from 'lucide-react';
 import TeamMembersList from '@/components/team/TeamMembersList';
 import { EnhancedTeamHierarchy } from '@/components/admin/team/EnhancedTeamHierarchy';
 import { SystemRoleManagement } from '@/components/admin/team/SystemRoleManagement';
@@ -21,6 +21,14 @@ import { UserDirectory } from '@/components/admin/team/UserDirectory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { GlassCard } from '@/components/modern/GlassCard';
+import { 
+  useAdvisorTeams, 
+  useCreateAdvisorTeam, 
+  useUpdateAdvisorTeam, 
+  useDeleteAdvisorTeam,
+  useToggleAdvisorTeamStatus 
+} from '@/hooks/useAdvisorTeams';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TeamManagementProps {
   onTeamCreated?: () => void;
@@ -28,46 +36,23 @@ interface TeamManagementProps {
 
 export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   const isMobile = useIsMobile();
-  const [teams, setTeams] = useState<AdvisorTeam[]>([]);
   const [advisors, setAdvisors] = useState<any[]>([]);
   const [showTeamForm, setShowTeamForm] = useState(false);
   const [editingTeam, setEditingTeam] = useState<AdvisorTeam | null>(null);
   const [managingTeam, setManagingTeam] = useState<AdvisorTeam | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('directory');
   const { toast } = useToast();
 
-  // Mock teams for demonstration
-  useEffect(() => {
-    setTeams([
-      {
-        id: 'team-1',
-        name: 'Healthcare Specialists',
-        description: 'Team specialized in healthcare programs',
-        is_active: true,
-        max_daily_assignments: 30,
-        region: 'Canada',
-        specializations: ['Health Care Assistant', 'Medical'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      },
-      {
-        id: 'team-2',
-        name: 'Aviation Team',
-        description: 'Advisors for aviation programs',
-        is_active: true,
-        max_daily_assignments: 20,
-        region: 'North America',
-        specializations: ['Aviation', 'Technical'],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    ]);
-  }, []);
+  // Real database hooks
+  const { data: teams = [], isLoading: teamsLoading } = useAdvisorTeams();
+  const createTeam = useCreateAdvisorTeam();
+  const updateTeam = useUpdateAdvisorTeam();
+  const deleteTeam = useDeleteAdvisorTeam();
+  const toggleStatus = useToggleAdvisorTeamStatus();
 
-  // Mock advisor data
-  useEffect(() => {
+  // Mock advisor data (keeping for now)
+  useState(() => {
     setAdvisors([
       {
         id: 'advisor-1',
@@ -82,80 +67,12 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
           end_time: '17:00'
         },
         performance_tier: 'Top',
-        team_id: 'team-1',
+        team_id: teams[0]?.id,
         response_time_avg: 45,
         conversion_rate: 25.5
       },
-      {
-        id: 'advisor-2',
-        name: 'Sarah Johnson',
-        email: 'sarah.j@example.com',
-        max_assignments: 8,
-        current_assignments: 17,
-        status: 'active',
-        schedule: {
-          days: ['tuesday', 'wednesday', 'thursday', 'friday', 'saturday'],
-          start_time: '10:00',
-          end_time: '18:00'
-        },
-        performance_tier: 'Advanced',
-        team_id: 'team-1',
-        response_time_avg: 32,
-        conversion_rate: 31.2
-      },
-      {
-        id: 'advisor-3',
-        name: 'Michael Lee',
-        email: 'michael.l@example.com',
-        max_assignments: 6,
-        current_assignments: 12,
-        status: 'inactive',
-        schedule: {
-          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          start_time: '08:00',
-          end_time: '16:00'
-        },
-        performance_tier: 'Standard',
-        team_id: 'team-2',
-        response_time_avg: 58,
-        conversion_rate: 18.7
-      },
-      {
-        id: 'advisor-4',
-        name: 'Emily Chen',
-        email: 'emily.c@example.com',
-        max_assignments: 12,
-        current_assignments: 26,
-        status: 'active',
-        schedule: {
-          days: ['wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-          start_time: '12:00',
-          end_time: '20:00'
-        },
-        performance_tier: 'Top',
-        team_id: 'team-2',
-        response_time_avg: 28,
-        conversion_rate: 35.8
-      },
-      {
-        id: 'advisor-5',
-        name: 'Robert Williams',
-        email: 'robert.w@example.com',
-        max_assignments: 8,
-        current_assignments: 14,
-        status: 'active',
-        schedule: {
-          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          start_time: '09:00',
-          end_time: '17:00'
-        },
-        performance_tier: 'Advanced',
-        team_id: 'team-1',
-        response_time_avg: 41,
-        conversion_rate: 28.9
-      }
     ]);
-  }, []);
+  });
 
   const [formData, setFormData] = useState({
     name: '',
@@ -192,29 +109,17 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
     }
 
     try {
-      setLoading(true);
-      
       if (editingTeam) {
-        // Update existing team
-        const updatedTeam = {
-          ...editingTeam,
+        await updateTeam.mutateAsync({
+          id: editingTeam.id,
           ...formData,
-          updated_at: new Date().toISOString()
-        };
-        setTeams(prev => prev.map(team => team.id === editingTeam.id ? updatedTeam : team));
+        });
         toast({
           title: 'Success',
           description: 'Team updated successfully'
         });
       } else {
-        // Create new team
-        const newTeam: AdvisorTeam = {
-          id: `team-${Date.now()}`,
-          ...formData,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-        setTeams(prev => [...prev, newTeam]);
+        await createTeam.mutateAsync(formData);
         toast({
           title: 'Success',
           description: 'Team created successfully'
@@ -228,14 +133,12 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       if (onTeamCreated) {
         onTeamCreated();
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to save team',
+        description: error.message || 'Failed to save team',
         variant: 'destructive'
       });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -265,15 +168,15 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
 
   const handleDelete = async (teamId: string) => {
     try {
-      setTeams(prev => prev.filter(team => team.id !== teamId));
+      await deleteTeam.mutateAsync(teamId);
       toast({
         title: 'Success',
         description: 'Team deleted successfully'
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to delete team',
+        description: error.message || 'Failed to delete team',
         variant: 'destructive'
       });
     }
@@ -281,21 +184,18 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
 
   const toggleTeamStatus = async (teamId: string) => {
     try {
-      setTeams(prev => prev.map(team => 
-        team.id === teamId 
-          ? { ...team, is_active: !team.is_active, updated_at: new Date().toISOString() }
-          : team
-      ));
-      
       const team = teams.find(t => t.id === teamId);
+      if (!team) return;
+      
+      await toggleStatus.mutateAsync({ id: teamId, is_active: !team.is_active });
       toast({
         title: 'Success',
-        description: `Team ${team?.is_active ? 'disabled' : 'enabled'} successfully`
+        description: `Team ${team.is_active ? 'disabled' : 'enabled'} successfully`
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to update team status',
+        description: error.message || 'Failed to update team status',
         variant: 'destructive'
       });
     }
@@ -576,8 +476,8 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? 'Saving...' : editingTeam ? 'Update Team' : 'Create Team'}
+              <Button type="submit" disabled={createTeam.isPending || updateTeam.isPending}>
+                {(createTeam.isPending || updateTeam.isPending) ? 'Saving...' : editingTeam ? 'Update Team' : 'Create Team'}
               </Button>
             </div>
           </form>

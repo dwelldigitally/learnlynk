@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -75,6 +76,12 @@ interface ColumnConfig {
   width?: string;
 }
 
+// Advisor name cache type
+interface AdvisorInfo {
+  name: string;
+  email: string;
+}
+
 const DEFAULT_COLUMNS: ColumnConfig[] = [
   { id: 'name', label: 'Name', visible: true, sortable: true },
   { id: 'email', label: 'Email', visible: true, sortable: true },
@@ -113,8 +120,44 @@ export function SmartLeadTable({
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [sortColumn, setSortColumn] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [advisorMap, setAdvisorMap] = useState<Record<string, AdvisorInfo>>({});
   
   const columns = propColumns || DEFAULT_COLUMNS;
+
+  // Fetch advisor names for assigned leads
+  useEffect(() => {
+    const fetchAdvisors = async () => {
+      const assignedIds = leads
+        .map(l => l.assigned_to)
+        .filter((id): id is string => !!id && !advisorMap[id]);
+      
+      if (assignedIds.length === 0) return;
+      
+      const uniqueIds = [...new Set(assignedIds)];
+      
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, first_name, last_name, email')
+        .in('user_id', uniqueIds);
+      
+      if (profiles) {
+        const newMap = { ...advisorMap };
+        profiles.forEach(p => {
+          const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Unknown';
+          newMap[p.user_id] = { name: fullName, email: p.email || '' };
+        });
+        setAdvisorMap(newMap);
+      }
+    };
+    
+    fetchAdvisors();
+  }, [leads]);
+
+  // Helper to get advisor name
+  const getAdvisorName = (userId: string | undefined) => {
+    if (!userId) return 'Unassigned';
+    return advisorMap[userId]?.name || 'Loading...';
+  };
 
   // HotSheet pastel status colors
   const getStatusColor = (status: LeadStatus) => {
@@ -498,7 +541,7 @@ export function SmartLeadTable({
                           <td className="p-5">
                             <div className="flex items-center gap-2">
                               <User className="h-4 w-4 text-muted-foreground/60" />
-                              <span className="text-sm text-foreground">{lead.assigned_to || 'Unassigned'}</span>
+                              <span className="text-sm text-foreground">{getAdvisorName(lead.assigned_to)}</span>
                             </div>
                           </td>
                         );

@@ -1865,6 +1865,51 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_reports: {
+        Row: {
+          chart_config: Json | null
+          created_at: string | null
+          data_source: string
+          description: string | null
+          filters: Json
+          id: string
+          is_favorite: boolean | null
+          name: string
+          selected_fields: Json
+          updated_at: string | null
+          user_id: string
+          visualization_type: string
+        }
+        Insert: {
+          chart_config?: Json | null
+          created_at?: string | null
+          data_source: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_favorite?: boolean | null
+          name: string
+          selected_fields?: Json
+          updated_at?: string | null
+          user_id: string
+          visualization_type?: string
+        }
+        Update: {
+          chart_config?: Json | null
+          created_at?: string | null
+          data_source?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_favorite?: boolean | null
+          name?: string
+          selected_fields?: Json
+          updated_at?: string | null
+          user_id?: string
+          visualization_type?: string
+        }
+        Relationships: []
+      }
       custom_stages: {
         Row: {
           created_at: string | null

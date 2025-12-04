@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyEditor } from './components/PropertyEditor';
-import { SystemProperty } from '@/types/systemProperties';
+import { SystemProperty, PropertyCategory } from '@/types/systemProperties';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,39 +17,29 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
+import { useSystemProperties } from '@/hooks/useSystemProperties';
 
-// Dummy data
-const DUMMY_PAYMENT_METHODS: SystemProperty[] = [
-  { id: '1', user_id: 'demo', category: 'payment_method', property_key: 'credit_card', property_label: 'Credit Card', color: '#3B82F6', icon: 'CreditCard', order_index: 1, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '2', user_id: 'demo', category: 'payment_method', property_key: 'bank_transfer', property_label: 'Bank Transfer', color: '#10B981', icon: 'Building2', order_index: 2, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '3', user_id: 'demo', category: 'payment_method', property_key: 'check', property_label: 'Check', color: '#8B5CF6', icon: 'FileCheck', order_index: 3, is_active: true, is_system: true, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-  { id: '4', user_id: 'demo', category: 'payment_method', property_key: 'cash', property_label: 'Cash', color: '#F59E0B', icon: 'Wallet', order_index: 4, is_active: true, is_system: false, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+const PAYMENT_CATEGORIES: { key: PropertyCategory; label: string; description: string; buttonLabel: string }[] = [
+  { key: 'payment_method', label: 'Payment Methods', description: 'Define payment methods: Credit Card, Bank Transfer, Check, Cash, etc.', buttonLabel: 'Add Payment Method' },
+  { key: 'fee_type', label: 'Fee Types', description: 'Define fee types: Tuition, Registration, Materials, etc.', buttonLabel: 'Add Fee Type' },
 ];
 
 export function PaymentPropertiesTab() {
+  const [activeTab, setActiveTab] = useState<PropertyCategory>('payment_method');
   const [editorOpen, setEditorOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
-  const [properties, setProperties] = useState(DUMMY_PAYMENT_METHODS);
 
-  const handleSave = (data: any) => {
+  const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties(activeTab);
+
+  const currentCategory = PAYMENT_CATEGORIES.find(c => c.key === activeTab);
+
+  const handleSave = async (data: any) => {
     if (selectedProperty) {
-      const updated = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
-      setProperties(properties.map(p => p.id === selectedProperty.id ? updated : p));
-      toast.success('Payment method updated');
+      await updateProperty.mutateAsync({ id: selectedProperty.id, data });
     } else {
-      const newProp: SystemProperty = {
-        id: Date.now().toString(),
-        user_id: 'demo',
-        category: 'payment_method',
-        ...data,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      setProperties([...properties, newProp]);
-      toast.success('Payment method created');
+      await createProperty.mutateAsync({ category: activeTab, data });
     }
     setEditorOpen(false);
     setSelectedProperty(undefined);
@@ -59,23 +51,21 @@ export function PaymentPropertiesTab() {
   };
 
   const handleDelete = (property: SystemProperty) => {
+    if (property.is_system) return;
     setPropertyToDelete(property);
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (propertyToDelete) {
-      setProperties(properties.filter(p => p.id !== propertyToDelete.id));
-      toast.success('Payment method deleted');
-      setDeleteDialogOpen(false);
-      setPropertyToDelete(undefined);
+      await deleteProperty.mutateAsync(propertyToDelete.id);
     }
+    setDeleteDialogOpen(false);
+    setPropertyToDelete(undefined);
   };
 
-  const handleToggleActive = (property: SystemProperty) => {
-    const updated = { ...property, is_active: !property.is_active };
-    setProperties(properties.map(p => p.id === property.id ? updated : p));
-    toast.success('Payment method updated');
+  const handleToggleActive = async (property: SystemProperty) => {
+    await updateProperty.mutateAsync({ id: property.id, data: { is_active: !property.is_active } });
   };
 
   const handleAddNew = () => {
@@ -85,30 +75,48 @@ export function PaymentPropertiesTab() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Payment Methods</CardTitle>
-              <CardDescription>
-                Define payment methods: Credit Card, Bank Transfer, Check, Cash, etc.
-              </CardDescription>
-            </div>
-            <Button onClick={handleAddNew}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add Payment Method
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <PropertyTable
-            properties={properties}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            onToggleActive={handleToggleActive}
-          />
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PropertyCategory)}>
+        <TabsList className="grid w-full grid-cols-2">
+          {PAYMENT_CATEGORIES.map((cat) => (
+            <TabsTrigger key={cat.key} value={cat.key}>{cat.label}</TabsTrigger>
+          ))}
+        </TabsList>
+
+        {PAYMENT_CATEGORIES.map((cat) => (
+          <TabsContent key={cat.key} value={cat.key} className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{cat.label}</CardTitle>
+                    <CardDescription>{cat.description}</CardDescription>
+                  </div>
+                  <Button onClick={handleAddNew}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    {cat.buttonLabel}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                  </div>
+                ) : (
+                  <PropertyTable
+                    properties={properties}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onToggleActive={handleToggleActive}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
 
       <PropertyEditor
         open={editorOpen}
@@ -118,21 +126,24 @@ export function PaymentPropertiesTab() {
         }}
         onSave={handleSave}
         property={selectedProperty}
-        title={selectedProperty ? 'Edit Payment Method' : 'Add New Payment Method'}
-        description={selectedProperty ? 'Update payment method details' : 'Create a new payment method'}
+        title={selectedProperty ? `Edit ${currentCategory?.label.replace(/s$/, '')}` : currentCategory?.buttonLabel || 'Add Property'}
+        description={selectedProperty ? 'Update property details' : 'Create a new property'}
+        isLoading={createProperty.isPending || updateProperty.isPending}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Payment Method?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Property?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete "{propertyToDelete?.property_label}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

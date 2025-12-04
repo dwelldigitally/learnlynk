@@ -13,6 +13,8 @@ import { usePrograms } from '@/hooks/usePrograms';
 import { useIntakesByProgramName } from '@/hooks/useIntakes';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DynamicCustomFields } from '@/components/shared/DynamicCustomFields';
+import { Separator } from '@/components/ui/separator';
 
 interface LeadFormModalProps {
   open: boolean;
@@ -24,6 +26,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
   const [loading, setLoading] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<string>('');
   const [selectedIntakeId, setSelectedIntakeId] = useState<string>('');
+  const [customData, setCustomData] = useState<Record<string, any>>({});
   
   // Fetch programs and intakes from database
   const { data: programs = [], isLoading: programsLoading } = usePrograms();
@@ -49,11 +52,22 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
     setSelectedIntakeId('');
   }, [selectedProgram]);
 
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setCustomData({});
+    }
+  }, [open]);
+
   // Handle program selection
   const handleProgramChange = (program: string) => {
     setSelectedProgram(program);
     setSelectedIntakeId(''); // Reset intake date when program changes
     updateFormData('program_interest', [program]);
+  };
+
+  const handleCustomFieldChange = (fieldName: string, value: any) => {
+    setCustomData(prev => ({ ...prev, [fieldName]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,11 +100,12 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
         throw new Error('User not authenticated');
       }
       
-      // Add user_id and intake data to form data
+      // Add user_id, intake data, and custom data to form data
       const leadDataWithUser: any = {
         ...formData,
         user_id: user.id,
-        preferred_intake_id: selectedIntakeId || null
+        preferred_intake_id: selectedIntakeId || null,
+        custom_data: Object.keys(customData).length > 0 ? customData : null
       };
 
       const result = await LeadService.createLead(leadDataWithUser);
@@ -116,6 +131,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
       });
       setSelectedProgram('');
       setSelectedIntakeId('');
+      setCustomData({});
       
       console.log('Calling onLeadCreated');
       onLeadCreated();
@@ -136,7 +152,7 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Lead</DialogTitle>
         </DialogHeader>
@@ -315,6 +331,15 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
               rows={3}
             />
           </div>
+
+          {/* Dynamic Custom Fields */}
+          <DynamicCustomFields
+            entityType="lead"
+            values={customData}
+            onChange={handleCustomFieldChange}
+          />
+
+          <Separator />
 
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { PropertyTable } from './components/PropertyTable';
 import { PropertyEditor } from './components/PropertyEditor';
-import { SystemProperty } from '@/types/systemProperties';
+import { SystemProperty, PropertyCategory } from '@/types/systemProperties';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,88 +16,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { toast } from 'sonner';
-import { useDocumentTypes } from '@/hooks/useDocumentTemplates';
-import { supabase } from '@/integrations/supabase/client';
+import { useSystemProperties } from '@/hooks/useSystemProperties';
 
 export function DocumentPropertiesTab() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
-  const [properties, setProperties] = useState<SystemProperty[]>([]);
-  const [loading, setLoading] = useState(true);
 
-  // Fetch document types from document_templates table
-  const { types: documentTypes, isLoading: typesLoading } = useDocumentTypes();
-
-  // Convert document types to SystemProperty format
-  useEffect(() => {
-    if (!typesLoading && documentTypes) {
-      const mappedProperties: SystemProperty[] = documentTypes.map((type, index) => ({
-        id: type.value,
-        user_id: 'system',
-        category: 'document_type',
-        property_key: type.value,
-        property_label: type.label,
-        color: getTypeColor(type.value),
-        icon: 'FileText',
-        order_index: index + 1,
-        is_active: true,
-        is_system: true,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        description: `${type.count} templates of this type`
-      }));
-      setProperties(mappedProperties);
-      setLoading(false);
-    }
-  }, [documentTypes, typesLoading]);
-
-  // Get color based on type
-  function getTypeColor(type: string): string {
-    const colorMap: Record<string, string> = {
-      'transcript': '#3B82F6',
-      'identification': '#10B981',
-      'certificate': '#F59E0B',
-      'financial': '#8B5CF6',
-      'academic': '#EC4899',
-      'legal': '#6366F1',
-      'medical': '#14B8A6',
-      'personal': '#F97316',
-      'professional': '#84CC16',
-      'other': '#6B7280'
-    };
-    return colorMap[type.toLowerCase()] || '#6B7280';
-  }
+  const category: PropertyCategory = 'document_type';
+  const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties(category);
 
   const handleSave = async (data: any) => {
-    try {
-      if (selectedProperty) {
-        // Update existing - for now just update local state
-        // In production, this would update document_templates or a document_types table
-        const updated = { ...selectedProperty, ...data, updated_at: new Date().toISOString() };
-        setProperties(properties.map(p => p.id === selectedProperty.id ? updated : p));
-        toast.success('Document type updated');
-      } else {
-        // Create new document type - would need a document_types table
-        const newProp: SystemProperty = {
-          id: `type-${Date.now()}`,
-          user_id: 'system',
-          category: 'document_type',
-          ...data,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-        setProperties([...properties, newProp]);
-        toast.success('Document type created');
-      }
-      setEditorOpen(false);
-      setSelectedProperty(undefined);
-    } catch (error) {
-      console.error('Error saving document type:', error);
-      toast.error('Failed to save document type');
+    if (selectedProperty) {
+      await updateProperty.mutateAsync({ id: selectedProperty.id, data });
+    } else {
+      await createProperty.mutateAsync({ category, data });
     }
+    setEditorOpen(false);
+    setSelectedProperty(undefined);
   };
 
   const handleEdit = (property: SystemProperty) => {
@@ -105,41 +43,27 @@ export function DocumentPropertiesTab() {
   };
 
   const handleDelete = (property: SystemProperty) => {
-    if (property.is_system) {
-      toast.error('System document types cannot be deleted');
-      return;
-    }
+    if (property.is_system) return;
     setPropertyToDelete(property);
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (propertyToDelete) {
-      setProperties(properties.filter(p => p.id !== propertyToDelete.id));
-      toast.success('Document type deleted');
-      setDeleteDialogOpen(false);
-      setPropertyToDelete(undefined);
+      await deleteProperty.mutateAsync(propertyToDelete.id);
     }
+    setDeleteDialogOpen(false);
+    setPropertyToDelete(undefined);
   };
 
-  const handleToggleActive = (property: SystemProperty) => {
-    const updated = { ...property, is_active: !property.is_active };
-    setProperties(properties.map(p => p.id === property.id ? updated : p));
-    toast.success('Document type updated');
+  const handleToggleActive = async (property: SystemProperty) => {
+    await updateProperty.mutateAsync({ id: property.id, data: { is_active: !property.is_active } });
   };
 
   const handleAddNew = () => {
     setSelectedProperty(undefined);
     setEditorOpen(true);
   };
-
-  if (loading || typesLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -149,8 +73,7 @@ export function DocumentPropertiesTab() {
             <div>
               <CardTitle>Document Types</CardTitle>
               <CardDescription>
-                Document types are automatically derived from your document templates. 
-                Manage templates in Document Templates to add new types.
+                Define document types for applications, enrollment, and student records
               </CardDescription>
             </div>
             <Button onClick={handleAddNew}>
@@ -160,10 +83,11 @@ export function DocumentPropertiesTab() {
           </div>
         </CardHeader>
         <CardContent>
-          {properties.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <p>No document types found.</p>
-              <p className="text-sm mt-1">Create document templates to automatically generate types.</p>
+          {isLoading ? (
+            <div className="space-y-2">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
             </div>
           ) : (
             <PropertyTable
@@ -184,8 +108,9 @@ export function DocumentPropertiesTab() {
         }}
         onSave={handleSave}
         property={selectedProperty}
-        title={selectedProperty ? 'Edit Document Type' : 'Add New Document Type'}
+        title={selectedProperty ? 'Edit Document Type' : 'Add Document Type'}
         description={selectedProperty ? 'Update document type details' : 'Create a new document type'}
+        isLoading={createProperty.isPending || updateProperty.isPending}
       />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -198,7 +123,9 @@ export function DocumentPropertiesTab() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

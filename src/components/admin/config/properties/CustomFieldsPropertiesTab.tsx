@@ -6,8 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { Plus, Edit, Trash2, GripVertical, Loader2 } from 'lucide-react';
+import { useCustomFields, CustomField, CustomFieldStage, CustomFieldType } from '@/hooks/useCustomFields';
 import {
   Table,
   TableBody,
@@ -24,77 +24,57 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { Skeleton } from '@/components/ui/skeleton';
 
-interface CustomField {
-  id: string;
-  field_name: string;
-  field_type: string;
-  field_label: string;
-  required: boolean;
-  enabled: boolean;
-  order_index: number;
-}
-
-// Dummy data
-const DUMMY_LEAD_FIELDS: CustomField[] = [
-  { id: '1', field_name: 'industry', field_type: 'select', field_label: 'Industry', required: false, enabled: true, order_index: 1 },
-  { id: '2', field_name: 'company_size', field_type: 'select', field_label: 'Company Size', required: false, enabled: true, order_index: 2 },
-];
-
-const DUMMY_APPLICANT_FIELDS: CustomField[] = [
-  { id: '3', field_name: 'previous_education', field_type: 'textarea', field_label: 'Previous Education', required: true, enabled: true, order_index: 1 },
-  { id: '4', field_name: 'work_experience', field_type: 'number', field_label: 'Years of Experience', required: false, enabled: true, order_index: 2 },
-];
-
-const DUMMY_STUDENT_FIELDS: CustomField[] = [
-  { id: '5', field_name: 'emergency_contact', field_type: 'text', field_label: 'Emergency Contact', required: true, enabled: true, order_index: 1 },
-  { id: '6', field_name: 'dietary_restrictions', field_type: 'textarea', field_label: 'Dietary Restrictions', required: false, enabled: true, order_index: 2 },
-];
-
-const DUMMY_PROGRAM_FIELDS: CustomField[] = [
-  { id: '7', field_name: 'specialization', field_type: 'select', field_label: 'Specialization', required: false, enabled: true, order_index: 1 },
-  { id: '8', field_name: 'prerequisites', field_type: 'textarea', field_label: 'Prerequisites', required: false, enabled: true, order_index: 2 },
-];
-
-const FIELD_TYPES = [
+const FIELD_TYPES: { value: CustomFieldType; label: string }[] = [
   { value: 'text', label: 'Text Input' },
   { value: 'textarea', label: 'Textarea' },
   { value: 'select', label: 'Dropdown' },
+  { value: 'multi_select', label: 'Multi-Select' },
   { value: 'number', label: 'Number' },
   { value: 'email', label: 'Email' },
   { value: 'phone', label: 'Phone' },
   { value: 'date', label: 'Date' },
   { value: 'checkbox', label: 'Checkbox' },
+  { value: 'url', label: 'URL' },
 ];
 
+const STAGE_LABELS: Record<CustomFieldStage, string> = {
+  lead: 'Lead Fields',
+  applicant: 'Applicant Fields',
+  student: 'Student Fields',
+  program: 'Program Fields',
+};
+
 export function CustomFieldsPropertiesTab() {
-  const [activeContext, setActiveContext] = useState('lead');
+  const [activeContext, setActiveContext] = useState<CustomFieldStage>('lead');
   const [editorOpen, setEditorOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedField, setSelectedField] = useState<CustomField | undefined>();
-  
-  const [leadFields, setLeadFields] = useState(DUMMY_LEAD_FIELDS);
-  const [applicantFields, setApplicantFields] = useState(DUMMY_APPLICANT_FIELDS);
-  const [studentFields, setStudentFields] = useState(DUMMY_STUDENT_FIELDS);
-  const [programFields, setProgramFields] = useState(DUMMY_PROGRAM_FIELDS);
+  const [fieldToDelete, setFieldToDelete] = useState<CustomField | undefined>();
+  const [optionsText, setOptionsText] = useState('');
+
+  const { fields, isLoading, createField, updateField, deleteField, toggleEnabled } = useCustomFields(activeContext);
 
   const [formData, setFormData] = useState({
     field_name: '',
     field_label: '',
-    field_type: 'text',
-    required: false,
-    enabled: true,
+    field_type: 'text' as CustomFieldType,
+    is_required: false,
+    is_enabled: true,
   });
-
-  const fields = activeContext === 'lead' ? leadFields :
-                 activeContext === 'applicant' ? applicantFields :
-                 activeContext === 'student' ? studentFields :
-                 programFields;
-
-  const setFields = activeContext === 'lead' ? setLeadFields :
-                    activeContext === 'applicant' ? setApplicantFields :
-                    activeContext === 'student' ? setStudentFields :
-                    setProgramFields;
 
   const handleAddNew = () => {
     setSelectedField(undefined);
@@ -102,9 +82,10 @@ export function CustomFieldsPropertiesTab() {
       field_name: '',
       field_label: '',
       field_type: 'text',
-      required: false,
-      enabled: true,
+      is_required: false,
+      is_enabled: true,
     });
+    setOptionsText('');
     setEditorOpen(true);
   };
 
@@ -114,48 +95,70 @@ export function CustomFieldsPropertiesTab() {
       field_name: field.field_name,
       field_label: field.field_label,
       field_type: field.field_type,
-      required: field.required,
-      enabled: field.enabled,
+      is_required: field.is_required,
+      is_enabled: field.is_enabled,
     });
+    // Convert options array to newline-separated text
+    if (field.field_options && Array.isArray(field.field_options)) {
+      setOptionsText(field.field_options.join('\n'));
+    } else {
+      setOptionsText('');
+    }
     setEditorOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!formData.field_label || !formData.field_name) return;
+
+    // Parse options from text
+    const field_options = (formData.field_type === 'select' || formData.field_type === 'multi_select')
+      ? optionsText.split('\n').map(o => o.trim()).filter(Boolean)
+      : null;
+
     if (selectedField) {
-      const updated = { ...selectedField, ...formData };
-      setFields(fields.map((f: CustomField) => f.id === selectedField.id ? updated : f));
-      toast.success('Custom field updated');
+      await updateField.mutateAsync({
+        id: selectedField.id,
+        data: {
+          ...formData,
+          field_options,
+        },
+      });
     } else {
-      const newField: CustomField = {
-        id: Date.now().toString(),
+      await createField.mutateAsync({
+        stage: activeContext,
         ...formData,
-        order_index: fields.length + 1,
-      };
-      setFields([...fields, newField]);
-      toast.success('Custom field created');
+        field_options: field_options || undefined,
+      });
     }
     setEditorOpen(false);
   };
 
   const handleDelete = (field: CustomField) => {
-    setFields(fields.filter((f: CustomField) => f.id !== field.id));
-    toast.success('Custom field deleted');
+    setFieldToDelete(field);
+    setDeleteDialogOpen(true);
   };
 
-  const handleToggleEnabled = (field: CustomField) => {
-    const updated = { ...field, enabled: !field.enabled };
-    setFields(fields.map((f: CustomField) => f.id === field.id ? updated : f));
-    toast.success('Custom field updated');
+  const confirmDelete = async () => {
+    if (fieldToDelete) {
+      await deleteField.mutateAsync(fieldToDelete.id);
+    }
+    setDeleteDialogOpen(false);
+    setFieldToDelete(undefined);
   };
+
+  const handleToggleEnabled = async (field: CustomField) => {
+    await toggleEnabled.mutateAsync({ id: field.id, is_enabled: !field.is_enabled });
+  };
+
+  const showOptions = formData.field_type === 'select' || formData.field_type === 'multi_select';
 
   return (
     <div className="space-y-6">
-      <Tabs value={activeContext} onValueChange={setActiveContext}>
+      <Tabs value={activeContext} onValueChange={(v) => setActiveContext(v as CustomFieldStage)}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="lead">Lead Fields</TabsTrigger>
-          <TabsTrigger value="applicant">Applicant Fields</TabsTrigger>
-          <TabsTrigger value="student">Student Fields</TabsTrigger>
-          <TabsTrigger value="program">Program Fields</TabsTrigger>
+          {(Object.keys(STAGE_LABELS) as CustomFieldStage[]).map((stage) => (
+            <TabsTrigger key={stage} value={stage}>{STAGE_LABELS[stage]}</TabsTrigger>
+          ))}
         </TabsList>
 
         <TabsContent value={activeContext} className="space-y-4">
@@ -163,9 +166,9 @@ export function CustomFieldsPropertiesTab() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Custom Fields - {activeContext === 'lead' ? 'Leads' : activeContext === 'applicant' ? 'Applicants' : activeContext === 'student' ? 'Students' : 'Programs'}</CardTitle>
+                  <CardTitle>Custom Fields - {STAGE_LABELS[activeContext].replace(' Fields', 's')}</CardTitle>
                   <CardDescription>
-                    Add custom fields to capture additional information
+                    Add custom fields to capture additional information. These fields will appear in forms and detail pages.
                   </CardDescription>
                 </div>
                 <Button onClick={handleAddNew}>
@@ -175,73 +178,86 @@ export function CustomFieldsPropertiesTab() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border border-border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Label</TableHead>
-                      <TableHead>Field Name</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Required</TableHead>
-                      <TableHead>Enabled</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {fields.length === 0 ? (
+              {isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              ) : (
+                <div className="rounded-md border border-border">
+                  <Table>
+                    <TableHeader>
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                          No custom fields found. Click "Add Field" to create one.
-                        </TableCell>
+                        <TableHead className="w-8"></TableHead>
+                        <TableHead>Label</TableHead>
+                        <TableHead>Field Name</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Required</TableHead>
+                        <TableHead>Enabled</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
-                    ) : (
-                      fields.map((field) => (
-                        <TableRow key={field.id}>
-                          <TableCell className="font-medium">{field.field_label}</TableCell>
-                          <TableCell className="font-mono text-sm text-muted-foreground">{field.field_name}</TableCell>
-                          <TableCell>
-                            <Badge variant="secondary">{field.field_type}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            {field.required ? (
-                              <Badge variant="destructive">Required</Badge>
-                            ) : (
-                              <Badge variant="outline">Optional</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <Switch
-                              checked={field.enabled}
-                              onCheckedChange={() => handleToggleEnabled(field)}
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm" onClick={() => handleEdit(field)}>
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button variant="ghost" size="sm" onClick={() => handleDelete(field)}>
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {fields.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                            No custom fields found. Click "Add Field" to create one.
                           </TableCell>
                         </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
+                      ) : (
+                        fields.map((field) => (
+                          <TableRow key={field.id}>
+                            <TableCell>
+                              <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                            </TableCell>
+                            <TableCell className="font-medium">{field.field_label}</TableCell>
+                            <TableCell className="font-mono text-sm text-muted-foreground">{field.field_name}</TableCell>
+                            <TableCell>
+                              <Badge variant="secondary">{field.field_type}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              {field.is_required ? (
+                                <Badge variant="destructive">Required</Badge>
+                              ) : (
+                                <Badge variant="outline">Optional</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Switch
+                                checked={field.is_enabled}
+                                onCheckedChange={() => handleToggleEnabled(field)}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Button variant="ghost" size="sm" onClick={() => handleEdit(field)}>
+                                  <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleDelete(field)}>
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
+      {/* Editor Dialog */}
       <Dialog open={editorOpen} onOpenChange={setEditorOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>{selectedField ? 'Edit Custom Field' : 'Add Custom Field'}</DialogTitle>
             <DialogDescription>
-              {selectedField ? 'Update custom field details' : 'Create a new custom field'}
+              {selectedField ? 'Update custom field details' : 'Create a new custom field for ' + activeContext + 's'}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -260,18 +276,18 @@ export function CustomFieldsPropertiesTab() {
               <Input
                 id="field_name"
                 value={formData.field_name}
-                onChange={(e) => setFormData({ ...formData, field_name: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
+                onChange={(e) => setFormData({ ...formData, field_name: e.target.value.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') })}
                 placeholder="e.g., industry"
                 className="font-mono"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                Lowercase with underscores (auto-formatted)
+                Lowercase with underscores only (auto-formatted)
               </p>
             </div>
 
             <div>
               <Label htmlFor="field_type">Field Type *</Label>
-              <Select value={formData.field_type} onValueChange={(value) => setFormData({ ...formData, field_type: value })}>
+              <Select value={formData.field_type} onValueChange={(value) => setFormData({ ...formData, field_type: value as CustomFieldType })}>
                 <SelectTrigger id="field_type">
                   <SelectValue />
                 </SelectTrigger>
@@ -285,12 +301,28 @@ export function CustomFieldsPropertiesTab() {
               </Select>
             </div>
 
+            {showOptions && (
+              <div>
+                <Label htmlFor="options">Options (one per line) *</Label>
+                <Textarea
+                  id="options"
+                  value={optionsText}
+                  onChange={(e) => setOptionsText(e.target.value)}
+                  placeholder="Option 1&#10;Option 2&#10;Option 3"
+                  rows={4}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter each option on a new line
+                </p>
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <Label htmlFor="required">Required Field</Label>
               <Switch
                 id="required"
-                checked={formData.required}
-                onCheckedChange={(checked) => setFormData({ ...formData, required: checked })}
+                checked={formData.is_required}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_required: checked })}
               />
             </div>
 
@@ -298,8 +330,8 @@ export function CustomFieldsPropertiesTab() {
               <Label htmlFor="enabled">Enabled</Label>
               <Switch
                 id="enabled"
-                checked={formData.enabled}
-                onCheckedChange={(checked) => setFormData({ ...formData, enabled: checked })}
+                checked={formData.is_enabled}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_enabled: checked })}
               />
             </div>
           </div>
@@ -307,12 +339,34 @@ export function CustomFieldsPropertiesTab() {
             <Button variant="outline" onClick={() => setEditorOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
+            <Button 
+              onClick={handleSave} 
+              disabled={!formData.field_label || !formData.field_name || createField.isPending || updateField.isPending}
+            >
+              {(createField.isPending || updateField.isPending) && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {selectedField ? 'Update' : 'Create'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Custom Field</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{fieldToDelete?.field_label}"? This will remove the field definition but existing data will be preserved.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

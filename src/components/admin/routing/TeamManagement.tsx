@@ -21,20 +21,14 @@ import { UserDirectory } from '@/components/admin/team/UserDirectory';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { GlassCard } from '@/components/modern/GlassCard';
-import { 
-  useAdvisorTeams, 
-  useCreateAdvisorTeam, 
-  useUpdateAdvisorTeam, 
-  useDeleteAdvisorTeam,
-  useToggleAdvisorTeamStatus 
-} from '@/hooks/useAdvisorTeams';
+import { useAdvisorTeams, useCreateAdvisorTeam, useUpdateAdvisorTeam, useDeleteAdvisorTeam, useToggleAdvisorTeamStatus } from '@/hooks/useAdvisorTeams';
 import { Skeleton } from '@/components/ui/skeleton';
-
 interface TeamManagementProps {
   onTeamCreated?: () => void;
 }
-
-export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
+export function TeamManagement({
+  onTeamCreated
+}: TeamManagementProps) {
   const isMobile = useIsMobile();
   const [advisors, setAdvisors] = useState<any[]>([]);
   const [showTeamForm, setShowTeamForm] = useState(false);
@@ -42,10 +36,15 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
   const [managingTeam, setManagingTeam] = useState<AdvisorTeam | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('directory');
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Real database hooks
-  const { data: teams = [], isLoading: teamsLoading } = useAdvisorTeams();
+  const {
+    data: teams = [],
+    isLoading: teamsLoading
+  } = useAdvisorTeams();
   const createTeam = useCreateAdvisorTeam();
   const updateTeam = useUpdateAdvisorTeam();
   const deleteTeam = useDeleteAdvisorTeam();
@@ -53,27 +52,24 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
 
   // Mock advisor data (keeping for now)
   useState(() => {
-    setAdvisors([
-      {
-        id: 'advisor-1',
-        name: 'John Smith',
-        email: 'john.smith@example.com',
-        max_assignments: 10,
-        current_assignments: 23,
-        status: 'active',
-        schedule: {
-          days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
-          start_time: '09:00',
-          end_time: '17:00'
-        },
-        performance_tier: 'Top',
-        team_id: teams[0]?.id,
-        response_time_avg: 45,
-        conversion_rate: 25.5
+    setAdvisors([{
+      id: 'advisor-1',
+      name: 'John Smith',
+      email: 'john.smith@example.com',
+      max_assignments: 10,
+      current_assignments: 23,
+      status: 'active',
+      schedule: {
+        days: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'],
+        start_time: '09:00',
+        end_time: '17:00'
       },
-    ]);
+      performance_tier: 'Top',
+      team_id: teams[0]?.id,
+      response_time_avg: 45,
+      conversion_rate: 25.5
+    }]);
   });
-
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -82,23 +78,9 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
     region: '',
     specializations: [] as string[]
   });
-
-  const availableSpecializations = [
-    'Health Care Assistant',
-    'Aviation',
-    'Education Assistant',
-    'Hospitality',
-    'ECE',
-    'MLA',
-    'Medical',
-    'Technical',
-    'Business',
-    'Creative Arts'
-  ];
-
+  const availableSpecializations = ['Health Care Assistant', 'Aviation', 'Education Assistant', 'Hospitality', 'ECE', 'MLA', 'Medical', 'Technical', 'Business', 'Creative Arts'];
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.name.trim()) {
       toast({
         title: 'Error',
@@ -107,12 +89,11 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       });
       return;
     }
-
     try {
       if (editingTeam) {
         await updateTeam.mutateAsync({
           id: editingTeam.id,
-          ...formData,
+          ...formData
         });
         toast({
           title: 'Success',
@@ -125,11 +106,9 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
           description: 'Team created successfully'
         });
       }
-
       resetForm();
       setShowTeamForm(false);
       setEditingTeam(null);
-      
       if (onTeamCreated) {
         onTeamCreated();
       }
@@ -141,7 +120,6 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       });
     }
   };
-
   const resetForm = () => {
     setFormData({
       name: '',
@@ -152,7 +130,6 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       specializations: []
     });
   };
-
   const handleEdit = (team: AdvisorTeam) => {
     setEditingTeam(team);
     setFormData({
@@ -165,7 +142,6 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
     });
     setShowTeamForm(true);
   };
-
   const handleDelete = async (teamId: string) => {
     try {
       await deleteTeam.mutateAsync(teamId);
@@ -181,13 +157,14 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       });
     }
   };
-
   const toggleTeamStatus = async (teamId: string) => {
     try {
       const team = teams.find(t => t.id === teamId);
       if (!team) return;
-      
-      await toggleStatus.mutateAsync({ id: teamId, is_active: !team.is_active });
+      await toggleStatus.mutateAsync({
+        id: teamId,
+        is_active: !team.is_active
+      });
       toast({
         title: 'Success',
         description: `Team ${team.is_active ? 'disabled' : 'enabled'} successfully`
@@ -200,48 +177,41 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       });
     }
   };
-
   const updateAdvisorSettings = (advisorId: string, updates: any) => {
-    setAdvisors(prev => prev.map(advisor => 
-      advisor.id === advisorId ? { ...advisor, ...updates } : advisor
-    ));
+    setAdvisors(prev => prev.map(advisor => advisor.id === advisorId ? {
+      ...advisor,
+      ...updates
+    } : advisor));
     toast({
       title: 'Success',
       description: 'Advisor settings updated successfully'
     });
   };
-
-  const filteredAdvisors = advisors.filter(advisor =>
-    advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    advisor.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const filteredAdvisors = advisors.filter(advisor => advisor.name.toLowerCase().includes(searchTerm.toLowerCase()) || advisor.email.toLowerCase().includes(searchTerm.toLowerCase()));
   const getCapacityPercentage = (current: number, max: number) => {
-    return Math.min((current / max) * 100, 100);
+    return Math.min(current / max * 100, 100);
   };
-
   const getCapacityColor = (percentage: number) => {
     if (percentage >= 100) return 'bg-red-500';
     if (percentage >= 80) return 'bg-orange-500';
     if (percentage >= 60) return 'bg-yellow-500';
     return 'bg-green-500';
   };
-
   const formatSchedule = (schedule: any) => {
-    const dayMap: { [key: string]: string } = {
+    const dayMap: {
+      [key: string]: string;
+    } = {
       monday: 'Mon',
-      tuesday: 'Tue', 
+      tuesday: 'Tue',
       wednesday: 'Wed',
       thursday: 'Thu',
       friday: 'Fri',
       saturday: 'Sat',
       sunday: 'Sun'
     };
-    
     const days = schedule.days.map((day: string) => dayMap[day]).join(', ');
     return `${days} (${schedule.start_time} - ${schedule.end_time})`;
   };
-
   const addSpecialization = (specialization: string) => {
     if (!formData.specializations.includes(specialization)) {
       setFormData(prev => ({
@@ -250,79 +220,17 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       }));
     }
   };
-
   const removeSpecialization = (specialization: string) => {
     setFormData(prev => ({
       ...prev,
       specializations: prev.specializations.filter(s => s !== specialization)
     }));
   };
-
-  return (
-    <div className="pt-9 space-y-8">
-      <PageHeader
-        title="Team Management"
-        subtitle="Comprehensive team organization, roles, and permissions"
-      />
+  return <div className="pt-9 space-y-8">
+      <PageHeader title="Team Management" subtitle="Comprehensive team organization, roles, and permissions" />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <GlassCard hover>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Active Teams</p>
-                <p className="text-2xl font-bold mt-1">{teams.filter(t => t.is_active).length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-          </CardContent>
-        </GlassCard>
-
-        <GlassCard hover>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Team Members</p>
-                <p className="text-2xl font-bold mt-1">{advisors.filter(a => a.status === 'active').length}</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-info/10 flex items-center justify-center">
-                <UserCog className="h-6 w-6 text-info" />
-              </div>
-            </div>
-          </CardContent>
-        </GlassCard>
-
-        <GlassCard hover>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">System Roles</p>
-                <p className="text-2xl font-bold mt-1">6</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-success/10 flex items-center justify-center">
-                <Shield className="h-6 w-6 text-success" />
-              </div>
-            </div>
-          </CardContent>
-        </GlassCard>
-
-        <GlassCard hover>
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Permissions</p>
-                <p className="text-2xl font-bold mt-1">12</p>
-              </div>
-              <div className="h-12 w-12 rounded-lg bg-warning/10 flex items-center justify-center">
-                <Workflow className="h-6 w-6 text-warning" />
-              </div>
-            </div>
-          </CardContent>
-        </GlassCard>
-      </div>
+      
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-5 h-auto p-1">
@@ -360,7 +268,10 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
 
       <Dialog open={showTeamForm} onOpenChange={setShowTeamForm}>
         <DialogTrigger asChild>
-          <Button onClick={() => { resetForm(); setEditingTeam(null); }}>
+          <Button onClick={() => {
+              resetForm();
+              setEditingTeam(null);
+            }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Team
           </Button>
@@ -376,53 +287,43 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="name">Team Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  required
-                />
+                <Input id="name" value={formData.name} onChange={e => setFormData(prev => ({
+                    ...prev,
+                    name: e.target.value
+                  }))} required />
               </div>
               
               <div>
                 <Label htmlFor="region">Region</Label>
-                <Input
-                  id="region"
-                  value={formData.region}
-                  onChange={(e) => setFormData(prev => ({ ...prev, region: e.target.value }))}
-                  placeholder="e.g., Canada, North America"
-                />
+                <Input id="region" value={formData.region} onChange={e => setFormData(prev => ({
+                    ...prev,
+                    region: e.target.value
+                  }))} placeholder="e.g., Canada, North America" />
               </div>
             </div>
             
             <div>
               <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                rows={2}
-              />
+              <Textarea id="description" value={formData.description} onChange={e => setFormData(prev => ({
+                  ...prev,
+                  description: e.target.value
+                }))} rows={2} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="max_assignments">Max Daily Assignments</Label>
-                <Input
-                  id="max_assignments"
-                  type="number"
-                  min="1"
-                  value={formData.max_daily_assignments}
-                  onChange={(e) => setFormData(prev => ({ ...prev, max_daily_assignments: parseInt(e.target.value) }))}
-                />
+                <Input id="max_assignments" type="number" min="1" value={formData.max_daily_assignments} onChange={e => setFormData(prev => ({
+                    ...prev,
+                    max_daily_assignments: parseInt(e.target.value)
+                  }))} />
               </div>
               
               <div className="flex items-center space-x-2 pt-6">
-                <Switch
-                  id="is_active"
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
-                />
+                <Switch id="is_active" checked={formData.is_active} onCheckedChange={checked => setFormData(prev => ({
+                    ...prev,
+                    is_active: checked
+                  }))} />
                 <Label htmlFor="is_active">Active</Label>
               </div>
             </div>
@@ -431,53 +332,31 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               <Label>Specializations</Label>
               <div className="space-y-2">
                 <div className="flex flex-wrap gap-2">
-                  {formData.specializations.map(spec => (
-                    <Badge key={spec} variant="secondary" className="flex items-center gap-1">
+                  {formData.specializations.map(spec => <Badge key={spec} variant="secondary" className="flex items-center gap-1">
                       {spec}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0"
-                        onClick={() => removeSpecialization(spec)}
-                      >
+                      <Button type="button" variant="ghost" size="sm" className="h-4 w-4 p-0" onClick={() => removeSpecialization(spec)}>
                         ×
                       </Button>
-                    </Badge>
-                  ))}
+                    </Badge>)}
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  {availableSpecializations
-                    .filter(spec => !formData.specializations.includes(spec))
-                    .map(spec => (
-                      <Button
-                        key={spec}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addSpecialization(spec)}
-                      >
+                  {availableSpecializations.filter(spec => !formData.specializations.includes(spec)).map(spec => <Button key={spec} type="button" variant="outline" size="sm" onClick={() => addSpecialization(spec)}>
                         + {spec}
-                      </Button>
-                    ))}
+                      </Button>)}
                 </div>
               </div>
             </div>
 
             <div className="flex justify-end gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
+              <Button type="button" variant="outline" onClick={() => {
                   setShowTeamForm(false);
                   resetForm();
                   setEditingTeam(null);
-                }}
-              >
+                }}>
                 Cancel
               </Button>
               <Button type="submit" disabled={createTeam.isPending || updateTeam.isPending}>
-                {(createTeam.isPending || updateTeam.isPending) ? 'Saving...' : editingTeam ? 'Update Team' : 'Create Team'}
+                {createTeam.isPending || updateTeam.isPending ? 'Saving...' : editingTeam ? 'Update Team' : 'Create Team'}
               </Button>
             </div>
           </form>
@@ -485,8 +364,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
       </Dialog>
 
       <div className="grid gap-6">
-        {teams.map(team => (
-          <Card key={team.id} className={!team.is_active ? 'opacity-75' : ''}>
+        {teams.map(team => <Card key={team.id} className={!team.is_active ? 'opacity-75' : ''}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -494,83 +372,53 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                     <CardTitle className="flex items-center gap-2">
                       <Users className="h-5 w-5" />
                       {team.name}
-                      {!team.is_active && (
-                        <Badge variant="secondary">Inactive</Badge>
-                      )}
+                      {!team.is_active && <Badge variant="secondary">Inactive</Badge>}
                     </CardTitle>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                      {team.region && (
-                        <span className="flex items-center gap-1">
+                      {team.region && <span className="flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
                           {team.region}
-                        </span>
-                      )}
+                        </span>}
                       <span>Max {team.max_daily_assignments} daily assignments</span>
                       <span>{advisors.filter(a => a.team_id === team.id).length} advisors</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button
-                    onClick={() => setManagingTeam(team)}
-                    variant="default"
-                    size="sm"
-                  >
+                  <Button onClick={() => setManagingTeam(team)} variant="default" size="sm">
                     <UserCog className="h-4 w-4 mr-1" />
                     Manage Members
                   </Button>
-                  <Button
-                    onClick={() => toggleTeamStatus(team.id)}
-                    variant="outline"
-                    size="sm"
-                  >
+                  <Button onClick={() => toggleTeamStatus(team.id)} variant="outline" size="sm">
                     {team.is_active ? 'Disable' : 'Enable'}
                   </Button>
-                  <Button
-                    onClick={() => handleEdit(team)}
-                    variant="outline"
-                    size="sm"
-                  >
+                  <Button onClick={() => handleEdit(team)} variant="outline" size="sm">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button
-                    onClick={() => handleDelete(team.id)}
-                    variant="outline"
-                    size="sm"
-                    className="text-destructive hover:text-destructive"
-                  >
+                  <Button onClick={() => handleDelete(team.id)} variant="outline" size="sm" className="text-destructive hover:text-destructive">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              {team.description && (
-                <p className="text-sm text-muted-foreground mb-4">{team.description}</p>
-              )}
+              {team.description && <p className="text-sm text-muted-foreground mb-4">{team.description}</p>}
               
               <div className="space-y-4">
-                {team.specializations.length > 0 && (
-                  <div>
+                {team.specializations.length > 0 && <div>
                     <Label className="text-sm font-medium">Specializations:</Label>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {team.specializations.map(spec => (
-                        <Badge key={spec} variant="outline">
+                      {team.specializations.map(spec => <Badge key={spec} variant="outline">
                           {spec}
-                        </Badge>
-                      ))}
+                        </Badge>)}
                     </div>
-                  </div>
-                )}
+                  </div>}
                 
                 {/* Team Members */}
                 <div>
                   <Label className="text-sm font-medium">Team Members:</Label>
                   <div className="mt-2 space-y-2">
-                    {advisors
-                      .filter(advisor => advisor.team_id === team.id)
-                      .map(advisor => (
-                        <div key={advisor.id} className="flex items-center justify-between p-2 border rounded">
+                    {advisors.filter(advisor => advisor.team_id === team.id).map(advisor => <div key={advisor.id} className="flex items-center justify-between p-2 border rounded">
                           <div className="flex items-center gap-2">
                             <div className="h-6 w-6 bg-primary/10 rounded-full flex items-center justify-center text-xs">
                               {advisor.name.split(' ').map((n: string) => n[0]).join('')}
@@ -583,26 +431,20 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                           <span className="text-xs text-muted-foreground">
                             {advisor.current_assignments}/{advisor.max_assignments} assignments
                           </span>
-                        </div>
-                      ))}
-                    {advisors.filter(advisor => advisor.team_id === team.id).length === 0 && (
-                      <p className="text-sm text-muted-foreground">No advisors assigned to this team</p>
-                    )}
+                        </div>)}
+                    {advisors.filter(advisor => advisor.team_id === team.id).length === 0 && <p className="text-sm text-muted-foreground">No advisors assigned to this team</p>}
                   </div>
                 </div>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
         
-        {teams.length === 0 && (
-          <Card className="border-dashed">
+        {teams.length === 0 && <Card className="border-dashed">
             <CardContent className="py-8 text-center">
               <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">No teams created yet. Click "Add Team" to get started.</p>
             </CardContent>
-          </Card>
-        )}
+          </Card>}
       </div>
 
         {/* Team Member Management Dialog */}
@@ -611,12 +453,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
             <DialogHeader>
               <DialogTitle>Manage Team Members</DialogTitle>
             </DialogHeader>
-            {managingTeam && (
-              <TeamMembersList
-                teamId={managingTeam.id}
-                teamName={managingTeam.name}
-              />
-            )}
+            {managingTeam && <TeamMembersList teamId={managingTeam.id} teamName={managingTeam.name} />}
           </DialogContent>
         </Dialog>
         </TabsContent>
@@ -644,22 +481,15 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
               <div className="mb-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search advisors by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-9"
-                  />
+                  <Input placeholder="Search advisors by name or email..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-9" />
                 </div>
               </div>
 
               <div className="space-y-4">
                 {filteredAdvisors.map(advisor => {
-                  const capacityPercentage = getCapacityPercentage(advisor.current_assignments, advisor.max_assignments);
-                  const team = teams.find(t => t.id === advisor.team_id);
-                  
-                  return (
-                    <div key={advisor.id} className="p-4 border rounded-lg hover:bg-muted/30 transition-colors">
+                const capacityPercentage = getCapacityPercentage(advisor.current_assignments, advisor.max_assignments);
+                const team = teams.find(t => t.id === advisor.team_id);
+                return <div key={advisor.id} className="p-4 border rounded-lg hover:bg-muted/30 transition-colors">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -671,12 +501,10 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {team && (
-                            <Badge variant="outline">
+                          {team && <Badge variant="outline">
                               <Users className="h-3 w-3 mr-1" />
                               {team.name}
-                            </Badge>
-                          )}
+                            </Badge>}
                           <Badge className={advisor.status === 'active' ? 'bg-success text-success-foreground' : 'bg-muted text-muted-foreground'}>
                             {advisor.status}
                           </Badge>
@@ -690,10 +518,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                             <span className="text-muted-foreground">Capacity</span>
                             <span className="font-medium">{advisor.current_assignments}/{advisor.max_assignments}</span>
                           </div>
-                          <Progress 
-                            value={capacityPercentage} 
-                            className={`h-2 ${getCapacityColor(capacityPercentage)}`}
-                          />
+                          <Progress value={capacityPercentage} className={`h-2 ${getCapacityColor(capacityPercentage)}`} />
                         </div>
 
                         <div className="space-y-1">
@@ -715,14 +540,12 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
                           <div className="text-xs">{formatSchedule(advisor.schedule)}</div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    </div>;
+              })}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 }

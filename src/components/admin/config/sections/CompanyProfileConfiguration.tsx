@@ -45,9 +45,10 @@ export const CompanyProfileConfiguration = () => {
       const { data, error } = await supabase
         .from('company_profile')
         .select('*')
-        .single();
+        .limit(1)
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         throw error;
       }
 
@@ -70,7 +71,8 @@ export const CompanyProfileConfiguration = () => {
       const { data: existingData } = await supabase
         .from('company_profile')
         .select('id')
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       if (existingData) {
         const { error } = await supabase

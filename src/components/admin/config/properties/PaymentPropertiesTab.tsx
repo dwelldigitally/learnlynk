@@ -18,6 +18,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { useSystemProperties } from '@/hooks/useSystemProperties';
+import { usePropertyUsage } from '@/hooks/usePropertyUsage';
 
 const PAYMENT_CATEGORIES: { key: PropertyCategory; label: string; description: string; buttonLabel: string }[] = [
   { key: 'payment_method', label: 'Payment Methods', description: 'Define payment methods: Credit Card, Bank Transfer, Check, Cash, etc.', buttonLabel: 'Add Payment Method' },
@@ -32,6 +33,7 @@ export function PaymentPropertiesTab() {
   const [propertyToDelete, setPropertyToDelete] = useState<SystemProperty | undefined>();
 
   const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties(activeTab);
+  const { getUsageCount, isLoading: usageLoading } = usePropertyUsage(activeTab);
 
   const currentCategory = PAYMENT_CATEGORIES.find(c => c.key === activeTab);
 
@@ -52,6 +54,8 @@ export function PaymentPropertiesTab() {
 
   const handleDelete = (property: SystemProperty) => {
     if (property.is_system) return;
+    const usage = getUsageCount(property.property_key);
+    if (usage > 0) return;
     setPropertyToDelete(property);
     setDeleteDialogOpen(true);
   };
@@ -98,7 +102,7 @@ export function PaymentPropertiesTab() {
                 </div>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
+                {isLoading || usageLoading ? (
                   <div className="space-y-2">
                     <Skeleton className="h-12 w-full" />
                     <Skeleton className="h-12 w-full" />
@@ -110,6 +114,7 @@ export function PaymentPropertiesTab() {
                     onEdit={handleEdit}
                     onDelete={handleDelete}
                     onToggleActive={handleToggleActive}
+                    getUsageCount={getUsageCount}
                   />
                 )}
               </CardContent>

@@ -4,12 +4,13 @@ import { ProgramPropertiesTab } from './properties/ProgramPropertiesTab';
 import { DocumentPropertiesTab } from './properties/DocumentPropertiesTab';
 import { PaymentPropertiesTab } from './properties/PaymentPropertiesTab';
 import { CustomFieldsPropertiesTab } from './properties/CustomFieldsPropertiesTab';
-import { Settings, GraduationCap, FileText, Wallet, Sliders } from 'lucide-react';
+import { LeadPropertiesTab } from './properties/LeadPropertiesTab';
+import { Settings, GraduationCap, FileText, Wallet, Sliders, Users } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export function PropertiesManagement() {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState('program');
+  const [activeTab, setActiveTab] = useState('leads');
 
   return (
     <div className="w-full h-full p-4 sm:p-6 md:p-9 space-y-6 md:space-y-8">
@@ -24,10 +25,14 @@ export function PropertiesManagement() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : "grid w-full grid-cols-4 h-auto"}>
+        <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : "grid w-full grid-cols-5 h-auto"}>
           <TabsTrigger value="fields" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : 'py-3'}`}>
             <Sliders className="w-4 h-4" />
             <span>Custom Fields</span>
+          </TabsTrigger>
+          <TabsTrigger value="leads" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : 'py-3'}`}>
+            <Users className="w-4 h-4" />
+            <span>Leads</span>
           </TabsTrigger>
           <TabsTrigger value="program" className={`flex items-center gap-2 ${isMobile ? 'w-full justify-start' : 'py-3'}`}>
             <GraduationCap className="w-4 h-4" />
@@ -46,6 +51,10 @@ export function PropertiesManagement() {
         <div className="mt-6">
           <TabsContent value="fields" className="mt-0">
             <CustomFieldsPropertiesTab />
+          </TabsContent>
+
+          <TabsContent value="leads" className="mt-0">
+            <LeadPropertiesTab />
           </TabsContent>
 
           <TabsContent value="program" className="mt-0">

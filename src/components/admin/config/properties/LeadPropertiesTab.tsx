@@ -20,14 +20,14 @@ import {
 import { useSystemProperties } from '@/hooks/useSystemProperties';
 import { usePropertyUsage } from '@/hooks/usePropertyUsage';
 
-const PROGRAM_CATEGORIES: { key: PropertyCategory; label: string; description: string; buttonLabel: string }[] = [
-  { key: 'program_level', label: 'Program Levels', description: 'Define academic levels like Certificate, Diploma, Degree, etc.', buttonLabel: 'Add Level' },
-  { key: 'program_category', label: 'Program Categories', description: 'Define program categories like Business, Healthcare, Technology, etc.', buttonLabel: 'Add Category' },
-  { key: 'delivery_mode', label: 'Delivery Modes', description: 'Define how programs are delivered: In-Person, Online, Hybrid, etc.', buttonLabel: 'Add Mode' },
+const LEAD_CATEGORIES: { key: PropertyCategory; label: string; description: string; buttonLabel: string }[] = [
+  { key: 'lead_source', label: 'Lead Sources', description: 'Define where leads come from: Web, Social Media, Referral, Events, etc.', buttonLabel: 'Add Source' },
+  { key: 'lead_status', label: 'Lead Statuses', description: 'Define lead lifecycle stages: New, Contacted, Qualified, Converted, etc.', buttonLabel: 'Add Status' },
+  { key: 'lead_priority', label: 'Lead Priorities', description: 'Define priority levels: Low, Medium, High, Urgent, etc.', buttonLabel: 'Add Priority' },
 ];
 
-export function ProgramPropertiesTab() {
-  const [activeSubTab, setActiveSubTab] = useState<PropertyCategory>('program_level');
+export function LeadPropertiesTab() {
+  const [activeSubTab, setActiveSubTab] = useState<PropertyCategory>('lead_source');
   const [editorOpen, setEditorOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState<SystemProperty | undefined>();
@@ -36,7 +36,7 @@ export function ProgramPropertiesTab() {
   const { properties, isLoading, createProperty, updateProperty, deleteProperty } = useSystemProperties(activeSubTab);
   const { getUsageCount, isLoading: usageLoading } = usePropertyUsage(activeSubTab);
 
-  const currentCategory = PROGRAM_CATEGORIES.find(c => c.key === activeSubTab);
+  const currentCategory = LEAD_CATEGORIES.find(c => c.key === activeSubTab);
 
   const handleSave = async (data: any) => {
     if (selectedProperty) {
@@ -56,7 +56,7 @@ export function ProgramPropertiesTab() {
   const handleDelete = (property: SystemProperty) => {
     if (property.is_system) return;
     const usage = getUsageCount(property.property_key);
-    if (usage > 0) return;
+    if (usage > 0) return; // Prevent deletion if in use
     setPropertyToDelete(property);
     setDeleteDialogOpen(true);
   };
@@ -82,12 +82,12 @@ export function ProgramPropertiesTab() {
     <div className="space-y-6">
       <Tabs value={activeSubTab} onValueChange={(v) => setActiveSubTab(v as PropertyCategory)}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="program_level">Program Levels</TabsTrigger>
-          <TabsTrigger value="program_category">Program Categories</TabsTrigger>
-          <TabsTrigger value="delivery_mode">Delivery Modes</TabsTrigger>
+          <TabsTrigger value="lead_source">Lead Sources</TabsTrigger>
+          <TabsTrigger value="lead_status">Lead Statuses</TabsTrigger>
+          <TabsTrigger value="lead_priority">Lead Priorities</TabsTrigger>
         </TabsList>
 
-        {PROGRAM_CATEGORIES.map((cat) => (
+        {LEAD_CATEGORIES.map((cat) => (
           <TabsContent key={cat.key} value={cat.key} className="space-y-4">
             <Card>
               <CardHeader>

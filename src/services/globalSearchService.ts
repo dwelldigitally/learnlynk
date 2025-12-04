@@ -18,6 +18,11 @@ export interface GlobalSearchResponse {
     documents: GlobalSearchResult[];
   };
   totalCount: number;
+  // Semantic search additions
+  explanation?: string;
+  intent?: string;
+  parsedFilters?: Record<string, any>;
+  isSemanticSearch?: boolean;
 }
 
 // Smart shortcuts mapping
@@ -37,6 +42,35 @@ export class GlobalSearchService {
     return SMART_SHORTCUTS[normalizedQuery] || null;
   }
 
+  // Semantic AI-powered search
+  static async semanticSearch(query: string): Promise<GlobalSearchResponse> {
+    if (!query || query.length < 2) {
+      return {
+        results: [],
+        categories: { leads: [], students: [], programs: [], documents: [] },
+        totalCount: 0
+      };
+    }
+
+    try {
+      const response = await supabase.functions.invoke('ai-semantic-search', {
+        body: { query }
+      });
+
+      if (response.error) {
+        console.error('Semantic search error:', response.error);
+        // Fallback to basic search
+        return this.search(query);
+      }
+
+      return response.data as GlobalSearchResponse;
+    } catch (error) {
+      console.error('Semantic search failed, falling back to basic search:', error);
+      return this.search(query);
+    }
+  }
+
+  // Basic keyword search (fallback)
   static async search(query: string): Promise<GlobalSearchResponse> {
     if (!query || query.length < 2) {
       return {

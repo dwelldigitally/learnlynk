@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, GraduationCap, BookOpen, FileText, Search, ArrowRight, Sparkles } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, FileText, Search, ArrowRight, Sparkles, Brain } from 'lucide-react';
 import { GlobalSearchResponse, GlobalSearchResult } from '@/services/globalSearchService';
 import { HotSheetCard } from '@/components/hotsheet/HotSheetCard';
 import { PastelBadge } from '@/components/hotsheet/PastelBadge';
@@ -104,8 +104,14 @@ export function GlobalSearchResults({
       <div ref={containerRef} className="absolute top-full left-0 right-0 mt-2 z-50">
         <HotSheetCard className="shadow-xl border border-border/50 p-4">
           <div className="flex items-center gap-3">
-            <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
-            <span className="text-muted-foreground">Searching...</span>
+            <div className="relative">
+              <div className="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent" />
+              <Brain className="absolute inset-0 m-auto h-3 w-3 text-primary animate-pulse" />
+            </div>
+            <div>
+              <span className="text-foreground font-medium">AI is searching...</span>
+              <p className="text-xs text-muted-foreground">Understanding your query</p>
+            </div>
           </div>
         </HotSheetCard>
       </div>
@@ -134,6 +140,27 @@ export function GlobalSearchResults({
   return (
     <div ref={containerRef} className="absolute top-full left-0 right-0 mt-2 z-50">
       <HotSheetCard className="shadow-xl border border-border/50 max-h-[400px] overflow-y-auto">
+        {/* AI Explanation Banner */}
+        {results.isSemanticSearch && results.explanation && (
+          <div className="border-b border-border/50 px-4 py-3 bg-gradient-to-r from-violet-50/50 to-sky-50/50 dark:from-violet-950/20 dark:to-sky-950/20">
+            <div className="flex items-start gap-2">
+              <Brain className="h-4 w-4 text-violet-600 dark:text-violet-400 mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-foreground font-medium">{results.explanation}</p>
+                {results.intent && (
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Intent: {results.intent.replace(/_/g, ' ')}
+                  </p>
+                )}
+              </div>
+              <PastelBadge color="violet" size="sm" className="flex-shrink-0">
+                <Sparkles className="h-3 w-3 mr-1" />
+                AI
+              </PastelBadge>
+            </div>
+          </div>
+        )}
+
         <div className="p-2">
           {categories.map(([category, items]) => {
             const config = CATEGORY_CONFIG[category as keyof typeof CATEGORY_CONFIG];
@@ -198,7 +225,12 @@ export function GlobalSearchResults({
 
         {/* Footer */}
         <div className="border-t border-border/50 px-4 py-2 flex items-center justify-between text-xs text-muted-foreground">
-          <span>{results.totalCount} result{results.totalCount !== 1 ? 's' : ''}</span>
+          <div className="flex items-center gap-2">
+            <span>{results.totalCount} result{results.totalCount !== 1 ? 's' : ''}</span>
+            {results.isSemanticSearch && (
+              <span className="text-violet-600 dark:text-violet-400">• AI-powered</span>
+            )}
+          </div>
           <span>↑↓ Navigate • Enter Select • Esc Close</span>
         </div>
       </HotSheetCard>

@@ -55,8 +55,9 @@ const AdminHome: React.FC = () => {
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [selectedResultIndex, setSelectedResultIndex] = useState(0);
   const [smartShortcut, setSmartShortcut] = useState<{ path: string; description: string } | null>(null);
+  const [useSemanticSearch, setUseSemanticSearch] = useState(true);
   
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Slightly longer debounce for AI search
 
   // Get greeting based on time of day
   const getGreeting = () => {
@@ -429,7 +430,10 @@ const AdminHome: React.FC = () => {
       setShowSearchResults(true);
 
       try {
-        const results = await GlobalSearchService.search(debouncedSearchQuery);
+        // Use semantic search by default, fall back to basic search if disabled
+        const results = useSemanticSearch 
+          ? await GlobalSearchService.semanticSearch(debouncedSearchQuery)
+          : await GlobalSearchService.search(debouncedSearchQuery);
         setSearchResults(results);
         setSelectedResultIndex(0);
       } catch (error) {
@@ -445,7 +449,7 @@ const AdminHome: React.FC = () => {
     };
 
     performSearch();
-  }, [debouncedSearchQuery, toast]);
+  }, [debouncedSearchQuery, toast, useSemanticSearch]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

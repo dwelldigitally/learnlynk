@@ -38,12 +38,18 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
     switch (type) {
       case "new_lead":
         return <Users className="w-4 h-4 text-blue-600" />;
+      case "lead_assigned":
+        return <Users className="w-4 h-4 text-indigo-600" />;
       case "pending_document":
         return <FileText className="w-4 h-4 text-orange-600" />;
       case "task_overdue":
         return <Clock className="w-4 h-4 text-red-600" />;
       case "new_message":
         return <Mail className="w-4 h-4 text-green-600" />;
+      case "payment_due":
+        return <Bell className="w-4 h-4 text-yellow-600" />;
+      case "system_update":
+        return <Bell className="w-4 h-4 text-purple-600" />;
       default:
         return <Bell className="w-4 h-4 text-gray-600" />;
     }
@@ -52,13 +58,17 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
   const getNotificationNavigation = (type: string, relatedId?: string) => {
     switch (type) {
       case "new_lead":
-        return relatedId ? `/admin/leads?highlight=${relatedId}` : "/admin/leads";
+        return relatedId ? `/admin/leads/${relatedId}` : "/admin/leads";
+      case "lead_assigned":
+        return relatedId ? `/admin/leads/${relatedId}` : "/admin/leads";
       case "pending_document":
         return "/admin/students";
       case "task_overdue":
-        return relatedId ? `/admin/leads?highlight=${relatedId}` : "/admin/leads";
+        return relatedId ? `/admin/leads/${relatedId}` : "/admin/leads";
       case "new_message":
         return "/admin/communications";
+      case "payment_due":
+        return "/admin/payments";
       default:
         return "/admin";
     }

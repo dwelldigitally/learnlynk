@@ -215,6 +215,7 @@ export class NotificationService {
 
   /**
    * Notifies an advisor when a lead is assigned to them
+   * Uses NotificationDispatcher to respect user preferences
    */
   static async notifyLeadAssignment(
     leadId: string,
@@ -222,6 +223,27 @@ export class NotificationService {
     data: NotificationData
   ): Promise<void> {
     try {
+      // Import dispatcher dynamically to avoid circular dependency
+      const { NotificationDispatcher } = await import('./notificationDispatcher');
+      
+      await NotificationDispatcher.send({
+        userId: advisorId,
+        type: 'lead_assigned',
+        title: 'New Lead Assigned',
+        message: `You have been assigned a new lead: ${data.leadName}`,
+        data: {
+          lead_id: leadId,
+          lead_name: data.leadName,
+          rule_name: data.ruleName,
+          assigned_at: new Date().toISOString()
+        },
+        priority: 'high'
+      });
+
+      console.log(`Notification dispatched to advisor ${advisorId} for lead ${leadId}`);
+    } catch (error) {
+      console.error('Error sending lead assignment notification:', error);
+      // Fallback: direct insert
       await supabase.from('notifications').insert({
         user_id: advisorId,
         type: 'lead_assigned',
@@ -235,15 +257,12 @@ export class NotificationService {
         },
         is_read: false
       });
-
-      console.log(`Notification sent to advisor ${advisorId} for lead ${leadId}`);
-    } catch (error) {
-      console.error('Error sending lead assignment notification:', error);
     }
   }
 
   /**
-   * Creates a notification for a user
+   * Creates a notification for a user using the dispatcher
+   * Respects user preferences for channels and quiet hours
    */
   static async createNotification(
     userId: string,
@@ -252,9 +271,23 @@ export class NotificationService {
       title: string;
       message?: string;
       data?: NotificationData;
+      priority?: 'low' | 'medium' | 'high';
     }
   ): Promise<void> {
     try {
+      const { NotificationDispatcher } = await import('./notificationDispatcher');
+      
+      await NotificationDispatcher.send({
+        userId,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        data: notification.data,
+        priority: notification.priority || 'medium'
+      });
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      // Fallback: direct insert
       await supabase.from('notifications').insert({
         user_id: userId,
         type: notification.type,
@@ -263,8 +296,6 @@ export class NotificationService {
         data: notification.data,
         is_read: false
       });
-    } catch (error) {
-      console.error('Error creating notification:', error);
     }
   }
 }

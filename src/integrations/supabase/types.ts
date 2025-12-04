@@ -9568,6 +9568,8 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          assigned_at: string | null
+          assigned_by: string | null
           created_at: string | null
           id: string
           role: string
@@ -9575,6 +9577,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          assigned_at?: string | null
+          assigned_by?: string | null
           created_at?: string | null
           id?: string
           role?: string
@@ -9582,6 +9586,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          assigned_at?: string | null
+          assigned_by?: string | null
           created_at?: string | null
           id?: string
           role?: string

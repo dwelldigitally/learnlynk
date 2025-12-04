@@ -24,6 +24,8 @@ import { GlobalSearchResults } from "./dashboard/GlobalSearchResults";
 import { GlobalSearchService, GlobalSearchResponse, GlobalSearchResult } from "@/services/globalSearchService";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useDemoDataAccess } from '@/services/demoDataService';
+import { useDashboardStats, formatCurrency } from '@/hooks/useDashboardStats';
+import { Skeleton } from "@/components/ui/skeleton";
 import { 
   HotSheetCard, 
   IconContainer, 
@@ -43,6 +45,7 @@ const AdminHome: React.FC = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
+  const { data: dashboardStats, isLoading: statsLoading } = useDashboardStats();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
@@ -101,81 +104,43 @@ const AdminHome: React.FC = () => {
     dueDate: 'Tomorrow, 2:00 PM'
   }];
 
-  // Empty KPI Data for new users
-  const emptyKpiData = [{
-    title: "New Leads",
-    value: 0,
-    icon: Users,
-    trend: 'neutral' as const,
-    onClick: () => navigate('/admin/leads')
-  }, {
-    title: "Active Students",
-    value: 0,
-    icon: Building,
-    trend: 'neutral' as const,
-    onClick: () => navigate('/admin/students')
-  }, {
-    title: "Pending Applications",
-    value: 0,
-    icon: FileText,
-    trend: 'neutral' as const,
-    onClick: () => navigate('/admin/applications')
-  }, {
-    title: "Revenue This Month",
-    value: "$0",
-    icon: DollarSign,
-    trend: 'neutral' as const,
-    onClick: () => navigate('/admin/financials')
-  }, {
-    title: "Conversion Rate",
-    value: "0%",
-    icon: TrendingUp,
-    trend: 'neutral' as const
-  }, {
-    title: "Tasks Due Today",
-    value: 0,
-    icon: CheckCircle2,
-    trend: 'neutral' as const,
-    onClick: () => navigate('/admin/tasks')
-  }];
-
-  // Mock KPI Data
+  // Dynamic KPI Data from database
   const kpiData = [{
-    title: "New Leads",
-    value: 12,
+    title: "New Leads Today",
+    value: dashboardStats?.leadsToday ?? 0,
     icon: Users,
-    trend: 'up' as const,
-    trendValue: '+23% from yesterday',
+    trend: dashboardStats?.leadsTrend ?? 'neutral' as const,
+    trendValue: dashboardStats?.leadsTrendValue,
     onClick: () => navigate('/admin/leads')
   }, {
     title: "Active Students",
-    value: 156,
+    value: dashboardStats?.totalStudents ?? 0,
     icon: Building,
     trend: 'neutral' as const,
     onClick: () => navigate('/admin/students')
   }, {
     title: "Pending Applications",
-    value: 8,
+    value: dashboardStats?.pendingApplications ?? 0,
     icon: FileText,
-    trend: 'down' as const,
-    trendValue: '-2 from last week',
+    trend: dashboardStats?.applicationsTrend ?? 'neutral' as const,
+    trendValue: dashboardStats?.applicationsTrendValue,
     onClick: () => navigate('/admin/applicants')
   }, {
     title: "Revenue (MTD)",
-    value: "$45.2K",
+    value: formatCurrency(dashboardStats?.revenueThisMonth ?? 0),
     icon: DollarSign,
-    trend: 'up' as const,
-    trendValue: '+18% vs last month',
+    trend: dashboardStats?.revenueTrend ?? 'neutral' as const,
+    trendValue: dashboardStats?.revenueTrendValue,
     onClick: () => navigate('/admin/financial-management')
   }, {
     title: "Conversion Rate",
-    value: "23%",
+    value: `${dashboardStats?.conversionRate ?? 0}%`,
     icon: Target,
-    trend: 'up' as const,
-    trendValue: '+5% improvement'
+    trend: dashboardStats?.conversionTrend ?? 'neutral' as const,
+    trendValue: dashboardStats?.conversionTrendValue
   }, {
     title: "Tasks Due Today",
-    value: 5,
+    value: dashboardStats?.tasksDueToday ?? 0,
     icon: CheckCircle2,
     trend: 'neutral' as const,
     onClick: () => navigate('/admin/sales-rep-dashboard')
@@ -553,9 +518,17 @@ const AdminHome: React.FC = () => {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">
-            {(hasDemoAccess ? kpiData : emptyKpiData).map((kpi, index) => (
-              <DashboardKPICard key={index} {...kpi} />
-            ))}
+            {statsLoading ? (
+              <>
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))}
+              </>
+            ) : (
+              kpiData.map((kpi, index) => (
+                <DashboardKPICard key={index} {...kpi} />
+              ))
+            )}
           </div>
 
           {/* AI Search Bar */}

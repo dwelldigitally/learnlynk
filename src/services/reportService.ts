@@ -198,7 +198,8 @@ export class ReportService {
       const { data: companyProfile } = await supabase
         .from('company_profile')
         .select('*')
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       const pdf = new jsPDF();
       const pageWidth = pdf.internal.pageSize.width;

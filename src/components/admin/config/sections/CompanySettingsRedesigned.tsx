@@ -131,7 +131,8 @@ export function CompanySettingsRedesigned() {
       const { data, error } = await supabase
         .from('company_profile')
         .select('*')
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
 

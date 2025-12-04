@@ -32,10 +32,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useConditionalDocuments } from "@/hooks/useConditionalDocuments";
 import { ConditionalDataWrapper } from "./ConditionalDataWrapper";
+import { useDocumentTypeOptions } from "@/hooks/usePropertyOptions";
 
 const DocumentManagement: React.FC = () => {
   const [selectedDocuments, setSelectedDocuments] = useState<string[]>([]);
   const { data: documents, isLoading, showEmptyState, hasDemoAccess, hasRealData } = useConditionalDocuments();
+  const { options: documentTypeOptions } = useDocumentTypeOptions();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,9 +145,11 @@ const DocumentManagement: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="transcript">Transcripts</SelectItem>
-                    <SelectItem value="id">ID Documents</SelectItem>
-                    <SelectItem value="language">Language Tests</SelectItem>
+                    {documentTypeOptions.map(option => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

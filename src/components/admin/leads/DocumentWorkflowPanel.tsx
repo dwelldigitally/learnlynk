@@ -22,6 +22,7 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useDocumentTypeOptions } from '@/hooks/usePropertyOptions';
 
 interface Document {
   id: string;
@@ -48,6 +49,7 @@ export function DocumentWorkflowPanel({ leadId, documents = [] }: DocumentWorkfl
   const [selectedDoc, setSelectedDoc] = useState<Document | null>(null);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject' | 'request_revision'>('approve');
   const [reviewComments, setReviewComments] = useState('');
+  const { options: documentTypeOptions } = useDocumentTypeOptions();
 
   // Demo documents
   const demoDocuments: Document[] = [
@@ -214,12 +216,14 @@ export function DocumentWorkflowPanel({ leadId, documents = [] }: DocumentWorkfl
                       <SelectValue placeholder="Select document type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="transcript">Academic Transcript</SelectItem>
-                      <SelectItem value="essay">Personal Statement</SelectItem>
-                      <SelectItem value="recommendation">Letter of Recommendation</SelectItem>
-                      <SelectItem value="portfolio">Portfolio</SelectItem>
-                      <SelectItem value="certificate">Certificate</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      {documentTypeOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                      {documentTypeOptions.length === 0 && (
+                        <SelectItem value="other">Other</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>

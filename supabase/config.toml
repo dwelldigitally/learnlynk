@@ -8,3 +8,6 @@ verify_jwt = true
 
 [functions.send-team-invite]
 verify_jwt = true
+
+[functions.ai-semantic-search]
+verify_jwt = false

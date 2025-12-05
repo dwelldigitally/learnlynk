@@ -422,12 +422,12 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
-                  <SelectContent>
+              <SelectContent>
                     <SelectItem value="follow_up">Follow Up</SelectItem>
-                    <SelectItem value="document_review">Document Review</SelectItem>
-                    <SelectItem value="interview">Interview</SelectItem>
                     <SelectItem value="call">Call</SelectItem>
                     <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="research">Research</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>

@@ -21,9 +21,9 @@ interface UnifiedTaskDialogProps {
 
 const quickTemplates = [
   { label: 'Follow up with lead', title: 'Follow up with lead', description: 'Schedule follow-up call or email', taskType: 'follow_up' },
-  { label: 'Review application documents', title: 'Review application documents', description: 'Check all submitted documents', taskType: 'document_review' },
+  { label: 'Review application documents', title: 'Review application documents', description: 'Check all submitted documents', taskType: 'research' },
   { label: 'Follow up on payment', title: 'Follow up on payment', description: 'Check payment status and follow up', taskType: 'follow_up' },
-  { label: 'Prepare for consultation meeting', title: 'Prepare for consultation meeting', description: 'Prepare materials for consultation', taskType: 'interview' },
+  { label: 'Prepare for consultation meeting', title: 'Prepare for consultation meeting', description: 'Prepare materials for consultation', taskType: 'meeting' },
   { label: 'Update student records', title: 'Update student records', description: 'Update lead information in system', taskType: 'other' }
 ];
 
@@ -312,12 +312,12 @@ export function UnifiedTaskDialog({
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
-                <SelectContent>
+              <SelectContent>
                   <SelectItem value="follow_up">Follow Up</SelectItem>
-                  <SelectItem value="document_review">Document Review</SelectItem>
-                  <SelectItem value="interview">Interview</SelectItem>
                   <SelectItem value="call">Call</SelectItem>
                   <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="meeting">Meeting</SelectItem>
+                  <SelectItem value="research">Research</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>

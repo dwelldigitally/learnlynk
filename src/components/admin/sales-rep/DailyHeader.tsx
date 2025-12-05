@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useSalesRepMetrics } from '@/hooks/useSalesRepMetrics';
 import { cn } from '@/lib/utils';
 import { Phone, Mail, CheckCircle, Calendar, PhoneCall } from 'lucide-react';
 
@@ -11,12 +12,7 @@ export function DailyHeader() {
   const { user } = useAuth();
   const { profile } = useProfile();
   const isMobile = useIsMobile();
-  const [todaysMetrics, setTodaysMetrics] = useState({
-    callsMade: 12,
-    emailsSent: 8,
-    tasksCompleted: 5,
-    appointmentsBooked: 3
-  });
+  const { metrics, targets, loading } = useSalesRepMetrics();
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -98,35 +94,35 @@ export function DailyHeader() {
     window.open('https://phone.aircall.io/', '_blank', 'width=400,height=600');
   };
 
-  const metrics = [
+  const metricsData = [
     { 
       label: 'Calls Made', 
-      value: todaysMetrics.callsMade, 
-      target: 15,
+      value: metrics.callsMade, 
+      target: targets.calls,
       icon: Phone,
       color: 'bg-[hsl(200,80%,92%)]',
       barColor: 'bg-[hsl(200,80%,60%)]'
     },
     { 
       label: 'Emails Sent', 
-      value: todaysMetrics.emailsSent, 
-      target: 12,
+      value: metrics.emailsSent, 
+      target: targets.emails,
       icon: Mail,
       color: 'bg-[hsl(245,90%,94%)]',
       barColor: 'bg-primary'
     },
     { 
       label: 'Tasks Done', 
-      value: todaysMetrics.tasksCompleted, 
-      target: 8,
+      value: metrics.tasksCompleted, 
+      target: targets.tasks,
       icon: CheckCircle,
       color: 'bg-[hsl(158,64%,90%)]',
       barColor: 'bg-[hsl(158,64%,52%)]'
     },
     { 
       label: 'Meetings', 
-      value: todaysMetrics.appointmentsBooked, 
-      target: 5,
+      value: metrics.appointmentsBooked, 
+      target: targets.meetings,
       icon: Calendar,
       color: 'bg-[hsl(24,95%,92%)]',
       barColor: 'bg-[hsl(24,95%,60%)]'
@@ -221,7 +217,7 @@ export function DailyHeader() {
           </div>
           
           <div className={cn("grid gap-4", isMobile ? "grid-cols-2" : "grid-cols-4")}>
-            {metrics.map((metric, index) => (
+            {metricsData.map((metric, index) => (
               <div 
                 key={index}
                 className="relative rounded-2xl border border-border bg-card p-4 hover:shadow-sm transition-all duration-200"
@@ -231,12 +227,12 @@ export function DailyHeader() {
                     <metric.icon className="w-4 h-4 text-foreground/70" />
                   </div>
                   <span className="text-xs text-muted-foreground">
-                    {Math.round((metric.value / metric.target) * 100)}%
+                    {metric.target > 0 ? Math.round((metric.value / metric.target) * 100) : 0}%
                   </span>
                 </div>
                 
                 <div className="text-2xl font-bold text-foreground mb-1">
-                  {metric.value}
+                  {loading ? '...' : metric.value}
                   <span className="text-sm font-normal text-muted-foreground ml-1">/ {metric.target}</span>
                 </div>
                 

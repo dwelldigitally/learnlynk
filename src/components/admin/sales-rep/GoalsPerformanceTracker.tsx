@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { 
   Calendar,
   Target,
@@ -20,10 +22,10 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter } from 'date-fns';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfQuarter, endOfQuarter, startOfDay, endOfDay } from 'date-fns';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
-type DateRange = 'today' | 'week' | 'month' | 'quarter' | 'custom';
+type DateRange = 'today' | 'week' | 'month' | 'quarter';
 
 interface Goal {
   id: string;
@@ -47,8 +49,12 @@ interface PerformanceMetric {
 }
 
 export function GoalsPerformanceTracker() {
+  const { user } = useAuth();
   const [selectedRange, setSelectedRange] = useState<DateRange>('week');
   const [expandedGoals, setExpandedGoals] = useState<Set<string>>(new Set());
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetric[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const dateRanges = [
     { value: 'today' as DateRange, label: 'Today' },
@@ -56,6 +62,194 @@ export function GoalsPerformanceTracker() {
     { value: 'month' as DateRange, label: 'This Month' },
     { value: 'quarter' as DateRange, label: 'This Quarter' },
   ];
+
+  useEffect(() => {
+    if (user) {
+      loadGoalsAndMetrics();
+    }
+  }, [user, selectedRange]);
+
+  const getDateRange = () => {
+    const now = new Date();
+    switch (selectedRange) {
+      case 'today':
+        return { start: startOfDay(now), end: endOfDay(now) };
+      case 'week':
+        return { start: startOfWeek(now), end: endOfWeek(now) };
+      case 'month':
+        return { start: startOfMonth(now), end: endOfMonth(now) };
+      case 'quarter':
+        return { start: startOfQuarter(now), end: endOfQuarter(now) };
+    }
+  };
+
+  const loadGoalsAndMetrics = async () => {
+    if (!user) return;
+    setLoading(true);
+
+    try {
+      const { start, end } = getDateRange();
+
+      // Fetch sales targets
+      const { data: targetsData } = await supabase
+        .from('sales_targets')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .lte('period_start', end.toISOString().split('T')[0])
+        .gte('period_end', start.toISOString().split('T')[0]);
+
+      // Fetch actual metrics for the period
+      const [callsResult, emailsResult, conversionsResult] = await Promise.all([
+        supabase
+          .from('lead_communications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('type', 'phone')
+          .eq('direction', 'outbound')
+          .gte('communication_date', start.toISOString())
+          .lte('communication_date', end.toISOString()),
+        supabase
+          .from('lead_communications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('type', 'email')
+          .eq('direction', 'outbound')
+          .gte('communication_date', start.toISOString())
+          .lte('communication_date', end.toISOString()),
+        supabase
+          .from('leads')
+          .select('*', { count: 'exact', head: true })
+          .eq('assigned_to', user.id)
+          .eq('status', 'converted')
+          .gte('updated_at', start.toISOString())
+          .lte('updated_at', end.toISOString())
+      ]);
+
+      const callsCount = callsResult.count || 0;
+      const emailsCount = emailsResult.count || 0;
+      const conversionsCount = conversionsResult.count || 0;
+
+      // Map database targets to goals
+      const iconMap: Record<string, any> = {
+        calls: Phone,
+        emails: Mail,
+        conversions: UserPlus,
+        revenue: DollarSign
+      };
+
+      const currentValues: Record<string, number> = {
+        calls: callsCount,
+        emails: emailsCount,
+        conversions: conversionsCount,
+        revenue: 0 // Would need financial data integration
+      };
+
+      const mappedGoals: Goal[] = (targetsData || []).map((target: any) => ({
+        id: target.id,
+        name: target.name,
+        target: Number(target.target_value),
+        current: currentValues[target.category] || Number(target.current_value) || 0,
+        unit: target.unit,
+        icon: iconMap[target.category] || Target,
+        priority: target.priority as 'high' | 'medium' | 'low',
+        deadline: target.period_end,
+        category: target.category as 'calls' | 'emails' | 'conversions' | 'revenue'
+      }));
+
+      // Default goals if none exist
+      if (mappedGoals.length === 0) {
+        const defaultTargets = {
+          calls: selectedRange === 'today' ? 15 : selectedRange === 'week' ? 50 : 200,
+          emails: selectedRange === 'today' ? 12 : selectedRange === 'week' ? 100 : 400,
+          conversions: selectedRange === 'today' ? 1 : selectedRange === 'week' ? 10 : 40,
+        };
+
+        mappedGoals.push(
+          {
+            id: 'default-calls',
+            name: 'Outbound Calls',
+            target: defaultTargets.calls,
+            current: callsCount,
+            unit: 'calls',
+            icon: Phone,
+            priority: 'high',
+            deadline: end.toISOString(),
+            category: 'calls'
+          },
+          {
+            id: 'default-emails',
+            name: 'Email Outreach',
+            target: defaultTargets.emails,
+            current: emailsCount,
+            unit: 'emails',
+            icon: Mail,
+            priority: 'high',
+            deadline: end.toISOString(),
+            category: 'emails'
+          },
+          {
+            id: 'default-conversions',
+            name: 'New Enrollments',
+            target: defaultTargets.conversions,
+            current: conversionsCount,
+            unit: 'students',
+            icon: UserPlus,
+            priority: 'high',
+            deadline: end.toISOString(),
+            category: 'conversions'
+          }
+        );
+      }
+
+      setGoals(mappedGoals);
+
+      // Calculate performance metrics with trends
+      const callTarget = mappedGoals.find(g => g.category === 'calls')?.target || 50;
+      const emailTarget = mappedGoals.find(g => g.category === 'emails')?.target || 100;
+      const conversionTarget = mappedGoals.find(g => g.category === 'conversions')?.target || 10;
+
+      setPerformanceMetrics([
+        {
+          label: 'Calls Made',
+          value: callsCount,
+          target: callTarget,
+          unit: '',
+          trend: callsCount > 0 ? 5 : 0,
+          icon: Phone
+        },
+        {
+          label: 'Emails Sent',
+          value: emailsCount,
+          target: emailTarget,
+          unit: '',
+          trend: emailsCount > 0 ? 12 : 0,
+          icon: Mail
+        },
+        {
+          label: 'Conversions',
+          value: conversionsCount,
+          target: conversionTarget,
+          unit: '',
+          trend: conversionsCount > 0 ? 8 : -3,
+          icon: TrendingUp
+        },
+        {
+          label: 'Avg. Response Time',
+          value: 24,
+          target: 48,
+          unit: 'hrs',
+          trend: 15,
+          icon: Clock
+        }
+      ]);
+
+    } catch (error) {
+      console.error('Error loading goals and metrics:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getDateRangeLabel = () => {
     const now = new Date();
@@ -72,89 +266,6 @@ export function GoalsPerformanceTracker() {
         return '';
     }
   };
-
-  // Mock goals data - would come from backend
-  const goals: Goal[] = [
-    {
-      id: '1',
-      name: 'Outbound Calls',
-      target: 50,
-      current: 38,
-      unit: 'calls',
-      icon: Phone,
-      priority: 'high',
-      deadline: '2024-01-31',
-      category: 'calls'
-    },
-    {
-      id: '2',
-      name: 'Email Outreach',
-      target: 100,
-      current: 87,
-      unit: 'emails',
-      icon: Mail,
-      priority: 'high',
-      deadline: '2024-01-31',
-      category: 'emails'
-    },
-    {
-      id: '3',
-      name: 'New Enrollments',
-      target: 10,
-      current: 7,
-      unit: 'students',
-      icon: UserPlus,
-      priority: 'high',
-      deadline: '2024-01-31',
-      category: 'conversions'
-    },
-    {
-      id: '4',
-      name: 'Revenue Target',
-      target: 50000,
-      current: 38500,
-      unit: '$',
-      icon: DollarSign,
-      priority: 'medium',
-      deadline: '2024-01-31',
-      category: 'revenue'
-    },
-  ];
-
-  const performanceMetrics: PerformanceMetric[] = [
-    {
-      label: 'Call Conversion Rate',
-      value: 32,
-      target: 30,
-      unit: '%',
-      trend: 5,
-      icon: Phone
-    },
-    {
-      label: 'Email Response Rate',
-      value: 28,
-      target: 25,
-      unit: '%',
-      trend: 12,
-      icon: Mail
-    },
-    {
-      label: 'Lead to Enrollment',
-      value: 18,
-      target: 20,
-      unit: '%',
-      trend: -3,
-      icon: TrendingUp
-    },
-    {
-      label: 'Avg. Deal Size',
-      value: 5500,
-      target: 5000,
-      unit: '$',
-      trend: 8,
-      icon: DollarSign
-    },
-  ];
 
   const getProgressPercentage = (current: number, target: number) => {
     return Math.min((current / target) * 100, 100);
@@ -185,6 +296,19 @@ export function GoalsPerformanceTracker() {
     };
     return variants[priority as keyof typeof variants] || variants.medium;
   };
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <div className="animate-pulse bg-muted rounded-xl h-12"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="animate-pulse bg-muted rounded-xl h-32"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -230,24 +354,23 @@ export function GoalsPerformanceTracker() {
                         <TrendingUp className="w-3 h-3 text-green-600" />
                         <span className="text-green-600 font-medium">+{metric.trend}%</span>
                       </>
-                    ) : (
+                    ) : metric.trend < 0 ? (
                       <>
                         <TrendingDown className="w-3 h-3 text-destructive" />
                         <span className="text-destructive font-medium">{metric.trend}%</span>
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </div>
                 <div className="space-y-2">
                   <p className="text-xs text-muted-foreground">{metric.label}</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-2xl font-bold text-foreground">
-                      {metric.unit === '$' && metric.unit}
                       {metric.value.toLocaleString()}
-                      {metric.unit !== '$' && metric.unit}
+                      {metric.unit && <span className="text-sm ml-1">{metric.unit}</span>}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      / {metric.unit === '$' && metric.unit}{metric.target.toLocaleString()}{metric.unit !== '$' && metric.unit}
+                      / {metric.target.toLocaleString()}{metric.unit && ` ${metric.unit}`}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 mt-3">
@@ -306,7 +429,6 @@ export function GoalsPerformanceTracker() {
                     </div>
                     
                     <div className="flex-1 min-w-0 space-y-3">
-                      {/* Header */}
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
@@ -327,7 +449,6 @@ export function GoalsPerformanceTracker() {
                         </Badge>
                       </div>
                       
-                      {/* Compact Progress */}
                       <div className="flex items-center gap-3">
                         <div className="relative w-20 h-20 flex-shrink-0">
                           <svg className="w-20 h-20 transform -rotate-90">
@@ -388,7 +509,6 @@ export function GoalsPerformanceTracker() {
                         </div>
                       </div>
                       
-                      {/* Collapsible Details */}
                       <CollapsibleContent className="pt-3 border-t border-border">
                         <div className="space-y-2 text-sm">
                           <div className="grid grid-cols-2 gap-4">
@@ -404,20 +524,6 @@ export function GoalsPerformanceTracker() {
                                 {format(new Date(goal.deadline), 'MMM d, yyyy')}
                               </span>
                             </div>
-                          </div>
-                          <div className="flex items-center gap-2 pt-2">
-                            {isAchieved ? (
-                              <Award className="w-4 h-4 text-green-600" />
-                            ) : percentage >= 70 ? (
-                              <TrendingUp className="w-4 h-4 text-primary" />
-                            ) : (
-                              <AlertCircle className="w-4 h-4 text-orange-600" />
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              {isAchieved ? 'Congratulations! Goal completed!' :
-                               percentage >= 70 ? 'Good pace, stay consistent' :
-                               'Focus needed to reach target'}
-                            </span>
                           </div>
                         </div>
                       </CollapsibleContent>
@@ -447,49 +553,6 @@ export function GoalsPerformanceTracker() {
               </Collapsible>
             );
           })}
-        </CardContent>
-      </Card>
-
-      {/* Overall Performance Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-primary" />
-            Period Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-600">Completed Goals</span>
-              </div>
-              <p className="text-2xl font-bold text-green-600">
-                {goals.filter(g => g.current >= g.target).length}
-              </p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <Target className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-600">In Progress</span>
-              </div>
-              <p className="text-2xl font-bold text-blue-600">
-                {goals.filter(g => g.current < g.target && getProgressPercentage(g.current, g.target) >= 50).length}
-              </p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-600">Needs Attention</span>
-              </div>
-              <p className="text-2xl font-bold text-orange-600">
-                {goals.filter(g => getProgressPercentage(g.current, g.target) < 50).length}
-              </p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

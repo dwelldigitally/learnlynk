@@ -9,10 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLeadTasks } from '@/hooks/useLeadData';
-import { CheckCircle, Clock, Plus, User, Calendar, Flag, Check, Trash2, Edit } from 'lucide-react';
+import { CheckCircle, Clock, Plus, User, Calendar, Flag, Check, Trash2, Edit, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useTeamMembers } from '@/hooks/useTeamMembers';
 
 interface RealDataTasksProps {
   leadId: string;
@@ -23,9 +24,9 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [teamMembers, setTeamMembers] = useState<Array<{ id: string; name: string; email: string }>>([]);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [editingTaskId, setEditingTaskId] = useState<string>('');
+  const { teamMembers } = useTeamMembers();
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -52,33 +53,11 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setCurrentUserId(user.id);
+        setNewTask(prev => ({ ...prev, assigned_to: user.id }));
       }
     };
     fetchCurrentUser();
   }, []);
-
-  useEffect(() => {
-    const fetchTeamMembers = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Get current user info
-        const currentUser = {
-          id: user.id,
-          name: user.user_metadata?.full_name || user.email || 'Me',
-          email: user.email || ''
-        };
-
-        // For now, just show current user. In the future, you can fetch actual team members
-        setTeamMembers([currentUser]);
-        setNewTask(prev => ({ ...prev, assigned_to: user.id }));
-      }
-    };
-
-    if (isDialogOpen) {
-      fetchTeamMembers();
-    }
-  }, [isDialogOpen]);
 
   const quickTemplates = [
     { label: 'Follow up with lead', title: 'Follow up with lead', description: 'Schedule follow-up call or email', category: 'follow_up' },
@@ -249,8 +228,8 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
           user_id: user.id,
           title: newTask.title,
           description: newTask.description || null,
-          priority: newTask.priority,
-          task_type: newTask.task_type,
+          priority: newTask.priority || 'medium',
+          task_type: newTask.task_type || 'general',
           due_date: newTask.due_date || null,
           assigned_to: newTask.assigned_to || null,
           status: 'pending'
@@ -270,7 +249,7 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
         priority: '',
         task_type: '',
         due_date: '',
-        assigned_to: '',
+        assigned_to: currentUserId,
         tags: []
       });
       setTagInput('');
@@ -284,34 +263,6 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
       });
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const getPriorityIcon = (priority: string) => {
-    switch (priority) {
-      case 'urgent':
-        return <Flag className="h-4 w-4 text-red-600" />;
-      case 'high':
-        return <Flag className="h-4 w-4 text-orange-600" />;
-      case 'medium':
-        return <Flag className="h-4 w-4 text-yellow-600" />;
-      case 'low':
-        return <Flag className="h-4 w-4 text-green-600" />;
-      default:
-        return <Flag className="h-4 w-4 text-gray-600" />;
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'in_progress':
-        return <Clock className="h-4 w-4 text-blue-600" />;
-      case 'cancelled':
-        return <CheckCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return <Clock className="h-4 w-4 text-gray-600" />;
     }
   };
 
@@ -355,9 +306,9 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground mt-2">Loading tasks...</p>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <span className="ml-2 text-muted-foreground">Loading tasks...</span>
           </div>
         </CardContent>
       </Card>
@@ -385,75 +336,13 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
   const activeTasks = tasks.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
   const completedTasks = tasks.filter(task => task.status === 'completed' || task.status === 'cancelled');
 
-  // Demo tasks to show when no real tasks exist
-  const demoTasks = [
-    {
-      id: 'demo-1',
-      title: 'Follow up call with student',
-      description: 'Discuss program details and answer questions about curriculum',
-      status: 'pending',
-      priority: 'high',
-      task_type: 'call',
-      due_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      assigned_to: 'current-user',
-      lead_id: leadId,
-      user_id: 'current-user'
-    },
-    {
-      id: 'demo-2',
-      title: 'Review application documents',
-      description: 'Check transcripts and recommendation letters for completeness',
-      status: 'in_progress',
-      priority: 'medium',
-      task_type: 'document_review',
-      due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      assigned_to: 'other-user',
-      lead_id: leadId,
-      user_id: 'other-user'
-    },
-    {
-      id: 'demo-3',
-      title: 'Send scholarship information',
-      description: 'Email details about merit-based scholarships and financial aid options',
-      status: 'pending',
-      priority: 'medium',
-      task_type: 'follow_up',
-      due_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      assigned_to: 'current-user',
-      lead_id: leadId,
-      user_id: 'current-user'
-    },
-    {
-      id: 'demo-4',
-      title: 'Schedule campus tour',
-      description: 'Coordinate with admissions office for personalized campus visit',
-      status: 'completed',
-      priority: 'low',
-      task_type: 'interview',
-      due_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      completed_at: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      assigned_to: 'other-user',
-      lead_id: leadId,
-      user_id: 'other-user'
-    }
-  ];
-
-  // Use demo tasks if no real tasks exist
-  const displayTasks = tasks.length > 0 ? tasks : demoTasks;
-  const displayActiveTasks = displayTasks.filter(task => task.status !== 'completed' && task.status !== 'cancelled');
-  const displayCompletedTasks = displayTasks.filter(task => task.status === 'completed' || task.status === 'cancelled');
-
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5" />
-            Tasks ({displayActiveTasks.length} active, {displayCompletedTasks.length} completed)
+            Tasks ({activeTasks.length} active, {completedTasks.length} completed)
           </CardTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -515,12 +404,10 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                   />
                 </div>
 
-                {/* Priority and Assign To */}
                 <div className="grid grid-cols-2 gap-4">
+                  {/* Priority */}
                   <div className="space-y-2">
-                    <Label htmlFor="priority">
-                      Priority <span className="text-red-500">*</span>
-                    </Label>
+                    <Label>Priority</Label>
                     <Select value={newTask.priority} onValueChange={(value) => setNewTask({ ...newTask, priority: value })}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select priority" />
@@ -533,11 +420,43 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Task Type */}
                   <div className="space-y-2">
-                    <Label htmlFor="assign_to">Assign To</Label>
+                    <Label>Task Type</Label>
+                    <Select value={newTask.task_type} onValueChange={(value) => setNewTask({ ...newTask, task_type: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="follow_up">Follow Up</SelectItem>
+                        <SelectItem value="document_review">Document Review</SelectItem>
+                        <SelectItem value="interview">Interview</SelectItem>
+                        <SelectItem value="call">Call</SelectItem>
+                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Due Date */}
+                  <div className="space-y-2">
+                    <Label>Due Date</Label>
+                    <Input
+                      type="date"
+                      value={newTask.due_date}
+                      onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
+                    />
+                  </div>
+
+                  {/* Assignee */}
+                  <div className="space-y-2">
+                    <Label>Assign To</Label>
                     <Select value={newTask.assigned_to} onValueChange={(value) => setNewTask({ ...newTask, assigned_to: value })}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select team member" />
+                        <SelectValue placeholder="Select assignee" />
                       </SelectTrigger>
                       <SelectContent>
                         {teamMembers.map((member) => (
@@ -550,274 +469,186 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                   </div>
                 </div>
 
-                {/* Due Date and Category */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="due_date">Due Date</Label>
-                    <Input
-                      id="due_date"
-                      type="date"
-                      value={newTask.due_date}
-                      onChange={(e) => setNewTask({ ...newTask, due_date: e.target.value })}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={newTask.task_type} onValueChange={(value) => setNewTask({ ...newTask, task_type: value })}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="call">Call</SelectItem>
-                        <SelectItem value="follow_up">Follow Up</SelectItem>
-                        <SelectItem value="document_review">Document Review</SelectItem>
-                        <SelectItem value="interview">Interview</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
                 {/* Tags */}
                 <div className="space-y-2">
-                  <Label htmlFor="tags">Tags</Label>
-                  <div className="relative">
-                    <Input
-                      id="tags"
-                      placeholder="Enter tag and press Enter"
-                      value={tagInput}
-                      onChange={(e) => setTagInput(e.target.value)}
-                      onKeyDown={handleAddTag}
-                    />
-                    <Flag className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  </div>
+                  <Label>Tags</Label>
+                  <Input
+                    placeholder="Type a tag and press Enter"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleAddTag}
+                  />
                   {newTask.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
-                      {newTask.tags.map((tag, idx) => (
-                        <Badge key={idx} variant="secondary" className="gap-1">
-                          {tag}
-                          <button
-                            onClick={() => handleRemoveTag(tag)}
-                            className="ml-1 hover:text-destructive"
-                            type="button"
-                          >
-                            ×
-                          </button>
+                      {newTask.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => handleRemoveTag(tag)}>
+                          {tag} ×
                         </Badge>
                       ))}
                     </div>
                   )}
                 </div>
-              </div>
 
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)} type="button">
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateTask} disabled={isSubmitting || !newTask.title.trim() || !newTask.priority}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {isSubmitting ? 'Creating...' : 'Create Task'}
-                </Button>
+                <div className="flex gap-3 pt-4">
+                  <Button onClick={handleCreateTask} className="flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Task
+                      </>
+                    )}
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
         </div>
       </CardHeader>
+
       <CardContent>
-        <ScrollArea className={`${displayTasks.length <= 2 ? 'h-auto max-h-[300px]' : displayTasks.length <= 4 ? 'h-auto max-h-[500px]' : 'h-[600px]'}`}>
-          <div className="space-y-4">
-            {/* Active Tasks */}
-            {displayActiveTasks.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-3">Active Tasks</h4>
-                <div className="space-y-3">
-                  {displayActiveTasks.map((task) => {
-                    const isAssignedToOther = task.assigned_to && task.assigned_to !== currentUserId && task.assigned_to !== 'current-user';
-                    
-                    return (
-                      <div 
-                        key={task.id} 
-                        className={`border rounded-lg p-4 ${isAssignedToOther ? 'border-blue-200 bg-blue-50/50' : ''}`}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2 flex-1">
-                            {getStatusIcon(task.status)}
-                            <span className="font-medium">{task.title}</span>
-                            {isAssignedToOther && (
-                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
-                                <User className="h-3 w-3 mr-1" />
-                                Other Team Member
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getPriorityBadge(task.priority)}
-                            {getStatusBadge(task.status)}
-                            <div className="flex gap-1 ml-2">
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 hover:bg-blue-100 hover:text-blue-700"
-                                onClick={() => handleEditTask(task)}
-                                title="Edit task"
-                              >
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 hover:bg-green-100 hover:text-green-700"
-                                onClick={() => handleCompleteTask(task.id)}
-                                title="Mark as complete"
-                              >
-                                <Check className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700"
-                                onClick={() => handleDeleteTask(task.id)}
-                                title="Delete task"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {task.description && (
-                          <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground mb-3">
-                          {task.due_date && (
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
-                              <span>Due: {format(new Date(task.due_date), 'PPP')}</span>
-                            </div>
-                          )}
-                          {task.assigned_to && (
-                            <div className="flex items-center gap-1">
-                              <User className="h-3 w-3" />
-                              <span>{isAssignedToOther ? 'Team member' : 'You'}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="text-xs text-muted-foreground">
-                          Created {format(new Date(task.created_at), 'PPP')}
-                          {task.task_type && ` • ${task.task_type}`}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Completed Tasks */}
-            {displayCompletedTasks.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium text-muted-foreground mb-3">Completed Tasks</h4>
-                <div className="space-y-3">
-                  {displayCompletedTasks.map((task) => {
-                    const isAssignedToOther = task.assigned_to && task.assigned_to !== currentUserId && task.assigned_to !== 'current-user';
-                    
-                    return (
-                      <div 
-                        key={task.id} 
-                        className={`border rounded-lg p-4 opacity-75 ${isAssignedToOther ? 'border-blue-200 bg-blue-50/30' : ''}`}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2 flex-1">
-                            {getStatusIcon(task.status)}
-                            <span className="font-medium line-through">{task.title}</span>
-                            {isAssignedToOther && (
-                              <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700 border-blue-300">
-                                <User className="h-3 w-3 mr-1" />
-                                Other Team Member
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {getPriorityBadge(task.priority)}
-                            {getStatusBadge(task.status)}
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 w-7 p-0 hover:bg-red-100 hover:text-red-700 ml-2"
-                              onClick={() => handleDeleteTask(task.id)}
-                              title="Delete task"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-
-                        {task.description && (
-                          <p className="text-sm text-muted-foreground mb-3">{task.description}</p>
-                        )}
-
-                        <div className="text-xs text-muted-foreground">
-                          {task.completed_at ? (
-                            <span>Completed {format(new Date(task.completed_at), 'PPP')}</span>
-                          ) : (
-                            <span>Created {format(new Date(task.created_at), 'PPP')}</span>
-                          )}
-                          {task.task_type && ` • ${task.task_type}`}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
+        {tasks.length === 0 ? (
+          <div className="text-center py-8">
+            <CheckCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <h3 className="font-medium text-foreground mb-2">No tasks yet</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Create your first task to start tracking follow-ups and actions
+            </p>
+            <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create First Task
+            </Button>
           </div>
-        </ScrollArea>
+        ) : (
+          <ScrollArea className="h-[400px]">
+            <div className="space-y-3">
+              {/* Active Tasks */}
+              {activeTasks.length > 0 && (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">Active Tasks</h4>
+                  {activeTasks.map((task: any) => (
+                    <div key={task.id} className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h5 className="font-medium">{task.title}</h5>
+                            {task.priority && getPriorityBadge(task.priority)}
+                            {getStatusBadge(task.status)}
+                          </div>
+                          {task.description && (
+                            <p className="text-sm text-muted-foreground mb-2">{task.description}</p>
+                          )}
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            {task.due_date && (
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Due: {format(new Date(task.due_date), 'MMM d, yyyy')}
+                              </span>
+                            )}
+                            {task.task_type && (
+                              <span className="capitalize">{task.task_type.replace('_', ' ')}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleCompleteTask(task.id)}
+                            title="Mark as complete"
+                          >
+                            <Check className="h-4 w-4 text-green-600" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditTask(task)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleDeleteTask(task.id)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Completed Tasks */}
+              {completedTasks.length > 0 && (
+                <div className="space-y-2 mt-4">
+                  <h4 className="text-sm font-medium text-muted-foreground">Completed Tasks</h4>
+                  {completedTasks.map((task: any) => (
+                    <div key={task.id} className="border rounded-lg p-3 opacity-60">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <h5 className="font-medium line-through">{task.title}</h5>
+                            {getStatusBadge(task.status)}
+                          </div>
+                          {task.completed_at && (
+                            <p className="text-xs text-muted-foreground">
+                              Completed: {format(new Date(task.completed_at), 'MMM d, yyyy')}
+                            </p>
+                          )}
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        )}
       </CardContent>
 
       {/* Edit Task Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Edit className="h-5 w-5" />
-              Edit Task
-            </DialogTitle>
+            <DialogTitle>Edit Task</DialogTitle>
           </DialogHeader>
-          
           <div className="space-y-4 py-4">
-            {/* Task Title */}
             <div className="space-y-2">
-              <Label htmlFor="edit-title">
-                Task Title <span className="text-red-500">*</span>
-              </Label>
+              <Label>Task Title *</Label>
               <Input
-                id="edit-title"
-                placeholder="Enter task title"
                 value={editTask.title}
                 onChange={(e) => setEditTask({ ...editTask, title: e.target.value })}
               />
             </div>
-
-            {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="edit-description">Description</Label>
+              <Label>Description</Label>
               <Textarea
-                id="edit-description"
-                placeholder="Enter task description..."
                 value={editTask.description}
                 onChange={(e) => setEditTask({ ...editTask, description: e.target.value })}
                 rows={3}
               />
             </div>
-
-            {/* Priority and Assign To */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="edit-priority">
-                  Priority <span className="text-red-500">*</span>
-                </Label>
+                <Label>Priority</Label>
                 <Select value={editTask.priority} onValueChange={(value) => setEditTask({ ...editTask, priority: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select priority" />
@@ -831,58 +662,22 @@ export function RealDataTasks({ leadId }: RealDataTasksProps) {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-assign-to">Assign To</Label>
-                <Select value={editTask.assigned_to} onValueChange={(value) => setEditTask({ ...editTask, assigned_to: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select team member" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {teamMembers.map((member) => (
-                      <SelectItem key={member.id} value={member.id}>
-                        {member.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Due Date and Category */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-due-date">Due Date</Label>
+                <Label>Due Date</Label>
                 <Input
-                  id="edit-due-date"
                   type="date"
                   value={editTask.due_date}
                   onChange={(e) => setEditTask({ ...editTask, due_date: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-category">Category</Label>
-                <Select value={editTask.task_type} onValueChange={(value) => setEditTask({ ...editTask, task_type: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="call">Call</SelectItem>
-                    <SelectItem value="follow_up">Follow Up</SelectItem>
-                    <SelectItem value="document_review">Document Review</SelectItem>
-                    <SelectItem value="interview">Interview</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
-          </div>
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} type="button">
-              Cancel
-            </Button>
-            <Button onClick={handleUpdateTask} disabled={isSubmitting || !editTask.title.trim() || !editTask.priority}>
-              {isSubmitting ? 'Updating...' : 'Update Task'}
-            </Button>
+            <div className="flex gap-3 pt-4">
+              <Button onClick={handleUpdateTask} className="flex-1" disabled={isSubmitting}>
+                {isSubmitting ? 'Saving...' : 'Save Changes'}
+              </Button>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                Cancel
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,22 +8,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { 
   Plus, 
-  Clock, 
   User, 
-  Target, 
   AlertCircle, 
-  Calendar,
   Tag,
-  Users
+  Search,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTeamMembers } from "@/hooks/useTeamMembers";
+import { useEntitySearch, SearchEntity } from "@/hooks/useEntitySearch";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuickTaskModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onTaskCreated?: () => void;
 }
 
-export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
+export function QuickTaskModal({ open, onOpenChange, onTaskCreated }: QuickTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("");
@@ -32,20 +34,42 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Entity selection
+  const [entityType, setEntityType] = useState<string>("");
+  const [selectedEntity, setSelectedEntity] = useState<SearchEntity | null>(null);
+  const [entitySearchQuery, setEntitySearchQuery] = useState("");
+  
+  const { teamMembers, loading: loadingTeam } = useTeamMembers();
+  const { results: entityResults, loading: searchingEntities, search: searchEntities } = useEntitySearch();
+
+  // Set default assignee to current user
+  useEffect(() => {
+    const setDefaultAssignee = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && !assignee) {
+        setAssignee(user.id);
+      }
+    };
+    if (open) {
+      setDefaultAssignee();
+    }
+  }, [open, assignee]);
+
+  // Search entities when query changes
+  useEffect(() => {
+    if (entitySearchQuery.length >= 2) {
+      searchEntities(entitySearchQuery);
+    }
+  }, [entitySearchQuery, searchEntities]);
 
   const taskTemplates = [
-    { id: "follow-up", title: "Follow up with lead", category: "lead_management" },
-    { id: "document-review", title: "Review application documents", category: "admissions" },
-    { id: "payment-follow", title: "Follow up on payment", category: "finance" },
-    { id: "meeting-prep", title: "Prepare for consultation meeting", category: "meetings" },
-    { id: "data-entry", title: "Update student records", category: "administration" }
-  ];
-
-  const teamMembers = [
-    { id: "1", name: "Sarah Johnson", role: "Admissions Officer" },
-    { id: "2", name: "Mike Davis", role: "Financial Advisor" },
-    { id: "3", name: "Emma Wilson", role: "Program Coordinator" },
-    { id: "4", name: "James Brown", role: "Student Advisor" }
+    { id: "follow-up", title: "Follow up with lead", category: "follow_up" },
+    { id: "document-review", title: "Review application documents", category: "review_documents" },
+    { id: "payment-follow", title: "Follow up on payment", category: "approve_payments" },
+    { id: "meeting-prep", title: "Prepare for consultation meeting", category: "scheduling" },
+    { id: "data-entry", title: "Update student records", category: "administrative" }
   ];
 
   const priorities = [
@@ -56,13 +80,15 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
   ];
 
   const categories = [
-    "lead_management",
-    "admissions",
-    "finance",
-    "meetings",
-    "administration",
-    "communication",
-    "documentation"
+    { value: "general", label: "General Task" },
+    { value: "review_documents", label: "Review Documents" },
+    { value: "approve_payments", label: "Approve Payments" },
+    { value: "follow_up", label: "Follow Up" },
+    { value: "communication", label: "Communication" },
+    { value: "administrative", label: "Administrative" },
+    { value: "academic", label: "Academic Review" },
+    { value: "verification", label: "Verification" },
+    { value: "scheduling", label: "Scheduling" }
   ];
 
   const addTag = () => {
@@ -84,7 +110,27 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
     }
   };
 
-  const handleCreate = () => {
+  const selectEntity = (entity: SearchEntity) => {
+    setSelectedEntity(entity);
+    setEntityType(entity.type);
+    setEntitySearchQuery("");
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setPriority("");
+    setAssignee("");
+    setDueDate("");
+    setCategory("");
+    setTags([]);
+    setTagInput("");
+    setEntityType("");
+    setSelectedEntity(null);
+    setEntitySearchQuery("");
+  };
+
+  const handleCreate = async () => {
     if (!title.trim()) {
       toast.error("Please enter a task title");
       return;
@@ -94,18 +140,64 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
       return;
     }
 
-    toast.success("Task created successfully!");
-    
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setPriority("");
-    setAssignee("");
-    setDueDate("");
-    setCategory("");
-    setTags([]);
-    setTagInput("");
-    onOpenChange(false);
+    setIsSubmitting(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Not authenticated");
+        return;
+      }
+
+      // Determine which table to use based on entity type
+      if (selectedEntity?.type === 'lead' && selectedEntity.id) {
+        // Create lead-specific task
+        const { error } = await supabase
+          .from('lead_tasks')
+          .insert({
+            lead_id: selectedEntity.id,
+            user_id: user.id,
+            title,
+            description: description || null,
+            priority,
+            task_type: category || 'general',
+            due_date: dueDate || null,
+            assigned_to: assignee === 'self' ? user.id : (assignee || null),
+            status: 'pending'
+          });
+
+        if (error) throw error;
+      } else {
+        // Create universal task
+        const { error } = await supabase
+          .from('tasks')
+          .insert({
+            user_id: user.id,
+            title,
+            description: description || null,
+            category: category || 'general',
+            priority,
+            entity_type: selectedEntity?.type || null,
+            entity_id: selectedEntity?.id || null,
+            due_date: dueDate || null,
+            assigned_to: assignee === 'self' ? user.id : (assignee || null),
+            status: 'pending',
+            tags: tags.length > 0 ? tags : null
+          });
+
+        if (error) throw error;
+      }
+
+      toast.success("Task created successfully!");
+      resetForm();
+      onOpenChange(false);
+      onTaskCreated?.();
+    } catch (error) {
+      console.error('Error creating task:', error);
+      toast.error("Failed to create task");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -158,6 +250,58 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
             />
           </div>
 
+          {/* Associate with Entity */}
+          <div className="space-y-2">
+            <Label>Associate with (Optional)</Label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search for a lead or applicant..."
+                value={entitySearchQuery}
+                onChange={(e) => setEntitySearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            {entitySearchQuery && entityResults.length > 0 && (
+              <div className="border rounded-lg max-h-32 overflow-y-auto">
+                {entityResults.map((entity) => (
+                  <button
+                    key={`${entity.type}-${entity.id}`}
+                    onClick={() => selectEntity(entity)}
+                    className="w-full p-2 text-left hover:bg-muted/50 flex items-center space-x-2 border-b last:border-b-0"
+                  >
+                    <User className="h-4 w-4" />
+                    <div>
+                      <p className="text-sm font-medium">{entity.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}
+                        {entity.email && ` • ${entity.email}`}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {selectedEntity && (
+              <div className="flex items-center space-x-2 p-2 bg-muted/50 rounded-lg">
+                <User className="h-4 w-4" />
+                <span className="text-sm">
+                  Associated with: <strong>{selectedEntity.name}</strong> ({selectedEntity.type})
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedEntity(null)}
+                  className="ml-auto h-6 px-2"
+                >
+                  ×
+                </Button>
+              </div>
+            )}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Priority */}
             <div className="space-y-2">
@@ -182,9 +326,9 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
             {/* Assignee */}
             <div className="space-y-2">
               <Label>Assign To</Label>
-              <Select value={assignee} onValueChange={setAssignee}>
+              <Select value={assignee} onValueChange={setAssignee} disabled={loadingTeam}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Assign to team member" />
+                  <SelectValue placeholder={loadingTeam ? "Loading..." : "Assign to team member"} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="self">Assign to myself</SelectItem>
@@ -194,7 +338,9 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
                         <User className="h-4 w-4" />
                         <div>
                           <p className="font-medium">{member.name}</p>
-                          <p className="text-xs text-muted-foreground">{member.role}</p>
+                          {member.role && (
+                            <p className="text-xs text-muted-foreground">{member.role}</p>
+                          )}
                         </div>
                       </div>
                     </SelectItem>
@@ -224,8 +370,8 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -241,7 +387,7 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
                 placeholder="Enter tag and press Enter"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               />
               <Button onClick={addTag} size="sm" variant="outline">
                 <Tag className="h-4 w-4" />
@@ -277,12 +423,16 @@ export function QuickTaskModal({ open, onOpenChange }: QuickTaskModalProps) {
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleCreate} className="flex items-center space-x-2">
-            <Plus className="h-4 w-4" />
-            <span>Create Task</span>
+          <Button onClick={handleCreate} disabled={isSubmitting} className="flex items-center space-x-2">
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+            <span>{isSubmitting ? "Creating..." : "Create Task"}</span>
           </Button>
         </div>
       </DialogContent>

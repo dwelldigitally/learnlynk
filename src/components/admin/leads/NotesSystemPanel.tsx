@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -17,80 +17,59 @@ import {
   Edit,
   Trash2,
   Filter,
-  StickyNote
+  StickyNote,
+  Loader2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Note {
-  id: string;
-  category: 'general' | 'follow_up' | 'meeting' | 'concern' | 'opportunity' | 'document';
-  title: string;
-  content: string;
-  author: string;
-  createdAt: string;
-  tags: string[];
-  priority: 'low' | 'medium' | 'high';
-}
+import { LeadNotesService } from '@/services/leadNotesService';
+import { LeadNote } from '@/types/leadEnhancements';
 
 interface NotesSystemPanelProps {
   leadId: string;
-  notes?: Note[];
 }
 
-export function NotesSystemPanel({ leadId, notes = [] }: NotesSystemPanelProps) {
+type NoteCategory = 'general' | 'follow_up' | 'meeting' | 'concern' | 'opportunity' | 'document';
+
+export function NotesSystemPanel({ leadId }: NotesSystemPanelProps) {
   const { toast } = useToast();
+  const [notes, setNotes] = useState<LeadNote[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isAddingNote, setIsAddingNote] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingNote, setEditingNote] = useState<LeadNote | null>(null);
   const [newNote, setNewNote] = useState({
-    category: 'general' as Note['category'],
-    title: '',
+    note_type: 'general' as string,
     content: '',
-    priority: 'medium' as Note['priority'],
-    tags: ''
   });
 
-  // Demo notes
-  const demoNotes: Note[] = [
-    {
-      id: '1',
-      category: 'follow_up',
-      title: 'Schedule Info Session Follow-up',
-      content: 'Student expressed high interest in Computer Science program. Mentioned they need more information about internship opportunities and lab facilities.',
-      author: 'Sarah Johnson',
-      createdAt: '2024-01-20T14:30:00Z',
-      tags: ['computer-science', 'internships', 'labs'],
-      priority: 'high'
-    },
-    {
-      id: '2',
-      category: 'concern',
-      title: 'Financial Aid Concerns',
-      content: 'Student worried about tuition costs. Family income may qualify for need-based aid. Mentioned potential scholarship applications.',
-      author: 'Mike Chen',
-      createdAt: '2024-01-19T11:15:00Z',
-      tags: ['financial-aid', 'scholarships', 'tuition'],
-      priority: 'medium'
-    },
-    {
-      id: '3',
-      category: 'meeting',
-      title: 'Virtual Campus Tour Feedback',
-      content: 'Attended virtual campus tour. Loved the engineering facilities and student recreation center. Asked about housing options.',
-      author: 'Lisa Park',
-      createdAt: '2024-01-18T16:45:00Z',
-      tags: ['campus-tour', 'engineering', 'housing'],
-      priority: 'low'
+  const fetchNotes = useCallback(async () => {
+    try {
+      setLoading(true);
+      const fetchedNotes = await LeadNotesService.getNotes(leadId);
+      setNotes(fetchedNotes);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load notes',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  }, [leadId, toast]);
 
-  const displayNotes = notes.length > 0 ? notes : demoNotes;
+  useEffect(() => {
+    if (leadId) {
+      fetchNotes();
+    }
+  }, [leadId, fetchNotes]);
   
-  const filteredNotes = displayNotes.filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         note.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         note.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = selectedCategory === 'all' || note.category === selectedCategory;
+  const filteredNotes = notes.filter(note => {
+    const matchesSearch = note.content.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || note.note_type === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -128,55 +107,115 @@ export function NotesSystemPanel({ leadId, notes = [] }: NotesSystemPanelProps) 
     }
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'low':
-        return 'bg-green-100 text-green-800 border-green-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
-
   const addNote = async () => {
-    if (!newNote.title.trim() || !newNote.content.trim()) {
+    if (!newNote.content.trim()) {
       toast({
         title: 'Missing Information',
-        description: 'Please fill in both title and content',
+        description: 'Please enter note content',
         variant: 'destructive'
       });
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await LeadNotesService.createNote(leadId, {
+        content: newNote.content,
+        note_type: newNote.note_type as any,
+      });
       
       toast({
         title: 'Note Added Successfully',
-        description: `"${newNote.title}" has been added to the lead notes`,
-        variant: 'default'
+        description: 'Your note has been saved',
       });
       
       setIsAddingNote(false);
-      setNewNote({
-        category: 'general',
-        title: '',
-        content: '',
-        priority: 'medium',
-        tags: ''
-      });
+      setNewNote({ note_type: 'general', content: '' });
+      fetchNotes();
     } catch (error) {
+      console.error('Error adding note:', error);
       toast({
         title: 'Failed to Add Note',
         description: 'There was an error adding the note. Please try again.',
         variant: 'destructive'
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const updateNote = async () => {
+    if (!editingNote || !editingNote.content.trim()) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please enter note content',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await LeadNotesService.updateNote(editingNote.id, {
+        content: editingNote.content,
+        note_type: editingNote.note_type as any
+      });
+      
+      toast({
+        title: 'Note Updated',
+        description: 'Your note has been updated',
+      });
+      
+      setEditingNote(null);
+      fetchNotes();
+    } catch (error) {
+      console.error('Error updating note:', error);
+      toast({
+        title: 'Failed to Update Note',
+        description: 'There was an error updating the note.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const deleteNote = async (noteId: string) => {
+    try {
+      await LeadNotesService.deleteNote(noteId);
+      toast({
+        title: 'Note Deleted',
+        description: 'The note has been removed',
+      });
+      fetchNotes();
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      toast({
+        title: 'Failed to Delete Note',
+        description: 'There was an error deleting the note.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card className="h-full">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Notes System
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            <span className="ml-2 text-muted-foreground">Loading notes...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="h-full">
@@ -198,45 +237,24 @@ export function NotesSystemPanel({ leadId, notes = [] }: NotesSystemPanelProps) 
                 <DialogTitle>Add New Note</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium">Category</label>
-                    <Select value={newNote.category} onValueChange={(value) => setNewNote({...newNote, category: value as Note['category']})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="general">General</SelectItem>
-                        <SelectItem value="follow_up">Follow-up</SelectItem>
-                        <SelectItem value="meeting">Meeting</SelectItem>
-                        <SelectItem value="concern">Concern</SelectItem>
-                        <SelectItem value="opportunity">Opportunity</SelectItem>
-                        <SelectItem value="document">Document</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Priority</label>
-                    <Select value={newNote.priority} onValueChange={(value) => setNewNote({...newNote, priority: value as Note['priority']})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="low">Low</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
                 <div>
-                  <label className="text-sm font-medium">Title</label>
-                  <Input 
-                    value={newNote.title}
-                    onChange={(e) => setNewNote({...newNote, title: e.target.value})}
-                    placeholder="Note title..."
-                  />
+                  <label className="text-sm font-medium">Category</label>
+                  <Select 
+                    value={newNote.note_type} 
+                    onValueChange={(value) => setNewNote({...newNote, note_type: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="follow_up">Follow-up</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="concern">Concern</SelectItem>
+                      <SelectItem value="opportunity">Opportunity</SelectItem>
+                      <SelectItem value="document">Document</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 
                 <div>
@@ -249,18 +267,16 @@ export function NotesSystemPanel({ leadId, notes = [] }: NotesSystemPanelProps) 
                   />
                 </div>
                 
-                <div>
-                  <label className="text-sm font-medium">Tags (comma-separated)</label>
-                  <Input 
-                    value={newNote.tags}
-                    onChange={(e) => setNewNote({...newNote, tags: e.target.value})}
-                    placeholder="tag1, tag2, tag3..."
-                  />
-                </div>
-                
                 <div className="flex gap-3">
-                  <Button onClick={addNote} className="flex-1">
-                    Add Note
+                  <Button onClick={addNote} className="flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Adding...
+                      </>
+                    ) : (
+                      'Add Note'
+                    )}
                   </Button>
                   <Button variant="outline" onClick={() => setIsAddingNote(false)}>
                     Cancel
@@ -308,37 +324,36 @@ export function NotesSystemPanel({ leadId, notes = [] }: NotesSystemPanelProps) 
                 <div key={note.id} className="border rounded-lg p-3 hover:bg-muted/50 transition-colors">
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      {getCategoryIcon(note.category)}
-                      <h4 className="font-medium">{note.title}</h4>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getPriorityColor(note.priority)}>
-                        {note.priority}
+                      {getCategoryIcon(note.note_type)}
+                      <Badge variant="outline" className={getCategoryColor(note.note_type)}>
+                        {note.note_type.replace('_', ' ')}
                       </Badge>
-                      <Button size="sm" variant="ghost">
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => setEditingNote(note)}
+                      >
                         <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={() => deleteNote(note.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
                   
-                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                  <p className="text-sm text-foreground mb-3">
                     {note.content}
                   </p>
                   
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className={getCategoryColor(note.category)}>
-                        {note.category.replace('_', ' ')}
-                      </Badge>
-                      {note.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary" className="text-xs">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {note.author} • {new Date(note.createdAt).toLocaleDateString()}
-                    </div>
+                  <div className="text-xs text-muted-foreground">
+                    {new Date(note.created_at).toLocaleDateString()} at {new Date(note.created_at).toLocaleTimeString()}
                   </div>
                 </div>
               ))}
@@ -350,11 +365,77 @@ export function NotesSystemPanel({ leadId, notes = [] }: NotesSystemPanelProps) 
                 {searchTerm || selectedCategory !== 'all' ? 'No matching notes found' : 'No notes yet'}
               </p>
               <p className="text-sm text-muted-foreground mt-1 mb-4">
-                {searchTerm || selectedCategory !== 'all' ? 'Try adjusting your search or filters' : 'Add your first note to get started'}
+                {searchTerm || selectedCategory !== 'all' 
+                  ? 'Try adjusting your search or filters' 
+                  : 'Add your first note to get started'}
               </p>
+              {!searchTerm && selectedCategory === 'all' && (
+                <Button size="sm" onClick={() => setIsAddingNote(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add First Note
+                </Button>
+              )}
             </div>
           )}
         </ScrollArea>
+
+        {/* Edit Note Dialog */}
+        <Dialog open={!!editingNote} onOpenChange={(open) => !open && setEditingNote(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Note</DialogTitle>
+            </DialogHeader>
+            {editingNote && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Category</label>
+                  <Select 
+                    value={editingNote.note_type} 
+                    onValueChange={(value) => setEditingNote({...editingNote, note_type: value as any})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="general">General</SelectItem>
+                      <SelectItem value="follow_up">Follow-up</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="concern">Concern</SelectItem>
+                      <SelectItem value="opportunity">Opportunity</SelectItem>
+                      <SelectItem value="document">Document</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Content</label>
+                  <Textarea 
+                    value={editingNote.content}
+                    onChange={(e) => setEditingNote({...editingNote, content: e.target.value})}
+                    placeholder="Note content..."
+                    rows={4}
+                  />
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button onClick={updateNote} className="flex-1" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save Changes'
+                    )}
+                  </Button>
+                  <Button variant="outline" onClick={() => setEditingNote(null)}>
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

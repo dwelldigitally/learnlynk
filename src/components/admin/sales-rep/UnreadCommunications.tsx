@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { Mail, MessageSquare, Phone, Clock, AlertCircle, Reply, Sparkles, Zap } from 'lucide-react';
 import { AutoReplyDialog } from './AutoReplyDialog';
@@ -18,10 +20,12 @@ interface Communication {
   communication_date: string;
   lead_name?: string;
   is_urgent?: boolean;
+  status?: string;
 }
 
 export function UnreadCommunications() {
   const isMobile = useIsMobile();
+  const { user } = useAuth();
   const [communications, setCommunications] = useState<Communication[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCommunication, setSelectedCommunication] = useState<Communication | null>(null);
@@ -29,67 +33,55 @@ export function UnreadCommunications() {
   const [bulkAutoReplyOpen, setBulkAutoReplyOpen] = useState(false);
 
   useEffect(() => {
-    loadUnreadCommunications();
-  }, []);
+    if (user) {
+      loadUnreadCommunications();
+    }
+  }, [user]);
 
   const loadUnreadCommunications = async () => {
+    if (!user) return;
+
     try {
-      const mockCommunications: Communication[] = [
-        {
-          id: '1',
-          lead_id: 'lead-1',
-          type: 'email',
-          subject: 'Re: MBA Program Inquiry - Application Deadline Question',
-          content: 'Hi! Thank you for the detailed information about the MBA program. I have a few urgent questions about the application deadline and required documents. When is the latest I can submit my application for the Spring intake? Also, do I need to submit GMAT scores immediately or can I send them later?',
-          direction: 'inbound',
-          communication_date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
-          lead_name: 'Sarah Johnson',
-          is_urgent: true
-        },
-        {
-          id: '2',
-          lead_id: 'lead-2',
-          type: 'sms',
-          subject: undefined,
-          content: 'Hi, can we schedule a call to discuss the program fees and scholarship opportunities? I\'m very interested but need to understand the financial aspects better.',
-          direction: 'inbound',
-          communication_date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
-          lead_name: 'Michael Chen'
-        },
-        {
-          id: '3',
-          lead_id: 'lead-3',
-          type: 'email',
-          subject: 'Application Status Update Request',
-          content: 'Hello! I submitted my application last week and wanted to check on the status. I\'m particularly anxious about the interview process timing as I need to plan my schedule accordingly.',
-          direction: 'inbound',
-          communication_date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-          lead_name: 'Emily Rodriguez'
-        },
-        {
-          id: '4',
-          lead_id: 'lead-4',
-          type: 'email',
-          subject: 'Program Comparison - MBA vs Executive MBA',
-          content: 'I\'ve been reviewing both the MBA and Executive MBA programs. Could you help me understand which would be better for someone with 8 years of work experience? I\'m looking for career advancement opportunities.',
-          direction: 'inbound',
-          communication_date: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
-          lead_name: 'David Kim',
-          is_urgent: false
-        },
-        {
-          id: '5',
-          lead_id: 'lead-5',
-          type: 'sms',
-          subject: undefined,
-          content: 'Thank you for the brochure! The program looks amazing. Can we set up a campus visit next week?',
-          direction: 'inbound',
-          communication_date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-          lead_name: 'Lisa Wang'
-        }
-      ];
-      
-      setCommunications(mockCommunications);
+      // Fetch inbound communications that need response (status = 'pending' or no response yet)
+      const { data, error } = await supabase
+        .from('lead_communications')
+        .select(`
+          id,
+          lead_id,
+          type,
+          subject,
+          content,
+          direction,
+          communication_date,
+          status,
+          lead:leads(first_name, last_name)
+        `)
+        .eq('user_id', user.id)
+        .eq('direction', 'inbound')
+        .in('status', ['pending', 'received'])
+        .order('communication_date', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching communications:', error);
+        return;
+      }
+
+      const formattedComms = (data || []).map((comm: any) => ({
+        id: comm.id,
+        lead_id: comm.lead_id,
+        type: comm.type,
+        subject: comm.subject,
+        content: comm.content || '',
+        direction: comm.direction,
+        communication_date: comm.communication_date,
+        status: comm.status,
+        lead_name: comm.lead ? `${comm.lead.first_name || ''} ${comm.lead.last_name || ''}`.trim() : 'Unknown',
+        is_urgent: comm.status === 'pending' && 
+          new Date(comm.communication_date) < new Date(Date.now() - 24 * 60 * 60 * 1000)
+      }));
+
+      setCommunications(formattedComms);
     } catch (error) {
       console.error('Failed to load unread communications:', error);
     } finally {

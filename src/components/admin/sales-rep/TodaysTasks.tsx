@@ -5,19 +5,36 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { CheckSquare, Clock, AlertTriangle, Plus, Play, X } from 'lucide-react';
-import { LeadTask } from '@/types/leadEnhancements';
 import { useToast } from '@/hooks/use-toast';
+import { endOfDay } from 'date-fns';
+
+interface Task {
+  id: string;
+  lead_id: string;
+  user_id: string;
+  assigned_to?: string;
+  title: string;
+  description?: string;
+  priority: string;
+  status: string;
+  task_type?: string;
+  due_date: string;
+  completed_at?: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export function TodaysTasks() {
   const isMobile = useIsMobile();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [tasks, setTasks] = useState<LeadTask[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [completingTasks, setCompletingTasks] = useState<Set<string>>(new Set());
-  const [selectedTask, setSelectedTask] = useState<LeadTask | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showExecutionDialog, setShowExecutionDialog] = useState(false);
 
   useEffect(() => {
@@ -27,53 +44,27 @@ export function TodaysTasks() {
   }, [user]);
 
   const loadTodaysTasks = async () => {
+    if (!user) return;
+
     try {
-      const mockTasks: LeadTask[] = [
-        {
-          id: '1',
-          lead_id: 'lead-1',
-          user_id: user?.id || '',
-          assigned_to: user?.id || '',
-          title: 'Follow up on MBA inquiry',
-          description: 'Call Sarah Johnson about her MBA application questions',
-          priority: 'high',
-          status: 'pending',
-          task_type: 'follow_up',
-          due_date: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '2',
-          lead_id: 'lead-2',
-          user_id: user?.id || '',
-          assigned_to: user?.id || '',
-          title: 'Send program brochure',
-          description: 'Email Michael Chen the updated program brochure',
-          priority: 'medium',
-          status: 'pending',
-          task_type: 'email',
-          due_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: '3',
-          lead_id: 'lead-3',
-          user_id: user?.id || '',
-          assigned_to: user?.id || '',
-          title: 'Schedule intake meeting',
-          description: 'Book intake meeting with Emily Rodriguez for next week',
-          priority: 'medium',
-          status: 'pending',
-          task_type: 'meeting',
-          due_date: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
-      setTasks(mockTasks);
+      const today = new Date();
+      const endOfToday = endOfDay(today).toISOString();
+
+      const { data, error } = await supabase
+        .from('lead_tasks')
+        .select('*')
+        .or(`assigned_to.eq.${user.id},user_id.eq.${user.id}`)
+        .lte('due_date', endOfToday)
+        .neq('status', 'completed')
+        .order('due_date', { ascending: true })
+        .limit(10);
+
+      if (error) {
+        console.error('Error fetching tasks:', error);
+        return;
+      }
+
+      setTasks(data || []);
     } catch (error) {
       console.error('Failed to load today\'s tasks:', error);
     } finally {
@@ -81,7 +72,7 @@ export function TodaysTasks() {
     }
   };
 
-  const handleTaskClick = (task: LeadTask) => {
+  const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setShowExecutionDialog(true);
   };
@@ -90,13 +81,17 @@ export function TodaysTasks() {
     setCompletingTasks(prev => new Set(prev).add(taskId));
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { error } = await supabase
+        .from('lead_tasks')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
       
-      setTasks(prev => prev.map(task => 
-        task.id === taskId 
-          ? { ...task, status: 'completed', completed_at: new Date().toISOString() }
-          : task
-      ));
+      setTasks(prev => prev.filter(task => task.id !== taskId));
       
       toast({
         title: "Task Completed",
@@ -152,12 +147,7 @@ export function TodaysTasks() {
     });
   };
 
-  const pendingTasks = tasks.filter(task => task.status === 'pending');
-  const completedToday = tasks.filter(task => 
-    task.status === 'completed' && 
-    task.completed_at &&
-    new Date(task.completed_at).toDateString() === new Date().toDateString()
-  ).length;
+  const pendingTasks = tasks.filter(task => task.status !== 'completed');
 
   if (loading) {
     return (
@@ -174,9 +164,6 @@ export function TodaysTasks() {
       <div className="flex items-center gap-2 mb-4">
         <Badge className="bg-[hsl(158,64%,90%)] text-[hsl(158,64%,35%)] border-0 rounded-full px-3 py-1 text-xs font-medium ml-auto">
           {pendingTasks.length} pending
-        </Badge>
-        <Badge className="bg-muted text-muted-foreground border-0 rounded-full px-3 py-1 text-xs font-medium">
-          {completedToday} done
         </Badge>
       </div>
       

@@ -1413,6 +1413,107 @@ export type Database = {
           },
         ]
       }
+      calendar_events: {
+        Row: {
+          agenda: string | null
+          attendees: Json | null
+          cancelled_reason: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          duration_minutes: number | null
+          end_time: string
+          follow_up_tasks: string[] | null
+          id: string
+          lead_email: string | null
+          lead_id: string | null
+          lead_name: string | null
+          lead_phone: string | null
+          location_details: string | null
+          location_type: string | null
+          meeting_link: string | null
+          meeting_notes: string | null
+          meeting_platform: string | null
+          objectives: string[] | null
+          outcomes: string[] | null
+          reminders: Json | null
+          start_time: string
+          status: string | null
+          title: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agenda?: string | null
+          attendees?: Json | null
+          cancelled_reason?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          end_time: string
+          follow_up_tasks?: string[] | null
+          id?: string
+          lead_email?: string | null
+          lead_id?: string | null
+          lead_name?: string | null
+          lead_phone?: string | null
+          location_details?: string | null
+          location_type?: string | null
+          meeting_link?: string | null
+          meeting_notes?: string | null
+          meeting_platform?: string | null
+          objectives?: string[] | null
+          outcomes?: string[] | null
+          reminders?: Json | null
+          start_time: string
+          status?: string | null
+          title: string
+          type?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agenda?: string | null
+          attendees?: Json | null
+          cancelled_reason?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          duration_minutes?: number | null
+          end_time?: string
+          follow_up_tasks?: string[] | null
+          id?: string
+          lead_email?: string | null
+          lead_id?: string | null
+          lead_name?: string | null
+          lead_phone?: string | null
+          location_details?: string | null
+          location_type?: string | null
+          meeting_link?: string | null
+          meeting_notes?: string | null
+          meeting_platform?: string | null
+          objectives?: string[] | null
+          outcomes?: string[] | null
+          reminders?: Json | null
+          start_time?: string
+          status?: string | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_analytics: {
         Row: {
           action_metadata: Json | null
@@ -7007,6 +7108,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sales_targets: {
+        Row: {
+          category: string
+          created_at: string | null
+          current_value: number | null
+          id: string
+          is_active: boolean | null
+          name: string
+          period_end: string
+          period_start: string
+          period_type: string
+          priority: string | null
+          target_value: number
+          unit: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          period_end: string
+          period_start: string
+          period_type: string
+          priority?: string | null
+          target_value: number
+          unit: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string | null
+          current_value?: number | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          period_end?: string
+          period_start?: string
+          period_type?: string
+          priority?: string | null
+          target_value?: number
+          unit?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       scheduling_preferences: {
         Row: {

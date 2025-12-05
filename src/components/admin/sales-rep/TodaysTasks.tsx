@@ -3,13 +3,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { CheckSquare, Clock, AlertTriangle, Plus, Play, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { endOfDay } from 'date-fns';
+import { endOfDay, addDays, format } from 'date-fns';
 
 interface Task {
   id: string;
@@ -28,7 +31,6 @@ interface Task {
 }
 
 export function TodaysTasks() {
-  const isMobile = useIsMobile();
   const { user } = useAuth();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -36,6 +38,14 @@ export function TodaysTasks() {
   const [completingTasks, setCompletingTasks] = useState<Set<string>>(new Set());
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showExecutionDialog, setShowExecutionDialog] = useState(false);
+  const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newTask, setNewTask] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    due_date: format(new Date(), 'yyyy-MM-dd')
+  });
 
   useEffect(() => {
     if (user) {
@@ -113,6 +123,56 @@ export function TodaysTasks() {
         newSet.delete(taskId);
         return newSet;
       });
+    }
+  };
+
+  const handleCreateTask = async () => {
+    if (!user || !newTask.title.trim()) return;
+    
+    setIsCreating(true);
+    try {
+      const { data, error } = await supabase
+        .from('lead_tasks')
+        .insert({
+          user_id: user.id,
+          assigned_to: user.id,
+          lead_id: '00000000-0000-0000-0000-000000000000',
+          title: newTask.title.trim(),
+          description: newTask.description.trim() || null,
+          priority: newTask.priority,
+          status: 'pending',
+          task_type: 'general',
+          due_date: new Date(newTask.due_date).toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Reload tasks to include the new one if it's due today
+      await loadTodaysTasks();
+      
+      toast({
+        title: "Task Created",
+        description: `"${newTask.title}" has been added to your tasks.`,
+      });
+      
+      setShowAddTaskDialog(false);
+      setNewTask({
+        title: '',
+        description: '',
+        priority: 'medium',
+        due_date: format(new Date(), 'yyyy-MM-dd')
+      });
+    } catch (error) {
+      console.error('Failed to create task:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create task. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -253,11 +313,104 @@ export function TodaysTasks() {
         variant="outline" 
         size="sm" 
         className="w-full mt-4 rounded-full border-border hover:bg-[hsl(245,90%,94%)] hover:border-primary/30 hover:text-primary"
+        onClick={() => setShowAddTaskDialog(true)}
       >
         <Plus className="w-4 h-4 mr-1.5" />
         Add New Task
       </Button>
 
+      {/* Add Task Dialog */}
+      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+        <DialogContent className="sm:max-w-[425px] rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="p-2 bg-[hsl(245,90%,94%)] rounded-xl">
+                <Plus className="w-4 h-4 text-primary" />
+              </div>
+              Add New Task
+            </DialogTitle>
+            <DialogDescription>
+              Create a new task for yourself
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="task-title">Title</Label>
+              <Input
+                id="task-title"
+                placeholder="Enter task title..."
+                value={newTask.title}
+                onChange={(e) => setNewTask(prev => ({ ...prev, title: e.target.value }))}
+                className="rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="task-description">Description (optional)</Label>
+              <Textarea
+                id="task-description"
+                placeholder="Add details..."
+                value={newTask.description}
+                onChange={(e) => setNewTask(prev => ({ ...prev, description: e.target.value }))}
+                className="rounded-xl resize-none"
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Priority</Label>
+                <Select
+                  value={newTask.priority}
+                  onValueChange={(value) => setNewTask(prev => ({ ...prev, priority: value }))}
+                >
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="task-due-date">Due Date</Label>
+                <Input
+                  id="task-due-date"
+                  type="date"
+                  value={newTask.due_date}
+                  onChange={(e) => setNewTask(prev => ({ ...prev, due_date: e.target.value }))}
+                  className="rounded-xl"
+                />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowAddTaskDialog(false)}
+              disabled={isCreating}
+              className="rounded-full"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateTask}
+              disabled={isCreating || !newTask.title.trim()}
+              className="rounded-full"
+            >
+              {isCreating ? 'Creating...' : 'Create Task'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Execute Task Dialog */}
       <Dialog open={showExecutionDialog} onOpenChange={setShowExecutionDialog}>
         <DialogContent className="sm:max-w-[425px] rounded-2xl">
           <DialogHeader>

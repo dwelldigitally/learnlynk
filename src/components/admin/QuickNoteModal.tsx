@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,23 +15,40 @@ import {
   Globe, 
   Tag,
   Search,
-  Clock
+  Clock,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
+import { useEntitySearch, SearchEntity } from "@/hooks/useEntitySearch";
+import { LeadNotesService } from "@/services/leadNotesService";
+import { supabase } from "@/integrations/supabase/client";
 
 interface QuickNoteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onNoteCreated?: () => void;
 }
 
-export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
+export function QuickNoteModal({ open, onOpenChange, onNoteCreated }: QuickNoteModalProps) {
   const [content, setContent] = useState("");
-  const [associatedWith, setAssociatedWith] = useState("");
+  const [selectedEntity, setSelectedEntity] = useState<SearchEntity | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [noteType, setNoteType] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { results: entityResults, search: searchEntities, clearResults } = useEntitySearch();
+
+  // Search entities when query changes
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      searchEntities(searchQuery);
+    } else {
+      clearResults();
+    }
+  }, [searchQuery, searchEntities, clearResults]);
 
   const noteTypes = [
     { value: "general", label: "General Note" },
@@ -52,13 +69,6 @@ export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
     "Payment plan discussed and agreed upon"
   ];
 
-  const searchResults = [
-    { id: "1", name: "Sarah Johnson", type: "Lead", email: "sarah@example.com" },
-    { id: "2", name: "Mike Davis", type: "Student", program: "MBA" },
-    { id: "3", name: "Biology Program", type: "Program", intake: "Fall 2024" },
-    { id: "4", name: "Jane Smith", type: "Lead", email: "jane@example.com" }
-  ];
-
   const addTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       setTags([...tags, tagInput.trim()]);
@@ -74,29 +84,75 @@ export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
     setContent(template);
   };
 
-  const handleSave = () => {
-    if (!content.trim()) {
-      toast.error("Please enter note content");
-      return;
-    }
+  const selectEntity = (entity: SearchEntity) => {
+    setSelectedEntity(entity);
+    setSearchQuery("");
+    clearResults();
+  };
 
-    toast.success("Note saved successfully!");
-    
-    // Reset form
+  const resetForm = () => {
     setContent("");
-    setAssociatedWith("");
+    setSelectedEntity(null);
     setSearchQuery("");
     setNoteType("");
     setIsPrivate(false);
     setTags([]);
     setTagInput("");
-    onOpenChange(false);
   };
 
-  const filteredResults = searchResults.filter(result => 
-    result.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    result.email?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleSave = async () => {
+    if (!content.trim()) {
+      toast.error("Please enter note content");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Not authenticated");
+        return;
+      }
+
+      if (selectedEntity?.type === 'lead' && selectedEntity.id) {
+        // Create lead note using LeadNotesService
+        await LeadNotesService.createNote(selectedEntity.id, {
+          content,
+          note_type: (noteType || 'general') as any,
+        });
+      } else {
+        // For non-lead entities or standalone notes, create in lead_notes with null lead_id
+        // Or we could create a universal notes table - for now, just show a message
+        if (selectedEntity) {
+          toast.info("Notes for applicants will be associated when viewing the applicant");
+        }
+        
+        // Create a general note (could be linked to any entity via metadata)
+        const { error } = await supabase
+          .from('lead_notes')
+          .insert({
+            lead_id: selectedEntity?.type === 'lead' ? selectedEntity.id : null,
+            user_id: user.id,
+            content,
+            note_type: noteType || 'general',
+            is_pinned: false
+          });
+
+        if (error) throw error;
+      }
+
+      toast.success("Note saved successfully!");
+      resetForm();
+      onOpenChange(false);
+      onNoteCreated?.();
+    } catch (error) {
+      console.error('Error saving note:', error);
+      toast.error("Failed to save note");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -138,29 +194,28 @@ export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search for student, lead, or program..."
+                  placeholder="Search for student, lead, or applicant..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
               
-              {searchQuery && (
+              {searchQuery && entityResults.length > 0 && (
                 <div className="border rounded-lg max-h-32 overflow-y-auto">
-                  {filteredResults.map((result) => (
+                  {entityResults.map((entity) => (
                     <button
-                      key={result.id}
-                      onClick={() => {
-                        setAssociatedWith(result.name);
-                        setSearchQuery("");
-                      }}
+                      key={`${entity.type}-${entity.id}`}
+                      onClick={() => selectEntity(entity)}
                       className="w-full p-2 text-left hover:bg-muted/50 flex items-center space-x-2 border-b last:border-b-0"
                     >
                       <User className="h-4 w-4" />
                       <div>
-                        <p className="text-sm font-medium">{result.name}</p>
+                        <p className="text-sm font-medium">{entity.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {result.type} {result.email && `• ${result.email}`} {result.program && `• ${result.program}`}
+                          {entity.type.charAt(0).toUpperCase() + entity.type.slice(1)}
+                          {entity.email && ` • ${entity.email}`}
+                          {entity.program && ` • ${entity.program}`}
                         </p>
                       </div>
                     </button>
@@ -168,14 +223,16 @@ export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
                 </div>
               )}
               
-              {associatedWith && (
+              {selectedEntity && (
                 <div className="flex items-center space-x-2 p-2 bg-muted/50 rounded-lg">
                   <User className="h-4 w-4" />
-                  <span className="text-sm">Associated with: <strong>{associatedWith}</strong></span>
+                  <span className="text-sm">
+                    Associated with: <strong>{selectedEntity.name}</strong> ({selectedEntity.type})
+                  </span>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setAssociatedWith("")}
+                    onClick={() => setSelectedEntity(null)}
                     className="ml-auto h-6 px-2"
                   >
                     ×
@@ -225,7 +282,7 @@ export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
                 placeholder="Add tag and press Enter"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
               />
               <Button onClick={addTag} size="sm" variant="outline">
                 <Tag className="h-4 w-4" />
@@ -273,12 +330,16 @@ export function QuickNoteModal({ open, onOpenChange }: QuickNoteModalProps) {
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Cancel
           </Button>
-          <Button onClick={handleSave} className="flex items-center space-x-2">
-            <Save className="h-4 w-4" />
-            <span>Save Note</span>
+          <Button onClick={handleSave} disabled={isSubmitting} className="flex items-center space-x-2">
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            <span>{isSubmitting ? "Saving..." : "Save Note"}</span>
           </Button>
         </div>
       </DialogContent>

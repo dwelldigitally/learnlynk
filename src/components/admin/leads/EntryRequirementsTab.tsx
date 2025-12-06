@@ -114,15 +114,7 @@ export function EntryRequirementsTab({ leadId, programName, onRefresh }: EntryRe
   };
 
   const handleApprove = async (req: LeadEntryRequirement) => {
-    // If has linked document that's not approved, can't approve
-    if (req.linked_document_id && req.linked_document?.status !== 'approved') {
-      toast({
-        title: 'Cannot Approve',
-        description: 'The linked document must be approved first.',
-        variant: 'destructive',
-      });
-      return;
-    }
+    // Approving requirement also approves linked document (bidirectional sync)
     await approveRequirement(req.id);
     onRefresh?.();
   };
@@ -198,25 +190,12 @@ export function EntryRequirementsTab({ leadId, programName, onRefresh }: EntryRe
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // Approve the document
-    await supabase
-      .from('lead_documents')
-      .update({ 
-        status: 'approved',
-        approved_at: new Date().toISOString(),
-        approved_by: user.id,
-        notes: notes || null,
-      })
-      .eq('id', documentToApprove.id);
-
-    // Auto-approve linked requirement
-    await entryRequirementService.autoApproveFromDocument(documentToApprove.id, user.id);
+    // Approve both document and linked requirement (bidirectional sync)
+    await entryRequirementService.approveDocumentAndRequirement(documentToApprove.id, user.id, notes);
 
     toast({
       title: 'Document Approved',
-      description: requirementForDocument 
-        ? 'Document and linked entry requirement have been approved.'
-        : 'Document has been approved.',
+      description: 'Document and linked entry requirement have been approved.',
     });
 
     setDocumentApprovalOpen(false);
@@ -232,17 +211,12 @@ export function EntryRequirementsTab({ leadId, programName, onRefresh }: EntryRe
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    await supabase
-      .from('lead_documents')
-      .update({ 
-        status: 'rejected',
-        notes: reason,
-      })
-      .eq('id', documentToApprove.id);
+    // Reject both document and linked requirement (bidirectional sync)
+    await entryRequirementService.rejectDocumentAndRequirement(documentToApprove.id, user.id, reason);
 
     toast({
       title: 'Document Rejected',
-      description: 'The document has been rejected.',
+      description: 'Document and linked entry requirement have been rejected.',
     });
 
     setDocumentApprovalOpen(false);
@@ -319,9 +293,9 @@ export function EntryRequirementsTab({ leadId, programName, onRefresh }: EntryRe
           {reqs.map((req) => {
             const status = statusConfig[req.status] || statusConfig.pending;
             const isExpanded = expandedIds.has(req.id);
-            const hasLinkedDoc = !!req.linked_document_id;
-            const docStatus = req.linked_document?.status;
-            const canApproveManually = !hasLinkedDoc && req.status === 'pending';
+            const hasLinkedDoc = !!req.linked_document;
+            const docStatus = req.linked_document?.admin_status || req.linked_document?.status || 'pending';
+            const canApproveManually = req.status === 'pending';
             const needsDocApproval = hasLinkedDoc && docStatus !== 'approved' && req.status === 'pending';
 
             return (

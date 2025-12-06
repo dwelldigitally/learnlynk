@@ -78,18 +78,20 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
   const loadProgramRequirements = async () => {
     try {
       setRequirementsLoading(true);
-      const programName = lead.program_interest?.[0];
+      const programName = lead.program_interest?.[0]?.trim();
       
       if (!programName) {
         setProgramRequirements({ documentRequirements: [], entryRequirements: [] });
         return;
       }
 
-      // Fetch program from database
+      console.log('Loading requirements for program:', programName);
+
+      // Fetch program from database using ILIKE for flexible matching
       const { data: programs, error } = await supabase
         .from('programs')
         .select('document_requirements, entry_requirements')
-        .or(`name.ilike.%${programName}%`)
+        .ilike('name', `%${programName}%`)
         .limit(1);
 
       if (error) {

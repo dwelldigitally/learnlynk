@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { GraduationCap, GripVertical } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { Lead } from '@/types/lead';
 
 interface ProgramDetailsWidgetProps {
@@ -9,9 +9,8 @@ interface ProgramDetailsWidgetProps {
 export function ProgramDetailsWidget({ lead }: ProgramDetailsWidgetProps) {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="cursor-move drag-handle flex-shrink-0">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
           <GraduationCap className="h-5 w-5 text-primary" />
           Program Details
         </CardTitle>

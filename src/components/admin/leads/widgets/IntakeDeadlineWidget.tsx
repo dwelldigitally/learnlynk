@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, GripVertical, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, AlertCircle } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -149,9 +149,8 @@ export function IntakeDeadlineWidget({ lead }: IntakeDeadlineWidgetProps) {
   if (loading) {
     return (
       <Card className="h-full flex flex-col">
-        <CardHeader className="cursor-move drag-handle flex-shrink-0">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
             <Calendar className="h-5 w-5 text-primary" />
             Intake Deadline
           </CardTitle>
@@ -166,9 +165,8 @@ export function IntakeDeadlineWidget({ lead }: IntakeDeadlineWidgetProps) {
   if (!intake) {
     return (
       <Card className="h-full flex flex-col">
-        <CardHeader className="cursor-move drag-handle flex-shrink-0">
+        <CardHeader className="flex-shrink-0">
           <CardTitle className="text-lg flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
             <Calendar className="h-5 w-5 text-primary" />
             Intake Deadline
           </CardTitle>
@@ -198,9 +196,8 @@ export function IntakeDeadlineWidget({ lead }: IntakeDeadlineWidgetProps) {
 
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="cursor-move drag-handle flex-shrink-0">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
           <Calendar className="h-5 w-5 text-primary" />
           Intake Deadline
         </CardTitle>

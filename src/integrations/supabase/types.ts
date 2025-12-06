@@ -3478,6 +3478,56 @@ export type Database = {
           },
         ]
       }
+      lead_activity_logs: {
+        Row: {
+          action_category: string
+          action_type: string
+          created_at: string
+          description: string | null
+          id: string
+          lead_id: string
+          metadata: Json | null
+          new_value: Json | null
+          old_value: Json | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          action_category: string
+          action_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          action_category?: string
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activity_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_communication_attachments: {
         Row: {
           communication_id: string | null

@@ -114,7 +114,7 @@ export function useIntakesByProgramName(programName: string | null) {
         .from('intakes')
         .select('*')
         .eq('program_id', programData.id)
-        .eq('status', 'open')
+        .in('status', ['open', 'planning']) // Include both open and planning intakes
         .gte('start_date', currentDate)
         .order('start_date', { ascending: true });
 

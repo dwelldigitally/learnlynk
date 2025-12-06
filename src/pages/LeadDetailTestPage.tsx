@@ -57,6 +57,8 @@ export default function LeadDetailTestPage() {
   const [timelineFilter, setTimelineFilter] = useState('all');
   const [isEditing, setIsEditing] = useState(false);
   const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
+  const [advisorName, setAdvisorName] = useState<string | null>(null);
+  const [intakeName, setIntakeName] = useState<string | null>(null);
 
   // Document and journey data
   const {
@@ -102,6 +104,33 @@ export default function LeadDetailTestPage() {
       } = await LeadService.getLeadById(leadId);
       if (leadData) {
         setLead(leadData);
+        
+        // Fetch advisor name if assigned_to exists
+        if (leadData.assigned_to) {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: advisor } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('user_id', leadData.assigned_to)
+            .maybeSingle();
+          if (advisor) {
+            const name = [advisor.first_name, advisor.last_name].filter(Boolean).join(' ');
+            setAdvisorName(name || 'Unknown Advisor');
+          }
+        }
+        
+        // Fetch intake name if preferred_intake_id exists
+        if (leadData.preferred_intake_id) {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: intake } = await supabase
+            .from('intakes')
+            .select('name')
+            .eq('id', leadData.preferred_intake_id)
+            .maybeSingle();
+          if (intake) {
+            setIntakeName(intake.name);
+          }
+        }
       } else {
         toast({
           title: 'Error',
@@ -537,16 +566,16 @@ export default function LeadDetailTestPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{lead.intake_period || 'Not Set'}</span>
+                    <span>{intakeName || 'Not Set'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>Location TBD</span>
+                    <span>{[lead.city, lead.country].filter(Boolean).join(', ') || 'Location TBD'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <Button variant="link" className="p-0 h-auto text-sm font-normal underline hover:no-underline" onClick={() => setAdvisorMatchOpen(true)}>
-                      Sarah Johnson
+                      {advisorName || 'Not Assigned'}
                     </Button>
                   </div>
                   <div className="flex items-center gap-2">

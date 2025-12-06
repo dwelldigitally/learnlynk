@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -6,9 +7,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { CheckSquare, Clock, AlertTriangle, Plus, Play, X } from 'lucide-react';
+import { CheckSquare, Clock, AlertTriangle, Plus, ExternalLink, CheckCircle, User, FileText, Tag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { endOfDay } from 'date-fns';
+import { endOfDay, format } from 'date-fns';
 import { UnifiedTaskDialog } from '@/components/admin/tasks/UnifiedTaskDialog';
 
 interface Task {
@@ -25,12 +26,14 @@ interface Task {
   completed_at?: string;
   created_at: string;
   updated_at: string;
-  source: 'lead_tasks' | 'tasks'; // Track which table the task came from
+  source: 'lead_tasks' | 'tasks';
+  lead_name?: string;
 }
 
 export function TodaysTasks() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [completingTasks, setCompletingTasks] = useState<Set<string>>(new Set());
@@ -51,10 +54,10 @@ export function TodaysTasks() {
       const today = new Date();
       const endOfTodayISO = endOfDay(today).toISOString();
 
-      // Query lead_tasks table
+      // Query lead_tasks table with lead info
       const { data: leadTasks, error: leadTasksError } = await supabase
         .from('lead_tasks')
-        .select('*')
+        .select('*, leads(id, first_name, last_name)')
         .or(`assigned_to.eq.${user.id},user_id.eq.${user.id}`)
         .lte('due_date', endOfTodayISO)
         .neq('status', 'completed');
@@ -77,11 +80,18 @@ export function TodaysTasks() {
 
       // Combine and normalize both task sources
       const allTasks: Task[] = [
-        ...(leadTasks || []).map(t => ({ ...t, source: 'lead_tasks' as const })),
+        ...(leadTasks || []).map(t => {
+          const lead = (t as any).leads;
+          return {
+            ...t,
+            source: 'lead_tasks' as const,
+            lead_name: lead ? `${lead.first_name || ''} ${lead.last_name || ''}`.trim() : undefined
+          };
+        }),
         ...(universalTasks || []).map(t => ({ 
           ...t, 
           source: 'tasks' as const,
-          task_type: t.category // Map category to task_type for consistency
+          task_type: t.category
         }))
       ];
 
@@ -292,80 +302,127 @@ export function TodaysTasks() {
         showEntitySearch={true}
       />
 
-      {/* Execute Task Dialog */}
+      {/* Task Details Dialog */}
       <Dialog open={showExecutionDialog} onOpenChange={setShowExecutionDialog}>
-        <DialogContent className="sm:max-w-[425px] rounded-2xl">
+        <DialogContent className="sm:max-w-[500px] rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <div className="p-2 bg-[hsl(158,64%,90%)] rounded-xl">
                 <CheckSquare className="w-4 h-4 text-[hsl(158,64%,40%)]" />
               </div>
-              Execute Task
+              Task Details
             </DialogTitle>
             <DialogDescription>
-              Review task details before execution
+              Review task details and take action
             </DialogDescription>
           </DialogHeader>
 
           {selectedTask && (
             <div className="space-y-4 py-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Task:</span>
-                  <span className="text-sm font-medium">{selectedTask.title}</span>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Priority:</span>
-                  <Badge 
-                    className={cn("text-xs rounded-full", getPriorityStyles(selectedTask.priority))}
-                  >
+              {/* Task Title */}
+              <div className="p-4 bg-muted/30 rounded-xl border border-border">
+                <h3 className="font-semibold text-foreground text-lg">{selectedTask.title}</h3>
+              </div>
+
+              {/* Task Details Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* Priority */}
+                <div className="p-3 bg-card rounded-xl border border-border">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <AlertTriangle className="w-3.5 h-3.5" />
+                    Priority
+                  </div>
+                  <Badge className={cn("text-xs rounded-full capitalize", getPriorityStyles(selectedTask.priority))}>
                     {selectedTask.priority}
                   </Badge>
                 </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">Due:</span>
+
+                {/* Task Type */}
+                <div className="p-3 bg-card rounded-xl border border-border">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <Tag className="w-3.5 h-3.5" />
+                    Task Type
+                  </div>
+                  <Badge variant="outline" className="text-xs rounded-full capitalize">
+                    {selectedTask.task_type || 'General'}
+                  </Badge>
+                </div>
+
+                {/* Due Date */}
+                <div className="p-3 bg-card rounded-xl border border-border">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <Clock className="w-3.5 h-3.5" />
+                    Due Date
+                  </div>
                   <span className={cn(
-                    "text-sm",
-                    isOverdue(selectedTask.due_date) ? "text-[hsl(24,95%,45%)] font-medium" : "text-foreground"
+                    "text-sm font-medium",
+                    isOverdue(selectedTask.due_date) ? "text-[hsl(24,95%,45%)]" : "text-foreground"
                   )}>
-                    {formatTime(selectedTask.due_date)}
+                    {format(new Date(selectedTask.due_date), 'MMM dd, yyyy h:mm a')}
                   </span>
                 </div>
-                
-                {selectedTask.description && (
-                  <div className="space-y-1.5">
-                    <span className="text-sm text-muted-foreground">Description:</span>
-                    <p className="text-sm text-foreground bg-muted/50 p-3 rounded-xl">{selectedTask.description}</p>
+
+                {/* Lead Assignment */}
+                <div className="p-3 bg-card rounded-xl border border-border">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                    <User className="w-3.5 h-3.5" />
+                    Assigned Lead
                   </div>
-                )}
+                  {selectedTask.lead_id && selectedTask.lead_name ? (
+                    <span className="text-sm font-medium text-foreground">{selectedTask.lead_name}</span>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">No lead assigned</span>
+                  )}
+                </div>
               </div>
 
-              <div className="p-3 bg-[hsl(245,90%,94%)] rounded-xl">
-                <p className="text-xs text-primary font-medium mb-1">Action Impact:</p>
-                <p className="text-sm text-foreground">This task will be marked as completed and removed from your pending tasks list.</p>
-              </div>
+              {/* Description */}
+              {selectedTask.description && (
+                <div className="p-4 bg-card rounded-xl border border-border">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2">
+                    <FileText className="w-3.5 h-3.5" />
+                    Description
+                  </div>
+                  <p className="text-sm text-foreground whitespace-pre-wrap">{selectedTask.description}</p>
+                </div>
+              )}
+
+              {/* Status indicator */}
+              {isOverdue(selectedTask.due_date) && (
+                <div className="p-3 bg-[hsl(24,95%,95%)] rounded-xl border border-[hsl(24,95%,85%)]">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-[hsl(24,95%,50%)]" />
+                    <p className="text-sm text-[hsl(24,95%,40%)] font-medium">This task is overdue</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowExecutionDialog(false)}
-              disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
-              className="rounded-full"
-            >
-              <X className="w-4 h-4 mr-1.5" />
-              Cancel
-            </Button>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            {/* Go to Lead Button - only show if lead is assigned */}
+            {selectedTask?.lead_id && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowExecutionDialog(false);
+                  navigate(`/admin/leads/${selectedTask.lead_id}`);
+                }}
+                className="rounded-full w-full sm:w-auto"
+              >
+                <ExternalLink className="w-4 h-4 mr-1.5" />
+                Go to Lead
+              </Button>
+            )}
+            
+            {/* Close Task Button */}
             <Button
               onClick={() => selectedTask && handleTaskComplete(selectedTask.id, selectedTask.source)}
               disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
-              className="rounded-full bg-[hsl(158,64%,52%)] hover:bg-[hsl(158,64%,45%)]"
+              className="rounded-full bg-[hsl(158,64%,52%)] hover:bg-[hsl(158,64%,45%)] w-full sm:w-auto"
             >
-              <Play className="w-4 h-4 mr-1.5" />
-              {selectedTask && completingTasks.has(selectedTask.id) ? 'Executing...' : 'Execute Task'}
+              <CheckCircle className="w-4 h-4 mr-1.5" />
+              {selectedTask && completingTasks.has(selectedTask.id) ? 'Closing...' : 'Close Task'}
             </Button>
           </DialogFooter>
         </DialogContent>

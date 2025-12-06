@@ -56,6 +56,8 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [requirements, setRequirements] = useState<PresetDocumentRequirement[]>([]);
   const [requirementsLoading, setRequirementsLoading] = useState(true);
+  // Map doc template ID to entry requirement ID for linking
+  const [docToEntryReqMap, setDocToEntryReqMap] = useState<Record<string, string>>({});
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { toast } = useToast();
 
@@ -70,6 +72,8 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
           return;
         }
 
+        console.log('[PresetDocumentUpload] Fetching requirements for program:', trimmedProgramName);
+
         // Fetch program from database
         const { data: programs, error } = await supabase
           .from('programs')
@@ -78,13 +82,16 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
           .limit(1);
 
         if (error) {
-          console.error('Error fetching program:', error);
+          console.error('[PresetDocumentUpload] Error fetching program:', error);
           setRequirements([]);
           return;
         }
 
         const program = programs?.[0];
+        console.log('[PresetDocumentUpload] Found program:', program);
+        
         let docReqs: PresetDocumentRequirement[] = [];
+        const docEntryMap: Record<string, string> = {};
 
         // Parse direct document requirements
         if (program?.document_requirements && Array.isArray(program.document_requirements)) {
@@ -95,6 +102,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
             required: req.mandatory ?? true,
             programName: trimmedProgramName
           }));
+          console.log('[PresetDocumentUpload] Direct document requirements:', docReqs.length);
         }
 
         // Extract linked document templates from entry requirements
@@ -102,22 +110,34 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         const linkedDocIds: string[] = [];
         
         if (rawEntryReqs && Array.isArray(rawEntryReqs)) {
+          console.log('[PresetDocumentUpload] Processing entry requirements:', rawEntryReqs.length);
           for (const req of rawEntryReqs as any[]) {
+            const entryReqId = req.id || req.name || 'unknown';
             if (req.linkedDocumentTemplates && Array.isArray(req.linkedDocumentTemplates)) {
-              linkedDocIds.push(...req.linkedDocumentTemplates);
+              console.log(`[PresetDocumentUpload] Entry req "${entryReqId}" has linked docs:`, req.linkedDocumentTemplates);
+              for (const docId of req.linkedDocumentTemplates) {
+                linkedDocIds.push(docId);
+                // Map each doc template to its entry requirement
+                docEntryMap[docId] = entryReqId;
+              }
             }
           }
         }
 
         // Deduplicate and fetch linked document templates
         const uniqueLinkedDocIds = [...new Set(linkedDocIds)];
+        console.log('[PresetDocumentUpload] Unique linked doc IDs:', uniqueLinkedDocIds);
+        
         if (uniqueLinkedDocIds.length > 0) {
           const { data: templates, error: templateError } = await supabase
             .from('document_templates')
             .select('id, name, description, mandatory')
             .in('id', uniqueLinkedDocIds);
 
-          if (!templateError && templates && templates.length > 0) {
+          if (templateError) {
+            console.error('[PresetDocumentUpload] Error fetching templates:', templateError);
+          } else if (templates && templates.length > 0) {
+            console.log('[PresetDocumentUpload] Fetched document templates:', templates);
             const existingIds = new Set(docReqs.map(r => r.id));
             const newDocReqs = templates
               .filter(t => !existingIds.has(t.id))
@@ -126,20 +146,25 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                 name: t.name,
                 description: t.description || '',
                 required: t.mandatory,
-                programName: trimmedProgramName
+                programName: trimmedProgramName,
+                entryRequirementId: docEntryMap[t.id]
               }));
             docReqs = [...docReqs, ...newDocReqs];
+            console.log('[PresetDocumentUpload] Added linked templates as requirements:', newDocReqs.length);
           }
         }
 
         // Fallback to preset service if no requirements found
         if (docReqs.length === 0) {
+          console.log('[PresetDocumentUpload] No requirements found, using fallback');
           docReqs = await presetDocumentService.getPresetRequirementsAsync(trimmedProgramName);
         }
 
+        console.log('[PresetDocumentUpload] Final requirements:', docReqs);
         setRequirements(docReqs);
+        setDocToEntryReqMap(docEntryMap);
       } catch (error) {
-        console.error('Error fetching requirements:', error);
+        console.error('[PresetDocumentUpload] Error fetching requirements:', error);
         setRequirements([]);
       } finally {
         setRequirementsLoading(false);
@@ -212,11 +237,23 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 100);
 
+      // Get entry requirement ID if this document is linked to one
+      const entryRequirementId = docToEntryReqMap[requirementId] || undefined;
+      
+      console.log('[PresetDocumentUpload] Uploading document:', {
+        leadId,
+        requirementId,
+        programName,
+        entryRequirementId,
+        fileName: file.name
+      });
+
       await presetDocumentService.uploadDocument(
         leadId,
         file,
         requirementId,
-        programName
+        programName,
+        entryRequirementId
       );
 
       clearInterval(progressInterval);
@@ -233,11 +270,11 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
       }
 
       onDocumentUploaded();
-    } catch (error) {
-      console.error('Upload error:', error);
+    } catch (error: any) {
+      console.error('[PresetDocumentUpload] Upload error:', error);
       toast({
         title: 'Upload failed',
-        description: 'Failed to upload document. Please try again.',
+        description: error?.message || 'Failed to upload document. Please try again.',
         variant: 'destructive'
       });
     } finally {

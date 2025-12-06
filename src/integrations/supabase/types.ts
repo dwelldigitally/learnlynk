@@ -3583,6 +3583,7 @@ export type Database = {
           created_at: string
           document_name: string
           document_type: string
+          entry_requirement_id: string | null
           file_path: string | null
           file_size: number | null
           id: string
@@ -3605,6 +3606,7 @@ export type Database = {
           created_at?: string
           document_name: string
           document_type: string
+          entry_requirement_id?: string | null
           file_path?: string | null
           file_size?: number | null
           id?: string
@@ -3627,6 +3629,7 @@ export type Database = {
           created_at?: string
           document_name?: string
           document_type?: string
+          entry_requirement_id?: string | null
           file_path?: string | null
           file_size?: number | null
           id?: string

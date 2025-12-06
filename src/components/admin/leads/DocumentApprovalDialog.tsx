@@ -20,8 +20,8 @@ interface DocumentApprovalDialogProps {
   onOpenChange: (open: boolean) => void;
   document: {
     id: string;
-    file_name: string;
-    file_url?: string | null;
+    document_name: string;
+    file_path?: string | null;
   } | null;
   linkedRequirement?: LeadEntryRequirement | null;
   onApprove: (notes: string) => void;
@@ -85,10 +85,10 @@ export function DocumentApprovalDialog({
               <div className="flex items-center gap-3">
                 <FileText className="h-8 w-8 text-muted-foreground" />
                 <div>
-                  <p className="font-medium">{document.file_name}</p>
-                  {document.file_url && (
+                  <p className="font-medium">{document.document_name}</p>
+                  {document.file_path && (
                     <a 
-                      href={document.file_url} 
+                      href={document.file_path} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-sm text-primary hover:underline"

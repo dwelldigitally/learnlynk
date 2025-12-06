@@ -87,7 +87,7 @@ export const ProgramViewModal = ({ isOpen, onClose, program }: ProgramViewModalP
                     <DollarSign className="h-5 w-5 text-green-500" />
                     <div>
                       <p className="text-sm text-muted-foreground">Tuition Fee</p>
-                      <p className="text-2xl font-bold">${program.tuitionFee.toLocaleString()}</p>
+                      <p className="text-2xl font-bold">${(program.tuitionFee ?? 0).toLocaleString()}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -290,7 +290,7 @@ export const ProgramViewModal = ({ isOpen, onClose, program }: ProgramViewModalP
                       <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Tuition Fee:</span>
-                          <span>${program.tuitionFee.toLocaleString()}</span>
+                          <span>${(program.tuitionFee ?? 0).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Application Fee:</span>

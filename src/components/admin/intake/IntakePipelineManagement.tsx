@@ -8,7 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Plus, 
@@ -35,7 +36,7 @@ import { format, isValid, parseISO, isFuture, isPast } from 'date-fns';
 import { toast } from 'sonner';
 import { useActiveCampuses } from '@/hooks/useCampuses';
 import { usePrograms } from '@/hooks/usePrograms';
-import { useRealIntakes, useCreateIntake, useUpdateIntakeStatus, useUpdateSalesApproach, RealIntake } from '@/hooks/useRealIntakes';
+import { useRealIntakes, useCreateIntake, useUpdateIntakeStatus, useUpdateSalesApproach, useDeleteIntake, RealIntake } from '@/hooks/useRealIntakes';
 import { useLeadsByIntake } from '@/hooks/useIntakeLeads';
 import { ConditionalDataWrapper } from '@/components/admin/ConditionalDataWrapper';
 
@@ -60,8 +61,10 @@ export function IntakePipelineManagement() {
   const createIntakeMutation = useCreateIntake();
   const updateStatusMutation = useUpdateIntakeStatus();
   const updateSalesApproachMutation = useUpdateSalesApproach();
+  const deleteIntakeMutation = useDeleteIntake();
 
   const [selectedIntake, setSelectedIntake] = useState<RealIntake | null>(null);
+  const [intakeToDelete, setIntakeToDelete] = useState<RealIntake | null>(null);
   const [activeTab, setActiveTab] = useState('overview');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -491,7 +494,7 @@ export function IntakePipelineManagement() {
                               className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                toast.info('Delete intake functionality coming soon');
+                                setIntakeToDelete(intake);
                               }}
                             >
                               <Trash2 className="h-4 w-4" />
@@ -846,6 +849,37 @@ export function IntakePipelineManagement() {
           </Tabs>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!intakeToDelete} onOpenChange={(open) => !open && setIntakeToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Intake</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{intakeToDelete?.name}"? This action cannot be undone.
+              {intakeToDelete && intakeToDelete.totalLeads > 0 && (
+                <span className="block mt-2 text-destructive font-medium">
+                  Warning: This intake has {intakeToDelete.totalLeads} leads associated with it.
+                </span>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (intakeToDelete) {
+                  deleteIntakeMutation.mutate(intakeToDelete.id);
+                  setIntakeToDelete(null);
+                }
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -58,83 +58,59 @@ export const ComprehensiveProgramEditModal = ({
       if (isOpen && program) {
         console.log('ComprehensiveProgramEditModal - Original program data:', program);
         
-        // If the program doesn't have JSONB fields, fetch fresh data
-        const hasJSONBFields = (program as any).entry_requirements || (program as any).document_requirements || (program as any).fee_structure || (program as any).custom_questions;
+        // Cast to any to handle potential database field name differences
+        const dbProgram = program as any;
         
-        if (!hasJSONBFields) {
-          console.log('Program missing JSONB fields, forcing complete data refresh...');
-          // Remove stale cache and force fresh fetch
-          queryClient.removeQueries({ queryKey: ['programs'] });
-          await queryClient.refetchQueries({ queryKey: ['programs'] });
-          console.warn('Program data is missing JSONB fields. Forced complete cache refresh.');
-          
-          // Close modal to force reopening with fresh data
-          setTimeout(() => {
-            onClose();
-          }, 100);
-          return;
-        }
-      
-      // Transform database program data to UI format
-      // Cast to any to handle potential database field name differences
-      const dbProgram = program as any;
-      
-      // Handle JSONB data that may come as strings or objects
-      const parseJSONBField = (field: any) => {
-        if (typeof field === 'string') {
-          try {
-            return JSON.parse(field);
-          } catch {
-            return field;
+        // Handle JSONB data that may come as strings or objects
+        const parseJSONBField = (field: any, defaultValue: any = []) => {
+          if (!field) return defaultValue;
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch {
+              return defaultValue;
+            }
           }
-        }
-        return field || [];
-      };
+          return field;
+        };
 
-      const transformedProgram = {
-        ...program,
-        // Map JSONB fields back to UI format (handle both camelCase and snake_case)
-        entryRequirements: parseJSONBField(dbProgram.entry_requirements) || parseJSONBField(program.entryRequirements) || [],
-        documentRequirements: parseJSONBField(dbProgram.document_requirements) || parseJSONBField(program.documentRequirements) || [],
-        customQuestions: parseJSONBField(dbProgram.custom_questions) || parseJSONBField(program.customQuestions) || [],
-        feeStructure: parseJSONBField(dbProgram.fee_structure) || parseJSONBField(program.feeStructure) || {
-          domesticFees: [],
-          internationalFees: [],
-          paymentPlans: [],
-          scholarships: []
-        },
-        // Extract metadata back to top level if stored in metadata JSONB
-        metadata: parseJSONBField(dbProgram.metadata) || {},
-      };
+        const transformedProgram = {
+          ...program,
+          // Map JSONB fields back to UI format (handle both camelCase and snake_case)
+          entryRequirements: parseJSONBField(dbProgram.entry_requirements) || parseJSONBField(program.entryRequirements) || [],
+          documentRequirements: parseJSONBField(dbProgram.document_requirements) || parseJSONBField(program.documentRequirements) || [],
+          customQuestions: parseJSONBField(dbProgram.custom_questions) || parseJSONBField(program.customQuestions) || [],
+          feeStructure: parseJSONBField(dbProgram.fee_structure, { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] }) || 
+            parseJSONBField(program.feeStructure, { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] }),
+          // Extract metadata back to top level if stored in metadata JSONB
+          metadata: parseJSONBField(dbProgram.metadata) || {},
+        };
 
-      // Extract metadata fields to top level
-      const metadata = transformedProgram.metadata || {};
-      const finalProgram = {
-        ...transformedProgram,
-        images: metadata.images || program.images || [],
-        campus: metadata.campus || program.campus || [],
-        deliveryMethod: metadata.deliveryMethod || program.deliveryMethod || 'in-person',
-        color: metadata.color || program.color || '#3B82F6',
-        status: metadata.status || program.status || 'draft',
-        category: metadata.category || program.category || '',
-        tags: metadata.tags || program.tags || [],
-        urlSlug: metadata.urlSlug || program.urlSlug || '',
-        shortDescription: metadata.shortDescription || program.shortDescription || '',
-        marketingCopy: metadata.marketingCopy || program.marketingCopy || ''
-      };
-      
-      console.log('ComprehensiveProgramEditModal - Transformed program data:', finalProgram);
-      console.log('Entry Requirements:', finalProgram.entryRequirements);
-      console.log('Document Requirements:', finalProgram.documentRequirements);
-      console.log('Fee Structure:', finalProgram.feeStructure);
-      
+        // Extract metadata fields to top level
+        const metadata = transformedProgram.metadata || {};
+        const finalProgram = {
+          ...transformedProgram,
+          images: metadata.images || program.images || [],
+          campus: metadata.campus || program.campus || [],
+          deliveryMethod: metadata.deliveryMethod || program.deliveryMethod || 'in-person',
+          color: metadata.color || program.color || '#3B82F6',
+          status: metadata.status || program.status || 'draft',
+          category: metadata.category || program.category || '',
+          tags: metadata.tags || program.tags || [],
+          urlSlug: metadata.urlSlug || program.urlSlug || '',
+          shortDescription: metadata.shortDescription || program.shortDescription || '',
+          marketingCopy: metadata.marketingCopy || program.marketingCopy || ''
+        };
+        
+        console.log('ComprehensiveProgramEditModal - Transformed program data:', finalProgram);
+        
         setEditingProgram(finalProgram);
         setHasChanges(false);
       }
     };
     
     handleProgramData();
-  }, [isOpen, program, queryClient, onClose]);
+  }, [isOpen, program]);
 
   const handleDataChange = (newData: Partial<Program>) => {
     setEditingProgram(prev => ({ ...prev, ...newData }));

@@ -68,30 +68,29 @@ export function useLeadTasks(leadId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchTasks = async () => {
     if (!leadId) return;
-
-    const fetchTasks = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data, error } = await leadDataService.getTasks(leadId);
-        if (error) {
-          setError(error.message || 'Failed to fetch tasks');
-        } else {
-          setTasks(data || []);
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch tasks');
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await leadDataService.getTasks(leadId);
+      if (error) {
+        setError(error.message || 'Failed to fetch tasks');
+      } else {
+        setTasks(data || []);
       }
-    };
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch tasks');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchTasks();
   }, [leadId]);
 
-  return { tasks, loading, error, refetch: () => {} };
+  return { tasks, loading, error, refetch: fetchTasks };
 }
 
 export function useLeadAcademicJourney(leadId: string) {

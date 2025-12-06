@@ -392,6 +392,43 @@ serve(async (req) => {
           max_tokens: 800,
         }),
       });
+    } else if (action === 'next_steps') {
+      // Generate AI next steps - short and actionable
+      response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: `You are an AI assistant for an educational institution's CRM. Generate exactly 3-4 short, actionable next steps for this lead.
+
+RULES:
+- Each step should be 10-15 words max
+- Be specific - mention document names, stage names, or action items
+- Prioritize by urgency (overdue tasks first, then missing docs, then follow-ups)
+- Use action verbs (Review, Follow up, Request, Schedule, Approve, etc.)
+- No bullet points or numbering - just the text
+- Separate each step with a newline
+
+Example format:
+Follow up on missing IELTS certificate - deadline approaching
+Review uploaded High School Diploma for approval
+Schedule call to discuss program requirements
+Send payment reminder for application fee`
+            },
+            {
+              role: 'user',
+              content: `Generate next steps for this lead:\n\n${JSON.stringify(leadContext, null, 2)}`
+            }
+          ],
+          max_tokens: 200,
+        }),
+      });
     } else {
       return new Response(
         JSON.stringify({ error: 'Invalid action or missing question' }),

@@ -34,6 +34,7 @@ import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import { TasksNotesPanel } from '@/components/admin/leads/TasksNotesPanel';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
+import { AINextSteps } from '@/components/admin/leads/AINextSteps';
 import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
 import { EntryRequirementsTab } from '@/components/admin/leads/EntryRequirementsTab';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
@@ -682,6 +683,9 @@ export default function LeadDetailTestPage() {
 
           {/* Lead Score & Quick Actions */}
           <div className="space-y-4">
+            {/* AI Next Steps */}
+            <AINextSteps leadId={leadId} />
+            
             {/* AI Recommendations */}
             <AIRecommendations currentStage={journeyStages[effectiveStageIndex]?.name || 'Inquiry'} leadData={lead} onActionClick={actionId => {
               console.log('AI Action clicked:', actionId);

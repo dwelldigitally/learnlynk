@@ -528,6 +528,7 @@ export default function LeadDetailTestPage() {
               leadName={`${lead.first_name} ${lead.last_name}`}
               leadEmail={lead.email}
               leadPhone={lead.phone}
+              onBooked={() => setTimelineRefreshTrigger(prev => prev + 1)}
             />
             <Button size="sm" onClick={() => setSendMessageOpen(true)}>
               <Send className="h-4 w-4 mr-2" />
@@ -872,6 +873,7 @@ export default function LeadDetailTestPage() {
         currentAdvisorId={lead?.assigned_to}
         currentAdvisorName={advisorName || undefined}
         onReassigned={loadLead}
+        onTimelineRefresh={() => setTimelineRefreshTrigger(prev => prev + 1)}
       />
 
       {/* Send Message Dialog */}

@@ -68,7 +68,7 @@ serve(async (req) => {
       // Fetch uploaded documents
       supabase
         .from('lead_documents')
-        .select('document_name, document_type, status, admin_status, preset_document_id, created_at')
+        .select('id, document_name, document_type, status, admin_status, entry_requirement_id, requirement_id, created_at, original_filename')
         .eq('lead_id', leadId),
       
       // Fetch program details if lead has program interest
@@ -156,23 +156,46 @@ serve(async (req) => {
       }
     }
 
-    // Parse program requirements
+    // Parse entry requirements from program (these contain the document requirements too)
     const entryRequirements = program?.entry_requirements || [];
-    const documentRequirements = program?.document_requirements || [];
-
-    // Calculate missing documents
-    const uploadedDocTypes = documents.map(d => d.document_type?.toLowerCase() || d.document_name?.toLowerCase());
-    const requiredDocs = documentRequirements.map((r: any) => ({
-      name: r.name || r.title || r,
-      mandatory: r.mandatory !== false
-    }));
     
-    const missingDocs = requiredDocs.filter((req: any) => {
-      const reqName = (req.name || '').toLowerCase();
-      return !uploadedDocTypes.some(uploaded => 
-        uploaded?.includes(reqName) || reqName.includes(uploaded || '')
-      );
+    // Build a map of requirement IDs to their titles
+    const requirementMap: Record<string, { title: string; mandatory: boolean }> = {};
+    entryRequirements.forEach((req: any) => {
+      if (req.id) {
+        requirementMap[req.id] = {
+          title: req.title || req.name || 'Unknown Requirement',
+          mandatory: req.mandatory !== false
+        };
+      }
     });
+
+    // Map uploaded documents to their requirements
+    const uploadedDocsWithRequirements = documents.map(doc => {
+      const reqId = doc.entry_requirement_id || doc.requirement_id;
+      const requirement = reqId ? requirementMap[reqId] : null;
+      return {
+        name: doc.original_filename || doc.document_name,
+        requirementTitle: requirement?.title || 'General Document',
+        status: doc.admin_status || doc.status || 'pending',
+        uploadedAt: doc.created_at
+      };
+    });
+
+    // Calculate which requirements have documents uploaded
+    const uploadedRequirementIds = new Set(
+      documents.map(d => d.entry_requirement_id || d.requirement_id).filter(Boolean)
+    );
+
+    // Calculate missing requirements
+    const missingRequirements = entryRequirements
+      .filter((req: any) => req.linkedDocumentTemplates?.length > 0) // Only requirements that need documents
+      .filter((req: any) => !uploadedRequirementIds.has(req.id))
+      .map((req: any) => ({
+        title: req.title || req.name,
+        mandatory: req.mandatory !== false,
+        type: req.type
+      }));
 
     // Calculate task stats
     const now = new Date();
@@ -204,29 +227,30 @@ serve(async (req) => {
         assignedTo: lead.assigned_to ? 'Assigned to advisor' : 'Unassigned',
       },
       documents: {
-        uploaded: documents.map(d => ({
-          name: d.document_name,
-          type: d.document_type,
-          status: d.admin_status || d.status || 'pending',
-          uploadedAt: d.created_at
-        })),
+        uploaded: uploadedDocsWithRequirements,
         uploadedCount: documents.length,
-        approvedCount: documents.filter(d => d.admin_status === 'approved' || d.status === 'approved').length,
-        pendingCount: documents.filter(d => d.admin_status === 'pending' || d.status === 'pending').length,
-        rejectedCount: documents.filter(d => d.admin_status === 'rejected' || d.status === 'rejected').length,
-        required: requiredDocs.map((r: any) => r.name),
-        missing: missingDocs.map((r: any) => r.name),
-        missingMandatory: missingDocs.filter((r: any) => r.mandatory).map((r: any) => r.name),
+        approvedCount: documents.filter(d => d.admin_status === 'approved').length,
+        pendingCount: documents.filter(d => d.admin_status === 'pending' || (!d.admin_status && d.status === 'pending')).length,
+        rejectedCount: documents.filter(d => d.admin_status === 'rejected').length,
+        missingRequirements: missingRequirements.map((r: any) => r.title),
+        missingMandatoryRequirements: missingRequirements.filter((r: any) => r.mandatory).map((r: any) => r.title),
+        documentStatusSummary: uploadedDocsWithRequirements.map(d => 
+          `${d.requirementTitle}: ${d.name} (${d.status})`
+        ).join(', ') || 'No documents uploaded'
       },
       entryRequirements: {
         programRequirements: entryRequirements.map((r: any) => ({
-          title: r.title || r.name || r,
+          id: r.id,
+          title: r.title || r.name,
           type: r.type || 'general',
           mandatory: r.mandatory !== false,
-          minimumValue: r.minimumValue || r.minimum || null,
-          description: r.description || null
+          minimumGrade: r.minimumGrade || null,
+          description: r.description || null,
+          hasLinkedDocuments: (r.linkedDocumentTemplates?.length || 0) > 0,
+          documentUploaded: uploadedRequirementIds.has(r.id)
         })),
         totalRequired: entryRequirements.length,
+        fulfilledCount: entryRequirements.filter((r: any) => uploadedRequirementIds.has(r.id)).length,
       },
       journeyProgress: {
         currentStage: currentStageName,
@@ -309,14 +333,14 @@ serve(async (req) => {
 
               Focus on:
               - Current application status and journey progress
-              - Document submission status (uploaded, missing, pending review)
-              - Entry requirements completion
+              - Document submission status (what's uploaded, what's approved/pending/rejected, what's missing)
+              - Entry requirements completion status
               - Recent communications and engagement level
               - Pending tasks and follow-ups
               - Risk factors or areas needing attention
               - Recommended next steps
               
-              Be specific and actionable. Mention specific document names, stage names, and dates where relevant.
+              Be specific and actionable. Mention specific document names, requirement names, stage names, and dates where relevant.
               Keep the summary concise but informative (3-4 paragraphs). Use professional, helpful language appropriate for admissions staff.`
             },
             {
@@ -345,15 +369,20 @@ serve(async (req) => {
               You have access to:
               - Personal and contact information
               - Application status and program details
-              - Document uploads (what's uploaded, what's missing, approval status)
-              - Entry requirements for their program
+              - Document uploads (what's uploaded with their status, what requirements are missing)
+              - Entry requirements for their program (and whether each is fulfilled)
               - Academic journey progress (current stage, completed stages, remaining stages)
               - Communication history (emails, calls, SMS)
               - Tasks (pending, overdue, completed)
               - Notes from advisors
               - Recent activity log
               
-              Provide accurate, specific answers based on the available data. Reference specific document names, dates, stage names, and task titles when relevant. If information is not available, clearly state that. Be professional and concise.`
+              IMPORTANT: 
+              - The "documents.uploaded" array shows documents that HAVE been uploaded
+              - The "documents.missingRequirements" array shows requirements that still NEED documents
+              - Check "entryRequirements.programRequirements" to see which requirements have "documentUploaded: true/false"
+              
+              Provide accurate, specific answers based on the available data. Reference specific document names, requirement names, dates, stage names, and task titles when relevant. If information is not available, clearly state that. Be professional and concise.`
             },
             {
               role: 'user',

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, Clock, AlertCircle, FileText, Phone, MessageSquare, Calendar } from 'lucide-react';
+import { CheckCircle, Clock, AlertCircle, FileText, Phone, MessageSquare, Calendar, Info } from 'lucide-react';
 import { Lead } from '@/types/lead';
-import { AcademicJourneyService } from '@/services/academicJourneyService';
 import { supabase } from '@/integrations/supabase/client';
 import { HotSheetCard, PastelBadge, PillButton, IconContainer, type PastelColor } from '@/components/hotsheet';
 
@@ -40,6 +39,7 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
   const [stages, setStages] = useState<JourneyStage[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
+  const [noJourneyConfigured, setNoJourneyConfigured] = useState(false);
 
   useEffect(() => {
     loadJourneyData();
@@ -53,6 +53,7 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
   const loadJourneyData = async () => {
     try {
       setLoading(true);
+      setNoJourneyConfigured(false);
 
       // First, check if this lead has an active journey instance
       const { data: journeyInstance, error: instanceError } = await supabase
@@ -110,96 +111,86 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
 
         setStages(transformedStages);
       } else {
-        // Create a sample journey based on lead's program interest
-        createSampleJourney();
+        // Try to load journey from lead's program interest
+        await loadJourneyFromProgramInterest();
       }
     } catch (error) {
       console.error('Error loading journey data:', error);
-      createSampleJourney();
+      await loadJourneyFromProgramInterest();
     } finally {
       setLoading(false);
     }
   };
 
-  const createSampleJourney = () => {
-    // Create a sample journey based on the lead's stage
-    const isQualifiedOrHigher = lead.status === 'qualified' || lead.status === 'converted';
-    const isConverted = lead.status === 'converted';
-    
-    const sampleStages: JourneyStage[] = [
-      {
-        id: '1',
-        name: 'Initial Inquiry',
-        description: 'First contact and interest evaluation',
-        stage_type: 'inquiry',
-        order_index: 0,
-        status: 'completed',
-        completion_percentage: 100,
-        requirements: [
-          { id: '1-1', name: 'Contact Information', requirement_type: 'data_collection', is_mandatory: true, status: 'completed' }
-        ],
-        estimated_days: 1
-      },
-      {
-        id: '2',
-        name: 'Application Submission',
-        description: 'Complete and submit application',
-        stage_type: 'application',
-        order_index: 1,
-        status: isQualifiedOrHigher ? 'completed' : 'active',
-        completion_percentage: isQualifiedOrHigher ? 100 : 60,
-        requirements: [
-          { id: '2-1', name: 'Application Form', requirement_type: 'document', is_mandatory: true, status: 'completed' },
-          { id: '2-2', name: 'Personal Statement', requirement_type: 'document', is_mandatory: true, status: isQualifiedOrHigher ? 'completed' : 'pending' },
-          { id: '2-3', name: 'Transcripts', requirement_type: 'document', is_mandatory: true, status: isQualifiedOrHigher ? 'completed' : 'pending' }
-        ],
-        estimated_days: 14
-      },
-      {
-        id: '3',
-        name: 'Document Verification',
-        description: 'Review and verify submitted documents',
-        stage_type: 'verification',
-        order_index: 2,
-        status: isConverted ? 'completed' : (isQualifiedOrHigher ? 'active' : 'pending'),
-        completion_percentage: isConverted ? 100 : (isQualifiedOrHigher ? 50 : 0),
-        requirements: [
-          { id: '3-1', name: 'Document Review', requirement_type: 'review', is_mandatory: true, status: isConverted ? 'completed' : 'pending' },
-          { id: '3-2', name: 'Eligibility Check', requirement_type: 'verification', is_mandatory: true, status: isConverted ? 'completed' : 'pending' }
-        ],
-        estimated_days: 7
-      },
-      {
-        id: '4',
-        name: 'Interview & Assessment',
-        description: 'Conduct interview and assessment',
-        stage_type: 'assessment',
-        order_index: 3,
-        status: isConverted ? 'completed' : 'pending',
-        completion_percentage: isConverted ? 100 : 0,
-        requirements: [
-          { id: '4-1', name: 'Schedule Interview', requirement_type: 'scheduling', is_mandatory: true, status: isConverted ? 'completed' : 'pending' },
-          { id: '4-2', name: 'Conduct Interview', requirement_type: 'interview', is_mandatory: true, status: isConverted ? 'completed' : 'pending' }
-        ],
-        estimated_days: 3
-      },
-      {
-        id: '5',
-        name: 'Enrollment & Payment',
-        description: 'Finalize enrollment and payment',
-        stage_type: 'enrollment',
-        order_index: 4,
-        status: 'pending',
-        completion_percentage: 0,
-        requirements: [
-          { id: '5-1', name: 'Payment Processing', requirement_type: 'payment', is_mandatory: true, status: 'pending' },
-          { id: '5-2', name: 'Enrollment Confirmation', requirement_type: 'confirmation', is_mandatory: true, status: 'pending' }
-        ],
-        estimated_days: 5
+  const loadJourneyFromProgramInterest = async () => {
+    try {
+      // Check if lead has program interest
+      const programId = lead.program_interest?.[0];
+      if (!programId) {
+        setStages([]);
+        setNoJourneyConfigured(true);
+        return;
       }
-    ];
 
-    setStages(sampleStages);
+      // Try to find an academic journey for this program
+      const { data: programJourney, error } = await supabase
+        .from('academic_journeys')
+        .select(`
+          *,
+          journey_stages (
+            *,
+            journey_requirements (*)
+          )
+        `)
+        .eq('program_id', programId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching program journey:', error);
+        setStages([]);
+        setNoJourneyConfigured(true);
+        return;
+      }
+
+      if (programJourney && programJourney.journey_stages?.length > 0) {
+        setJourney(programJourney);
+        
+        // Transform stages - first one is active, rest are pending
+        const transformedStages = programJourney.journey_stages
+          .sort((a: any, b: any) => a.order_index - b.order_index)
+          .map((stage: any, index: number) => ({
+            id: stage.id,
+            name: stage.name,
+            description: stage.description || '',
+            stage_type: stage.stage_type,
+            order_index: stage.order_index,
+            status: index === 0 ? 'active' : 'pending' as 'pending' | 'active' | 'completed' | 'skipped',
+            completion_percentage: 0,
+            requirements: (stage.journey_requirements || []).map((req: any) => ({
+              id: req.id,
+              name: req.name,
+              requirement_type: req.requirement_type,
+              is_mandatory: req.is_mandatory,
+              status: 'pending' as 'pending' | 'in_progress' | 'completed' | 'overdue'
+            })),
+            estimated_days: stage.timing_config?.expected_duration_days || 7
+          }));
+
+        setStages(transformedStages);
+        setNoJourneyConfigured(false);
+      } else {
+        // No journey configured for this program
+        setStages([]);
+        setNoJourneyConfigured(true);
+      }
+    } catch (error) {
+      console.error('Error loading journey from program interest:', error);
+      setStages([]);
+      setNoJourneyConfigured(true);
+    }
   };
 
   const getStageIcon = (status: string) => {
@@ -264,6 +255,30 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
           <h3 className="text-lg font-semibold mb-4">Academic Journey</h3>
           <div className="flex items-center justify-center h-32">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </div>
+      </HotSheetCard>
+    );
+  }
+
+  // Show empty state when no journey is configured
+  if (noJourneyConfigured || stages.length === 0) {
+    return (
+      <HotSheetCard className="h-full">
+        <div className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Academic Journey</h3>
+          <div className="flex flex-col items-center justify-center h-32 text-center">
+            <IconContainer color="slate" size="md" className="mb-3">
+              <Info className="h-5 w-5" />
+            </IconContainer>
+            <p className="text-sm text-muted-foreground">
+              {!lead.program_interest?.length 
+                ? "No program selected for this lead"
+                : "No journey configured for this program"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Configure an academic journey in Program settings
+            </p>
           </div>
         </div>
       </HotSheetCard>

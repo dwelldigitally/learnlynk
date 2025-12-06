@@ -62,9 +62,10 @@ function JourneyBuilderContent({ onBack, journeyId }: HubSpotJourneyBuilderProps
       setJourneyDescription(existingJourney.description || '');
       setSelectedProgramId(existingJourney.program_id || '');
       
-      // Convert stages to builder elements
-      const elements: UniversalElement[] = (existingJourney.stages || [])
-        .sort((a, b) => a.order_index - b.order_index)
+      // Convert stages to builder elements - check for journey_stages first (from API) then stages
+      const stagesData = (existingJourney as any).journey_stages || (existingJourney as any).stages || [];
+      const elements: UniversalElement[] = stagesData
+        .sort((a: any, b: any) => a.order_index - b.order_index)
         .map((stage, index) => ({
           id: stage.id,
           type: stage.stage_type as any,
@@ -264,11 +265,11 @@ function JourneyBuilderContent({ onBack, journeyId }: HubSpotJourneyBuilderProps
         });
 
         // Get existing stage IDs
-        const existingStageIds = new Set((existingJourney.stages || []).map(s => s.id));
+        const existingStageIds = new Set(((existingJourney as any).journey_stages || (existingJourney as any).stages || []).map((s: any) => s.id as string));
         const currentStageIds = new Set(config.elements.map(e => e.id));
 
         // Delete removed stages
-        for (const stageId of existingStageIds) {
+        for (const stageId of Array.from(existingStageIds) as string[]) {
           if (!currentStageIds.has(stageId)) {
             await AcademicJourneyService.deleteJourneyStage(stageId);
           }

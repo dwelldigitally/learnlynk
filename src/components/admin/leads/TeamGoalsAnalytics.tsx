@@ -20,7 +20,18 @@ export const TeamGoalsAnalytics: React.FC = () => {
     refreshGoals 
   } = useTeamGoals();
   
-  const { analytics, loading: analyticsLoading } = useTeamGoalAnalytics(goals);
+  const { analytics, loading: analyticsLoading, refreshAnalytics } = useTeamGoalAnalytics(goals);
+
+  // Refresh goals after analytics updates current_value in database
+  React.useEffect(() => {
+    if (!analyticsLoading && goals.length > 0) {
+      // Small delay to ensure database updates are complete
+      const timer = setTimeout(() => {
+        refreshGoals();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [analyticsLoading]);
 
   const handleCreateGoal = async (goalData: Partial<TeamGoal>) => {
     const formData: GoalFormData = {

@@ -53,6 +53,11 @@ export function ProgramJourneyManager() {
   const { data: programs, isLoading: programsLoading, error: programsError } = usePrograms();
   const { data: academicJourneys, isLoading: journeysLoading, error: journeysError, refetch: refetchJourneys } = useAcademicJourneys();
   const { data: practicumJourneys, isLoading: practicumLoading } = usePracticumJourneys(session?.user?.id || '');
+  
+  // Move hooks before any conditional returns to fix React hooks rule
+  const deleteJourneyMutation = useDeleteAcademicJourney();
+  const duplicateJourneyMutation = useDuplicateAcademicJourney();
+  const toggleStatusMutation = useToggleJourneyStatus();
 
   // Set initial filter from URL params
   useEffect(() => {
@@ -214,10 +219,6 @@ export function ProgramJourneyManager() {
     );
   }
 
-  // Delete, duplicate, and toggle hooks
-  const deleteJourneyMutation = useDeleteAcademicJourney();
-  const duplicateJourneyMutation = useDuplicateAcademicJourney();
-  const toggleStatusMutation = useToggleJourneyStatus();
 
   const handleDeleteJourney = async (journey: CombinedJourney) => {
     if (journey.type !== 'academic') {

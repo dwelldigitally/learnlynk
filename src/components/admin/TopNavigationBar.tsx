@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3 } from "lucide-react";
+import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMvpMode } from "@/contexts/MvpModeContext";
@@ -51,7 +51,7 @@ export function TopNavigationBar() {
     { name: "Leads", href: "/admin/leads" },
     { name: "Communication Hub", href: "/admin/communication" },
     { name: "Campaigns", href: "/admin/campaigns" },
-    { name: "Analytics", href: "/admin/analytics" },
+    { name: "Team Goals", href: "/admin/leads/team-goals" },
   ];
 
   const managementMenuItems = [
@@ -61,6 +61,8 @@ export function TopNavigationBar() {
     { name: "Requirements", href: "/admin/requirements", icon: FileCheck },
     { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
     { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
+    { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
+    { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
     { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
     { name: "Reports", href: "/admin/reports", icon: FileText },
   ];

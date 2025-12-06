@@ -82,6 +82,8 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
       { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
       { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
+      { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
+      { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
     ]
   },
   {
@@ -89,7 +91,6 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
     fullModeOnly: true,
     items: [
       { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
-      { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
       { name: "Sales Command Center", href: "/admin/leads/workflow", icon: Workflow },
       { name: "Intelligence", href: "/admin/leads/ai", icon: Zap },
       { name: "Advanced Analytics", href: "/admin/leads/advanced-analytics", icon: TrendingUp },
@@ -114,7 +115,6 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
     items: [
       { name: "Policies", href: "/admin/enrollment/policies", icon: Shield },
       { name: "Playbooks", href: "/admin/enrollment/playbooks", icon: BookOpen },
-      { name: "Program Journeys", href: "/admin/program-journeys", icon: Route },
     ]
   },
   {

@@ -489,32 +489,6 @@ const AdminHome: React.FC = () => {
             </p>
           </div>
 
-          {/* Demo Mode Banner */}
-          {!hasDemoAccess && !isDemoLoading && (
-            <HotSheetCard className="mb-6 border-sky-200 bg-sky-50/50 dark:bg-sky-950/50 dark:border-sky-800">
-              <div className="flex items-start gap-3">
-                <IconContainer color="sky" size="md">
-                  <Sparkles />
-                </IconContainer>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground mb-1">
-                    Welcome to Your Dashboard!
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Your dashboard is ready. Enable Demo Mode to see what it looks 
-                    like with data, or start adding your own leads and students.
-                  </p>
-                  <PillButton 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => navigate('/admin/profile')}
-                  >
-                    Enable Demo Mode in Settings
-                  </PillButton>
-                </div>
-              </div>
-            </HotSheetCard>
-          )}
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-4 sm:mb-6">

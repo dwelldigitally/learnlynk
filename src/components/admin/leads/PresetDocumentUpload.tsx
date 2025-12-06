@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +26,7 @@ import {
   Plus
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PresetDocumentUploadProps {
   leadId: string;
@@ -53,11 +54,112 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   const [reviewStatus, setReviewStatus] = useState<string>('');
   const [reviewComments, setReviewComments] = useState<string>('');
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [requirements, setRequirements] = useState<PresetDocumentRequirement[]>([]);
+  const [requirementsLoading, setRequirementsLoading] = useState(true);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { toast } = useToast();
 
-  const requirements = presetDocumentService.getPresetRequirements(programName);
-  const progress = presetDocumentService.getDocumentProgress(programName, documents);
+  // Fetch requirements from database including linked document templates from entry requirements
+  useEffect(() => {
+    const fetchRequirements = async () => {
+      setRequirementsLoading(true);
+      try {
+        const trimmedProgramName = programName?.trim();
+        if (!trimmedProgramName) {
+          setRequirements([]);
+          return;
+        }
+
+        // Fetch program from database
+        const { data: programs, error } = await supabase
+          .from('programs')
+          .select('document_requirements, entry_requirements')
+          .ilike('name', `%${trimmedProgramName}%`)
+          .limit(1);
+
+        if (error) {
+          console.error('Error fetching program:', error);
+          setRequirements([]);
+          return;
+        }
+
+        const program = programs?.[0];
+        let docReqs: PresetDocumentRequirement[] = [];
+
+        // Parse direct document requirements
+        if (program?.document_requirements && Array.isArray(program.document_requirements)) {
+          docReqs = (program.document_requirements as any[]).map((req, idx) => ({
+            id: req.id || `doc-req-${idx}`,
+            name: req.name || 'Unknown Document',
+            description: req.description || '',
+            required: req.mandatory ?? true,
+            programName: trimmedProgramName
+          }));
+        }
+
+        // Extract linked document templates from entry requirements
+        const rawEntryReqs = program?.entry_requirements;
+        const linkedDocIds: string[] = [];
+        
+        if (rawEntryReqs && Array.isArray(rawEntryReqs)) {
+          for (const req of rawEntryReqs as any[]) {
+            if (req.linkedDocumentTemplates && Array.isArray(req.linkedDocumentTemplates)) {
+              linkedDocIds.push(...req.linkedDocumentTemplates);
+            }
+          }
+        }
+
+        // Deduplicate and fetch linked document templates
+        const uniqueLinkedDocIds = [...new Set(linkedDocIds)];
+        if (uniqueLinkedDocIds.length > 0) {
+          const { data: templates, error: templateError } = await supabase
+            .from('document_templates')
+            .select('id, name, description, mandatory')
+            .in('id', uniqueLinkedDocIds);
+
+          if (!templateError && templates && templates.length > 0) {
+            const existingIds = new Set(docReqs.map(r => r.id));
+            const newDocReqs = templates
+              .filter(t => !existingIds.has(t.id))
+              .map(t => ({
+                id: t.id,
+                name: t.name,
+                description: t.description || '',
+                required: t.mandatory,
+                programName: trimmedProgramName
+              }));
+            docReqs = [...docReqs, ...newDocReqs];
+          }
+        }
+
+        // Fallback to preset service if no requirements found
+        if (docReqs.length === 0) {
+          docReqs = await presetDocumentService.getPresetRequirementsAsync(trimmedProgramName);
+        }
+
+        setRequirements(docReqs);
+      } catch (error) {
+        console.error('Error fetching requirements:', error);
+        setRequirements([]);
+      } finally {
+        setRequirementsLoading(false);
+      }
+    };
+
+    fetchRequirements();
+  }, [programName]);
+
+  // Calculate progress based on fetched requirements
+  const progress = {
+    total: requirements.filter(r => r.required).length,
+    uploaded: documents.length,
+    approved: documents.filter(doc => doc.admin_status === 'approved').length,
+    pending: documents.filter(doc => doc.admin_status === 'pending').length,
+    rejected: documents.filter(doc => doc.admin_status === 'rejected').length,
+    isComplete: requirements.filter(r => r.required).every(req => 
+      documents.some(doc => doc.requirement_id === req.id && doc.admin_status === 'approved')
+    )
+  };
 
   const handleFileSelect = (requirementId: string) => {
     fileInputRefs.current[requirementId]?.click();
@@ -316,6 +418,24 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     return documents.find(doc => doc.requirement_id === requirementId);
   };
 
+  if (requirementsLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Documents
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Progress Overview */}
@@ -330,7 +450,7 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <Progress value={(progress.approved / progress.total) * 100} className="w-full" />
+            <Progress value={progress.total > 0 ? (progress.approved / progress.total) * 100 : 0} className="w-full" />
             <div className="flex justify-between text-sm text-muted-foreground">
               <span>{progress.approved} approved</span>
               <span>{progress.pending} pending</span>

@@ -47,7 +47,7 @@ export const MVP_HIDDEN_PAGES = [
   // Leads & Marketing
   '/admin/leads/workflow',
   '/admin/leads/ai',
-  '/admin/leads/bulk',
+  
   '/admin/enrollment/today',
   '/admin/enrollment/policies',
   '/admin/enrollment/playbooks',

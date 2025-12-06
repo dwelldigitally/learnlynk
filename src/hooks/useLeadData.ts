@@ -6,30 +6,29 @@ export function useLeadCommunications(leadId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchCommunications = async () => {
     if (!leadId) return;
-
-    const fetchCommunications = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data, error } = await leadDataService.getCommunications(leadId);
-        if (error) {
-          setError(error.message || 'Failed to fetch communications');
-        } else {
-          setCommunications(data || []);
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch communications');
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await leadDataService.getCommunications(leadId);
+      if (error) {
+        setError(error.message || 'Failed to fetch communications');
+      } else {
+        setCommunications(data || []);
       }
-    };
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch communications');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchCommunications();
   }, [leadId]);
 
-  return { communications, loading, error, refetch: () => {} };
+  return { communications, loading, error, refetch: fetchCommunications };
 }
 
 export function useLeadDocuments(leadId: string) {
@@ -37,30 +36,29 @@ export function useLeadDocuments(leadId: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const fetchDocuments = async () => {
     if (!leadId) return;
-
-    const fetchDocuments = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const { data, error } = await leadDataService.getDocuments(leadId);
-        if (error) {
-          setError(error.message || 'Failed to fetch documents');
-        } else {
-          setDocuments(data || []);
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch documents');
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await leadDataService.getDocuments(leadId);
+      if (error) {
+        setError(error.message || 'Failed to fetch documents');
+      } else {
+        setDocuments(data || []);
       }
-    };
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch documents');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchDocuments();
   }, [leadId]);
 
-  return { documents, loading, error, refetch: () => {} };
+  return { documents, loading, error, refetch: fetchDocuments };
 }
 
 export function useLeadTasks(leadId: string) {

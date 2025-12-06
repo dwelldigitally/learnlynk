@@ -63,97 +63,7 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
   const [loadingTemplates, setLoadingTemplates] = useState(true);
   
   // Fetch communications from database
-  const { communications: dbCommunications, loading: loadingComms, refetch } = useLeadCommunications(applicantId);
-  
-  // Dummy data for demonstration
-  const dummyCommunications: any[] = [
-    {
-      id: 'dummy-1',
-      lead_id: applicantId,
-      type: 'email',
-      direction: 'inbound',
-      subject: 'Question about admission requirements',
-      content: 'Hi, I wanted to ask about the admission requirements for the Computer Science program. What are the minimum GPA requirements?',
-      status: 'completed',
-      communication_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-      created_by: applicantId,
-      is_ai_generated: false,
-      thread_id: 'thread-1',
-      parent_id: null,
-    },
-    {
-      id: 'dummy-2',
-      lead_id: applicantId,
-      type: 'email',
-      direction: 'outbound',
-      subject: 'Re: Question about admission requirements',
-      content: 'Thank you for your interest! The minimum GPA requirement for Computer Science is 3.0. We also consider your overall academic performance and extracurricular activities.',
-      status: 'completed',
-      communication_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 60 * 60 * 1000).toISOString(),
-      created_by: 'advisor-1',
-      is_ai_generated: false,
-      thread_id: 'thread-1',
-      parent_id: 'dummy-1',
-    },
-    {
-      id: 'dummy-3',
-      lead_id: applicantId,
-      type: 'email',
-      direction: 'inbound',
-      subject: 'Re: Question about admission requirements',
-      content: 'Great! One more question - what documents do I need to submit with my application?',
-      status: 'completed',
-      communication_date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000 + 120 * 60 * 1000).toISOString(),
-      created_by: applicantId,
-      is_ai_generated: false,
-      thread_id: 'thread-1',
-      parent_id: 'dummy-2',
-    },
-    {
-      id: 'dummy-4',
-      lead_id: applicantId,
-      type: 'sms',
-      direction: 'outbound',
-      content: 'Reminder: Your campus tour is scheduled for tomorrow at 2 PM. Please arrive 10 minutes early. Looking forward to seeing you!',
-      status: 'completed',
-      communication_date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      created_by: 'advisor-1',
-      is_ai_generated: false,
-      thread_id: null,
-      parent_id: null,
-    },
-    {
-      id: 'dummy-5',
-      lead_id: applicantId,
-      type: 'note',
-      direction: 'outbound',
-      content: 'Student showed strong interest in the AI/ML specialization. Recommended to follow up with information about our research lab partnerships.',
-      status: 'completed',
-      communication_date: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-      created_by: 'advisor-1',
-      is_ai_generated: false,
-      thread_id: null,
-      parent_id: null,
-    },
-    {
-      id: 'dummy-6',
-      lead_id: applicantId,
-      type: 'email',
-      direction: 'outbound',
-      subject: 'Scholarship Opportunities - AI/ML Program',
-      content: 'Based on our recent conversation, I wanted to share information about our Merit Scholarship for students interested in AI/ML. The application deadline is next month.',
-      status: 'completed',
-      communication_date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      created_by: 'advisor-1',
-      is_ai_generated: true,
-      ai_agent_id: 'ai-recruitment',
-      thread_id: null,
-      parent_id: null,
-    },
-  ];
-  
-  // Combine real and dummy data
-  const communications = dbCommunications.length > 0 ? dbCommunications : dummyCommunications;
+  const { communications, loading: loadingComms, refetch } = useLeadCommunications(applicantId);
   
   // Load templates when message type changes
   useEffect(() => {
@@ -353,8 +263,10 @@ export const CommunicationCenter: React.FC<CommunicationCenterProps> = ({
 
   // Filter communications
   const filteredCommunications = communications.filter(comm => {
-    const matchesSearch = 
-      comm.content.toLowerCase().includes(searchQuery.toLowerCase());
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch = !searchQuery || 
+      comm.content?.toLowerCase().includes(searchLower) ||
+      comm.subject?.toLowerCase().includes(searchLower);
     const matchesType = typeFilter === 'all' || comm.type === typeFilter;
     const matchesDirection = directionFilter === 'all' || comm.direction === directionFilter;
     

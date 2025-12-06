@@ -6,6 +6,7 @@ export interface LeadCommunication {
   ai_agent_id?: string;
   communication_date: string;
   content: string;
+  subject?: string;
   direction: string;
   is_ai_generated: boolean;
   metadata: any;

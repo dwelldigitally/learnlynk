@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { leadActivityService } from './leadActivityService';
 
 export interface PresetDocumentRequirement {
   id: string;
@@ -247,6 +248,10 @@ class PresetDocumentService {
       }
 
       console.log('[PresetDocumentService] Document record created successfully:', data.id);
+      
+      // Log the activity
+      await leadActivityService.logDocumentUpload(leadId, documentName, requirement?.name);
+      
       return data;
     } catch (error) {
       console.error('[PresetDocumentService] uploadDocument failed:', error);
@@ -261,6 +266,13 @@ class PresetDocumentService {
     comments?: string
   ): Promise<void> {
     console.log('[PresetDocumentService] Updating document status:', { documentId, status, comments });
+    
+    // Get document info first for logging
+    const { data: doc } = await supabase
+      .from('lead_documents')
+      .select('lead_id, document_name, admin_status')
+      .eq('id', documentId)
+      .single();
     
     const userId = (await supabase.auth.getUser()).data.user?.id;
     
@@ -280,6 +292,17 @@ class PresetDocumentService {
     }
     
     console.log('[PresetDocumentService] Document status updated successfully');
+    
+    // Log the activity
+    if (doc) {
+      await leadActivityService.logDocumentStatusChange(
+        doc.lead_id,
+        doc.document_name,
+        doc.admin_status || 'pending',
+        status,
+        comments
+      );
+    }
   }
 
   // Delete a document
@@ -289,7 +312,7 @@ class PresetDocumentService {
     // Get document info first
     const { data: doc, error: fetchError } = await supabase
       .from('lead_documents')
-      .select('file_path')
+      .select('file_path, lead_id, document_name')
       .eq('id', documentId)
       .single();
 
@@ -323,6 +346,11 @@ class PresetDocumentService {
     }
     
     console.log('[PresetDocumentService] Document deleted successfully');
+    
+    // Log the activity
+    if (doc) {
+      await leadActivityService.logDocumentDeleted(doc.lead_id, doc.document_name);
+    }
   }
 
   // Get document URL for viewing

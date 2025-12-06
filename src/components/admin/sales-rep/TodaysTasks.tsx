@@ -13,7 +13,7 @@ import { UnifiedTaskDialog } from '@/components/admin/tasks/UnifiedTaskDialog';
 
 interface Task {
   id: string;
-  lead_id: string;
+  lead_id?: string;
   user_id: string;
   assigned_to?: string;
   title: string;
@@ -25,6 +25,7 @@ interface Task {
   completed_at?: string;
   created_at: string;
   updated_at: string;
+  source: 'lead_tasks' | 'tasks'; // Track which table the task came from
 }
 
 export function TodaysTasks() {
@@ -48,23 +49,46 @@ export function TodaysTasks() {
 
     try {
       const today = new Date();
-      const endOfToday = endOfDay(today).toISOString();
+      const endOfTodayISO = endOfDay(today).toISOString();
 
-      const { data, error } = await supabase
+      // Query lead_tasks table
+      const { data: leadTasks, error: leadTasksError } = await supabase
         .from('lead_tasks')
         .select('*')
         .or(`assigned_to.eq.${user.id},user_id.eq.${user.id}`)
-        .lte('due_date', endOfToday)
-        .neq('status', 'completed')
-        .order('due_date', { ascending: true })
-        .limit(10);
+        .lte('due_date', endOfTodayISO)
+        .neq('status', 'completed');
 
-      if (error) {
-        console.error('Error fetching tasks:', error);
-        return;
+      if (leadTasksError) {
+        console.error('Error fetching lead_tasks:', leadTasksError);
       }
 
-      setTasks(data || []);
+      // Query universal tasks table
+      const { data: universalTasks, error: universalTasksError } = await supabase
+        .from('tasks')
+        .select('*')
+        .or(`assigned_to.eq.${user.id},user_id.eq.${user.id}`)
+        .lte('due_date', endOfTodayISO)
+        .neq('status', 'completed');
+
+      if (universalTasksError) {
+        console.error('Error fetching tasks:', universalTasksError);
+      }
+
+      // Combine and normalize both task sources
+      const allTasks: Task[] = [
+        ...(leadTasks || []).map(t => ({ ...t, source: 'lead_tasks' as const })),
+        ...(universalTasks || []).map(t => ({ 
+          ...t, 
+          source: 'tasks' as const,
+          task_type: t.category // Map category to task_type for consistency
+        }))
+      ];
+
+      // Sort by due date
+      allTasks.sort((a, b) => new Date(a.due_date).getTime() - new Date(b.due_date).getTime());
+      
+      setTasks(allTasks.slice(0, 15));
     } catch (error) {
       console.error('Failed to load today\'s tasks:', error);
     } finally {
@@ -77,12 +101,13 @@ export function TodaysTasks() {
     setShowExecutionDialog(true);
   };
 
-  const handleTaskComplete = async (taskId: string) => {
+  const handleTaskComplete = async (taskId: string, source: 'lead_tasks' | 'tasks') => {
     setCompletingTasks(prev => new Set(prev).add(taskId));
     
     try {
+      // Use the correct table based on task source
       const { error } = await supabase
-        .from('lead_tasks')
+        .from(source)
         .update({
           status: 'completed',
           completed_at: new Date().toISOString()
@@ -335,7 +360,7 @@ export function TodaysTasks() {
               Cancel
             </Button>
             <Button
-              onClick={() => selectedTask && handleTaskComplete(selectedTask.id)}
+              onClick={() => selectedTask && handleTaskComplete(selectedTask.id, selectedTask.source)}
               disabled={selectedTask ? completingTasks.has(selectedTask.id) : false}
               className="rounded-full bg-[hsl(158,64%,52%)] hover:bg-[hsl(158,64%,45%)]"
             >

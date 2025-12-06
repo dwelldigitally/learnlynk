@@ -36,7 +36,13 @@ import { TasksNotesPanel } from '@/components/admin/leads/TasksNotesPanel';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
-import { useLeadAcademicJourney } from '@/hooks/useLeadData';
+import { 
+  useJourneyForProgramName, 
+  useLeadJourneyInstance, 
+  useUpdateLeadStage, 
+  useCreateJourneyInstance 
+} from '@/services/leadJourneyService';
+
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();
   const {
@@ -64,11 +70,19 @@ export default function LeadDetailTestPage() {
     refetchDocuments
   } = usePresetDocuments(leadId || '', lead?.program_interest?.[0] || 'General');
 
-  // Academic journey data
-  const {
-    journey,
-    loading: journeyLoading
-  } = useLeadAcademicJourney(leadId || '');
+  // Academic journey data - fetch from program's academic journey
+  const programName = lead?.program_interest?.[0];
+  const { data: programJourney, isLoading: journeyLoading } = useJourneyForProgramName(programName);
+  const { data: leadJourneyInstance, refetch: refetchInstance } = useLeadJourneyInstance(leadId);
+  const updateStageMutation = useUpdateLeadStage(leadId || '');
+  const createInstanceMutation = useCreateJourneyInstance(leadId || '');
+
+  // Sort journey stages by order_index
+  const journeyStages = programJourney?.journey_stages?.sort((a: any, b: any) => a.order_index - b.order_index) || [];
+  
+  // Calculate current stage index based on lead's journey instance
+  const currentJourneyStageIndex = journeyStages.findIndex((s: any) => s.id === leadJourneyInstance?.current_stage_id);
+  const effectiveStageIndex = currentJourneyStageIndex >= 0 ? currentJourneyStageIndex : currentStageIndex;
   const loadLead = useCallback(async () => {
     if (!leadId) return;
     try {
@@ -536,58 +550,84 @@ export default function LeadDetailTestPage() {
                    <div className="flex items-center justify-between mb-2">
                      <span className="text-sm font-medium">Application Progress</span>
                      <span className="text-sm text-muted-foreground">
-                       {journey && journey.stages ? `${Math.round(journey.stages.filter(s => s.completed).length / journey.stages.length * 100)}% Complete` : showDemoData ? `${Math.round((currentStageIndex + 1) / 5 * 100)}% Complete` : 'Not Started'}
+                       {journeyStages.length > 0 
+                         ? `${Math.round((effectiveStageIndex + 1) / journeyStages.length * 100)}% Complete`
+                         : 'No journey configured'}
                      </span>
                    </div>
                    <div className="flex items-center gap-1">
-                     <div className="flex-1 grid grid-cols-5 gap-1">
-                       {journey && journey.stages ?
-                      // Show first 5 stages from academic journey
-                      journey.stages.slice(0, 5).map((stage, index) => <button key={index} onClick={() => {
-                        // Handle stage click for real journey data
-                        toast({
-                          title: 'Stage Updated',
-                          description: `Moved to ${stage.stage_name}`
-                        });
-                      }} className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 ${stage.completed ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'}`} />) : showDemoData ? <>
-                           {Array.from({
-                          length: 5
-                        }, (_, index) => <button key={index} onClick={() => {
-                          setCurrentStageIndex(index);
-                          const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
-                          toast({
-                            title: 'Stage Updated',
-                            description: `Moved to ${stageNames[index]} stage`
-                          });
-                        }} className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${index <= currentStageIndex ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'}`} title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][index]}`} />)}
-                         </> : Array.from({
-                        length: 5
-                      }, (_, i) => <button key={i} onClick={() => {
-                        setCurrentStageIndex(i);
-                        const stageNames = ['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'];
-                        toast({
-                          title: 'Stage Updated',
-                          description: `Moved to ${stageNames[i]} stage`
-                        });
-                      }} className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${i <= currentStageIndex ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'}`} title={`Click to set stage: ${['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'][i]}`} />)}
-                      </div>
-                    </div>
-                   <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                     {journey && journey.stages ?
-                    // Show stage names from academic journey
-                    journey.stages.slice(0, 5).map((stage, index) => <span key={index} className={`transition-colors ${stage.completed ? 'text-purple-600 font-semibold' : 'hover:text-foreground'}`}>
-                           {stage.stage_name}
-                         </span>) : <>
-                         {['Inquiry', 'Started', 'Submitted', 'Admitted', 'Enrolled'].map((stageName, index) => <span key={index} className={`cursor-pointer transition-colors hover:text-foreground ${index <= currentStageIndex ? 'text-purple-600 font-semibold' : ''}`} onClick={() => {
-                        setCurrentStageIndex(index);
-                        toast({
-                          title: 'Stage Updated',
-                          description: `Moved to ${stageName} stage`
-                        });
-                      }}>
-                             {stageName}
-                           </span>)}
-                       </>}
+                     <div className={`flex-1 grid gap-1`} style={{ gridTemplateColumns: `repeat(${Math.min(journeyStages.length || 5, 7)}, minmax(0, 1fr))` }}>
+                       {journeyStages.length > 0 ? (
+                         // Show stages from program's academic journey
+                         journeyStages.map((stage: any, index: number) => (
+                           <button 
+                             key={stage.id} 
+                             onClick={async () => {
+                               // Create journey instance if doesn't exist
+                               if (!leadJourneyInstance && programJourney) {
+                                 await createInstanceMutation.mutateAsync(programJourney.id);
+                               }
+                               // Update stage
+                               await updateStageMutation.mutateAsync({ 
+                                 stageId: stage.id, 
+                                 completeCurrentStage: index > effectiveStageIndex 
+                               });
+                               toast({
+                                 title: 'Stage Updated',
+                                 description: `Moved to ${stage.name}`
+                               });
+                             }} 
+                             className={`h-3 rounded-full transition-all duration-300 hover:h-4 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 cursor-pointer ${
+                               index <= effectiveStageIndex 
+                                 ? 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm hover:from-purple-400 hover:to-purple-500 border border-purple-600' 
+                                 : 'bg-gray-200 hover:bg-gray-300 border border-gray-300'
+                             }`} 
+                             title={`Click to set stage: ${stage.name}`} 
+                           />
+                         ))
+                       ) : (
+                         // Show empty state placeholder stages
+                         Array.from({ length: 5 }, (_, i) => (
+                           <div 
+                             key={i} 
+                             className="h-3 rounded-full bg-gray-100 border border-gray-200" 
+                           />
+                         ))
+                       )}
+                     </div>
+                   </div>
+                   <div className="flex justify-between text-xs text-muted-foreground mt-1" style={{ gap: '0.25rem' }}>
+                     {journeyStages.length > 0 ? (
+                       // Show stage names from program's academic journey
+                       journeyStages.map((stage: any, index: number) => (
+                         <span 
+                           key={stage.id} 
+                           className={`cursor-pointer transition-colors hover:text-foreground truncate text-center flex-1 ${
+                             index <= effectiveStageIndex ? 'text-purple-600 font-semibold' : ''
+                           }`}
+                           onClick={async () => {
+                             if (!leadJourneyInstance && programJourney) {
+                               await createInstanceMutation.mutateAsync(programJourney.id);
+                             }
+                             await updateStageMutation.mutateAsync({ 
+                               stageId: stage.id, 
+                               completeCurrentStage: index > effectiveStageIndex 
+                             });
+                             toast({
+                               title: 'Stage Updated',
+                               description: `Moved to ${stage.name}`
+                             });
+                           }}
+                           title={stage.name}
+                         >
+                           {stage.name}
+                         </span>
+                       ))
+                     ) : (
+                       <span className="text-muted-foreground italic">
+                         {programName ? 'No journey configured for this program' : 'No program selected'}
+                       </span>
+                     )}
                    </div>
                  </div>
 
@@ -625,7 +665,7 @@ export default function LeadDetailTestPage() {
           {/* Lead Score & Quick Actions */}
           <div className="space-y-4">
             {/* AI Recommendations */}
-            <AIRecommendations currentStage={journey?.current_stage_name || 'Inquiry'} leadData={lead} onActionClick={actionId => {
+            <AIRecommendations currentStage={journeyStages[effectiveStageIndex]?.name || 'Inquiry'} leadData={lead} onActionClick={actionId => {
               console.log('AI Action clicked:', actionId);
               toast({
                 title: "AI Action Triggered",
@@ -762,7 +802,7 @@ export default function LeadDetailTestPage() {
                 </Card>
 
                 {/* Customizable Dashboard Grid */}
-                <CustomizableDashboard lead={lead} journey={journey} progress={progress} />
+                <CustomizableDashboard lead={lead} journey={programJourney} progress={progress} />
               </TabsContent>
 
               <TabsContent value="comms" className="mt-0">

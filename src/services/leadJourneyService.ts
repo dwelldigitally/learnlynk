@@ -25,6 +25,25 @@ export interface JourneyStageProgress {
 
 export class LeadJourneyService {
   /**
+   * Get program ID from program name
+   */
+  static async getProgramIdByName(programName: string): Promise<string | null> {
+    const { data, error } = await supabase
+      .from('programs')
+      .select('id')
+      .eq('name', programName)
+      .limit(1)
+      .single();
+
+    if (error) {
+      console.error('Error fetching program by name:', error);
+      return null;
+    }
+
+    return data?.id || null;
+  }
+
+  /**
    * Get the journey for a lead's program interest
    */
   static async getJourneyForProgram(programId: string) {
@@ -49,6 +68,15 @@ export class LeadJourneyService {
     }
 
     return data;
+  }
+
+  /**
+   * Get journey for program by name (convenience method)
+   */
+  static async getJourneyForProgramName(programName: string) {
+    const programId = await this.getProgramIdByName(programName);
+    if (!programId) return null;
+    return this.getJourneyForProgram(programId);
   }
 
   /**
@@ -271,7 +299,7 @@ export class LeadJourneyService {
 }
 
 // React Hooks
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 export function useLeadJourneyInstance(leadId: string | undefined) {
   return useQuery({
@@ -289,10 +317,42 @@ export function useJourneyStagesForProgram(programId: string | undefined) {
   });
 }
 
+export function useJourneyForProgramName(programName: string | undefined) {
+  return useQuery({
+    queryKey: ['journey-for-program-name', programName],
+    queryFn: () => LeadJourneyService.getJourneyForProgramName(programName!),
+    enabled: !!programName,
+  });
+}
+
 export function useLeadCountsPerStage(journeyId: string | undefined) {
   return useQuery({
     queryKey: ['lead-counts-per-stage', journeyId],
     queryFn: () => LeadJourneyService.getLeadCountsPerStage(journeyId!),
     enabled: !!journeyId,
+  });
+}
+
+export function useUpdateLeadStage(leadId: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ stageId, completeCurrentStage }: { stageId: string; completeCurrentStage?: boolean }) => 
+      LeadJourneyService.updateLeadStage(leadId, stageId, { completeCurrentStage }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-journey-instance', leadId] });
+    },
+  });
+}
+
+export function useCreateJourneyInstance(leadId: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (journeyId: string) => 
+      LeadJourneyService.createJourneyInstanceForLead(leadId, journeyId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-journey-instance', leadId] });
+    },
   });
 }

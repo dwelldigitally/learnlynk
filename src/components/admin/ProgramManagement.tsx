@@ -115,12 +115,10 @@ const ProgramManagement: React.FC = () => {
       : dbProgram.enrollment_status === 'open' ? 'active' 
       : 'inactive';
     
+    // Return ALL fields from database, plus computed fields for UI
     return {
-      id: dbProgram.id,
-      name: dbProgram.name,
+      ...dbProgram, // Pass through all original database fields including JSONB fields
       description: dbProgram.description || "No description available",
-      duration: dbProgram.duration,
-      type: dbProgram.type,
       color: metadata.color || "#3B82F6",
       status: status,
       enrolled: enrollment.enrolled,

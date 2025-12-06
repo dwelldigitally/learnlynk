@@ -431,7 +431,7 @@ export function EntryRequirementsTab({ leadId, programName, onRefresh }: EntryRe
                             <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
                               <div className="flex items-center gap-2">
                                 <FileText className="h-4 w-4 text-muted-foreground" />
-                                <span className="text-sm">{req.linked_document.file_name}</span>
+                                <span className="text-sm">{req.linked_document.document_name}</span>
                                 <Badge 
                                   variant="outline" 
                                   className={
@@ -444,13 +444,13 @@ export function EntryRequirementsTab({ leadId, programName, onRefresh }: EntryRe
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-1">
-                                {req.linked_document.file_url && (
+                                {req.linked_document.file_path && (
                                   <Button 
                                     variant="ghost" 
                                     size="sm"
                                     asChild
                                   >
-                                    <a href={req.linked_document.file_url} target="_blank" rel="noopener noreferrer">
+                                    <a href={req.linked_document.file_path} target="_blank" rel="noopener noreferrer">
                                       <Eye className="h-3 w-3 mr-1" />
                                       View
                                     </a>

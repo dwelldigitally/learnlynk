@@ -27,9 +27,9 @@ export interface LeadEntryRequirement {
   // Joined data
   linked_document?: {
     id: string;
-    file_name: string;
+    document_name: string;
     status: string;
-    file_url: string | null;
+    file_path: string | null;
   } | null;
   approver?: {
     full_name: string;
@@ -55,7 +55,7 @@ class EntryRequirementService {
       .from('lead_entry_requirements')
       .select(`
         *,
-        linked_document:lead_documents(id, document_name, document_type, status, admin_status, file_url)
+        linked_document:lead_documents(id, document_name, document_type, status, admin_status, file_path)
       `)
       .eq('lead_id', leadId)
       .order('requirement_type', { ascending: true });

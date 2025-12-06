@@ -11,10 +11,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useJourneyTemplates } from '@/services/academicJourneyService';
+import { useJourneyTemplates, useAcademicJourneys } from '@/services/academicJourneyService';
 import { usePrograms } from '@/services/programService';
-import { JourneyTemplate, JourneyWizardState } from '@/types/academicJourney';
-import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye, Globe, Copy, Sparkles } from 'lucide-react';
+import { JourneyTemplate, JourneyWizardState, AcademicJourney } from '@/types/academicJourney';
+import { BookOpen, Clock, Users, ArrowRight, CheckCircle, Settings, Eye, Globe, Copy, Sparkles, Route, Search } from 'lucide-react';
 import { ProgramJourneySelector } from './wizard/journey-steps/ProgramJourneySelector';
 import { JourneyTypeTab } from './wizard/journey-steps/JourneyTypeTab';
 import { useMasterJourneyTemplates } from '@/hooks/useMasterJourneyTemplates';
@@ -29,11 +29,12 @@ interface ProgramJourneyStepProps {
 const onUpdate = (onDataChange: (data: any) => void) => onDataChange;
 
 export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepProps) {
-  const [selectionMode, setSelectionMode] = useState<'master' | 'copy' | 'custom'>(
+  const [selectionMode, setSelectionMode] = useState<'master' | 'copy' | 'custom' | 'existing'>(
     data.journeyConfiguration?.mode || 'master'
   );
   const [selectedTemplate, setSelectedTemplate] = useState<JourneyTemplate | null>(null);
   const [selectedProgram, setSelectedProgram] = useState<any>(null);
+  const [selectedExistingJourney, setSelectedExistingJourney] = useState<AcademicJourney | null>(null);
   const [journeyData, setJourneyData] = useState<JourneyWizardState>({
     name: data.journeyName || '',
     description: data.journeyDescription || '',
@@ -43,6 +44,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     metadata: {}
   });
   const [activeTab, setActiveTab] = useState<'mode' | 'configure' | 'preview'>('mode');
+  const [existingJourneySearch, setExistingJourneySearch] = useState('');
   
   // Journey stages state
   const [domesticStages, setDomesticStages] = useState<any[]>(
@@ -54,6 +56,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
 
   const { data: templates, isLoading } = useJourneyTemplates();
   const { data: programs } = usePrograms();
+  const { data: existingJourneys, isLoading: journeysLoading } = useAcademicJourneys();
   const { domesticTemplate, internationalTemplate, isLoading: masterLoading } = useMasterJourneyTemplates();
 
   // Initialize stages from master templates if available
@@ -81,7 +84,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
     }
   }, [data.selectedJourneyTemplate, data.journeyConfiguration, templates, selectionMode]);
 
-  const handleModeSelect = (mode: 'master' | 'copy' | 'custom') => {
+  const handleModeSelect = (mode: 'master' | 'copy' | 'custom' | 'existing') => {
     setSelectionMode(mode);
     setActiveTab('configure');
     
@@ -90,6 +93,19 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       journeyConfiguration: {
         ...(data.journeyConfiguration || {}),
         mode
+      }
+    });
+  };
+
+  const handleExistingJourneySelect = (journey: AcademicJourney) => {
+    setSelectedExistingJourney(journey);
+    
+    onDataChange({
+      ...data,
+      journeyConfiguration: {
+        mode: 'existing',
+        existingJourneyId: journey.id,
+        existingJourneyName: journey.name
       }
     });
   };
@@ -243,82 +259,80 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       </div>
 
       <RadioGroup value={selectionMode} onValueChange={(value: any) => handleModeSelect(value)}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Master Templates Option */}
           <Card className={`cursor-pointer transition-all ${selectionMode === 'master' ? 'ring-2 ring-primary' : ''}`}>
-            <CardHeader>
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="master" id="mode-master" />
                 <Label htmlFor="mode-master" className="cursor-pointer flex items-center gap-2">
                   <Globe className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Global Master Templates</span>
+                  <span className="font-semibold text-sm">Master Templates</span>
                 </Label>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-3">
-                Apply institution-wide standard journeys for domestic and international students
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground mb-2">
+                Use institution-wide standard journeys
               </p>
-              <div className="space-y-2">
-                <Badge variant="secondary" className="text-xs">Recommended</Badge>
-                <div className="text-xs text-muted-foreground">
-                  ✓ Institution standards<br />
-                  ✓ Automatic updates<br />
-                  ✓ Consistent experience
-                </div>
+              <Badge variant="secondary" className="text-xs">Recommended</Badge>
+            </CardContent>
+          </Card>
+
+          {/* Use Existing Journey Option */}
+          <Card className={`cursor-pointer transition-all ${selectionMode === 'existing' ? 'ring-2 ring-primary' : ''}`}>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="existing" id="mode-existing" />
+                <Label htmlFor="mode-existing" className="cursor-pointer flex items-center gap-2">
+                  <Route className="h-5 w-5 text-primary" />
+                  <span className="font-semibold text-sm">Existing Journey</span>
+                </Label>
               </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground mb-2">
+                Select from journeys you've already created
+              </p>
+              <Badge variant="outline" className="text-xs">Quick</Badge>
             </CardContent>
           </Card>
 
           {/* Copy from Program Option */}
           <Card className={`cursor-pointer transition-all ${selectionMode === 'copy' ? 'ring-2 ring-primary' : ''}`}>
-            <CardHeader>
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="copy" id="mode-copy" />
                 <Label htmlFor="mode-copy" className="cursor-pointer flex items-center gap-2">
                   <Copy className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Copy from Program</span>
+                  <span className="font-semibold text-sm">Copy from Program</span>
                 </Label>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-3">
-                Inherit journey configuration from an existing program
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground mb-2">
+                Copy journey from another program
               </p>
-              <div className="space-y-2">
-                <Badge variant="outline" className="text-xs">Time Saver</Badge>
-                <div className="text-xs text-muted-foreground">
-                  ✓ Proven workflows<br />
-                  ✓ Similar programs<br />
-                  ✓ Quick setup
-                </div>
-              </div>
+              <Badge variant="outline" className="text-xs">Time Saver</Badge>
             </CardContent>
           </Card>
 
           {/* Custom Template Option */}
           <Card className={`cursor-pointer transition-all ${selectionMode === 'custom' ? 'ring-2 ring-primary' : ''}`}>
-            <CardHeader>
+            <CardHeader className="pb-2">
               <div className="flex items-center gap-2">
                 <RadioGroupItem value="custom" id="mode-custom" />
                 <Label htmlFor="mode-custom" className="cursor-pointer flex items-center gap-2">
                   <Settings className="h-5 w-5 text-primary" />
-                  <span className="font-semibold">Custom Template</span>
+                  <span className="font-semibold text-sm">Custom Template</span>
                 </Label>
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground mb-3">
-                Build from scratch using journey templates
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground mb-2">
+                Build from scratch using templates
               </p>
-              <div className="space-y-2">
-                <Badge variant="outline" className="text-xs">Advanced</Badge>
-                <div className="text-xs text-muted-foreground">
-                  ✓ Full customization<br />
-                  ✓ Unique requirements<br />
-                  ✓ Complete control
-                </div>
-              </div>
+              <Badge variant="outline" className="text-xs">Advanced</Badge>
             </CardContent>
           </Card>
         </div>
@@ -330,7 +344,8 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle className="h-5 w-5 text-primary" />
               <span className="font-medium">Selected: {
-                selectionMode === 'master' ? 'Global Master Templates' :
+                selectionMode === 'master' ? 'Master Templates' :
+                selectionMode === 'existing' ? 'Existing Journey' :
                 selectionMode === 'copy' ? 'Copy from Program' :
                 'Custom Template'
               }</span>
@@ -403,33 +418,134 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
   };
 
   const renderJourneyConfiguration = () => {
+    // Route to appropriate configuration based on mode
+    if (selectionMode === 'master') {
+      return renderMasterTemplateConfiguration();
+    } else if (selectionMode === 'existing') {
+      return renderExistingJourneyConfiguration();
+    } else if (selectionMode === 'copy') {
+      return renderCopyProgramConfiguration();
+    } else if (selectionMode === 'custom') {
+      return renderCustomTemplateConfiguration();
+    }
+    
     return (
-      <Tabs defaultValue="domestic" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="domestic" className="gap-2">
-            <Users className="h-4 w-4" />
-            Domestic Journey
-            {data.journeyConfiguration?.domestic?.enabled && (
-              <CheckCircle className="h-3 w-3 ml-1 text-green-600" />
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="international" className="gap-2">
-            <Globe className="h-4 w-4" />
-            International Journey
-            {data.journeyConfiguration?.international?.enabled && (
-              <CheckCircle className="h-3 w-3 ml-1 text-green-600" />
-            )}
-          </TabsTrigger>
-        </TabsList>
+      <Card>
+        <CardContent className="py-8 text-center">
+          <p className="text-muted-foreground">Please select a configuration mode first</p>
+        </CardContent>
+      </Card>
+    );
+  };
 
-        <TabsContent value="domestic" className="mt-6">
-          {renderJourneyTypeTab('domestic')}
-        </TabsContent>
+  const renderExistingJourneyConfiguration = () => {
+    const filteredJourneys = existingJourneys?.filter(journey =>
+      journey.name.toLowerCase().includes(existingJourneySearch.toLowerCase()) ||
+      journey.description?.toLowerCase().includes(existingJourneySearch.toLowerCase())
+    ) || [];
 
-        <TabsContent value="international" className="mt-6">
-          {renderJourneyTypeTab('international')}
-        </TabsContent>
-      </Tabs>
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <Route className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Select Existing Journey</h3>
+          <p className="text-muted-foreground">
+            Choose from academic journeys you've already created
+          </p>
+        </div>
+
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search journeys..."
+            value={existingJourneySearch}
+            onChange={(e) => setExistingJourneySearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+
+        {journeysLoading ? (
+          <div className="space-y-3">
+            {[1, 2, 3].map(i => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-5 bg-muted rounded w-3/4"></div>
+                  <div className="h-4 bg-muted rounded w-full mt-2"></div>
+                </CardHeader>
+              </Card>
+            ))}
+          </div>
+        ) : filteredJourneys.length > 0 ? (
+          <ScrollArea className="h-[400px]">
+            <div className="space-y-3">
+              {filteredJourneys.map(journey => {
+                const isSelected = selectedExistingJourney?.id === journey.id;
+                const stageCount = (journey as any).journey_stages?.length || 0;
+                
+                return (
+                  <Card
+                    key={journey.id}
+                    className={`cursor-pointer transition-all hover:shadow-md ${
+                      isSelected ? 'ring-2 ring-primary' : ''
+                    }`}
+                    onClick={() => handleExistingJourneySelect(journey)}
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-base flex items-center gap-2">
+                            {journey.name}
+                            {isSelected && <CheckCircle className="h-4 w-4 text-primary" />}
+                          </CardTitle>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {journey.description || 'No description'}
+                          </p>
+                        </div>
+                        <Badge variant={journey.is_active ? 'default' : 'secondary'}>
+                          {journey.is_active ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Route className="h-4 w-4" />
+                          <span>{stageCount} stages</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          <span>v{journey.version}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </ScrollArea>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No Journeys Found</h3>
+              <p className="text-muted-foreground">
+                {existingJourneySearch ? "Try adjusting your search" : "Create your first journey using the Custom Template option"}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedExistingJourney && (
+          <Card className="bg-green-50 border-green-200">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-600" />
+                <span className="font-medium">Selected: {selectedExistingJourney.name}</span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     );
   };
 
@@ -807,6 +923,7 @@ export function ProgramJourneyStep({ data, onDataChange }: ProgramJourneyStepPro
       </div>
 
       {(selectionMode === 'master' && (data.journeyConfiguration?.domestic?.enabled || data.journeyConfiguration?.international?.enabled)) ||
+       (selectionMode === 'existing' && selectedExistingJourney) ||
        (selectionMode === 'copy' && selectedProgram) ||
        (selectionMode === 'custom' && selectedTemplate) ? (
         <div className="flex items-center gap-2 p-4 bg-green-50 border border-green-200 rounded-lg">

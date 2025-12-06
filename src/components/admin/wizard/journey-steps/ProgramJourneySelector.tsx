@@ -34,15 +34,13 @@ export function ProgramJourneySelector({ programs, onSelect, selectedProgramId }
   const [previewProgram, setPreviewProgram] = useState<Program | null>(null);
   const [selectedStudentType, setSelectedStudentType] = useState<'domestic' | 'international' | 'both'>('both');
 
-  // Filter programs
+  // Filter programs - show all programs, they can copy journey config
   const filteredPrograms = programs.filter(program => {
     const matchesSearch = program.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || program.category === filterCategory;
     const matchesType = filterType === 'all' || program.type === filterType;
-    const hasJourney = program.journeyConfiguration && 
-      (program.journeyConfiguration.domesticJourneyId || program.journeyConfiguration.internationalJourneyId);
     
-    return matchesSearch && matchesCategory && matchesType && hasJourney;
+    return matchesSearch && matchesCategory && matchesType;
   });
 
   // Get unique categories and types

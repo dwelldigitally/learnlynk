@@ -101,7 +101,7 @@ export type Database = {
             foreignKeyName: "academic_journeys_program_id_fkey"
             columns: ["program_id"]
             isOneToOne: false
-            referencedRelation: "master_programs"
+            referencedRelation: "programs"
             referencedColumns: ["id"]
           },
           {

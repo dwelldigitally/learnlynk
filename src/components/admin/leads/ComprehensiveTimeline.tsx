@@ -21,7 +21,8 @@ import {
   UserPlus,
   Calendar,
   AlertCircle,
-  Trash2
+  Trash2,
+  RefreshCw
 } from 'lucide-react';
 import { leadActivityService, ActivityLogEntry } from '@/services/leadActivityService';
 import { supabase } from '@/integrations/supabase/client';
@@ -391,11 +392,22 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
             <Activity className="h-4 w-4" />
             Comprehensive Timeline
           </h3>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={() => loadTimelineData()}
+              title="Refresh timeline"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             </Button>
-          </CollapsibleTrigger>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
         </div>
         <div className="flex flex-col gap-2 mt-3">
           <div className="flex gap-1">

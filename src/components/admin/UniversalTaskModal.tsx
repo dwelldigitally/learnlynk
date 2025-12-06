@@ -30,7 +30,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { UniversalTaskService } from "@/services/universalTaskService";
-import { TaskFormData, TaskEntityType, TASK_CATEGORIES, EntityOption } from "@/types/universalTask";
+import { TaskFormData, TaskEntityType, EntityOption } from "@/types/universalTask";
 
 interface UniversalTaskModalProps {
   open: boolean;
@@ -59,7 +59,7 @@ export function UniversalTaskModal({
     defaultValues: {
       title: "",
       description: "",
-      category: "general",
+      category: "follow_up",
       priority: "medium",
       entity_type: defaultEntityType || "lead",
       entity_id: defaultEntityId || "",
@@ -197,25 +197,21 @@ export function UniversalTaskModal({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="category">Category *</Label>
+                <Label htmlFor="category">Task Type *</Label>
                 <Select
                   value={form.watch("category")}
                   onValueChange={(value) => form.setValue("category", value as any)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
+                    <SelectValue placeholder="Select task type" />
                   </SelectTrigger>
                   <SelectContent>
-                    {TASK_CATEGORIES.map((category) => (
-                      <SelectItem key={category.value} value={category.value}>
-                        <div>
-                          <div className="font-medium">{category.label}</div>
-                          <div className="text-xs text-muted-foreground">
-                            {category.description}
-                          </div>
-                        </div>
-                      </SelectItem>
-                    ))}
+                    <SelectItem value="follow_up">Follow Up</SelectItem>
+                    <SelectItem value="call">Call</SelectItem>
+                    <SelectItem value="email">Email</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="research">Research</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

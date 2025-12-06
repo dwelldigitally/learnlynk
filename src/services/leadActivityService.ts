@@ -10,7 +10,8 @@ export type ActionType =
   | 'advisor_assigned' | 'advisor_changed'
   | 'status_changed' | 'priority_changed'
   | 'note_added' | 'task_created' | 'task_completed'
-  | 'communication_logged';
+  | 'communication_logged'
+  | 'entry_requirement_met' | 'entry_requirement_updated';
 
 export interface ActivityLogEntry {
   id: string;
@@ -322,6 +323,40 @@ class LeadActivityService {
       null,
       { source, programInterest },
       { source, programInterest }
+    );
+  }
+
+  /**
+   * Log entry requirement status change
+   */
+  async logEntryRequirementChange(
+    leadId: string,
+    requirementName: string,
+    oldStatus: string | null,
+    newStatus: string,
+    threshold?: string,
+    comments?: string
+  ): Promise<void> {
+    const actionType = newStatus === 'met' ? 'entry_requirement_met' : 'entry_requirement_updated';
+    const title = newStatus === 'met' ? 'Entry Requirement Met' : 'Entry Requirement Updated';
+    
+    let description = `"${requirementName}" marked as ${newStatus}`;
+    if (threshold) {
+      description += ` (Threshold: ${threshold})`;
+    }
+    if (comments) {
+      description += ` - ${comments}`;
+    }
+
+    await this.logActivity(
+      leadId,
+      actionType,
+      'document',
+      title,
+      description,
+      { status: oldStatus, requirement: requirementName },
+      { status: newStatus, requirement: requirementName, threshold },
+      { requirementName, threshold, comments }
     );
   }
 

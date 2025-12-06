@@ -55,8 +55,7 @@ class EntryRequirementService {
       .from('lead_entry_requirements')
       .select(`
         *,
-        linked_document:lead_documents(id, file_name, status, file_url),
-        approver:profiles!approved_by(full_name)
+        linked_document:lead_documents(id, document_name, document_type, status, admin_status, file_url)
       `)
       .eq('lead_id', leadId)
       .order('requirement_type', { ascending: true });

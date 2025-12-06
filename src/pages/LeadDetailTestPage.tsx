@@ -65,6 +65,7 @@ export default function LeadDetailTestPage() {
   // Document and journey data
   const {
     documents: presetDocuments,
+    progress: documentProgress,
     loading: documentsLoading,
     refetchDocuments
   } = usePresetDocuments(leadId || '', lead?.program_interest?.[0] || 'General');
@@ -499,11 +500,8 @@ export default function LeadDetailTestPage() {
     );
   }
   
-  // Calculate document progress
-  const progress = presetDocumentService.getDocumentProgress(
-    lead?.program_interest?.[0] || 'General',
-    presetDocuments
-  );
+  // Use document progress from hook (already calculated asynchronously)
+  const progress = documentProgress;
   
   return (
     <ModernAdminLayout>

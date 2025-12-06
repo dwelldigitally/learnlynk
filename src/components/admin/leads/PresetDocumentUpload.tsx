@@ -365,15 +365,41 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     }
   };
 
-  const handleViewDocument = async (filePath: string) => {
-    try {
-      const url = await presetDocumentService.getDocumentUrl(filePath);
-      window.open(url, '_blank');
-    } catch (error) {
-      console.error('View error:', error);
+  const handleViewDocument = async (filePath: string | null) => {
+    if (!filePath) {
       toast({
         title: 'View failed',
-        description: 'Failed to open document',
+        description: 'Document file path not found',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    try {
+      console.log('[PresetDocumentUpload] Getting signed URL for:', filePath);
+      const url = await presetDocumentService.getDocumentUrl(filePath);
+      
+      if (!url) {
+        toast({
+          title: 'View failed',
+          description: 'Could not generate document URL. Please try again.',
+          variant: 'destructive'
+        });
+        return;
+      }
+      
+      console.log('[PresetDocumentUpload] Opening URL:', url.substring(0, 100) + '...');
+      // Use window.location for same-window navigation as fallback if popup blocked
+      const newWindow = window.open(url, '_blank');
+      if (!newWindow) {
+        // Popup was blocked, try opening in same window
+        window.location.href = url;
+      }
+    } catch (error: any) {
+      console.error('[PresetDocumentUpload] View error:', error);
+      toast({
+        title: 'View failed',
+        description: error?.message || 'Failed to open document',
         variant: 'destructive'
       });
     }

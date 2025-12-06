@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
   Brain, 
@@ -11,7 +10,8 @@ import {
   Send, 
   Sparkles,
   Bot,
-  User
+  User,
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +28,9 @@ interface ChatMessage {
   timestamp: Date;
 }
 
+// LocalStorage key prefix for chat history
+const CHAT_STORAGE_KEY = 'ai_lead_chat_';
+
 export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
   const { toast } = useToast();
   const [summary, setSummary] = useState<string>('');
@@ -36,6 +39,31 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
   const [question, setQuestion] = useState('');
   const [askingQuestion, setAskingQuestion] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+
+  // Load chat history from localStorage on mount
+  useEffect(() => {
+    const storageKey = `${CHAT_STORAGE_KEY}${leadId}`;
+    const savedMessages = localStorage.getItem(storageKey);
+    if (savedMessages) {
+      try {
+        const parsed = JSON.parse(savedMessages);
+        // Convert timestamp strings back to Date objects
+        const messages = parsed.map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }));
+        setChatMessages(messages);
+      } catch (e) {
+        console.error('Error parsing saved chat messages:', e);
+      }
+    }
+  }, [leadId]);
+
+  // Save chat history to localStorage whenever messages change
+  const saveMessages = useCallback((messages: ChatMessage[]) => {
+    const storageKey = `${CHAT_STORAGE_KEY}${leadId}`;
+    localStorage.setItem(storageKey, JSON.stringify(messages));
+  }, [leadId]);
 
   const generateSummary = async () => {
     setLoading(true);
@@ -80,15 +108,19 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
       timestamp: new Date()
     };
 
-    setChatMessages(prev => [...prev, userMessage]);
+    const updatedMessages = [...chatMessages, userMessage];
+    setChatMessages(updatedMessages);
+    saveMessages(updatedMessages);
     setAskingQuestion(true);
+    const currentQuestion = question;
+    setQuestion('');
     
     try {
       const { data, error } = await supabase.functions.invoke('lead-ai-summary', {
         body: {
           leadId,
           action: 'question',
-          question: question
+          question: currentQuestion
         }
       });
 
@@ -102,8 +134,9 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
           timestamp: new Date()
         };
 
-        setChatMessages(prev => [...prev, aiMessage]);
-        setQuestion('');
+        const finalMessages = [...updatedMessages, aiMessage];
+        setChatMessages(finalMessages);
+        saveMessages(finalMessages);
       } else {
         throw new Error(data.error || 'Failed to get answer');
       }
@@ -119,6 +152,16 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
     }
   };
 
+  const clearChatHistory = () => {
+    setChatMessages([]);
+    const storageKey = `${CHAT_STORAGE_KEY}${leadId}`;
+    localStorage.removeItem(storageKey);
+    toast({
+      title: 'Chat Cleared',
+      description: 'Conversation history has been cleared.',
+    });
+  };
+
   const refreshSummary = async () => {
     setRefreshing(true);
     try {
@@ -127,8 +170,6 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
       setRefreshing(false);
     }
   };
-
-  // Removed auto-generation on mount - summary is now created only when user clicks a button
 
   return (
     <div className="space-y-6">
@@ -160,12 +201,12 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
             </div>
           ) : summary ? (
             <div className="prose prose-sm max-w-none">
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0">
-                    <Brain className="h-5 w-5 text-blue-600 mt-0.5" />
+                    <Brain className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
                   </div>
-                  <div className="text-sm leading-relaxed text-gray-700 whitespace-pre-wrap">
+                  <div className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">
                     {summary}
                   </div>
                 </div>
@@ -186,15 +227,28 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
       {/* Q&A Section */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            Ask AI About This Lead
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MessageSquare className="h-5 w-5 text-primary" />
+              Ask AI About This Lead
+            </div>
+            {chatMessages.length > 0 && (
+              <Button 
+                size="sm" 
+                variant="ghost" 
+                onClick={clearChatHistory}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-1" />
+                Clear
+              </Button>
+            )}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Chat Messages */}
           {chatMessages.length > 0 && (
-            <ScrollArea className="h-64 border rounded-lg p-3">
+            <ScrollArea className="h-80 border rounded-lg p-3">
               <div className="space-y-3">
                 {chatMessages.map((message) => (
                   <div
@@ -270,11 +324,11 @@ export function AILeadSummary({ leadId, leadName }: AILeadSummaryProps) {
             <p className="text-sm font-medium">Suggested questions:</p>
             <div className="flex flex-wrap gap-2">
               {[
-                "What is this lead's application status?",
-                "What are the key risk factors?",
                 "What documents are missing?",
+                "What is the current application status?",
+                "What are the key risk factors?",
                 "What's the next best action?",
-                "How engaged is this lead?"
+                "What entry requirements are fulfilled?"
               ].map((suggestedQ) => (
                 <Button
                   key={suggestedQ}

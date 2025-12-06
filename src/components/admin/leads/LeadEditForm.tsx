@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
+import { leadActivityService } from '@/services/leadActivityService';
 import { useToast } from '@/hooks/use-toast';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useIntakesByProgramName } from '@/hooks/useIntakes';
@@ -84,6 +85,40 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
         academic_term_id: selectedTermId || null
       };
 
+      // Calculate changed fields for activity logging
+      const changedFields: Record<string, { old: any; new: any }> = {};
+      
+      // Check personal info changes
+      if (formData.first_name !== lead.first_name) changedFields.first_name = { old: lead.first_name, new: formData.first_name };
+      if (formData.last_name !== lead.last_name) changedFields.last_name = { old: lead.last_name, new: formData.last_name };
+      if (formData.email !== lead.email) changedFields.email = { old: lead.email, new: formData.email };
+      if (formData.phone !== (lead.phone || '')) changedFields.phone = { old: lead.phone || '', new: formData.phone };
+      
+      // Check location changes
+      if (formData.city !== (lead.city || '')) changedFields.city = { old: lead.city || '', new: formData.city };
+      if (formData.state !== (lead.state || '')) changedFields.state = { old: lead.state || '', new: formData.state };
+      if (formData.country !== (lead.country || '')) changedFields.country = { old: lead.country || '', new: formData.country };
+      
+      // Check lead details changes
+      if (formData.status !== lead.status) changedFields.status = { old: lead.status, new: formData.status };
+      if (formData.priority !== lead.priority) changedFields.priority = { old: lead.priority, new: formData.priority };
+      if (formData.source !== lead.source) changedFields.source = { old: lead.source, new: formData.source };
+      
+      // Check program interest
+      const oldProgram = lead.program_interest?.[0] || '';
+      if (selectedProgram !== oldProgram) changedFields.program_interest = { old: oldProgram, new: selectedProgram };
+      
+      // Check intake changes
+      const oldIntakeId = (lead as any).preferred_intake_id || '';
+      if (selectedIntakeId !== oldIntakeId) changedFields.preferred_intake_id = { old: oldIntakeId, new: selectedIntakeId };
+      
+      // Check academic term
+      const oldTermId = (lead as any).academic_term_id || '';
+      if (selectedTermId !== oldTermId) changedFields.academic_term_id = { old: oldTermId, new: selectedTermId };
+      
+      // Check notes
+      if (formData.notes !== (lead.notes || '')) changedFields.notes = { old: lead.notes || '', new: formData.notes };
+
       const { data, error } = await LeadService.updateLead(lead.id, updateData);
       
       if (error) {
@@ -91,6 +126,20 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
       }
 
       if (data) {
+        // Log lead update activity if there were any changes
+        if (Object.keys(changedFields).length > 0) {
+          const fieldNames = Object.keys(changedFields);
+          const oldValues: Record<string, any> = {};
+          const newValues: Record<string, any> = {};
+          
+          fieldNames.forEach(field => {
+            oldValues[field] = changedFields[field].old;
+            newValues[field] = changedFields[field].new;
+          });
+          
+          await leadActivityService.logLeadUpdate(lead.id, fieldNames, oldValues, newValues);
+        }
+        
         onSave(data);
         toast({
           title: 'Success',

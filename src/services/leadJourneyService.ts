@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Lead } from '@/types/lead';
+import { leadActivityService } from './leadActivityService';
 
 export interface LeadJourneyInstance {
   id: string;
@@ -243,6 +244,15 @@ export class LeadJourneyService {
         return null;
       }
 
+      // Get stage names for activity logging
+      const { data: stages } = await supabase
+        .from('journey_stages')
+        .select('id, name')
+        .in('id', [instance.current_stage_id, newStageId].filter(Boolean));
+      
+      const oldStageName = stages?.find(s => s.id === instance.current_stage_id)?.name || 'Unknown';
+      const newStageName = stages?.find(s => s.id === newStageId)?.name || 'Unknown';
+
       // Complete current stage if requested
       if (options?.completeCurrentStage && instance.current_stage_id) {
         await supabase
@@ -289,6 +299,14 @@ export class LeadJourneyService {
           .update({ status: 'active' })
           .eq('id', existingProgress.id);
       }
+
+      // Log stage change activity
+      await leadActivityService.logStageChange(
+        leadId,
+        oldStageName,
+        newStageName,
+        'manual'
+      );
 
       return true;
     } catch (error) {

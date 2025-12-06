@@ -40,16 +40,17 @@ interface ComprehensiveTimelineProps {
   leadId: string;
   filter: string;
   onFilterChange: (filter: string) => void;
+  refreshTrigger?: number; // Increment to trigger refresh
 }
 
-export function ComprehensiveTimeline({ leadId, filter, onFilterChange }: ComprehensiveTimelineProps) {
+export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshTrigger }: ComprehensiveTimelineProps) {
   const [timelineEvents, setTimelineEvents] = useState<TimelineEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
     loadTimelineData();
-  }, [leadId]);
+  }, [leadId, refreshTrigger]);
 
   const loadTimelineData = async () => {
     try {

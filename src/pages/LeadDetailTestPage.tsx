@@ -35,6 +35,7 @@ import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import { TasksNotesPanel } from '@/components/admin/leads/TasksNotesPanel';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
+import { EntryRequirementsTab } from '@/components/admin/leads/EntryRequirementsTab';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
 import { useJourneyForProgramName, useLeadJourneyInstance, useUpdateLeadStage, useCreateJourneyInstance } from '@/services/leadJourneyService';
 
@@ -699,8 +700,9 @@ export default function LeadDetailTestPage() {
         <div className="flex-1 flex flex-col">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
             <div className="border-b p-4">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="summary">Summary</TabsTrigger>
+                <TabsTrigger value="requirements">Requirements</TabsTrigger>
                 <TabsTrigger value="comms">Comms</TabsTrigger>
                 <TabsTrigger value="docs">Docs</TabsTrigger>
                 <TabsTrigger value="payments">Payments</TabsTrigger>
@@ -820,6 +822,17 @@ export default function LeadDetailTestPage() {
 
                 {/* Customizable Dashboard Grid */}
                 <CustomizableDashboard lead={lead} journey={transformedJourney} progress={progress} />
+              </TabsContent>
+
+              <TabsContent value="requirements" className="mt-0">
+                <EntryRequirementsTab 
+                  leadId={leadId || ''} 
+                  programName={lead?.program_interest?.[0]}
+                  onRefresh={() => {
+                    setTimelineRefreshTrigger(prev => prev + 1);
+                    refetchDocuments();
+                  }}
+                />
               </TabsContent>
 
               <TabsContent value="comms" className="mt-0">

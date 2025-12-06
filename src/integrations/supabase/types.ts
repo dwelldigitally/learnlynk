@@ -3703,6 +3703,78 @@ export type Database = {
           },
         ]
       }
+      lead_entry_requirements: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string | null
+          entry_requirement_id: string
+          id: string
+          is_mandatory: boolean | null
+          lead_id: string
+          linked_document_id: string | null
+          notes: string | null
+          requirement_description: string | null
+          requirement_title: string
+          requirement_type: string
+          status: string
+          threshold_data: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          entry_requirement_id: string
+          id?: string
+          is_mandatory?: boolean | null
+          lead_id: string
+          linked_document_id?: string | null
+          notes?: string | null
+          requirement_description?: string | null
+          requirement_title: string
+          requirement_type?: string
+          status?: string
+          threshold_data?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string | null
+          entry_requirement_id?: string
+          id?: string
+          is_mandatory?: boolean | null
+          lead_id?: string
+          linked_document_id?: string | null
+          notes?: string | null
+          requirement_description?: string | null
+          requirement_title?: string
+          requirement_type?: string
+          status?: string
+          threshold_data?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_entry_requirements_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_entry_requirements_linked_document_id_fkey"
+            columns: ["linked_document_id"]
+            isOneToOne: false
+            referencedRelation: "lead_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_journey_progress: {
         Row: {
           completed: boolean | null

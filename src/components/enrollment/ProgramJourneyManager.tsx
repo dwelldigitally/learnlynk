@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity, ChevronDown } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity, ChevronDown, MoreHorizontal, Trash2, Copy, Power } from 'lucide-react';
 import { usePrograms } from '@/services/programService';
-import { useAcademicJourneys } from '@/services/academicJourneyService';
+import { useAcademicJourneys, useDeleteAcademicJourney, useDuplicateAcademicJourney, useToggleJourneyStatus } from '@/services/academicJourneyService';
 import { usePracticumJourneys } from '@/hooks/usePracticum';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -212,13 +214,68 @@ export function ProgramJourneyManager() {
     );
   }
 
+  // Delete, duplicate, and toggle hooks
+  const deleteJourneyMutation = useDeleteAcademicJourney();
+  const duplicateJourneyMutation = useDuplicateAcademicJourney();
+  const toggleStatusMutation = useToggleJourneyStatus();
+
+  const handleDeleteJourney = async (journey: CombinedJourney) => {
+    if (journey.type !== 'academic') {
+      toast.error('Practicum journey deletion not supported here');
+      return;
+    }
+    
+    try {
+      await deleteJourneyMutation.mutateAsync(journey.id);
+      toast.success('Journey deleted successfully');
+    } catch (error) {
+      console.error('Error deleting journey:', error);
+      toast.error('Failed to delete journey');
+    }
+  };
+
+  const handleDuplicateJourney = async (journey: CombinedJourney) => {
+    if (journey.type !== 'academic') {
+      toast.error('Practicum journey duplication not supported here');
+      return;
+    }
+    
+    try {
+      await duplicateJourneyMutation.mutateAsync(journey.id);
+      toast.success('Journey duplicated successfully');
+    } catch (error) {
+      console.error('Error duplicating journey:', error);
+      toast.error('Failed to duplicate journey');
+    }
+  };
+
+  const handleToggleStatus = async (journey: CombinedJourney) => {
+    if (journey.type !== 'academic') {
+      toast.error('Practicum journey toggle not supported here');
+      return;
+    }
+    
+    try {
+      await toggleStatusMutation.mutateAsync({ 
+        id: journey.id, 
+        is_active: !journey.is_active 
+      });
+      toast.success(`Journey ${journey.is_active ? 'deactivated' : 'activated'} successfully`);
+    } catch (error) {
+      console.error('Error toggling journey status:', error);
+      toast.error('Failed to toggle journey status');
+    }
+  };
+
   // Show Journey Builder if editing or creating is active
   if (editingJourneyId || showJourneyBuilder) {
     return (
       <JourneyBuilder 
+        journeyId={editingJourneyId}
         onBack={() => {
           setEditingJourneyId(null);
           setShowJourneyBuilder(false);
+          refetchJourneys();
         }}
       />
     );
@@ -411,8 +468,20 @@ export function ProgramJourneyManager() {
                       </div>
                     </div>
 
+                    {/* Toggle Active Status */}
+                    {journey.type === 'academic' && (
+                      <div className="flex items-center justify-between py-2 mb-3">
+                        <span className="text-sm text-muted-foreground">Active</span>
+                        <Switch
+                          checked={journey.is_active}
+                          onCheckedChange={() => handleToggleStatus(journey)}
+                          disabled={toggleStatusMutation.isPending}
+                        />
+                      </div>
+                    )}
+
                     {/* Action Buttons */}
-                    <div className="flex gap-3 pt-3 border-t border-border/50">
+                    <div className="flex gap-2 pt-3 border-t border-border/50">
                       <Button 
                         variant="outline" 
                         size="sm" 
@@ -422,15 +491,51 @@ export function ProgramJourneyManager() {
                         <Settings className="h-4 w-4 mr-2" />
                         Edit
                       </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex-1"
-                        onClick={() => toast('Journey preview coming soon!')}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        Preview
-                      </Button>
+                      
+                      {journey.type === 'academic' && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleDuplicateJourney(journey)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem 
+                                  className="text-destructive focus:text-destructive"
+                                  onSelect={(e) => e.preventDefault()}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Journey</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete "{journey.name}"? This action cannot be undone and will remove all associated stages and requirements.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={() => handleDeleteJourney(journey)}
+                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </div>
                 </ModernCard>

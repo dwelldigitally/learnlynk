@@ -339,10 +339,10 @@ export function useAcademicJourneys() {
   });
 }
 
-export function useAcademicJourney(id: string) {
+export function useAcademicJourney(id: string | null | undefined) {
   return useQuery({
     queryKey: ['academic-journey', id],
-    queryFn: () => AcademicJourneyService.getAcademicJourney(id),
+    queryFn: () => AcademicJourneyService.getAcademicJourney(id!),
     enabled: !!id,
   });
 }
@@ -375,6 +375,75 @@ export function useUpdateAcademicJourney() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['academic-journeys'] });
       queryClient.invalidateQueries({ queryKey: ['academic-journey', data.id] });
+    },
+  });
+}
+
+export function useDeleteAcademicJourney() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (id: string) => AcademicJourneyService.deleteAcademicJourney(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['academic-journeys'] });
+    },
+  });
+}
+
+export function useDuplicateAcademicJourney() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      // Fetch the original journey with all stages
+      const original = await AcademicJourneyService.getAcademicJourney(id);
+      if (!original) throw new Error('Journey not found');
+      
+      // Create a copy of the journey
+      const newJourney = await AcademicJourneyService.createAcademicJourney({
+        name: `${original.name} (Copy)`,
+        description: original.description,
+        program_id: original.program_id,
+        is_active: false,
+        version: 1,
+        metadata: original.metadata
+      });
+      
+      // Copy all stages
+      if (original.stages && original.stages.length > 0) {
+        for (const stage of original.stages) {
+          await AcademicJourneyService.createJourneyStage({
+            journey_id: newJourney.id,
+            name: stage.name,
+            description: stage.description,
+            stage_type: stage.stage_type,
+            order_index: stage.order_index,
+            is_required: stage.is_required,
+            is_parallel: stage.is_parallel,
+            status: stage.status,
+            timing_config: stage.timing_config,
+            completion_criteria: stage.completion_criteria,
+            escalation_rules: stage.escalation_rules
+          });
+        }
+      }
+      
+      return newJourney;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['academic-journeys'] });
+    },
+  });
+}
+
+export function useToggleJourneyStatus() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ id, is_active }: { id: string; is_active: boolean }) =>
+      AcademicJourneyService.updateAcademicJourney(id, { is_active }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['academic-journeys'] });
     },
   });
 }

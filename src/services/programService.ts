@@ -37,6 +37,23 @@ export class ProgramService {
       throw new Error('User not authenticated');
     }
 
+    console.log('ProgramService.createProgram - Input program:', program);
+
+    // Parse fields with proper fallbacks (prefer camelCase from UI)
+    const entryRequirements = program.entryRequirements ?? program.entry_requirements ?? [];
+    const documentRequirements = program.documentRequirements ?? program.document_requirements ?? [];
+    const feeStructure = program.feeStructure ?? program.fee_structure ?? { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] };
+    const customQuestions = program.customQuestions ?? program.custom_questions ?? [];
+    const courses = program.courses ?? [];
+    const journeyConfig = program.journeyConfiguration ?? program.journey_config ?? {};
+    const practicumConfig = program.practicumConfig ?? program.practicum ?? {};
+
+    console.log('ProgramService.createProgram - Parsed fields:', {
+      entryRequirements,
+      feeStructure,
+      courses
+    });
+
     // Prepare the program data with proper JSONB field mapping
     const programData = {
       name: program.name,
@@ -47,14 +64,14 @@ export class ProgramService {
       next_intake: program.next_intake || null,
       enrollment_status: program.enrollment_status || 'open',
       requirements: program.requirements || [],
-      // JSONB fields
-      entry_requirements: program.entryRequirements || [],
-      document_requirements: program.documentRequirements || [],
-      fee_structure: program.feeStructure || {},
-      custom_questions: program.customQuestions || [],
-      courses: program.courses || [],
-      journey_config: program.journeyConfiguration || {},
-      practicum_config: program.practicum || null,
+      // JSONB fields - use parsed values
+      entry_requirements: entryRequirements,
+      document_requirements: documentRequirements,
+      fee_structure: feeStructure,
+      custom_questions: customQuestions,
+      courses: courses,
+      journey_config: journeyConfig,
+      practicum_config: practicumConfig,
       metadata: {
         images: program.images || [],
         campus: program.campus || [],
@@ -71,6 +88,8 @@ export class ProgramService {
       },
       user_id: user.id
     };
+
+    console.log('ProgramService.createProgram - Final programData:', programData);
 
     const { data, error } = await supabase
       .from('programs')
@@ -89,8 +108,8 @@ export class ProgramService {
     }
 
     // Create academic journeys based on journey configuration
-    if (program.journeyConfiguration) {
-      await this.createProgramJourneys(data.id, program.journeyConfiguration, user.id);
+    if (journeyConfig && Object.keys(journeyConfig).length > 0) {
+      await this.createProgramJourneys(data.id, journeyConfig, user.id);
     }
 
     return data;
@@ -106,7 +125,24 @@ export class ProgramService {
       throw new Error('User not authenticated');
     }
 
+    console.log('ProgramService.updateProgram - Input program:', program);
+
     // Prepare the update data with proper JSONB field mapping
+    // Always prefer camelCase (from UI) over snake_case (from DB)
+    const entryRequirements = program.entryRequirements ?? program.entry_requirements ?? [];
+    const documentRequirements = program.documentRequirements ?? program.document_requirements ?? [];
+    const feeStructure = program.feeStructure ?? program.fee_structure ?? { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] };
+    const customQuestions = program.customQuestions ?? program.custom_questions ?? [];
+    const courses = program.courses ?? [];
+    const journeyConfig = program.journeyConfiguration ?? program.journey_config ?? {};
+    const practicumConfig = program.practicumConfig ?? program.practicum ?? program.practicum_config ?? {};
+
+    console.log('ProgramService.updateProgram - Parsed fields:', {
+      entryRequirements,
+      feeStructure,
+      courses
+    });
+
     const updateData: Record<string, any> = {
       name: program.name,
       type: program.type,
@@ -116,14 +152,14 @@ export class ProgramService {
       next_intake: program.next_intake,
       enrollment_status: program.enrollment_status,
       requirements: program.requirements,
-      // JSONB fields
-      entry_requirements: program.entryRequirements || program.entry_requirements,
-      document_requirements: program.documentRequirements || program.document_requirements,
-      fee_structure: program.feeStructure || program.fee_structure,
-      custom_questions: program.customQuestions || program.custom_questions,
-      courses: program.courses,
-      journey_config: program.journeyConfiguration || program.journey_config,
-      practicum_config: program.practicum || program.practicum_config,
+      // JSONB fields - always use parsed values
+      entry_requirements: entryRequirements,
+      document_requirements: documentRequirements,
+      fee_structure: feeStructure,
+      custom_questions: customQuestions,
+      courses: courses,
+      journey_config: journeyConfig,
+      practicum_config: practicumConfig,
       metadata: {
         ...(program.metadata || {}),
         images: program.images || [],
@@ -139,12 +175,14 @@ export class ProgramService {
       }
     };
 
-    // Remove undefined values
+    // Remove undefined values but keep empty arrays/objects
     Object.keys(updateData).forEach(key => {
       if (updateData[key] === undefined) {
         delete updateData[key];
       }
     });
+
+    console.log('ProgramService.updateProgram - Final updateData:', updateData);
 
     const { data, error } = await supabase
       .from('programs')

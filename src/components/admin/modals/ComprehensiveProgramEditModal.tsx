@@ -65,8 +65,8 @@ export const ComprehensiveProgramEditModal = ({
         const dbProgram = program as any;
         
         // Handle JSONB data that may come as strings or objects
-        const parseJSONBField = (field: any, defaultValue: any = []) => {
-          if (!field) return defaultValue;
+        const parseJSONBField = (field: any, defaultValue: any = null) => {
+          if (field === undefined || field === null) return defaultValue;
           if (typeof field === 'string') {
             try {
               return JSON.parse(field);
@@ -77,23 +77,54 @@ export const ComprehensiveProgramEditModal = ({
           return field;
         };
 
+        // Parse JSONB fields from database (snake_case) with proper fallbacks
+        const entryRequirements = parseJSONBField(dbProgram.entry_requirements) ?? 
+                                  parseJSONBField(program.entryRequirements) ?? [];
+        const documentRequirements = parseJSONBField(dbProgram.document_requirements) ?? 
+                                     parseJSONBField(program.documentRequirements) ?? [];
+        const customQuestions = parseJSONBField(dbProgram.custom_questions) ?? 
+                                parseJSONBField(program.customQuestions) ?? [];
+        const courses = parseJSONBField(dbProgram.courses) ?? [];
+        const journeyConfig = parseJSONBField(dbProgram.journey_config) ?? 
+                              parseJSONBField((program as any).journeyConfig) ?? {};
+        const practicumConfig = parseJSONBField(dbProgram.practicum_config) ?? 
+                                parseJSONBField((program as any).practicumConfig) ?? {};
+        const metadata = parseJSONBField(dbProgram.metadata) ?? {};
+        
+        // Parse fee structure with default structure
+        const defaultFeeStructure = { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] };
+        let feeStructure = parseJSONBField(dbProgram.fee_structure) ?? 
+                           parseJSONBField(program.feeStructure) ?? defaultFeeStructure;
+        
+        // Ensure feeStructure has required properties
+        feeStructure = {
+          domesticFees: feeStructure.domesticFees || [],
+          internationalFees: feeStructure.internationalFees || [],
+          paymentPlans: feeStructure.paymentPlans || [],
+          scholarships: feeStructure.scholarships || []
+        };
+
+        console.log('ComprehensiveProgramEditModal - Parsed fields:', {
+          entryRequirements,
+          documentRequirements,
+          courses,
+          feeStructure
+        });
+
         const transformedProgram = {
           ...program,
-          // Map JSONB fields back to UI format (handle both camelCase and snake_case)
-          entryRequirements: parseJSONBField(dbProgram.entry_requirements) || parseJSONBField(program.entryRequirements) || [],
-          documentRequirements: parseJSONBField(dbProgram.document_requirements) || parseJSONBField(program.documentRequirements) || [],
-          customQuestions: parseJSONBField(dbProgram.custom_questions) || parseJSONBField(program.customQuestions) || [],
-          feeStructure: parseJSONBField(dbProgram.fee_structure, { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] }) || 
-            parseJSONBField(program.feeStructure, { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] }),
-          courses: parseJSONBField(dbProgram.courses) || parseJSONBField((program as any).courses) || [],
-          journeyConfig: parseJSONBField(dbProgram.journey_config) || parseJSONBField((program as any).journeyConfig) || {},
-          practicumConfig: parseJSONBField(dbProgram.practicum_config) || parseJSONBField((program as any).practicumConfig) || {},
-          // Extract metadata back to top level if stored in metadata JSONB
-          metadata: parseJSONBField(dbProgram.metadata) || {},
+          // Map JSONB fields back to UI format (camelCase)
+          entryRequirements,
+          documentRequirements,
+          customQuestions,
+          feeStructure,
+          courses,
+          journeyConfiguration: journeyConfig,
+          practicumConfig,
+          metadata,
         };
 
         // Extract metadata fields to top level
-        const metadata = transformedProgram.metadata || {};
         const finalProgram = {
           ...transformedProgram,
           images: metadata.images || program.images || [],
@@ -108,7 +139,7 @@ export const ComprehensiveProgramEditModal = ({
           marketingCopy: metadata.marketingCopy || program.marketingCopy || ''
         };
         
-        console.log('ComprehensiveProgramEditModal - Transformed program data:', finalProgram);
+        console.log('ComprehensiveProgramEditModal - Final program data:', finalProgram);
         
         setEditingProgram(finalProgram);
         setHasChanges(false);

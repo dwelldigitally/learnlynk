@@ -19,6 +19,8 @@ export interface ColumnConfig {
   visible: boolean;
   sortable: boolean;
   width?: string;
+  minWidth?: number;
+  maxWidth?: number;
 }
 interface StageStats {
   key: string;

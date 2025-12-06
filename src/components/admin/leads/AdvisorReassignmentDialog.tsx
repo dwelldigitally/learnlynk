@@ -18,6 +18,7 @@ interface AdvisorReassignmentDialogProps {
   currentAdvisorId?: string;
   currentAdvisorName?: string;
   onReassigned: () => void;
+  onTimelineRefresh?: () => void;
 }
 
 export function AdvisorReassignmentDialog({
@@ -26,7 +27,8 @@ export function AdvisorReassignmentDialog({
   leadId,
   currentAdvisorId,
   currentAdvisorName,
-  onReassigned
+  onReassigned,
+  onTimelineRefresh
 }: AdvisorReassignmentDialogProps) {
   const { toast } = useToast();
   const { teamMembers, loading: loadingMembers } = useTeamMembers();
@@ -65,6 +67,7 @@ export function AdvisorReassignmentDialog({
       });
 
       onReassigned();
+      onTimelineRefresh?.();
       onOpenChange(false);
     } catch (error: any) {
       toast({

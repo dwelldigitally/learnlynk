@@ -16,6 +16,7 @@ interface AppointmentBookingButtonProps {
   leadEmail?: string;
   leadPhone?: string;
   className?: string;
+  onBooked?: () => void;
 }
 
 export function AppointmentBookingButton({ 
@@ -23,7 +24,8 @@ export function AppointmentBookingButton({
   leadName,
   leadEmail,
   leadPhone,
-  className 
+  className,
+  onBooked
 }: AppointmentBookingButtonProps) {
   const { toast } = useToast();
   const [isBooking, setIsBooking] = useState(false);
@@ -123,6 +125,7 @@ export function AppointmentBookingButton({
       
       resetForm();
       setDialogOpen(false);
+      onBooked?.();
     } catch (error: any) {
       toast({
         title: 'Booking Failed',

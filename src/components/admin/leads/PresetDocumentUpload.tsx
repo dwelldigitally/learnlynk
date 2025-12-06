@@ -23,10 +23,16 @@ import {
   Clock,
   Edit,
   Download,
-  Plus
+  Plus,
+  RefreshCw,
+  FolderArchive,
+  Loader2
 } from 'lucide-react';
 import { presetDocumentService, PresetDocumentRequirement, UploadedDocument } from '@/services/presetDocumentService';
 import { supabase } from '@/integrations/supabase/client';
+import { DocumentVersionHistory } from './DocumentVersionHistory';
+import { RequirementThresholdDisplay } from './RequirementThresholdDisplay';
+import JSZip from 'jszip';
 
 interface PresetDocumentUploadProps {
   leadId: string;
@@ -56,8 +62,12 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
   const [requirements, setRequirements] = useState<PresetDocumentRequirement[]>([]);
   const [requirementsLoading, setRequirementsLoading] = useState(true);
+  const [bulkDownloading, setBulkDownloading] = useState(false);
+  const [bulkDownloadProgress, setBulkDownloadProgress] = useState(0);
   // Map doc template ID to entry requirement ID for linking
   const [docToEntryReqMap, setDocToEntryReqMap] = useState<Record<string, string>>({});
+  // Store full entry requirements for threshold display
+  const [entryRequirements, setEntryRequirements] = useState<any[]>([]);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const { toast } = useToast();
 
@@ -108,11 +118,26 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
         // Extract linked document templates from entry requirements
         const rawEntryReqs = program?.entry_requirements;
         const linkedDocIds: string[] = [];
+        const parsedEntryReqs: any[] = [];
         
         if (rawEntryReqs && Array.isArray(rawEntryReqs)) {
           console.log('[PresetDocumentUpload] Processing entry requirements:', rawEntryReqs.length);
           for (const req of rawEntryReqs as any[]) {
             const entryReqId = req.id || req.name || 'unknown';
+            // Store full entry requirement for threshold display
+            parsedEntryReqs.push({
+              id: entryReqId,
+              title: req.title || req.name || 'Unknown Requirement',
+              type: req.type || 'other',
+              description: req.description || '',
+              mandatory: req.mandatory ?? true,
+              minimumGrade: req.minimumGrade,
+              minimumScore: req.minimumScore,
+              yearsRequired: req.yearsRequired,
+              alternatives: req.alternatives,
+              linkedDocumentTemplates: req.linkedDocumentTemplates || []
+            });
+            
             if (req.linkedDocumentTemplates && Array.isArray(req.linkedDocumentTemplates)) {
               console.log(`[PresetDocumentUpload] Entry req "${entryReqId}" has linked docs:`, req.linkedDocumentTemplates);
               for (const docId of req.linkedDocumentTemplates) {
@@ -123,6 +148,8 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
             }
           }
         }
+        
+        setEntryRequirements(parsedEntryReqs);
 
         // Deduplicate and fetch linked document templates
         const uniqueLinkedDocIds = [...new Set(linkedDocIds)];
@@ -190,16 +217,16 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     fileInputRefs.current[requirementId]?.click();
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, requirementId: string) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, requirementId: string, isReupload: boolean = false) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check if document already exists for this requirement
-    const existingDoc = documents.find(doc => doc.requirement_id === requirementId);
-    if (existingDoc) {
+    // Check if document already exists for this requirement (skip check if re-uploading)
+    const existingDoc = documents.find(doc => doc.requirement_id === requirementId && doc.is_latest !== false);
+    if (existingDoc && !isReupload) {
       toast({
         title: 'Document already uploaded',
-        description: 'This requirement already has a document. Please delete it first if you want to replace it.',
+        description: 'This requirement already has a document. Use Re-upload to submit a new version.',
         variant: 'destructive'
       });
       return;
@@ -405,50 +432,176 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
     }
   };
 
-  const handleBulkDownload = async () => {
-    const approvedDocuments = documents.filter(doc => doc.admin_status === 'approved');
-    
-    if (approvedDocuments.length === 0) {
+  const handleBulkDownloadZip = async () => {
+    if (documents.length === 0) {
       toast({
-        title: 'No approved documents',
-        description: 'There are no approved documents to download',
+        title: 'No documents',
+        description: 'There are no documents to download',
         variant: 'destructive'
       });
       return;
     }
 
-    toast({
-      title: 'Downloading documents',
-      description: `Preparing ${approvedDocuments.length} document(s) for download...`
-    });
+    setBulkDownloading(true);
+    setBulkDownloadProgress(0);
 
     try {
-      for (const doc of approvedDocuments) {
-        const url = await presetDocumentService.getDocumentUrl(doc.file_path);
+      // Create a map of requirement IDs to names
+      const requirementNameMap = new Map<string, string>();
+      requirements.forEach(req => {
+        requirementNameMap.set(req.id, req.name);
+      });
+
+      // Create ZIP file
+      const zip = new JSZip();
+      const sanitizedLeadName = leadName.replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+      const rootFolder = zip.folder(`${sanitizedLeadName}_Documents`)!;
+
+      // Group documents by requirement
+      const groupedDocs = new Map<string, UploadedDocument[]>();
+      
+      documents.forEach(doc => {
+        const key = doc.requirement_id || 'Other_Documents';
+        if (!groupedDocs.has(key)) {
+          groupedDocs.set(key, []);
+        }
+        groupedDocs.get(key)!.push(doc);
+      });
+
+      // Download and add files to ZIP
+      let processedCount = 0;
+      const totalDocs = documents.length;
+
+      for (const [requirementId, docs] of groupedDocs) {
+        // Get folder name from requirement or use 'Other Documents'
+        const folderName = requirementId === 'Other_Documents' 
+          ? 'Other_Documents'
+          : (requirementNameMap.get(requirementId) || 'Unknown_Requirement').replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
         
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = doc.document_name;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Small delay between downloads to avoid browser blocking
-        await new Promise(resolve => setTimeout(resolve, 500));
+        const folder = rootFolder.folder(folderName)!;
+
+        for (const doc of docs) {
+          if (!doc.file_path) {
+            processedCount++;
+            continue;
+          }
+
+          try {
+            // Get signed URL and download file
+            const { data: urlData, error: urlError } = await supabase.storage
+              .from('lead-documents')
+              .createSignedUrl(doc.file_path, 60);
+
+            if (urlError || !urlData?.signedUrl) {
+              console.error('Error getting signed URL:', urlError);
+              processedCount++;
+              continue;
+            }
+
+            const response = await fetch(urlData.signedUrl);
+            if (!response.ok) {
+              console.error('Error downloading file:', response.statusText);
+              processedCount++;
+              continue;
+            }
+
+            const blob = await response.blob();
+            
+            // Create filename with version prefix if not latest
+            const baseFilename = doc.original_filename || doc.document_name;
+            const extension = baseFilename.split('.').pop() || '';
+            const nameWithoutExt = baseFilename.replace(/\.[^/.]+$/, '');
+            const filename = doc.is_latest 
+              ? baseFilename
+              : `v${doc.version}_${nameWithoutExt}.${extension}`;
+
+            folder.file(filename, blob);
+          } catch (fileError) {
+            console.error('Error processing file:', fileError);
+          }
+
+          processedCount++;
+          setBulkDownloadProgress(Math.round((processedCount / totalDocs) * 100));
+        }
       }
+
+      // Generate and download ZIP
+      const zipBlob = await zip.generateAsync({ 
+        type: 'blob',
+        compression: 'DEFLATE',
+        compressionOptions: { level: 6 }
+      });
+
+      // Trigger download
+      const url = URL.createObjectURL(zipBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${sanitizedLeadName}_Documents.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
 
       toast({
         title: 'Download complete',
-        description: `Successfully downloaded ${approvedDocuments.length} document(s)`
+        description: `Downloaded ${processedCount} documents in organized folders`
       });
     } catch (error) {
-      console.error('Bulk download error:', error);
+      console.error('Error during bulk download:', error);
       toast({
         title: 'Download failed',
-        description: 'Failed to download some documents',
+        description: 'Failed to download documents. Please try again.',
         variant: 'destructive'
+      });
+    } finally {
+      setBulkDownloading(false);
+      setBulkDownloadProgress(0);
+    }
+  };
+
+  // Helper to get linked entry requirement for threshold display
+  const getLinkedEntryRequirement = (requirementId: string) => {
+    const entryReqId = docToEntryReqMap[requirementId];
+    if (!entryReqId) return null;
+    return entryRequirements.find(er => er.id === entryReqId) || null;
+  };
+
+  // Get version count for a requirement
+  const getVersionCount = (requirementId: string) => {
+    return documents.filter(doc => doc.requirement_id === requirementId).length;
+  };
+
+  // Handler for viewing document by file path
+  const handleViewByPath = async (filePath: string) => {
+    try {
+      const url = await presetDocumentService.getDocumentUrl(filePath);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error getting document URL:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open document",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handler for downloading document by file path
+  const handleDownloadByPath = async (filePath: string, filename: string) => {
+    try {
+      const url = await presetDocumentService.getDocumentUrl(filePath);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download document",
+        variant: "destructive"
       });
     }
   };
@@ -478,7 +631,8 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
   };
 
   const getUploadedDocument = (requirementId: string) => {
-    return documents.find(doc => doc.requirement_id === requirementId);
+    // Return only the latest version of the document
+    return documents.find(doc => doc.requirement_id === requirementId && doc.is_latest !== false);
   };
 
   if (requirementsLoading) {
@@ -540,14 +694,24 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                 <Plus className="h-4 w-4 mr-2" />
                 Request Document
               </Button>
-              {documents.filter(doc => doc.admin_status === 'approved').length > 0 && (
+              {documents.length > 0 && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleBulkDownload}
+                  onClick={handleBulkDownloadZip}
+                  disabled={bulkDownloading}
                 >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download All Approved
+                  {bulkDownloading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {bulkDownloadProgress}%
+                    </>
+                  ) : (
+                    <>
+                      <FolderArchive className="h-4 w-4 mr-2" />
+                      Download All (ZIP)
+                    </>
+                  )}
                 </Button>
               )}
             </div>
@@ -558,6 +722,8 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
             {requirements.map((req) => {
               const uploadedDoc = getUploadedDocument(req.id);
               const isUploading = uploadingRequirementId === req.id;
+              const linkedEntryReq = getLinkedEntryRequirement(req.id);
+              const versionCount = getVersionCount(req.id);
               
               return (
                 <div key={req.id} className="border rounded-lg p-4 space-y-3">
@@ -568,6 +734,11 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                         <h4 className="font-medium">{req.name}</h4>
                         {req.required && (
                           <Badge variant="outline" className="text-xs">Required</Badge>
+                        )}
+                        {uploadedDoc && versionCount > 1 && (
+                          <Badge variant="secondary" className="text-xs">
+                            v{uploadedDoc.version || 1}
+                          </Badge>
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">{req.description}</p>
@@ -584,6 +755,11 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                       )}
                     </div>
                   </div>
+
+                  {/* Threshold Display from Entry Requirement */}
+                  {linkedEntryReq && (
+                    <RequirementThresholdDisplay entryRequirement={linkedEntryReq} />
+                  )}
 
                   {/* Upload Section or Uploaded Document */}
                   {!uploadedDoc ? (
@@ -759,6 +935,25 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                           <span className="hidden sm:inline">Review</span>
                         </Button>
                         
+                        {/* Re-upload Button */}
+                        <input
+                          ref={(el) => { fileInputRefs.current[`reupload-${req.id}`] = el; }}
+                          type="file"
+                          className="hidden"
+                          onChange={(e) => handleFileUpload(e, req.id, true)}
+                          accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                        />
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => fileInputRefs.current[`reupload-${req.id}`]?.click()}
+                          title="Upload new version"
+                          className="flex-1 sm:flex-none"
+                        >
+                          <RefreshCw className="h-4 w-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Re-upload</span>
+                        </Button>
+                        
                         <Button 
                           size="sm" 
                           variant="outline"
@@ -769,6 +964,16 @@ export const PresetDocumentUpload: React.FC<PresetDocumentUploadProps> = ({
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
+                      
+                      {/* Version History */}
+                      {versionCount > 0 && (
+                        <DocumentVersionHistory
+                          leadId={leadId}
+                          requirementId={req.id}
+                          onViewDocument={handleViewByPath}
+                          onDownloadDocument={handleDownloadByPath}
+                        />
+                      )}
                     </div>
                   )}
                 </div>

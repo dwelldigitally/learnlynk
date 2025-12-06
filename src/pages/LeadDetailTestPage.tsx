@@ -33,7 +33,6 @@ import { PresetDocumentUpload } from '@/components/admin/leads/PresetDocumentUpl
 import { RealDataTasks } from '@/components/admin/leads/RealDataTasks';
 import { RealDataJourney } from '@/components/admin/leads/RealDataJourney';
 import { TasksNotesPanel } from '@/components/admin/leads/TasksNotesPanel';
-import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { AINextSteps } from '@/components/admin/leads/AINextSteps';
 import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
 import { EntryRequirementsTab } from '@/components/admin/leads/EntryRequirementsTab';
@@ -685,15 +684,6 @@ export default function LeadDetailTestPage() {
           <div className="space-y-4">
             {/* AI Next Steps */}
             <AINextSteps leadId={leadId} />
-            
-            {/* AI Recommendations */}
-            <AIRecommendations currentStage={journeyStages[effectiveStageIndex]?.name || 'Inquiry'} leadData={lead} onActionClick={actionId => {
-              console.log('AI Action clicked:', actionId);
-              toast({
-                title: "AI Action Triggered",
-                description: `Executing: ${actionId}`
-              });
-            }} />
           </div>
         </div>
       </div>

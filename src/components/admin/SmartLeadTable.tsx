@@ -74,6 +74,8 @@ interface ColumnConfig {
   visible: boolean;
   sortable: boolean;
   width?: string;
+  minWidth?: number;
+  maxWidth?: number;
 }
 
 // Advisor name cache type
@@ -83,17 +85,17 @@ interface AdvisorInfo {
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { id: 'name', label: 'Name', visible: true, sortable: true },
-  { id: 'email', label: 'Email', visible: true, sortable: true },
-  { id: 'phone', label: 'Phone', visible: true, sortable: false },
-  { id: 'source', label: 'Source', visible: true, sortable: true },
-  { id: 'created_at', label: 'Created', visible: true, sortable: true },
-  { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false },
-  { id: 'stage', label: 'Stage', visible: true, sortable: true },
-  { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true },
-  { id: 'priority', label: 'Priority', visible: true, sortable: true },
-  { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false },
-  { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false },
+  { id: 'name', label: 'Name', visible: true, sortable: true, minWidth: 140, maxWidth: 220 },
+  { id: 'email', label: 'Email', visible: true, sortable: true, minWidth: 160, maxWidth: 260 },
+  { id: 'phone', label: 'Phone', visible: true, sortable: false, minWidth: 100, maxWidth: 160 },
+  { id: 'source', label: 'Source', visible: true, sortable: true, minWidth: 80, maxWidth: 130 },
+  { id: 'created_at', label: 'Created', visible: true, sortable: true, minWidth: 100, maxWidth: 160 },
+  { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false, minWidth: 100, maxWidth: 160 },
+  { id: 'stage', label: 'Stage', visible: true, sortable: true, minWidth: 80, maxWidth: 130 },
+  { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true, minWidth: 90, maxWidth: 130 },
+  { id: 'priority', label: 'Priority', visible: true, sortable: true, minWidth: 80, maxWidth: 120 },
+  { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false, minWidth: 120, maxWidth: 200 },
+  { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false, minWidth: 130, maxWidth: 200 },
 ];
 
 export function SmartLeadTable({
@@ -121,8 +123,56 @@ export function SmartLeadTable({
   const [sortColumn, setSortColumn] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [advisorMap, setAdvisorMap] = useState<Record<string, AdvisorInfo>>({});
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
+    const widths: Record<string, number> = {};
+    DEFAULT_COLUMNS.forEach(col => {
+      const min = col.minWidth || 80;
+      const max = col.maxWidth || 200;
+      widths[col.id] = min + Math.floor((max - min) / 2);
+    });
+    return widths;
+  });
+  const [resizingColumn, setResizingColumn] = useState<string | null>(null);
   
   const columns = propColumns || DEFAULT_COLUMNS;
+
+  // Get column width with defaults
+  const getColumnWidth = (columnId: string) => {
+    if (columnWidths[columnId]) return columnWidths[columnId];
+    const col = columns.find(c => c.id === columnId);
+    const min = col?.minWidth || 80;
+    const max = col?.maxWidth || 200;
+    return min + Math.floor((max - min) / 2);
+  };
+
+  // Handle column resize
+  const handleMouseDown = (columnId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizingColumn(columnId);
+    
+    const startX = e.clientX;
+    const startWidth = getColumnWidth(columnId);
+    const column = columns.find(c => c.id === columnId);
+    
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const delta = moveEvent.clientX - startX;
+      const newWidth = Math.max(
+        column?.minWidth || 80,
+        Math.min(column?.maxWidth || 300, startWidth + delta)
+      );
+      setColumnWidths(prev => ({ ...prev, [columnId]: newWidth }));
+    };
+    
+    const handleMouseUp = () => {
+      setResizingColumn(null);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
 
   // Fetch advisor names for assigned leads
   useEffect(() => {
@@ -383,12 +433,12 @@ export function SmartLeadTable({
       )}
 
       {/* Desktop Table - HotSheet Style */}
-      <div className="hidden md:block overflow-hidden">
+      <div className={cn("hidden md:block overflow-hidden", resizingColumn && "select-none")}>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full" style={{ tableLayout: 'fixed' }}>
             <thead>
               <tr className="border-b border-border/40 bg-muted/20">
-                <th className="p-5 text-left">
+                <th className="p-5 text-left" style={{ width: 48 }}>
                   <Checkbox
                     checked={selectedLeadIds.length === leads.length && leads.length > 0}
                     onCheckedChange={onSelectAll}
@@ -399,18 +449,28 @@ export function SmartLeadTable({
                   <th 
                     key={column.id}
                     className={cn(
-                      "p-5 text-left font-medium text-muted-foreground text-sm group",
+                      "p-5 text-left font-medium text-muted-foreground text-sm group relative",
                       column.sortable && "cursor-pointer hover:text-foreground transition-colors"
                     )}
+                    style={{ width: getColumnWidth(column.id) }}
                     onClick={column.sortable ? () => handleSort(column.id) : undefined}
                   >
-                    <div className="flex items-center">
+                    <div className="flex items-center truncate pr-2">
                       {column.label}
                       {column.sortable && renderSortIcon(column.id)}
                     </div>
+                    {/* Resize handle */}
+                    <div
+                      className={cn(
+                        "absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/50 transition-colors",
+                        resizingColumn === column.id && "bg-primary"
+                      )}
+                      onMouseDown={(e) => handleMouseDown(column.id, e)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
                   </th>
                 ))}
-                <th className="p-5 text-left font-medium text-muted-foreground text-sm">Actions</th>
+                <th className="p-5 text-left font-medium text-muted-foreground text-sm" style={{ width: 80 }}>Actions</th>
               </tr>
             </thead>
             <tbody>

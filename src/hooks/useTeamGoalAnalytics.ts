@@ -121,6 +121,34 @@ export function useTeamGoalAnalytics(goals: TeamGoal[]): UseTeamGoalAnalyticsRet
       const targetFutureRevenue = futureRevenueGoals.reduce((sum, g) => sum + g.target_value, 0);
       const targetContractValue = contractValueGoals.reduce((sum, g) => sum + g.target_value, 0);
 
+      // Update goals' current_value with real metrics from database
+      for (const goal of goals) {
+        let newCurrentValue = goal.current_value;
+        
+        switch (goal.metric_type) {
+          case 'revenue':
+            newCurrentValue = totalRevenue;
+            break;
+          case 'calls':
+            newCurrentValue = totalCalls;
+            break;
+          case 'emails':
+            newCurrentValue = totalEmails;
+            break;
+          case 'activities':
+            newCurrentValue = totalActivities;
+            break;
+        }
+        
+        // Update goal in database if current_value changed
+        if (newCurrentValue !== goal.current_value) {
+          await supabase
+            .from('team_goals')
+            .update({ current_value: newCurrentValue })
+            .eq('id', goal.id);
+        }
+      }
+
       // Calculate top performers from individual goals
       const individualGoals = goals.filter(g => g.goal_type === 'individual' && g.assignee_ids?.length);
       const performerMap = new Map<string, { achieved: number; total: number; name: string }>();

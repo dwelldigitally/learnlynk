@@ -100,6 +100,26 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
       }
 
       const program = programs?.[0];
+      console.log('Found program:', program);
+      console.log('Raw entry_requirements:', program?.entry_requirements);
+      
+      // First, extract ALL linked document template IDs from entry requirements BEFORE parsing
+      const rawEntryReqs = program?.entry_requirements;
+      const linkedDocIds: string[] = [];
+      
+      if (rawEntryReqs && Array.isArray(rawEntryReqs)) {
+        for (const req of rawEntryReqs as any[]) {
+          console.log('Processing entry requirement:', req);
+          if (req.linkedDocumentTemplates && Array.isArray(req.linkedDocumentTemplates)) {
+            console.log('Found linkedDocumentTemplates:', req.linkedDocumentTemplates);
+            linkedDocIds.push(...req.linkedDocumentTemplates);
+          }
+        }
+      }
+      
+      // Deduplicate linked document IDs
+      const uniqueLinkedDocIds = [...new Set(linkedDocIds)];
+      console.log('Unique linked document template IDs:', uniqueLinkedDocIds);
       
       // Parse document requirements
       let docReqs: PresetDocumentRequirement[] = [];
@@ -154,24 +174,29 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
         }
       }
 
-      // If no document requirements but entry requirements have linked documents, create from those
-      if (docReqs.length === 0 && entryReqs.length > 0) {
-        const linkedDocIds = entryReqs.flatMap(r => r.linkedDocumentTemplates || []);
-        if (linkedDocIds.length > 0) {
-          const { data: templates } = await supabase
-            .from('document_templates')
-            .select('id, name, description, mandatory')
-            .in('id', linkedDocIds);
-          
-          if (templates) {
-            docReqs = templates.map(t => ({
+      // Always fetch linked document templates from entry requirements, regardless of docReqs
+      if (uniqueLinkedDocIds.length > 0) {
+        console.log('Fetching document templates for IDs:', uniqueLinkedDocIds);
+        const { data: templates, error: templateError } = await supabase
+          .from('document_templates')
+          .select('id, name, description, mandatory')
+          .in('id', uniqueLinkedDocIds);
+        
+        console.log('Fetched templates:', templates, 'Error:', templateError);
+        
+        if (templates && templates.length > 0) {
+          // Add these templates to docReqs (avoiding duplicates)
+          const existingIds = new Set(docReqs.map(r => r.id));
+          const newDocReqs = templates
+            .filter(t => !existingIds.has(t.id))
+            .map(t => ({
               id: t.id,
               name: t.name,
               description: t.description || '',
               required: t.mandatory,
               programName
             }));
-          }
+          docReqs = [...docReqs, ...newDocReqs];
         }
       }
 

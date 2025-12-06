@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Phone, MapPin, GraduationCap, Calendar, GripVertical, User } from 'lucide-react';
+import { Mail, Phone, MapPin, GraduationCap, Calendar, User } from 'lucide-react';
 import { Lead } from '@/types/lead';
 
 interface PersonalInfoWidgetProps {
@@ -9,9 +9,8 @@ interface PersonalInfoWidgetProps {
 export function PersonalInfoWidget({ lead }: PersonalInfoWidgetProps) {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="cursor-move drag-handle flex-shrink-0">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
           <User className="h-5 w-5 text-primary" />
           Personal Information
         </CardTitle>

@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Route, CheckCircle, Circle, GripVertical } from 'lucide-react';
+import { Route, CheckCircle, Circle } from 'lucide-react';
 
 interface JourneyStage {
   id: string;
@@ -21,9 +21,8 @@ interface ApplicationTimelineWidgetProps {
 export function ApplicationTimelineWidget({ journey }: ApplicationTimelineWidgetProps) {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="cursor-move drag-handle flex-shrink-0">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg flex items-center gap-2">
-          <GripVertical className="h-4 w-4 text-muted-foreground" />
           <Route className="h-5 w-5 text-primary" />
           Application Timeline
         </CardTitle>

@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { FileText, CheckCircle, Clock, XCircle, GripVertical } from 'lucide-react';
+import { FileText, CheckCircle, Clock, XCircle } from 'lucide-react';
 
 interface DocumentProgress {
   total: number;
@@ -18,10 +18,9 @@ interface DocumentOverviewWidgetProps {
 export function DocumentOverviewWidget({ progress }: DocumentOverviewWidgetProps) {
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="cursor-move drag-handle flex-shrink-0">
+      <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <GripVertical className="h-4 w-4 text-muted-foreground" />
             <FileText className="h-5 w-5 text-primary" />
             Document Overview
           </span>

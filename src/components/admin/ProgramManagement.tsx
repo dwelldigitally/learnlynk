@@ -38,7 +38,7 @@ const ProgramManagement: React.FC = () => {
   // Data hooks
   const programsData = useConditionalData(['programs'], DemoDataService.getDemoPrograms, ProgramService.getPrograms);
 
-  // Hook to get enrollment data for real programs
+  // Hook to get enrollment data for real programs including intake capacities
   const {
     data: enrollmentData,
     isLoading: enrollmentLoading
@@ -61,6 +61,12 @@ const ProgramManagement: React.FC = () => {
       const {
         data: approvedStudents
       } = await supabase.from('students').select('program, id').eq('user_id', user.id).eq('stage', 'APPROVED');
+
+      // Get all intakes with open/planning status to calculate capacity
+      const {
+        data: intakes
+      } = await supabase.from('intakes').select('program_id, capacity, status').in('status', ['open', 'planning']);
+
       const enrollmentMap: Record<string, {
         enrolled: number;
         capacity: number;
@@ -69,9 +75,14 @@ const ProgramManagement: React.FC = () => {
         for (const program of programs) {
           // Count approved students for this program (match by program name since that's how students reference programs)
           const enrolledCount = approvedStudents?.filter(s => s.program === program.name).length || 0;
+          
+          // Sum capacities of open/planning intakes for this program
+          const programIntakes = intakes?.filter(i => i.program_id === program.id) || [];
+          const totalCapacity = programIntakes.reduce((sum, i) => sum + (i.capacity || 0), 0);
+          
           enrollmentMap[program.id] = {
             enrolled: enrolledCount,
-            capacity: 0 // Will be 0 until intake management is fully implemented
+            capacity: totalCapacity
           };
         }
       }
@@ -87,15 +98,31 @@ const ProgramManagement: React.FC = () => {
       enrolled: 0,
       capacity: 0
     };
+    
+    // Parse metadata JSONB to get actual status
+    let metadata: any = {};
+    try {
+      metadata = typeof dbProgram.metadata === 'string' 
+        ? JSON.parse(dbProgram.metadata) 
+        : dbProgram.metadata || {};
+    } catch {
+      metadata = {};
+    }
+    
+    // Determine status: check metadata.status first, then enrollment_status
+    const status = metadata.status === 'active' ? 'active' 
+      : metadata.status === 'draft' ? 'inactive'
+      : dbProgram.enrollment_status === 'open' ? 'active' 
+      : 'inactive';
+    
     return {
       id: dbProgram.id,
       name: dbProgram.name,
       description: dbProgram.description || "No description available",
       duration: dbProgram.duration,
       type: dbProgram.type,
-      color: "#3B82F6",
-      // Default color
-      status: dbProgram.enrollment_status === 'open' ? 'active' : 'inactive',
+      color: metadata.color || "#3B82F6",
+      status: status,
       enrolled: enrollment.enrolled,
       capacity: enrollment.capacity,
       tuitionFeeDomestic: dbProgram.tuition || 0,

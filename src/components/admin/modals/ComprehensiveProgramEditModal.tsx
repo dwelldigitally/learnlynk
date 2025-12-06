@@ -12,16 +12,19 @@ import {
   Calendar, 
   Settings, 
   BookOpen,
-  HelpCircle,
+  GraduationCap,
+  Map,
   Save
 } from "lucide-react";
 
-// Import wizard steps for editing
+// Import wizard steps for editing - aligned with ProgramWizardPage
 import BasicInfoStep from "../wizard/BasicInfoStep";
 import RequirementsStep from "../wizard/RequirementsStep";
-import DocumentsStep from "../wizard/DocumentsStep";
+import CoursesStep from "../wizard/CoursesStep";
+import { ProgramJourneyStep } from "../ProgramJourneyStep";
+import PracticumConfigurationStep from "../wizard/PracticumConfigurationStep";
 import FeeStructureStep from "../wizard/FeeStructureStep";
-import IntakeQuestionsStep from "../wizard/IntakeQuestionsStep";
+import IntakeDatesStep from "../wizard/IntakeDatesStep";
 import { IntakeManagement } from "../IntakeManagement";
 import { ProgramService } from "@/services/programService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -82,6 +85,9 @@ export const ComprehensiveProgramEditModal = ({
           customQuestions: parseJSONBField(dbProgram.custom_questions) || parseJSONBField(program.customQuestions) || [],
           feeStructure: parseJSONBField(dbProgram.fee_structure, { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] }) || 
             parseJSONBField(program.feeStructure, { domesticFees: [], internationalFees: [], paymentPlans: [], scholarships: [] }),
+          courses: parseJSONBField(dbProgram.courses) || parseJSONBField((program as any).courses) || [],
+          journeyConfig: parseJSONBField(dbProgram.journey_config) || parseJSONBField((program as any).journeyConfig) || {},
+          practicumConfig: parseJSONBField(dbProgram.practicum_config) || parseJSONBField((program as any).practicumConfig) || {},
           // Extract metadata back to top level if stored in metadata JSONB
           metadata: parseJSONBField(dbProgram.metadata) || {},
         };
@@ -165,6 +171,7 @@ export const ComprehensiveProgramEditModal = ({
 
   if (!program || !editingProgram) return null;
 
+  // Tabs aligned with ProgramWizardPage steps
   const tabs = [
     {
       id: "basic",
@@ -179,22 +186,28 @@ export const ComprehensiveProgramEditModal = ({
       component: RequirementsStep,
     },
     {
-      id: "documents",
-      label: "Documents",
-      icon: FileText,
-      component: DocumentsStep,
+      id: "courses",
+      label: "Courses",
+      icon: GraduationCap,
+      component: CoursesStep,
+    },
+    {
+      id: "journey",
+      label: "Academic Journey",
+      icon: Map,
+      component: ProgramJourneyStep,
+    },
+    {
+      id: "practicum",
+      label: "Practicum",
+      icon: Users,
+      component: PracticumConfigurationStep,
     },
     {
       id: "fees",
       label: "Fee Structure",
       icon: DollarSign,
       component: FeeStructureStep,
-    },
-    {
-      id: "questions",
-      label: "Custom Questions",
-      icon: HelpCircle,
-      component: IntakeQuestionsStep,
     },
     {
       id: "intakes",
@@ -233,7 +246,7 @@ export const ComprehensiveProgramEditModal = ({
         </DialogHeader>
 
         <Tabs defaultValue="basic" className="flex-1 overflow-hidden">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             {tabs.map((tab) => (
               <TabsTrigger 
                 key={tab.id} 

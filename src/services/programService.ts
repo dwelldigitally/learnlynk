@@ -390,6 +390,12 @@ export class ProgramService {
           programId
         );
         
+      } else if (mode === 'existing' && journeyConfig.existingJourneyId) {
+        // Link to existing journey by updating its program_id
+        await AcademicJourneyService.updateAcademicJourney(journeyConfig.existingJourneyId, {
+          program_id: programId
+        } as any);
+        
       } else if (mode === 'custom' && journeyConfig.selectedTemplate) {
         // Create from custom template
         await AcademicJourneyService.createJourneyFromTemplate(

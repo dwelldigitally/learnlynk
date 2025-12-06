@@ -87,17 +87,21 @@ export function ProgramJourneyManager() {
 
   // Combine and normalize journeys
   const combinedJourneys: CombinedJourney[] = [
-    ...(academicJourneys?.map(journey => ({
-      id: journey.id,
-      name: journey.name,
-      description: journey.description,
-      is_active: journey.is_active,
-      created_at: journey.created_at,
-      stagesCount: journey.stages?.length || 0,
-      program_id: journey.program_id,
-      version: journey.version,
-      raw: journey
-    })) || [])
+    ...(academicJourneys?.map(journey => {
+      // Handle both 'stages' and 'journey_stages' property names from database
+      const stages = (journey as any).journey_stages || journey.stages || [];
+      return {
+        id: journey.id,
+        name: journey.name,
+        description: journey.description,
+        is_active: journey.is_active,
+        created_at: journey.created_at,
+        stagesCount: stages.length,
+        program_id: journey.program_id,
+        version: journey.version,
+        raw: { ...journey, stages }
+      };
+    }) || [])
   ];
 
   // Filter journeys based on search and program

@@ -53,37 +53,242 @@ serve(async (req) => {
       );
     }
 
-    // Prepare lead context for AI
+    // Fetch all related data in parallel
+    const programName = lead.program_interest?.[0];
+    
+    const [
+      documentsResult,
+      programResult,
+      journeyResult,
+      communicationsResult,
+      tasksResult,
+      notesResult,
+      activitiesResult
+    ] = await Promise.all([
+      // Fetch uploaded documents
+      supabase
+        .from('lead_documents')
+        .select('document_name, document_type, status, admin_status, preset_document_id, created_at')
+        .eq('lead_id', leadId),
+      
+      // Fetch program details if lead has program interest
+      programName 
+        ? supabase
+            .from('programs')
+            .select('name, document_requirements, entry_requirements, description')
+            .eq('name', programName)
+            .single()
+        : Promise.resolve({ data: null, error: null }),
+      
+      // Fetch journey instance with current stage
+      supabase
+        .from('student_journey_instances')
+        .select(`
+          id,
+          status,
+          current_stage_id,
+          journey_id,
+          created_at
+        `)
+        .eq('lead_id', leadId)
+        .maybeSingle(),
+      
+      // Fetch recent communications
+      supabase
+        .from('lead_communications')
+        .select('type, subject, content, status, direction, created_at')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false })
+        .limit(10),
+      
+      // Fetch tasks
+      supabase
+        .from('lead_tasks')
+        .select('title, description, status, due_date, task_type, priority')
+        .eq('lead_id', leadId)
+        .order('due_date', { ascending: true }),
+      
+      // Fetch notes
+      supabase
+        .from('lead_notes')
+        .select('content, note_type, created_at')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false })
+        .limit(5),
+      
+      // Fetch recent activities
+      supabase
+        .from('lead_activities')
+        .select('activity_type, activity_description, created_at')
+        .eq('lead_id', leadId)
+        .order('created_at', { ascending: false })
+        .limit(10)
+    ]);
+
+    const documents = documentsResult.data || [];
+    const program = programResult.data;
+    const journeyInstance = journeyResult.data;
+    const communications = communicationsResult.data || [];
+    const tasks = tasksResult.data || [];
+    const notes = notesResult.data || [];
+    const activities = activitiesResult.data || [];
+
+    // Fetch journey stages if journey exists
+    let journeyStages: any[] = [];
+    let currentStageName = 'Not started';
+    let currentStageIndex = 0;
+    
+    if (journeyInstance?.journey_id) {
+      const { data: stages } = await supabase
+        .from('journey_stages')
+        .select('id, name, order_index, description')
+        .eq('journey_id', journeyInstance.journey_id)
+        .order('order_index', { ascending: true });
+      
+      journeyStages = stages || [];
+      
+      if (journeyInstance.current_stage_id && journeyStages.length > 0) {
+        const currentStage = journeyStages.find(s => s.id === journeyInstance.current_stage_id);
+        if (currentStage) {
+          currentStageName = currentStage.name;
+          currentStageIndex = currentStage.order_index;
+        }
+      }
+    }
+
+    // Parse program requirements
+    const entryRequirements = program?.entry_requirements || [];
+    const documentRequirements = program?.document_requirements || [];
+
+    // Calculate missing documents
+    const uploadedDocTypes = documents.map(d => d.document_type?.toLowerCase() || d.document_name?.toLowerCase());
+    const requiredDocs = documentRequirements.map((r: any) => ({
+      name: r.name || r.title || r,
+      mandatory: r.mandatory !== false
+    }));
+    
+    const missingDocs = requiredDocs.filter((req: any) => {
+      const reqName = (req.name || '').toLowerCase();
+      return !uploadedDocTypes.some(uploaded => 
+        uploaded?.includes(reqName) || reqName.includes(uploaded || '')
+      );
+    });
+
+    // Calculate task stats
+    const now = new Date();
+    const pendingTasks = tasks.filter(t => t.status !== 'completed');
+    const overdueTasks = pendingTasks.filter(t => t.due_date && new Date(t.due_date) < now);
+    const upcomingTasks = pendingTasks.filter(t => t.due_date && new Date(t.due_date) >= now);
+
+    // Build comprehensive lead context
     const leadContext = {
       personal: {
         name: `${lead.first_name} ${lead.last_name}`,
         email: lead.email,
-        phone: lead.phone,
-        address: lead.address,
-        birthDate: lead.birth_date,
-      },
-      academic: {
-        previousEducation: lead.previous_education,
-        gpaScore: lead.gpa_score,
-        englishProficiency: lead.english_proficiency,
-        studyPermit: lead.study_permit,
+        phone: lead.phone || 'Not provided',
+        country: lead.country || 'Not specified',
+        city: lead.city || 'Not specified',
       },
       application: {
         status: lead.status,
-        program: lead.program,
-        campus: lead.campus,
-        intake: lead.intake,
+        priority: lead.priority,
+        leadScore: lead.lead_score,
+        aiScore: lead.ai_score,
+        program: programName || 'Not selected',
+        programDescription: program?.description || null,
         source: lead.source,
+        sourceDetails: lead.source_details,
         createdAt: lead.created_at,
-        lastContact: lead.last_contact,
+        lastContactedAt: lead.last_contacted_at,
+        nextFollowUpAt: lead.next_follow_up_at,
+        assignedTo: lead.assigned_to ? 'Assigned to advisor' : 'Unassigned',
       },
+      documents: {
+        uploaded: documents.map(d => ({
+          name: d.document_name,
+          type: d.document_type,
+          status: d.admin_status || d.status || 'pending',
+          uploadedAt: d.created_at
+        })),
+        uploadedCount: documents.length,
+        approvedCount: documents.filter(d => d.admin_status === 'approved' || d.status === 'approved').length,
+        pendingCount: documents.filter(d => d.admin_status === 'pending' || d.status === 'pending').length,
+        rejectedCount: documents.filter(d => d.admin_status === 'rejected' || d.status === 'rejected').length,
+        required: requiredDocs.map((r: any) => r.name),
+        missing: missingDocs.map((r: any) => r.name),
+        missingMandatory: missingDocs.filter((r: any) => r.mandatory).map((r: any) => r.name),
+      },
+      entryRequirements: {
+        programRequirements: entryRequirements.map((r: any) => ({
+          title: r.title || r.name || r,
+          type: r.type || 'general',
+          mandatory: r.mandatory !== false,
+          minimumValue: r.minimumValue || r.minimum || null,
+          description: r.description || null
+        })),
+        totalRequired: entryRequirements.length,
+      },
+      journeyProgress: {
+        currentStage: currentStageName,
+        stageNumber: currentStageIndex + 1,
+        totalStages: journeyStages.length,
+        allStages: journeyStages.map(s => s.name),
+        completedStages: journeyStages.filter(s => s.order_index < currentStageIndex).map(s => s.name),
+        remainingStages: journeyStages.filter(s => s.order_index > currentStageIndex).map(s => s.name),
+        journeyStatus: journeyInstance?.status || 'Not started',
+        progressPercentage: journeyStages.length > 0 
+          ? Math.round((currentStageIndex / journeyStages.length) * 100) 
+          : 0
+      },
+      communications: {
+        totalCount: communications.length,
+        types: [...new Set(communications.map(c => c.type))],
+        recentCommunications: communications.slice(0, 5).map(c => ({
+          type: c.type,
+          subject: c.subject,
+          direction: c.direction,
+          date: c.created_at
+        })),
+        lastContactDate: communications[0]?.created_at || lead.last_contacted_at || 'Never contacted',
+        emailCount: communications.filter(c => c.type === 'email').length,
+        callCount: communications.filter(c => c.type === 'phone').length,
+        smsCount: communications.filter(c => c.type === 'sms').length,
+      },
+      tasks: {
+        total: tasks.length,
+        pending: pendingTasks.length,
+        completed: tasks.filter(t => t.status === 'completed').length,
+        overdue: overdueTasks.length,
+        overdueTaskNames: overdueTasks.map(t => t.title),
+        upcomingTasks: upcomingTasks.slice(0, 3).map(t => ({
+          title: t.title,
+          dueDate: t.due_date,
+          priority: t.priority
+        })),
+      },
+      notes: {
+        count: notes.length,
+        recentNotes: notes.map(n => ({
+          content: n.content?.substring(0, 200) || '',
+          type: n.note_type,
+          date: n.created_at
+        }))
+      },
+      recentActivity: activities.slice(0, 5).map(a => ({
+        type: a.activity_type,
+        description: a.activity_description,
+        date: a.created_at
+      })),
       engagement: {
-        // Use basic lead data for now since relationship queries are complex
-        status: lead.status,
-        lastContact: lead.last_contacted_at,
-        createdDays: Math.floor((new Date().getTime() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24))
+        daysSinceCreation: Math.floor((now.getTime() - new Date(lead.created_at).getTime()) / (1000 * 60 * 60 * 24)),
+        daysSinceLastContact: lead.last_contacted_at 
+          ? Math.floor((now.getTime() - new Date(lead.last_contacted_at).getTime()) / (1000 * 60 * 60 * 24))
+          : null,
+        hasUpcomingFollowUp: !!lead.next_follow_up_at && new Date(lead.next_follow_up_at) > now,
       }
     };
+
+    console.log('Built comprehensive lead context:', JSON.stringify(leadContext, null, 2));
 
     let response;
 
@@ -96,27 +301,30 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
-              content: `You are an AI assistant for an educational institution's CRM system. Generate a comprehensive, professional summary of a lead (prospective student) based on their profile data. 
+              content: `You are an AI assistant for an educational institution's CRM system. Generate a comprehensive, professional summary of a lead (prospective student) based on their complete profile data. 
 
               Focus on:
-              - Key demographics and background
-              - Academic qualifications and readiness
-              - Application status and program fit
-              - Engagement level and next steps
-              - Risk factors or opportunities
+              - Current application status and journey progress
+              - Document submission status (uploaded, missing, pending review)
+              - Entry requirements completion
+              - Recent communications and engagement level
+              - Pending tasks and follow-ups
+              - Risk factors or areas needing attention
+              - Recommended next steps
               
+              Be specific and actionable. Mention specific document names, stage names, and dates where relevant.
               Keep the summary concise but informative (3-4 paragraphs). Use professional, helpful language appropriate for admissions staff.`
             },
             {
               role: 'user',
-              content: `Please generate a summary for this lead:\n\n${JSON.stringify(leadContext, null, 2)}`
+              content: `Please generate a comprehensive summary for this lead:\n\n${JSON.stringify(leadContext, null, 2)}`
             }
           ],
-          max_completion_tokens: 800,
+          max_tokens: 1000,
         }),
       });
     } else if (action === 'question' && question) {
@@ -128,20 +336,31 @@ serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'gpt-4.1-2025-04-14',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
-              content: `You are an AI assistant for an educational institution's CRM system. Answer questions about a specific lead (prospective student) based on their profile data. 
+              content: `You are an AI assistant for an educational institution's CRM system. Answer questions about a specific lead (prospective student) based on their complete profile data. 
 
-              Provide accurate, helpful answers based only on the available data. If information is not available, clearly state that. Be professional and concise.`
+              You have access to:
+              - Personal and contact information
+              - Application status and program details
+              - Document uploads (what's uploaded, what's missing, approval status)
+              - Entry requirements for their program
+              - Academic journey progress (current stage, completed stages, remaining stages)
+              - Communication history (emails, calls, SMS)
+              - Tasks (pending, overdue, completed)
+              - Notes from advisors
+              - Recent activity log
+              
+              Provide accurate, specific answers based on the available data. Reference specific document names, dates, stage names, and task titles when relevant. If information is not available, clearly state that. Be professional and concise.`
             },
             {
               role: 'user',
               content: `Lead data:\n${JSON.stringify(leadContext, null, 2)}\n\nQuestion: ${question}`
             }
           ],
-          max_completion_tokens: 500,
+          max_tokens: 800,
         }),
       });
     } else {

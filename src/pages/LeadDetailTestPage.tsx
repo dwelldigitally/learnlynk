@@ -59,6 +59,7 @@ export default function LeadDetailTestPage() {
   const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
   const [advisorName, setAdvisorName] = useState<string | null>(null);
   const [intakeName, setIntakeName] = useState<string | null>(null);
+  const [timelineRefreshTrigger, setTimelineRefreshTrigger] = useState(0);
 
   // Document and journey data
   const {
@@ -539,6 +540,8 @@ export default function LeadDetailTestPage() {
                 <LeadEditForm lead={lead} onSave={updatedLead => {
                 setLead(updatedLead);
                 setIsEditing(false);
+                // Trigger timeline refresh
+                setTimelineRefreshTrigger(prev => prev + 1);
               }} onCancel={() => setIsEditing(false)} />
               </div>
             </div>
@@ -881,7 +884,7 @@ export default function LeadDetailTestPage() {
 
         {/* Right Sidebar - Timeline & Quick Actions */}
         <div className="w-80 border-l bg-card">
-          <ComprehensiveTimeline leadId={leadId || ''} filter={timelineFilter} onFilterChange={setTimelineFilter} />
+          <ComprehensiveTimeline leadId={leadId || ''} filter={timelineFilter} onFilterChange={setTimelineFilter} refreshTrigger={timelineRefreshTrigger} />
         </div>
       </div>
 

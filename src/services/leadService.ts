@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Lead } from '@/types/lead';
 import { LeadRoutingService } from './leadRoutingService';
 import { NotificationService } from './notificationService';
+import { leadActivityService } from './leadActivityService';
 
 export interface CreateLeadData {
   first_name: string;
@@ -69,6 +70,13 @@ export class LeadService {
 
       const lead = data as Lead;
 
+      // Log lead creation activity
+      await leadActivityService.logLeadCreated(
+        lead.id,
+        leadData.source || 'unknown',
+        leadData.program_interest
+      );
+
       // Auto-route the lead based on routing rules
       try {
         const routingResult = await LeadRoutingService.evaluateRoutingRules(lead);
@@ -80,6 +88,24 @@ export class LeadService {
             assigned_at: new Date().toISOString(),
             assignment_method: routingResult.method as any
           });
+
+          // Log advisor assignment
+          const { data: advisorProfile } = await supabase
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('user_id', routingResult.assignedTo)
+            .single();
+          
+          const advisorName = advisorProfile
+            ? [advisorProfile.first_name, advisorProfile.last_name].filter(Boolean).join(' ')
+            : 'Unknown Advisor';
+          
+          await leadActivityService.logAdvisorChange(
+            lead.id,
+            null,
+            advisorName,
+            routingResult.method
+          );
 
           // Send notification to assigned advisor
           await NotificationService.notifyLeadAssignment(

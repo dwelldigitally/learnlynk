@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { AcademicJourneyService } from './academicJourneyService';
 
 export class ProgramService {
   /**
@@ -87,6 +88,11 @@ export class ProgramService {
       await this.saveIntakes(data.id, program.intakes, user.id);
     }
 
+    // Create academic journeys based on journey configuration
+    if (program.journeyConfiguration) {
+      await this.createProgramJourneys(data.id, program.journeyConfiguration, user.id);
+    }
+
     return data;
   }
 
@@ -160,6 +166,12 @@ export class ProgramService {
       }
     }
 
+    // Update academic journeys if configuration changed
+    if (program.journeyConfiguration || program.journey_config) {
+      const journeyConfig = program.journeyConfiguration || program.journey_config;
+      await this.updateProgramJourneys(id, journeyConfig, user.id);
+    }
+
     return data;
   }
 
@@ -230,13 +242,12 @@ export class ProgramService {
   static async getProgramJourneys(programId: string) {
     const { data, error } = await supabase
       .from('academic_journeys')
-      .select('*, journey_templates!inner(*)')
-      .eq('program_id', programId)
-      .eq('is_active', true);
+      .select('*, journey_templates(*)')
+      .eq('program_id', programId);
 
     if (error) {
       console.error('Error fetching program journeys:', error);
-      throw error;
+      return [];
     }
 
     return data || [];
@@ -346,6 +357,180 @@ export class ProgramService {
     );
 
     return linkedJourneys;
+  }
+
+  /**
+   * Create academic journeys for a program based on journey configuration
+   */
+  private static async createProgramJourneys(
+    programId: string,
+    journeyConfig: any,
+    userId: string
+  ) {
+    const mode = journeyConfig.mode;
+    
+    try {
+      if (mode === 'master') {
+        // Link to master templates
+        const studentTypes: ('domestic' | 'international')[] = [];
+        if (journeyConfig.domestic?.enabled !== false) studentTypes.push('domestic');
+        if (journeyConfig.international?.enabled !== false) studentTypes.push('international');
+        
+        if (studentTypes.length > 0) {
+          await this.linkMasterJourney(programId, studentTypes);
+        }
+        
+        // Also create custom stages if provided
+        await this.createCustomStagesFromConfig(programId, journeyConfig, userId);
+        
+      } else if (mode === 'copy' && journeyConfig.sourceProgram?.programId) {
+        // Copy from another program
+        await this.copyJourneyFromProgram(
+          journeyConfig.sourceProgram.programId,
+          programId
+        );
+        
+      } else if (mode === 'custom' && journeyConfig.selectedTemplate) {
+        // Create from custom template
+        await AcademicJourneyService.createJourneyFromTemplate(
+          journeyConfig.selectedTemplate,
+          programId,
+          {
+            name: journeyConfig.name,
+            description: journeyConfig.description
+          }
+        );
+      }
+      
+      // If stages are directly configured, create them
+      await this.createCustomStagesFromConfig(programId, journeyConfig, userId);
+      
+    } catch (error) {
+      console.error('Error creating program journeys:', error);
+      // Don't throw - journey creation failure shouldn't block program creation
+    }
+  }
+
+  /**
+   * Create custom stages from journey configuration
+   */
+  private static async createCustomStagesFromConfig(
+    programId: string,
+    journeyConfig: any,
+    userId: string
+  ) {
+    // Check if we already have journeys for this program
+    const existingJourneys = await this.getProgramJourneys(programId);
+    
+    const createJourneyWithStages = async (
+      studentType: 'domestic' | 'international',
+      stages: any[],
+      templateId?: string
+    ) => {
+      if (!stages || stages.length === 0) return;
+      
+      // Check if journey already exists for this student type
+      const existingJourney = existingJourneys.find((j: any) => {
+        const meta = j.metadata || {};
+        return meta.student_type === studentType;
+      });
+      
+      if (existingJourney) {
+        // Update existing journey stages if needed
+        return;
+      }
+      
+      // Create new journey
+      const journey = await AcademicJourneyService.createAcademicJourney({
+        user_id: userId,
+        program_id: programId,
+        template_id: templateId || null,
+        name: `${studentType.charAt(0).toUpperCase() + studentType.slice(1)} Student Journey`,
+        description: `Academic journey for ${studentType} students`,
+        version: 1,
+        is_active: true,
+        metadata: {
+          student_type: studentType,
+          created_from_config: true,
+          created_at: new Date().toISOString()
+        }
+      } as any);
+      
+      // Create stages
+      for (let i = 0; i < stages.length; i++) {
+        const stage = stages[i];
+        await AcademicJourneyService.createJourneyStage({
+          journey_id: journey.id,
+          name: stage.name,
+          description: stage.description || '',
+          stage_type: stage.stage_type || 'milestone',
+          order_index: i,
+          is_required: stage.is_required ?? true,
+          is_parallel: false,
+          status: 'active',
+          timing_config: stage.timing_config || {},
+          completion_criteria: stage.completion_criteria || {},
+          escalation_rules: stage.escalation_rules || {}
+        } as any);
+      }
+    };
+    
+    // Create journeys for domestic and international if stages are configured
+    if (journeyConfig.domestic?.enabled !== false && journeyConfig.domestic?.stages?.length > 0) {
+      await createJourneyWithStages(
+        'domestic',
+        journeyConfig.domestic.stages,
+        journeyConfig.domestic.templateId
+      );
+    }
+    
+    if (journeyConfig.international?.enabled !== false && journeyConfig.international?.stages?.length > 0) {
+      await createJourneyWithStages(
+        'international',
+        journeyConfig.international.stages,
+        journeyConfig.international.templateId
+      );
+    }
+  }
+
+  /**
+   * Update academic journeys for a program
+   */
+  private static async updateProgramJourneys(
+    programId: string,
+    journeyConfig: any,
+    userId: string
+  ) {
+    // Get existing journeys
+    const existingJourneys = await this.getProgramJourneys(programId);
+    
+    // If no existing journeys, create new ones
+    if (!existingJourneys || existingJourneys.length === 0) {
+      return this.createProgramJourneys(programId, journeyConfig, userId);
+    }
+    
+    // Update existing journey metadata
+    for (const journey of existingJourneys) {
+      const meta = journey.metadata || {};
+      const studentType = (meta as any).student_type as 'domestic' | 'international';
+      const configForType = journeyConfig[studentType];
+      
+      if (configForType) {
+        // Update journey active status based on enabled flag
+        if (configForType.enabled === false && journey.is_active) {
+          await AcademicJourneyService.updateAcademicJourney(journey.id, {
+            is_active: false
+          });
+        } else if (configForType.enabled !== false && !journey.is_active) {
+          await AcademicJourneyService.updateAcademicJourney(journey.id, {
+            is_active: true
+          });
+        }
+      }
+    }
+    
+    // Create any new journeys that don't exist
+    await this.createCustomStagesFromConfig(programId, journeyConfig, userId);
   }
 }
 

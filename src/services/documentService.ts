@@ -297,8 +297,17 @@ class DocumentService {
     documentId: string,
     status: string,
     comments?: string
-  ): Promise<void> {
+  ): Promise<{ transitioned: boolean }> {
     const userId = (await supabase.auth.getUser()).data.user?.id;
+    
+    // Get the lead_id for this document first
+    const { data: doc, error: docError } = await supabase
+      .from('lead_documents')
+      .select('lead_id')
+      .eq('id', documentId)
+      .single();
+    
+    if (docError) throw docError;
     
     const { error } = await supabase
       .from('lead_documents')
@@ -312,6 +321,19 @@ class DocumentService {
       .eq('user_id', userId);
 
     if (error) throw error;
+
+    // If document was approved, check for automatic stage transitions
+    let transitioned = false;
+    if (status === 'approved' && doc?.lead_id) {
+      try {
+        const { stageTransitionService } = await import('./stageTransitionService');
+        transitioned = await stageTransitionService.checkTransitionOnDocumentApproval(doc.lead_id, documentId);
+      } catch (err) {
+        console.error('Error checking stage transition:', err);
+      }
+    }
+
+    return { transitioned };
   }
 
   // NEW: Bulk update document status (optimized single query)

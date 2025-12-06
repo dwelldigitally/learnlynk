@@ -3232,6 +3232,7 @@ export type Database = {
       }
       journey_stages: {
         Row: {
+          auto_transition_enabled: boolean | null
           completion_criteria: Json | null
           created_at: string
           description: string | null
@@ -3249,6 +3250,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          auto_transition_enabled?: boolean | null
           completion_criteria?: Json | null
           created_at?: string
           description?: string | null
@@ -3266,6 +3268,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          auto_transition_enabled?: boolean | null
           completion_criteria?: Json | null
           created_at?: string
           description?: string | null
@@ -7532,6 +7535,120 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      stage_transition_logs: {
+        Row: {
+          created_at: string | null
+          from_stage_id: string | null
+          id: string
+          journey_id: string | null
+          lead_id: string | null
+          to_stage_id: string | null
+          transition_data: Json | null
+          trigger_id: string | null
+          trigger_type: string | null
+          triggered_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          from_stage_id?: string | null
+          id?: string
+          journey_id?: string | null
+          lead_id?: string | null
+          to_stage_id?: string | null
+          transition_data?: Json | null
+          trigger_id?: string | null
+          trigger_type?: string | null
+          triggered_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          from_stage_id?: string | null
+          id?: string
+          journey_id?: string | null
+          lead_id?: string | null
+          to_stage_id?: string | null
+          transition_data?: Json | null
+          trigger_id?: string | null
+          trigger_type?: string | null
+          triggered_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_transition_logs_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "academic_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_transition_logs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stage_transition_triggers: {
+        Row: {
+          condition_config: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          notify_admin: boolean | null
+          notify_student: boolean | null
+          stage_id: string | null
+          target_stage_id: string | null
+          trigger_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          condition_config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          notify_admin?: boolean | null
+          notify_student?: boolean | null
+          stage_id?: string | null
+          target_stage_id?: string | null
+          trigger_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          condition_config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          notify_admin?: boolean | null
+          notify_student?: boolean | null
+          stage_id?: string | null
+          target_stage_id?: string | null
+          trigger_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_transition_triggers_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stage_transition_triggers_target_stage_id_fkey"
+            columns: ["target_stage_id"]
+            isOneToOne: false
+            referencedRelation: "journey_stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       stripe_customers: {
         Row: {

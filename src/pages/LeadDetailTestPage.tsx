@@ -36,12 +36,7 @@ import { TasksNotesPanel } from '@/components/admin/leads/TasksNotesPanel';
 import AIRecommendations from '@/components/admin/leads/AIRecommendations';
 import { PaymentsTab } from '@/components/admin/payments/PaymentsTab';
 import { usePresetDocuments } from '@/hooks/usePresetDocuments';
-import { 
-  useJourneyForProgramName, 
-  useLeadJourneyInstance, 
-  useUpdateLeadStage, 
-  useCreateJourneyInstance 
-} from '@/services/leadJourneyService';
+import { useJourneyForProgramName, useLeadJourneyInstance, useUpdateLeadStage, useCreateJourneyInstance } from '@/services/leadJourneyService';
 
 export default function LeadDetailTestPage() {
   const navigate = useNavigate();

@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Program } from "@/types/program";
-import { usePracticumSites, usePracticumJourneys } from "@/hooks/usePracticum";
+import { usePracticumSites } from "@/hooks/usePracticum";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, MapPin, Clock, FileText, X, Search } from "lucide-react";
 

@@ -7,27 +7,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity, ChevronDown, MoreHorizontal, Trash2, Copy, Power } from 'lucide-react';
+import { Plus, Search, Eye, Settings, Calendar, Users, BookOpen, AlertTriangle, CheckCircle, Clock, FileText, BarChart3, TrendingUp, Activity, MoreHorizontal, Trash2, Copy, Power } from 'lucide-react';
 import { usePrograms } from '@/services/programService';
 import { useAcademicJourneys, useDeleteAcademicJourney, useDuplicateAcademicJourney, useToggleJourneyStatus } from '@/services/academicJourneyService';
-import { usePracticumJourneys } from '@/hooks/usePracticum';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { JourneyBuilder } from './JourneyBuilder';
 import { MasterJourneySetupWizard } from './MasterJourneySetupWizard';
 import { AcademicJourney } from '@/types/academicJourney';
-import { enrollmentDemoSeedService } from '@/services/enrollmentDemoSeedService';
 import { MasterJourneyService } from '@/services/masterJourneyService';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { ModernCard } from '@/components/modern/ModernCard';
 import { InfoBadge } from '@/components/modern/InfoBadge';
 
-type JourneyType = 'all' | 'academic' | 'practicum';
-
 interface CombinedJourney {
   id: string;
-  type: 'academic' | 'practicum';
   name: string;
   description?: string;
   is_active: boolean;
@@ -45,28 +40,17 @@ export function ProgramJourneyManager() {
   
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProgram, setSelectedProgram] = useState<string>('all');
-  const [selectedJourneyType, setSelectedJourneyType] = useState<JourneyType>('all');
   const [showJourneyBuilder, setShowJourneyBuilder] = useState(false);
   const [showMasterSetup, setShowMasterSetup] = useState(false);
   const [editingJourneyId, setEditingJourneyId] = useState<string | null>(null);
 
   const { data: programs, isLoading: programsLoading, error: programsError } = usePrograms();
   const { data: academicJourneys, isLoading: journeysLoading, error: journeysError, refetch: refetchJourneys } = useAcademicJourneys();
-  const { data: practicumJourneys, isLoading: practicumLoading } = usePracticumJourneys(session?.user?.id || '');
   
   // Move hooks before any conditional returns to fix React hooks rule
   const deleteJourneyMutation = useDeleteAcademicJourney();
   const duplicateJourneyMutation = useDuplicateAcademicJourney();
   const toggleStatusMutation = useToggleJourneyStatus();
-
-  // Set initial filter from URL params
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const typeParam = params.get('type');
-    if (typeParam === 'practicum') {
-      setSelectedJourneyType('practicum');
-    }
-  }, [location.search]);
 
   // Check master templates and seed dummy data if needed
   useEffect(() => {
@@ -105,7 +89,6 @@ export function ProgramJourneyManager() {
   const combinedJourneys: CombinedJourney[] = [
     ...(academicJourneys?.map(journey => ({
       id: journey.id,
-      type: 'academic' as const,
       name: journey.name,
       description: journey.description,
       is_active: journey.is_active,
@@ -114,28 +97,15 @@ export function ProgramJourneyManager() {
       program_id: journey.program_id,
       version: journey.version,
       raw: journey
-    })) || []),
-    ...(practicumJourneys?.map(journey => ({
-      id: journey.id,
-      type: 'practicum' as const,
-      name: journey.journey_name,
-      description: '',
-      is_active: journey.is_active,
-      created_at: journey.created_at,
-      stagesCount: Array.isArray(journey.steps) ? journey.steps.length : 0,
-      program_id: journey.program_id,
-      version: undefined,
-      raw: journey
     })) || [])
   ];
 
-  // Filter journeys based on search, program, and type selection
+  // Filter journeys based on search and program
   const filteredJourneys = combinedJourneys.filter(journey => {
     const matchesSearch = journey.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (journey.description?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false);
     const matchesProgram = selectedProgram === 'all' || journey.program_id === selectedProgram;
-    const matchesType = selectedJourneyType === 'all' || journey.type === selectedJourneyType;
-    return matchesSearch && matchesProgram && matchesType;
+    return matchesSearch && matchesProgram;
   });
 
   if (programsError || journeysError) {
@@ -146,33 +116,8 @@ export function ProgramJourneyManager() {
     setShowJourneyBuilder(true);
   };
 
-  const handleCreatePracticumJourney = () => {
-    navigate('/admin/practicum/journeys/builder');
-  };
-
   const handleEditJourney = (journey: CombinedJourney) => {
-    if (journey.type === 'academic') {
-      // Use the new HubSpotJourneyBuilder for editing academic journeys
-      setEditingJourneyId(journey.id);
-    } else {
-      // Convert practicum journey to builder config format
-      const builderConfig = {
-        id: journey.id,
-        name: journey.name,
-        description: journey.description || '',
-        type: 'practicum',
-        elements: journey.raw.steps || [],
-        settings: {},
-        metadata: {
-          created_at: journey.created_at,
-          updated_at: journey.raw.updated_at
-        }
-      };
-      
-      navigate(`/admin/practicum/journeys/builder/${journey.id}`, {
-        state: { journey: builderConfig }
-      });
-    }
+    setEditingJourneyId(journey.id);
   };
 
   const handleMasterSetupComplete = () => {
@@ -191,16 +136,8 @@ export function ProgramJourneyManager() {
     return program?.name || 'Unknown Program';
   };
 
-  const getJourneyStatusColor = (isActive: boolean) => {
-    return isActive ? 'status-active' : 'status-inactive';
-  };
-
   const getJourneyStatusIcon = (isActive: boolean) => {
     return isActive ? CheckCircle : Clock;
-  };
-
-  const getJourneyCardClass = (isActive: boolean) => {
-    return isActive ? 'journey-card journey-card-active' : 'journey-card journey-card-inactive';
   };
 
   const getStagesCompletionPercentage = (stages: any[] = []) => {
@@ -219,13 +156,7 @@ export function ProgramJourneyManager() {
     );
   }
 
-
   const handleDeleteJourney = async (journey: CombinedJourney) => {
-    if (journey.type !== 'academic') {
-      toast.error('Practicum journey deletion not supported here');
-      return;
-    }
-    
     try {
       await deleteJourneyMutation.mutateAsync(journey.id);
       toast.success('Journey deleted successfully');
@@ -236,11 +167,6 @@ export function ProgramJourneyManager() {
   };
 
   const handleDuplicateJourney = async (journey: CombinedJourney) => {
-    if (journey.type !== 'academic') {
-      toast.error('Practicum journey duplication not supported here');
-      return;
-    }
-    
     try {
       await duplicateJourneyMutation.mutateAsync(journey.id);
       toast.success('Journey duplicated successfully');
@@ -251,11 +177,6 @@ export function ProgramJourneyManager() {
   };
 
   const handleToggleStatus = async (journey: CombinedJourney) => {
-    if (journey.type !== 'academic') {
-      toast.error('Practicum journey toggle not supported here');
-      return;
-    }
-    
     try {
       await toggleStatusMutation.mutateAsync({ 
         id: journey.id, 
@@ -282,7 +203,6 @@ export function ProgramJourneyManager() {
     );
   }
 
-
   // Main manager interface
   return (
     <div className="min-h-screen bg-muted/30">
@@ -290,32 +210,17 @@ export function ProgramJourneyManager() {
         {/* Modern Header */}
         <PageHeader
           title="Journey Manager"
-          subtitle="Design and manage academic and practicum journeys with advanced analytics and intelligent workflows"
+          subtitle="Design and manage academic journeys with advanced analytics and intelligent workflows"
           action={
             <div className="flex gap-3">
-              {(selectedJourneyType === 'all' || selectedJourneyType === 'academic') && (
-                <Button variant="outline" onClick={() => setShowMasterSetup(true)}>
-                  <Settings className="h-4 w-4 mr-2" />
-                  Master Templates
-                </Button>
-              )}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="h-4 w-4" />
-                    Create Journey
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleCreateAcademicJourney}>
-                    Create Academic Journey
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleCreatePracticumJourney}>
-                    Create Practicum Journey
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <Button variant="outline" onClick={() => setShowMasterSetup(true)}>
+                <Settings className="h-4 w-4 mr-2" />
+                Master Templates
+              </Button>
+              <Button onClick={handleCreateAcademicJourney} className="gap-2">
+                <Plus className="h-4 w-4" />
+                Create Journey
+              </Button>
             </div>
           }
         />
@@ -333,20 +238,9 @@ export function ProgramJourneyManager() {
                   className="pl-10 bg-background"
                 />
               </div>
-              <Select value={selectedJourneyType} onValueChange={(value) => setSelectedJourneyType(value as JourneyType)}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <SelectValue placeholder="Journey Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="practicum">Practicum</SelectItem>
-                </SelectContent>
-              </Select>
               <Select 
                 value={selectedProgram} 
                 onValueChange={setSelectedProgram}
-                disabled={selectedJourneyType === 'practicum'}
               >
                 <SelectTrigger className="w-full sm:w-[240px]">
                   <SelectValue placeholder="Filter by program" />
@@ -365,7 +259,7 @@ export function ProgramJourneyManager() {
         </ModernCard>
 
         {/* Journeys Grid */}
-        {(journeysLoading || practicumLoading) ? (
+        {journeysLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <ModernCard key={i} className="animate-pulse">
@@ -393,7 +287,7 @@ export function ProgramJourneyManager() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredJourneys.map((journey, index) => {
               const StatusIcon = getJourneyStatusIcon(journey.is_active);
-              const completionPercentage = journey.type === 'academic' ? getStagesCompletionPercentage(journey.raw.stages) : 0;
+              const completionPercentage = getStagesCompletionPercentage(journey.raw.stages);
               
               return (
                 <ModernCard 
@@ -408,9 +302,6 @@ export function ProgramJourneyManager() {
                           <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors truncate">
                             {journey.name}
                           </h3>
-                          <InfoBadge variant={journey.type === 'academic' ? 'default' : 'secondary'}>
-                            {journey.type === 'academic' ? 'Academic' : 'Practicum'}
-                          </InfoBadge>
                         </div>
                         <p className="text-sm text-muted-foreground line-clamp-2">
                           {journey.description || 'No description provided'}
@@ -425,8 +316,8 @@ export function ProgramJourneyManager() {
                       </InfoBadge>
                     </div>
 
-                    {/* Progress Indicator - Academic journeys only */}
-                    {journey.type === 'academic' && journey.raw.stages && journey.raw.stages.length > 0 && (
+                    {/* Progress Indicator */}
+                    {journey.raw.stages && journey.raw.stages.length > 0 && (
                       <div className="mb-4 p-3 bg-muted/30 rounded-lg border border-border/50">
                         <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                           <span className="font-medium">Stage Progress</span>
@@ -434,109 +325,98 @@ export function ProgramJourneyManager() {
                         </div>
                         <div className="w-full bg-muted rounded-full h-2">
                           <div 
-                            className="h-2 rounded-full bg-gradient-to-r from-primary to-primary/60 transition-all duration-700"
+                            className="bg-primary h-2 rounded-full transition-all duration-500"
                             style={{ width: `${completionPercentage}%` }}
                           />
                         </div>
                       </div>
                     )}
 
-                    {/* Journey Metrics */}
-                    <div className="grid grid-cols-2 gap-3 mb-5">
-                      <div className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/20">
-                        <BookOpen className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="truncate text-foreground font-medium">
-                          {journey.type === 'academic' ? getProgramName(journey.program_id) : 'Practicum'}
+                    {/* Journey Details */}
+                    <div className="space-y-3 mb-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          Stages
                         </span>
+                        <span className="font-semibold text-foreground">{journey.stagesCount}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/20">
-                        <Activity className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-foreground font-medium">
-                          {journey.stagesCount} {journey.type === 'academic' ? 'stages' : 'steps'}
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-muted-foreground flex items-center gap-2">
+                          <BookOpen className="h-4 w-4" />
+                          Program
+                        </span>
+                        <span className="font-medium text-foreground truncate max-w-[150px]">
+                          {getProgramName(journey.program_id)}
                         </span>
                       </div>
                       {journey.version && (
-                        <div className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/20">
-                          <FileText className="h-4 w-4 text-primary flex-shrink-0" />
-                          <span className="text-foreground font-medium">v{journey.version}</span>
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-muted-foreground flex items-center gap-2">
+                            <Activity className="h-4 w-4" />
+                            Version
+                          </span>
+                          <span className="font-medium text-foreground">v{journey.version}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2 text-sm p-2 rounded-lg bg-muted/20">
-                        <Calendar className="h-4 w-4 text-primary flex-shrink-0" />
-                        <span className="text-foreground font-medium">
-                          {new Date(journey.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
                     </div>
-
-                    {/* Toggle Active Status */}
-                    {journey.type === 'academic' && (
-                      <div className="flex items-center justify-between py-2 mb-3">
-                        <span className="text-sm text-muted-foreground">Active</span>
-                        <Switch
-                          checked={journey.is_active}
-                          onCheckedChange={() => handleToggleStatus(journey)}
-                          disabled={toggleStatusMutation.isPending}
-                        />
-                      </div>
-                    )}
 
                     {/* Action Buttons */}
                     <div className="flex gap-2 pt-3 border-t border-border/50">
                       <Button 
                         variant="outline" 
-                        size="sm" 
-                        className="flex-1"
+                        className="flex-1 gap-2"
                         onClick={() => handleEditJourney(journey)}
                       >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Edit
+                        <Eye className="h-4 w-4" />
+                        View & Edit
                       </Button>
-                      
-                      {journey.type === 'academic' && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleDuplicateJourney(journey)}>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Duplicate
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem 
-                                  className="text-destructive focus:text-destructive"
-                                  onSelect={(e) => e.preventDefault()}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleDuplicateJourney(journey)}>
+                            <Copy className="h-4 w-4 mr-2" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleToggleStatus(journey)}>
+                            <Power className="h-4 w-4 mr-2" />
+                            {journey.is_active ? 'Deactivate' : 'Activate'}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem 
+                                className="text-destructive focus:text-destructive"
+                                onSelect={(e) => e.preventDefault()}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Journey</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{journey.name}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDeleteJourney(journey)}
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                  <Trash2 className="h-4 w-4 mr-2" />
                                   Delete
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Journey</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                    Are you sure you want to delete "{journey.name}"? This action cannot be undone and will remove all associated stages and requirements.
-                                  </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
-                                    onClick={() => handleDeleteJourney(journey)}
-                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                  >
-                                    Delete
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 </ModernCard>
@@ -545,13 +425,13 @@ export function ProgramJourneyManager() {
           </div>
         ) : (
           <ModernCard>
-            <div className="text-center py-16">
-              <div className="max-w-md mx-auto">
+            <div className="p-12">
+              <div className="text-center max-w-md mx-auto">
                 <div className="relative mb-6">
                   <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto">
                     <BookOpen className="h-10 w-10 text-primary" />
                   </div>
-                  {!searchTerm && selectedProgram === 'all' && selectedJourneyType === 'all' && (
+                  {!searchTerm && selectedProgram === 'all' && (
                     <div className="absolute -top-1 -right-1 w-6 h-6 bg-warning rounded-full flex items-center justify-center">
                       <AlertTriangle className="h-3 w-3 text-white" />
                     </div>
@@ -561,22 +441,16 @@ export function ProgramJourneyManager() {
                   No Journeys Found
                 </h3>
                 <p className="text-muted-foreground mb-6 leading-relaxed">
-                  {searchTerm || selectedProgram !== 'all' || selectedJourneyType !== 'all'
+                  {searchTerm || selectedProgram !== 'all'
                     ? 'No journeys match your current filters. Try adjusting your search criteria or clear filters to see all journeys.'
-                    : 'Transform your enrollment process by creating structured academic and practicum journeys. Guide students through each step with intelligent workflows.'
+                    : 'Transform your enrollment process by creating structured academic journeys. Guide students through each step with intelligent workflows.'
                   }
                 </p>
-                {!searchTerm && selectedProgram === 'all' && selectedJourneyType === 'all' && (
-                  <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                    <Button onClick={handleCreateAcademicJourney} className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      Create Academic Journey
-                    </Button>
-                    <Button variant="outline" onClick={handleCreatePracticumJourney} className="gap-2">
-                      <Plus className="h-4 w-4" />
-                      Create Practicum Journey
-                    </Button>
-                  </div>
+                {!searchTerm && selectedProgram === 'all' && (
+                  <Button onClick={handleCreateAcademicJourney} className="gap-2">
+                    <Plus className="h-4 w-4" />
+                    Create Academic Journey
+                  </Button>
                 )}
               </div>
             </div>

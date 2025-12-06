@@ -29,8 +29,6 @@ import { LeadBulkOperations } from "@/components/admin/leads/LeadBulkOperations"
 import { ConfigurationManagement } from "@/components/admin/ConfigurationManagement";
 import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 import { CampaignManagement } from "@/components/admin/CampaignManagement";
-import { PracticumJourneyManager } from '@/pages/admin/practicum/PracticumJourneyManager';
-import { PracticumJourneyBuilder } from '@/pages/admin/practicum/PracticumJourneyBuilder';
 
 import { RequirementsManagement } from "@/components/admin/database/RequirementsManagement";
 import { DocumentTemplatesManagement } from "@/components/admin/DocumentTemplatesManagement";
@@ -238,14 +236,6 @@ const AdminDashboard: React.FC = () => {
         return <PracticumDashboard />;
       case "/admin/practicum/sites":
         return <SiteManagement />;
-      case "/admin/practicum/journeys":
-        return <ProgramJourneyManager />;
-      case "/admin/practicum/journeys/builder":
-        return <PracticumJourneyBuilder />;
-      case "/admin/practicum/journeys/builder/:journeyId":
-        return <PracticumJourneyBuilder />;
-      case location.pathname.match(/^\/admin\/practicum\/journeys\/builder\/[^\/]+$/)?.input:
-        return <PracticumJourneyBuilder />;
       case "/admin/practicum/competencies":
         return <CompetencyTracker />;
       case "/admin/practicum/progress":

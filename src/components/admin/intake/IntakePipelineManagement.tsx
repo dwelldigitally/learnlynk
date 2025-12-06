@@ -27,7 +27,9 @@ import {
   Loader2,
   CalendarDays,
   GraduationCap,
-  BarChart3
+  BarChart3,
+  Trash2,
+  Eye
 } from 'lucide-react';
 import { format, isValid, parseISO, isFuture, isPast } from 'date-fns';
 import { toast } from 'sonner';
@@ -479,9 +481,22 @@ export function IntakePipelineManagement() {
                               </div>
                             )}
                           </div>
-                          <Badge variant={getStatusBadgeVariant(intake.status)}>
-                            {intake.status}
-                          </Badge>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={getStatusBadgeVariant(intake.status)}>
+                              {intake.status}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toast.info('Delete intake functionality coming soon');
+                              }}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
@@ -549,6 +564,19 @@ export function IntakePipelineManagement() {
                             }}
                           />
                         </div>
+                        
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full mt-3"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleIntakeClick(intake);
+                          }}
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          View More
+                        </Button>
                       </CardContent>
                     </Card>
                   );

@@ -63,7 +63,6 @@ export function TopNavigationBar() {
     { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
     { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
     { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
-    { name: "Analytics Dashboard", href: "/admin/analytics", icon: BarChart3 },
     { name: "Reports", href: "/admin/reports", icon: FileText },
   ];
 

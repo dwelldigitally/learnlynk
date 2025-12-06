@@ -32,6 +32,11 @@ export interface UploadedDocument {
   required: boolean | null;
   created_at: string;
   updated_at: string;
+  // Version history fields
+  version: number;
+  parent_document_id: string | null;
+  is_latest: boolean;
+  superseded_at: string | null;
 }
 
 class PresetDocumentService {
@@ -158,7 +163,7 @@ class PresetDocumentService {
     return data || [];
   }
 
-  // Upload a document for a specific requirement
+  // Upload a document for a specific requirement (with version history support)
   async uploadDocument(
     leadId: string,
     file: File,
@@ -187,11 +192,41 @@ class PresetDocumentService {
 
       console.log('[PresetDocumentService] Authenticated user:', user.id);
 
+      // Check for existing documents for this requirement (for versioning)
+      const { data: existingDocs, error: existingError } = await supabase
+        .from('lead_documents')
+        .select('id, version, parent_document_id')
+        .eq('lead_id', leadId)
+        .eq('requirement_id', requirementId)
+        .eq('is_latest', true)
+        .order('version', { ascending: false })
+        .limit(1);
+
+      let newVersion = 1;
+      let parentDocumentId: string | null = null;
+
+      if (!existingError && existingDocs && existingDocs.length > 0) {
+        const latestDoc = existingDocs[0];
+        newVersion = (latestDoc.version || 1) + 1;
+        // Parent is either the existing parent (for chain) or the document itself (for first supersede)
+        parentDocumentId = latestDoc.parent_document_id || latestDoc.id;
+
+        // Mark existing document as not latest
+        await supabase
+          .from('lead_documents')
+          .update({ 
+            is_latest: false,
+            superseded_at: new Date().toISOString()
+          })
+          .eq('id', latestDoc.id);
+
+        console.log('[PresetDocumentService] Superseding existing document, new version:', newVersion);
+      }
+
       // Generate unique file path using user_id as first folder (required by RLS policy)
       const timestamp = Date.now();
-      const fileExtension = file.name.split('.').pop() || 'bin';
       const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const fileName = `${user.id}/${leadId}/${requirementId}_${timestamp}_${sanitizedFileName}`;
+      const fileName = `${user.id}/${leadId}/${requirementId}_v${newVersion}_${timestamp}_${sanitizedFileName}`;
 
       console.log('[PresetDocumentService] Uploading to storage path:', fileName);
 
@@ -222,7 +257,7 @@ class PresetDocumentService {
 
       console.log('[PresetDocumentService] Creating document record with name:', documentName);
 
-      // Create document record in database
+      // Create document record in database with version info
       const { data, error } = await supabase
         .from('lead_documents')
         .insert({
@@ -235,7 +270,10 @@ class PresetDocumentService {
           requirement_id: requirementId,
           entry_requirement_id: entryRequirementId || null,
           admin_status: 'pending',
-          original_filename: file.name
+          original_filename: file.name,
+          version: newVersion,
+          parent_document_id: parentDocumentId,
+          is_latest: true
         })
         .select()
         .single();
@@ -247,16 +285,36 @@ class PresetDocumentService {
         throw new Error(`Failed to create document record: ${error.message}`);
       }
 
-      console.log('[PresetDocumentService] Document record created successfully:', data.id);
+      console.log('[PresetDocumentService] Document record created successfully:', data.id, 'version:', newVersion);
       
       // Log the activity
-      await leadActivityService.logDocumentUpload(leadId, documentName, requirement?.name);
+      const activityTitle = newVersion > 1 
+        ? `Re-uploaded ${documentName} (v${newVersion})` 
+        : `Uploaded ${documentName}`;
+      await leadActivityService.logDocumentUpload(leadId, activityTitle, requirement?.name);
       
       return data;
     } catch (error) {
       console.error('[PresetDocumentService] uploadDocument failed:', error);
       throw error;
     }
+  }
+
+  // Get all versions of documents for a specific requirement
+  async getDocumentVersions(leadId: string, requirementId: string): Promise<UploadedDocument[]> {
+    const { data, error } = await supabase
+      .from('lead_documents')
+      .select('*')
+      .eq('lead_id', leadId)
+      .eq('requirement_id', requirementId)
+      .order('version', { ascending: false });
+
+    if (error) {
+      console.error('[PresetDocumentService] Error fetching document versions:', error);
+      return [];
+    }
+
+    return data || [];
   }
 
   // Update document status (approve/reject)

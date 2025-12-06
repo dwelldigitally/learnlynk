@@ -3637,15 +3637,19 @@ export type Database = {
           file_path: string | null
           file_size: number | null
           id: string
+          is_latest: boolean | null
           lead_id: string
           metadata: Json | null
           original_filename: string | null
+          parent_document_id: string | null
           required: boolean | null
           requirement_id: string | null
           status: string
+          superseded_at: string | null
           updated_at: string
           upload_date: string | null
           user_id: string
+          version: number | null
         }
         Insert: {
           admin_comments?: string | null
@@ -3660,15 +3664,19 @@ export type Database = {
           file_path?: string | null
           file_size?: number | null
           id?: string
+          is_latest?: boolean | null
           lead_id: string
           metadata?: Json | null
           original_filename?: string | null
+          parent_document_id?: string | null
           required?: boolean | null
           requirement_id?: string | null
           status?: string
+          superseded_at?: string | null
           updated_at?: string
           upload_date?: string | null
           user_id: string
+          version?: number | null
         }
         Update: {
           admin_comments?: string | null
@@ -3683,15 +3691,19 @@ export type Database = {
           file_path?: string | null
           file_size?: number | null
           id?: string
+          is_latest?: boolean | null
           lead_id?: string
           metadata?: Json | null
           original_filename?: string | null
+          parent_document_id?: string | null
           required?: boolean | null
           requirement_id?: string | null
           status?: string
+          superseded_at?: string | null
           updated_at?: string
           upload_date?: string | null
           user_id?: string
+          version?: number | null
         }
         Relationships: [
           {
@@ -3699,6 +3711,13 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_documents_parent_document_id_fkey"
+            columns: ["parent_document_id"]
+            isOneToOne: false
+            referencedRelation: "lead_documents"
             referencedColumns: ["id"]
           },
         ]

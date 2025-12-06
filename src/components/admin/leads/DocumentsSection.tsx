@@ -7,10 +7,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
   FileText, Upload, Download, Eye, Plus, CheckCircle, XCircle, Clock, AlertCircle,
-  GraduationCap, BookOpen, Briefcase, Globe, Shield
+  GraduationCap, BookOpen, Briefcase, Globe, Shield, RefreshCw
 } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { useToast } from '@/hooks/use-toast';
@@ -19,6 +18,9 @@ import { documentService, LeadDocument } from '@/services/documentService';
 import { presetDocumentService, PresetDocumentRequirement } from '@/services/presetDocumentService';
 import { useDocumentTypeOptions } from '@/hooks/usePropertyOptions';
 import { supabase } from '@/integrations/supabase/client';
+import { DocumentVersionHistory } from './DocumentVersionHistory';
+import { BulkDocumentDownload } from './BulkDocumentDownload';
+import { RequirementThresholdDisplay } from './RequirementThresholdDisplay';
 
 interface DocumentsSectionProps {
   lead: Lead;
@@ -397,9 +399,21 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
-  // Calculate document progress
+  // Calculate document progress - only count latest versions
   const getDocumentForRequirement = (requirementId: string) => {
-    return documents.find(doc => doc.requirement_id === requirementId);
+    return documents.find(doc => doc.requirement_id === requirementId && (doc as any).is_latest !== false);
+  };
+
+  // Get all document versions count for a requirement
+  const getVersionCountForRequirement = (requirementId: string) => {
+    return documents.filter(doc => doc.requirement_id === requirementId).length;
+  };
+
+  // Find linked entry requirement for a document requirement
+  const getLinkedEntryRequirement = (docReqId: string) => {
+    return programRequirements.entryRequirements.find(
+      entryReq => entryReq.linkedDocumentTemplates?.includes(docReqId)
+    );
   };
 
   const requiredDocCount = programRequirements.documentRequirements.filter(r => r.required).length;
@@ -408,6 +422,41 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
     .filter(r => getDocumentForRequirement(r.id))
     .length;
   const progressPercent = requiredDocCount > 0 ? (uploadedRequiredDocs / requiredDocCount) * 100 : 0;
+
+  // Handler for viewing document by file path
+  const handleViewByPath = async (filePath: string) => {
+    try {
+      const url = await documentService.getDocumentUrl(filePath);
+      window.open(url, '_blank');
+    } catch (error) {
+      console.error('Error getting document URL:', error);
+      toast({
+        title: "Error",
+        description: "Failed to open document",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Handler for downloading document by file path
+  const handleDownloadByPath = async (filePath: string, filename: string) => {
+    try {
+      const url = await documentService.getDocumentUrl(filePath);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      toast({
+        title: "Error",
+        description: "Failed to download document",
+        variant: "destructive"
+      });
+    }
+  };
 
   // Use dynamic document types from Properties Management
   const documentTypes = documentTypeOptions.length > 0 
@@ -481,54 +530,102 @@ export function DocumentsSection({ lead, onUpdate }: DocumentsSectionProps) {
                 <FileText className="h-5 w-5" />
                 Required Documents
               </div>
-              <Badge variant={progressPercent === 100 ? 'default' : 'secondary'}>
-                {uploadedRequiredDocs}/{requiredDocCount} Complete
-              </Badge>
+              <div className="flex items-center gap-2">
+                <BulkDocumentDownload 
+                  leadId={lead.id}
+                  leadName={`${lead.first_name} ${lead.last_name}`}
+                  documentRequirements={programRequirements.documentRequirements}
+                />
+                <Badge variant={progressPercent === 100 ? 'default' : 'secondary'}>
+                  {uploadedRequiredDocs}/{requiredDocCount} Complete
+                </Badge>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <Progress value={progressPercent} className="h-2" />
             
-            <div className="space-y-2">
+            <div className="space-y-3">
               {programRequirements.documentRequirements.map((req) => {
                 const uploadedDoc = getDocumentForRequirement(req.id);
+                const versionCount = getVersionCountForRequirement(req.id);
+                const linkedEntryReq = getLinkedEntryRequirement(req.id);
+                
                 return (
-                  <div key={req.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {uploadedDoc ? (
-                        getStatusIcon(uploadedDoc.admin_status)
-                      ) : (
-                        <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/50" />
-                      )}
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className={uploadedDoc ? 'font-medium' : ''}>{req.name}</span>
-                          {req.required && (
-                            <Badge variant="outline" className="text-xs">Required</Badge>
+                  <div key={req.id} className="p-3 border rounded-lg space-y-2">
+                    {/* Header Row */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {uploadedDoc ? (
+                          getStatusIcon(uploadedDoc.admin_status)
+                        ) : (
+                          <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/50" />
+                        )}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className={uploadedDoc ? 'font-medium' : ''}>{req.name}</span>
+                            {req.required && (
+                              <Badge variant="outline" className="text-xs">Required</Badge>
+                            )}
+                            {versionCount > 1 && (
+                              <Badge variant="secondary" className="text-xs">
+                                v{(uploadedDoc as any)?.version || 1}
+                              </Badge>
+                            )}
+                          </div>
+                          {req.description && (
+                            <p className="text-xs text-muted-foreground">{req.description}</p>
                           )}
                         </div>
-                        {req.description && (
-                          <p className="text-xs text-muted-foreground">{req.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {uploadedDoc ? (
+                          <>
+                            <Badge variant={getStatusVariant(uploadedDoc.admin_status)}>
+                              {(uploadedDoc.admin_status || 'pending').replace('_', ' ')}
+                            </Badge>
+                            <Button size="sm" variant="ghost" onClick={() => handleViewDocument(uploadedDoc)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => handleDownloadDocument(uploadedDoc)}>
+                              <Download className="h-4 w-4" />
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => handleUploadForRequirement(req.id)}>
+                              <RefreshCw className="h-4 w-4 mr-1" />
+                              Re-upload
+                            </Button>
+                          </>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => handleUploadForRequirement(req.id)}>
+                            <Upload className="h-4 w-4 mr-1" />
+                            Upload
+                          </Button>
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      {uploadedDoc ? (
-                        <>
-                          <Badge variant={getStatusVariant(uploadedDoc.admin_status)}>
-                            {(uploadedDoc.admin_status || 'pending').replace('_', ' ')}
-                          </Badge>
-                          <Button size="sm" variant="ghost" onClick={() => handleViewDocument(uploadedDoc)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </>
-                      ) : (
-                        <Button size="sm" variant="outline" onClick={() => handleUploadForRequirement(req.id)}>
-                          <Upload className="h-4 w-4 mr-1" />
-                          Upload
-                        </Button>
-                      )}
-                    </div>
+
+                    {/* Threshold Display (from linked entry requirement) */}
+                    {linkedEntryReq && (
+                      <RequirementThresholdDisplay entryRequirement={linkedEntryReq} />
+                    )}
+
+                    {/* Admin Comments */}
+                    {uploadedDoc?.admin_comments && (
+                      <div className="bg-muted/50 p-2 rounded text-xs">
+                        <span className="font-medium">Admin Comments: </span>
+                        {uploadedDoc.admin_comments}
+                      </div>
+                    )}
+
+                    {/* Version History */}
+                    {versionCount > 0 && (
+                      <DocumentVersionHistory
+                        leadId={lead.id}
+                        requirementId={req.id}
+                        onViewDocument={handleViewByPath}
+                        onDownloadDocument={handleDownloadByPath}
+                      />
+                    )}
                   </div>
                 );
               })}

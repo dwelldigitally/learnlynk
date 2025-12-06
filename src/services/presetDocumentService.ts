@@ -6,6 +6,7 @@ export interface PresetDocumentRequirement {
   description: string;
   required: boolean;
   programName: string;
+  entryRequirementId?: string; // Links to the entry requirement this doc satisfies
 }
 
 export interface UploadedDocument {
@@ -13,6 +14,7 @@ export interface UploadedDocument {
   lead_id: string;
   user_id: string;
   requirement_id: string | null;
+  entry_requirement_id: string | null;
   document_name: string;
   file_path: string | null;
   file_size: number | null;
@@ -38,6 +40,8 @@ class PresetDocumentService {
    */
   async getPresetRequirementsAsync(programName: string): Promise<PresetDocumentRequirement[]> {
     try {
+      console.log('[PresetDocumentService] Fetching requirements for program:', programName);
+      
       // First, try to get requirements from program's document_requirements field
       const { data: programs, error: programError } = await supabase
         .from('master_programs')
@@ -48,6 +52,7 @@ class PresetDocumentService {
       if (!programError && programs?.[0]?.document_requirements) {
         const requirements = programs[0].document_requirements as any[];
         if (Array.isArray(requirements) && requirements.length > 0) {
+          console.log('[PresetDocumentService] Found program document_requirements:', requirements.length);
           return requirements.map((req: any, index: number) => ({
             id: req.id || `req-${index}`,
             name: req.name || req.title || 'Unknown Document',
@@ -66,7 +71,7 @@ class PresetDocumentService {
         .order('name', { ascending: true });
 
       if (templateError) {
-        console.error('Error fetching document templates:', templateError);
+        console.error('[PresetDocumentService] Error fetching document templates:', templateError);
         return [];
       }
 
@@ -78,6 +83,7 @@ class PresetDocumentService {
         return template.applicable_programs.includes(programName);
       });
 
+      console.log('[PresetDocumentService] Using document_templates fallback:', filteredTemplates.length);
       return filteredTemplates.map(template => ({
         id: template.id,
         name: template.name,
@@ -86,7 +92,7 @@ class PresetDocumentService {
         programName
       }));
     } catch (error) {
-      console.error('Error in getPresetRequirementsAsync:', error);
+      console.error('[PresetDocumentService] Error in getPresetRequirementsAsync:', error);
       return [];
     }
   }
@@ -97,7 +103,7 @@ class PresetDocumentService {
    * @deprecated Use getPresetRequirementsAsync instead
    */
   getPresetRequirements(programName: string): PresetDocumentRequirement[] {
-    console.warn('getPresetRequirements is deprecated. Use getPresetRequirementsAsync instead.');
+    console.warn('[PresetDocumentService] getPresetRequirements is deprecated. Use getPresetRequirementsAsync instead.');
     return [];
   }
 
@@ -113,13 +119,13 @@ class PresetDocumentService {
         .order('name');
 
       if (error) {
-        console.error('Error fetching programs:', error);
+        console.error('[PresetDocumentService] Error fetching programs:', error);
         return [];
       }
 
       return (data || []).map(p => p.name);
     } catch (error) {
-      console.error('Error in getAvailableProgramsAsync:', error);
+      console.error('[PresetDocumentService] Error in getAvailableProgramsAsync:', error);
       return [];
     }
   }
@@ -128,19 +134,26 @@ class PresetDocumentService {
    * @deprecated Use getAvailableProgramsAsync instead
    */
   getAvailablePrograms(): string[] {
-    console.warn('getAvailablePrograms is deprecated. Use getAvailableProgramsAsync instead.');
+    console.warn('[PresetDocumentService] getAvailablePrograms is deprecated. Use getAvailableProgramsAsync instead.');
     return [];
   }
 
   // Get uploaded documents for a lead
   async getUploadedDocuments(leadId: string): Promise<UploadedDocument[]> {
+    console.log('[PresetDocumentService] Fetching uploaded documents for lead:', leadId);
+    
     const { data, error } = await supabase
       .from('lead_documents')
       .select('*')
       .eq('lead_id', leadId)
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('[PresetDocumentService] Error fetching documents:', error);
+      throw error;
+    }
+    
+    console.log('[PresetDocumentService] Found documents:', data?.length || 0);
     return data || [];
   }
 
@@ -149,44 +162,96 @@ class PresetDocumentService {
     leadId: string,
     file: File,
     requirementId: string,
-    programName: string
+    programName: string,
+    entryRequirementId?: string
   ): Promise<UploadedDocument> {
-    // Generate unique file path
-    const timestamp = Date.now();
-    const fileExtension = file.name.split('.').pop();
-    const fileName = `${leadId}/${requirementId}_${timestamp}.${fileExtension}`;
+    console.log('[PresetDocumentService] Starting document upload:', {
+      leadId,
+      requirementId,
+      programName,
+      entryRequirementId,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    });
 
-    // Upload file to storage
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('lead-documents')
-      .upload(fileName, file);
+    try {
+      // Get current user for storage path (required by RLS policy)
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError || !user) {
+        console.error('[PresetDocumentService] User authentication error:', userError);
+        throw new Error('User not authenticated');
+      }
 
-    if (uploadError) throw uploadError;
+      console.log('[PresetDocumentService] Authenticated user:', user.id);
 
-    // Find the requirement details from database
-    const requirements = await this.getPresetRequirementsAsync(programName);
-    const requirement = requirements.find(r => r.id === requirementId);
-    
-    const documentName = requirement?.name || file.name;
+      // Generate unique file path using user_id as first folder (required by RLS policy)
+      const timestamp = Date.now();
+      const fileExtension = file.name.split('.').pop() || 'bin';
+      const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+      const fileName = `${user.id}/${leadId}/${requirementId}_${timestamp}_${sanitizedFileName}`;
 
-    // Create document record
-    const { data, error } = await supabase
-      .from('lead_documents')
-      .insert({
-        lead_id: leadId,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
-        document_name: documentName,
-        document_type: file.type,
-        file_path: uploadData.path,
-        file_size: file.size,
-        requirement_id: requirementId,
-        admin_status: 'pending'
-      })
-      .select()
-      .single();
+      console.log('[PresetDocumentService] Uploading to storage path:', fileName);
 
-    if (error) throw error;
-    return data;
+      // Upload file to storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('lead-documents')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('[PresetDocumentService] Storage upload error:', {
+          error: uploadError,
+          message: uploadError.message,
+          name: uploadError.name
+        });
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
+
+      console.log('[PresetDocumentService] Storage upload successful:', uploadData.path);
+
+      // Find the requirement details from database
+      const requirements = await this.getPresetRequirementsAsync(programName);
+      const requirement = requirements.find(r => r.id === requirementId);
+      
+      const documentName = requirement?.name || file.name;
+
+      console.log('[PresetDocumentService] Creating document record with name:', documentName);
+
+      // Create document record in database
+      const { data, error } = await supabase
+        .from('lead_documents')
+        .insert({
+          lead_id: leadId,
+          user_id: user.id,
+          document_name: documentName,
+          document_type: file.type,
+          file_path: uploadData.path,
+          file_size: file.size,
+          requirement_id: requirementId,
+          entry_requirement_id: entryRequirementId || null,
+          admin_status: 'pending',
+          original_filename: file.name
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[PresetDocumentService] Database insert error:', error);
+        // Try to clean up the uploaded file if database insert fails
+        await supabase.storage.from('lead-documents').remove([uploadData.path]);
+        throw new Error(`Failed to create document record: ${error.message}`);
+      }
+
+      console.log('[PresetDocumentService] Document record created successfully:', data.id);
+      return data;
+    } catch (error) {
+      console.error('[PresetDocumentService] uploadDocument failed:', error);
+      throw error;
+    }
   }
 
   // Update document status (approve/reject)
@@ -195,6 +260,8 @@ class PresetDocumentService {
     status: string,
     comments?: string
   ): Promise<void> {
+    console.log('[PresetDocumentService] Updating document status:', { documentId, status, comments });
+    
     const userId = (await supabase.auth.getUser()).data.user?.id;
     
     const { error } = await supabase
@@ -207,11 +274,18 @@ class PresetDocumentService {
       })
       .eq('id', documentId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('[PresetDocumentService] Error updating document status:', error);
+      throw error;
+    }
+    
+    console.log('[PresetDocumentService] Document status updated successfully');
   }
 
   // Delete a document
   async deleteDocument(documentId: string): Promise<void> {
+    console.log('[PresetDocumentService] Deleting document:', documentId);
+    
     // Get document info first
     const { data: doc, error: fetchError } = await supabase
       .from('lead_documents')
@@ -219,13 +293,22 @@ class PresetDocumentService {
       .eq('id', documentId)
       .single();
 
-    if (fetchError) throw fetchError;
+    if (fetchError) {
+      console.error('[PresetDocumentService] Error fetching document for deletion:', fetchError);
+      throw fetchError;
+    }
 
     // Delete from storage
     if (doc?.file_path) {
-      await supabase.storage
+      console.log('[PresetDocumentService] Deleting file from storage:', doc.file_path);
+      const { error: storageError } = await supabase.storage
         .from('lead-documents')
         .remove([doc.file_path]);
+        
+      if (storageError) {
+        console.warn('[PresetDocumentService] Storage deletion warning:', storageError);
+        // Continue with database deletion even if storage fails
+      }
     }
 
     // Delete from database
@@ -234,14 +317,26 @@ class PresetDocumentService {
       .delete()
       .eq('id', documentId);
 
-    if (error) throw error;
+    if (error) {
+      console.error('[PresetDocumentService] Error deleting document record:', error);
+      throw error;
+    }
+    
+    console.log('[PresetDocumentService] Document deleted successfully');
   }
 
   // Get document URL for viewing
   async getDocumentUrl(filePath: string): Promise<string> {
-    const { data } = await supabase.storage
+    console.log('[PresetDocumentService] Getting signed URL for:', filePath);
+    
+    const { data, error } = await supabase.storage
       .from('lead-documents')
       .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+    if (error) {
+      console.error('[PresetDocumentService] Error creating signed URL:', error);
+      return '';
+    }
 
     return data?.signedUrl || '';
   }

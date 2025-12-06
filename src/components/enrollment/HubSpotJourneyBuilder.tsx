@@ -28,46 +28,101 @@ import {
 } from 'lucide-react';
 import { BuilderConfig, JourneyElement, UniversalElement } from '@/types/universalBuilder';
 import { journeyElementTypes } from '@/config/elementTypes';
-import { AcademicJourneyService } from '@/services/academicJourneyService';
+import { AcademicJourneyService, useAcademicJourney } from '@/services/academicJourneyService';
+import { usePrograms } from '@/services/programService';
 import { toast } from 'sonner';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
 
 interface HubSpotJourneyBuilderProps {
   onBack: () => void;
+  journeyId?: string | null;
 }
 
-function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
+function JourneyBuilderContent({ onBack, journeyId }: HubSpotJourneyBuilderProps) {
   const { state, dispatch } = useBuilder();
   const [journeyName, setJourneyName] = useState('New Academic Journey');
   const [journeyDescription, setJourneyDescription] = useState('');
+  const [selectedProgramId, setSelectedProgramId] = useState<string>('');
   const [showStepLibrary, setShowStepLibrary] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('workflow');
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Fetch existing journey if editing
+  const { data: existingJourney, isLoading: journeyLoading } = useAcademicJourney(journeyId);
+  
+  // Fetch programs for assignment
+  const { data: programs } = usePrograms();
 
-  // Initialize the builder with journey config
+  // Load existing journey data when editing
   useEffect(() => {
-    dispatch({
-      type: 'SET_CONFIG',
-      payload: {
-        name: journeyName,
-        description: journeyDescription,
-        type: 'journey',
-        elements: [],
-        settings: {},
-      },
-    });
-  }, []);
+    if (existingJourney && journeyId) {
+      setJourneyName(existingJourney.name);
+      setJourneyDescription(existingJourney.description || '');
+      setSelectedProgramId(existingJourney.program_id || '');
+      
+      // Convert stages to builder elements
+      const elements: UniversalElement[] = (existingJourney.stages || [])
+        .sort((a, b) => a.order_index - b.order_index)
+        .map((stage, index) => ({
+          id: stage.id,
+          type: stage.stage_type as any,
+          title: stage.name,
+          description: stage.description || '',
+          position: index,
+          config: {
+            stage_type: stage.stage_type,
+            is_required: stage.is_required,
+            stall_threshold_days: stage.timing_config?.stall_threshold_days || 7,
+            expected_duration_days: stage.timing_config?.expected_duration_days || 3,
+            completion_criteria: stage.completion_criteria,
+            escalation_rules: stage.escalation_rules,
+          },
+          elementType: 'journey',
+        }));
+      
+      dispatch({
+        type: 'SET_CONFIG',
+        payload: {
+          id: existingJourney.id,
+          name: existingJourney.name,
+          description: existingJourney.description || '',
+          type: 'journey',
+          elements,
+          settings: {},
+        },
+      });
+    }
+  }, [existingJourney, journeyId, dispatch]);
+
+  // Initialize the builder with journey config (for new journeys)
+  useEffect(() => {
+    if (!journeyId) {
+      dispatch({
+        type: 'SET_CONFIG',
+        payload: {
+          name: journeyName,
+          description: journeyDescription,
+          type: 'journey',
+          elements: [],
+          settings: {},
+        },
+      });
+    }
+  }, [journeyId]);
 
   // Update config when name/description changes
   useEffect(() => {
-    dispatch({
-      type: 'UPDATE_CONFIG',
-      payload: {
-        ...state.config,
-        name: journeyName,
-        description: journeyDescription,
-      },
-    });
+    if (state.config) {
+      dispatch({
+        type: 'UPDATE_CONFIG',
+        payload: {
+          ...state.config,
+          name: journeyName,
+          description: journeyDescription,
+        },
+      });
+    }
   }, [journeyName, journeyDescription]);
 
   const journeySteps = state.config.elements;
@@ -194,46 +249,115 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
       return;
     }
 
+    setIsSaving(true);
     const config = state.config;
 
     try {
-      // Create the academic journey in the database
-      const journey = await AcademicJourneyService.createAcademicJourney({
-        name: config.name,
-        description: config.description,
-        is_active: true,
-        version: 1,
-        metadata: { builder_config: config }
-      });
-
-      // Create journey stages for each step
-      for (let i = 0; i < config.elements.length; i++) {
-        const step = config.elements[i];
-        await AcademicJourneyService.createJourneyStage({
-          journey_id: journey.id,
-          name: step.title || `Step ${i + 1}`,
-          description: step.config?.description || '',
-          stage_type: step.config?.stage_type || 'custom',
-          order_index: i,
-          is_required: step.config?.is_required !== false,
-          is_parallel: false,
-          status: 'active',
-          timing_config: {
-            stall_threshold_days: step.config?.stall_threshold_days || 7,
-            expected_duration_days: step.config?.expected_duration_days || 3
-          },
-          completion_criteria: step.config?.completion_criteria || {},
-          escalation_rules: step.config?.escalation_rules || {}
+      if (journeyId && existingJourney) {
+        // Update existing journey
+        await AcademicJourneyService.updateAcademicJourney(journeyId, {
+          name: config.name,
+          description: config.description,
+          program_id: selectedProgramId || null,
+          metadata: { builder_config: config }
         });
-      }
 
-      toast.success('Journey created successfully!');
+        // Get existing stage IDs
+        const existingStageIds = new Set((existingJourney.stages || []).map(s => s.id));
+        const currentStageIds = new Set(config.elements.map(e => e.id));
+
+        // Delete removed stages
+        for (const stageId of existingStageIds) {
+          if (!currentStageIds.has(stageId)) {
+            await AcademicJourneyService.deleteJourneyStage(stageId);
+          }
+        }
+
+        // Update or create stages
+        for (let i = 0; i < config.elements.length; i++) {
+          const step = config.elements[i];
+          const stageData = {
+            journey_id: journeyId,
+            name: step.title || `Step ${i + 1}`,
+            description: step.description || step.config?.description || '',
+            stage_type: step.type || step.config?.stage_type || 'custom',
+            order_index: i,
+            is_required: step.config?.is_required !== false,
+            is_parallel: false,
+            status: 'active' as const,
+            timing_config: {
+              stall_threshold_days: step.config?.stall_threshold_days || 7,
+              expected_duration_days: step.config?.expected_duration_days || 3
+            },
+            completion_criteria: step.config?.completion_criteria || {},
+            escalation_rules: step.config?.escalation_rules || {}
+          };
+
+          if (existingStageIds.has(step.id)) {
+            // Update existing stage
+            await AcademicJourneyService.updateJourneyStage(step.id, stageData);
+          } else {
+            // Create new stage
+            await AcademicJourneyService.createJourneyStage(stageData);
+          }
+        }
+
+        toast.success('Journey updated successfully!');
+      } else {
+        // Create new journey
+        const journey = await AcademicJourneyService.createAcademicJourney({
+          name: config.name,
+          description: config.description,
+          program_id: selectedProgramId || null,
+          is_active: true,
+          version: 1,
+          metadata: { builder_config: config }
+        });
+
+        // Create journey stages for each step
+        for (let i = 0; i < config.elements.length; i++) {
+          const step = config.elements[i];
+          await AcademicJourneyService.createJourneyStage({
+            journey_id: journey.id,
+            name: step.title || `Step ${i + 1}`,
+            description: step.description || step.config?.description || '',
+            stage_type: step.type || step.config?.stage_type || 'custom',
+            order_index: i,
+            is_required: step.config?.is_required !== false,
+            is_parallel: false,
+            status: 'active' as const,
+            timing_config: {
+              stall_threshold_days: step.config?.stall_threshold_days || 7,
+              expected_duration_days: step.config?.expected_duration_days || 3
+            },
+            completion_criteria: step.config?.completion_criteria || {},
+            escalation_rules: step.config?.escalation_rules || {}
+          });
+        }
+
+        toast.success('Journey created successfully!');
+      }
+      
       onBack();
     } catch (error) {
       console.error('Error saving journey:', error);
       toast.error('Failed to save journey. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  // Show loading state when editing
+  if (journeyId && journeyLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50/30">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading journey...</p>
+        </div>
+      </div>
+    );
+  }
 
   const categorySteps = getCategorySteps();
   const categories = ['all', ...Object.keys(categorySteps)];
@@ -256,17 +380,22 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" className="gap-2">
-                <TestTube className="h-4 w-4" />
-                Test
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Eye className="h-4 w-4" />
-                Preview
-              </Button>
-              <Button onClick={handleSave} className="gap-2 bg-orange-500 hover:bg-orange-600 text-white">
+              <Select value={selectedProgramId} onValueChange={setSelectedProgramId}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Assign to program" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="no-program">No Program</SelectItem>
+                  {programs?.map(program => (
+                    <SelectItem key={program.id} value={program.id}>
+                      {program.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button onClick={handleSave} disabled={isSaving} className="gap-2 bg-orange-500 hover:bg-orange-600 text-white">
                 <Save className="h-4 w-4" />
-                Save
+                {isSaving ? 'Saving...' : (journeyId ? 'Update' : 'Save')}
               </Button>
             </div>
           </div>
@@ -1208,11 +1337,10 @@ function JourneyBuilderContent({ onBack }: HubSpotJourneyBuilderProps) {
   );
 }
 
-export function HubSpotJourneyBuilder({ onBack }: HubSpotJourneyBuilderProps) {
-  // Force refresh marker: v2.0-hubspot-style
+export function HubSpotJourneyBuilder({ onBack, journeyId }: HubSpotJourneyBuilderProps) {
   return (
     <BuilderProvider>
-      <JourneyBuilderContent onBack={onBack} />
+      <JourneyBuilderContent onBack={onBack} journeyId={journeyId} />
     </BuilderProvider>
   );
 }

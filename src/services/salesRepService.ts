@@ -89,11 +89,11 @@ class SalesRepService {
           if (programData) {
             programId = programData.id;
             
-            // Parse entry requirements
+            // Parse entry requirements - handle both 'name' and 'title' fields
             const rawRequirements = programData.entry_requirements as any[] || [];
             entryRequirements = rawRequirements.map((req: any) => ({
-              id: req.id || req.name,
-              name: req.name,
+              id: req.id || req.name || req.title,
+              name: req.name || req.title,
               type: req.type || 'document',
               minimumGrade: req.minimumGrade,
               minimumScore: req.minimumScore,
@@ -116,7 +116,7 @@ class SalesRepService {
         const pendingDocs: PendingDocument[] = leadDocs
           .filter(doc => doc.admin_status === 'pending' || doc.admin_status === 'under-review')
           .map(doc => {
-            // Find the linked entry requirement
+            // Find the linked entry requirement by entry_requirement_id or requirement_id
             const linkedReq = entryRequirements.find(req => 
               req.id === doc.entry_requirement_id || 
               req.linkedDocumentTemplates?.includes(doc.requirement_id || '')
@@ -128,16 +128,15 @@ class SalesRepService {
           });
 
         // Find missing documents (entry requirements with linked docs that aren't uploaded)
-        const uploadedDocNames = leadDocs.map(doc => doc.document_name?.toLowerCase());
+        const uploadedEntryReqIds = leadDocs.map(doc => doc.entry_requirement_id);
         const uploadedReqIds = leadDocs.map(doc => doc.requirement_id);
         
         const missingDocs = entryRequirements
           .filter(req => req.linkedDocumentTemplates && req.linkedDocumentTemplates.length > 0)
           .filter(req => {
-            // Check if any linked document template has been uploaded
-            const hasUpload = req.linkedDocumentTemplates?.some(templateId => 
-              uploadedReqIds.includes(templateId)
-            );
+            // Check if this entry requirement has been satisfied by an uploaded document
+            const hasUpload = uploadedEntryReqIds.includes(req.id) || 
+              req.linkedDocumentTemplates?.some(templateId => uploadedReqIds.includes(templateId));
             return !hasUpload;
           })
           .map(req => req.name);

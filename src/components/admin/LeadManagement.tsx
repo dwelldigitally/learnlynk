@@ -82,12 +82,11 @@ export function LeadManagement() {
   });
   const [stageStats, setStageStats] = useState([
     { key: 'NEW_INQUIRY', label: 'New Inquiry', count: 0, color: 'bg-sky-400' },
-    { key: 'QUALIFICATION', label: 'Qualification', count: 0, color: 'bg-amber-400' },
-    { key: 'NURTURING', label: 'Nurturing', count: 0, color: 'bg-violet-400' },
-    { key: 'PROPOSAL_SENT', label: 'Proposal Sent', count: 0, color: 'bg-yellow-400' },
-    { key: 'APPLICATION_STARTED', label: 'Application', count: 0, color: 'bg-indigo-400' },
-    { key: 'CONVERTED', label: 'Converted', count: 0, color: 'bg-emerald-400' },
-    { key: 'LOST', label: 'Lost', count: 0, color: 'bg-rose-400' }
+    { key: 'REQUIREMENTS_APPROVED', label: 'Requirements Approved', count: 0, color: 'bg-amber-400' },
+    { key: 'PAYMENT_RECEIVED', label: 'Payment Received', count: 0, color: 'bg-emerald-400' },
+    { key: 'REGISTERED', label: 'Registered', count: 0, color: 'bg-violet-400' },
+    { key: 'ADMITTED', label: 'Admitted', count: 0, color: 'bg-indigo-400' },
+    { key: 'DISMISSED', label: 'Dismissed', count: 0, color: 'bg-rose-400' }
   ]);
   const {
     toast

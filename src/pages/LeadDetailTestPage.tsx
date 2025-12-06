@@ -78,6 +78,21 @@ export default function LeadDetailTestPage() {
   // Calculate current stage index based on lead's journey instance
   const currentJourneyStageIndex = journeyStages.findIndex((s: any) => s.id === leadJourneyInstance?.current_stage_id);
   const effectiveStageIndex = currentJourneyStageIndex >= 0 ? currentJourneyStageIndex : currentStageIndex;
+
+  // Transform journey data for ApplicationTimelineWidget
+  const transformedJourney = programJourney ? {
+    id: programJourney.id,
+    current_stage_name: journeyStages.find((s: any) => s.id === leadJourneyInstance?.current_stage_id)?.name || journeyStages[0]?.name || '',
+    stages: journeyStages.map((stage: any, index: number) => {
+      const isCompleted = index < effectiveStageIndex;
+      return {
+        id: stage.id,
+        stage_name: stage.name,
+        completed: isCompleted,
+        completion_date: isCompleted ? new Date().toISOString() : undefined
+      };
+    })
+  } : null;
   const loadLead = useCallback(async () => {
     if (!leadId) return;
     try {
@@ -797,7 +812,7 @@ export default function LeadDetailTestPage() {
                 </Card>
 
                 {/* Customizable Dashboard Grid */}
-                <CustomizableDashboard lead={lead} journey={programJourney} progress={progress} />
+                <CustomizableDashboard lead={lead} journey={transformedJourney} progress={progress} />
               </TabsContent>
 
               <TabsContent value="comms" className="mt-0">

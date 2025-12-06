@@ -1,181 +1,33 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, AlertCircle, Clock, CheckCircle2, Eye, Upload, Mail, Loader2 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { FileText, AlertCircle, Clock, CheckCircle2, Eye, Mail, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
-import { salesRepService, StudentWithMissingDocuments } from '@/services/salesRepService';
+import { salesRepService, StudentWithMissingDocuments, PendingDocument } from '@/services/salesRepService';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { SalesRepDocumentApprovalModal } from './SalesRepDocumentApprovalModal';
 
 export function DocumentsTrackerTab() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<'all' | 'critical' | 'high' | 'normal'>('all');
+  const [selectedDocument, setSelectedDocument] = useState<{
+    document: PendingDocument;
+    leadInfo: { id: string; name: string; email: string; program: string; campus?: string };
+  } | null>(null);
 
-  // Mock data for demonstration
-  const mockStudents: StudentWithMissingDocuments[] = [
-    {
-      id: '1',
-      master_record_id: 'mr-1',
-      first_name: 'Sarah',
-      last_name: 'Johnson',
-      email: 'sarah.johnson@email.com',
-      program: 'MBA - Business Analytics',
-      application_deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
-      substage: 'documents_submitted',
-      priority: 'critical',
-      missingDocuments: ['Official Transcript', 'Letter of Recommendation'],
-      pendingDocuments: [
-        {
-          id: 'doc-1',
-          lead_id: 'mr-1',
-          document_name: 'Resume',
-          document_type: 'pdf',
-          status: 'uploaded',
-          admin_status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          user_id: 'user-1'
-        }
-      ],
-      daysUntilDeadline: 5
-    },
-    {
-      id: '2',
-      master_record_id: 'mr-2',
-      first_name: 'Michael',
-      last_name: 'Chen',
-      email: 'michael.chen@email.com',
-      program: 'Executive MBA',
-      application_deadline: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString(),
-      substage: 'application_started',
-      priority: 'high',
-      missingDocuments: ['GMAT Scores', 'Official Transcript', 'Personal Statement'],
-      pendingDocuments: [],
-      daysUntilDeadline: 12
-    },
-    {
-      id: '3',
-      master_record_id: 'mr-3',
-      first_name: 'Emily',
-      last_name: 'Rodriguez',
-      email: 'emily.rodriguez@email.com',
-      program: 'Digital Marketing Certificate',
-      application_deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-      substage: 'documents_submitted',
-      priority: 'critical',
-      missingDocuments: ['Portfolio'],
-      pendingDocuments: [
-        {
-          id: 'doc-2',
-          lead_id: 'mr-3',
-          document_name: 'Resume',
-          document_type: 'pdf',
-          status: 'uploaded',
-          admin_status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          user_id: 'user-1'
-        },
-        {
-          id: 'doc-3',
-          lead_id: 'mr-3',
-          document_name: 'Cover Letter',
-          document_type: 'pdf',
-          status: 'uploaded',
-          admin_status: 'under-review',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          user_id: 'user-1'
-        }
-      ],
-      daysUntilDeadline: 3
-    },
-    {
-      id: '4',
-      master_record_id: 'mr-4',
-      first_name: 'David',
-      last_name: 'Kim',
-      email: 'david.kim@email.com',
-      program: 'Data Science Certificate',
-      application_deadline: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString(),
-      substage: 'application_started',
-      priority: 'normal',
-      missingDocuments: ['Academic Transcript'],
-      pendingDocuments: [
-        {
-          id: 'doc-4',
-          lead_id: 'mr-4',
-          document_name: 'Resume',
-          document_type: 'pdf',
-          status: 'uploaded',
-          admin_status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          user_id: 'user-1'
-        }
-      ],
-      daysUntilDeadline: 20
-    },
-    {
-      id: '5',
-      master_record_id: 'mr-5',
-      first_name: 'Jessica',
-      last_name: 'Williams',
-      email: 'jessica.williams@email.com',
-      program: 'Finance MBA',
-      application_deadline: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
-      substage: 'under_review',
-      priority: 'normal',
-      missingDocuments: [],
-      pendingDocuments: [
-        {
-          id: 'doc-5',
-          lead_id: 'mr-5',
-          document_name: 'Letter of Recommendation',
-          document_type: 'pdf',
-          status: 'uploaded',
-          admin_status: 'pending',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          user_id: 'user-1'
-        }
-      ],
-      daysUntilDeadline: 25
-    },
-    {
-      id: '6',
-      master_record_id: 'mr-6',
-      first_name: 'Robert',
-      last_name: 'Taylor',
-      email: 'robert.taylor@email.com',
-      program: 'Project Management Certificate',
-      application_deadline: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
-      substage: 'application_started',
-      priority: 'high',
-      missingDocuments: ['Resume', 'Work Experience Letter', 'ID Proof'],
-      pendingDocuments: [],
-      daysUntilDeadline: 15
-    }
-  ];
-
-  const { data: students = mockStudents, isLoading, refetch } = useQuery({
+  const { data: students = [], isLoading, refetch } = useQuery({
     queryKey: ['sales-rep-documents'],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return mockStudents; // Return mock data if not authenticated
-      try {
-        const result = await salesRepService.getAssignedStudentsWithMissingDocuments(user.id);
-        return result.length > 0 ? result : mockStudents; // Use mock data if no real data
-      } catch (error) {
-        console.error('Error fetching documents, using mock data:', error);
-        return mockStudents;
-      }
+      if (!user) return [];
+      return salesRepService.getAssignedStudentsWithMissingDocuments(user.id);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   const filteredStudents = students.filter(student => 
@@ -198,6 +50,23 @@ export function DocumentsTrackerTab() {
     } catch (error) {
       toast.error('Failed to send reminder');
     }
+  };
+
+  const handleDocumentClick = (doc: PendingDocument, student: StudentWithMissingDocuments) => {
+    setSelectedDocument({
+      document: doc,
+      leadInfo: {
+        id: student.id,
+        name: `${student.first_name} ${student.last_name}`,
+        email: student.email,
+        program: student.program,
+        campus: student.campus
+      }
+    });
+  };
+
+  const handleDocumentApproved = () => {
+    refetch();
   };
 
   const getPriorityConfig = (priority: 'critical' | 'high' | 'normal') => {
@@ -244,7 +113,7 @@ export function DocumentsTrackerTab() {
         <div className="p-3 rounded-lg bg-card border border-border">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground">Total Students</p>
+              <p className="text-sm text-muted-foreground">Leads with Documents</p>
               <p className="text-2xl font-bold text-foreground">{students.length}</p>
             </div>
             <FileText className="w-8 h-8 text-primary" />
@@ -285,13 +154,13 @@ export function DocumentsTrackerTab() {
       {/* Students List */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {filteredStudents.length === 0 ? (
-          <div className="text-center py-12 bg-card rounded-lg border border-border">
+          <div className="col-span-full text-center py-12 bg-card rounded-lg border border-border">
             <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
             <h3 className="text-lg font-semibold text-foreground mb-2">All Clear!</h3>
             <p className="text-sm text-muted-foreground">
               {activeFilter === 'all' 
-                ? 'No students have missing or pending documents.' 
-                : `No students in ${activeFilter} priority.`}
+                ? 'No leads have missing or pending documents.' 
+                : `No leads in ${activeFilter} priority.`}
             </p>
           </div>
         ) : (
@@ -303,10 +172,9 @@ export function DocumentsTrackerTab() {
               <div
                 key={student.id}
                 className={cn(
-                  "p-4 rounded-lg border bg-card transition-all hover:shadow-md cursor-pointer flex flex-col h-full",
+                  "p-4 rounded-lg border bg-card transition-all hover:shadow-md flex flex-col h-full",
                   priorityConfig.borderColor
                 )}
-                onClick={() => navigate(`/admin/leads/detail/${student.master_record_id}`)}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-4">
@@ -354,7 +222,7 @@ export function DocumentsTrackerTab() {
                   </div>
                 )}
 
-                {/* Pending Approvals */}
+                {/* Pending Approvals - Clickable */}
                 {student.pendingDocuments.length > 0 && (
                   <div className="mb-3">
                     <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1">
@@ -363,7 +231,15 @@ export function DocumentsTrackerTab() {
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {student.pendingDocuments.map((doc) => (
-                        <Badge key={doc.id} variant="outline" className="text-xs border-orange-300 text-orange-600">
+                        <Badge 
+                          key={doc.id} 
+                          variant="outline" 
+                          className="text-xs border-orange-300 text-orange-600 cursor-pointer hover:bg-orange-50 transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDocumentClick(doc, student);
+                          }}
+                        >
                           {doc.document_name}
                         </Badge>
                       ))}
@@ -385,24 +261,35 @@ export function DocumentsTrackerTab() {
                     <Eye className="w-3 h-3" />
                     View Profile
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex items-center gap-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSendReminder(student);
-                    }}
-                  >
-                    <Mail className="w-3 h-3" />
-                    Send Reminder
-                  </Button>
+                  {student.missingDocuments.length > 0 && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex items-center gap-1"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSendReminder(student);
+                      }}
+                    >
+                      <Mail className="w-3 h-3" />
+                      Send Reminder
+                    </Button>
+                  )}
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      {/* Document Approval Modal */}
+      <SalesRepDocumentApprovalModal
+        isOpen={!!selectedDocument}
+        onClose={() => setSelectedDocument(null)}
+        document={selectedDocument?.document || null}
+        leadInfo={selectedDocument?.leadInfo || { id: '', name: '', email: '', program: '' }}
+        onApproved={handleDocumentApproved}
+      />
     </div>
   );
 }

@@ -9417,6 +9417,92 @@ export type Database = {
         }
         Relationships: []
       }
+      team_goals: {
+        Row: {
+          assignee_ids: string[] | null
+          assignee_names: string[] | null
+          created_at: string
+          created_by: string | null
+          current_value: number
+          description: string | null
+          end_date: string
+          goal_name: string
+          goal_period: string
+          goal_type: string
+          id: string
+          is_cascading: boolean
+          metadata: Json | null
+          metric_type: string
+          parent_goal_id: string | null
+          priority: string
+          role_filter: string | null
+          start_date: string
+          status: string
+          target_value: number
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assignee_ids?: string[] | null
+          assignee_names?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          current_value?: number
+          description?: string | null
+          end_date: string
+          goal_name: string
+          goal_period: string
+          goal_type: string
+          id?: string
+          is_cascading?: boolean
+          metadata?: Json | null
+          metric_type: string
+          parent_goal_id?: string | null
+          priority?: string
+          role_filter?: string | null
+          start_date: string
+          status?: string
+          target_value: number
+          unit?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assignee_ids?: string[] | null
+          assignee_names?: string[] | null
+          created_at?: string
+          created_by?: string | null
+          current_value?: number
+          description?: string | null
+          end_date?: string
+          goal_name?: string
+          goal_period?: string
+          goal_type?: string
+          id?: string
+          is_cascading?: boolean
+          metadata?: Json | null
+          metric_type?: string
+          parent_goal_id?: string | null
+          priority?: string
+          role_filter?: string | null
+          start_date?: string
+          status?: string
+          target_value?: number
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_goals_parent_goal_id_fkey"
+            columns: ["parent_goal_id"]
+            isOneToOne: false
+            referencedRelation: "team_goals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       team_hierarchy: {
         Row: {
           created_at: string | null

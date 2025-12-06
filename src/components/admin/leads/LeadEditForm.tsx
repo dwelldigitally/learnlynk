@@ -16,6 +16,7 @@ import { usePrograms } from '@/hooks/usePrograms';
 import { useIntakesByProgramName } from '@/hooks/useIntakes';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ProgramChangeConfirmDialog } from './ProgramChangeConfirmDialog';
 
 interface LeadEditFormProps {
   lead: Lead;
@@ -29,6 +30,10 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const [selectedProgram, setSelectedProgram] = useState<string>(lead.program_interest?.[0] || '');
   const [selectedIntakeId, setSelectedIntakeId] = useState<string>((lead as any).preferred_intake_id || '');
   const [selectedTermId, setSelectedTermId] = useState<string>((lead as any).academic_term_id || '');
+  
+  // Program change confirmation
+  const [pendingProgram, setPendingProgram] = useState<string | null>(null);
+  const [showProgramConfirm, setShowProgramConfirm] = useState(false);
   
   // Fetch programs, intakes, and academic terms from database
   const { data: programs = [], isLoading: programsLoading } = usePrograms();
@@ -64,11 +69,29 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
     }
   }, [selectedProgram, lead.program_interest]);
 
-  // Handle program selection
+  // Handle program selection with confirmation
   const handleProgramChange = (program: string) => {
-    setSelectedProgram(program);
-    setSelectedIntakeId(''); // Reset intake date when program changes
-    handleInputChange('program_interest', program);
+    const currentProgram = lead.program_interest?.[0] || '';
+    if (currentProgram && currentProgram !== program) {
+      // Show confirmation dialog
+      setPendingProgram(program);
+      setShowProgramConfirm(true);
+    } else {
+      // No existing program or same program, just set it
+      setSelectedProgram(program);
+      setSelectedIntakeId('');
+      handleInputChange('program_interest', program);
+    }
+  };
+
+  const confirmProgramChange = () => {
+    if (pendingProgram) {
+      setSelectedProgram(pendingProgram);
+      setSelectedIntakeId('');
+      handleInputChange('program_interest', pendingProgram);
+      setPendingProgram(null);
+    }
+    setShowProgramConfirm(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -530,6 +553,15 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Program Change Confirmation Dialog */}
+      <ProgramChangeConfirmDialog
+        open={showProgramConfirm}
+        onOpenChange={setShowProgramConfirm}
+        oldProgram={lead.program_interest?.[0] || ''}
+        newProgram={pendingProgram || ''}
+        onConfirm={confirmProgramChange}
+      />
     </form>
   );
 }

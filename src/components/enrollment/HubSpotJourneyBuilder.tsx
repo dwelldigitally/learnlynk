@@ -32,6 +32,7 @@ import { AcademicJourneyService, useAcademicJourney } from '@/services/academicJ
 import { usePrograms } from '@/services/programService';
 import { toast } from 'sonner';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
+import { TransitionTriggerConfig } from './TransitionTriggerConfig';
 
 interface HubSpotJourneyBuilderProps {
   onBack: () => void;
@@ -1147,6 +1148,18 @@ function JourneyBuilderContent({ onBack, journeyId }: HubSpotJourneyBuilderProps
                 </div>
 
                 <Separator />
+
+                {/* Auto-Transition Triggers - only show for saved stages */}
+                {journeyId && selectedStep.id && !selectedStep.id.startsWith('step_') && (
+                  <>
+                    <TransitionTriggerConfig
+                      stageId={selectedStep.id}
+                      stageName={selectedStep.title}
+                      journeyId={journeyId}
+                    />
+                    <Separator />
+                  </>
+                )}
 
                 {/* Step Behavior */}
                 <div className="space-y-4">

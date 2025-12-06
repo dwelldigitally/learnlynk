@@ -1,6 +1,21 @@
 import { supabase } from '@/integrations/supabase/client';
-import { documentService, LeadDocument } from './documentService';
+import { LeadDocument } from './documentService';
 import { PaymentService, Payment } from './paymentService';
+
+export interface EntryRequirementThreshold {
+  id: string;
+  name: string;
+  type: string;
+  minimumGrade?: string;
+  minimumScore?: number;
+  yearsRequired?: number;
+  alternatives?: string;
+  linkedDocumentTemplates?: string[];
+}
+
+export interface PendingDocument extends LeadDocument {
+  entryRequirement?: EntryRequirementThreshold;
+}
 
 export interface StudentWithMissingDocuments {
   id: string;
@@ -9,12 +24,15 @@ export interface StudentWithMissingDocuments {
   last_name: string;
   email: string;
   program: string;
+  programId?: string;
+  campus?: string;
   application_deadline?: string;
   substage: string;
   priority: 'critical' | 'high' | 'normal';
   missingDocuments: string[];
-  pendingDocuments: LeadDocument[];
+  pendingDocuments: PendingDocument[];
   daysUntilDeadline?: number;
+  entryRequirements?: EntryRequirementThreshold[];
 }
 
 export interface StudentPaymentPending {
@@ -37,95 +55,132 @@ export interface RecentPayment extends Payment {
 
 class SalesRepService {
   /**
-   * Get students with missing documents assigned to current sales rep
+   * Get leads with document status assigned to current sales rep
+   * Uses leads table instead of applicants
    */
   async getAssignedStudentsWithMissingDocuments(userId: string): Promise<StudentWithMissingDocuments[]> {
     try {
-      // Get applicants assigned to this user
-      const { data: applicants, error: applicantsError } = await supabase
-        .from('applicants')
-        .select(`
-          id,
-          master_record_id,
-          program,
-          application_deadline,
-          substage,
-          assigned_to,
-          decision_date,
-          master_records (
-            id,
-            first_name,
-            last_name,
-            email
-          )
-        `)
+      // Get leads assigned to this user
+      const { data: leads, error: leadsError } = await supabase
+        .from('leads')
+        .select('*')
         .eq('assigned_to', userId)
-        .in('substage', ['application_started', 'documents_submitted', 'under_review']);
+        .in('status', ['new', 'contacted', 'qualified', 'nurturing']);
 
-      if (applicantsError) throw applicantsError;
-      if (!applicants || applicants.length === 0) return [];
+      if (leadsError) throw leadsError;
+      if (!leads || leads.length === 0) return [];
 
       const studentsWithMissing: StudentWithMissingDocuments[] = [];
 
-      for (const applicant of applicants) {
-        const masterRecord = applicant.master_records;
-        if (!masterRecord) continue;
+      for (const lead of leads) {
+        // Get program info for entry requirements
+        const programName = lead.program_interest?.[0];
+        let entryRequirements: EntryRequirementThreshold[] = [];
+        let programId: string | undefined;
+        let campus: string | undefined;
 
-        // Get document requirements for the program
-        const { data: programData, error: programError } = await supabase
-          .from('programs')
-          .select('document_requirements')
-          .eq('name', applicant.program)
-          .eq('user_id', userId)
-          .maybeSingle();
+        if (programName) {
+          const { data: programData } = await supabase
+            .from('programs')
+            .select('id, entry_requirements')
+            .eq('name', programName)
+            .maybeSingle();
 
-        if (programError || !programData) continue;
+          if (programData) {
+            programId = programData.id;
+            
+            // Parse entry requirements
+            const rawRequirements = programData.entry_requirements as any[] || [];
+            entryRequirements = rawRequirements.map((req: any) => ({
+              id: req.id || req.name,
+              name: req.name,
+              type: req.type || 'document',
+              minimumGrade: req.minimumGrade,
+              minimumScore: req.minimumScore,
+              yearsRequired: req.yearsRequired,
+              alternatives: req.alternatives,
+              linkedDocumentTemplates: req.linkedDocumentTemplates || []
+            }));
+          }
+        }
 
-        const requirements = (programData.document_requirements || []) as any[];
-        const requiredDocs = requirements
-          .filter(req => req.required)
+        // Get documents for this lead
+        const { data: documents } = await supabase
+          .from('lead_documents')
+          .select('*')
+          .eq('lead_id', lead.id);
+
+        const leadDocs = documents || [];
+        
+        // Find pending documents with their linked entry requirements
+        const pendingDocs: PendingDocument[] = leadDocs
+          .filter(doc => doc.admin_status === 'pending' || doc.admin_status === 'under-review')
+          .map(doc => {
+            // Find the linked entry requirement
+            const linkedReq = entryRequirements.find(req => 
+              req.id === doc.entry_requirement_id || 
+              req.linkedDocumentTemplates?.includes(doc.requirement_id || '')
+            );
+            return {
+              ...doc,
+              entryRequirement: linkedReq
+            };
+          });
+
+        // Find missing documents (entry requirements with linked docs that aren't uploaded)
+        const uploadedDocNames = leadDocs.map(doc => doc.document_name?.toLowerCase());
+        const uploadedReqIds = leadDocs.map(doc => doc.requirement_id);
+        
+        const missingDocs = entryRequirements
+          .filter(req => req.linkedDocumentTemplates && req.linkedDocumentTemplates.length > 0)
+          .filter(req => {
+            // Check if any linked document template has been uploaded
+            const hasUpload = req.linkedDocumentTemplates?.some(templateId => 
+              uploadedReqIds.includes(templateId)
+            );
+            return !hasUpload;
+          })
           .map(req => req.name);
-
-        // Get submitted documents
-        const submittedDocs = await documentService.getLeadDocuments(masterRecord.id);
-        const submittedDocNames = submittedDocs.map(doc => doc.document_name);
-        const pendingDocs = submittedDocs.filter(doc => 
-          doc.admin_status === 'pending' || doc.admin_status === 'under-review'
-        );
-
-        // Find missing documents
-        const missingDocs = requiredDocs.filter(
-          docName => !submittedDocNames.includes(docName)
-        );
 
         // Only include if there are missing or pending documents
         if (missingDocs.length > 0 || pendingDocs.length > 0) {
-          // Calculate priority based on deadline
+          // Calculate priority based on intake deadline
           let priority: 'critical' | 'high' | 'normal' = 'normal';
           let daysUntilDeadline: number | undefined;
 
-          if (applicant.application_deadline) {
-            const deadline = new Date(applicant.application_deadline);
-            const now = new Date();
-            daysUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-            
-            if (daysUntilDeadline <= 7) priority = 'critical';
-            else if (daysUntilDeadline <= 14) priority = 'high';
+          if (lead.preferred_intake_id) {
+            const { data: intake } = await supabase
+              .from('intakes')
+              .select('application_deadline, start_date')
+              .eq('id', lead.preferred_intake_id)
+              .maybeSingle();
+
+            if (intake?.application_deadline) {
+              const deadline = new Date(intake.application_deadline);
+              const now = new Date();
+              daysUntilDeadline = Math.ceil((deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+              
+              if (daysUntilDeadline <= 7) priority = 'critical';
+              else if (daysUntilDeadline <= 14) priority = 'high';
+            }
           }
 
           studentsWithMissing.push({
-            id: applicant.id,
-            master_record_id: masterRecord.id,
-            first_name: masterRecord.first_name,
-            last_name: masterRecord.last_name,
-            email: masterRecord.email,
-            program: applicant.program,
-            application_deadline: applicant.application_deadline,
-            substage: applicant.substage,
+            id: lead.id,
+            master_record_id: lead.id, // For leads, id is the master_record_id
+            first_name: lead.first_name,
+            last_name: lead.last_name,
+            email: lead.email,
+            program: programName || 'No program',
+            programId,
+            campus,
+            application_deadline: undefined,
+            substage: lead.status,
             priority,
             missingDocuments: missingDocs,
             pendingDocuments: pendingDocs,
-            daysUntilDeadline
+            daysUntilDeadline,
+            entryRequirements
           });
         }
       }
@@ -137,7 +192,7 @@ class SalesRepService {
       });
 
     } catch (error) {
-      console.error('Error fetching students with missing documents:', error);
+      console.error('Error fetching leads with document status:', error);
       throw error;
     }
   }

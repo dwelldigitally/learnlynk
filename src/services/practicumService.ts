@@ -3,7 +3,6 @@ import { supabaseWrapper } from "./supabaseWrapper";
 import type {
   PracticumSite,
   PracticumProgram,
-  PracticumJourney,
   PracticumAssignment,
   PracticumRecord,
   PracticumEvaluation,
@@ -11,7 +10,6 @@ import type {
   PracticumUserRole,
   PracticumSiteInsert,
   PracticumProgramInsert,
-  PracticumJourneyInsert,
   PracticumAssignmentInsert,
   PracticumRecordInsert,
   PracticumOverview,
@@ -89,35 +87,6 @@ export class PracticumService {
       return data || [];
     });
   }
-
-  // Journey Management
-  static async createJourney(journeyData: PracticumJourneyInsert): Promise<PracticumJourney> {
-    return supabaseWrapper.withRetry(async () => {
-      const { data, error } = await supabase
-        .from('practicum_journeys')
-        .insert(journeyData)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    });
-  }
-
-  static async getJourneys(userId: string): Promise<PracticumJourney[]> {
-    return supabaseWrapper.withRetry(async () => {
-      const { data, error } = await supabase
-        .from('practicum_journeys')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('is_active', true)
-        .order('journey_name');
-      
-      if (error) throw error;
-      return data || [];
-    });
-  }
-
   // Assignment Management
   static async createAssignment(assignmentData: PracticumAssignmentInsert): Promise<PracticumAssignment> {
     return supabaseWrapper.withRetry(async () => {

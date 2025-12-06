@@ -28,7 +28,7 @@ import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 import { CampaignTemplate } from '@/config/campaignTemplates';
 import { BuilderType, UniversalElement } from '@/types/universalBuilder';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
-import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes, practicumElementTypes } from '@/config/elementTypes';
+import { formElementTypes, workflowElementTypes, campaignElementTypes, journeyElementTypes } from '@/config/elementTypes';
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable';
 import { 
   Play, 
@@ -136,8 +136,6 @@ function UniversalBuilderContent({
         return campaignElementTypes;
       case 'journey':
         return journeyElementTypes;
-      case 'practicum':
-        return practicumElementTypes;
       default:
         return [];
     }
@@ -229,8 +227,6 @@ function UniversalBuilderContent({
         return 'Campaign Builder';
       case 'journey':
         return 'Journey Builder';
-      case 'practicum':
-        return 'Practicum Journey Builder';
       default:
         return 'Universal Builder';
     }

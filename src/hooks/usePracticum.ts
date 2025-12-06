@@ -3,13 +3,11 @@ import { PracticumService } from '@/services/practicumService';
 import type {
   PracticumSite,
   PracticumProgram,
-  PracticumJourney,
   PracticumAssignment,
   PracticumRecord,
   PracticumUserRole,
   PracticumSiteInsert,
   PracticumProgramInsert,
-  PracticumJourneyInsert,
   PracticumAssignmentInsert,
   PracticumRecordInsert,
   PracticumFilters
@@ -96,32 +94,6 @@ export function usePracticumProgramMutations() {
   return { createProgram };
 }
 
-// Journey Hooks
-export function usePracticumJourneys(userId: string) {
-  return useQuery({
-    queryKey: ['practicum-journeys', userId],
-    queryFn: () => PracticumService.getJourneys(userId),
-    enabled: !!userId
-  });
-}
-
-export function usePracticumJourneyMutations() {
-  const queryClient = useQueryClient();
-
-  const createJourney = useMutation({
-    mutationFn: (journeyData: PracticumJourneyInsert) => PracticumService.createJourney(journeyData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['practicum-journeys'] });
-      toast.success('Practicum journey created successfully');
-    },
-    onError: (error) => {
-      toast.error('Failed to create practicum journey');
-      console.error('Error creating practicum journey:', error);
-    }
-  });
-
-  return { createJourney };
-}
 
 // Assignment Hooks
 export function usePracticumAssignments(userId: string, filters?: PracticumFilters) {

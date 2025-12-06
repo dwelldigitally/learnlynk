@@ -1832,8 +1832,6 @@ export function getElementTypesForBuilder(builderType: string): ElementTypeConfi
       return campaignElementTypes;
     case 'journey':
       return journeyElementTypes;
-    case 'practicum':
-      return practicumElementTypes;
     default:
       return [];
   }

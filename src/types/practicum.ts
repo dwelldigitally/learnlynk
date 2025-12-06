@@ -5,7 +5,6 @@ import type { Database } from "@/integrations/supabase/types";
 // Direct database table types
 export type PracticumSite = Database['public']['Tables']['practicum_sites']['Row'];
 export type PracticumProgram = Database['public']['Tables']['practicum_programs']['Row'];
-export type PracticumJourney = Database['public']['Tables']['practicum_journeys']['Row'];
 export type PracticumAssignment = Database['public']['Tables']['practicum_assignments']['Row'];
 export type PracticumRecord = Database['public']['Tables']['practicum_records']['Row'];
 export type PracticumEvaluation = Database['public']['Tables']['practicum_evaluations']['Row'];
@@ -15,25 +14,11 @@ export type PracticumUserRole = Database['public']['Tables']['practicum_user_rol
 // Insert types (without auto-generated fields)
 export type PracticumSiteInsert = Database['public']['Tables']['practicum_sites']['Insert'];
 export type PracticumProgramInsert = Database['public']['Tables']['practicum_programs']['Insert'];
-export type PracticumJourneyInsert = Database['public']['Tables']['practicum_journeys']['Insert'];
 export type PracticumAssignmentInsert = Database['public']['Tables']['practicum_assignments']['Insert'];
 export type PracticumRecordInsert = Database['public']['Tables']['practicum_records']['Insert'];
 export type PracticumEvaluationInsert = Database['public']['Tables']['practicum_evaluations']['Insert'];
 export type PracticumCompetencyInsert = Database['public']['Tables']['practicum_competencies']['Insert'];
 export type PracticumUserRoleInsert = Database['public']['Tables']['practicum_user_roles']['Insert'];
-
-// Custom business logic types
-export interface PracticumJourneyStep {
-  [key: string]: any; // Make it compatible with Json type
-  id: string;
-  name: string;
-  description: string;
-  type: 'agreement' | 'attendance' | 'competency' | 'journal' | 'evaluation' | 'document_upload';
-  required: boolean;
-  approvers: string[];
-  order_index: number;
-  configuration: Record<string, any>;
-}
 
 // Dashboard overview types
 export interface PracticumOverview {

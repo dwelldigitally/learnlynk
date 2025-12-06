@@ -15,12 +15,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
 import { CompactLeadScore } from '@/components/admin/leads/CompactLeadScore';
-import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
 import { AILeadSummary } from '@/components/admin/leads/AILeadSummary';
 import { CallHistorySection } from '@/components/admin/leads/CallHistorySection';
 import { JourneyBlockerAnalysis } from '@/components/admin/leads/JourneyBlockerAnalysis';
 import { AppointmentBookingButton } from '@/components/admin/leads/AppointmentBookingButton';
-import { AdvisorMatchDialog } from '@/components/admin/leads/AdvisorMatchDialog';
+import { AdvisorReassignmentDialog } from '@/components/admin/leads/AdvisorReassignmentDialog';
+import { SendMessageDialog } from '@/components/admin/leads/SendMessageDialog';
 import { NotesSystemPanel } from '@/components/admin/leads/NotesSystemPanel';
 import { DocumentWorkflowPanel } from '@/components/admin/leads/DocumentWorkflowPanel';
 import { EmailCommunicationPanel } from '@/components/admin/leads/EmailCommunicationPanel';
@@ -53,7 +53,8 @@ export default function LeadDetailTestPage() {
   const [activeTab, setActiveTab] = useState('summary');
   const [showDemoData, setShowDemoData] = useState(false);
   const [executingRecommendations, setExecutingRecommendations] = useState<Set<number>>(new Set());
-  const [advisorMatchOpen, setAdvisorMatchOpen] = useState(false);
+  const [advisorReassignOpen, setAdvisorReassignOpen] = useState(false);
+  const [sendMessageOpen, setSendMessageOpen] = useState(false);
   const [timelineFilter, setTimelineFilter] = useState('all');
   const [isEditing, setIsEditing] = useState(false);
   const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
@@ -515,9 +516,6 @@ export default function LeadDetailTestPage() {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Leads
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowDemoData(!showDemoData)} className={showDemoData ? "bg-green-50 hover:bg-green-100 text-green-700 border-green-200" : "bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200"}>
-              {showDemoData ? '📊 Clear Demo Data' : '🎯 Fill Demo Data'}
-            </Button>
           </div>
           
           <div className="flex items-center gap-3">
@@ -525,8 +523,13 @@ export default function LeadDetailTestPage() {
               <Edit className="h-4 w-4 mr-2" />
               Edit Lead
             </Button>
-            <AppointmentBookingButton leadId={leadId || ''} />
-            <Button size="sm">
+            <AppointmentBookingButton 
+              leadId={leadId || ''} 
+              leadName={`${lead.first_name} ${lead.last_name}`}
+              leadEmail={lead.email}
+              leadPhone={lead.phone}
+            />
+            <Button size="sm" onClick={() => setSendMessageOpen(true)}>
               <Send className="h-4 w-4 mr-2" />
               Send Message
             </Button>
@@ -577,7 +580,7 @@ export default function LeadDetailTestPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />
-                    <Button variant="link" className="p-0 h-auto text-sm font-normal underline hover:no-underline" onClick={() => setAdvisorMatchOpen(true)}>
+                    <Button variant="link" className="p-0 h-auto text-sm font-normal underline hover:no-underline" onClick={() => setAdvisorReassignOpen(true)}>
                       {advisorName || 'Not Assigned'}
                     </Button>
                   </div>
@@ -673,33 +676,6 @@ export default function LeadDetailTestPage() {
                    </div>
                  </div>
 
-                {/* Tags & AI Indicator */}
-                <div className="flex items-center justify-between mt-3">
-                  <div className="flex gap-2">
-                    {showDemoData ? <>
-                        <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">
-                          🔥 High Priority
-                        </Badge>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                          📅 Info Session Attendee
-                        </Badge>
-                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
-                          📄 Incomplete Docs
-                        </Badge>
-                      </> : <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200">
-                        No tags assigned
-                      </Badge>}
-                  </div>
-                  
-                  {/* AgenticAI Indicator */}
-                  <AgenticAIIndicator isAIManaged={showDemoData} aiStatus={showDemoData ? 'active' : undefined} lastAIAction={showDemoData ? 'Sent follow-up email 2 hours ago' : undefined} nextAIAction={showDemoData ? 'Schedule call reminder in 4 hours' : undefined} onHumanTakeover={() => {
-                    toast({
-                      title: 'Human Takeover Initiated',
-                      description: 'AI management has been paused. You now have full control.',
-                      variant: 'default'
-                    });
-                  }} />
-                </div>
               </div>
             </div>
           </div>
@@ -888,8 +864,26 @@ export default function LeadDetailTestPage() {
         </div>
       </div>
 
-      {/* Advisor Match Dialog */}
-      <AdvisorMatchDialog open={advisorMatchOpen} onOpenChange={setAdvisorMatchOpen} advisorName="Sarah Johnson" lead={lead || {} as Lead} />
+      {/* Advisor Reassignment Dialog */}
+      <AdvisorReassignmentDialog 
+        open={advisorReassignOpen} 
+        onOpenChange={setAdvisorReassignOpen} 
+        leadId={leadId || ''}
+        currentAdvisorId={lead?.assigned_to}
+        currentAdvisorName={advisorName || undefined}
+        onReassigned={loadLead}
+      />
+
+      {/* Send Message Dialog */}
+      <SendMessageDialog
+        open={sendMessageOpen}
+        onOpenChange={setSendMessageOpen}
+        leadId={leadId || ''}
+        leadName={`${lead?.first_name || ''} ${lead?.last_name || ''}`}
+        leadEmail={lead?.email}
+        leadPhone={lead?.phone}
+        onMessageSent={() => setTimelineRefreshTrigger(prev => prev + 1)}
+      />
     </div>
     </ModernAdminLayout>
   );

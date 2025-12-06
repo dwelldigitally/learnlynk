@@ -1,126 +1,132 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, User, Video, MapPin } from 'lucide-react';
+import { Calendar, Clock, User, Video, MapPin, Phone, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface AppointmentSlot {
-  id: string;
-  date: string;
-  time: string;
-  duration: number;
-  type: 'info_session' | 'consultation' | 'interview' | 'tour';
-  advisor: string;
-  location: 'virtual' | 'campus' | 'phone';
-  available: boolean;
-}
+import { supabase } from '@/integrations/supabase/client';
+import { format, addDays, setHours, setMinutes } from 'date-fns';
 
 interface AppointmentBookingButtonProps {
   leadId: string;
+  leadName?: string;
+  leadEmail?: string;
+  leadPhone?: string;
   className?: string;
 }
 
-export function AppointmentBookingButton({ leadId, className }: AppointmentBookingButtonProps) {
+export function AppointmentBookingButton({ 
+  leadId, 
+  leadName,
+  leadEmail,
+  leadPhone,
+  className 
+}: AppointmentBookingButtonProps) {
   const { toast } = useToast();
-  const [selectedSlot, setSelectedSlot] = useState<AppointmentSlot | null>(null);
   const [isBooking, setIsBooking] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  
+  // Form state
+  const [selectedDate, setSelectedDate] = useState<string>('');
+  const [selectedTime, setSelectedTime] = useState<string>('');
+  const [meetingType, setMeetingType] = useState<string>('consultation');
+  const [locationType, setLocationType] = useState<string>('virtual');
+  const [title, setTitle] = useState('');
 
-  // Demo appointment slots
-  const availableSlots: AppointmentSlot[] = [
-    {
-      id: '1',
-      date: '2024-01-24',
-      time: '10:00 AM',
-      duration: 30,
-      type: 'consultation',
-      advisor: 'Sarah Johnson',
-      location: 'virtual',
-      available: true
-    },
-    {
-      id: '2',
-      date: '2024-01-24',
-      time: '2:00 PM',
-      duration: 60,
-      type: 'info_session',
-      advisor: 'Mike Chen',
-      location: 'campus',
-      available: true
-    },
-    {
-      id: '3',
-      date: '2024-01-25',
-      time: '11:00 AM',
-      duration: 45,
-      type: 'tour',
-      advisor: 'Lisa Park',
-      location: 'campus',
-      available: true
-    }
-  ];
+  // Generate next 14 days for date selection
+  const dateOptions = Array.from({ length: 14 }, (_, i) => {
+    const date = addDays(new Date(), i + 1);
+    return {
+      value: format(date, 'yyyy-MM-dd'),
+      label: format(date, 'EEEE, MMM d')
+    };
+  });
 
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case 'consultation':
-        return <User className="h-4 w-4" />;
-      case 'info_session':
-        return <Calendar className="h-4 w-4" />;
-      case 'tour':
-        return <MapPin className="h-4 w-4" />;
-      default:
-        return <Calendar className="h-4 w-4" />;
+  // Generate time slots (9 AM - 5 PM, 30-min increments)
+  const timeSlots = [];
+  for (let hour = 9; hour < 17; hour++) {
+    for (let min = 0; min < 60; min += 30) {
+      const time = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+      const label = format(setMinutes(setHours(new Date(), hour), min), 'h:mm a');
+      timeSlots.push({ value: time, label });
     }
-  };
+  }
 
   const getLocationIcon = (location: string) => {
     switch (location) {
-      case 'virtual':
-        return <Video className="h-4 w-4" />;
-      case 'campus':
-        return <MapPin className="h-4 w-4" />;
-      case 'phone':
-        return <Calendar className="h-4 w-4" />;
-      default:
-        return <Calendar className="h-4 w-4" />;
+      case 'virtual': return <Video className="h-4 w-4" />;
+      case 'campus': return <MapPin className="h-4 w-4" />;
+      case 'phone': return <Phone className="h-4 w-4" />;
+      default: return <Calendar className="h-4 w-4" />;
     }
   };
 
-  const getTypeBadge = (type: string) => {
-    const variants = {
-      consultation: 'default',
-      info_session: 'secondary',
-      interview: 'destructive',
-      tour: 'outline'
-    } as const;
-    
-    return (
-      <Badge variant={variants[type as keyof typeof variants] || 'outline'}>
-        {type.replace('_', ' ')}
-      </Badge>
-    );
+  const resetForm = () => {
+    setSelectedDate('');
+    setSelectedTime('');
+    setMeetingType('consultation');
+    setLocationType('virtual');
+    setTitle('');
   };
 
-  const bookAppointment = async (slot: AppointmentSlot) => {
+  const bookAppointment = async () => {
+    if (!selectedDate || !selectedTime) {
+      toast({
+        title: 'Missing Information',
+        description: 'Please select a date and time',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setIsBooking(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Create start and end times
+      const [hours, minutes] = selectedTime.split(':').map(Number);
+      const startDate = new Date(selectedDate);
+      startDate.setHours(hours, minutes, 0, 0);
+      
+      const endDate = new Date(startDate);
+      endDate.setMinutes(endDate.getMinutes() + 30); // 30 minute default duration
+
+      const eventTitle = title || `${meetingType.replace('_', ' ')} with ${leadName || 'Lead'}`;
+
+      // Insert into calendar_events table
+      const { error } = await supabase.from('calendar_events').insert({
+        user_id: user.id,
+        lead_id: leadId,
+        title: eventTitle,
+        type: meetingType,
+        start_time: startDate.toISOString(),
+        end_time: endDate.toISOString(),
+        location_type: locationType,
+        lead_name: leadName || null,
+        lead_email: leadEmail || null,
+        lead_phone: leadPhone || null,
+        status: 'scheduled',
+        duration_minutes: 30
+      });
+
+      if (error) throw error;
       
       toast({
-        title: 'Appointment Booked Successfully',
-        description: `${slot.type.replace('_', ' ')} scheduled for ${slot.date} at ${slot.time}`,
-        variant: 'default'
+        title: 'Appointment Booked',
+        description: `${meetingType.replace('_', ' ')} scheduled for ${format(startDate, 'MMM d')} at ${format(startDate, 'h:mm a')}`,
       });
       
-      setSelectedSlot(null);
+      resetForm();
       setDialogOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: 'Booking Failed',
-        description: 'There was an error booking the appointment. Please try again.',
+        description: error.message || 'There was an error booking the appointment.',
         variant: 'destructive'
       });
     } finally {
@@ -129,91 +135,153 @@ export function AppointmentBookingButton({ leadId, className }: AppointmentBooki
   };
 
   return (
-    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+    <Dialog open={dialogOpen} onOpenChange={(open) => {
+      setDialogOpen(open);
+      if (!open) resetForm();
+    }}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className={className}>
           <Calendar className="h-4 w-4 mr-2" />
           Book Appointment
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Book Appointment</DialogTitle>
         </DialogHeader>
+        
         <div className="space-y-4">
-          <div className="grid gap-3">
-            {availableSlots.map((slot) => (
-              <div key={slot.id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    {getTypeIcon(slot.type)}
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium capitalize">{slot.type.replace('_', ' ')}</span>
-                        {getTypeBadge(slot.type)}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {slot.duration}min with {slot.advisor}
-                      </div>
-                    </div>
-                  </div>
-                  <Button 
-                    size="sm" 
-                    onClick={() => setSelectedSlot(slot)}
-                    disabled={selectedSlot?.id === slot.id}
-                  >
-                    {selectedSlot?.id === slot.id ? 'Selected' : 'Select'}
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{new Date(slot.date).toLocaleDateString()} at {slot.time}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getLocationIcon(slot.location)}
-                    <span className="capitalize">{slot.location}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+          {/* Title (optional) */}
+          <div className="space-y-2">
+            <Label htmlFor="title">Title (optional)</Label>
+            <Input
+              id="title"
+              placeholder="e.g., Program consultation"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
           </div>
-          
-          {selectedSlot && (
-            <div className="border-t pt-4">
-              <div className="bg-muted/50 rounded-lg p-4 mb-4">
-                <h3 className="font-medium mb-2">Selected Appointment</h3>
-                <div className="text-sm space-y-1">
-                  <div>Type: <span className="capitalize">{selectedSlot.type.replace('_', ' ')}</span></div>
-                  <div>Date: {new Date(selectedSlot.date).toLocaleDateString()} at {selectedSlot.time}</div>
-                  <div>Duration: {selectedSlot.duration} minutes</div>
-                  <div>Advisor: {selectedSlot.advisor}</div>
-                  <div>Location: <span className="capitalize">{selectedSlot.location}</span></div>
+
+          {/* Meeting Type */}
+          <div className="space-y-2">
+            <Label>Meeting Type</Label>
+            <Select value={meetingType} onValueChange={setMeetingType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="consultation">Consultation</SelectItem>
+                <SelectItem value="info_session">Info Session</SelectItem>
+                <SelectItem value="tour">Campus Tour</SelectItem>
+                <SelectItem value="interview">Interview</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Location Type */}
+          <div className="space-y-2">
+            <Label>Location</Label>
+            <Select value={locationType} onValueChange={setLocationType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="virtual">
+                  <div className="flex items-center gap-2">
+                    <Video className="h-4 w-4" />
+                    Virtual (Video Call)
+                  </div>
+                </SelectItem>
+                <SelectItem value="campus">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    On Campus
+                  </div>
+                </SelectItem>
+                <SelectItem value="phone">
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    Phone Call
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Selection */}
+          <div className="space-y-2">
+            <Label>Date</Label>
+            <Select value={selectedDate} onValueChange={setSelectedDate}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a date" />
+              </SelectTrigger>
+              <SelectContent>
+                {dateOptions.map((date) => (
+                  <SelectItem key={date.value} value={date.value}>
+                    {date.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Time Selection */}
+          <div className="space-y-2">
+            <Label>Time</Label>
+            <Select value={selectedTime} onValueChange={setSelectedTime}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a time" />
+              </SelectTrigger>
+              <SelectContent>
+                {timeSlots.map((time) => (
+                  <SelectItem key={time.value} value={time.value}>
+                    {time.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Summary */}
+          {selectedDate && selectedTime && (
+            <div className="p-3 bg-muted/50 rounded-lg space-y-2">
+              <div className="text-sm font-medium">Appointment Summary</div>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  {format(new Date(selectedDate), 'EEEE, MMMM d, yyyy')}
                 </div>
-              </div>
-              
-              <div className="flex gap-3">
-                <Button 
-                  onClick={() => bookAppointment(selectedSlot)} 
-                  disabled={isBooking}
-                  className="flex-1"
-                >
-                  {isBooking ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Booking...
-                    </>
-                  ) : (
-                    'Confirm Booking'
-                  )}
-                </Button>
-                <Button variant="outline" onClick={() => setSelectedSlot(null)}>
-                  Clear Selection
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  {timeSlots.find(t => t.value === selectedTime)?.label} (30 min)
+                </div>
+                <div className="flex items-center gap-2">
+                  {getLocationIcon(locationType)}
+                  <span className="capitalize">{locationType}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {leadName || 'Lead'}
+                </div>
               </div>
             </div>
           )}
+
+          {/* Book Button */}
+          <Button 
+            onClick={bookAppointment} 
+            disabled={isBooking || !selectedDate || !selectedTime}
+            className="w-full"
+          >
+            {isBooking ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Booking...
+              </>
+            ) : (
+              'Confirm Booking'
+            )}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

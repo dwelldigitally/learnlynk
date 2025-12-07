@@ -34,6 +34,17 @@ export class CampaignService {
     });
   }
 
+  static async getCampaignById(id: string): Promise<Campaign | null> {
+    const { data, error } = await supabase
+      .from('campaigns')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) return null;
+    return data;
+  }
+
   static async createCampaign(campaignData: Omit<CampaignInsert, 'user_id'>): Promise<Campaign> {
     const { data: user } = await supabase.auth.getUser();
     if (!user.user) throw new Error('User not authenticated');
@@ -48,6 +59,13 @@ export class CampaignService {
       .single();
 
     if (error) throw error;
+
+    // Sync elements to campaign_steps table
+    const elements = (campaignData.campaign_data as any)?.elements || [];
+    if (elements.length > 0) {
+      await this.syncCampaignSteps(data.id, elements);
+    }
+
     return data;
   }
 
@@ -75,10 +93,79 @@ export class CampaignService {
       .single();
 
     if (error) throw error;
+
+    // Sync elements to campaign_steps table if campaign_data is being updated
+    if (updates.campaign_data) {
+      const elements = (updates.campaign_data as any)?.elements || [];
+      await this.syncCampaignSteps(id, elements);
+    }
+
     return data;
   }
 
+  // Sync campaign elements to campaign_steps table
+  static async syncCampaignSteps(campaignId: string, elements: any[]): Promise<void> {
+    // First, delete existing steps
+    await supabase
+      .from('campaign_steps')
+      .delete()
+      .eq('campaign_id', campaignId);
+
+    // Then insert new steps
+    if (elements.length > 0) {
+      const steps = elements.map((element: any, index: number) => ({
+        campaign_id: campaignId,
+        step_type: element.type,
+        step_config: {
+          ...element.config,
+          title: element.title,
+          description: element.description,
+        },
+        order_index: index,
+        is_active: true,
+      }));
+
+      const { error } = await supabase
+        .from('campaign_steps')
+        .insert(steps);
+
+      if (error) {
+        console.error('Failed to sync campaign steps:', error);
+      }
+    }
+  }
+
+  // Convert campaign_steps back to builder elements
+  static async getCampaignElements(campaignId: string): Promise<any[]> {
+    const { data: steps, error } = await supabase
+      .from('campaign_steps')
+      .select('*')
+      .eq('campaign_id', campaignId)
+      .order('order_index');
+
+    if (error || !steps) return [];
+
+    return steps.map((step) => {
+      const stepConfig = step.step_config as Record<string, any> | null;
+      return {
+        id: step.id,
+        type: step.step_type,
+        title: stepConfig?.title || step.step_type,
+        description: stepConfig?.description || '',
+        position: step.order_index,
+        config: stepConfig || {},
+        elementType: 'campaign',
+      };
+    });
+  }
+
   static async deleteCampaign(id: string): Promise<void> {
+    // Delete campaign steps first
+    await supabase
+      .from('campaign_steps')
+      .delete()
+      .eq('campaign_id', id);
+
     const { error } = await supabase
       .from('campaigns')
       .delete()
@@ -141,31 +228,53 @@ export class CampaignService {
     return data || [];
   }
 
-  static async executeCampaign(campaignId: string): Promise<void> {
+  static async executeCampaign(campaignId: string, testMode: boolean = false): Promise<void> {
     // Track execution
     await CampaignAnalyticsService.trackAction(campaignId, 'executed');
 
     const { data, error } = await supabase.functions.invoke('execute-campaign', {
-      body: { campaignId }
+      body: { campaignId, testMode }
     });
 
     if (error) throw error;
   }
 
   static async getCampaignAnalytics() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { totalCampaigns: 0, activeCampaigns: 0, totalExecutions: 0, successRate: 0 };
+
     const { data: campaigns, error } = await supabase
       .from('campaigns')
-      .select(`
-        *,
-        campaign_executions(count)
-      `);
+      .select('id, status')
+      .eq('user_id', user.id);
 
     if (error) throw error;
+
+    const campaignIds = campaigns?.map(c => c.id) || [];
+    
+    // Get execution stats
+    let totalExecutions = 0;
+    let successfulExecutions = 0;
+
+    if (campaignIds.length > 0) {
+      const { data: executions } = await supabase
+        .from('campaign_executions')
+        .select('id, status')
+        .in('campaign_id', campaignIds);
+
+      totalExecutions = executions?.length || 0;
+      successfulExecutions = executions?.filter(e => e.status === 'completed' || e.status === 'started').length || 0;
+    }
+
+    const successRate = totalExecutions > 0 
+      ? Math.round((successfulExecutions / totalExecutions) * 100) 
+      : 0;
 
     return {
       totalCampaigns: campaigns?.length || 0,
       activeCampaigns: campaigns?.filter(c => c.status === 'active').length || 0,
-      totalExecutions: campaigns?.reduce((sum, c) => sum + (c.campaign_executions?.length || 0), 0) || 0,
+      totalExecutions,
+      successRate,
     };
   }
 }

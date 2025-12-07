@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.ai-semantic-search]
 verify_jwt = false
+
+[functions.execute-campaign]
+verify_jwt = true

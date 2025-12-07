@@ -34,7 +34,7 @@ export function CampaignManagement() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-  const [analytics, setAnalytics] = useState({ totalCampaigns: 0, activeCampaigns: 0, totalExecutions: 0 });
+  const [analytics, setAnalytics] = useState({ totalCampaigns: 0, activeCampaigns: 0, totalExecutions: 0, successRate: 0 });
   const [loading, setLoading] = useState(true);
   const [showBuilder, setShowBuilder] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
@@ -69,29 +69,6 @@ export function CampaignManagement() {
       setAnalytics(data);
     } catch (error) {
       console.error('Failed to load analytics:', error);
-    }
-  };
-
-  const handleCreateDummyCampaigns = async () => {
-    setLoading(true);
-    try {
-      const { DummyCampaignService } = await import('@/services/dummyCampaignService');
-      await DummyCampaignService.createDummyCampaigns();
-      await loadCampaigns();
-      await loadAnalytics();
-      toast({
-        title: "Success",
-        description: "5 dummy campaigns created successfully!",
-      });
-    } catch (error) {
-      console.error('Error creating dummy campaigns:', error);
-      toast({
-        title: "Error",
-        description: "Failed to create dummy campaigns",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -277,7 +254,7 @@ export function CampaignManagement() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-1">Avg. Performance</p>
-                <h3 className="text-3xl font-bold text-foreground">78%</h3>
+                <h3 className="text-3xl font-bold text-foreground">{analytics.successRate}%</h3>
                 <p className="text-xs text-muted-foreground mt-1">Success rate</p>
               </div>
               <IconContainer color="amber" size="lg">
@@ -327,14 +304,6 @@ export function CampaignManagement() {
                   >
                     <GitBranch className="h-4 w-4 mr-2" />
                     Campaign Builder
-                  </PillButton>
-                  <PillButton 
-                    variant="soft"
-                    onClick={handleCreateDummyCampaigns}
-                    disabled={loading}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Sample Campaigns
                   </PillButton>
                 </div>
               </div>

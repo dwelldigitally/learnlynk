@@ -90,17 +90,25 @@ export function GoalsPerformanceTracker() {
     try {
       const { start, end } = getDateRange();
 
-      // Fetch sales targets
-      const { data: targetsData } = await supabase
-        .from('sales_targets')
+      // Map selected range to goal period
+      const periodMap: Record<DateRange, string[]> = {
+        today: ['daily'],
+        week: ['weekly', 'daily'],
+        month: ['monthly', 'weekly'],
+        quarter: ['quarterly', 'monthly']
+      };
+      const relevantPeriods = periodMap[selectedRange];
+
+      // Fetch team_goals where current user is assigned or is the creator
+      const { data: teamGoalsData } = await supabase
+        .from('team_goals')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('is_active', true)
-        .lte('period_start', end.toISOString().split('T')[0])
-        .gte('period_end', start.toISOString().split('T')[0]);
+        .eq('status', 'active')
+        .in('goal_period', relevantPeriods)
+        .or(`user_id.eq.${user.id},assignee_ids.cs.{${user.id}}`);
 
       // Fetch actual metrics for the period
-      const [callsResult, emailsResult, conversionsResult] = await Promise.all([
+      const [callsResult, emailsResult, conversionsResult, activitiesResult] = await Promise.all([
         supabase
           .from('lead_communications')
           .select('*', { count: 'exact', head: true })
@@ -123,97 +131,82 @@ export function GoalsPerformanceTracker() {
           .eq('assigned_to', user.id)
           .eq('status', 'converted')
           .gte('updated_at', start.toISOString())
-          .lte('updated_at', end.toISOString())
+          .lte('updated_at', end.toISOString()),
+        supabase
+          .from('lead_tasks')
+          .select('*', { count: 'exact', head: true })
+          .eq('assigned_to', user.id)
+          .eq('status', 'completed')
+          .gte('completed_at', start.toISOString())
+          .lte('completed_at', end.toISOString())
       ]);
 
       const callsCount = callsResult.count || 0;
       const emailsCount = emailsResult.count || 0;
       const conversionsCount = conversionsResult.count || 0;
+      const activitiesCount = activitiesResult.count || 0;
 
-      // Map database targets to goals
+      // Map metric types to icons
       const iconMap: Record<string, any> = {
         calls: Phone,
         emails: Mail,
         conversions: UserPlus,
-        revenue: DollarSign
+        revenue: DollarSign,
+        activities: CheckCircle2,
+        future_revenue: DollarSign,
+        contract_value: DollarSign,
+        response_time: Clock
       };
 
+      // Map metric types to current values
       const currentValues: Record<string, number> = {
         calls: callsCount,
         emails: emailsCount,
         conversions: conversionsCount,
-        revenue: 0 // Would need financial data integration
+        activities: activitiesCount,
+        revenue: 0,
+        future_revenue: 0,
+        contract_value: 0,
+        response_time: 0
       };
 
-      const mappedGoals: Goal[] = (targetsData || []).map((target: any) => ({
-        id: target.id,
-        name: target.name,
-        target: Number(target.target_value),
-        current: currentValues[target.category] || Number(target.current_value) || 0,
-        unit: target.unit,
-        icon: iconMap[target.category] || Target,
-        priority: target.priority as 'high' | 'medium' | 'low',
-        deadline: target.period_end,
-        category: target.category as 'calls' | 'emails' | 'conversions' | 'revenue'
+      // Map metric types to units
+      const unitMap: Record<string, string> = {
+        calls: 'calls',
+        emails: 'emails',
+        conversions: 'conversions',
+        activities: 'activities',
+        revenue: '$',
+        future_revenue: '$',
+        contract_value: '$',
+        response_time: 'hrs'
+      };
+
+      // Map team_goals to Goal interface
+      const mappedGoals: Goal[] = (teamGoalsData || []).map((goal: any) => ({
+        id: goal.id,
+        name: goal.goal_name,
+        target: Number(goal.target_value),
+        current: currentValues[goal.metric_type] || Number(goal.current_value) || 0,
+        unit: unitMap[goal.metric_type] || goal.metric_type,
+        icon: iconMap[goal.metric_type] || Target,
+        priority: (goal.priority || 'medium') as 'high' | 'medium' | 'low',
+        deadline: goal.end_date,
+        category: goal.metric_type as 'calls' | 'emails' | 'conversions' | 'revenue'
       }));
-
-      // Default goals if none exist
-      if (mappedGoals.length === 0) {
-        const defaultTargets = {
-          calls: selectedRange === 'today' ? 15 : selectedRange === 'week' ? 50 : 200,
-          emails: selectedRange === 'today' ? 12 : selectedRange === 'week' ? 100 : 400,
-          conversions: selectedRange === 'today' ? 1 : selectedRange === 'week' ? 10 : 40,
-        };
-
-        mappedGoals.push(
-          {
-            id: 'default-calls',
-            name: 'Outbound Calls',
-            target: defaultTargets.calls,
-            current: callsCount,
-            unit: 'calls',
-            icon: Phone,
-            priority: 'high',
-            deadline: end.toISOString(),
-            category: 'calls'
-          },
-          {
-            id: 'default-emails',
-            name: 'Email Outreach',
-            target: defaultTargets.emails,
-            current: emailsCount,
-            unit: 'emails',
-            icon: Mail,
-            priority: 'high',
-            deadline: end.toISOString(),
-            category: 'emails'
-          },
-          {
-            id: 'default-conversions',
-            name: 'New Enrollments',
-            target: defaultTargets.conversions,
-            current: conversionsCount,
-            unit: 'students',
-            icon: UserPlus,
-            priority: 'high',
-            deadline: end.toISOString(),
-            category: 'conversions'
-          }
-        );
-      }
 
       setGoals(mappedGoals);
 
-      // Calculate performance metrics with trends
-      const callTarget = mappedGoals.find(g => g.category === 'calls')?.target || 50;
-      const emailTarget = mappedGoals.find(g => g.category === 'emails')?.target || 100;
-      const conversionTarget = mappedGoals.find(g => g.category === 'conversions')?.target || 10;
+      // Calculate performance metrics with trends based on actual goals or defaults
+      const callTarget = mappedGoals.find(g => g.category === 'calls')?.target || 0;
+      const emailTarget = mappedGoals.find(g => g.category === 'emails')?.target || 0;
+      const conversionTarget = mappedGoals.find(g => g.category === 'conversions')?.target || 0;
 
       setPerformanceMetrics([
         {
           label: 'Calls Made',
           value: callsCount,
-          target: callTarget,
+          target: callTarget || callsCount || 1,
           unit: '',
           trend: callsCount > 0 ? 5 : 0,
           icon: Phone
@@ -221,7 +214,7 @@ export function GoalsPerformanceTracker() {
         {
           label: 'Emails Sent',
           value: emailsCount,
-          target: emailTarget,
+          target: emailTarget || emailsCount || 1,
           unit: '',
           trend: emailsCount > 0 ? 12 : 0,
           icon: Mail
@@ -229,18 +222,18 @@ export function GoalsPerformanceTracker() {
         {
           label: 'Conversions',
           value: conversionsCount,
-          target: conversionTarget,
+          target: conversionTarget || conversionsCount || 1,
           unit: '',
-          trend: conversionsCount > 0 ? 8 : -3,
+          trend: conversionsCount > 0 ? 8 : 0,
           icon: TrendingUp
         },
         {
-          label: 'Avg. Response Time',
-          value: 24,
-          target: 48,
-          unit: 'hrs',
-          trend: 15,
-          icon: Clock
+          label: 'Activities',
+          value: activitiesCount,
+          target: activitiesCount || 1,
+          unit: '',
+          trend: activitiesCount > 0 ? 10 : 0,
+          icon: CheckCircle2
         }
       ]);
 
@@ -400,7 +393,25 @@ export function GoalsPerformanceTracker() {
             <Badge variant="secondary" className="ml-2">{goals.length}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 px-6 pb-6 pt-0">
+        <CardContent className="px-6 pb-6 pt-0">
+          {goals.length === 0 ? (
+            <div className="text-center py-12">
+              <Target className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No Goals Assigned</h3>
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                You don't have any active goals for this period. Goals can be created and assigned in the Team Goals & Analytics page.
+              </p>
+              <Button
+                variant="outline"
+                className="mt-4"
+                onClick={() => window.location.href = '/admin/team-goals'}
+              >
+                <Target className="w-4 h-4 mr-2" />
+                Go to Team Goals
+              </Button>
+            </div>
+          ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {goals.map((goal) => {
             const Icon = goal.icon;
             const percentage = getProgressPercentage(goal.current, goal.target);
@@ -553,6 +564,8 @@ export function GoalsPerformanceTracker() {
               </Collapsible>
             );
           })}
+          </div>
+          )}
         </CardContent>
       </Card>
     </div>

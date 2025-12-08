@@ -32,50 +32,54 @@ export const TeamSetup = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 p-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Team & Training Setup</h1>
-        <p className="text-muted-foreground">
-          Set up team members and provide system training resources.
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold">Team & Training Setup</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Set up team members and provide system training resources.
+          </p>
+        </div>
       </div>
 
       {/* Setup Tabs */}
-      <Card className="p-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="team" className="flex items-center space-x-2">
-              <Users className="w-4 h-4" />
-              <span>Team Setup</span>
-              {teamData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
-            </TabsTrigger>
-            <TabsTrigger value="training" className="flex items-center space-x-2">
-              <BookOpen className="w-4 h-4" />
-              <span>System Training</span>
-              {trainingData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
-            </TabsTrigger>
-          </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="team" className="flex items-center space-x-2">
+            <Users className="w-4 h-4" />
+            <span>Team Setup</span>
+            {teamData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="training" className="flex items-center space-x-2">
+            <BookOpen className="w-4 h-4" />
+            <span>System Training</span>
+            {trainingData && <Badge variant="outline" className="ml-2 text-xs">✓</Badge>}
+          </TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="team" className="mt-6">
+        <TabsContent value="team" className="space-y-6">
+          <Card className="p-6">
             <TeamSetupScreen
               data={teamData}
               onComplete={handleTeamComplete}
               onNext={() => setActiveTab('training')}
               onSkip={() => setActiveTab('training')}
             />
-          </TabsContent>
+          </Card>
+        </TabsContent>
 
-          <TabsContent value="training" className="mt-6">
+        <TabsContent value="training" className="space-y-6">
+          <Card className="p-6">
             <SystemTrainingScreen
               data={trainingData}
               onComplete={handleTrainingComplete}
               onNext={() => {}}
               onSkip={() => {}}
             />
-          </TabsContent>
-        </Tabs>
-      </Card>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

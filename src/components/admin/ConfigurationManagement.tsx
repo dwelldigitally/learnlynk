@@ -21,7 +21,7 @@ export const ConfigurationManagement = () => {
     if (path.includes('/properties')) return <PropertiesManagement />;
     if (path.includes('/campuses')) return <CampusesConfiguration />;
     if (path.includes('/teams')) return <TeamManagement className="mx-[100px] my-[40px]" />;
-    if (path.includes('/company')) return <CompanySettingsRedesigned />;
+    if (path.includes('/company')) return <CompanySettingsRedesigned className="mx-[100px] my-[50px]" />;
     if (path.includes('/payments')) return <PaymentConfiguration />;
     if (path.includes('/integrations')) return <EnhancedIntegrationHub />;
 

@@ -37,7 +37,8 @@ export class ProgramService {
       throw new Error('User not authenticated');
     }
 
-    console.log('ProgramService.createProgram - Input program:', program);
+    console.log('🔵 ProgramService.createProgram - Input program:', program);
+    console.log('🔵 ProgramService.createProgram - Input feeStructure:', program.feeStructure);
 
     // Parse fields with proper fallbacks (prefer camelCase from UI)
     const entryRequirements = program.entryRequirements ?? program.entry_requirements ?? [];
@@ -48,11 +49,9 @@ export class ProgramService {
     const journeyConfig = program.journeyConfiguration ?? program.journey_config ?? {};
     const practicumConfig = program.practicumConfig ?? program.practicum ?? {};
 
-    console.log('ProgramService.createProgram - Parsed fields:', {
-      entryRequirements,
-      feeStructure,
-      courses
-    });
+    console.log('🔵 ProgramService.createProgram - Parsed feeStructure:', feeStructure);
+    console.log('🔵 ProgramService.createProgram - Domestic fees count:', feeStructure?.domesticFees?.length);
+    console.log('🔵 ProgramService.createProgram - International fees count:', feeStructure?.internationalFees?.length);
 
     // Prepare the program data with proper JSONB field mapping
     const programData = {
@@ -89,7 +88,8 @@ export class ProgramService {
       user_id: user.id
     };
 
-    console.log('ProgramService.createProgram - Final programData:', programData);
+    console.log('🔵 ProgramService.createProgram - Final programData:', programData);
+    console.log('🔵 ProgramService.createProgram - Final fee_structure in programData:', programData.fee_structure);
 
     const { data, error } = await supabase
       .from('programs')

@@ -109,11 +109,21 @@ const ProgramWizardPage: React.FC = () => {
   }, [wizardState.data, toast]);
 
   const updateWizardData = useCallback((stepData: Partial<Program>) => {
-    setWizardState(prev => ({
-      ...prev,
-      data: { ...prev.data, ...stepData },
-      isDraft: true
-    }));
+    console.log('📝 updateWizardData called with:', {
+      keys: Object.keys(stepData),
+      hasFeeStructure: 'feeStructure' in stepData,
+      feeStructure: stepData.feeStructure
+    });
+    
+    setWizardState(prev => {
+      const newData = { ...prev.data, ...stepData };
+      console.log('📝 updateWizardData - new state feeStructure:', newData.feeStructure);
+      return {
+        ...prev,
+        data: newData,
+        isDraft: true
+      };
+    });
     autoSave();
   }, [autoSave]);
 
@@ -187,6 +197,9 @@ const ProgramWizardPage: React.FC = () => {
       return;
     }
 
+    console.log('💾 handleSave - wizardState.data:', wizardState.data);
+    console.log('💾 handleSave - feeStructure specifically:', wizardState.data.feeStructure);
+
     try {
       // Map complete wizard data to database schema - save ALL collected data
       const programData = {
@@ -228,6 +241,8 @@ const ProgramWizardPage: React.FC = () => {
         shortDescription: wizardState.data.shortDescription || '',
         marketingCopy: wizardState.data.marketingCopy || ''
       };
+
+      console.log('💾 handleSave - programData.feeStructure:', programData.feeStructure);
 
       let savedProgram;
       if (editingProgramId) {

@@ -32,8 +32,9 @@ export class LeadRoutingService {
       for (const rule of rules) {
         const ruleData = rule as unknown as EnhancedRoutingRule;
         
-        // Evaluate all condition groups
-        const matched = this.evaluateConditionGroups(lead, ruleData.condition_groups);
+        // Database column is 'conditions', not 'condition_groups'
+        const conditionGroups = (rule as any).conditions || ruleData.condition_groups || [];
+        const matched = this.evaluateConditionGroups(lead, conditionGroups);
         
         if (matched) {
           // Execute assignment based on rule configuration

@@ -8,14 +8,17 @@ import { EnhancedRoutingRule } from '@/types/routing';
 import { supabase } from '@/integrations/supabase/client';
 import { RuleWizard } from './routing/RuleWizard';
 import { ReEnrollDialog } from './routing/ReEnrollDialog';
+import { ReEnrollAllDialog } from './routing/ReEnrollAllDialog';
 import { TeamManagement } from './routing/TeamManagement';
 import { AdvisorManagement } from './routing/AdvisorManagement';
 import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck, MoreVertical, Filter, GitBranch, Power, PowerOff, RefreshCw } from 'lucide-react';
 import { ConditionGroupsDisplay, AssignmentDisplay, getPriorityColor } from './routing/RuleCardHelpers';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 interface LeadRoutingRulesProps {
   onRuleCreated?: () => void;
 }
+
 export function LeadRoutingRules({
   onRuleCreated
 }: LeadRoutingRulesProps) {
@@ -23,6 +26,7 @@ export function LeadRoutingRules({
   const [showRuleWizard, setShowRuleWizard] = useState(false);
   const [editingRule, setEditingRule] = useState<EnhancedRoutingRule | null>(null);
   const [reEnrollRule, setReEnrollRule] = useState<EnhancedRoutingRule | null>(null);
+  const [showReEnrollAll, setShowReEnrollAll] = useState(false);
   const [activeView, setActiveView] = useState<'rules' | 'teams' | 'advisors'>('rules');
   const [loading, setLoading] = useState(false);
   const {
@@ -374,14 +378,26 @@ export function LeadRoutingRules({
           })}
           </div>
 
-          {/* Create Rule Button */}
-          {activeView === 'rules' && <Button onClick={() => {
-          setEditingRule(null);
-          setShowRuleWizard(true);
-        }} className="shadow-lg hover:shadow-xl transition-all" size="lg">
-              <Plus className="h-5 w-5 mr-2" />
-              Create New Rule
-            </Button>}
+          {/* Action Buttons */}
+          {activeView === 'rules' && (
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowReEnrollAll(true)}
+                className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Re-enroll All Leads
+              </Button>
+              <Button onClick={() => {
+                setEditingRule(null);
+                setShowRuleWizard(true);
+              }} className="shadow-lg hover:shadow-xl transition-all" size="lg">
+                <Plus className="h-5 w-5 mr-2" />
+                Create New Rule
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -393,7 +409,7 @@ export function LeadRoutingRules({
         </div>
       </div>
 
-      {/* Re-enroll Dialog */}
+      {/* Re-enroll Dialog for specific rule */}
       {reEnrollRule && (
         <ReEnrollDialog
           open={!!reEnrollRule}
@@ -408,5 +424,14 @@ export function LeadRoutingRules({
           }}
         />
       )}
+
+      {/* Re-enroll All Leads Dialog */}
+      <ReEnrollAllDialog
+        open={showReEnrollAll}
+        onOpenChange={setShowReEnrollAll}
+        onSuccess={() => {
+          fetchRules();
+        }}
+      />
     </div>;
 }

@@ -241,4 +241,121 @@ export class BulkEnrollmentService {
       return [];
     }
   }
+
+  /**
+   * Re-enroll ALL leads: clear assignments and re-run routing rules
+   * Leads that don't match any rule will remain unassigned
+   */
+  static async reEnrollAllLeads(
+    onProgress?: (processed: number, total: number) => void
+  ): Promise<EnrollmentResult> {
+    const result: EnrollmentResult = {
+      processed: 0,
+      assigned: 0,
+      skipped: 0,
+      errors: []
+    };
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Step 1: Clear all existing assignments
+      const { error: clearError } = await supabase
+        .from('leads')
+        .update({
+          assigned_to: null,
+          assigned_at: null,
+          assignment_method: null
+        })
+        .eq('user_id', user.id)
+        .not('assigned_to', 'is', null);
+
+      if (clearError) {
+        console.error('Error clearing assignments:', clearError);
+        result.errors.push(`Failed to clear assignments: ${clearError.message}`);
+      }
+
+      // Step 2: Fetch all leads and re-evaluate routing
+      let offset = 0;
+      let hasMore = true;
+
+      // First, get total count
+      const { count } = await supabase
+        .from('leads')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id);
+
+      const totalLeads = count || 0;
+
+      while (hasMore) {
+        const { data: leads, error: leadsError } = await supabase
+          .from('leads')
+          .select('*')
+          .eq('user_id', user.id)
+          .range(offset, offset + this.BATCH_SIZE - 1)
+          .order('created_at', { ascending: false });
+
+        if (leadsError) throw leadsError;
+        if (!leads || leads.length === 0) {
+          hasMore = false;
+          break;
+        }
+
+        // Process each lead
+        for (const lead of leads) {
+          try {
+            // Evaluate routing rules for this lead
+            const routingResult = await LeadRoutingService.evaluateRoutingRules(lead as any);
+
+            if (routingResult.matched && routingResult.assignedTo) {
+              // Lead matches a rule - assign it
+              const { error: updateError } = await supabase
+                .from('leads')
+                .update({
+                  assigned_to: routingResult.assignedTo,
+                  assigned_at: new Date().toISOString(),
+                  assignment_method: routingResult.method as any
+                })
+                .eq('id', lead.id);
+
+              if (updateError) {
+                result.errors.push(`Failed to assign lead ${lead.id}: ${updateError.message}`);
+                result.skipped++;
+              } else {
+                result.assigned++;
+              }
+            } else {
+              // Lead doesn't match any rule - stays unassigned
+              result.skipped++;
+            }
+
+            result.processed++;
+          } catch (leadError) {
+            result.errors.push(`Error processing lead ${lead.id}: ${leadError}`);
+            result.skipped++;
+            result.processed++;
+          }
+        }
+
+        // Report progress
+        if (onProgress) {
+          onProgress(result.processed, totalLeads);
+        }
+
+        offset += this.BATCH_SIZE;
+
+        if (leads.length < this.BATCH_SIZE) {
+          hasMore = false;
+        }
+      }
+
+      console.log(`Re-enrollment complete: ${result.assigned} assigned, ${result.skipped} unassigned, ${result.errors.length} errors`);
+      return result;
+    } catch (error) {
+      console.error('Error re-enrolling leads:', error);
+      result.errors.push(`Fatal error: ${error}`);
+      return result;
+    }
+  }
 }

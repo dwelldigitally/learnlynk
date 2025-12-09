@@ -8,7 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { GlassCard } from '@/components/modern/GlassCard';
 import { ModernCard } from '@/components/modern/ModernCard';
-import { ReportBuilderWizard } from './reports/ReportBuilderWizard';
+import { ReportBuilderSplitView } from './reports/ReportBuilderSplitView';
 import { useCustomReports } from '@/hooks/useCustomReports';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -331,7 +331,7 @@ export function ReportsManagement() {
         </TabsContent>
       </Tabs>
 
-      <ReportBuilderWizard open={isWizardOpen} onOpenChange={setIsWizardOpen} />
+      <ReportBuilderSplitView open={isWizardOpen} onOpenChange={setIsWizardOpen} />
     </div>
   );
 }

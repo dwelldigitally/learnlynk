@@ -25,7 +25,7 @@ import { LeadScoringEngine } from "@/components/admin/leads/LeadScoringEngine";
 import { LeadTemplates } from "@/components/admin/leads/LeadTemplates";
 import { LeadAnalytics } from "@/components/admin/leads/LeadAnalytics";
 import { LeadAdvancedAnalytics } from "@/components/admin/leads/LeadAdvancedAnalytics";
-import { LeadBulkOperations } from "@/components/admin/leads/LeadBulkOperations";
+
 import { ConfigurationManagement } from "@/components/admin/ConfigurationManagement";
 import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
 import { CampaignManagement } from "@/components/admin/CampaignManagement";
@@ -160,7 +160,9 @@ const AdminDashboard: React.FC = () => {
       case "/admin/leads/team-goals":
         return <TeamGoalsAnalytics />;
       case "/admin/leads/bulk":
-        return <LeadBulkOperations />;
+        // Redirect to leads page - bulk operations removed
+        window.history.replaceState(null, '', '/admin/leads');
+        return <LeadOverview />;
       case "/admin/students":
         return <StudentManagement />;
       case "/admin/student-portal":

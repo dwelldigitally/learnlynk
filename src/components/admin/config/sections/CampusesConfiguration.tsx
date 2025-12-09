@@ -161,7 +161,7 @@ export const CampusesConfiguration = () => {
   // Calculate stats
   const activeCampuses = campuses.filter(c => c.is_active).length;
   const totalCapacity = campuses.reduce((sum, c) => sum + (c.capacity || 0), 0);
-  return <div className="space-y-6 p-4 sm:p-6 md:p-9">
+  return <div className="space-y-6 px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px]">
       {/* Header */}
       <div className="flex flex-col gap-4">
         <div>

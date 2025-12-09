@@ -97,7 +97,6 @@ export const navigationStructure: NavigationStructure = {
             { name: "Today", href: "/admin/enrollment/today", icon: Clock }
           ]
         },
-        { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
         { name: "Campaigns", href: "/admin/campaigns", icon: Briefcase }
       ]
     },

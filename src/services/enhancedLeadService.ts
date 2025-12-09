@@ -113,9 +113,15 @@ export class EnhancedLeadService {
         .lte('lead_score', filters.lead_score_range.max);
     }
 
-    // Apply sorting
-    const sortBy = filters?.sortBy || 'created_at';
+    // Apply sorting - map virtual columns to actual database columns
+    let sortBy = filters?.sortBy || 'created_at';
     const sortOrder = filters?.sortOrder || 'desc';
+    
+    // Map 'name' to 'first_name' since 'name' doesn't exist in the database
+    if (sortBy === 'name') {
+      sortBy = 'first_name';
+    }
+    
     query = query.order(sortBy, { ascending: sortOrder === 'asc' });
 
     // Apply pagination

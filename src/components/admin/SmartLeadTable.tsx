@@ -65,6 +65,10 @@ interface SmartLeadTableProps {
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
   columns?: ColumnConfig[];
+  initialColumnWidths?: Record<string, number>;
+  onColumnWidthsChange?: (widths: Record<string, number>) => void;
+  initialSortColumn?: string;
+  initialSortOrder?: 'asc' | 'desc';
 }
 
 // Column configuration
@@ -116,14 +120,21 @@ export function SmartLeadTable({
   pageSize,
   onPageChange,
   onPageSizeChange,
-  columns: propColumns
+  columns: propColumns,
+  initialColumnWidths,
+  onColumnWidthsChange,
+  initialSortColumn,
+  initialSortOrder
 }: SmartLeadTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
-  const [sortColumn, setSortColumn] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortColumn, setSortColumn] = useState(initialSortColumn || 'created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(initialSortOrder || 'desc');
   const [advisorMap, setAdvisorMap] = useState<Record<string, AdvisorInfo>>({});
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
+    if (initialColumnWidths && Object.keys(initialColumnWidths).length > 0) {
+      return initialColumnWidths;
+    }
     const widths: Record<string, number> = {};
     DEFAULT_COLUMNS.forEach(col => {
       const min = col.minWidth || 80;
@@ -135,6 +146,12 @@ export function SmartLeadTable({
   const [resizingColumn, setResizingColumn] = useState<string | null>(null);
   
   const columns = propColumns || DEFAULT_COLUMNS;
+
+  // Sync with parent sort state
+  useEffect(() => {
+    if (initialSortColumn) setSortColumn(initialSortColumn);
+    if (initialSortOrder) setSortOrder(initialSortOrder);
+  }, [initialSortColumn, initialSortOrder]);
 
   // Get column width with defaults
   const getColumnWidth = (columnId: string) => {
@@ -161,18 +178,32 @@ export function SmartLeadTable({
         column?.minWidth || 80,
         Math.min(column?.maxWidth || 300, startWidth + delta)
       );
-      setColumnWidths(prev => ({ ...prev, [columnId]: newWidth }));
+      setColumnWidths(prev => {
+        const updated = { ...prev, [columnId]: newWidth };
+        return updated;
+      });
     };
     
     const handleMouseUp = () => {
       setResizingColumn(null);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      // Persist column widths on mouse up
+      if (onColumnWidthsChange) {
+        onColumnWidthsChange(columnWidths);
+      }
     };
     
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
+
+  // Emit column width changes when they settle
+  useEffect(() => {
+    if (!resizingColumn && onColumnWidthsChange) {
+      onColumnWidthsChange(columnWidths);
+    }
+  }, [resizingColumn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch advisor names for assigned leads
   useEffect(() => {

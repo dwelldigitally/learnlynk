@@ -438,7 +438,7 @@ export function SmartLeadTable({
           <table className="w-full" style={{ tableLayout: 'fixed' }}>
             <thead>
               <tr className="border-b border-border/40 bg-muted/20">
-                <th className="p-5 text-left" style={{ width: 48 }}>
+                <th className="py-2.5 px-4 text-left" style={{ width: 48 }}>
                   <Checkbox
                     checked={selectedLeadIds.length === leads.length && leads.length > 0}
                     onCheckedChange={onSelectAll}
@@ -449,7 +449,7 @@ export function SmartLeadTable({
                   <th 
                     key={column.id}
                     className={cn(
-                      "p-5 text-left font-medium text-muted-foreground text-sm group relative",
+                      "py-2.5 px-4 text-left font-medium text-muted-foreground text-xs group relative",
                       column.sortable && "cursor-pointer hover:text-foreground transition-colors"
                     )}
                     style={{ width: getColumnWidth(column.id) }}
@@ -470,7 +470,7 @@ export function SmartLeadTable({
                     />
                   </th>
                 ))}
-                <th className="p-5 text-left font-medium text-muted-foreground text-sm" style={{ width: 80 }}>Actions</th>
+                <th className="py-2.5 px-4 text-left font-medium text-muted-foreground text-xs" style={{ width: 60 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -496,92 +496,73 @@ export function SmartLeadTable({
                     switch (columnId) {
                       case 'name':
                         return (
-                          <td className="p-5">
-                            <div className="flex items-center gap-3">
-                              <Avatar className="h-9 w-9 border border-border/40">
-                                <AvatarFallback className="bg-muted/50 text-sm">
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-2">
+                              <Avatar className="h-7 w-7 border border-border/40">
+                                <AvatarFallback className="bg-muted/50 text-xs">
                                   {lead.first_name?.[0]}{lead.last_name?.[0]}
                                 </AvatarFallback>
                               </Avatar>
-                              <div>
-                                <div className="font-medium text-foreground">{lead.first_name} {lead.last_name}</div>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger>
-                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                        <Activity className="h-3 w-3" />
-                                        Last: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'MMM d') : 'Never'}
-                                      </div>
-                                    </TooltipTrigger>
-                                    <TooltipContent className="rounded-xl">
-                                      <p>Last contacted: {lead.last_contacted_at ? format(new Date(lead.last_contacted_at), 'PPP') : 'Never contacted'}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </div>
+                              <span className="font-medium text-sm text-foreground truncate">{lead.first_name} {lead.last_name}</span>
                             </div>
                           </td>
                         );
                       case 'email':
                         return (
-                          <td className="p-5">
-                            <div className="text-sm text-foreground">{lead.email}</div>
-                            <div className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                              Valid
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5 text-sm text-foreground truncate">
+                              <span className="truncate">{lead.email}</span>
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0" />
                             </div>
                           </td>
                         );
                       case 'phone':
                         return (
-                          <td className="p-5">
-                            <div className="text-sm text-foreground">{lead.phone || '-'}</div>
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground">{lead.phone || '-'}</span>
                           </td>
                         );
                       case 'source':
                         return (
-                          <td className="p-5">
-                            <Badge variant="outline" className="text-xs rounded-full px-3 py-1 border-border/60 bg-muted/30">
+                          <td className="py-2.5 px-4">
+                            <Badge variant="outline" className="text-xs rounded-full px-2 py-0.5 border-border/60 bg-muted/30">
                               {lead.source.replace('_', ' ').toUpperCase()}
                             </Badge>
                           </td>
                         );
                       case 'created_at':
                         return (
-                          <td className="p-5">
-                            <div className="text-sm text-foreground">{format(new Date(lead.created_at), 'MMM d, yyyy')}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {format(new Date(lead.created_at), 'h:mm a')}
-                            </div>
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground">{format(new Date(lead.created_at), 'MMM d')} · {format(new Date(lead.created_at), 'h:mm a')}</span>
                           </td>
                         );
                       case 'last_activity':
                         return (
-                          <td className="p-5">
-                            <div className="flex items-center gap-2">
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
                               {lead.last_contacted_at ? (
                                 <>
-                                  <Mail className="h-4 w-4 text-sky-400" />
+                                  <Mail className="h-3.5 w-3.5 text-sky-400" />
                                   <span className="text-sm text-foreground">{Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (60 * 60 * 1000))}h ago</span>
                                 </>
                               ) : (
-                                <span className="text-sm text-muted-foreground">No activity</span>
+                                <span className="text-sm text-muted-foreground">—</span>
                               )}
                             </div>
                           </td>
                         );
                       case 'stage':
                         return (
-                          <td className="p-5">
-                            <Badge className={cn("rounded-full px-3 py-1 text-xs font-medium border", getStatusColor(lead.status))}>
+                          <td className="py-2.5 px-4">
+                            <Badge className={cn("rounded-full px-2 py-0.5 text-xs font-medium border", getStatusColor(lead.status))}>
                               {lead.status.toUpperCase()}
                             </Badge>
                           </td>
                         );
                       case 'lead_score':
                         return (
-                          <td className="p-5">
-                            <div className={cn("inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border", getScoreColor(lead.lead_score || 0))}>
+                          <td className="py-2.5 px-4">
+                            <div className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border", getScoreColor(lead.lead_score || 0))}>
                               <TrendingUp className="h-3 w-3" />
                               {lead.lead_score || 0}
                             </div>
@@ -589,8 +570,8 @@ export function SmartLeadTable({
                         );
                       case 'priority':
                         return (
-                          <td className="p-5">
-                            <div className="flex items-center gap-2">
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
                               {getPriorityIcon(lead.priority)}
                               <span className="text-sm capitalize text-foreground">{lead.priority}</span>
                             </div>
@@ -598,24 +579,24 @@ export function SmartLeadTable({
                         );
                       case 'assigned_to':
                         return (
-                          <td className="p-5">
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground/60" />
-                              <span className="text-sm text-foreground">{getAdvisorName(lead.assigned_to)}</span>
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <User className="h-3.5 w-3.5 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground truncate">{getAdvisorName(lead.assigned_to)}</span>
                             </div>
                           </td>
                         );
                       case 'suggested_action':
                         return (
-                          <td className="p-5">
-                            <Badge className={cn("text-xs rounded-full px-3 py-1 font-medium border", suggestedAction.color)}>
-                              <ActionIcon className="h-3 w-3 mr-1.5" />
+                          <td className="py-2.5 px-4">
+                            <Badge className={cn("text-xs rounded-full px-2 py-0.5 font-medium border", suggestedAction.color)}>
+                              <ActionIcon className="h-3 w-3 mr-1" />
                               {suggestedAction.action}
                             </Badge>
                           </td>
                         );
                       default:
-                        return <td className="p-5">-</td>;
+                        return <td className="py-2.5 px-4">-</td>;
                     }
                   };
                   
@@ -625,7 +606,7 @@ export function SmartLeadTable({
                       className="border-b border-border/30 hover:bg-muted/10 transition-colors cursor-pointer"
                       onClick={() => onLeadClick(lead)}
                     >
-                      <td className="p-5" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2.5 px-4" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={selectedLeadIds.includes(lead.id)}
                           onCheckedChange={() => onLeadSelect(lead.id)}
@@ -633,11 +614,11 @@ export function SmartLeadTable({
                         />
                       </td>
                       {visibleColumns.map((column) => renderCell(column.id))}
-                      <td className="p-5" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2.5 px-4" onClick={(e) => e.stopPropagation()}>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="rounded-full h-8 w-8 p-0 hover:bg-muted/50">
-                              <MoreHorizontal className="h-4 w-4" />
+                            <Button variant="ghost" size="sm" className="rounded-full h-7 w-7 p-0 hover:bg-muted/50">
+                              <MoreHorizontal className="h-3.5 w-3.5" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="rounded-xl border-border/60">

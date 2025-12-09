@@ -109,11 +109,14 @@ const ProgramManagement: React.FC = () => {
       metadata = {};
     }
     
-    // Determine status: check metadata.status first, then enrollment_status
-    const status = metadata.status === 'active' ? 'active' 
-      : metadata.status === 'draft' ? 'inactive'
-      : dbProgram.enrollment_status === 'open' ? 'active' 
-      : 'inactive';
+    // Determine status: check metadata.settings.is_active first, then metadata.status, then enrollment_status
+    const isActive = metadata.settings?.is_active !== undefined 
+      ? metadata.settings.is_active 
+      : metadata.status === 'active' 
+        ? true 
+        : dbProgram.enrollment_status === 'open';
+    
+    const status = isActive ? 'active' : 'inactive';
     
     // Return ALL fields from database, plus computed fields for UI
     return {
@@ -311,7 +314,15 @@ const ProgramManagement: React.FC = () => {
       <ComprehensiveProgramEditModal isOpen={comprehensiveEditModalOpen} onClose={() => setComprehensiveEditModalOpen(false)} program={selectedProgram} onSave={handleSaveProgram} />
 
       {/* Settings Program Modal */}
-      <ProgramSettingsModal isOpen={settingsModalOpen} onClose={() => setSettingsModalOpen(false)} program={selectedProgram} />
+      <ProgramSettingsModal 
+        isOpen={settingsModalOpen} 
+        onClose={() => setSettingsModalOpen(false)} 
+        program={selectedProgram} 
+        onSettingsSaved={() => {
+          queryClient.invalidateQueries({ queryKey: ['programs'] });
+          queryClient.invalidateQueries({ queryKey: ['program-enrollment'] });
+        }}
+      />
     </div>;
 };
 export default ProgramManagement;

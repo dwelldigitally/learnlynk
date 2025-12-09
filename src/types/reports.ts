@@ -31,6 +31,40 @@ export type FilterOperator =
 
 export type AggregationType = 'count' | 'sum' | 'avg' | 'min' | 'max';
 
+// Relative date filter values for auto-updating reports
+export type RelativeDateValue = 
+  | 'today'
+  | 'yesterday'
+  | 'last_7_days'
+  | 'last_14_days'
+  | 'last_30_days'
+  | 'last_90_days'
+  | 'this_week'
+  | 'last_week'
+  | 'this_month'
+  | 'last_month'
+  | 'this_quarter'
+  | 'last_quarter'
+  | 'this_year'
+  | 'last_year';
+
+export const RELATIVE_DATE_OPTIONS: { value: RelativeDateValue; label: string }[] = [
+  { value: 'today', label: 'Today' },
+  { value: 'yesterday', label: 'Yesterday' },
+  { value: 'last_7_days', label: 'Last 7 days' },
+  { value: 'last_14_days', label: 'Last 14 days' },
+  { value: 'last_30_days', label: 'Last 30 days' },
+  { value: 'last_90_days', label: 'Last 90 days' },
+  { value: 'this_week', label: 'This week' },
+  { value: 'last_week', label: 'Last week' },
+  { value: 'this_month', label: 'This month' },
+  { value: 'last_month', label: 'Last month' },
+  { value: 'this_quarter', label: 'This quarter' },
+  { value: 'last_quarter', label: 'Last quarter' },
+  { value: 'this_year', label: 'This year' },
+  { value: 'last_year', label: 'Last year' },
+];
+
 export interface FilterCondition {
   id: string;
   field: string;

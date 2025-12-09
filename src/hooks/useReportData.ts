@@ -1,6 +1,70 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { ReportConfig, FilterCondition, DATA_SOURCES } from '@/types/reports';
+import { ReportConfig, FilterCondition, DATA_SOURCES, RelativeDateValue } from '@/types/reports';
+import { startOfDay, subDays, startOfWeek, startOfMonth, startOfQuarter, startOfYear, endOfDay, endOfWeek, endOfMonth, endOfQuarter, endOfYear, subWeeks, subMonths, subQuarters, subYears } from 'date-fns';
+
+// Helper to resolve relative date values to absolute dates
+function resolveRelativeDate(value: RelativeDateValue): { start: Date; end: Date } {
+  const now = new Date();
+  
+  switch (value) {
+    case 'today':
+      return { start: startOfDay(now), end: endOfDay(now) };
+    case 'yesterday':
+      return { start: startOfDay(subDays(now, 1)), end: endOfDay(subDays(now, 1)) };
+    case 'last_7_days':
+      return { start: startOfDay(subDays(now, 7)), end: endOfDay(now) };
+    case 'last_14_days':
+      return { start: startOfDay(subDays(now, 14)), end: endOfDay(now) };
+    case 'last_30_days':
+      return { start: startOfDay(subDays(now, 30)), end: endOfDay(now) };
+    case 'last_90_days':
+      return { start: startOfDay(subDays(now, 90)), end: endOfDay(now) };
+    case 'this_week':
+      return { start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) };
+    case 'last_week':
+      return { start: startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }), end: endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }) };
+    case 'this_month':
+      return { start: startOfMonth(now), end: endOfMonth(now) };
+    case 'last_month':
+      return { start: startOfMonth(subMonths(now, 1)), end: endOfMonth(subMonths(now, 1)) };
+    case 'this_quarter':
+      return { start: startOfQuarter(now), end: endOfQuarter(now) };
+    case 'last_quarter':
+      return { start: startOfQuarter(subQuarters(now, 1)), end: endOfQuarter(subQuarters(now, 1)) };
+    case 'this_year':
+      return { start: startOfYear(now), end: endOfYear(now) };
+    case 'last_year':
+      return { start: startOfYear(subYears(now, 1)), end: endOfYear(subYears(now, 1)) };
+    default:
+      return { start: startOfDay(subDays(now, 7)), end: endOfDay(now) };
+  }
+}
+
+// Check if a value is a relative date
+function isRelativeDateValue(value: unknown): value is RelativeDateValue {
+  const relativeDates = [
+    'today', 'yesterday', 'last_7_days', 'last_14_days', 'last_30_days', 'last_90_days',
+    'this_week', 'last_week', 'this_month', 'last_month', 'this_quarter', 'last_quarter',
+    'this_year', 'last_year'
+  ];
+  return typeof value === 'string' && relativeDates.includes(value);
+}
+
+// Resolve filters with relative dates to absolute dates
+function resolveFilters(filters: FilterCondition[]): FilterCondition[] {
+  return filters.map(filter => {
+    if (typeof filter.value === 'string' && isRelativeDateValue(filter.value)) {
+      const { start, end } = resolveRelativeDate(filter.value);
+      return {
+        ...filter,
+        operator: 'between' as const,
+        value: [start.toISOString(), end.toISOString()] as [string, string],
+      };
+    }
+    return filter;
+  });
+}
 
 interface ReportDataResult {
   data: any[];
@@ -40,9 +104,10 @@ export function useReportData(config: Partial<ReportConfig> | null): ReportDataR
         .from(sourceConfig.table as any)
         .select(selectFields, { count: 'exact' });
 
-      // Apply filters
+      // Resolve relative date filters and apply them
       if (config.filters?.length) {
-        for (const filter of config.filters) {
+        const resolvedFilters = resolveFilters(config.filters);
+        for (const filter of resolvedFilters) {
           query = applyFilter(query, filter);
         }
       }

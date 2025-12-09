@@ -18,7 +18,7 @@ import {
 import { cn } from '@/lib/utils';
 import { 
   ReportConfig, DATA_SOURCES, DataSource, FieldDefinition, 
-  FilterCondition, FILTER_OPERATORS, AGGREGATIONS 
+  FilterCondition, FILTER_OPERATORS, AGGREGATIONS, RELATIVE_DATE_OPTIONS 
 } from '@/types/reports';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -320,13 +320,32 @@ export function ConfigurationPanel({ config, onConfigChange }: ConfigurationPane
                             </SelectContent>
                           </Select>
                           {!['is_null', 'is_not_null'].includes(filter.operator) && (
-                            <Input
-                              type={getFieldType(filter.field) === 'number' ? 'number' : getFieldType(filter.field) === 'date' ? 'date' : 'text'}
-                              placeholder="Value"
-                              value={filter.value as string || ''}
-                              onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
-                              className="flex-1 h-8 text-xs"
-                            />
+                            getFieldType(filter.field) === 'date' ? (
+                              <Select
+                                value={filter.value as string || ''}
+                                onValueChange={(value) => updateFilter(filter.id, { value })}
+                              >
+                                <SelectTrigger className="flex-1 h-8 text-xs">
+                                  <SelectValue placeholder="Select date range" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="custom">Custom Date</SelectItem>
+                                  {RELATIVE_DATE_OPTIONS.map(opt => (
+                                    <SelectItem key={opt.value} value={opt.value}>
+                                      {opt.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <Input
+                                type={getFieldType(filter.field) === 'number' ? 'number' : 'text'}
+                                placeholder="Value"
+                                value={filter.value as string || ''}
+                                onChange={(e) => updateFilter(filter.id, { value: e.target.value })}
+                                className="flex-1 h-8 text-xs"
+                              />
+                            )
                           )}
                         </div>
                       </Card>

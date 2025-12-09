@@ -13,7 +13,7 @@ export function PropertiesManagement() {
   const [activeTab, setActiveTab] = useState('leads');
 
   return (
-    <div className="w-full h-full p-4 sm:p-6 md:p-9 space-y-6 md:space-y-8">
+    <div className="w-full h-full px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px] space-y-6 md:space-y-8">
       <div className="flex items-center gap-3">
         <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
         <div>

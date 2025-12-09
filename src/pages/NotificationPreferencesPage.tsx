@@ -100,7 +100,7 @@ export default function NotificationPreferencesPage() {
 
   return (
     <ModernAdminLayout>
-      <div className="space-y-6 p-4 sm:p-6 md:p-9">
+      <div className="space-y-6 px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px]">
         <div className={`flex items-start gap-4 ${isMobile ? 'flex-col' : 'items-center justify-between'}`}>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Notification Preferences</h1>

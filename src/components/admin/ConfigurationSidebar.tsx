@@ -82,8 +82,6 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
       { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
       { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
-      { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
-      { name: "Bulk Operations", href: "/admin/leads/bulk", icon: Upload },
     ]
   },
   {

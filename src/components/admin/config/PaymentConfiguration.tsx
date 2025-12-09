@@ -13,7 +13,7 @@ export const PaymentConfiguration = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 md:p-9">
+    <div className="space-y-6 px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px]">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Payment Configuration</h1>
         <p className="text-muted-foreground mt-2 text-sm sm:text-base">

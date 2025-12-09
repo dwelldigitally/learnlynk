@@ -35,9 +35,13 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
 }) => {
   // Debug logging
   useEffect(() => {
-    console.log('FeeStructureStep - Received data:', data);
-    console.log('FeeStructureStep - Fee structure:', data.feeStructure);
-  }, [data]);
+    console.log('🏷️ FeeStructureStep MOUNT/UPDATE - Full data:', {
+      hasFeeStructure: !!data.feeStructure,
+      feeStructure: data.feeStructure,
+      domesticCount: data.feeStructure?.domesticFees?.length || 0,
+      internationalCount: data.feeStructure?.internationalFees?.length || 0
+    });
+  }, [data.feeStructure]);
   const addFee = (type: 'domestic' | 'international') => {
     const newFee: FeeItem = {
       id: `fee-${Date.now()}`,
@@ -55,15 +59,23 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
       scholarships: []
     };
 
-    onDataChange({
-      feeStructure: {
-        ...currentStructure,
-        [type === 'domestic' ? 'domesticFees' : 'internationalFees']: [
-          ...(type === 'domestic' ? currentStructure.domesticFees : currentStructure.internationalFees),
-          newFee
-        ]
-      }
+    const updatedStructure = {
+      ...currentStructure,
+      [type === 'domestic' ? 'domesticFees' : 'internationalFees']: [
+        ...(type === 'domestic' ? currentStructure.domesticFees : currentStructure.internationalFees),
+        newFee
+      ]
+    };
+    
+    console.log('🏷️ FeeStructureStep ADD FEE:', {
+      type,
+      newFee,
+      updatedStructure,
+      domesticCount: updatedStructure.domesticFees?.length,
+      internationalCount: updatedStructure.internationalFees?.length
     });
+    
+    onDataChange({ feeStructure: updatedStructure });
   };
 
   const removeFee = (type: 'domestic' | 'international', index: number) => {
@@ -77,12 +89,20 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
     const fees = type === 'domestic' ? currentStructure.domesticFees : currentStructure.internationalFees;
     const updatedFees = fees.filter((_, i) => i !== index);
 
-    onDataChange({
-      feeStructure: {
-        ...currentStructure,
-        [type === 'domestic' ? 'domesticFees' : 'internationalFees']: updatedFees
-      }
+    const updatedStructure = {
+      ...currentStructure,
+      [type === 'domestic' ? 'domesticFees' : 'internationalFees']: updatedFees
+    };
+    
+    console.log('🏷️ FeeStructureStep REMOVE FEE:', {
+      type,
+      index,
+      remainingFees: updatedFees.length,
+      domesticCount: updatedStructure.domesticFees?.length,
+      internationalCount: updatedStructure.internationalFees?.length
     });
+
+    onDataChange({ feeStructure: updatedStructure });
   };
 
   const updateFee = (type: 'domestic' | 'international', index: number, field: keyof FeeItem, value: any) => {
@@ -96,12 +116,22 @@ const FeeStructureStep: React.FC<FeeStructureStepProps> = ({
     const fees = type === 'domestic' ? [...currentStructure.domesticFees] : [...currentStructure.internationalFees];
     fees[index] = { ...fees[index], [field]: value };
 
-    onDataChange({
-      feeStructure: {
-        ...currentStructure,
-        [type === 'domestic' ? 'domesticFees' : 'internationalFees']: fees
-      }
+    const updatedStructure = {
+      ...currentStructure,
+      [type === 'domestic' ? 'domesticFees' : 'internationalFees']: fees
+    };
+    
+    console.log('🏷️ FeeStructureStep UPDATE FEE:', {
+      type,
+      index,
+      field,
+      value,
+      updatedFees: fees,
+      domesticCount: updatedStructure.domesticFees?.length,
+      internationalCount: updatedStructure.internationalFees?.length
     });
+
+    onDataChange({ feeStructure: updatedStructure });
   };
 
   const renderFeeForm = (type: 'domestic' | 'international') => {

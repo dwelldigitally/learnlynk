@@ -179,17 +179,24 @@ export function AdminSidebar({
                                     </NavLink>
                                   </DropdownMenuItem>)}
                               </DropdownMenuContent>
-                            </DropdownMenu> : <>
-                              <NavLink to={item.href} className={cn("flex items-center space-x-4 flex-1 h-12 px-3 rounded-md transition-colors", isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-muted")}>
+                            </DropdownMenu> : <CollapsibleTrigger asChild>
+                              <button
+                                className={cn(
+                                  "flex items-center space-x-4 w-full h-12 px-3 rounded-md transition-colors cursor-pointer",
+                                  isActive || isSubItemActive 
+                                    ? "bg-primary text-primary-foreground" 
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                                )}
+                              >
                                 <item.icon className="w-5 h-5" />
-                                <span>{item.name}</span>
-                              </NavLink>
-                              <CollapsibleTrigger asChild>
-                                <Button variant="ghost" size="sm" className="px-2 py-1 h-8 w-8">
-                                  {isGroupExpanded || isSubItemActive ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                </Button>
-                              </CollapsibleTrigger>
-                            </>}
+                                <span className="flex-1 text-left">{item.name}</span>
+                                {isGroupExpanded || isSubItemActive ? (
+                                  <ChevronDown className="w-4 h-4" />
+                                ) : (
+                                  <ChevronRight className="w-4 h-4" />
+                                )}
+                              </button>
+                            </CollapsibleTrigger>}
                         </div>
                         
                         {!isCollapsed && <CollapsibleContent className="ml-4 mt-1">

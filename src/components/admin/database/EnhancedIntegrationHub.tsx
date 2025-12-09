@@ -13,6 +13,7 @@ import { MessageSquare, CreditCard, Phone, Mail, Building, Settings, CheckCircle
 import { StripeSyncDashboard } from '../stripe/StripeSyncDashboard';
 import { useStripeSyncStatus } from '@/services/stripeDataService';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
 interface IntegrationField {
   key: string;
   label: string;
@@ -828,14 +829,15 @@ export const EnhancedIntegrationHub = () => {
   const totalCount = integrations.length;
 
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px] space-y-8">
         {/* Header Section */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Integrations</h1>
-              <p className="text-muted-foreground mt-1">Connect your favorite tools and services</p>
-            </div>
+            <PageHeader 
+              title="External Integrations" 
+              subtitle="Connect your favorite tools and services"
+              className="text-left"
+            />
             <div className="flex items-center gap-4">
               <div className="bg-card border border-border rounded-lg px-4 py-2 shadow-sm">
                 <div className="flex items-center gap-2">

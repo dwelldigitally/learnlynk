@@ -7,6 +7,7 @@ import { InvoiceTemplateTable } from '../payments/InvoiceTemplateTable';
 import { ReceiptTemplateTable } from '../payments/ReceiptTemplateTable';
 import { PaymentSettingsPanel } from '../payments/PaymentSettingsPanel';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
 
 export const PaymentConfiguration = () => {
   const isMobile = useIsMobile();
@@ -14,12 +15,11 @@ export const PaymentConfiguration = () => {
 
   return (
     <div className="space-y-6 px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px]">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Payment Configuration</h1>
-        <p className="text-muted-foreground mt-2 text-sm sm:text-base">
-          Manage payment templates, view statistics, and configure payment settings
-        </p>
-      </div>
+      <PageHeader 
+        title="Payment Configuration" 
+        subtitle="Manage payment templates, view statistics, and configure payment settings"
+        className="text-left"
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : "grid w-full grid-cols-4 lg:w-auto"}>

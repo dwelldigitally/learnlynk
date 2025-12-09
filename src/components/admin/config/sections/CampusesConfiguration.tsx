@@ -12,6 +12,7 @@ import { MasterCampus } from "@/types/masterData";
 import { useToast } from "@/hooks/use-toast";
 import { MapPin, Plus, Edit, Trash2, Building2, Users, Globe, Phone, Mail, Search, CheckCircle2, XCircle, Clock, Navigation } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
 
 export const CampusesConfiguration = () => {
   const isMobile = useIsMobile();
@@ -164,12 +165,11 @@ export const CampusesConfiguration = () => {
   return <div className="space-y-6 px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px]">
       {/* Header */}
       <div className="flex flex-col gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Campus Management</h1>
-          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
-            Manage your institution's campus locations and facilities
-          </p>
-        </div>
+        <PageHeader 
+          title="Campus Management" 
+          subtitle="Manage your institution's campus locations and facilities"
+          className="text-left"
+        />
 
         {/* Stats Cards */}
         

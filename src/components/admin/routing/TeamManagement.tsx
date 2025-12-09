@@ -15,7 +15,7 @@ export function TeamManagement({ onTeamCreated }: TeamManagementProps) {
 
   return (
     <div className="px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px] space-y-8">
-      <PageHeader title="Team Management" subtitle="Comprehensive team organization, roles, and permissions" />
+      <PageHeader title="Team Management" subtitle="Comprehensive team organization, roles, and permissions" className="text-left" />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 h-auto p-1">

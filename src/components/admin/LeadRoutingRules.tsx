@@ -14,6 +14,7 @@ import { AdvisorManagement } from './routing/AdvisorManagement';
 import { Plus, Edit, Trash2, Settings, Users, MapPin, Star, Zap, BarChart3, UserCheck, MoreVertical, Filter, GitBranch, Power, PowerOff, RefreshCw } from 'lucide-react';
 import { ConditionGroupsDisplay, AssignmentDisplay, getPriorityColor } from './routing/RuleCardHelpers';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { PageHeader } from '@/components/modern/PageHeader';
 
 interface LeadRoutingRulesProps {
   onRuleCreated?: () => void;
@@ -357,12 +358,11 @@ export function LeadRoutingRules({
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <div className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Page Header */}
-        <div className="space-y-2">
-          <h1 className="text-4xl font-bold text-foreground tracking-tight">Lead Routing Rules</h1>
-          <p className="text-lg text-muted-foreground max-w-3xl">
-            Configure intelligent lead assignment and routing rules to automatically distribute leads to the right team members
-          </p>
-        </div>
+        <PageHeader 
+          title="Lead Routing Rules" 
+          subtitle="Configure intelligent lead assignment and routing rules to automatically distribute leads to the right team members"
+          className="text-left"
+        />
 
         {/* Action Bar */}
         <div className="flex items-center justify-between gap-4 flex-wrap">

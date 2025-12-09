@@ -24,6 +24,7 @@ import { EnhancedLeadDetailModal } from './EnhancedLeadDetailModal';
 import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { UnifiedLeadHeader, ColumnConfig } from './leads/UnifiedLeadHeader';
+import { ImportDialog } from './bulk/dialogs/ImportDialog';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap, Search, Users, Phone, Mail, Calendar, Star, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock, User, Tag, ArrowRight } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
@@ -54,6 +55,7 @@ export function LeadManagement() {
   const [showEnhancedModal, setShowEnhancedModal] = useState(false);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showLeadDetail, setShowLeadDetail] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const [unassignedCount, setUnassignedCount] = useState(0);
   const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
   const [tableColumns, setTableColumns] = useState<ColumnConfig[]>([
@@ -557,6 +559,7 @@ export function LeadManagement() {
             onClearFilters={() => setFilters({})}
             onAddLead={() => setShowLeadForm(true)}
             onExport={handleExport}
+            onImport={() => setShowImportDialog(true)}
             onSearch={handleSearch}
             columns={tableColumns}
             onColumnsChange={setTableColumns}
@@ -639,6 +642,13 @@ export function LeadManagement() {
         }} 
       />
     )}
+
+    {/* Import Dialog */}
+    <ImportDialog
+      open={showImportDialog}
+      onOpenChange={setShowImportDialog}
+      onSuccess={() => loadLeads()}
+    />
     </div>
   );
 }

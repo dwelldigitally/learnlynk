@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Download, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X } from 'lucide-react';
+import { Plus, Download, Upload, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X } from 'lucide-react';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -39,6 +39,7 @@ interface UnifiedLeadHeaderProps {
   onClearFilters: () => void;
   onAddLead: () => void;
   onExport: () => void;
+  onImport: () => void;
   onSearch?: (query: string) => void;
   columns?: ColumnConfig[];
   onColumnsChange?: (columns: ColumnConfig[]) => void;
@@ -54,6 +55,7 @@ export function UnifiedLeadHeader({
   onClearFilters,
   onAddLead,
   onExport,
+  onImport,
   onSearch,
   columns = [],
   onColumnsChange
@@ -220,6 +222,10 @@ export function UnifiedLeadHeader({
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
+            <Button variant="outline" onClick={onImport} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
+              <Upload className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Import</span>
+            </Button>
             <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
               <Download className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Export</span>

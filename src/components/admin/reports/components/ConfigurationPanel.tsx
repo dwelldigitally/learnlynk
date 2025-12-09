@@ -345,13 +345,18 @@ export function ConfigurationPanel({ config, onConfigChange }: ConfigurationPane
               </AccordionContent>
             </AccordionItem>
 
-            {/* Chart Configuration */}
-            {config.visualizationType !== 'table' && config.selectedFields.length > 0 && (
+            {/* Chart Configuration - Always show for chart types */}
+            {config.visualizationType !== 'table' && (
               <AccordionItem value="chart-config" className="border rounded-lg bg-background/50 backdrop-blur-sm overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50">
                   <div className="flex items-center gap-2">
                     <Settings2 className="h-4 w-4 text-primary" />
                     <span className="font-medium text-sm">Chart Options</span>
+                    {!config.chartConfig?.groupBy && config.selectedFields.length > 0 && (
+                      <Badge variant="outline" className="ml-2 text-xs text-amber-600 border-amber-300">
+                        Configure
+                      </Badge>
+                    )}
                   </div>
                 </AccordionTrigger>
                 <AccordionContent className="px-4 pb-4 space-y-4">

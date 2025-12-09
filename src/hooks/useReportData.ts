@@ -64,14 +64,22 @@ export function useReportData(config: Partial<ReportConfig> | null): ReportDataR
       // Process data for visualization
       let processedData = result || [];
 
-      // If aggregation is needed for charts
-      if (config.visualizationType !== 'table' && config.chartConfig?.groupBy) {
-        processedData = aggregateData(
-          processedData,
-          config.chartConfig.groupBy,
-          config.chartConfig.aggregation || 'count',
-          config.chartConfig.aggregationField
-        );
+      // If aggregation is needed for charts - auto-select groupBy if not set
+      if (config.visualizationType !== 'table') {
+        const groupByField = config.chartConfig?.groupBy || 
+          sourceConfig.fields.find(f => 
+            (f.category === 'dimension' || f.category === 'date') && 
+            config.selectedFields?.includes(f.name)
+          )?.name;
+        
+        if (groupByField) {
+          processedData = aggregateData(
+            processedData,
+            groupByField,
+            config.chartConfig?.aggregation || 'count',
+            config.chartConfig?.aggregationField
+          );
+        }
       }
 
       setData(processedData);

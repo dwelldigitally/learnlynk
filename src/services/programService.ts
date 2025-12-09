@@ -125,7 +125,8 @@ export class ProgramService {
       throw new Error('User not authenticated');
     }
 
-    console.log('ProgramService.updateProgram - Input program:', program);
+    console.log('🔵 ProgramService.updateProgram - Input program:', program);
+    console.log('🔵 ProgramService.updateProgram - Input feeStructure:', JSON.stringify(program.feeStructure, null, 2));
 
     // Prepare the update data with proper JSONB field mapping
     // Always prefer camelCase (from UI) over snake_case (from DB)
@@ -137,18 +138,20 @@ export class ProgramService {
     const journeyConfig = program.journeyConfiguration ?? program.journey_config ?? {};
     const practicumConfig = program.practicumConfig ?? program.practicum ?? program.practicum_config ?? {};
 
-    console.log('ProgramService.updateProgram - Parsed fields:', {
-      entryRequirements,
-      feeStructure,
-      courses
-    });
+    console.log('🔵 ProgramService.updateProgram - Parsed feeStructure:', JSON.stringify(feeStructure, null, 2));
+    console.log('🔵 ProgramService.updateProgram - Domestic fees count:', feeStructure?.domesticFees?.length);
+    console.log('🔵 ProgramService.updateProgram - International fees count:', feeStructure?.internationalFees?.length);
+
+    // Calculate total tuition from fee structure for backward compatibility with legacy tuition column
+    const totalDomesticTuition = feeStructure?.domesticFees?.reduce((sum: number, fee: any) => sum + (fee.amount || 0), 0) || 0;
 
     const updateData: Record<string, any> = {
       name: program.name,
       type: program.type,
       description: program.description,
       duration: program.duration,
-      tuition: program.tuition,
+      // Sync tuition column with fee_structure total for backward compatibility
+      tuition: totalDomesticTuition > 0 ? totalDomesticTuition : (program.tuition || 0),
       next_intake: program.next_intake,
       enrollment_status: program.enrollment_status,
       requirements: program.requirements,
@@ -174,6 +177,8 @@ export class ProgramService {
         marketingCopy: program.marketingCopy
       }
     };
+
+    console.log('🔵 ProgramService.updateProgram - Final updateData fee_structure:', JSON.stringify(updateData.fee_structure, null, 2));
 
     // Remove undefined values but keep empty arrays/objects
     Object.keys(updateData).forEach(key => {

@@ -26,6 +26,7 @@ import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard
 import { UnifiedLeadHeader, ColumnConfig } from './leads/UnifiedLeadHeader';
 import { ImportDialog } from './bulk/dialogs/ImportDialog';
 import { useDemoDataAccess } from '@/services/demoDataService';
+import { useTablePreferences } from '@/hooks/useTablePreferences';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap, Search, Users, Phone, Mail, Calendar, Star, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock, User, Tag, ArrowRight } from 'lucide-react';
 import { HelpIcon } from '@/components/ui/help-icon';
 import { useHelpContent } from '@/hooks/useHelpContent';
@@ -40,15 +41,26 @@ export function LeadManagement() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { getHelpContent } = useHelpContent();
+  
+  // Use persisted table preferences
+  const { 
+    preferences, 
+    isLoading: preferencesLoading,
+    updateColumns,
+    updateColumnWidths,
+    updateSort,
+    updatePageSize: updatePersistedPageSize
+  } = useTablePreferences();
+
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(50);
+  const [pageSize, setPageSize] = useState(preferences.pageSize);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [filters, setFilters] = useState<EnhancedLeadFilters>({});
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortBy, setSortBy] = useState(preferences.sortColumn);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(preferences.sortOrder);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [selectedLeadIds, setSelectedLeadIds] = useState<string[]>([]);
   const [activeStage, setActiveStage] = useState('all');
@@ -58,19 +70,17 @@ export function LeadManagement() {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [unassignedCount, setUnassignedCount] = useState(0);
   const [showUnassignedOnly, setShowUnassignedOnly] = useState(false);
-  const [tableColumns, setTableColumns] = useState<ColumnConfig[]>([
-    { id: 'name', label: 'Name', visible: true, sortable: true },
-    { id: 'email', label: 'Email', visible: true, sortable: true },
-    { id: 'phone', label: 'Phone', visible: true, sortable: false },
-    { id: 'source', label: 'Source', visible: true, sortable: true },
-    { id: 'created_at', label: 'Created', visible: true, sortable: true },
-    { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false },
-    { id: 'stage', label: 'Stage', visible: true, sortable: true },
-    { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true },
-    { id: 'priority', label: 'Priority', visible: true, sortable: true },
-    { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false },
-    { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false },
-  ]);
+  const [tableColumns, setTableColumns] = useState<ColumnConfig[]>(preferences.columns);
+  
+  // Sync state with loaded preferences
+  useEffect(() => {
+    if (!preferencesLoading) {
+      setTableColumns(preferences.columns);
+      setSortBy(preferences.sortColumn);
+      setSortOrder(preferences.sortOrder);
+      setPageSize(preferences.pageSize);
+    }
+  }, [preferencesLoading, preferences]);
   
   const [filterOptions, setFilterOptions] = useState({
     sources: [] as string[],
@@ -257,6 +267,7 @@ export function LeadManagement() {
   };
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
+    updatePersistedPageSize(size);
     setCurrentPage(1); // Reset to first page
   };
   const handleSearch = (query: string) => {
@@ -269,6 +280,7 @@ export function LeadManagement() {
   const handleSort = (column: string, order: 'asc' | 'desc') => {
     setSortBy(column);
     setSortOrder(order);
+    updateSort(column, order);
     setCurrentPage(1); // Reset to first page
   };
   const handleFilter = (newFilters: Record<string, any>) => {
@@ -277,6 +289,17 @@ export function LeadManagement() {
       ...newFilters
     }));
     setCurrentPage(1); // Reset to first page
+  };
+  
+  // Handle column changes from header
+  const handleColumnsChange = (newColumns: ColumnConfig[]) => {
+    setTableColumns(newColumns);
+    updateColumns(newColumns);
+  };
+  
+  // Handle column width changes from table
+  const handleColumnWidthsChange = (widths: Record<string, number>) => {
+    updateColumnWidths(widths);
   };
 
   // Auto-reload when switching between views
@@ -562,7 +585,7 @@ export function LeadManagement() {
             onImport={() => setShowImportDialog(true)}
             onSearch={handleSearch}
             columns={tableColumns}
-            onColumnsChange={setTableColumns}
+            onColumnsChange={handleColumnsChange}
           />
         </div>
       </div>
@@ -608,6 +631,10 @@ export function LeadManagement() {
                   onPageChange={handlePageChange}
                   onPageSizeChange={handlePageSizeChange}
                   columns={tableColumns}
+                  initialColumnWidths={preferences.columnWidths}
+                  onColumnWidthsChange={handleColumnWidthsChange}
+                  initialSortColumn={sortBy}
+                  initialSortOrder={sortOrder}
                 />
               </div>
             </div>

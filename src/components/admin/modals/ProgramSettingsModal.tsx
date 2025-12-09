@@ -1,135 +1,135 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Settings, 
-  Bell, 
   Users, 
-  Calendar, 
-  DollarSign, 
-  FileText, 
-  AlertTriangle,
-  Shield,
-  Mail,
-  MessageSquare
+  Mail, 
+  Bell,
+  Eye,
+  Star,
+  Globe,
+  RotateCcw
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Program {
   id: string;
   name: string;
   status: string;
+  metadata?: Record<string, unknown> | null;
+}
+
+interface ProgramSettings {
+  waitlist_enabled: boolean;
+  contact_email: string;
+  email_notifications: boolean;
+  publicly_visible: boolean;
+  featured_program: boolean;
+  allow_online_applications: boolean;
 }
 
 interface ProgramSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
   program: Program | null;
+  onSettingsSaved?: () => void;
 }
 
-export const ProgramSettingsModal = ({ isOpen, onClose, program }: ProgramSettingsModalProps) => {
+const DEFAULT_SETTINGS: ProgramSettings = {
+  waitlist_enabled: true,
+  contact_email: "",
+  email_notifications: true,
+  publicly_visible: true,
+  featured_program: false,
+  allow_online_applications: true,
+};
+
+export const ProgramSettingsModal = ({ isOpen, onClose, program, onSettingsSaved }: ProgramSettingsModalProps) => {
   const { toast } = useToast();
-  
-  // Settings state
-  const [settings, setSettings] = useState({
-    // Enrollment Settings
-    autoAcceptApplications: false,
-    requireManualReview: true,
-    waitlistEnabled: true,
-    capacityAlerts: true,
-    
-    // Notification Settings
-    enrollmentNotifications: true,
-    applicationNotifications: true,
-    intakeReminderNotifications: true,
-    emailNotifications: true,
-    
-    // Marketing Settings
-    publiclyVisible: true,
-    featuredProgram: false,
-    allowOnlineApplications: true,
-    showAvailableSpots: true,
-    
-    // Financial Settings
-    paymentPlansEnabled: true,
-    earlyBirdDiscount: false,
-    scholarshipEligible: true,
-    
-    // Document Requirements
-    transcriptRequired: true,
-    personalStatementRequired: true,
-    referencesRequired: true,
-    portfolioRequired: false,
-  });
+  const [settings, setSettings] = useState<ProgramSettings>(DEFAULT_SETTINGS);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const [customSettings, setCustomSettings] = useState({
-    applicationDeadlineDays: "30",
-    withdrawalDeadlineDays: "14",
-    customApplicationInstructions: "",
-    contactEmail: "",
-    maxApplicationsPerIntake: "100",
-  });
+  // Load settings from program metadata when modal opens
+  useEffect(() => {
+    if (program && isOpen) {
+      const metadata = program.metadata as Record<string, unknown> | null;
+      const savedSettings = metadata?.settings as ProgramSettings | undefined;
+      
+      if (savedSettings) {
+        setSettings({
+          waitlist_enabled: savedSettings.waitlist_enabled ?? DEFAULT_SETTINGS.waitlist_enabled,
+          contact_email: savedSettings.contact_email ?? DEFAULT_SETTINGS.contact_email,
+          email_notifications: savedSettings.email_notifications ?? DEFAULT_SETTINGS.email_notifications,
+          publicly_visible: savedSettings.publicly_visible ?? DEFAULT_SETTINGS.publicly_visible,
+          featured_program: savedSettings.featured_program ?? DEFAULT_SETTINGS.featured_program,
+          allow_online_applications: savedSettings.allow_online_applications ?? DEFAULT_SETTINGS.allow_online_applications,
+        });
+      } else {
+        setSettings(DEFAULT_SETTINGS);
+      }
+    }
+  }, [program, isOpen]);
 
-  const handleSettingChange = (key: string, value: boolean) => {
+  const handleSettingChange = (key: keyof ProgramSettings, value: boolean | string) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleCustomSettingChange = (key: string, value: string) => {
-    setCustomSettings(prev => ({ ...prev, [key]: value }));
-  };
+  const handleSaveSettings = async () => {
+    if (!program) return;
+    
+    setIsSaving(true);
+    try {
+      // Get existing metadata and merge with new settings
+      const existingMetadata = (program.metadata as Record<string, unknown>) || {};
+      const updatedMetadata = {
+        ...existingMetadata,
+        settings: {
+          waitlist_enabled: settings.waitlist_enabled,
+          contact_email: settings.contact_email,
+          email_notifications: settings.email_notifications,
+          publicly_visible: settings.publicly_visible,
+          featured_program: settings.featured_program,
+          allow_online_applications: settings.allow_online_applications,
+        },
+      };
 
-  const handleSaveSettings = () => {
-    console.log("Saving settings:", { settings, customSettings });
-    toast({
-      title: "Settings Updated",
-      description: "Program settings have been saved successfully.",
-    });
-    onClose();
+      const { error } = await supabase
+        .from('programs')
+        .update({ metadata: updatedMetadata as unknown as Record<string, never> })
+        .eq('id', program.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Settings Saved",
+        description: "Program settings have been updated successfully.",
+      });
+      
+      onSettingsSaved?.();
+      onClose();
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleResetSettings = () => {
-    setSettings({
-      autoAcceptApplications: false,
-      requireManualReview: true,
-      waitlistEnabled: true,
-      capacityAlerts: true,
-      enrollmentNotifications: true,
-      applicationNotifications: true,
-      intakeReminderNotifications: true,
-      emailNotifications: true,
-      publiclyVisible: true,
-      featuredProgram: false,
-      allowOnlineApplications: true,
-      showAvailableSpots: true,
-      paymentPlansEnabled: true,
-      earlyBirdDiscount: false,
-      scholarshipEligible: true,
-      transcriptRequired: true,
-      personalStatementRequired: true,
-      referencesRequired: true,
-      portfolioRequired: false,
-    });
-    
-    setCustomSettings({
-      applicationDeadlineDays: "30",
-      withdrawalDeadlineDays: "14",
-      customApplicationInstructions: "",
-      contactEmail: "",
-      maxApplicationsPerIntake: "100",
-    });
-    
+    setSettings(DEFAULT_SETTINGS);
     toast({
       title: "Settings Reset",
-      description: "All settings have been reset to default values.",
+      description: "All settings have been reset to defaults.",
     });
   };
 
@@ -137,399 +137,145 @@ export const ProgramSettingsModal = ({ isOpen, onClose, program }: ProgramSettin
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <div className="flex items-center space-x-2">
-            <Settings className="h-5 w-5" />
-            <DialogTitle>Program Settings - {program.name}</DialogTitle>
+          <div className="flex items-center gap-2">
+            <Settings className="h-5 w-5 text-primary" />
+            <DialogTitle>Program Settings</DialogTitle>
           </div>
+          <p className="text-sm text-muted-foreground mt-1">{program.name}</p>
         </DialogHeader>
 
-        <Tabs defaultValue="enrollment" className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="enrollment">Enrollment</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="marketing">Marketing</TabsTrigger>
-            <TabsTrigger value="financial">Financial</TabsTrigger>
-            <TabsTrigger value="advanced">Advanced</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="enrollment" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5" />
-                  <span>Enrollment Settings</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Auto-Accept Applications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Automatically accept applications that meet basic requirements
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.autoAcceptApplications}
-                    onCheckedChange={(value) => handleSettingChange('autoAcceptApplications', value)}
-                  />
+        <Card className="border-border/50">
+          <CardContent className="pt-6 space-y-5">
+            {/* Enable Waitlist */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Users className="h-4 w-4 text-primary" />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Require Manual Review</Label>
-                    <p className="text-sm text-muted-foreground">
-                      All applications require manual review before acceptance
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.requireManualReview}
-                    onCheckedChange={(value) => handleSettingChange('requireManualReview', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Enable Waitlist</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow students to join waitlist when program is full
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.waitlistEnabled}
-                    onCheckedChange={(value) => handleSettingChange('waitlistEnabled', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Capacity Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified when enrollment reaches 80% capacity
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.capacityAlerts}
-                    onCheckedChange={(value) => handleSettingChange('capacityAlerts', value)}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Application Deadline (days before intake)</Label>
-                    <Input
-                      type="number"
-                      value={customSettings.applicationDeadlineDays}
-                      onChange={(e) => handleCustomSettingChange('applicationDeadlineDays', e.target.value)}
-                      placeholder="30"
-                    />
-                  </div>
-                  <div>
-                    <Label>Max Applications per Intake</Label>
-                    <Input
-                      type="number"
-                      value={customSettings.maxApplicationsPerIntake}
-                      onChange={(e) => handleCustomSettingChange('maxApplicationsPerIntake', e.target.value)}
-                      placeholder="100"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notifications" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bell className="h-5 w-5" />
-                  <span>Notification Settings</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Enrollment Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified about new enrollments and status changes
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.enrollmentNotifications}
-                    onCheckedChange={(value) => handleSettingChange('enrollmentNotifications', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Application Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive alerts for new applications and reviews needed
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.applicationNotifications}
-                    onCheckedChange={(value) => handleSettingChange('applicationNotifications', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Intake Reminders</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get reminders about upcoming intake dates
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.intakeReminderNotifications}
-                    onCheckedChange={(value) => handleSettingChange('intakeReminderNotifications', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Send notifications via email in addition to in-app
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.emailNotifications}
-                    onCheckedChange={(value) => handleSettingChange('emailNotifications', value)}
-                  />
-                </div>
-
                 <div>
-                  <Label>Contact Email for Inquiries</Label>
-                  <Input
-                    type="email"
-                    value={customSettings.contactEmail}
-                    onChange={(e) => handleCustomSettingChange('contactEmail', e.target.value)}
-                    placeholder="program.coordinator@college.edu"
-                  />
+                  <Label className="font-medium">Enable Waitlist</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Allow students to join waitlist when full
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+              <Switch
+                checked={settings.waitlist_enabled}
+                onCheckedChange={(value) => handleSettingChange('waitlist_enabled', value)}
+              />
+            </div>
 
-          <TabsContent value="marketing" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <MessageSquare className="h-5 w-5" />
-                  <span>Marketing & Visibility</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Publicly Visible</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Show this program on public website and course catalog
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.publiclyVisible}
-                    onCheckedChange={(value) => handleSettingChange('publiclyVisible', value)}
-                  />
+            {/* Contact Email */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Mail className="h-4 w-4 text-primary" />
                 </div>
+                <Label className="font-medium">Contact Email for Inquiries</Label>
+              </div>
+              <Input
+                type="email"
+                value={settings.contact_email}
+                onChange={(e) => handleSettingChange('contact_email', e.target.value)}
+                placeholder="admissions@institution.edu"
+                className="ml-11"
+              />
+            </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Featured Program</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Highlight this program on homepage and marketing materials
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.featuredProgram}
-                    onCheckedChange={(value) => handleSettingChange('featuredProgram', value)}
-                  />
+            {/* Email Notifications */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Bell className="h-4 w-4 text-primary" />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Allow Online Applications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Enable students to apply online through the website
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.allowOnlineApplications}
-                    onCheckedChange={(value) => handleSettingChange('allowOnlineApplications', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Show Available Spots</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Display remaining capacity to prospective students
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.showAvailableSpots}
-                    onCheckedChange={(value) => handleSettingChange('showAvailableSpots', value)}
-                  />
-                </div>
-
                 <div>
-                  <Label>Custom Application Instructions</Label>
-                  <Textarea
-                    value={customSettings.customApplicationInstructions}
-                    onChange={(e) => handleCustomSettingChange('customApplicationInstructions', e.target.value)}
-                    placeholder="Additional instructions for applicants..."
-                    className="min-h-20"
-                  />
+                  <Label className="font-medium">Email Notifications</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Receive email alerts for all applications
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+              <Switch
+                checked={settings.email_notifications}
+                onCheckedChange={(value) => handleSettingChange('email_notifications', value)}
+              />
+            </div>
 
-          <TabsContent value="financial" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="h-5 w-5" />
-                  <span>Financial Settings</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Payment Plans Enabled</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Allow students to pay tuition in installments
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.paymentPlansEnabled}
-                    onCheckedChange={(value) => handleSettingChange('paymentPlansEnabled', value)}
-                  />
+            {/* Publicly Visible */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Eye className="h-4 w-4 text-primary" />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Early Bird Discount</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Offer discounts for early applications
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.earlyBirdDiscount}
-                    onCheckedChange={(value) => handleSettingChange('earlyBirdDiscount', value)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Scholarship Eligible</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Students in this program can apply for scholarships
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.scholarshipEligible}
-                    onCheckedChange={(value) => handleSettingChange('scholarshipEligible', value)}
-                  />
-                </div>
-
                 <div>
-                  <Label>Withdrawal Deadline (days after start)</Label>
-                  <Input
-                    type="number"
-                    value={customSettings.withdrawalDeadlineDays}
-                    onChange={(e) => handleCustomSettingChange('withdrawalDeadlineDays', e.target.value)}
-                    placeholder="14"
-                  />
+                  <Label className="font-medium">Publicly Visible</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Show on public website and catalog
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+              </div>
+              <Switch
+                checked={settings.publicly_visible}
+                onCheckedChange={(value) => handleSettingChange('publicly_visible', value)}
+              />
+            </div>
 
-          <TabsContent value="advanced" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5" />
-                  <span>Document Requirements</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Transcript Required</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Official transcripts must be submitted
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.transcriptRequired}
-                    onCheckedChange={(value) => handleSettingChange('transcriptRequired', value)}
-                  />
+            {/* Featured Program */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Star className="h-4 w-4 text-primary" />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Personal Statement Required</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Students must submit a personal statement
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.personalStatementRequired}
-                    onCheckedChange={(value) => handleSettingChange('personalStatementRequired', value)}
-                  />
+                <div>
+                  <Label className="font-medium">Featured Program</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Highlight on homepage and marketing
+                  </p>
                 </div>
+              </div>
+              <Switch
+                checked={settings.featured_program}
+                onCheckedChange={(value) => handleSettingChange('featured_program', value)}
+              />
+            </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>References Required</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Reference letters must be provided
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.referencesRequired}
-                    onCheckedChange={(value) => handleSettingChange('referencesRequired', value)}
-                  />
+            {/* Allow Online Applications */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Globe className="h-4 w-4 text-primary" />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <Label>Portfolio Required</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Students must submit a portfolio of work
-                    </p>
-                  </div>
-                  <Switch
-                    checked={settings.portfolioRequired}
-                    onCheckedChange={(value) => handleSettingChange('portfolioRequired', value)}
-                  />
+                <div>
+                  <Label className="font-medium">Allow Online Applications</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Enable online application submissions
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              <Switch
+                checked={settings.allow_online_applications}
+                onCheckedChange={(value) => handleSettingChange('allow_online_applications', value)}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertDescription>
-                Changes to document requirements will only apply to new applications. 
-                Existing applications will maintain their original requirements.
-              </AlertDescription>
-            </Alert>
-          </TabsContent>
-        </Tabs>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={handleResetSettings}>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button 
+            variant="outline" 
+            onClick={handleResetSettings}
+            className="gap-2"
+          >
+            <RotateCcw className="h-4 w-4" />
             Reset to Defaults
           </Button>
-          <Button variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleSaveSettings}>
-            Save Settings
+          <Button 
+            onClick={handleSaveSettings}
+            disabled={isSaving}
+          >
+            {isSaving ? "Saving..." : "Save Settings"}
           </Button>
         </DialogFooter>
       </DialogContent>

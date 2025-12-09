@@ -1876,6 +1876,42 @@ export type Database = {
         }
         Relationships: []
       }
+      compliance_report_configs: {
+        Row: {
+          columns: Json
+          created_at: string
+          filters: Json | null
+          id: string
+          is_default: boolean | null
+          name: string
+          report_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          columns?: Json
+          created_at?: string
+          filters?: Json | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          report_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          columns?: Json
+          created_at?: string
+          filters?: Json | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          report_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       configuration_metadata: {
         Row: {
           category: string

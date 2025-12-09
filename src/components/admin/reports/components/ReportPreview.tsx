@@ -19,7 +19,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { FileX } from 'lucide-react';
+import { FileX, Settings2 } from 'lucide-react';
 
 interface ReportPreviewProps {
   config: Partial<ReportConfig>;
@@ -56,6 +56,20 @@ export function ReportPreview({ config, data, isLoading }: ReportPreviewProps) {
         <FileX className="h-12 w-12 mb-4 opacity-50" />
         <p className="font-medium">No data to display</p>
         <p className="text-sm">Try adjusting your filters or selecting different fields</p>
+      </div>
+    );
+  }
+
+  // Check if chart data has proper structure for charts
+  const isChartVisualization = config.visualizationType !== 'table';
+  const hasChartDataStructure = data.length > 0 && data[0]?.hasOwnProperty('name') && data[0]?.hasOwnProperty('value');
+  
+  if (isChartVisualization && !hasChartDataStructure) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+        <Settings2 className="h-12 w-12 mb-4 opacity-50" />
+        <p className="font-medium">Configure Chart Options</p>
+        <p className="text-sm text-center">Select a "Group By" field in Chart Options to aggregate your data for visualization</p>
       </div>
     );
   }

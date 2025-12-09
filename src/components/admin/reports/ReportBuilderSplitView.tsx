@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
 import { X, Save, Loader2 } from 'lucide-react';
-import { ReportConfig, DataSource } from '@/types/reports';
+import { ReportConfig, DataSource, DATA_SOURCES } from '@/types/reports';
 import { ConfigurationPanel } from './components/ConfigurationPanel';
 import { LivePreviewPanel } from './components/LivePreviewPanel';
 import { useCustomReports } from '@/hooks/useCustomReports';
@@ -66,7 +66,30 @@ export function ReportBuilderSplitView({ open, onOpenChange, editReport }: Repor
   );
 
   const updateConfig = (updates: Partial<ReportConfig>) => {
-    setConfig(prev => ({ ...prev, ...updates }));
+    setConfig(prev => {
+      const newConfig = { ...prev, ...updates };
+      
+      // Auto-configure chartConfig when switching to chart visualization
+      if (updates.visualizationType && updates.visualizationType !== 'table' && updates.visualizationType !== prev.visualizationType) {
+        const source = DATA_SOURCES.find(s => s.id === newConfig.dataSource);
+        const selectedDimensionFields = source?.fields.filter(f => 
+          (f.category === 'dimension' || f.category === 'date') && 
+          newConfig.selectedFields.includes(f.name)
+        ) || [];
+        
+        if (selectedDimensionFields.length > 0 && !newConfig.chartConfig?.groupBy) {
+          newConfig.chartConfig = {
+            ...newConfig.chartConfig,
+            groupBy: selectedDimensionFields[0]?.name,
+            aggregation: newConfig.chartConfig?.aggregation || 'count',
+            showLegend: true,
+            showGrid: true,
+          };
+        }
+      }
+      
+      return newConfig;
+    });
   };
 
   const handleSave = async () => {

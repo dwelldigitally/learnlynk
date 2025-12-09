@@ -6,29 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Building2, Mail, Phone, MapPin, Globe, Clock, Calendar, Heart, Upload, X, Linkedin, Twitter, Facebook, Instagram } from 'lucide-react';
+import { Building2, Mail, Phone, MapPin, Globe, Upload, X, Linkedin, Twitter, Facebook, Instagram } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from '@/components/modern/PageHeader';
-
-interface WorkingHours {
-  [key: string]: {
-    start: string;
-    end: string;
-    enabled: boolean;
-  };
-}
-
-interface Holiday {
-  id: string;
-  name: string;
-  date: string;
-  recurring: boolean;
-  type: string;
-}
 
 const timezones = [
   { value: 'America/Toronto', label: 'Eastern Time (Toronto)', offset: 'UTC-5' },
@@ -65,8 +47,6 @@ const dataResidencyRegions = [
   { value: 'UK', label: 'United Kingdom', description: 'Data stored on UK servers' },
 ];
 
-const weekDays = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
 export function CompanySettingsRedesigned() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -74,6 +54,7 @@ export function CompanySettingsRedesigned() {
   const [saving, setSaving] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [existingProfileId, setExistingProfileId] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -82,10 +63,8 @@ export function CompanySettingsRedesigned() {
     primary_color: '#3b82f6',
     secondary_color: '#6b7280',
     accent_color: '#10b981',
-    description: '',
     website: '',
     founded_year: new Date().getFullYear(),
-    employee_count: 0,
     email: '',
     phone: '',
     street_address: '',
@@ -101,26 +80,6 @@ export function CompanySettingsRedesigned() {
     default_language: 'en',
     currency: 'USD',
     data_residency_region: 'CA',
-    mission_statement: '',
-    vision_statement: '',
-    core_values: '',
-    working_hours: {
-      monday: { start: '09:00', end: '17:00', enabled: true },
-      tuesday: { start: '09:00', end: '17:00', enabled: true },
-      wednesday: { start: '09:00', end: '17:00', enabled: true },
-      thursday: { start: '09:00', end: '17:00', enabled: true },
-      friday: { start: '09:00', end: '17:00', enabled: true },
-      saturday: { start: '09:00', end: '17:00', enabled: false },
-      sunday: { start: '09:00', end: '17:00', enabled: false },
-    } as WorkingHours,
-    holidays: [] as Holiday[],
-  });
-
-  const [newHoliday, setNewHoliday] = useState({
-    name: '',
-    date: '',
-    recurring: false,
-    type: 'national',
   });
 
   useEffect(() => {
@@ -138,16 +97,15 @@ export function CompanySettingsRedesigned() {
       if (error) throw error;
 
       if (data) {
+        setExistingProfileId(data.id);
         setFormData({
           name: data.name || '',
           logo_url: data.logo_url || '',
           primary_color: data.primary_color || '#3b82f6',
           secondary_color: data.secondary_color || '#6b7280',
           accent_color: data.accent_color || '#10b981',
-          description: data.description || '',
           website: data.website || '',
           founded_year: data.founded_year || new Date().getFullYear(),
-          employee_count: data.employee_count || 0,
           email: data.email || '',
           phone: data.phone || '',
           street_address: data.street_address || '',
@@ -163,11 +121,6 @@ export function CompanySettingsRedesigned() {
           default_language: data.default_language || 'en',
           currency: data.currency || 'USD',
           data_residency_region: data.data_residency_region || 'CA',
-          mission_statement: data.mission_statement || '',
-          vision_statement: data.vision_statement || '',
-          core_values: data.core_values || '',
-          working_hours: (data.working_hours as unknown as WorkingHours) || formData.working_hours,
-          holidays: (data.holidays as unknown as Holiday[]) || [],
         });
         if (data.logo_url) {
           setLogoPreview(data.logo_url);
@@ -239,39 +192,53 @@ export function CompanySettingsRedesigned() {
         logoUrl = await uploadLogo();
       }
 
-      const { error } = await supabase
-        .from('company_profile')
-        .upsert({
-          name: formData.name,
-          primary_color: formData.primary_color,
-          secondary_color: formData.secondary_color,
-          accent_color: formData.accent_color,
-          description: formData.description,
-          website: formData.website,
-          founded_year: formData.founded_year,
-          employee_count: formData.employee_count,
-          email: formData.email,
-          phone: formData.phone,
-          street_address: formData.street_address,
-          city: formData.city,
-          state_province: formData.state_province,
-          country: formData.country,
-          postal_code: formData.postal_code,
-          social_linkedin: formData.social_linkedin,
-          social_twitter: formData.social_twitter,
-          social_facebook: formData.social_facebook,
-          social_instagram: formData.social_instagram,
-          timezone: formData.timezone,
-          default_language: formData.default_language,
-          currency: formData.currency,
-          data_residency_region: formData.data_residency_region,
-          mission_statement: formData.mission_statement,
-          vision_statement: formData.vision_statement,
-          core_values: formData.core_values,
-          working_hours: formData.working_hours as any,
-          holidays: formData.holidays as any,
-          updated_at: new Date().toISOString(),
-        });
+      const profileData = {
+        name: formData.name,
+        logo_url: logoUrl,
+        primary_color: formData.primary_color,
+        secondary_color: formData.secondary_color,
+        accent_color: formData.accent_color,
+        website: formData.website,
+        founded_year: formData.founded_year,
+        email: formData.email,
+        phone: formData.phone,
+        street_address: formData.street_address,
+        city: formData.city,
+        state_province: formData.state_province,
+        country: formData.country,
+        postal_code: formData.postal_code,
+        social_linkedin: formData.social_linkedin,
+        social_twitter: formData.social_twitter,
+        social_facebook: formData.social_facebook,
+        social_instagram: formData.social_instagram,
+        timezone: formData.timezone,
+        default_language: formData.default_language,
+        currency: formData.currency,
+        data_residency_region: formData.data_residency_region,
+        updated_at: new Date().toISOString(),
+      };
+
+      let error;
+
+      if (existingProfileId) {
+        // Update existing record
+        const result = await supabase
+          .from('company_profile')
+          .update(profileData)
+          .eq('id', existingProfileId);
+        error = result.error;
+      } else {
+        // Insert new record
+        const result = await supabase
+          .from('company_profile')
+          .insert(profileData)
+          .select()
+          .single();
+        error = result.error;
+        if (result.data) {
+          setExistingProfileId(result.data.id);
+        }
+      }
 
       if (error) throw error;
 
@@ -281,7 +248,6 @@ export function CompanySettingsRedesigned() {
       });
 
       setLogoFile(null);
-      await loadCompanyProfile();
     } catch (error) {
       console.error('Error saving company profile:', error);
       toast({
@@ -292,74 +258,6 @@ export function CompanySettingsRedesigned() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const updateWorkingHours = (day: string, field: 'start' | 'end' | 'enabled', value: string | boolean) => {
-    setFormData({
-      ...formData,
-      working_hours: {
-        ...formData.working_hours,
-        [day]: {
-          ...formData.working_hours[day],
-          [field]: value,
-        },
-      },
-    });
-  };
-
-  const copyToAllDays = (day: string) => {
-    const dayConfig = formData.working_hours[day];
-    const newWorkingHours = { ...formData.working_hours };
-    weekDays.forEach(d => {
-      newWorkingHours[d] = { ...dayConfig };
-    });
-    setFormData({ ...formData, working_hours: newWorkingHours });
-    toast({
-      title: 'Success',
-      description: `${day.charAt(0).toUpperCase() + day.slice(1)}'s hours copied to all days`,
-    });
-  };
-
-  const setBusinessHours = () => {
-    const newWorkingHours = { ...formData.working_hours };
-    weekDays.forEach(day => {
-      newWorkingHours[day] = {
-        start: '09:00',
-        end: '17:00',
-        enabled: !['saturday', 'sunday'].includes(day),
-      };
-    });
-    setFormData({ ...formData, working_hours: newWorkingHours });
-  };
-
-  const addHoliday = () => {
-    if (!newHoliday.name || !newHoliday.date) {
-      toast({
-        title: 'Error',
-        description: 'Please fill in holiday name and date',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const holiday: Holiday = {
-      id: Date.now().toString(),
-      ...newHoliday,
-    };
-
-    setFormData({
-      ...formData,
-      holidays: [...formData.holidays, holiday],
-    });
-
-    setNewHoliday({ name: '', date: '', recurring: false, type: 'national' });
-  };
-
-  const deleteHoliday = (id: string) => {
-    setFormData({
-      ...formData,
-      holidays: formData.holidays.filter(h => h.id !== id),
-    });
   };
 
   if (loading) {
@@ -375,7 +273,7 @@ export function CompanySettingsRedesigned() {
       />
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="profile">
             <Building2 className="h-4 w-4 mr-2" />
             Profile
@@ -387,14 +285,6 @@ export function CompanySettingsRedesigned() {
           <TabsTrigger value="regional">
             <Globe className="h-4 w-4 mr-2" />
             Regional
-          </TabsTrigger>
-          <TabsTrigger value="hours">
-            <Clock className="h-4 w-4 mr-2" />
-            Hours & Holidays
-          </TabsTrigger>
-          <TabsTrigger value="mission">
-            <Heart className="h-4 w-4 mr-2" />
-            Mission
           </TabsTrigger>
         </TabsList>
 
@@ -466,35 +356,14 @@ export function CompanySettingsRedesigned() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Brief description of your institution..."
-                  rows={3}
+                <Label htmlFor="founded_year">Founded Year</Label>
+                <Input
+                  id="founded_year"
+                  type="number"
+                  value={formData.founded_year}
+                  onChange={(e) => setFormData({ ...formData, founded_year: parseInt(e.target.value) })}
+                  className="w-32"
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label htmlFor="founded_year">Founded Year</Label>
-                  <Input
-                    id="founded_year"
-                    type="number"
-                    value={formData.founded_year}
-                    onChange={(e) => setFormData({ ...formData, founded_year: parseInt(e.target.value) })}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="employee_count">Employee Count</Label>
-                  <Input
-                    id="employee_count"
-                    type="number"
-                    value={formData.employee_count}
-                    onChange={(e) => setFormData({ ...formData, employee_count: parseInt(e.target.value) })}
-                  />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -808,189 +677,13 @@ export function CompanySettingsRedesigned() {
           </Card>
         </TabsContent>
 
-        {/* Tab 4: Working Hours & Holidays */}
-        <TabsContent value="hours" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Default Working Hours</CardTitle>
-              <CardDescription>Set your institution's standard operating hours</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2 mb-4">
-                <Button variant="outline" size="sm" onClick={setBusinessHours}>
-                  Set Business Hours (9-5)
-                </Button>
-              </div>
-
-              <div className="space-y-3">
-                {weekDays.map((day) => (
-                  <div key={day} className="flex items-center gap-4 p-3 border rounded-lg">
-                    <Switch
-                      checked={formData.working_hours[day]?.enabled}
-                      onCheckedChange={(checked) => updateWorkingHours(day, 'enabled', checked)}
-                    />
-                    <div className="w-24 font-medium capitalize">{day}</div>
-                    <div className="flex items-center gap-2 flex-1">
-                      <Input
-                        type="time"
-                        value={formData.working_hours[day]?.start}
-                        onChange={(e) => updateWorkingHours(day, 'start', e.target.value)}
-                        disabled={!formData.working_hours[day]?.enabled}
-                        className="w-32"
-                      />
-                      <span className="text-muted-foreground">to</span>
-                      <Input
-                        type="time"
-                        value={formData.working_hours[day]?.end}
-                        onChange={(e) => updateWorkingHours(day, 'end', e.target.value)}
-                        disabled={!formData.working_hours[day]?.enabled}
-                        className="w-32"
-                      />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => copyToAllDays(day)}
-                    >
-                      Copy to all
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Holiday Calendar
-              </CardTitle>
-              <CardDescription>Manage your institution's holidays and closures</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Holiday name"
-                  value={newHoliday.name}
-                  onChange={(e) => setNewHoliday({ ...newHoliday, name: e.target.value })}
-                />
-                <Input
-                  type="date"
-                  value={newHoliday.date}
-                  onChange={(e) => setNewHoliday({ ...newHoliday, date: e.target.value })}
-                  className="w-40"
-                />
-                <Select value={newHoliday.type} onValueChange={(value) => setNewHoliday({ ...newHoliday, type: value })}>
-                  <SelectTrigger className="w-32">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="national">National</SelectItem>
-                    <SelectItem value="company">Company</SelectItem>
-                    <SelectItem value="regional">Regional</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={addHoliday}>Add</Button>
-              </div>
-
-              <div className="space-y-2">
-                {formData.holidays.map((holiday) => (
-                  <div key={holiday.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Badge variant={holiday.type === 'national' ? 'default' : 'secondary'}>
-                        {holiday.type}
-                      </Badge>
-                      <div>
-                        <div className="font-medium">{holiday.name}</div>
-                        <div className="text-sm text-muted-foreground">{holiday.date}</div>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => deleteHoliday(holiday.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-                {formData.holidays.length === 0 && (
-                  <div className="text-center py-6 text-muted-foreground">
-                    No holidays added yet
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 5: Mission & Values */}
-        <TabsContent value="mission" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Mission Statement</CardTitle>
-              <CardDescription>Your institution's core purpose and goals</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={formData.mission_statement}
-                onChange={(e) => setFormData({ ...formData, mission_statement: e.target.value })}
-                placeholder="Describe your institution's mission..."
-                rows={4}
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                {formData.mission_statement.length} characters
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Vision Statement</CardTitle>
-              <CardDescription>Your institution's aspirations for the future</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={formData.vision_statement}
-                onChange={(e) => setFormData({ ...formData, vision_statement: e.target.value })}
-                placeholder="Describe your institution's vision..."
-                rows={4}
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                {formData.vision_statement.length} characters
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Core Values</CardTitle>
-              <CardDescription>The principles that guide your institution</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                value={formData.core_values}
-                onChange={(e) => setFormData({ ...formData, core_values: e.target.value })}
-                placeholder="List your institution's core values..."
-                rows={6}
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                {formData.core_values.length} characters
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        {/* Save Button */}
+        <div className="flex justify-end">
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
       </Tabs>
-
-      <div className="flex justify-end gap-2 pt-4 border-t">
-        <Button variant="outline" onClick={loadCompanyProfile}>
-          Reset
-        </Button>
-        <Button onClick={handleSave} disabled={saving}>
-          {saving ? 'Saving...' : 'Save Changes'}
-        </Button>
-      </div>
     </div>
   );
 }

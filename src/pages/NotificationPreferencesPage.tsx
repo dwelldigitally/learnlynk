@@ -10,6 +10,7 @@ import { NotificationQuietHours } from '@/components/admin/notifications/Notific
 import { Loader2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { PageHeader } from '@/components/modern/PageHeader';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 export default function NotificationPreferencesPage() {
@@ -102,12 +103,11 @@ export default function NotificationPreferencesPage() {
     <ModernAdminLayout>
       <div className="space-y-6 px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px]">
         <div className={`flex items-start gap-4 ${isMobile ? 'flex-col' : 'items-center justify-between'}`}>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Notification Preferences</h1>
-            <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-              Control how and when you receive notifications
-            </p>
-          </div>
+          <PageHeader 
+            title="Notification Preferences" 
+            subtitle="Control how and when you receive notifications"
+            className="text-left"
+          />
           <Button
             variant="outline"
             onClick={handleResetToDefaults}

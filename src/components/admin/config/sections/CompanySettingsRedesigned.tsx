@@ -12,6 +12,7 @@ import { Building2, Mail, Phone, MapPin, Globe, Clock, Calendar, Heart, Upload, 
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
 
 interface WorkingHours {
   [key: string]: {
@@ -367,12 +368,11 @@ export function CompanySettingsRedesigned() {
 
   return (
     <div className="px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px] space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Company Settings</h1>
-        <p className="text-muted-foreground mt-2">
-          Manage your institution's profile, branding, and operational settings
-        </p>
-      </div>
+      <PageHeader 
+        title="Company Settings" 
+        subtitle="Manage your institution's profile, branding, and operational settings"
+        className="text-left"
+      />
 
       <Tabs defaultValue="profile" className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">

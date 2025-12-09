@@ -5,8 +5,9 @@ import { DocumentPropertiesTab } from './properties/DocumentPropertiesTab';
 import { PaymentPropertiesTab } from './properties/PaymentPropertiesTab';
 import { CustomFieldsPropertiesTab } from './properties/CustomFieldsPropertiesTab';
 import { LeadPropertiesTab } from './properties/LeadPropertiesTab';
-import { Settings, GraduationCap, FileText, Wallet, Sliders, Users } from 'lucide-react';
+import { GraduationCap, FileText, Wallet, Sliders, Users } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { PageHeader } from '@/components/modern/PageHeader';
 
 export function PropertiesManagement() {
   const isMobile = useIsMobile();
@@ -14,15 +15,11 @@ export function PropertiesManagement() {
 
   return (
     <div className="w-full h-full px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px] space-y-6 md:space-y-8">
-      <div className="flex items-center gap-3">
-        <Settings className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Properties Management</h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Manage system properties and custom configurations
-          </p>
-        </div>
-      </div>
+      <PageHeader 
+        title="Properties Management" 
+        subtitle="Manage system properties and custom configurations"
+        className="text-left"
+      />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className={isMobile ? "flex flex-col h-auto w-full gap-1" : "grid w-full grid-cols-5 h-auto"}>

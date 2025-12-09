@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Bell, Shield, Settings, Upload, Save, Mail, Phone, MapPin, Globe, Clock, Palette, Eye, CalendarCheck, Link as LinkIcon, Database, Sparkles, AlertCircle, Loader2, EyeOff, Lock } from "lucide-react";
+import { PageHeader } from '@/components/modern/PageHeader';
 import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { DemoDataService, useDemoDataAccess } from "@/services/demoDataService";
@@ -302,15 +303,14 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 md:space-y-8">
+    <div className="p-4 sm:p-6 md:px-[100px] md:py-[50px] max-w-6xl mx-auto space-y-6 md:space-y-8">
       {/* Header */}
       <div className={cn("flex gap-4", isMobile ? "flex-col items-start" : "items-center justify-between")}>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Profile Settings</h1>
-          <p className="text-muted-foreground mt-2 text-sm sm:text-base">
-            Manage your account settings and preferences
-          </p>
-        </div>
+        <PageHeader 
+          title="Profile Settings" 
+          subtitle="Manage your account settings and preferences"
+          className="text-left"
+        />
         <Button onClick={handleSave} disabled={loading} className={cn("gap-2", isMobile && "w-full")}>
           <Save className="h-4 w-4" />
           {loading ? 'Saving...' : 'Save Changes'}

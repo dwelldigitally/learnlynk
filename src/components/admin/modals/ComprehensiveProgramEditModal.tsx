@@ -150,12 +150,27 @@ export const ComprehensiveProgramEditModal = ({
   }, [isOpen, program]);
 
   const handleDataChange = (newData: Partial<Program>) => {
-    setEditingProgram(prev => ({ ...prev, ...newData }));
+    console.log('📝 handleDataChange - newData keys:', Object.keys(newData));
+    if (newData.feeStructure) {
+      console.log('📝 handleDataChange - feeStructure:', JSON.stringify(newData.feeStructure, null, 2));
+      console.log('📝 handleDataChange - domesticFees count:', newData.feeStructure.domesticFees?.length);
+      console.log('📝 handleDataChange - internationalFees count:', newData.feeStructure.internationalFees?.length);
+    }
+    setEditingProgram(prev => {
+      const merged = { ...prev, ...newData };
+      console.log('📝 handleDataChange - merged feeStructure:', merged.feeStructure);
+      return merged;
+    });
     setHasChanges(true);
   };
 
   const handleSave = async () => {
     if (!editingProgram || !program || isSaving) return;
+
+    console.log('💾 handleSave - editingProgram:', editingProgram);
+    console.log('💾 handleSave - feeStructure:', JSON.stringify(editingProgram.feeStructure, null, 2));
+    console.log('💾 handleSave - domesticFees count:', editingProgram.feeStructure?.domesticFees?.length);
+    console.log('💾 handleSave - internationalFees count:', editingProgram.feeStructure?.internationalFees?.length);
 
     setIsSaving(true);
     try {

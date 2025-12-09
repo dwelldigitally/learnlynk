@@ -109,6 +109,24 @@ const ProgramManagement: React.FC = () => {
       metadata = {};
     }
     
+    // Parse fee_structure JSONB to get actual fees
+    let feeStructure: any = { domesticFees: [], internationalFees: [] };
+    try {
+      const rawFeeStructure = typeof dbProgram.fee_structure === 'string' 
+        ? JSON.parse(dbProgram.fee_structure) 
+        : dbProgram.fee_structure || {};
+      feeStructure = {
+        domesticFees: rawFeeStructure.domesticFees || [],
+        internationalFees: rawFeeStructure.internationalFees || []
+      };
+    } catch {
+      feeStructure = { domesticFees: [], internationalFees: [] };
+    }
+    
+    // Calculate total fees from fee_structure
+    const domesticTotal = feeStructure.domesticFees?.reduce((sum: number, fee: any) => sum + (fee.amount || 0), 0) || 0;
+    const internationalTotal = feeStructure.internationalFees?.reduce((sum: number, fee: any) => sum + (fee.amount || 0), 0) || 0;
+    
     // Determine status: check metadata.settings.is_active first, then metadata.status, then enrollment_status
     const isActive = metadata.settings?.is_active !== undefined 
       ? metadata.settings.is_active 
@@ -119,6 +137,7 @@ const ProgramManagement: React.FC = () => {
     const status = isActive ? 'active' : 'inactive';
     
     // Return ALL fields from database, plus computed fields for UI
+    // Use fee_structure totals, fall back to tuition column if no fees configured
     return {
       ...dbProgram, // Pass through all original database fields including JSONB fields
       description: dbProgram.description || "No description available",
@@ -126,8 +145,8 @@ const ProgramManagement: React.FC = () => {
       status: status,
       enrolled: enrollment.enrolled,
       capacity: enrollment.capacity,
-      tuitionFeeDomestic: dbProgram.tuition || 0,
-      tuitionFeeInternational: dbProgram.tuition ? dbProgram.tuition * 1.2 : 0,
+      tuitionFeeDomestic: domesticTotal > 0 ? domesticTotal : (dbProgram.tuition || 0),
+      tuitionFeeInternational: internationalTotal > 0 ? internationalTotal : (dbProgram.tuition ? dbProgram.tuition * 1.2 : 0),
       nextIntake: dbProgram.next_intake || new Date().toISOString().split('T')[0]
     };
   };

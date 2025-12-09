@@ -9,6 +9,7 @@ import { useTeamGoals } from "@/hooks/useTeamGoals";
 import { useTeamGoalAnalytics } from "@/hooks/useTeamGoalAnalytics";
 import { TeamGoal, GoalFormData } from "@/types/teamGoals";
 import { Loader2 } from "lucide-react";
+import { PageHeader } from "@/components/modern/PageHeader";
 
 export const TeamGoalsAnalytics: React.FC = () => {
   const { 
@@ -70,7 +71,11 @@ export const TeamGoalsAnalytics: React.FC = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="px-4 sm:px-6 md:px-[100px] py-4 sm:py-6 md:py-[50px] space-y-6">
+      <PageHeader 
+        title="Team Goals & Analytics" 
+        subtitle="Set, track, and analyze team and individual performance goals"
+      />
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>

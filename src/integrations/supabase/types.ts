@@ -335,10 +335,13 @@ export type Database = {
       advisor_performance: {
         Row: {
           advisor_id: string
+          capacity_per_week: number | null
           conversion_rate: number | null
           created_at: string
+          current_weekly_assignments: number | null
           id: string
           is_available: boolean | null
+          last_assignment_reset: string | null
           leads_assigned: number | null
           leads_contacted: number | null
           leads_converted: number | null
@@ -347,14 +350,19 @@ export type Database = {
           period_end: string
           period_start: string
           response_time_avg: number | null
+          routing_enabled: boolean | null
           updated_at: string
+          working_schedule: Json | null
         }
         Insert: {
           advisor_id: string
+          capacity_per_week?: number | null
           conversion_rate?: number | null
           created_at?: string
+          current_weekly_assignments?: number | null
           id?: string
           is_available?: boolean | null
+          last_assignment_reset?: string | null
           leads_assigned?: number | null
           leads_contacted?: number | null
           leads_converted?: number | null
@@ -363,14 +371,19 @@ export type Database = {
           period_end: string
           period_start: string
           response_time_avg?: number | null
+          routing_enabled?: boolean | null
           updated_at?: string
+          working_schedule?: Json | null
         }
         Update: {
           advisor_id?: string
+          capacity_per_week?: number | null
           conversion_rate?: number | null
           created_at?: string
+          current_weekly_assignments?: number | null
           id?: string
           is_available?: boolean | null
+          last_assignment_reset?: string | null
           leads_assigned?: number | null
           leads_contacted?: number | null
           leads_converted?: number | null
@@ -379,7 +392,9 @@ export type Database = {
           period_end?: string
           period_start?: string
           response_time_avg?: number | null
+          routing_enabled?: boolean | null
           updated_at?: string
+          working_schedule?: Json | null
         }
         Relationships: [
           {
@@ -10372,10 +10387,15 @@ export type Database = {
       }
       cleanup_expired_otps: { Args: never; Returns: undefined }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
+      increment_advisor_weekly_assignments: {
+        Args: { p_advisor_id: string }
+        Returns: undefined
+      }
       log_security_event: {
         Args: { p_action: string; p_record_id?: string; p_table_name?: string }
         Returns: undefined
       }
+      reset_weekly_advisor_assignments: { Args: never; Returns: undefined }
       user_has_demo_data: { Args: { user_email?: string }; Returns: boolean }
     }
     Enums: {

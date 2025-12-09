@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { 
   Settings, 
   Users, 
@@ -13,7 +14,8 @@ import {
   Eye,
   Star,
   Globe,
-  RotateCcw
+  RotateCcw,
+  Power
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,10 +24,12 @@ interface Program {
   id: string;
   name: string;
   status: string;
+  enrollment_status?: string;
   metadata?: Record<string, unknown> | null;
 }
 
 interface ProgramSettings {
+  is_active: boolean;
   waitlist_enabled: boolean;
   contact_email: string;
   email_notifications: boolean;
@@ -42,6 +46,7 @@ interface ProgramSettingsModalProps {
 }
 
 const DEFAULT_SETTINGS: ProgramSettings = {
+  is_active: true,
   waitlist_enabled: true,
   contact_email: "",
   email_notifications: true,
@@ -59,20 +64,22 @@ export const ProgramSettingsModal = ({ isOpen, onClose, program, onSettingsSaved
   useEffect(() => {
     if (program && isOpen) {
       const metadata = program.metadata as Record<string, unknown> | null;
-      const savedSettings = metadata?.settings as ProgramSettings | undefined;
+      const savedSettings = metadata?.settings as Partial<ProgramSettings> | undefined;
       
-      if (savedSettings) {
-        setSettings({
-          waitlist_enabled: savedSettings.waitlist_enabled ?? DEFAULT_SETTINGS.waitlist_enabled,
-          contact_email: savedSettings.contact_email ?? DEFAULT_SETTINGS.contact_email,
-          email_notifications: savedSettings.email_notifications ?? DEFAULT_SETTINGS.email_notifications,
-          publicly_visible: savedSettings.publicly_visible ?? DEFAULT_SETTINGS.publicly_visible,
-          featured_program: savedSettings.featured_program ?? DEFAULT_SETTINGS.featured_program,
-          allow_online_applications: savedSettings.allow_online_applications ?? DEFAULT_SETTINGS.allow_online_applications,
-        });
-      } else {
-        setSettings(DEFAULT_SETTINGS);
-      }
+      // Determine if program is active from enrollment_status or metadata
+      const isActive = program.enrollment_status === 'open' || 
+                       (metadata?.status === 'active') ||
+                       program.status === 'active';
+      
+      setSettings({
+        is_active: savedSettings?.is_active ?? isActive,
+        waitlist_enabled: savedSettings?.waitlist_enabled ?? DEFAULT_SETTINGS.waitlist_enabled,
+        contact_email: savedSettings?.contact_email ?? DEFAULT_SETTINGS.contact_email,
+        email_notifications: savedSettings?.email_notifications ?? DEFAULT_SETTINGS.email_notifications,
+        publicly_visible: savedSettings?.publicly_visible ?? DEFAULT_SETTINGS.publicly_visible,
+        featured_program: savedSettings?.featured_program ?? DEFAULT_SETTINGS.featured_program,
+        allow_online_applications: savedSettings?.allow_online_applications ?? DEFAULT_SETTINGS.allow_online_applications,
+      });
     }
   }, [program, isOpen]);
 
@@ -89,7 +96,9 @@ export const ProgramSettingsModal = ({ isOpen, onClose, program, onSettingsSaved
       const existingMetadata = (program.metadata as Record<string, unknown>) || {};
       const updatedMetadata = {
         ...existingMetadata,
+        status: settings.is_active ? 'active' : 'draft',
         settings: {
+          is_active: settings.is_active,
           waitlist_enabled: settings.waitlist_enabled,
           contact_email: settings.contact_email,
           email_notifications: settings.email_notifications,
@@ -99,9 +108,13 @@ export const ProgramSettingsModal = ({ isOpen, onClose, program, onSettingsSaved
         },
       };
 
+      // Update both enrollment_status and metadata
       const { error } = await supabase
         .from('programs')
-        .update({ metadata: updatedMetadata as unknown as Record<string, never> })
+        .update({ 
+          enrollment_status: settings.is_active ? 'open' : 'closed',
+          metadata: updatedMetadata as unknown as Record<string, never> 
+        })
         .eq('id', program.id);
 
       if (error) throw error;
@@ -148,6 +161,30 @@ export const ProgramSettingsModal = ({ isOpen, onClose, program, onSettingsSaved
 
         <Card className="border-border/50">
           <CardContent className="pt-6 space-y-5">
+            {/* Program Active Status - First and prominent */}
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${settings.is_active ? 'bg-success/20' : 'bg-muted'}`}>
+                  <Power className={`h-4 w-4 ${settings.is_active ? 'text-success' : 'text-muted-foreground'}`} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Label className="font-medium">Program Status</Label>
+                    <Badge variant={settings.is_active ? "default" : "secondary"} className={settings.is_active ? "bg-success text-success-foreground" : ""}>
+                      {settings.is_active ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {settings.is_active ? "Program is accepting applications" : "Program is not accepting applications"}
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={settings.is_active}
+                onCheckedChange={(value) => handleSettingChange('is_active', value)}
+              />
+            </div>
+
             {/* Enable Waitlist */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

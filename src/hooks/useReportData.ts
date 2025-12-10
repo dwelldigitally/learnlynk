@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ReportConfig, FilterCondition, DATA_SOURCES, RelativeDateValue } from '@/types/reports';
 import { startOfDay, subDays, startOfWeek, startOfMonth, startOfQuarter, startOfYear, endOfDay, endOfWeek, endOfMonth, endOfQuarter, endOfYear, subWeeks, subMonths, subQuarters, subYears } from 'date-fns';
@@ -79,13 +79,40 @@ export function useReportData(config: Partial<ReportConfig> | null): ReportDataR
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
+  
+  // Use refs to prevent re-renders from creating new callback references
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const hasFetchedRef = useRef(false);
+  
+  // Memoize the config key to prevent unnecessary refetches
+  const configKey = useMemo(() => {
+    if (!config?.dataSource || !config?.selectedFields?.length) return null;
+    return JSON.stringify({
+      dataSource: config.dataSource,
+      selectedFields: config.selectedFields,
+      filters: config.filters,
+      visualizationType: config.visualizationType,
+      chartConfig: config.chartConfig,
+    });
+  }, [config?.dataSource, config?.selectedFields, config?.filters, config?.visualizationType, config?.chartConfig]);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (force = false) => {
+    // Don't refetch if already loaded and not forced
+    if (!force && hasFetchedRef.current && data.length > 0) {
+      return;
+    }
+    
     if (!config?.dataSource || !config?.selectedFields?.length) {
       setData([]);
       setTotalCount(0);
       return;
     }
+
+    // Cancel any in-flight request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    abortControllerRef.current = new AbortController();
 
     setIsLoading(true);
     setError(null);
@@ -147,22 +174,37 @@ export function useReportData(config: Partial<ReportConfig> | null): ReportDataR
         }
       }
 
+      hasFetchedRef.current = true;
       setData(processedData);
       setTotalCount(count || processedData.length);
     } catch (err: any) {
+      // Ignore abort errors
+      if (err.name === 'AbortError') return;
+      
       console.error('Report query error:', err);
       setError(err.message || 'Failed to fetch report data');
-      setData([]);
+      // Keep existing data on error instead of clearing
     } finally {
       setIsLoading(false);
     }
-  }, [config]);
+  }, [configKey]);
 
   useEffect(() => {
+    hasFetchedRef.current = false;
     fetchData();
+    
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [configKey]);
+
+  const refetch = useCallback(() => {
+    fetchData(true);
   }, [fetchData]);
 
-  return { data, isLoading, error, totalCount, refetch: fetchData };
+  return { data, isLoading, error, totalCount, refetch };
 }
 
 function applyFilter(query: any, filter: FilterCondition): any {

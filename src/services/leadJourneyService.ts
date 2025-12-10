@@ -45,9 +45,33 @@ export class LeadJourneyService {
   }
 
   /**
-   * Get the journey for a lead's program interest
+   * Get the journey for a lead's program interest (supports multi-program links via junction table)
    */
   static async getJourneyForProgram(programId: string) {
+    // First try the junction table (new approach - supports multiple programs)
+    const { data: linkData, error: linkError } = await supabase
+      .from('program_journey_links')
+      .select(`
+        journey_id,
+        is_primary,
+        academic_journeys!inner (
+          *,
+          journey_stages (
+            *,
+            journey_requirements (*)
+          )
+        )
+      `)
+      .eq('program_id', programId)
+      .eq('academic_journeys.is_active', true)
+      .order('is_primary', { ascending: false })
+      .limit(1);
+
+    if (!linkError && linkData && linkData.length > 0) {
+      return (linkData[0] as any).academic_journeys;
+    }
+
+    // Fallback to legacy direct program_id link
     const { data, error } = await supabase
       .from('academic_journeys')
       .select(`
@@ -165,8 +189,38 @@ export class LeadJourneyService {
 
   /**
    * Get journey stages for a program (for use in LeadStageTracker)
+   * Supports multi-program links via junction table
    */
   static async getJourneyStagesForProgram(programId: string) {
+    // First try the junction table (new approach)
+    const { data: linkData, error: linkError } = await supabase
+      .from('program_journey_links')
+      .select(`
+        journey_id,
+        is_primary,
+        academic_journeys!inner (
+          id,
+          name,
+          journey_stages (
+            id,
+            name,
+            stage_type,
+            order_index,
+            is_required,
+            timing_config
+          )
+        )
+      `)
+      .eq('program_id', programId)
+      .eq('academic_journeys.is_active', true)
+      .order('is_primary', { ascending: false })
+      .limit(1);
+
+    if (!linkError && linkData && linkData.length > 0) {
+      return (linkData[0] as any).academic_journeys;
+    }
+
+    // Fallback to legacy direct program_id link
     const { data, error } = await supabase
       .from('academic_journeys')
       .select(`

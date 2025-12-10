@@ -6482,6 +6482,45 @@ export type Database = {
         }
         Relationships: []
       }
+      program_journey_links: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          journey_id: string
+          program_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          journey_id: string
+          program_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          journey_id?: string
+          program_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_journey_links_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "academic_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_journey_links_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       program_term_schedules: {
         Row: {
           capacity_limit: number | null

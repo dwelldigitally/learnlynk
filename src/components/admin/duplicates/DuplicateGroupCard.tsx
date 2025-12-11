@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,21 +37,7 @@ export function DuplicateGroupCard({
   onSelectionChange
 }: DuplicateGroupCardProps) {
   const navigate = useNavigate();
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { mutate: deleteDuplicates, isPending: deleting } = useDeleteDuplicates();
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds(prev => 
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleDelete = () => {
-    if (selectedIds.length === 0) return;
-    deleteDuplicates(selectedIds, {
-      onSuccess: () => setSelectedIds([])
-    });
-  };
 
   const getInitials = (lead: Lead) => {
     return `${lead.first_name?.[0] || ''}${lead.last_name?.[0] || ''}`.toUpperCase();
@@ -76,23 +62,10 @@ export function DuplicateGroupCard({
               {group.leads.length} contacts • {group.confidence}% confidence
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            {selectedIds.length > 0 && (
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                onClick={handleDelete}
-                disabled={deleting}
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Delete ({selectedIds.length})
-              </Button>
-            )}
-            <Button variant="outline" size="sm" onClick={onMerge}>
-              <Merge className="h-4 w-4 mr-1" />
-              Merge
-            </Button>
-          </div>
+          <Button variant="outline" size="sm" onClick={onMerge}>
+            <Merge className="h-4 w-4 mr-1" />
+            Merge
+          </Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -104,12 +77,6 @@ export function DuplicateGroupCard({
                 lead.id === group.primaryLeadId ? 'bg-primary/5 border-primary/20' : 'bg-muted/30'
               }`}
             >
-              <Checkbox
-                checked={selectedIds.includes(lead.id)}
-                onCheckedChange={() => toggleSelect(lead.id)}
-                disabled={lead.id === group.primaryLeadId}
-              />
-              
               <Avatar className="h-10 w-10">
                 <AvatarFallback className="bg-primary/10 text-primary">
                   {getInitials(lead)}
@@ -155,9 +122,22 @@ export function DuplicateGroupCard({
                   variant="ghost" 
                   size="icon"
                   onClick={() => navigate(`/admin/leads/detail/${lead.id}`)}
+                  title="View Lead"
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
+                {lead.id !== group.primaryLeadId && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => deleteDuplicates([lead.id])}
+                    disabled={deleting}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    title="Delete this lead"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}

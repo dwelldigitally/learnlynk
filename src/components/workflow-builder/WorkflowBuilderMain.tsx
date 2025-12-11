@@ -15,7 +15,8 @@ import {
   ArrowLeft, 
   Clock,
   LayoutTemplate,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
 import { WorkflowCanvas } from './WorkflowCanvas';
@@ -25,6 +26,7 @@ import { WorkflowTemplateSelector } from './WorkflowTemplateSelector';
 import { WorkflowPreviewPanel } from './WorkflowPreviewPanel';
 import { WorkflowSettingsPanel } from './WorkflowSettingsPanel';
 import { WorkflowAnalyticsPanel } from './WorkflowAnalyticsPanel';
+import { AIWorkflowGenerator } from './AIWorkflowGenerator';
 import { workflowElementTypes } from '@/config/workflowElementTypes';
 import { AutomationTemplate } from '@/config/automationTemplates';
 import { toast } from 'sonner';
@@ -78,6 +80,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
   const [isTesting, setIsTesting] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [settings, setSettings] = useState(defaultSettings);
 
   useEffect(() => {
@@ -174,6 +177,33 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
     setWorkflowName(template.name);
     setWorkflowDescription(template.description);
     toast.success(`Template "${template.name}" loaded`);
+    setShowTemplates(false);
+  };
+
+  const handleApplyAIWorkflow = (workflow: { name: string; description: string; elements: any[] }) => {
+    // Convert AI-generated elements to builder format
+    const elements = workflow.elements.map((element, index) => ({
+      id: element.id || crypto.randomUUID(),
+      type: element.type,
+      elementType: element.type,
+      title: element.title,
+      description: '',
+      position: element.position || { x: 0, y: index * 100 },
+      config: element.config || {},
+      conditionGroups: element.conditionGroups || (element.type === 'trigger' || element.type === 'condition' ? [] : undefined)
+    }));
+
+    dispatch({
+      type: 'SET_CONFIG',
+      payload: {
+        ...state.config,
+        elements
+      }
+    });
+
+    setWorkflowName(workflow.name);
+    setWorkflowDescription(workflow.description);
+    toast.success(`AI workflow "${workflow.name}" applied with ${elements.length} steps`);
   };
 
   const handleSave = async () => {
@@ -295,6 +325,15 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
               </div>
             </div>
 
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setShowAIGenerator(true)}
+              className="gap-2 border-primary/50 text-primary hover:bg-primary/10"
+            >
+              <Sparkles className="h-4 w-4" />
+              AI Generate
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)}>
               <LayoutTemplate className="h-4 w-4 mr-2" />
               Templates
@@ -384,6 +423,14 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
           <WorkflowAnalyticsPanel workflowId={state.config.id} />
         </TabsContent>
       </Tabs>
+
+      {/* AI Workflow Generator Dialog */}
+      <AIWorkflowGenerator
+        open={showAIGenerator}
+        onOpenChange={setShowAIGenerator}
+        onApplyWorkflow={handleApplyAIWorkflow}
+        existingElements={state.config.elements}
+      />
 
       {/* Template Selector Dialog */}
       <WorkflowTemplateSelector

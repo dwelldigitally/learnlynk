@@ -54,10 +54,10 @@ export function TodaysTasks() {
       const today = new Date();
       const endOfTodayISO = endOfDay(today).toISOString();
 
-      // Query lead_tasks table with lead info
+      // Query lead_tasks table (without nested join since there's no FK)
       const { data: leadTasks, error: leadTasksError } = await supabase
         .from('lead_tasks')
-        .select('*, leads(id, first_name, last_name)')
+        .select('*')
         .or(`assigned_to.eq.${user.id},user_id.eq.${user.id}`)
         .lte('due_date', endOfTodayISO)
         .neq('status', 'completed');
@@ -78,10 +78,31 @@ export function TodaysTasks() {
         console.error('Error fetching tasks:', universalTasksError);
       }
 
+      // Fetch lead names for tasks that have lead_id
+      const leadIds = (leadTasks || [])
+        .filter(t => t.lead_id)
+        .map(t => t.lead_id);
+      
+      let leadsMap: Record<string, { first_name: string; last_name: string }> = {};
+      
+      if (leadIds.length > 0) {
+        const { data: leads } = await supabase
+          .from('leads')
+          .select('id, first_name, last_name')
+          .in('id', leadIds);
+        
+        if (leads) {
+          leadsMap = leads.reduce((acc, lead) => {
+            acc[lead.id] = { first_name: lead.first_name, last_name: lead.last_name };
+            return acc;
+          }, {} as Record<string, { first_name: string; last_name: string }>);
+        }
+      }
+
       // Combine and normalize both task sources
       const allTasks: Task[] = [
         ...(leadTasks || []).map(t => {
-          const lead = (t as any).leads;
+          const lead = t.lead_id ? leadsMap[t.lead_id] : null;
           return {
             ...t,
             source: 'lead_tasks' as const,

@@ -1,21 +1,33 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = 'https://rpxygdaimdiarjpfmswl.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJweHlnZGFpbWRpYXJqcGZtc3dsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MTY1MDcsImV4cCI6MjA2OTQ5MjUwN30.sR7gSV1I9CCtibU6sdk5FRH6r5m9Y1ZGrQ6ivRhNEcM';
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { supabase } from '@/integrations/supabase/client';
 
 export interface WorkflowEnrollment {
   id: string;
   workflow_id: string;
   lead_id: string;
-  current_step: number;
+  current_step_index: number;
   status: 'active' | 'completed' | 'paused' | 'exited';
   enrolled_at: string;
   completed_at?: string;
+  exited_at?: string;
   exit_reason?: string;
-  execution_data?: Record<string, any>;
+  step_history?: any[];
+  next_step_scheduled_at?: string;
+  metadata?: Record<string, any>;
   user_id: string;
+}
+
+export interface StepExecution {
+  id: string;
+  enrollment_id: string;
+  step_index: number;
+  step_type: string;
+  step_config: Record<string, any>;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  scheduled_at?: string;
+  started_at?: string;
+  completed_at?: string;
+  result?: Record<string, any>;
+  error_message?: string;
 }
 
 export class WorkflowExecutionService {
@@ -27,8 +39,8 @@ export class WorkflowExecutionService {
     if (!user) throw new Error('User not authenticated');
 
     // Check if lead is already enrolled
-    const { data: existing } = await supabase
-      .from('workflow_enrollments' as any)
+    const { data: existing } = await (supabase
+      .from('workflow_enrollments') as any)
       .select('*')
       .eq('workflow_id', workflowId)
       .eq('lead_id', leadId)
@@ -40,13 +52,14 @@ export class WorkflowExecutionService {
       return existing as WorkflowEnrollment;
     }
 
-    const { data, error } = await supabase
-      .from('workflow_enrollments' as any)
+    const { data, error } = await (supabase
+      .from('workflow_enrollments') as any)
       .insert({
         workflow_id: workflowId,
         lead_id: leadId,
-        current_step: 0,
+        current_step_index: 0,
         status: 'active',
+        step_history: [],
         user_id: user.id
       })
       .select()
@@ -61,11 +74,11 @@ export class WorkflowExecutionService {
   }
 
   /**
-   * Get all active enrollments for a workflow
+   * Get all enrollments for a workflow
    */
   static async getWorkflowEnrollments(workflowId: string): Promise<WorkflowEnrollment[]> {
-    const { data, error } = await supabase
-      .from('workflow_enrollments' as any)
+    const { data, error } = await (supabase
+      .from('workflow_enrollments') as any)
       .select('*')
       .eq('workflow_id', workflowId)
       .order('enrolled_at', { ascending: false });
@@ -82,8 +95,8 @@ export class WorkflowExecutionService {
    * Get enrollment status for a specific lead
    */
   static async getLeadEnrollments(leadId: string): Promise<WorkflowEnrollment[]> {
-    const { data, error } = await supabase
-      .from('workflow_enrollments' as any)
+    const { data, error } = await (supabase
+      .from('workflow_enrollments') as any)
       .select('*')
       .eq('lead_id', leadId)
       .order('enrolled_at', { ascending: false });
@@ -99,9 +112,9 @@ export class WorkflowExecutionService {
   /**
    * Advance lead to next step in workflow
    */
-  static async advanceStep(enrollmentId: string): Promise<void> {
-    const { data: enrollment, error: fetchError } = await supabase
-      .from('workflow_enrollments' as any)
+  static async advanceStep(enrollmentId: string, stepResult?: any): Promise<void> {
+    const { data: enrollment, error: fetchError } = await (supabase
+      .from('workflow_enrollments') as any)
       .select('*')
       .eq('id', enrollmentId)
       .single();
@@ -111,10 +124,18 @@ export class WorkflowExecutionService {
       throw fetchError || new Error('Enrollment not found');
     }
 
-    const { error: updateError } = await supabase
-      .from('workflow_enrollments' as any)
+    const stepHistory = enrollment.step_history || [];
+    stepHistory.push({
+      step_index: enrollment.current_step_index,
+      completed_at: new Date().toISOString(),
+      result: stepResult
+    });
+
+    const { error: updateError } = await (supabase
+      .from('workflow_enrollments') as any)
       .update({
-        current_step: (enrollment as any).current_step + 1
+        current_step_index: enrollment.current_step_index + 1,
+        step_history: stepHistory
       })
       .eq('id', enrollmentId);
 
@@ -127,13 +148,12 @@ export class WorkflowExecutionService {
   /**
    * Complete a workflow enrollment
    */
-  static async completeEnrollment(enrollmentId: string, exitReason?: string): Promise<void> {
-    const { error } = await supabase
-      .from('workflow_enrollments' as any)
+  static async completeEnrollment(enrollmentId: string): Promise<void> {
+    const { error } = await (supabase
+      .from('workflow_enrollments') as any)
       .update({
-        status: exitReason ? 'exited' : 'completed',
-        completed_at: new Date().toISOString(),
-        exit_reason: exitReason
+        status: 'completed',
+        completed_at: new Date().toISOString()
       })
       .eq('id', enrollmentId);
 
@@ -144,11 +164,30 @@ export class WorkflowExecutionService {
   }
 
   /**
+   * Exit a workflow enrollment with reason
+   */
+  static async exitEnrollment(enrollmentId: string, exitReason: string): Promise<void> {
+    const { error } = await (supabase
+      .from('workflow_enrollments') as any)
+      .update({
+        status: 'exited',
+        exited_at: new Date().toISOString(),
+        exit_reason: exitReason
+      })
+      .eq('id', enrollmentId);
+
+    if (error) {
+      console.error('Error exiting enrollment:', error);
+      throw error;
+    }
+  }
+
+  /**
    * Pause an enrollment
    */
   static async pauseEnrollment(enrollmentId: string): Promise<void> {
-    const { error } = await supabase
-      .from('workflow_enrollments' as any)
+    const { error } = await (supabase
+      .from('workflow_enrollments') as any)
       .update({ status: 'paused' })
       .eq('id', enrollmentId);
 
@@ -162,8 +201,8 @@ export class WorkflowExecutionService {
    * Resume a paused enrollment
    */
   static async resumeEnrollment(enrollmentId: string): Promise<void> {
-    const { error } = await supabase
-      .from('workflow_enrollments' as any)
+    const { error } = await (supabase
+      .from('workflow_enrollments') as any)
       .update({ status: 'active' })
       .eq('id', enrollmentId);
 
@@ -174,11 +213,60 @@ export class WorkflowExecutionService {
   }
 
   /**
+   * Log step execution
+   */
+  static async logStepExecution(
+    enrollmentId: string,
+    stepIndex: number,
+    stepType: string,
+    stepConfig: Record<string, any>,
+    status: StepExecution['status'],
+    result?: Record<string, any>,
+    errorMessage?: string
+  ): Promise<void> {
+    const { error } = await (supabase
+      .from('workflow_step_executions') as any)
+      .insert({
+        enrollment_id: enrollmentId,
+        step_index: stepIndex,
+        step_type: stepType,
+        step_config: stepConfig,
+        status,
+        started_at: new Date().toISOString(),
+        completed_at: status === 'completed' || status === 'failed' ? new Date().toISOString() : null,
+        result,
+        error_message: errorMessage
+      });
+
+    if (error) {
+      console.error('Error logging step execution:', error);
+    }
+  }
+
+  /**
+   * Get step executions for an enrollment
+   */
+  static async getStepExecutions(enrollmentId: string): Promise<StepExecution[]> {
+    const { data, error } = await (supabase
+      .from('workflow_step_executions') as any)
+      .select('*')
+      .eq('enrollment_id', enrollmentId)
+      .order('step_index', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching step executions:', error);
+      return [];
+    }
+
+    return (data || []) as StepExecution[];
+  }
+
+  /**
    * Get workflow analytics
    */
   static async getWorkflowAnalytics(workflowId: string) {
-    const { data: enrollments, error } = await supabase
-      .from('workflow_enrollments' as any)
+    const { data: enrollments, error } = await (supabase
+      .from('workflow_enrollments') as any)
       .select('*')
       .eq('workflow_id', workflowId);
 
@@ -191,13 +279,14 @@ export class WorkflowExecutionService {
     const active = enrollments?.filter((e: any) => e.status === 'active').length || 0;
     const completed = enrollments?.filter((e: any) => e.status === 'completed').length || 0;
     const exited = enrollments?.filter((e: any) => e.status === 'exited').length || 0;
+    const paused = enrollments?.filter((e: any) => e.status === 'paused').length || 0;
     const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
     // Group by current step
     const stepDistribution: Record<number, number> = {};
     enrollments?.forEach((e: any) => {
       if (e.status === 'active') {
-        stepDistribution[e.current_step] = (stepDistribution[e.current_step] || 0) + 1;
+        stepDistribution[e.current_step_index] = (stepDistribution[e.current_step_index] || 0) + 1;
       }
     });
 
@@ -206,9 +295,38 @@ export class WorkflowExecutionService {
       activeEnrollments: active,
       completedEnrollments: completed,
       exitedEnrollments: exited,
+      pausedEnrollments: paused,
       completionRate,
       stepDistribution
     };
+  }
+
+  /**
+   * Execute workflow via edge function
+   */
+  static async executeWorkflow(
+    workflowId: string,
+    workflowConfig: any,
+    options: {
+      testMode?: boolean;
+      leadIds?: string[];
+    } = {}
+  ): Promise<{ success: boolean; enrolledCount: number; results: any[] }> {
+    const { data, error } = await supabase.functions.invoke('execute-workflow', {
+      body: {
+        workflowId,
+        workflowConfig,
+        testMode: options.testMode || false,
+        leadIds: options.leadIds
+      }
+    });
+
+    if (error) {
+      console.error('Error executing workflow:', error);
+      throw error;
+    }
+
+    return data;
   }
 
   /**
@@ -253,10 +371,9 @@ export class WorkflowExecutionService {
    */
   static async getMatchingWorkflows(triggerType: string, lead: any): Promise<any[]> {
     const { data: workflows, error } = await supabase
-      .from('workflows')
+      .from('plays')
       .select('*')
-      .eq('is_active', true)
-      .eq('trigger_type', triggerType);
+      .eq('is_active', true);
 
     if (error) {
       console.error('Error fetching workflows:', error);
@@ -265,10 +382,14 @@ export class WorkflowExecutionService {
 
     // Filter workflows whose conditions match the lead
     return (workflows || []).filter((workflow: any) => {
-      const triggerConfig = workflow.trigger_config;
-      const conditions = triggerConfig?.conditionGroups?.[0]?.conditions || 
-                        triggerConfig?.elements?.find((e: any) => e.type === 'trigger')?.conditionGroups?.[0]?.conditions || 
-                        [];
+      const elements = workflow.elements || [];
+      const triggerElement = elements.find((e: any) => e.type === 'trigger');
+      if (!triggerElement) return false;
+
+      const triggerConfig = triggerElement.config || {};
+      if (triggerConfig.triggerEvent !== triggerType) return false;
+
+      const conditions = triggerElement.conditionGroups?.[0]?.conditions || [];
       return this.evaluateTriggerConditions(lead, conditions);
     });
   }
@@ -291,5 +412,30 @@ export class WorkflowExecutionService {
     }
 
     return { success, failed };
+  }
+
+  /**
+   * Update workflow execution stats
+   */
+  static async updateWorkflowStats(workflowId: string): Promise<void> {
+    const analytics = await this.getWorkflowAnalytics(workflowId);
+
+    const { error } = await supabase
+      .from('plays')
+      .update({
+        execution_stats: {
+          total_enrollments: analytics.totalEnrollments,
+          active_enrollments: analytics.activeEnrollments,
+          completed_enrollments: analytics.completedEnrollments,
+          exited_enrollments: analytics.exitedEnrollments,
+          completion_rate: analytics.completionRate,
+          last_updated: new Date().toISOString()
+        }
+      })
+      .eq('id', workflowId);
+
+    if (error) {
+      console.error('Error updating workflow stats:', error);
+    }
   }
 }

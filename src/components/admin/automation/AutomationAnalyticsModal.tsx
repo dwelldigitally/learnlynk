@@ -41,7 +41,7 @@ export function AutomationAnalyticsModal({ automation, open, onClose }: Automati
     if (!automation) return;
     setLoading(true);
     try {
-      const data = await AutomationService.getAutomationAnalytics(automation.id, automation.type);
+      const data = await AutomationService.getAutomationAnalytics(automation.id);
       setAnalytics(data);
     } catch (error) {
       console.error('Error loading analytics:', error);

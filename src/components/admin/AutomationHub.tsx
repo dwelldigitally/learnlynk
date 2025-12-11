@@ -76,7 +76,7 @@ export function AutomationHub() {
 
   const handleToggle = async (automation: Automation) => {
     try {
-      await AutomationService.toggleAutomation(automation.id, automation.type, !automation.is_active);
+      await AutomationService.toggleAutomation(automation.id, !automation.is_active);
       setAutomations(prev => prev.map(a => 
         a.id === automation.id ? { ...a, is_active: !a.is_active } : a
       ));
@@ -100,7 +100,7 @@ export function AutomationHub() {
   const handleDelete = async () => {
     if (!deleteAutomation) return;
     try {
-      await AutomationService.deleteAutomation(deleteAutomation.id, deleteAutomation.type);
+      await AutomationService.deleteAutomation(deleteAutomation.id);
       setAutomations(prev => prev.filter(a => a.id !== deleteAutomation.id));
       toast({
         title: "Success",
@@ -120,7 +120,7 @@ export function AutomationHub() {
   const handleExecute = async (automation: Automation) => {
     setExecuting(automation.id);
     try {
-      await AutomationService.executeAutomation(automation.id, automation.type);
+      await AutomationService.executeAutomation(automation.id);
       toast({
         title: "Execution Started",
         description: `${automation.name} is now running`

@@ -183,7 +183,26 @@ export function LeadCaptureForm({ onLeadCreated, embedded = false, formId }: Lea
         source_details: `Form ID: ${formId || 'default'}`,
       };
 
-      await LeadService.createLead(leadDataWithUTM);
+      const { data, error } = await LeadService.createLead(leadDataWithUTM);
+      
+      if (error?.code === 'DUPLICATE_LEAD') {
+        toast({
+          title: 'Already Registered',
+          description: 'This contact already exists in our system. We will reach out to you soon!',
+        });
+        // Still reset form and call callback for good UX
+        const resetData: FormData = {};
+        formConfig.fields.forEach(field => {
+          resetData[field.id] = field.type === 'multi-select' || field.type === 'checkbox' ? [] : '';
+        });
+        setFormData(resetData);
+        if (onLeadCreated) onLeadCreated();
+        return;
+      }
+      
+      if (error) {
+        throw new Error(error.message);
+      }
       
       // Reset form
       const resetData: FormData = {};

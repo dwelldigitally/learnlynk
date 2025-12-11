@@ -89,8 +89,14 @@ export function DynamicFormRenderer({ formConfig, onSuccess, className }: Dynami
 
       const { data: lead, error: leadError } = await LeadService.createLead(leadData);
       
+      if (leadError?.code === 'DUPLICATE_LEAD') {
+        toast.error('This contact already exists in our system. We will reach out to you soon!');
+        setIsSubmitted(true);
+        return;
+      }
+      
       if (leadError || !lead) {
-        throw new Error('Failed to create lead');
+        throw new Error(leadError?.message || 'Failed to create lead');
       }
 
       // Save form submission

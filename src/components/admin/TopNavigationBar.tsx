@@ -51,6 +51,7 @@ export function TopNavigationBar() {
     { name: "Leads", href: "/admin/leads" },
     { name: "Communication Hub", href: "/admin/communication" },
     { name: "Campaigns", href: "/admin/campaigns" },
+    { name: "Reports", href: "/admin/reports" },
     { name: "Team Goals", href: "/admin/leads/team-goals" },
   ];
 
@@ -62,7 +63,6 @@ export function TopNavigationBar() {
     { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
     { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
     { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
-    { name: "Reports", href: "/admin/reports", icon: FileText },
   ];
 
   const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/');

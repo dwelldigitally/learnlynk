@@ -6,13 +6,13 @@ export interface ApplicationData {
   student_id?: string;
   application_number?: string;
   program_id?: string | null;
-  program_name?: string; // For backward compatibility
+  program_name?: string;
   status: 'draft' | 'submitted' | 'under_review' | 'approved' | 'rejected';
   stage: 'program_selection' | 'program_details' | 'financial_breakdown' | 'requirements' | 'intake_selection' | 'personal_info' | 'education' | 'work_experience' | 'essays' | 'questions' | 'documents' | 'payment' | 'review';
   progress: number | null;
   documents?: any;
   requirements?: any;
-  application_data?: Record<string, any>; // For storing step data
+  application_data?: Record<string, any>;
   application_deadline?: string | null;
   submission_date?: string | null;
   next_step?: string | null;
@@ -20,22 +20,43 @@ export interface ApplicationData {
   estimated_decision?: string | null;
   created_at?: string;
   updated_at?: string;
+  tenant_id?: string;
 }
 
 export class ApplicationService {
   /**
+   * Get tenant_id for current user
+   */
+  private static async getTenantId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    
+    const { data: tenantUser } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .eq('is_primary', true)
+      .single();
+    
+    return tenantUser?.tenant_id || null;
+  }
+
+  /**
    * Add dummy applications for the current user
    */
-  static async addDummyApplications() {
+  static async addDummyApplications(tenantId?: string) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       throw new Error('User not authenticated');
     }
 
+    const effectiveTenantId = tenantId || await this.getTenantId();
+
     const dummyApplications = [
       {
         user_id: user.id,
+        tenant_id: effectiveTenantId,
         student_name: 'Sarah Johnson',
         email: 'sarah.johnson@email.com',
         phone: '+1-555-0123',
@@ -49,6 +70,7 @@ export class ApplicationService {
       },
       {
         user_id: user.id,
+        tenant_id: effectiveTenantId,
         student_name: 'Michael Chen',
         email: 'michael.chen@email.com',
         phone: '+1-555-0124',
@@ -62,6 +84,7 @@ export class ApplicationService {
       },
       {
         user_id: user.id,
+        tenant_id: effectiveTenantId,
         student_name: 'Emily Rodriguez',
         email: 'emily.rodriguez@email.com',
         phone: '+1-555-0125',
@@ -75,6 +98,7 @@ export class ApplicationService {
       },
       {
         user_id: user.id,
+        tenant_id: effectiveTenantId,
         student_name: 'David Kim',
         email: 'david.kim@email.com',
         phone: '+1-555-0126',
@@ -88,6 +112,7 @@ export class ApplicationService {
       },
       {
         user_id: user.id,
+        tenant_id: effectiveTenantId,
         student_name: 'Jessica Brown',
         email: 'jessica.brown@email.com',
         phone: '+1-555-0127',
@@ -114,13 +139,21 @@ export class ApplicationService {
   }
 
   /**
-   * Get all applications for the current user
+   * Get all applications for the current tenant
    */
-  static async getApplications() {
-    const { data, error } = await supabase
+  static async getApplications(tenantId?: string) {
+    const effectiveTenantId = tenantId || await this.getTenantId();
+
+    let query = supabase
       .from('applications')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (effectiveTenantId) {
+      query = query.eq('tenant_id', effectiveTenantId);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(`Failed to fetch applications: ${error.message}`);
@@ -154,12 +187,14 @@ export class ApplicationService {
   /**
    * Create a new application
    */
-  static async createApplication(applicationData: ApplicationData) {
+  static async createApplication(applicationData: ApplicationData, tenantId?: string) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       throw new Error('User not authenticated');
     }
+
+    const effectiveTenantId = tenantId || applicationData.tenant_id || await this.getTenantId();
 
     const { data, error } = await supabase
       .from('student_applications')
@@ -172,7 +207,8 @@ export class ApplicationService {
         stage: applicationData.stage,
         progress: applicationData.progress || 0,
         documents: applicationData.application_data || {},
-        requirements: applicationData.requirements || {}
+        requirements: applicationData.requirements || {},
+        tenant_id: effectiveTenantId
       })
       .select()
       .single();
@@ -188,6 +224,7 @@ export class ApplicationService {
    * Update an existing application
    */
   static async updateApplication(applicationId: string, applicationData: ApplicationData) {
+    // Note: tenant_id should not be updated
     const { error } = await supabase
       .from('student_applications')
       .update({

@@ -12,7 +12,7 @@ export interface CreateLeadData {
   country?: string;
   state?: string;
   city?: string;
-  source: any; // Use any to bypass enum issues
+  source: any;
   program_interest?: string[];
   preferred_intake_id?: string;
   academic_term_id?: string;
@@ -25,14 +25,28 @@ export interface CreateLeadData {
   user_id?: string;
   source_details?: string;
   tags?: string[];
+  tenant_id?: string;
 }
 
 export class LeadService {
   /**
    * Creates a new lead in the system
    */
-  static async createLead(leadData: CreateLeadData): Promise<{ data: Lead | null; error: any }> {
+  static async createLead(leadData: CreateLeadData, tenantId?: string): Promise<{ data: Lead | null; error: any }> {
     try {
+      // Get tenant_id from parameter or fetch user's primary tenant
+      let effectiveTenantId = tenantId || leadData.tenant_id;
+      
+      if (!effectiveTenantId) {
+        const { data: tenantUser } = await supabase
+          .from('tenant_users')
+          .select('tenant_id')
+          .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+          .eq('is_primary', true)
+          .single();
+        effectiveTenantId = tenantUser?.tenant_id;
+      }
+
       const { data, error } = await supabase
         .from('leads')
         .insert({
@@ -58,7 +72,8 @@ export class LeadService {
           tags: leadData.tags || [],
           status: 'new' as any,
           priority: 'medium' as any,
-          lead_score: 0
+          lead_score: 0,
+          tenant_id: effectiveTenantId
         })
         .select()
         .single();
@@ -135,7 +150,6 @@ export class LeadService {
    * Creates lead activities
    */
   static async createActivity(leadId: string, activity: any): Promise<{ error: any }> {
-    // Mock implementation for backward compatibility
     return { error: null };
   }
 
@@ -143,41 +157,48 @@ export class LeadService {
    * Gets lead activities
    */
   static async getLeadActivities(leadId: string): Promise<{ data: any[] | null; error: any }> {
-    // Mock implementation for backward compatibility
     return { data: [], error: null };
   }
 
   /**
-   * Gets lead by ID (alias for getLead)
+   * Gets lead by ID
    */
   static async getLeadById(leadId: string): Promise<{ data: Lead | null; error: any }> {
     return this.getLead(leadId);
   }
 
   /**
-   * Updates lead status (alias for updateStatus)
+   * Updates lead status
    */
   static async updateLeadStatus(leadId: string, status: string): Promise<{ error: any }> {
     return this.updateStatus(leadId, status);
   }
 
   /**
-   * Remove AI agent from lead (mock implementation)
+   * Remove AI agent from lead
    */
   static async removeAIAgentFromLead(leadId: string): Promise<{ error: any }> {
     return { error: null };
   }
 
   /**
-   * Gets all leads for a user
+   * Gets all leads for a tenant (falls back to user_id for backward compatibility)
    */
-  static async getLeads(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+  static async getLeads(userId: string, tenantId?: string): Promise<{ data: Lead[] | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('leads')
         .select('*')
-        .eq('user_id', userId)
         .order('created_at', { ascending: false });
+
+      // If tenantId provided, filter by tenant, otherwise fall back to user_id
+      if (tenantId) {
+        query = query.eq('tenant_id', tenantId);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching leads:', error);
@@ -219,9 +240,12 @@ export class LeadService {
    */
   static async updateLead(leadId: string, updates: Partial<Lead>): Promise<{ data: Lead | null; error: any }> {
     try {
+      // Remove tenant_id from updates to prevent changing it
+      const { tenant_id, ...safeUpdates } = updates as any;
+      
       const { data, error } = await supabase
         .from('leads')
-        .update(updates as any)
+        .update(safeUpdates as any)
         .eq('id', leadId)
         .select()
         .single();
@@ -281,16 +305,23 @@ export class LeadService {
   /**
    * Gets hot leads with high priority and engagement
    */
-  static async getHotLeads(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+  static async getHotLeads(userId: string, tenantId?: string): Promise<{ data: Lead[] | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('leads')
         .select('*')
-        .eq('user_id', userId)
         .or('priority.eq.urgent,priority.eq.high')
         .gte('lead_score', 70)
         .order('lead_score', { ascending: false })
         .limit(15);
+
+      if (tenantId) {
+        query = query.eq('tenant_id', tenantId);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching hot leads:', error);
@@ -307,19 +338,26 @@ export class LeadService {
   /**
    * Gets today's call list
    */
-  static async getTodaysCallList(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+  static async getTodaysCallList(userId: string, tenantId?: string): Promise<{ data: Lead[] | null; error: any }> {
     try {
       const today = new Date();
       const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
       const endOfDay = new Date(today.setHours(23, 59, 59, 999)).toISOString();
 
-      const { data, error } = await supabase
+      let query = supabase
         .from('leads')
         .select('*')
-        .eq('user_id', userId)
         .not('next_follow_up_at', 'is', null)
         .or(`next_follow_up_at.gte.${startOfDay},next_follow_up_at.lt.${endOfDay},next_follow_up_at.lt.${startOfDay}`)
         .order('next_follow_up_at', { ascending: true });
+
+      if (tenantId) {
+        query = query.eq('tenant_id', tenantId);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching todays call list:', error);
@@ -336,15 +374,22 @@ export class LeadService {
   /**
    * Gets re-enquiry students
    */
-  static async getReenquiryStudents(userId: string): Promise<{ data: Lead[] | null; error: any }> {
+  static async getReenquiryStudents(userId: string, tenantId?: string): Promise<{ data: Lead[] | null; error: any }> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('leads')
         .select('*')
-        .eq('user_id', userId)
         .or('tags.cs.{upsell,program_change,dormant,reactivation,alumni_referral}')
         .order('lead_score', { ascending: false })
         .limit(20);
+
+      if (tenantId) {
+        query = query.eq('tenant_id', tenantId);
+      } else {
+        query = query.eq('user_id', userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) {
         console.error('Error fetching re-enquiry students:', error);

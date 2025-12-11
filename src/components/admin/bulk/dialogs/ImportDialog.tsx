@@ -7,7 +7,8 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { LeadService } from '@/services/leadService';
 import { LeadSource } from '@/types/lead';
-import { Download } from 'lucide-react';
+import { Download, AlertTriangle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface ImportDialogProps {
   open: boolean;
@@ -21,6 +22,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
   const [importResults, setImportResults] = useState<{
     total: number;
     success: number;
+    skipped: number;
     errors: string[];
   } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +65,7 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       }
 
       const dataLines = lines.slice(1);
-      const results = { total: dataLines.length, success: 0, errors: [] as string[] };
+      const results = { total: dataLines.length, success: 0, skipped: 0, errors: [] as string[] };
       
       for (let i = 0; i < dataLines.length; i++) {
         const values = dataLines[i].split(',').map(v => v.trim().replace(/"/g, ''));
@@ -93,8 +95,16 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
             notes: leadData.notes || ''
           };
 
-          await LeadService.createLead(lead);
-          results.success++;
+          const { data, error } = await LeadService.createLead(lead);
+          
+          if (error?.code === 'DUPLICATE_LEAD') {
+            results.skipped++;
+            results.errors.push(`Row ${i + 2}: Duplicate lead (${leadData.email || leadData.phone})`);
+          } else if (error) {
+            results.errors.push(`Row ${i + 2}: ${error.message}`);
+          } else {
+            results.success++;
+          }
         } catch (error) {
           results.errors.push(`Row ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
@@ -103,11 +113,13 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
       }
 
       setImportResults(results);
-      onSuccess();
+      if (results.success > 0) {
+        onSuccess();
+      }
       
       toast({
         title: 'Import Complete',
-        description: `Successfully imported ${results.success} of ${results.total} leads`
+        description: `Imported ${results.success} leads${results.skipped > 0 ? `, ${results.skipped} duplicates skipped` : ''}`
       });
     } catch (error) {
       toast({
@@ -209,18 +221,22 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
           )}
 
           {importResults && (
-            <div className="space-y-2">
-              <div className="text-sm">
-                <strong>Import Results:</strong>
-              </div>
+            <div className="space-y-3">
+              <div className="text-sm font-medium">Import Results:</div>
               <div className="text-sm space-y-1">
                 <div>Total rows processed: {importResults.total}</div>
                 <div className="text-green-600">Successfully imported: {importResults.success}</div>
+                {importResults.skipped > 0 && (
+                  <div className="text-amber-600 flex items-center gap-1">
+                    <AlertTriangle className="h-3 w-3" />
+                    Duplicates skipped: {importResults.skipped}
+                  </div>
+                )}
                 {importResults.errors.length > 0 && (
                   <div className="text-destructive">
-                    Errors: {importResults.errors.length}
+                    Errors: {importResults.errors.length - importResults.skipped}
                     <details className="mt-1">
-                      <summary className="cursor-pointer">View errors</summary>
+                      <summary className="cursor-pointer">View details</summary>
                       <ul className="list-disc list-inside mt-1 space-y-1 max-h-32 overflow-y-auto">
                         {importResults.errors.slice(0, 10).map((error, index) => (
                           <li key={index} className="text-xs">{error}</li>
@@ -233,6 +249,15 @@ export function ImportDialog({ open, onOpenChange, onSuccess }: ImportDialogProp
                   </div>
                 )}
               </div>
+              
+              {importResults.skipped > 0 && (
+                <Alert className="bg-amber-500/10 border-amber-500/20">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" />
+                  <AlertDescription className="text-sm">
+                    {importResults.skipped} duplicate lead(s) were skipped based on your duplicate prevention settings.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
           )}
 

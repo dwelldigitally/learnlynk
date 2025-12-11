@@ -1,19 +1,29 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DuplicateLeadService, DuplicateGroup, DuplicatePreventionField } from '@/services/duplicateLeadService';
+import { DuplicateLeadService, DuplicateGroup, DuplicatePreventionField, DuplicateCheckResult } from '@/services/duplicateLeadService';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/hooks/use-toast';
 
 export function useDuplicatePreventionSetting() {
-  const { tenantId } = useTenant();
+  const { tenantId, loading } = useTenant();
 
   return useQuery({
     queryKey: ['duplicate-prevention-setting', tenantId],
     queryFn: async () => {
-      if (!tenantId) return null;
+      if (!tenantId) throw new Error('No tenant ID');
       return DuplicateLeadService.getDuplicatePreventionSetting(tenantId);
     },
-    enabled: !!tenantId
+    enabled: !!tenantId && !loading,
+    retry: false
   });
+}
+
+export function useCheckDuplicate() {
+  const { tenantId } = useTenant();
+
+  return async (email: string, phone?: string): Promise<DuplicateCheckResult> => {
+    if (!tenantId) return { isDuplicate: false };
+    return DuplicateLeadService.checkForDuplicate(email, phone, tenantId);
+  };
 }
 
 export function useSetDuplicatePreventionSetting() {

@@ -6,12 +6,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Play, Save, Eye, Settings, BarChart3, ArrowLeft, Clock } from 'lucide-react';
+import { 
+  Play, 
+  Save, 
+  Eye, 
+  Settings, 
+  BarChart3, 
+  ArrowLeft, 
+  Clock,
+  LayoutTemplate,
+  X
+} from 'lucide-react';
 import { BuilderProvider, useBuilder } from '@/contexts/BuilderContext';
 import { WorkflowCanvas } from './WorkflowCanvas';
 import { WorkflowActionLibrary } from './WorkflowActionLibrary';
 import { WorkflowPropertyPanel } from './WorkflowPropertyPanel';
+import { WorkflowTemplateSelector } from './WorkflowTemplateSelector';
+import { WorkflowPreviewPanel } from './WorkflowPreviewPanel';
+import { WorkflowSettingsPanel } from './WorkflowSettingsPanel';
+import { WorkflowAnalyticsPanel } from './WorkflowAnalyticsPanel';
 import { workflowElementTypes } from '@/config/elementTypes';
+import { WorkflowTemplate } from '@/config/workflowTemplates';
 import { toast } from 'sonner';
 
 interface WorkflowBuilderMainProps {
@@ -20,13 +35,47 @@ interface WorkflowBuilderMainProps {
   onCancel: () => void;
 }
 
+const defaultSettings = {
+  isActive: false,
+  triggerSettings: {
+    triggerType: 'event',
+    reEnrollment: false,
+    reEnrollmentDelay: 7,
+    reEnrollmentDelayUnit: 'days'
+  },
+  enrollmentSettings: {
+    targetAudience: [],
+    exclusionCriteria: [],
+    maxConcurrent: 0,
+    removeFromOtherWorkflows: false
+  },
+  scheduleSettings: {
+    runImmediately: true,
+    businessHoursOnly: false,
+    timezone: 'America/New_York',
+    startDate: '',
+    endDate: '',
+    durationLimit: false,
+    durationValue: 30,
+    durationUnit: 'days'
+  },
+  goalSettings: {
+    goalType: 'none',
+    exitOnGoal: true,
+    exitOnUnsubscribe: true,
+    exitOnBounce: true
+  }
+};
+
 function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBuilderMainProps) {
   const { state, dispatch } = useBuilder();
   const [workflowName, setWorkflowName] = useState('New Workflow');
   const [workflowDescription, setWorkflowDescription] = useState('');
   const [activeTab, setActiveTab] = useState('workflow');
   const [isSaving, setIsSaving] = useState(false);
-  const [isActive, setIsActive] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
+  const [settings, setSettings] = useState(defaultSettings);
 
   useEffect(() => {
     if (initialConfig) {
@@ -36,7 +85,11 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
       });
       setWorkflowName(initialConfig.name || 'New Workflow');
       setWorkflowDescription(initialConfig.description || '');
-      setIsActive(initialConfig.settings?.isActive || false);
+      setSettings({
+        ...defaultSettings,
+        ...initialConfig.settings,
+        isActive: initialConfig.settings?.isActive || false
+      });
     } else {
       dispatch({
         type: 'SET_CONFIG',
@@ -46,10 +99,12 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
           description: '',
           type: 'workflow',
           elements: [],
-          settings: { isActive: false },
+          settings: defaultSettings,
           metadata: {}
         }
       });
+      // Show templates for new workflows
+      setShowTemplates(true);
     }
   }, [initialConfig, dispatch]);
 
@@ -72,6 +127,52 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
     dispatch({ type: 'SELECT_ELEMENT', payload: newElement.id });
   };
 
+  const handleSelectTemplate = (template: WorkflowTemplate | null) => {
+    if (!template) {
+      // Start from scratch
+      return;
+    }
+
+    // Convert template steps to workflow elements
+    const elements: any[] = template.steps.map((step, index) => ({
+      id: crypto.randomUUID(),
+      type: step.type,
+      elementType: step.type,
+      title: step.title,
+      description: step.description || '',
+      position: { x: 0, y: index * 100 },
+      config: step.config,
+      conditionGroups: step.type === 'trigger' || step.type === 'condition' ? [] : undefined
+    }));
+
+    // Add trigger element
+    const triggerElement: any = {
+      id: crypto.randomUUID(),
+      type: 'trigger',
+      elementType: 'trigger',
+      title: 'Trigger',
+      description: `When: ${template.triggerType}`,
+      position: { x: 0, y: 0 },
+      config: {},
+      conditionGroups: [{
+        operator: 'AND',
+        conditions: template.triggerConditions
+      }]
+    };
+
+    dispatch({
+      type: 'SET_CONFIG',
+      payload: {
+        ...state.config,
+        elements: [triggerElement, ...elements]
+      }
+    });
+
+    setWorkflowName(template.name);
+    setWorkflowDescription(template.description);
+    toast.success(`Template "${template.name}" loaded`);
+  };
+
   const handleSave = async () => {
     try {
       setIsSaving(true);
@@ -79,10 +180,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
         ...state.config,
         name: workflowName,
         description: workflowDescription,
-        settings: {
-          ...state.config.settings,
-          isActive
-        }
+        settings
       };
       await onSave(config);
     } catch (error) {
@@ -97,18 +195,14 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
     toast.info('Test mode coming soon!');
   };
 
-  const handlePreview = () => {
-    dispatch({ type: 'SET_PREVIEW_MODE', payload: !state.isPreviewMode });
-  };
-
   const stepCount = state.config.elements.length;
   const actionCount = state.config.elements.filter(el => el.type !== 'trigger').length;
   const triggerCount = state.config.elements.filter(el => el.type === 'trigger').length;
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
-      <div className="border-b bg-card">
+      <div className="border-b bg-card sticky top-0 z-10">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-4 flex-1">
             <Button variant="ghost" size="sm" onClick={onCancel}>
@@ -128,22 +222,24 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-4 text-sm text-muted-foreground mr-4">
-              <div className="flex items-center gap-1">
-                <Badge variant={isActive ? "default" : "secondary"}>
-                  {isActive ? 'Active' : 'Draft'}
-                </Badge>
-              </div>
+              <Badge variant={settings.isActive ? "default" : "secondary"}>
+                {settings.isActive ? 'Active' : 'Draft'}
+              </Badge>
               <div className="flex items-center gap-1">
                 <Clock className="h-4 w-4" />
                 <span>{stepCount} steps</span>
               </div>
             </div>
 
+            <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)}>
+              <LayoutTemplate className="h-4 w-4 mr-2" />
+              Templates
+            </Button>
             <Button variant="outline" size="sm" onClick={handleTest}>
               <Play className="h-4 w-4 mr-2" />
               Test
             </Button>
-            <Button variant="outline" size="sm" onClick={handlePreview}>
+            <Button variant="outline" size="sm" onClick={() => setShowPreview(true)}>
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
@@ -160,20 +256,23 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
             value={workflowDescription}
             onChange={(e) => setWorkflowDescription(e.target.value)}
             placeholder="Add a description for this workflow..."
-            className="border-none shadow-none resize-none text-sm text-muted-foreground min-h-[60px]"
+            className="border-none shadow-none resize-none text-sm text-muted-foreground min-h-[40px] max-h-[60px]"
           />
         </div>
       </div>
 
-      {/* Tabs - Wraps both TabsList and TabsContent */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="grid w-full max-w-md grid-cols-3 mx-6">
-          <TabsTrigger value="workflow">Workflow</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-        <TabsContent value="workflow" className="flex-1 flex m-0 data-[state=inactive]:hidden">
-          <div className="flex flex-1 overflow-hidden">
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+        <div className="border-b px-6 pt-2">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="workflow">Workflow</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+        </div>
+        
+        <TabsContent value="workflow" className="flex-1 m-0 data-[state=inactive]:hidden">
+          <div className="flex h-[calc(100vh-200px)]">
             {/* Left Sidebar - Action Library */}
             <div className="w-80 border-r bg-card flex flex-col">
               <WorkflowActionLibrary onAddElement={handleAddElement} />
@@ -191,79 +290,49 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
           </div>
         </TabsContent>
 
-        <TabsContent value="settings" className="flex-1 m-0 p-6 data-[state=inactive]:hidden">
-          <div className="max-w-2xl space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Workflow Settings</h3>
-              
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Workflow Status</label>
-                  <div className="flex items-center gap-4">
-                    <Button
-                      variant={isActive ? "default" : "outline"}
-                      onClick={() => setIsActive(true)}
-                    >
-                      Active
-                    </Button>
-                    <Button
-                      variant={!isActive ? "default" : "outline"}
-                      onClick={() => setIsActive(false)}
-                    >
-                      Draft
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    {isActive 
-                      ? 'This workflow is active and will process new entries' 
-                      : 'This workflow is in draft mode and will not process entries'}
-                  </p>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Triggers</label>
-                  <p className="text-sm text-muted-foreground">
-                    {triggerCount} trigger{triggerCount !== 1 ? 's' : ''} configured
-                  </p>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Actions</label>
-                  <p className="text-sm text-muted-foreground">
-                    {actionCount} action{actionCount !== 1 ? 's' : ''} configured
-                  </p>
-                </div>
-              </div>
-            </div>
+        <TabsContent value="settings" className="flex-1 m-0 data-[state=inactive]:hidden overflow-auto">
+          <div className="max-w-3xl mx-auto py-6">
+            <WorkflowSettingsPanel 
+              settings={settings}
+              onSettingsChange={setSettings}
+              triggerCount={triggerCount}
+              actionCount={actionCount}
+            />
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="flex-1 m-0 p-6 data-[state=inactive]:hidden">
-          <div className="max-w-4xl space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Workflow Analytics</h3>
-              <p className="text-muted-foreground">
-                Analytics and execution history will be available here once the workflow is active.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              <Card className="p-4">
-                <div className="text-2xl font-bold">0</div>
-                <div className="text-sm text-muted-foreground">Total Executions</div>
-              </Card>
-              <Card className="p-4">
-                <div className="text-2xl font-bold">0%</div>
-                <div className="text-sm text-muted-foreground">Completion Rate</div>
-              </Card>
-              <Card className="p-4">
-                <div className="text-2xl font-bold">0</div>
-                <div className="text-sm text-muted-foreground">Active Leads</div>
-              </Card>
-            </div>
-          </div>
+        <TabsContent value="analytics" className="flex-1 m-0 p-6 data-[state=inactive]:hidden overflow-auto">
+          <WorkflowAnalyticsPanel workflowId={state.config.id} />
         </TabsContent>
       </Tabs>
+
+      {/* Template Selector Dialog */}
+      <WorkflowTemplateSelector
+        open={showTemplates}
+        onOpenChange={setShowTemplates}
+        onSelectTemplate={handleSelectTemplate}
+      />
+
+      {/* Preview Side Panel */}
+      {showPreview && (
+        <div className="fixed inset-y-0 right-0 w-[500px] bg-background border-l shadow-xl z-50 flex flex-col">
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="font-semibold">Workflow Preview</h2>
+            <Button variant="ghost" size="sm" onClick={() => setShowPreview(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+          <WorkflowPreviewPanel 
+            config={{
+              name: workflowName,
+              description: workflowDescription,
+              elements: state.config.elements,
+              settings
+            }}
+            onClose={() => setShowPreview(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

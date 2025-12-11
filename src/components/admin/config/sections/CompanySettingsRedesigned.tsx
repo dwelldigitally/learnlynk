@@ -11,6 +11,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from '@/components/modern/PageHeader';
+import { useTenant } from '@/contexts/TenantContext';
+import { TenantService } from '@/services/tenantService';
 
 const timezones = [
   { value: 'America/Toronto', label: 'Eastern Time (Toronto)', offset: 'UTC-5' },
@@ -50,6 +52,7 @@ const dataResidencyRegions = [
 export function CompanySettingsRedesigned() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const { tenantId, tenant, loading: tenantLoading } = useTenant();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -83,16 +86,23 @@ export function CompanySettingsRedesigned() {
   });
 
   useEffect(() => {
-    loadCompanyProfile();
-  }, []);
+    if (tenantId && !tenantLoading) {
+      loadCompanyProfile();
+    }
+  }, [tenantId, tenantLoading]);
 
   const loadCompanyProfile = async () => {
+    if (!tenantId) {
+      setLoading(false);
+      return;
+    }
+
     try {
+      // Fetch company profile for this specific tenant
       const { data, error } = await supabase
         .from('company_profile')
         .select('*')
-        .order('created_at', { ascending: true })
-        .limit(1)
+        .eq('tenant_id', tenantId)
         .maybeSingle();
 
       if (error) throw error;
@@ -100,7 +110,7 @@ export function CompanySettingsRedesigned() {
       if (data) {
         setExistingProfileId(data.id);
         setFormData({
-          name: data.name || '',
+          name: data.name || tenant?.name || '',
           logo_url: data.logo_url || '',
           primary_color: data.primary_color || '#3b82f6',
           secondary_color: data.secondary_color || '#6b7280',
@@ -126,6 +136,12 @@ export function CompanySettingsRedesigned() {
         if (data.logo_url) {
           setLogoPreview(data.logo_url);
         }
+      } else {
+        // No profile exists yet - pre-fill with tenant name
+        setFormData(prev => ({
+          ...prev,
+          name: tenant?.name || ''
+        }));
       }
     } catch (error) {
       console.error('Error loading company profile:', error);
@@ -186,6 +202,15 @@ export function CompanySettingsRedesigned() {
   };
 
   const handleSave = async () => {
+    if (!tenantId) {
+      toast({
+        title: 'Error',
+        description: 'No institution selected',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       let logoUrl = formData.logo_url;
@@ -216,32 +241,22 @@ export function CompanySettingsRedesigned() {
         default_language: formData.default_language,
         currency: formData.currency,
         data_residency_region: formData.data_residency_region,
-        updated_at: new Date().toISOString(),
       };
 
-      let error;
+      // Use TenantService to update profile (handles sync with tenant name)
+      await TenantService.updateCompanyProfile(tenantId, profileData);
 
-      if (existingProfileId) {
-        // Update existing record
-        const result = await supabase
+      // If profile didn't exist before, fetch the new ID
+      if (!existingProfileId) {
+        const { data } = await supabase
           .from('company_profile')
-          .update(profileData)
-          .eq('id', existingProfileId);
-        error = result.error;
-      } else {
-        // Insert new record
-        const result = await supabase
-          .from('company_profile')
-          .insert(profileData)
-          .select()
+          .select('id')
+          .eq('tenant_id', tenantId)
           .single();
-        error = result.error;
-        if (result.data) {
-          setExistingProfileId(result.data.id);
+        if (data) {
+          setExistingProfileId(data.id);
         }
       }
-
-      if (error) throw error;
 
       toast({
         title: 'Success',

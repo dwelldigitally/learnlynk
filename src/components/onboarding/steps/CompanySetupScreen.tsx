@@ -7,6 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Building, Globe, Users, MapPin, Phone, Mail } from 'lucide-react';
+import { useTenant } from '@/contexts/TenantContext';
+import { TenantService } from '@/services/tenantService';
 
 interface CompanySetupScreenProps {
   data: any;
@@ -67,8 +69,10 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
   onSkip
 }) => {
   const { toast } = useToast();
+  const { tenantId, tenant } = useTenant();
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<CompanyData>({
-    institutionName: data?.institutionName || websiteData?.institution?.name || '',
+    institutionName: data?.institutionName || websiteData?.institution?.name || tenant?.name || '',
     institutionType: data?.institutionType || '',
     website: data?.website || websiteData?.url || '',
     description: data?.description || websiteData?.institution?.description || '',
@@ -91,7 +95,7 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate required fields
     const requiredFields = ['institutionName', 'institutionType', 'website', 'email'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof CompanyData]);
@@ -103,6 +107,43 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
         variant: "destructive"
       });
       return;
+    }
+
+    // Save to database if tenant exists
+    if (tenantId) {
+      setSaving(true);
+      try {
+        await TenantService.updateCompanyProfile(tenantId, {
+          name: formData.institutionName,
+          website: formData.website,
+          description: formData.description,
+          email: formData.email,
+          phone: formData.phone,
+          street_address: formData.address,
+          city: formData.city,
+          state_province: formData.state,
+          country: formData.country,
+          postal_code: formData.zipCode,
+          logo_url: formData.logoUrl,
+          primary_color: formData.primaryColor,
+          secondary_color: formData.secondaryColor,
+          founded_year: formData.established ? parseInt(formData.established) : undefined,
+        });
+        
+        toast({
+          title: "Settings Saved",
+          description: "Your institution information has been saved.",
+        });
+      } catch (error) {
+        console.error('Error saving company profile:', error);
+        toast({
+          title: "Save Failed",
+          description: "Failed to save institution information. You can update it later in Settings.",
+          variant: "destructive"
+        });
+      } finally {
+        setSaving(false);
+      }
     }
 
     onComplete(formData);
@@ -407,10 +448,10 @@ const CompanySetupScreen: React.FC<CompanySetupScreenProps> = ({
         </Button>
         <Button 
           onClick={handleSubmit} 
-          disabled={!isFormValid}
+          disabled={!isFormValid || saving}
           className="bg-primary hover:bg-primary-hover"
         >
-          Save & Continue
+          {saving ? 'Saving...' : 'Save & Continue'}
         </Button>
       </div>
     </div>

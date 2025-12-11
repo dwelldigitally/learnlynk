@@ -14,9 +14,27 @@ export interface IntakeData {
   study_mode?: 'full-time' | 'part-time';
   campus?: string;
   user_id?: string;
+  tenant_id?: string;
 }
 
 export class IntakeService {
+  /**
+   * Get tenant_id for current user
+   */
+  private static async getTenantId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    
+    const { data: tenantUser } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .eq('is_primary', true)
+      .single();
+    
+    return tenantUser?.tenant_id || null;
+  }
+
   /**
    * Get all intakes for a specific program
    */
@@ -37,21 +55,31 @@ export class IntakeService {
   }
 
   /**
-   * Get all intakes for the current user
+   * Get all intakes for the current tenant
    */
-  static async getAllIntakes() {
+  static async getAllIntakes(tenantId?: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    // First fetch intakes
-    const { data: intakes, error: intakesError } = await supabase
+    const effectiveTenantId = tenantId || await this.getTenantId();
+
+    // Build intakes query
+    let intakesQuery = supabase
       .from('intakes')
       .select('*')
-      .eq('user_id', user.id)
       .order('start_date', { ascending: true });
+
+    // Filter by tenant if available, otherwise fall back to user_id
+    if (effectiveTenantId) {
+      intakesQuery = intakesQuery.eq('tenant_id', effectiveTenantId);
+    } else {
+      intakesQuery = intakesQuery.eq('user_id', user.id);
+    }
+
+    const { data: intakes, error: intakesError } = await intakesQuery;
 
     if (intakesError) {
       console.error('Error fetching intakes:', intakesError);
@@ -66,16 +94,22 @@ export class IntakeService {
     // Get unique program IDs
     const programIds = [...new Set(intakes.map(intake => intake.program_id))];
     
-    // Fetch programs separately
-    const { data: programs, error: programsError } = await supabase
+    // Build programs query
+    let programsQuery = supabase
       .from('programs')
       .select('id, name, type, duration')
-      .eq('user_id', user.id)
       .in('id', programIds);
+
+    if (effectiveTenantId) {
+      programsQuery = programsQuery.eq('tenant_id', effectiveTenantId);
+    } else {
+      programsQuery = programsQuery.eq('user_id', user.id);
+    }
+
+    const { data: programs, error: programsError } = await programsQuery;
 
     if (programsError) {
       console.error('Error fetching programs:', programsError);
-      // Return intakes without program data if programs fetch fails
       return intakes.map(intake => ({
         ...intake,
         program_name: 'Unknown Program'
@@ -103,18 +137,21 @@ export class IntakeService {
   /**
    * Create a new intake
    */
-  static async createIntake(intake: IntakeData) {
+  static async createIntake(intake: IntakeData, tenantId?: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
+    const effectiveTenantId = tenantId || intake.tenant_id || await this.getTenantId();
+
     const { data, error } = await supabase
       .from('intakes')
       .insert({
         ...intake,
-        user_id: user.id
+        user_id: user.id,
+        tenant_id: effectiveTenantId
       })
       .select()
       .single();
@@ -133,9 +170,12 @@ export class IntakeService {
    * Update an intake
    */
   static async updateIntake(id: string, intake: Partial<IntakeData>) {
+    // Remove tenant_id from updates to prevent changing it
+    const { tenant_id, ...safeUpdates } = intake;
+
     const { data, error } = await supabase
       .from('intakes')
-      .update(intake)
+      .update(safeUpdates)
       .eq('id', id)
       .select()
       .single();

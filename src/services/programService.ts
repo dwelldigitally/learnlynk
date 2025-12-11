@@ -4,20 +4,48 @@ import { AcademicJourneyService } from './academicJourneyService';
 
 export class ProgramService {
   /**
-   * Get all programs for the current user
+   * Get tenant_id for current user
    */
-  static async getPrograms() {
+  private static async getTenantId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    
+    const { data: tenantUser } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .eq('is_primary', true)
+      .single();
+    
+    return tenantUser?.tenant_id || null;
+  }
+
+  /**
+   * Get all programs for the current tenant
+   */
+  static async getPrograms(tenantId?: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       return [];
     }
 
-    const { data, error } = await supabase
+    // Get effective tenant_id
+    const effectiveTenantId = tenantId || await this.getTenantId();
+
+    let query = supabase
       .from('programs')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
+
+    // Filter by tenant if available, otherwise fall back to user_id
+    if (effectiveTenantId) {
+      query = query.eq('tenant_id', effectiveTenantId);
+    } else {
+      query = query.eq('user_id', user.id);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching programs:', error);
@@ -30,12 +58,15 @@ export class ProgramService {
   /**
    * Create a new program with all related data
    */
-  static async createProgram(program: any) {
+  static async createProgram(program: any, tenantId?: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
+
+    // Get effective tenant_id
+    const effectiveTenantId = tenantId || await this.getTenantId();
 
     console.log('🔵 ProgramService.createProgram - Input program:', program);
     console.log('🔵 ProgramService.createProgram - Input feeStructure:', program.feeStructure);
@@ -85,7 +116,8 @@ export class ProgramService {
         createdBy: user.id,
         ...program.metadata
       },
-      user_id: user.id
+      user_id: user.id,
+      tenant_id: effectiveTenantId
     };
 
     console.log('🔵 ProgramService.createProgram - Final programData:', programData);
@@ -118,12 +150,14 @@ export class ProgramService {
   /**
    * Update a program with all related data
    */
-  static async updateProgram(id: string, program: any) {
+  static async updateProgram(id: string, program: any, tenantId?: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
+
+    // Note: tenant_id should not be updated, so we don't include it in updates
 
     console.log('🔵 ProgramService.updateProgram - Input program:', program);
     console.log('🔵 ProgramService.updateProgram - Input feeStructure:', JSON.stringify(program.feeStructure, null, 2));

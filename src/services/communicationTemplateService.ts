@@ -4,13 +4,36 @@ import { Lead } from '@/types/lead';
 import { supabaseWrapper } from './supabaseWrapper';
 
 export class CommunicationTemplateService {
-  static async getTemplates(type?: string): Promise<CommunicationTemplate[]> {
+  /**
+   * Get tenant_id for current user
+   */
+  private static async getTenantId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return null;
+    
+    const { data: tenantUser } = await supabase
+      .from('tenant_users')
+      .select('tenant_id')
+      .eq('user_id', user.id)
+      .eq('is_primary', true)
+      .single();
+    
+    return tenantUser?.tenant_id || null;
+  }
+
+  static async getTemplates(type?: string, tenantId?: string): Promise<CommunicationTemplate[]> {
     return supabaseWrapper.retryOperation(async () => {
+      const effectiveTenantId = tenantId || await this.getTenantId();
+
       let query = supabase
         .from('communication_templates')
         .select('*')
         .eq('is_active', true)
         .order('usage_count', { ascending: false });
+
+      if (effectiveTenantId) {
+        query = query.eq('tenant_id', effectiveTenantId);
+      }
 
       if (type) {
         query = query.eq('type', type);
@@ -27,9 +50,11 @@ export class CommunicationTemplateService {
     });
   }
 
-  static async createTemplate(templateData: TemplateFormData): Promise<CommunicationTemplate> {
+  static async createTemplate(templateData: TemplateFormData, tenantId?: string): Promise<CommunicationTemplate> {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
+
+    const effectiveTenantId = tenantId || await this.getTenantId();
 
     // Extract variables from content
     const variables = this.extractVariables(templateData.content);
@@ -38,6 +63,7 @@ export class CommunicationTemplateService {
       .from('communication_templates')
       .insert([{
         user_id: user.id,
+        tenant_id: effectiveTenantId,
         name: templateData.name,
         type: templateData.type,
         subject: templateData.subject,
@@ -65,6 +91,9 @@ export class CommunicationTemplateService {
     if (updates.content) {
       updateData.variables = this.extractVariables(updates.content);
     }
+
+    // Remove tenant_id from updates to prevent changing it
+    delete updateData.tenant_id;
 
     const { data, error } = await supabase
       .from('communication_templates')

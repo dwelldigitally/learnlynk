@@ -10525,6 +10525,50 @@ export type Database = {
           },
         ]
       }
+      tenant_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string
+          id: string
+          role: string
+          tenant_id: string
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at?: string
+          id?: string
+          role?: string
+          tenant_id: string
+          token?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          role?: string
+          tenant_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenant_invitations_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tenant_users: {
         Row: {
           accepted_at: string | null
@@ -11128,6 +11172,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_tenant_invitation: {
+        Args: { p_token: string; p_user_id: string }
+        Returns: string
+      }
       array_remove_all: {
         Args: { arr: string[]; elements: string[] }
         Returns: string[]
@@ -11145,8 +11193,13 @@ export type Database = {
         Returns: boolean
       }
       cleanup_expired_otps: { Args: never; Returns: undefined }
+      create_tenant_with_owner: {
+        Args: { p_name: string; p_owner_id: string; p_slug: string }
+        Returns: string
+      }
       current_tenant_id: { Args: never; Returns: string }
       current_tenant_role: { Args: never; Returns: string }
+      generate_tenant_slug: { Args: { p_name: string }; Returns: string }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       increment_advisor_weekly_assignments: {
         Args: { p_advisor_id: string }

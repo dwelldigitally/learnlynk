@@ -8,7 +8,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Eye, EyeOff, ArrowRight, AlertCircle, CheckCircle, User, Building } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useValidateInviteToken, useAcceptInvitation } from '@/hooks/useTeamInvitations';
+import { useTenantInvitation } from '@/hooks/useTenantInvitation';
+import { TenantService } from '@/services/tenantService';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -20,25 +21,28 @@ const ModernSignUp: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [userRole, setUserRole] = useState<'admin' | 'student' | null>(null);
   
-  // Check for invitation token
-  const inviteToken = searchParams.get('invite');
-  const { data: invitation, isLoading: isValidatingInvite } = useValidateInviteToken(inviteToken);
-  const acceptInvitation = useAcceptInvitation();
+  // Check for tenant invitation token
+  const inviteToken = searchParams.get('tenant_invite');
+  const { invitation, loading: isValidatingInvite, error: inviteError } = useTenantInvitation(inviteToken);
 
-  // Available institutions for student selection
-  const institutions = [
-    'Harvard University',
-    'MIT',
-    'Stanford University',
-    'University of California, Berkeley',
-    'Columbia University',
-    'Princeton University',
-    'Yale University',
-    'University of Pennsylvania',
-    'Duke University',
-    'Northwestern University',
-    'Other'
-  ];
+  // Available institutions for student selection (from existing tenants)
+  const [existingTenants, setExistingTenants] = useState<{ id: string; name: string }[]>([]);
+
+  useEffect(() => {
+    // Fetch existing tenants for student selection
+    const fetchTenants = async () => {
+      const { data } = await supabase
+        .from('tenants')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('name');
+      if (data) {
+        setExistingTenants(data);
+      }
+    };
+    fetchTenants();
+  }, []);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -52,7 +56,7 @@ const ModernSignUp: React.FC = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Pre-fill email from invitation
+  // Pre-fill email from tenant invitation
   useEffect(() => {
     if (invitation?.email) {
       setFormData(prev => ({ ...prev, email: invitation.email }));
@@ -89,8 +93,8 @@ const ModernSignUp: React.FC = () => {
       return;
     }
 
-    if (userRole === 'admin' && !formData.institutionName) {
-      setError('Institution name is required for admin accounts');
+    if (userRole === 'admin' && !invitation && !formData.institutionName) {
+      setError('Institution name is required for new institution accounts');
       setIsLoading(false);
       return;
     }
@@ -110,33 +114,51 @@ const ModernSignUp: React.FC = () => {
         student_id: formData.studentId
       };
 
-      const { error } = await signUp(formData.email, formData.password, metadata);
+      const { error: signUpError } = await signUp(formData.email, formData.password, metadata);
       
-      if (error) {
-        setError(error.message);
-      } else {
-        // If there's an invitation, accept it and assign role after signup
-        if (invitation && inviteToken) {
-          // Wait a moment for the user to be created, then get the user and accept invitation
-          setTimeout(async () => {
-            try {
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                await acceptInvitation.mutateAsync({
-                  userId: user.id,
-                  inviteToken: inviteToken
-                });
-                toast.success(`Account created with ${invitation.role} role`);
-              }
-            } catch (inviteError) {
-              console.error('Failed to accept invitation:', inviteError);
-            }
-          }, 1000);
-        }
-        
-        // Redirect to email verification page after successful signup
-        navigate('/verify-email');
+      if (signUpError) {
+        setError(signUpError.message);
+        setIsLoading(false);
+        return;
       }
+
+      // Wait for user to be created in auth
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast.success('Please check your email to verify your account');
+        navigate('/verify-email');
+        return;
+      }
+
+      // Handle tenant creation/joining based on signup type
+      if (invitation && inviteToken) {
+        // Accepting tenant invitation - join existing tenant
+        try {
+          await TenantService.acceptInvitation(inviteToken, user.id);
+          toast.success(`Joined ${invitation.tenants?.name || 'institution'} as ${invitation.role}`);
+        } catch (inviteError) {
+          console.error('Failed to accept tenant invitation:', inviteError);
+          toast.error('Account created but failed to join institution. Please contact support.');
+        }
+      } else if (userRole === 'admin') {
+        // New institution signup - create tenant
+        try {
+          await TenantService.createTenant({
+            name: formData.institutionName,
+            ownerId: user.id
+          });
+          toast.success(`Institution "${formData.institutionName}" created successfully!`);
+        } catch (tenantError) {
+          console.error('Failed to create tenant:', tenantError);
+          toast.error('Account created but failed to create institution. Please contact support.');
+        }
+      }
+      
+      // Redirect to email verification page after successful signup
+      navigate('/verify-email');
     } catch (err) {
       setError('Failed to create account. Please try again.');
     } finally {
@@ -150,8 +172,14 @@ const ModernSignUp: React.FC = () => {
         <Alert className="mb-4">
           <CheckCircle className="h-4 w-4" />
           <AlertDescription>
-            You've been invited to join as <strong>{invitation.role.replace('_', ' ')}</strong>
+            You've been invited to join <strong>{invitation.tenants?.name}</strong> as <strong>{invitation.role}</strong>
           </AlertDescription>
+        </Alert>
+      )}
+      {inviteError && (
+        <Alert variant="destructive" className="mb-4">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{inviteError}</AlertDescription>
         </Alert>
       )}
       <div className="text-center mb-8">
@@ -177,7 +205,7 @@ const ModernSignUp: React.FC = () => {
                 Institution Administrator
               </h3>
               <p className="text-muted-foreground text-sm">
-                Manage admissions, students, programs, and institutional operations
+                Create a new institution or join an existing one via invitation
               </p>
             </div>
           </div>
@@ -212,7 +240,11 @@ const ModernSignUp: React.FC = () => {
           Create Your Account
         </h2>
         <p className="text-muted-foreground">
-          {userRole === 'admin' ? 'Set up your institution account' : 'Set up your student account'}
+          {invitation 
+            ? `Join ${invitation.tenants?.name || 'institution'}`
+            : userRole === 'admin' 
+              ? 'Set up your new institution' 
+              : 'Set up your student account'}
         </p>
       </div>
 
@@ -221,7 +253,7 @@ const ModernSignUp: React.FC = () => {
           <Alert className="mb-4">
             <CheckCircle className="h-4 w-4" />
             <AlertDescription>
-              You've been invited to join as <strong>{invitation.role.replace('_', ' ')}</strong>
+              You've been invited to join <strong>{invitation.tenants?.name}</strong> as <strong>{invitation.role}</strong>
             </AlertDescription>
           </Alert>
         )}
@@ -277,7 +309,7 @@ const ModernSignUp: React.FC = () => {
           />
         </div>
 
-        {userRole === 'admin' && (
+        {userRole === 'admin' && !invitation && (
           <div className="space-y-2">
             <Label htmlFor="institutionName" className="text-foreground font-medium">
               Institution Name *
@@ -290,6 +322,9 @@ const ModernSignUp: React.FC = () => {
               className="glass-button"
               required
             />
+            <p className="text-xs text-muted-foreground">
+              This will create a new institution. You'll be the owner.
+            </p>
           </div>
         )}
 
@@ -307,9 +342,9 @@ const ModernSignUp: React.FC = () => {
                   <SelectValue placeholder="Select your institution" />
                 </SelectTrigger>
                 <SelectContent className="bg-background border-border">
-                  {institutions.map((institution) => (
-                    <SelectItem key={institution} value={institution}>
-                      {institution}
+                  {existingTenants.map((tenant) => (
+                    <SelectItem key={tenant.id} value={tenant.name}>
+                      {tenant.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -403,6 +438,17 @@ const ModernSignUp: React.FC = () => {
       </form>
     </div>
   );
+
+  if (isValidatingInvite) {
+    return (
+      <div className="min-h-screen hero-gradient flex items-center justify-center">
+        <div className="text-center">
+          <div className="loading-shimmer w-8 h-8 rounded-full mx-auto mb-4" />
+          <p className="text-muted-foreground">Validating invitation...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen hero-gradient flex items-center justify-center p-6">

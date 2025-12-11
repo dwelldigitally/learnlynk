@@ -4,12 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -20,8 +14,8 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { 
-  Plus, Search, Zap, Mail, Play, Pause, BarChart3,
-  RefreshCw, ChevronDown, TrendingUp, Users, CheckCircle2
+  Plus, Search, Zap, Play, BarChart3,
+  RefreshCw, TrendingUp, Users
 } from 'lucide-react';
 import { PageHeader } from '@/components/modern/PageHeader';
 import { HotSheetCard } from '@/components/hotsheet/HotSheetCard';
@@ -32,7 +26,7 @@ import { AutomationReEnrollModal } from './automation/AutomationReEnrollModal';
 import { AutomationService, type Automation } from '@/services/automationService';
 import { useToast } from '@/hooks/use-toast';
 
-type FilterTab = 'all' | 'workflows' | 'campaigns' | 'active' | 'paused' | 'draft';
+type FilterTab = 'all' | 'active' | 'paused' | 'draft';
 
 export function AutomationHub() {
   const navigate = useNavigate();
@@ -100,11 +94,7 @@ export function AutomationHub() {
   };
 
   const handleEdit = (automation: Automation) => {
-    if (automation.type === 'workflow') {
-      navigate(`/admin/workflows/builder/${automation.id}`);
-    } else {
-      navigate(`/admin/builder/campaigns/${automation.id}`);
-    }
+    navigate(`/admin/workflows/builder/${automation.id}`);
   };
 
   const handleDelete = async () => {
@@ -155,12 +145,6 @@ export function AutomationHub() {
 
     let matchesTab = true;
     switch (activeTab) {
-      case 'workflows':
-        matchesTab = a.type === 'workflow';
-        break;
-      case 'campaigns':
-        matchesTab = a.type === 'campaign';
-        break;
       case 'active':
         matchesTab = a.is_active;
         break;
@@ -179,28 +163,13 @@ export function AutomationHub() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
         <PageHeader 
-          title="Automation Hub"
-          subtitle="Manage all your workflows and campaigns in one place"
+          title="Workflow Management"
+          subtitle="Create and manage automated workflows for lead engagement"
           action={
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size="lg">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New
-                  <ChevronDown className="h-4 w-4 ml-2" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem onClick={() => navigate('/admin/workflows/builder')}>
-                  <Zap className="h-4 w-4 mr-2" />
-                  New Workflow
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/builder/campaigns')}>
-                  <Mail className="h-4 w-4 mr-2" />
-                  New Campaign
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button size="lg" onClick={() => navigate('/admin/workflows/builder')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Workflow
+            </Button>
           }
         />
 
@@ -209,9 +178,9 @@ export function AutomationHub() {
           <HotSheetCard hover radius="2xl" padding="lg">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Automations</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Workflows</p>
                 <h3 className="text-3xl font-bold text-foreground">{stats.totalAutomations}</h3>
-                <p className="text-xs text-muted-foreground mt-1">Workflows & Campaigns</p>
+                <p className="text-xs text-muted-foreground mt-1">All workflows</p>
               </div>
               <IconContainer color="violet" size="lg">
                 <Zap className="h-5 w-5" />
@@ -280,8 +249,6 @@ export function AutomationHub() {
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as FilterTab)} className="w-full">
           <TabsList className="mb-6">
             <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="workflows">Workflows</TabsTrigger>
-            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="active">Active</TabsTrigger>
             <TabsTrigger value="paused">Paused</TabsTrigger>
           </TabsList>
@@ -309,21 +276,17 @@ export function AutomationHub() {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   <Zap className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No automations found</h3>
+                <h3 className="text-lg font-semibold mb-2">No workflows found</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   {searchTerm 
                     ? "Try adjusting your search or filters"
-                    : "Create your first workflow or campaign to automate lead engagement"
+                    : "Create your first workflow to automate lead engagement"
                   }
                 </p>
                 <div className="flex gap-2 justify-center">
                   <Button onClick={() => navigate('/admin/workflows/builder')}>
                     <Zap className="h-4 w-4 mr-2" />
                     Create Workflow
-                  </Button>
-                  <Button variant="outline" onClick={() => navigate('/admin/builder/campaigns')}>
-                    <Mail className="h-4 w-4 mr-2" />
-                    Create Campaign
                   </Button>
                 </div>
               </div>

@@ -4,11 +4,13 @@ import { WorkflowService } from '@/services/workflowService';
 import { useToast } from '@/hooks/use-toast';
 import { WorkflowBuilderMain } from '@/components/workflow-builder/WorkflowBuilderMain';
 import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function WorkflowBuilderPage() {
   const navigate = useNavigate();
   const { workflowId } = useParams();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [initialConfig, setInitialConfig] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -67,7 +69,8 @@ export function WorkflowBuilderPage() {
           description: config.description,
           trigger_config: config,
           is_active: config.settings?.isActive || false,
-          trigger_type: 'manual'
+          trigger_type: 'manual',
+          user_id: user?.id
         });
         toast({
           title: "Success",

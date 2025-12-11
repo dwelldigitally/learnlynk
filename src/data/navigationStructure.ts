@@ -145,13 +145,10 @@ export const navigationStructure: NavigationStructure = {
         { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
         { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
         { name: "Team Management", href: "/admin/team", icon: UserCog },
-        { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
         { name: "Lead Scoring", href: "/admin/configuration/scoring", icon: Target },
         
         { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
-        { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
         { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
-        { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
         { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
         // Full Mode Only - AI & Advanced
         { name: "Master Data", href: "/admin/configuration/master-data", icon: Database },

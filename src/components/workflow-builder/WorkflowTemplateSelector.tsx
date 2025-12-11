@@ -5,14 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
-import { workflowTemplates, templateCategories, WorkflowTemplate } from '@/config/workflowTemplates';
+import { automationTemplates, templateCategories, AutomationTemplate } from '@/config/automationTemplates';
 import { getIconComponent } from '@/lib/iconHelper';
 import { Search, Plus, Clock, Zap, Star } from 'lucide-react';
 
 interface WorkflowTemplateSelectorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectTemplate: (template: WorkflowTemplate | null) => void;
+  onSelectTemplate: (template: AutomationTemplate | null) => void;
 }
 
 export function WorkflowTemplateSelector({ open, onOpenChange, onSelectTemplate }: WorkflowTemplateSelectorProps) {
@@ -20,7 +20,7 @@ export function WorkflowTemplateSelector({ open, onOpenChange, onSelectTemplate 
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredTemplates = useMemo(() => {
-    return workflowTemplates.filter(template => {
+    return automationTemplates.filter(template => {
       const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
       const matchesSearch = searchQuery === '' || 
         template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -29,7 +29,7 @@ export function WorkflowTemplateSelector({ open, onOpenChange, onSelectTemplate 
     });
   }, [selectedCategory, searchQuery]);
 
-  const handleSelectTemplate = (template: WorkflowTemplate) => {
+  const handleSelectTemplate = (template: AutomationTemplate) => {
     onSelectTemplate(template);
     onOpenChange(false);
   };
@@ -43,7 +43,7 @@ export function WorkflowTemplateSelector({ open, onOpenChange, onSelectTemplate 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[85vh] p-0 gap-0">
         <DialogHeader className="p-6 pb-4 border-b">
-          <DialogTitle className="text-xl">Choose a Workflow Template</DialogTitle>
+        <DialogTitle className="text-xl">Choose an Automation Template</DialogTitle>
           <DialogDescription>
             Start with a pre-built template or create from scratch
           </DialogDescription>
@@ -56,8 +56,8 @@ export function WorkflowTemplateSelector({ open, onOpenChange, onSelectTemplate 
               {templateCategories.map(category => {
                 const Icon = getIconComponent(category.icon);
                 const count = category.id === 'all' 
-                  ? workflowTemplates.length 
-                  : workflowTemplates.filter(t => t.category === category.id).length;
+                  ? automationTemplates.length 
+                  : automationTemplates.filter(t => t.category === category.id).length;
                 
                 return (
                   <Button

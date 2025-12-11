@@ -12,7 +12,7 @@ import { useBuilder } from '@/contexts/BuilderContext';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { PropertySchema } from '@/types/universalBuilder';
 import { Plus, X } from 'lucide-react';
-import { TriggerConditionBuilder } from './TriggerConditionBuilder';
+import { TriggerConditionBuilder } from '@/components/workflow-builder/TriggerConditionBuilder';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Badge } from '@/components/ui/badge';
 

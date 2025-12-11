@@ -92,9 +92,9 @@ export function WorkflowBuilderPage() {
   if (isLoading) {
     return (
       <>
-        <TopNavigationBar />
+      <TopNavigationBar />
         <div className="flex items-center justify-center h-screen pt-20">
-          <div className="text-lg">Loading workflow...</div>
+          <div className="text-lg">Loading automation...</div>
         </div>
       </>
     );

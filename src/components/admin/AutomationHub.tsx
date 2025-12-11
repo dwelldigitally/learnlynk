@@ -163,12 +163,12 @@ export function AutomationHub() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8 max-w-7xl">
         <PageHeader 
-          title="Workflow Management"
+          title="Automation Hub"
           subtitle="Create and manage automated workflows for lead engagement"
           action={
             <Button size="lg" onClick={() => navigate('/admin/workflows/builder')}>
               <Plus className="h-4 w-4 mr-2" />
-              Create Workflow
+              Create Automation
             </Button>
           }
         />
@@ -178,9 +178,9 @@ export function AutomationHub() {
           <HotSheetCard hover radius="2xl" padding="lg">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Total Workflows</p>
+                <p className="text-sm font-medium text-muted-foreground mb-1">Total Automations</p>
                 <h3 className="text-3xl font-bold text-foreground">{stats.totalAutomations}</h3>
-                <p className="text-xs text-muted-foreground mt-1">All workflows</p>
+                <p className="text-xs text-muted-foreground mt-1">All automations</p>
               </div>
               <IconContainer color="violet" size="lg">
                 <Zap className="h-5 w-5" />
@@ -276,17 +276,17 @@ export function AutomationHub() {
                 <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                   <Zap className="h-8 w-8 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">No workflows found</h3>
+                <h3 className="text-lg font-semibold mb-2">No automations found</h3>
                 <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
                   {searchTerm 
                     ? "Try adjusting your search or filters"
-                    : "Create your first workflow to automate lead engagement"
+                    : "Create your first automation to automate lead engagement"
                   }
                 </p>
                 <div className="flex gap-2 justify-center">
                   <Button onClick={() => navigate('/admin/workflows/builder')}>
                     <Zap className="h-4 w-4 mr-2" />
-                    Create Workflow
+                    Create Automation
                   </Button>
                 </div>
               </div>

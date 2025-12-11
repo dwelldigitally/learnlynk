@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Play, Pause, Settings, BarChart, Database, Workflow as WorkflowIcon, Zap } from "lucide-react";
+import { Plus, Play, Pause, Settings, BarChart, Workflow as WorkflowIcon, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import WorkflowBuilder from "./workflow/WorkflowBuilder";
-import { DummyWorkflowService } from "@/services/dummyWorkflowService";
 import { PageHeader } from "@/components/modern/PageHeader";
 import { ModernCard } from "@/components/modern/ModernCard";
 import { InfoBadge } from "@/components/modern/InfoBadge";
@@ -115,28 +114,6 @@ const WorkflowManagement: React.FC = () => {
     fetchWorkflows();
   };
 
-  const handleCreateSampleData = async () => {
-    try {
-      setLoading(true);
-      await DummyWorkflowService.createDummyWorkflows();
-      await fetchWorkflows();
-      toast({
-        title: "Success",
-        description: `Created ${DummyWorkflowService.getDummyWorkflowCount()} sample workflows`,
-      });
-    } catch (error: any) {
-      console.error('Error creating sample workflows:', error);
-      toast({
-        title: "Error",
-        description: error.message === 'Workflows already exist for this user' 
-          ? "Sample workflows already exist" 
-          : "Failed to create sample workflows",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (showBuilder) {
     return (
@@ -159,12 +136,6 @@ const WorkflowManagement: React.FC = () => {
           <Plus className="h-4 w-4 mr-2" />
           Create Workflow
         </Button>
-        {workflows.length === 0 && (
-          <Button onClick={handleCreateSampleData} variant="outline" size="lg">
-            <Database className="h-4 w-4 mr-2" />
-            Add Sample Data
-          </Button>
-        )}
       </div>
 
       <Tabs defaultValue="workflows" className="w-full">
@@ -203,10 +174,6 @@ const WorkflowManagement: React.FC = () => {
                 <Button onClick={handleCreateWorkflow} size="lg">
                   <Plus className="h-4 w-4 mr-2" />
                   Create Your First Workflow
-                </Button>
-                <Button onClick={handleCreateSampleData} variant="outline" size="lg">
-                  <Database className="h-4 w-4 mr-2" />
-                  Add Sample Data
                 </Button>
               </div>
             </div>

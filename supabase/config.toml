@@ -14,3 +14,12 @@ verify_jwt = false
 
 [functions.execute-campaign]
 verify_jwt = true
+
+[functions.execute-workflow]
+verify_jwt = true
+
+[functions.send-email]
+verify_jwt = true
+
+[functions.send-sms]
+verify_jwt = true

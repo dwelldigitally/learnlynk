@@ -109,11 +109,12 @@ export interface ElementTypeConfig {
 export interface PropertySchema {
   key: string;
   label: string;
-  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'array' | 'richtext' | 'sms';
+  type: 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'array' | 'richtext' | 'sms' | 'fileList';
   required?: boolean;
   options?: { label: string; value: string }[];
   placeholder?: string;
   helpText?: string;
+  dynamicOptions?: string;
 }
 
 export interface TriggerCondition {

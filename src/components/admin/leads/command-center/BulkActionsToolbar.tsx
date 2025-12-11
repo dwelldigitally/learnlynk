@@ -16,6 +16,7 @@ import { AssignDialog } from "@/components/admin/bulk/dialogs/AssignDialog";
 import { AIAssignDialog } from "./dialogs/AIAssignDialog";
 import { SequenceDialog } from "./dialogs/SequenceDialog";
 import { useState } from "react";
+import { useHasPermission } from "@/hooks/useHasPermission";
 
 interface BulkActionsToolbarProps {
   selectedItems: string[];
@@ -32,6 +33,9 @@ export function BulkActionsToolbar({
 }: BulkActionsToolbarProps) {
   const { bulkAssign, bulkSnooze, bulkDelete, isProcessing } = useBulkActions();
   const { performAIAssignment, isProcessing: isAIProcessing } = useAIActions();
+  
+  // Check permissions
+  const { data: canDeleteLeads = false } = useHasPermission('delete_leads');
   
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [showAIAssignDialog, setShowAIAssignDialog] = useState(false);
@@ -122,15 +126,17 @@ export function BulkActionsToolbar({
             Snooze
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDelete}
-            disabled={isProcessing}
-          >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Delete
-          </Button>
+          {canDeleteLeads && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDelete}
+              disabled={isProcessing}
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Delete
+            </Button>
+          )}
 
           <Button
             variant="ghost"

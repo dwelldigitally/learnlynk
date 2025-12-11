@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { BulkActionCard } from './bulk/BulkActionCard';
 import { ImportDialog } from './bulk/dialogs/ImportDialog';
 import { AssignDialog } from './bulk/dialogs/AssignDialog';
@@ -21,6 +21,7 @@ import { PageHeader } from '@/components/modern/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface BulkLeadOperationsProps {
   selectedLeads?: Lead[];
@@ -63,72 +64,97 @@ export function BulkLeadOperations({ selectedLeads = [], onOperationComplete }: 
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
 
-  const bulkActions = [
-    {
-      title: 'Import from CSV',
-      description: 'Upload leads from a CSV file with validation and error reporting',
-      icon: Upload,
-      onClick: () => setImportDialogOpen(true),
-      lastUsed: '2 hours ago',
-      variant: 'primary' as const
-    },
-    {
-      title: 'Assign to Advisors',
-      description: 'Bulk assignment of leads to team members using various methods',
-      icon: UserPlus,
-      onClick: () => setAssignDialogOpen(true),
-      lastUsed: '1 day ago',
-      variant: 'default' as const
-    },
-    {
-      title: 'Update Status',
-      description: 'Change status for multiple leads simultaneously',
-      icon: RotateCcw,
-      onClick: () => {},
-      lastUsed: '3 days ago',
-      variant: 'default' as const
-    },
-    {
-      title: 'Export Leads',
-      description: 'Export filtered leads to CSV or Excel format',
-      icon: Download,
-      onClick: () => {},
-      lastUsed: '1 week ago',
-      variant: 'default' as const
-    },
-    {
-      title: 'Tag Management',
-      description: 'Add or remove tags from multiple leads at once',
-      icon: Tag,
-      onClick: () => {},
-      lastUsed: 'Never',
-      variant: 'default' as const
-    },
-    {
-      title: 'Delete Leads',
-      description: 'Bulk deletion of leads with confirmation safeguards',
-      icon: Trash2,
-      onClick: () => {},
-      lastUsed: 'Never',
-      variant: 'danger' as const
-    },
-    {
-      title: 'Send Communications',
-      description: 'Send bulk emails or SMS campaigns to selected leads',
-      icon: Mail,
-      onClick: () => {},
-      lastUsed: 'Never',
-      variant: 'default' as const
-    },
-    {
-      title: 'Change Priority',
-      description: 'Update priority levels for multiple leads',
-      icon: AlertTriangle,
-      onClick: () => {},
-      lastUsed: 'Never',
-      variant: 'warning' as const
+  // Check permissions
+  const { data: canDeleteLeads = false } = useHasPermission('delete_leads');
+  const { data: canExportLeads = false } = useHasPermission('export_leads');
+
+  const bulkActions = useMemo(() => {
+    type BulkAction = {
+      title: string;
+      description: string;
+      icon: typeof Upload;
+      onClick: () => void;
+      lastUsed: string;
+      variant: 'default' | 'primary' | 'warning' | 'danger';
+    };
+
+    const actions: BulkAction[] = [
+      {
+        title: 'Import from CSV',
+        description: 'Upload leads from a CSV file with validation and error reporting',
+        icon: Upload,
+        onClick: () => setImportDialogOpen(true),
+        lastUsed: '2 hours ago',
+        variant: 'primary'
+      },
+      {
+        title: 'Assign to Advisors',
+        description: 'Bulk assignment of leads to team members using various methods',
+        icon: UserPlus,
+        onClick: () => setAssignDialogOpen(true),
+        lastUsed: '1 day ago',
+        variant: 'default'
+      },
+      {
+        title: 'Update Status',
+        description: 'Change status for multiple leads simultaneously',
+        icon: RotateCcw,
+        onClick: () => {},
+        lastUsed: '3 days ago',
+        variant: 'default'
+      },
+      {
+        title: 'Tag Management',
+        description: 'Add or remove tags from multiple leads at once',
+        icon: Tag,
+        onClick: () => {},
+        lastUsed: 'Never',
+        variant: 'default'
+      },
+      {
+        title: 'Send Communications',
+        description: 'Send bulk emails or SMS campaigns to selected leads',
+        icon: Mail,
+        onClick: () => {},
+        lastUsed: 'Never',
+        variant: 'default'
+      },
+      {
+        title: 'Change Priority',
+        description: 'Update priority levels for multiple leads',
+        icon: AlertTriangle,
+        onClick: () => {},
+        lastUsed: 'Never',
+        variant: 'warning'
+      }
+    ];
+
+    // Only add Export if user has permission
+    if (canExportLeads) {
+      actions.splice(3, 0, {
+        title: 'Export Leads',
+        description: 'Export filtered leads to CSV or Excel format',
+        icon: Download,
+        onClick: () => {},
+        lastUsed: '1 week ago',
+        variant: 'default'
+      });
     }
-  ];
+
+    // Only add Delete if user has permission
+    if (canDeleteLeads) {
+      actions.push({
+        title: 'Delete Leads',
+        description: 'Bulk deletion of leads with confirmation safeguards',
+        icon: Trash2,
+        onClick: () => {},
+        lastUsed: 'Never',
+        variant: 'danger'
+      });
+    }
+
+    return actions;
+  }, [canDeleteLeads, canExportLeads]);
 
   return (
     <div className="container mx-auto p-4 sm:p-6 md:p-8 max-w-7xl space-y-8">

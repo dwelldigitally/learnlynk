@@ -18,6 +18,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface DuplicateGroupCardProps {
   group: DuplicateGroup;
@@ -38,6 +39,9 @@ export function DuplicateGroupCard({
 }: DuplicateGroupCardProps) {
   const navigate = useNavigate();
   const { mutate: deleteDuplicates, isPending: deleting } = useDeleteDuplicates();
+  
+  // Check permissions
+  const { data: canDeleteLeads = false } = useHasPermission('delete_leads');
 
   const getInitials = (lead: Lead) => {
     return `${lead.first_name?.[0] || ''}${lead.last_name?.[0] || ''}`.toUpperCase();
@@ -126,7 +130,7 @@ export function DuplicateGroupCard({
                 >
                   <ExternalLink className="h-4 w-4" />
                 </Button>
-                {lead.id !== group.primaryLeadId && (
+                {lead.id !== group.primaryLeadId && canDeleteLeads && (
                   <Button 
                     variant="ghost" 
                     size="icon"

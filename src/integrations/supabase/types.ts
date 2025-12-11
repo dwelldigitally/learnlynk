@@ -11201,6 +11201,10 @@ export type Database = {
       current_tenant_role: { Args: never; Returns: string }
       generate_tenant_slug: { Args: { p_name: string }; Returns: string }
       get_user_tenant_ids: { Args: never; Returns: string[] }
+      has_permission: {
+        Args: { _permission_name: string; _user_id: string }
+        Returns: boolean
+      }
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       increment_advisor_weekly_assignments: {
         Args: { p_advisor_id: string }

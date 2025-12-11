@@ -579,26 +579,6 @@ export function LeadManagement() {
       {/* Modern Header - HotSheet Style */}
       <div className="border-b border-border/40 bg-card">
         <div className="px-4 sm:px-8 py-6 sm:py-8">
-          <div className="flex items-center justify-between mb-4">
-            <div />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="relative">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate('/admin/leads/duplicates')}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Manage Duplicates
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/setup/duplicate-prevention')}>
-                  <ShieldCheck className="h-4 w-4 mr-2" />
-                  Duplicate Settings
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
           <UnifiedLeadHeader
             stages={stageStats}
             activeStage={activeStage}

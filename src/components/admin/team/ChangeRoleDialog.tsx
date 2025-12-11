@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAssignRole, useRevokeRole } from '@/hooks/useSystemRoles';
 import { toast } from 'sonner';
 import type { AppRole } from '@/types/team-management';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface ChangeRoleDialogProps {
   isOpen: boolean;
@@ -44,6 +45,9 @@ export const ChangeRoleDialog: React.FC<ChangeRoleDialogProps> = ({
   
   const assignRole = useAssignRole();
   const revokeRole = useRevokeRole();
+  
+  // Permission check
+  const { data: canManageRoles, isLoading: permissionLoading } = useHasPermission('manage_roles');
 
   const currentRole = (user?.roles[0] as AppRole) || null;
 
@@ -127,7 +131,7 @@ export const ChangeRoleDialog: React.FC<ChangeRoleDialogProps> = ({
           </Button>
           <Button 
             onClick={handleSubmit} 
-            disabled={!selectedRole || selectedRole === currentRole || isSubmitting}
+            disabled={!selectedRole || selectedRole === currentRole || isSubmitting || !canManageRoles}
           >
             {isSubmitting ? 'Updating...' : 'Update Role'}
           </Button>

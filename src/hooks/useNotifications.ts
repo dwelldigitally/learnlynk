@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface DatabaseNotification {
   id: string;
   user_id: string;
+  tenant_id: string | null;
   type: string;
   title: string;
   message: string | null;

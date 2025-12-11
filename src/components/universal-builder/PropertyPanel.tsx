@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useBuilder } from '@/contexts/BuilderContext';
 import { getElementTypesForBuilder } from '@/config/elementTypes';
 import { PropertySchema } from '@/types/universalBuilder';
@@ -252,49 +253,51 @@ export function PropertyPanel() {
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader className="pb-3">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
         <CardTitle className="text-lg font-semibold">Properties</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Basic Properties */}
-        <div className="space-y-3">
-          <div>
-            <Label className="text-sm font-medium">Title</Label>
-            <Input
-              value={selectedElement.title}
-              onChange={(e) => handlePropertyChange('title', e.target.value)}
-              placeholder="Element title"
-            />
+      <ScrollArea className="flex-1">
+        <CardContent className="space-y-4 pb-6">
+          {/* Basic Properties */}
+          <div className="space-y-3">
+            <div>
+              <Label className="text-sm font-medium">Title</Label>
+              <Input
+                value={selectedElement.title}
+                onChange={(e) => handlePropertyChange('title', e.target.value)}
+                placeholder="Element title"
+              />
+            </div>
+            
+            <div>
+              <Label className="text-sm font-medium">Description</Label>
+              <Textarea
+                value={selectedElement.description || ''}
+                onChange={(e) => handlePropertyChange('description', e.target.value)}
+                placeholder="Element description"
+                rows={2}
+              />
+            </div>
           </div>
-          
-          <div>
-            <Label className="text-sm font-medium">Description</Label>
-            <Textarea
-              value={selectedElement.description || ''}
-              onChange={(e) => handlePropertyChange('description', e.target.value)}
-              placeholder="Element description"
-              rows={2}
-            />
-          </div>
-        </div>
 
-        <Separator />
+          <Separator />
 
-        {/* Element-specific Properties */}
-        {elementTypeConfig?.configSchema.map((schema) => (
-          <div key={schema.key} className="space-y-2">
-            <Label className="text-sm font-medium">
-              {schema.label}
-              {schema.required && <span className="text-destructive ml-1">*</span>}
-            </Label>
-            {renderPropertyField(schema)}
-            {schema.helpText && (
-              <p className="text-xs text-muted-foreground">{schema.helpText}</p>
-            )}
-          </div>
-        ))}
-      </CardContent>
+          {/* Element-specific Properties */}
+          {elementTypeConfig?.configSchema.map((schema) => (
+            <div key={schema.key} className="space-y-2">
+              <Label className="text-sm font-medium">
+                {schema.label}
+                {schema.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+              {renderPropertyField(schema)}
+              {schema.helpText && (
+                <p className="text-xs text-muted-foreground">{schema.helpText}</p>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </ScrollArea>
     </Card>
   );
 }

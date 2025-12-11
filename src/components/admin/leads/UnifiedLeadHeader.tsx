@@ -192,10 +192,6 @@ export function UnifiedLeadHeader({
                   <Copy className="h-4 w-4 mr-2" />
                   Manage Duplicates
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/admin/setup/duplicate-prevention')} className="cursor-pointer">
-                  <Settings2 className="h-4 w-4 mr-2" />
-                  Duplicate Settings
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

@@ -49,8 +49,7 @@ export const useTenant = () => {
   return context;
 };
 
-// Default tenant ID for migration period
-const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000001';
+// No default tenant - users must have proper tenant membership
 
 export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
@@ -101,21 +100,11 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .eq('status', 'active');
 
       if (tenantUsersError) {
-        // If tenant_users table doesn't exist yet (during migration), use default tenant
-        console.warn('Tenant users fetch error, using default tenant:', tenantUsersError);
-        
-        // Fetch default tenant directly
-        const { data: defaultTenant } = await supabase
-          .from('tenants')
-          .select('*')
-          .eq('id', DEFAULT_TENANT_ID)
-          .single();
-
-        if (defaultTenant) {
-          setTenant(defaultTenant as Tenant);
-          setTenantRole('admin');
-          setUserTenants([defaultTenant as Tenant]);
-        }
+        console.warn('Tenant users fetch error:', tenantUsersError);
+        // No fallback - user has no tenant membership
+        setTenant(null);
+        setTenantRole(null);
+        setUserTenants([]);
         setLoading(false);
         return;
       }
@@ -136,33 +125,11 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setTenantRole(primaryTenantUser.role as TenantUser['role']);
         }
       } else {
-        // No tenant membership - create one for the default tenant
-        // This handles existing users during migration
-        const { data: defaultTenant } = await supabase
-          .from('tenants')
-          .select('*')
-          .eq('id', DEFAULT_TENANT_ID)
-          .single();
-
-        if (defaultTenant) {
-          // Auto-assign user to default tenant
-          await supabase
-            .from('tenant_users')
-            .upsert({
-              tenant_id: DEFAULT_TENANT_ID,
-              user_id: user.id,
-              role: 'admin',
-              is_primary: true,
-              status: 'active',
-              accepted_at: new Date().toISOString()
-            }, {
-              onConflict: 'tenant_id,user_id'
-            });
-
-          setTenant(defaultTenant as Tenant);
-          setTenantRole('admin');
-          setUserTenants([defaultTenant as Tenant]);
-        }
+        // No tenant membership - user needs to create/join a tenant
+        console.log('User has no tenant membership');
+        setTenant(null);
+        setTenantRole(null);
+        setUserTenants([]);
       }
     } catch (err) {
       console.error('Error fetching tenant:', err);

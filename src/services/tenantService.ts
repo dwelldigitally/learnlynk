@@ -109,14 +109,15 @@ export const TenantService = {
       .from('company_profile')
       .select('*')
       .eq('tenant_id', tenantId)
-      .maybeSingle();
+      .order('created_at', { ascending: true })
+      .limit(1);
 
     if (error) {
       console.error('Error fetching company profile:', error);
       return null;
     }
 
-    return data;
+    return data?.[0] || null;
   },
 
   /**
@@ -124,11 +125,14 @@ export const TenantService = {
    */
   async updateCompanyProfile(tenantId: string, data: Partial<CompanyProfileData>): Promise<void> {
     // Check if profile exists
-    const { data: existing } = await supabase
+    const { data: existingRows } = await supabase
       .from('company_profile')
       .select('id')
       .eq('tenant_id', tenantId)
-      .maybeSingle();
+      .order('created_at', { ascending: true })
+      .limit(1);
+    
+    const existing = existingRows?.[0] || null;
 
     if (existing) {
       // Update existing

@@ -11153,6 +11153,7 @@ export type Database = {
         Returns: undefined
       }
       is_tenant_admin: { Args: never; Returns: boolean }
+      is_tenant_member: { Args: never; Returns: boolean }
       log_security_event: {
         Args: { p_action: string; p_record_id?: string; p_table_name?: string }
         Returns: undefined

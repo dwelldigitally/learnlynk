@@ -69,18 +69,26 @@ export const UserDirectory = () => {
     });
   }, [users, searchTerm, roleFilter]);
 
+  // Get existing user emails to filter out stale invitations
+  const existingUserEmails = useMemo(() => {
+    return new Set(users.map(u => u.email.toLowerCase()));
+  }, [users]);
+
   const filteredInvitations = useMemo(() => {
-    return pendingInvitations.filter(inv => {
-      const fullName = `${inv.first_name} ${inv.last_name || ''}`.toLowerCase();
-      const matchesSearch = 
-        fullName.includes(searchTerm.toLowerCase()) ||
-        inv.email.toLowerCase().includes(searchTerm.toLowerCase());
+    return pendingInvitations
+      // Filter out invitations for emails that already exist as users
+      .filter(inv => !existingUserEmails.has(inv.email.toLowerCase()))
+      .filter(inv => {
+        const fullName = `${inv.first_name} ${inv.last_name || ''}`.toLowerCase();
+        const matchesSearch = 
+          fullName.includes(searchTerm.toLowerCase()) ||
+          inv.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-      const matchesRole = roleFilter === 'all' || inv.role === roleFilter;
+        const matchesRole = roleFilter === 'all' || inv.role === roleFilter;
 
-      return matchesSearch && matchesRole;
-    });
-  }, [pendingInvitations, searchTerm, roleFilter]);
+        return matchesSearch && matchesRole;
+      });
+  }, [pendingInvitations, existingUserEmails, searchTerm, roleFilter]);
 
   const stats = useMemo(() => {
     return {
@@ -348,6 +356,7 @@ export const UserDirectory = () => {
       <InviteUserDialog 
         isOpen={showInviteDialog}
         onClose={() => setShowInviteDialog(false)}
+        existingEmails={existingUserEmails}
       />
 
       <ChangeRoleDialog

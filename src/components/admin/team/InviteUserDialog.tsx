@@ -14,6 +14,7 @@ interface InviteUserDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onInviteSent?: () => void;
+  existingEmails?: Set<string>;
 }
 
 const roleOptions: Array<{ value: AppRole; label: string; description: string }> = [
@@ -49,7 +50,7 @@ const roleOptions: Array<{ value: AppRole; label: string; description: string }>
   }
 ];
 
-export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDialogProps) {
+export function InviteUserDialog({ isOpen, onClose, onInviteSent, existingEmails }: InviteUserDialogProps) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -75,6 +76,12 @@ export function InviteUserDialog({ isOpen, onClose, onInviteSent }: InviteUserDi
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       toast.error('Please enter a valid email address');
+      return;
+    }
+
+    // Check if email already exists as a user
+    if (existingEmails?.has(email.trim().toLowerCase())) {
+      toast.error('This email already belongs to an existing user. Use "Edit Role" to change their permissions.');
       return;
     }
 

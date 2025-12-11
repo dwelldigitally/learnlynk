@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import AdminNotificationCentre from "./AdminNotificationCentre";
-import { useNotifications } from "@/hooks/useNotifications";
 import { UniversalTaskModal } from "./UniversalTaskModal";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -29,7 +28,6 @@ export function TopNavigationBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const { unreadCount } = useNotifications();
   const { signOut } = useAuth();
   const { isMvpMode } = useMvpMode();
   const isMobile = useIsMobile();
@@ -159,7 +157,7 @@ export function TopNavigationBar() {
             </Button>
           )}
 
-          <AdminNotificationCentre unreadCount={unreadCount} />
+          <AdminNotificationCentre />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

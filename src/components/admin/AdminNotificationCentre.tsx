@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Bell, Filter, CheckCircle, Users, FileText, Clock, Mail, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,33 +6,21 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useNotifications } from "@/hooks/useNotifications";
-import { NotificationService } from "@/services/notificationService";
 import { useToast } from "@/hooks/use-toast";
 
-interface AdminNotificationCentreProps {
-  unreadCount: number;
-}
-
-const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unreadCount }) => {
+const AdminNotificationCentre: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
-  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set());
-  const { notifications, refreshNotifications } = useNotifications();
-
-  // Load read notifications from localStorage
-  useEffect(() => {
-    const storedReadNotifications = localStorage.getItem('admin-read-notifications');
-    if (storedReadNotifications) {
-      setReadNotifications(new Set(JSON.parse(storedReadNotifications)));
-    }
-  }, []);
-
-  // Save read notifications to localStorage
-  const saveReadNotifications = (readSet: Set<string>) => {
-    localStorage.setItem('admin-read-notifications', JSON.stringify(Array.from(readSet)));
-  };
+  
+  // Use the centralized hook for all notification state - no duplicate localStorage
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotifications();
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
@@ -91,11 +79,8 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
   };
 
   const handleNotificationClick = (notification: any) => {
-    // Mark as read
-    const newReadSet = new Set(readNotifications);
-    newReadSet.add(notification.id);
-    setReadNotifications(newReadSet);
-    saveReadNotifications(newReadSet);
+    // Mark as read using the hook (syncs to database + all components)
+    markAsRead(notification.id);
 
     // Navigate to the relevant page
     const navigationPath = getNotificationNavigation(notification.type, notification.related_id);
@@ -105,19 +90,13 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
     setIsOpen(false);
   };
 
-  const markAsRead = (notificationId: string, event: React.MouseEvent) => {
+  const handleMarkAsRead = (notificationId: string, event: React.MouseEvent) => {
     event.stopPropagation();
-    const newReadSet = new Set(readNotifications);
-    newReadSet.add(notificationId);
-    setReadNotifications(newReadSet);
-    saveReadNotifications(newReadSet);
+    markAsRead(notificationId);
   };
 
-  const markAllAsRead = () => {
-    const allNotificationIds = notifications.map(n => n.id);
-    const newReadSet = new Set(allNotificationIds);
-    setReadNotifications(newReadSet);
-    saveReadNotifications(newReadSet);
+  const handleMarkAllAsRead = () => {
+    markAllAsRead();
     toast({
       title: "All notifications marked as read",
       description: "Your notification list has been cleared."
@@ -126,13 +105,13 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
 
   const filteredNotifications = notifications.filter(notification => {
     if (selectedFilter === "all") return true;
-    if (selectedFilter === "unread") return !readNotifications.has(notification.id);
+    if (selectedFilter === "unread") return !notification.isRead;
     return notification.type === selectedFilter;
   });
 
   const getFilterCount = (filterType: string) => {
     if (filterType === "all") return notifications.length;
-    if (filterType === "unread") return notifications.filter(n => !readNotifications.has(n.id)).length;
+    if (filterType === "unread") return unreadCount;
     return notifications.filter(n => n.type === filterType).length;
   };
 
@@ -166,7 +145,7 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={markAllAsRead}
+                  onClick={handleMarkAllAsRead}
                   className="text-sm px-3 py-2 hover:bg-muted/50 transition-colors"
                 >
                   Mark all read
@@ -215,7 +194,7 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
           ) : (
             <div className="space-y-1">
               {filteredNotifications.map((notification) => {
-                const isRead = readNotifications.has(notification.id);
+                const isRead = notification.isRead;
                 return (
                   <div
                     key={notification.id}
@@ -262,7 +241,7 @@ const AdminNotificationCentre: React.FC<AdminNotificationCentreProps> = ({ unrea
                                   variant="ghost"
                                   size="sm"
                                   className="h-6 px-2 text-xs hover:bg-muted/50 transition-colors"
-                                  onClick={(e) => markAsRead(notification.id, e)}
+                                  onClick={(e) => handleMarkAsRead(notification.id, e)}
                                 >
                                   <CheckCircle className="w-3 h-3 mr-1 flex-shrink-0" />
                                   Mark read

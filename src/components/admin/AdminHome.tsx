@@ -20,6 +20,7 @@ import { PriorityActionCard, PriorityAction } from "./dashboard/PriorityActionCa
 import { QuickInsightsChart } from "./dashboard/QuickInsightsChart";
 import { AIRecommendationCard, AIRecommendation } from "./dashboard/AIRecommendationCard";
 import { DashboardNotificationPanel, Notification } from "./dashboard/DashboardNotificationPanel";
+import { useNotifications } from "@/hooks/useNotifications";
 import { GlobalSearchResults } from "./dashboard/GlobalSearchResults";
 import { GlobalSearchService, GlobalSearchResponse, GlobalSearchResult } from "@/services/globalSearchService";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -262,33 +263,28 @@ const AdminHome: React.FC = () => {
     actionLabel: 'View Team'
   }];
 
-  // Mock Notifications
-  const [notifications, setNotifications] = useState<Notification[]>([{
-    id: '1',
-    type: 'system',
-    title: 'System Update',
-    message: 'New features available in the reporting module',
-    timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    priority: 'low',
-    read: false
-  }, {
-    id: '2',
-    type: 'task',
-    title: 'Task Reminder',
-    message: 'Meeting with admissions team in 30 minutes',
-    timestamp: new Date(Date.now() - 1000 * 60 * 15),
-    priority: 'high',
-    read: false,
-    action: () => navigate('/admin/sales-rep-dashboard')
-  }, {
-    id: '3',
-    type: 'financial',
-    title: 'Payment Received',
-    message: '$5,000 payment received from Emma Wilson',
-    timestamp: new Date(Date.now() - 1000 * 60 * 120),
-    priority: 'medium',
-    read: true
-  }]);
+  // Real Notifications from hook - synchronized across all components
+  const { 
+    notifications: hookNotifications, 
+    markAsRead, 
+    markAllAsRead: hookMarkAllAsRead 
+  } = useNotifications();
+
+  // Map hook notifications to DashboardNotificationPanel format
+  const notifications: Notification[] = hookNotifications.map(n => ({
+    id: n.id,
+    type: (n.type === 'new_lead' || n.type === 'lead_assigned' ? 'team' :
+           n.type === 'pending_document' ? 'task' :
+           n.type === 'task_overdue' ? 'task' :
+           n.type === 'new_message' ? 'communication' :
+           n.type === 'payment_due' ? 'financial' : 'system') as Notification['type'],
+    title: n.title,
+    message: n.description,
+    timestamp: new Date(n.created_at),
+    priority: n.priority || 'medium',
+    read: n.isRead,
+    action: n.related_id ? () => navigate(`/admin/leads/${n.related_id}`) : undefined
+  }));
 
   // Mock Chart Data
   const revenueData = [{
@@ -351,24 +347,19 @@ const AdminHome: React.FC = () => {
   }];
 
   const handleMarkAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? {
-      ...n,
-      read: true
-    } : n));
+    markAsRead(id);
   };
 
   const handleMarkAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({
-      ...n,
-      read: true
-    })));
+    hookMarkAllAsRead();
     toast({
       title: "All notifications marked as read"
     });
   };
 
   const handleDismiss = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    // Mark as read when dismissed (removes from unread but keeps in history)
+    markAsRead(id);
   };
 
   // Perform search when debounced query changes

@@ -50,7 +50,6 @@ export function TopNavigationBar() {
     { name: "My Dashboard", href: "/admin/sales-rep-dashboard" },
     { name: "Leads", href: "/admin/leads" },
     { name: "Communication Hub", href: "/admin/communication" },
-    { name: "Campaigns", href: "/admin/campaigns" },
     { name: "Reports", href: "/admin/reports" },
     { name: "Team Goals", href: "/admin/leads/team-goals" },
   ];

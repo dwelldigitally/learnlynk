@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Download, Upload, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X, Copy, Settings } from 'lucide-react';
+import { Plus, Download, Upload, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X, Copy } from 'lucide-react';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -180,20 +180,16 @@ export function UnifiedLeadHeader({
                 </Button>
               )}
             </div>
-            {/* Settings Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="min-h-[48px] min-w-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
-                  <Settings className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 bg-popover z-50 rounded-xl border-border/60">
-                <DropdownMenuItem onClick={() => navigate('/admin/leads/duplicates')} className="cursor-pointer">
-                  <Copy className="h-4 w-4 mr-2" />
-                  Manage Duplicates
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Manage Duplicates Button */}
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="min-h-[48px] min-w-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all"
+              onClick={() => navigate('/admin/leads/duplicates')}
+              title="Manage Duplicates"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
           </div>
           <div className="flex gap-2">
             {columns.length > 0 && onColumnsChange && (

@@ -20,6 +20,7 @@ import {
 import { HotSheetCard, PastelBadge, PillButton, PillIconButton, IconContainer, getScoreColor } from '@/components/hotsheet';
 import { usePrograms } from '@/hooks/usePrograms';
 import { useIntakesByProgramName } from '@/hooks/useIntakes';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface EnhancedLeadSidebarProps {
   lead: Lead;
@@ -61,6 +62,9 @@ export function EnhancedLeadSidebar({ lead, onUpdate }: EnhancedLeadSidebarProps
   const [editedLead, setEditedLead] = useState<ExtendedLead>(lead);
   const [loading, setLoading] = useState(false);
   const [selectedProgramName, setSelectedProgramName] = useState<string>(lead.program_interest?.[0] || '');
+
+  // Check permissions
+  const { data: canDeleteLeads = false } = useHasPermission('delete_leads');
 
   // Fetch programs and intakes from database
   const { data: programs = [], isLoading: programsLoading } = usePrograms();

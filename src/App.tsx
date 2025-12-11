@@ -16,6 +16,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import { SimplifiedOnboarding } from "./components/onboarding/SimplifiedOnboarding";
 import SetupPage from "./pages/SetupPage";
+import DuplicatePreventionSetup from "./pages/admin/setup/DuplicatePreventionSetup";
+import DuplicateContactsDashboard from "./pages/admin/DuplicateContactsDashboard";
 import { EmailVerificationScreen } from "./components/auth/EmailVerificationScreen";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
@@ -97,6 +99,8 @@ const App = () => {
                  <Route path="/embed/webform" element={<EmbedWebForm />} />
                <Route path="/onboarding" element={<ProtectedRoute element={<SimplifiedOnboarding />} />} />
                <Route path="/admin/setup" element={<ProtectedRoute element={<SetupPage />} />} />
+               <Route path="/admin/setup/duplicate-prevention" element={<ProtectedRoute element={<DuplicatePreventionSetup />} />} />
+               <Route path="/admin/leads/duplicates" element={<ProtectedRoute element={<DuplicateContactsDashboard />} />} />
                <Route path="/admin/notifications/preferences" element={<ProtectedRoute element={<NotificationPreferencesPage />} />} />
                <Route path="/dashboard" element={<Navigate to="/admin/setup" replace />} />
               

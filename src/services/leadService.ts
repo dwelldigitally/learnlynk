@@ -3,6 +3,7 @@ import type { Lead } from '@/types/lead';
 import { LeadRoutingService } from './leadRoutingService';
 import { NotificationService } from './notificationService';
 import { leadActivityService } from './leadActivityService';
+import { DuplicateLeadService } from './duplicateLeadService';
 
 export interface CreateLeadData {
   first_name: string;
@@ -26,13 +27,21 @@ export interface CreateLeadData {
   source_details?: string;
   tags?: string[];
   tenant_id?: string;
+  skipDuplicateCheck?: boolean;
+}
+
+export interface CreateLeadError {
+  message: string;
+  code?: string;
+  existingLeadId?: string;
+  existingLeadEmail?: string;
 }
 
 export class LeadService {
   /**
    * Creates a new lead in the system
    */
-  static async createLead(leadData: CreateLeadData, tenantId?: string): Promise<{ data: Lead | null; error: any }> {
+  static async createLead(leadData: CreateLeadData, tenantId?: string): Promise<{ data: Lead | null; error: CreateLeadError | null }> {
     try {
       // Get tenant_id from parameter or fetch user's primary tenant
       let effectiveTenantId = tenantId || leadData.tenant_id;
@@ -45,6 +54,27 @@ export class LeadService {
           .eq('is_primary', true)
           .single();
         effectiveTenantId = tenantUser?.tenant_id;
+      }
+
+      // Check for duplicates if tenant has duplicate prevention configured
+      if (effectiveTenantId && !leadData.skipDuplicateCheck) {
+        const duplicateCheck = await DuplicateLeadService.checkForDuplicate(
+          leadData.email,
+          leadData.phone,
+          effectiveTenantId
+        );
+
+        if (duplicateCheck.isDuplicate && duplicateCheck.existingLead) {
+          return {
+            data: null,
+            error: {
+              message: `A lead with this ${duplicateCheck.matchType} already exists`,
+              code: 'DUPLICATE_LEAD',
+              existingLeadId: duplicateCheck.existingLead.id,
+              existingLeadEmail: duplicateCheck.existingLead.email
+            }
+          };
+        }
       }
 
       const { data, error } = await supabase

@@ -1,5 +1,5 @@
 import { SetupTaskDefinition } from '@/types/setup';
-import { MapPin, FileText, CheckSquare, GraduationCap, FileInput, Plug, DollarSign, Users, Settings, GitBranch } from 'lucide-react';
+import { MapPin, FileText, CheckSquare, GraduationCap, FileInput, Plug, DollarSign, Users, Settings, GitBranch, ShieldCheck } from 'lucide-react';
 
 export const SETUP_TASKS: SetupTaskDefinition[] = [
   {
@@ -28,7 +28,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     description: 'Define admission requirements and prerequisites',
     link: '/admin/requirements',
     icon: CheckSquare,
-    required: false, // Changed to recommended instead of required
+    required: false,
     estimatedMinutes: 8,
     order: 3
   },
@@ -38,7 +38,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     description: 'Create academic programs with courses, fees, and intake dates',
     link: '/admin/programs',
     icon: GraduationCap,
-    required: false, // Changed to recommended instead of required
+    required: false,
     estimatedMinutes: 15,
     order: 4
   },
@@ -53,6 +53,16 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     order: 5
   },
   {
+    id: 'configure_duplicate_prevention',
+    title: 'Configure Duplicate Prevention',
+    description: 'Set up rules to prevent duplicate leads from being created',
+    link: '/admin/setup/duplicate-prevention',
+    icon: ShieldCheck,
+    required: true,
+    estimatedMinutes: 2,
+    order: 6
+  },
+  {
     id: 'configure_lead_routing',
     title: 'Configure Lead Routing',
     description: 'Set up rules for automatic lead distribution to advisors',
@@ -60,7 +70,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: GitBranch,
     required: false,
     estimatedMinutes: 12,
-    order: 6
+    order: 7
   },
   {
     id: 'connect_integrations',
@@ -70,7 +80,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: Plug,
     required: false,
     estimatedMinutes: 10,
-    order: 7
+    order: 8
   },
   {
     id: 'configure_payments',
@@ -80,7 +90,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: DollarSign,
     required: false,
     estimatedMinutes: 15,
-    order: 8
+    order: 9
   },
   {
     id: 'invite_team_members',
@@ -90,7 +100,7 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: Users,
     required: false,
     estimatedMinutes: 5,
-    order: 9
+    order: 10
   },
   {
     id: 'additional_settings',
@@ -100,6 +110,6 @@ export const SETUP_TASKS: SetupTaskDefinition[] = [
     icon: Settings,
     required: false,
     estimatedMinutes: 10,
-    order: 10
+    order: 11
   }
 ];

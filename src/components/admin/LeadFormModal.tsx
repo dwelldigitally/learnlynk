@@ -112,6 +112,14 @@ export function LeadFormModal({ open, onOpenChange, onLeadCreated }: LeadFormMod
       console.log('Lead creation result:', result);
       
       if (result.error) {
+        if (result.error.code === 'DUPLICATE_LEAD') {
+          toast({
+            title: 'Duplicate Lead Detected',
+            description: `A lead with this ${result.error.message?.includes('email') ? 'email' : 'contact info'} already exists (${result.error.existingLeadEmail})`,
+            variant: 'destructive'
+          });
+          return;
+        }
         throw new Error(result.error.message || 'Failed to create lead');
       }
       

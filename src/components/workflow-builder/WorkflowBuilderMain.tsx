@@ -26,7 +26,7 @@ import { WorkflowPreviewPanel } from './WorkflowPreviewPanel';
 import { WorkflowSettingsPanel } from './WorkflowSettingsPanel';
 import { WorkflowAnalyticsPanel } from './WorkflowAnalyticsPanel';
 import { workflowElementTypes } from '@/config/workflowElementTypes';
-import { WorkflowTemplate } from '@/config/workflowTemplates';
+import { AutomationTemplate } from '@/config/automationTemplates';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -70,7 +70,7 @@ const defaultSettings = {
 
 function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBuilderMainProps) {
   const { state, dispatch } = useBuilder();
-  const [workflowName, setWorkflowName] = useState('New Workflow');
+  const [workflowName, setWorkflowName] = useState('New Automation');
   const [workflowDescription, setWorkflowDescription] = useState('');
   const [activeTab, setActiveTab] = useState('workflow');
   const [isSaving, setIsSaving] = useState(false);
@@ -86,7 +86,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
         type: 'SET_CONFIG',
         payload: initialConfig
       });
-      setWorkflowName(initialConfig.name || 'New Workflow');
+      setWorkflowName(initialConfig.name || 'New Automation');
       setWorkflowDescription(initialConfig.description || '');
       setSettings({
         ...defaultSettings,
@@ -98,7 +98,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
         type: 'SET_CONFIG',
         payload: {
           id: crypto.randomUUID(),
-          name: 'New Workflow',
+          name: 'New Automation',
           description: '',
           type: 'workflow',
           elements: [],
@@ -130,7 +130,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
     dispatch({ type: 'SELECT_ELEMENT', payload: newElement.id });
   };
 
-  const handleSelectTemplate = (template: WorkflowTemplate | null) => {
+  const handleSelectTemplate = (template: AutomationTemplate | null) => {
     if (!template) {
       // Start from scratch
       return;
@@ -279,7 +279,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
                 value={workflowName}
                 onChange={(e) => setWorkflowName(e.target.value)}
                 className="font-semibold border-none shadow-none text-lg h-9"
-                placeholder="Workflow name..."
+                placeholder="Automation name..."
               />
             </div>
           </div>
@@ -316,7 +316,7 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
               className="bg-green-600 hover:bg-green-700"
             >
               <Play className="h-4 w-4 mr-2" />
-              {isRunning ? 'Running...' : 'Run Workflow'}
+              {isRunning ? 'Running...' : 'Run Automation'}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowPreview(true)}>
               <Eye className="h-4 w-4 mr-2" />

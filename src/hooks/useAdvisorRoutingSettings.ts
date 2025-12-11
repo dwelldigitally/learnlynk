@@ -51,10 +51,22 @@ export function useAdvisorRoutingSettings() {
   const queryClient = useQueryClient();
 
   const fetchAdvisors = async (): Promise<AdvisorRoutingSettings[]> => {
-    // Get all profiles
+    // Step 1: Get only users with the 'advisor' role
+    const { data: advisorRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select('user_id')
+      .eq('role', 'advisor');
+
+    if (rolesError) throw rolesError;
+    if (!advisorRoles || advisorRoles.length === 0) return [];
+
+    const advisorUserIds = advisorRoles.map(r => r.user_id);
+
+    // Step 2: Get profiles for only those advisor users
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
-      .select('user_id, first_name, last_name, email, avatar_url');
+      .select('user_id, first_name, last_name, email, avatar_url')
+      .in('user_id', advisorUserIds);
 
     if (profilesError) throw profilesError;
     if (!profiles || profiles.length === 0) return [];

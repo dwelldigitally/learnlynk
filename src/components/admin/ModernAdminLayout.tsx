@@ -9,11 +9,20 @@ interface ModernAdminLayoutProps {
 export function ModernAdminLayout({ children }: ModernAdminLayoutProps) {
   const location = useLocation();
 
-  // Check if we're on a configuration page
-  const isConfigurationPage = location.pathname.startsWith('/admin/configuration') || 
-                               location.pathname.startsWith('/admin/setup') ||
-                               location.pathname.startsWith('/admin/profile') ||
-                               location.pathname.startsWith('/admin/notifications');
+  // Pages that moved to Management dropdown - no sidebar
+  const managementPages = [
+    '/admin/configuration/campuses',
+    '/admin/configuration/payments',
+    '/admin/configuration/routing'
+  ];
+
+  // Check if we're on a configuration page (excluding management pages)
+  const isConfigurationPage = (
+    location.pathname.startsWith('/admin/configuration') || 
+    location.pathname.startsWith('/admin/setup') ||
+    location.pathname.startsWith('/admin/profile') ||
+    location.pathname.startsWith('/admin/notifications')
+  ) && !managementPages.includes(location.pathname);
 
   return (
     <div className="min-h-screen bg-background w-full">

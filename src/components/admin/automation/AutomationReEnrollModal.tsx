@@ -123,7 +123,6 @@ export function AutomationReEnrollModal({
     try {
       const result = await AutomationService.reEnrollLeads(
         automation.id,
-        automation.type,
         selectedLeads,
         { removeExisting }
       );

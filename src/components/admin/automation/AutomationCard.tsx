@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { CardContent } from '@/components/ui/card';
 import { 
   Play, Pause, BarChart3, Settings, Trash2, 
-  RefreshCw, Zap, Mail, GitBranch, MoreHorizontal,
+  RefreshCw, Zap, GitBranch, MoreHorizontal,
   Users, CheckCircle2
 } from 'lucide-react';
 import { 
@@ -38,9 +38,6 @@ export function AutomationCard({
   onReEnroll,
   onExecute
 }: AutomationCardProps) {
-  const isWorkflow = automation.type === 'workflow';
-  const Icon = isWorkflow ? Zap : Mail;
-  
   const getStatusVariant = () => {
     if (automation.is_active) return 'success';
     if (automation.status === 'draft') return 'secondary';
@@ -57,16 +54,16 @@ export function AutomationCard({
                           automation.execution_stats?.total_executions || 0;
   const completionRate = automation.execution_stats?.completion_rate || 
                          automation.execution_stats?.success_rate || 0;
+  
+  const stepCount = automation.elements?.length || automation.trigger_config?.elements?.length || 0;
 
   return (
     <ModernCard>
       <CardContent className="p-6">
         {/* Header */}
         <div className="flex items-start gap-3 mb-4">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-            isWorkflow ? 'bg-primary/10' : 'bg-violet-500/10'
-          }`}>
-            <Icon className={`h-5 w-5 ${isWorkflow ? 'text-primary' : 'text-violet-500'}`} />
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-primary/10">
+            <Zap className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-base text-foreground mb-2 truncate">
@@ -77,7 +74,7 @@ export function AutomationCard({
                 {getStatusLabel()}
               </InfoBadge>
               <InfoBadge variant="default">
-                {isWorkflow ? 'WORKFLOW' : 'CAMPAIGN'}
+                {stepCount} STEPS
               </InfoBadge>
               {automation.trigger_type && (
                 <InfoBadge variant="secondary">

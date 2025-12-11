@@ -17,6 +17,16 @@ export interface DuplicateCheckResult {
   matchType?: string;
 }
 
+export interface ConflictResolution {
+  programs: 'merge_all' | 'keep_primary';
+  documents: 'merge_all' | 'keep_primary';
+  status: 'keep_primary' | 'keep_newest';
+  priority: 'keep_primary' | 'keep_highest';
+  leadScore: 'keep_highest' | 'keep_primary';
+  tags: 'merge_all' | 'keep_primary';
+  notes: 'concatenate' | 'keep_primary';
+}
+
 export class DuplicateLeadService {
   /**
    * Get duplicate prevention setting for a tenant
@@ -367,6 +377,135 @@ export class DuplicateLeadService {
     }
 
     return { success, failed };
+  }
+
+  /**
+   * Bulk merge multiple duplicate groups with conflict resolution
+   */
+  static async bulkMergeGroups(
+    groups: DuplicateGroup[],
+    resolution: ConflictResolution
+  ): Promise<{ success: number; failed: number }> {
+    let success = 0;
+    let failed = 0;
+
+    for (const group of groups) {
+      try {
+        const result = await this.mergeGroupWithResolution(group, resolution);
+        if (result.success) {
+          success++;
+        } else {
+          failed++;
+        }
+      } catch (error) {
+        console.error('Error merging group:', error);
+        failed++;
+      }
+    }
+
+    return { success, failed };
+  }
+
+  /**
+   * Merge a single group with conflict resolution options
+   */
+  private static async mergeGroupWithResolution(
+    group: DuplicateGroup,
+    resolution: ConflictResolution
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const leads = group.leads;
+      if (leads.length < 2) return { success: true };
+
+      const primary = leads[0];
+      const secondaries = leads.slice(1);
+
+      const mergedData: Record<string, any> = {};
+
+      // Merge programs
+      if (resolution.programs === 'merge_all') {
+        const allPrograms = leads.flatMap(l => (l.program_interest as string[]) || []);
+        mergedData.program_interest = [...new Set(allPrograms)];
+      }
+
+      // Merge tags
+      if (resolution.tags === 'merge_all') {
+        const allTags = leads.flatMap(l => (l.tags as string[]) || []);
+        mergedData.tags = [...new Set(allTags)];
+      }
+
+      // Handle priority
+      if (resolution.priority === 'keep_highest') {
+        const priorityOrder = ['urgent', 'high', 'medium', 'low'];
+        const highestPriority = leads.reduce((highest, lead) => {
+          const leadIndex = priorityOrder.indexOf(lead.priority);
+          const highestIndex = priorityOrder.indexOf(highest);
+          return leadIndex < highestIndex ? lead.priority : highest;
+        }, primary.priority);
+        mergedData.priority = highestPriority;
+      }
+
+      // Handle lead score
+      if (resolution.leadScore === 'keep_highest') {
+        const highestScore = Math.max(...leads.map(l => l.lead_score || 0));
+        mergedData.lead_score = highestScore;
+      }
+
+      // Handle notes
+      if (resolution.notes === 'concatenate') {
+        const allNotes = leads
+          .filter(l => l.notes)
+          .map(l => l.notes)
+          .join('\n\n---\n\n');
+        mergedData.notes = allNotes || primary.notes;
+      }
+
+      // Fill in missing fields from secondaries
+      for (const secondary of secondaries) {
+        if (!primary.phone && secondary.phone) mergedData.phone = secondary.phone;
+        if (!primary.country && secondary.country) mergedData.country = secondary.country;
+        if (!primary.state && secondary.state) mergedData.state = secondary.state;
+        if (!primary.city && secondary.city) mergedData.city = secondary.city;
+      }
+
+      // Add merge note
+      mergedData.notes = `${mergedData.notes || primary.notes || ''}\n\n[Merged ${secondaries.length} duplicate(s) on ${new Date().toLocaleDateString()}]`.trim();
+
+      // Update primary lead
+      if (Object.keys(mergedData).length > 0) {
+        const { error: updateError } = await supabase
+          .from('leads')
+          .update(mergedData)
+          .eq('id', primary.id);
+
+        if (updateError) throw updateError;
+      }
+
+      // Handle documents if merge_all
+      if (resolution.documents === 'merge_all') {
+        for (const secondary of secondaries) {
+          // Update documents to point to primary lead
+          await supabase
+            .from('lead_documents')
+            .update({ lead_id: primary.id })
+            .eq('lead_id', secondary.id);
+        }
+      }
+
+      // Delete secondary leads
+      const secondaryIds = secondaries.map(l => l.id);
+      const { error: deleteError } = await supabase
+        .from('leads')
+        .delete()
+        .in('id', secondaryIds);
+
+      if (deleteError) throw deleteError;
+
+      return { success: true };
+    } catch (error) {
+      console.error('Error in mergeGroupWithResolution:', error);
+      return { success: false, error: 'Failed to merge group' };
+    }
   }
 
   // Helper methods

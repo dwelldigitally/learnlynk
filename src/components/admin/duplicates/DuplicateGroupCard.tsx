@@ -24,13 +24,17 @@ interface DuplicateGroupCardProps {
   onMerge: () => void;
   getMatchTypeLabel: (type: string) => string;
   getMatchTypeBadgeVariant: (type: string) => "default" | "secondary" | "destructive" | "outline";
+  isSelected?: boolean;
+  onSelectionChange?: () => void;
 }
 
 export function DuplicateGroupCard({ 
   group, 
   onMerge, 
   getMatchTypeLabel, 
-  getMatchTypeBadgeVariant 
+  getMatchTypeBadgeVariant,
+  isSelected = false,
+  onSelectionChange
 }: DuplicateGroupCardProps) {
   const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -54,10 +58,17 @@ export function DuplicateGroupCard({
   };
 
   return (
-    <Card>
+    <Card className={isSelected ? 'ring-2 ring-primary' : ''}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
+            {onSelectionChange && (
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={onSelectionChange}
+                className="h-5 w-5"
+              />
+            )}
             <Badge variant={getMatchTypeBadgeVariant(group.matchType)}>
               {getMatchTypeLabel(group.matchType)}
             </Badge>

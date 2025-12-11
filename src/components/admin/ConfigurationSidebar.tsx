@@ -76,12 +76,9 @@ export const CONFIGURATION_GROUPS: ConfigurationGroup[] = [
       { name: "Setup Guide", href: "/admin/setup", icon: ClipboardCheck },
       { name: "Notification Preferences", href: "/admin/notifications/preferences", icon: Bell },
       { name: "Properties Management", href: "/admin/configuration/properties", icon: Sliders },
-      { name: "Campuses", href: "/admin/configuration/campuses", icon: Building2 },
       { name: "Company Profile", href: "/admin/configuration/company", icon: Building },
-      { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
       { name: "External Integrations", href: "/admin/configuration/integrations", icon: Link },
       { name: "Team Management", href: "/admin/configuration/teams", icon: Users },
-      { name: "Routing Rules", href: "/admin/configuration/routing", icon: Route },
     ]
   },
   {

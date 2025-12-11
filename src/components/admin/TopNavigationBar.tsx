@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target } from "lucide-react";
+import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target, MapPin, DollarSign } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMvpMode } from "@/contexts/MvpModeContext";
@@ -62,6 +62,9 @@ export function TopNavigationBar() {
     { name: "Academic Terms", href: "/admin/academic-terms", icon: Clock },
     { name: "Document Templates", href: "/admin/document-templates", icon: FileText },
     { name: "Program Journeys", href: "/admin/enrollment/program-journeys", icon: Route },
+    { name: "Campuses", href: "/admin/configuration/campuses", icon: MapPin },
+    { name: "Payment Configuration", href: "/admin/configuration/payments", icon: DollarSign },
+    { name: "Lead Routing Rules", href: "/admin/configuration/routing", icon: Target },
   ];
 
   const isActive = (href: string) => location.pathname === href || location.pathname.startsWith(href + '/');

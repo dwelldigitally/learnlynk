@@ -6,7 +6,7 @@ import AdminOverview from "@/components/admin/AdminOverview";
 import StudentManagement from "@/components/admin/StudentManagement";
 import StudentDetailPage from "@/pages/StudentDetailPage";
 import ProgramManagement from "@/components/admin/ProgramManagement";
-import WorkflowManagement from "@/components/admin/WorkflowManagement";
+import AutomationHub from "@/components/admin/AutomationHub";
 import EnhancedDocumentManagement from "@/components/admin/EnhancedDocumentManagement";
 import EventManagement from "@/components/admin/EventManagement";
 import CommunicationHub from "@/components/admin/CommunicationHub";
@@ -173,7 +173,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/programs/edit":
         return <ProgramWizardPage />;
       case "/admin/workflows":
-        return <WorkflowManagement />;
+        return <AutomationHub />;
       case "/admin/documents":
         return <EnhancedDocumentManagement />;
       case "/admin/events":
@@ -205,7 +205,7 @@ const AdminDashboard: React.FC = () => {
       case "/admin/profile":
         return <ProfilePage />;
       case "/admin/campaigns":
-        return <CampaignManagement />;
+        return <AutomationHub />;
       case "/admin/intake":
         return <IntakeManagementStandalone />;
       case "/admin/requirements":

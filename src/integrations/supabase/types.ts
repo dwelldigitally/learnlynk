@@ -5469,11 +5469,15 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          enrollment_settings: Json | null
           estimated_impact: string | null
+          execution_stats: Json | null
+          goal_settings: Json | null
           id: string
           is_active: boolean | null
           name: string
           play_type: string | null
+          schedule_settings: Json | null
           target_stage: string | null
           trigger_config: Json
           trigger_type: string
@@ -5483,11 +5487,15 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
+          enrollment_settings?: Json | null
           estimated_impact?: string | null
+          execution_stats?: Json | null
+          goal_settings?: Json | null
           id?: string
           is_active?: boolean | null
           name: string
           play_type?: string | null
+          schedule_settings?: Json | null
           target_stage?: string | null
           trigger_config: Json
           trigger_type: string
@@ -5497,11 +5505,15 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string | null
+          enrollment_settings?: Json | null
           estimated_impact?: string | null
+          execution_stats?: Json | null
+          goal_settings?: Json | null
           id?: string
           is_active?: boolean | null
           name?: string
           play_type?: string | null
+          schedule_settings?: Json | null
           target_stage?: string | null
           trigger_config?: Json
           trigger_type?: string
@@ -10369,6 +10381,75 @@ export type Database = {
           },
         ]
       }
+      workflow_enrollments: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_step_index: number | null
+          enrolled_at: string | null
+          exit_reason: string | null
+          exited_at: string | null
+          id: string
+          lead_id: string
+          metadata: Json | null
+          next_step_scheduled_at: string | null
+          status: string | null
+          step_history: Json | null
+          updated_at: string | null
+          user_id: string
+          workflow_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step_index?: number | null
+          enrolled_at?: string | null
+          exit_reason?: string | null
+          exited_at?: string | null
+          id?: string
+          lead_id: string
+          metadata?: Json | null
+          next_step_scheduled_at?: string | null
+          status?: string | null
+          step_history?: Json | null
+          updated_at?: string | null
+          user_id: string
+          workflow_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_step_index?: number | null
+          enrolled_at?: string | null
+          exit_reason?: string | null
+          exited_at?: string | null
+          id?: string
+          lead_id?: string
+          metadata?: Json | null
+          next_step_scheduled_at?: string | null
+          status?: string | null
+          step_history?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_enrollments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_enrollments_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "plays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_executions: {
         Row: {
           completed_at: string | null
@@ -10403,6 +10484,59 @@ export type Database = {
             columns: ["workflow_id"]
             isOneToOne: false
             referencedRelation: "plays"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workflow_step_executions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          enrollment_id: string
+          error_message: string | null
+          id: string
+          result: Json | null
+          scheduled_at: string | null
+          started_at: string | null
+          status: string | null
+          step_config: Json | null
+          step_index: number
+          step_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          enrollment_id: string
+          error_message?: string | null
+          id?: string
+          result?: Json | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string | null
+          step_config?: Json | null
+          step_index: number
+          step_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          enrollment_id?: string
+          error_message?: string | null
+          id?: string
+          result?: Json | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string | null
+          step_config?: Json | null
+          step_index?: number
+          step_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_step_executions_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "workflow_enrollments"
             referencedColumns: ["id"]
           },
         ]

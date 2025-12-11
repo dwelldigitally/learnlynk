@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { WorkflowService } from '@/services/workflowService';
 import { useToast } from '@/hooks/use-toast';
 import { WorkflowBuilderMain } from '@/components/workflow-builder/WorkflowBuilderMain';
+import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 
 export function WorkflowBuilderPage() {
   const navigate = useNavigate();
@@ -26,9 +27,10 @@ export function WorkflowBuilderPage() {
               type: 'workflow',
               elements: (triggerConfig && typeof triggerConfig === 'object' && triggerConfig.elements) || [],
               settings: {
-                isActive: workflow.is_active || false
+                isActive: workflow.is_active || false,
+                ...(triggerConfig?.settings || {})
               },
-              metadata: {}
+              metadata: triggerConfig?.metadata || {}
             });
           }
         } catch (error) {
@@ -89,17 +91,25 @@ export function WorkflowBuilderPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Loading workflow...</div>
-      </div>
+      <>
+        <TopNavigationBar />
+        <div className="flex items-center justify-center h-screen pt-20">
+          <div className="text-lg">Loading workflow...</div>
+        </div>
+      </>
     );
   }
 
   return (
-    <WorkflowBuilderMain
-      initialConfig={initialConfig}
-      onSave={handleSave}
-      onCancel={handleCancel}
-    />
+    <>
+      <TopNavigationBar />
+      <div className="pt-14 sm:pt-16 lg:pt-20">
+        <WorkflowBuilderMain
+          initialConfig={initialConfig}
+          onSave={handleSave}
+          onCancel={handleCancel}
+        />
+      </div>
+    </>
   );
 }

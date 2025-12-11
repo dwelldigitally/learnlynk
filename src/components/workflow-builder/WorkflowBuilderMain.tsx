@@ -25,9 +25,10 @@ import { WorkflowTemplateSelector } from './WorkflowTemplateSelector';
 import { WorkflowPreviewPanel } from './WorkflowPreviewPanel';
 import { WorkflowSettingsPanel } from './WorkflowSettingsPanel';
 import { WorkflowAnalyticsPanel } from './WorkflowAnalyticsPanel';
-import { workflowElementTypes } from '@/config/elementTypes';
+import { workflowElementTypes } from '@/config/workflowElementTypes';
 import { WorkflowTemplate } from '@/config/workflowTemplates';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface WorkflowBuilderMainProps {
   initialConfig?: any;
@@ -73,6 +74,8 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
   const [workflowDescription, setWorkflowDescription] = useState('');
   const [activeTab, setActiveTab] = useState('workflow');
   const [isSaving, setIsSaving] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [settings, setSettings] = useState(defaultSettings);
@@ -191,8 +194,69 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
     }
   };
 
-  const handleTest = () => {
-    toast.info('Test mode coming soon!');
+  const handleRunWorkflow = async () => {
+    if (state.config.elements.length === 0) {
+      toast.error('Add at least one action to run the workflow');
+      return;
+    }
+
+    setIsRunning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('execute-workflow', {
+        body: {
+          workflowId: state.config.id,
+          workflowConfig: {
+            name: workflowName,
+            description: workflowDescription,
+            elements: state.config.elements,
+            settings
+          },
+          testMode: false
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`Workflow started! ${data.enrolledCount || 0} leads enrolled.`);
+    } catch (error: any) {
+      console.error('Error running workflow:', error);
+      toast.error(error.message || 'Failed to run workflow');
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
+  const handleTestWorkflow = async () => {
+    if (state.config.elements.length === 0) {
+      toast.error('Add at least one action to test the workflow');
+      return;
+    }
+
+    setIsTesting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('execute-workflow', {
+        body: {
+          workflowId: state.config.id,
+          workflowConfig: {
+            name: workflowName,
+            description: workflowDescription,
+            elements: state.config.elements,
+            settings
+          },
+          testMode: true,
+          leadIds: [] // Test with sample data
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success('Test completed successfully! Check the Analytics tab for results.');
+    } catch (error: any) {
+      console.error('Error testing workflow:', error);
+      toast.error(error.message || 'Failed to test workflow');
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   const stepCount = state.config.elements.length;
@@ -235,9 +299,24 @@ function WorkflowBuilderContent({ initialConfig, onSave, onCancel }: WorkflowBui
               <LayoutTemplate className="h-4 w-4 mr-2" />
               Templates
             </Button>
-            <Button variant="outline" size="sm" onClick={handleTest}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleTestWorkflow}
+              disabled={isTesting || state.config.elements.length === 0}
+            >
               <Play className="h-4 w-4 mr-2" />
-              Test
+              {isTesting ? 'Testing...' : 'Test'}
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm" 
+              onClick={handleRunWorkflow}
+              disabled={isRunning || !settings.isActive || state.config.elements.length === 0}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <Play className="h-4 w-4 mr-2" />
+              {isRunning ? 'Running...' : 'Run Workflow'}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setShowPreview(true)}>
               <Eye className="h-4 w-4 mr-2" />

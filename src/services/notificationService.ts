@@ -22,50 +22,59 @@ export interface NotificationData {
 export class NotificationService {
   static async getUnreadNotificationCount(): Promise<number> {
     try {
-      // Count new leads
-      const { count: newLeads } = await supabase
-        .from('leads')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'new');
+      const readNotifications = this.getReadNotifications();
+      let count = 0;
 
-      // Count pending documents (if student_documents table exists)
-      let pendingDocs = 0;
-      try {
-        const { count } = await supabase
-          .from('student_documents')
+      // Count new leads (only if not marked as read)
+      if (!readNotifications.has('new-leads')) {
+        const { count: newLeads } = await supabase
+          .from('leads')
           .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-        pendingDocs = count || 0;
-      } catch (error) {
-        pendingDocs = 0;
+          .eq('status', 'new');
+        if (newLeads && newLeads > 0) count++;
       }
 
-      // Count overdue tasks
-      let overdueTasks = 0;
-      try {
-        const { count } = await supabase
-          .from('lead_tasks')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending')
-          .lt('due_date', new Date().toISOString());
-        overdueTasks = count || 0;
-      } catch (error) {
-        overdueTasks = 0;
+      // Count pending documents (only if not marked as read)
+      if (!readNotifications.has('pending-docs')) {
+        try {
+          const { count: pendingDocs } = await supabase
+            .from('student_documents')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'pending');
+          if (pendingDocs && pendingDocs > 0) count++;
+        } catch (error) {
+          // Table might not exist
+        }
       }
 
-      // Count unread communications
-      let unreadComms = 0;
-      try {
-        const { count } = await supabase
-          .from('student_communications')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'unread');
-        unreadComms = count || 0;
-      } catch (error) {
-        unreadComms = 0;
+      // Count overdue tasks (only if not marked as read)
+      if (!readNotifications.has('overdue-tasks')) {
+        try {
+          const { count: overdueTasks } = await supabase
+            .from('lead_tasks')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'pending')
+            .lt('due_date', new Date().toISOString());
+          if (overdueTasks && overdueTasks > 0) count++;
+        } catch (error) {
+          // Table might not exist
+        }
       }
 
-      return (newLeads || 0) + pendingDocs + overdueTasks + unreadComms;
+      // Count unread communications (only if not marked as read)
+      if (!readNotifications.has('unread-comms')) {
+        try {
+          const { count: unreadComms } = await supabase
+            .from('student_communications')
+            .select('*', { count: 'exact', head: true })
+            .eq('status', 'unread');
+          if (unreadComms && unreadComms > 0) count++;
+        } catch (error) {
+          // Table might not exist
+        }
+      }
+
+      return count;
     } catch (error) {
       console.error('Error getting notification count:', error);
       return 0;
@@ -74,6 +83,7 @@ export class NotificationService {
 
   static async getNotifications(): Promise<AdminNotification[]> {
     const notifications: AdminNotification[] = [];
+    const readNotifications = this.getReadNotifications();
 
     try {
       // Get new leads
@@ -91,7 +101,7 @@ export class NotificationService {
           title: `${newLeads.length} New Lead${newLeads.length > 1 ? 's' : ''}`,
           description: `Latest: ${newLeads[0].first_name} ${newLeads[0].last_name}`,
           count: newLeads.length,
-          isRead: false,
+          isRead: readNotifications.has('new-leads'),
           created_at: newLeads[0].created_at,
           priority: 'high'
         });
@@ -118,7 +128,7 @@ export class NotificationService {
           title: `${pendingDocs.length} Document${pendingDocs.length > 1 ? 's' : ''} Pending Review`,
           description: `Latest: ${pendingDocs[0].name}`,
           count: pendingDocs.length,
-          isRead: false,
+          isRead: readNotifications.has('pending-docs'),
           created_at: pendingDocs[0].created_at,
           priority: 'medium'
         });
@@ -146,7 +156,7 @@ export class NotificationService {
           title: `${overdueTasks.length} Overdue Task${overdueTasks.length > 1 ? 's' : ''}`,
           description: `Urgent: ${overdueTasks[0].title}`,
           count: overdueTasks.length,
-          isRead: false,
+          isRead: readNotifications.has('overdue-tasks'),
           created_at: overdueTasks[0].due_date,
           priority: 'high'
         });
@@ -173,7 +183,7 @@ export class NotificationService {
           title: `${unreadComms.length} Unread Message${unreadComms.length > 1 ? 's' : ''}`,
           description: `Latest: ${unreadComms[0].subject}`,
           count: unreadComms.length,
-          isRead: false,
+          isRead: readNotifications.has('unread-comms'),
           created_at: unreadComms[0].created_at,
           priority: 'medium'
         });

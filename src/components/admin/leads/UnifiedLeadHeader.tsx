@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Plus, Download, Upload, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X, Copy } from 'lucide-react';
+import { useHasPermissions } from '@/hooks/useHasPermission';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
@@ -66,6 +67,14 @@ export function UnifiedLeadHeader({
   const [searchQuery, setSearchQuery] = useState('');
   const [showColumnSettings, setShowColumnSettings] = useState(false);
   const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
+  
+  // Permission checks
+  const { data: permissions, isLoading: permissionsLoading } = useHasPermissions([
+    'create_leads',
+    'export_leads'
+  ]);
+  const canCreateLeads = permissions?.create_leads ?? false;
+  const canExportLeads = permissions?.export_leads ?? false;
   const getTotalLeads = () => stages.reduce((sum, stage) => sum + stage.count, 0);
   const getStageColor = (stage: string) => {
     const stageData = stages.find(s => s.key === stage);
@@ -240,14 +249,18 @@ export function UnifiedLeadHeader({
               <Upload className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Import</span>
             </Button>
-            <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
-              <Download className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Export</span>
-            </Button>
-            <Button onClick={onAddLead} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl bg-primary hover:bg-primary/90 transition-all">
-              <Plus className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Add Lead</span>
-            </Button>
+            {canExportLeads && (
+              <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
+                <Download className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Export</span>
+              </Button>
+            )}
+            {canCreateLeads && (
+              <Button onClick={onAddLead} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl bg-primary hover:bg-primary/90 transition-all">
+                <Plus className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Add Lead</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

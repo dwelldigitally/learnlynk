@@ -28,6 +28,7 @@ import { ImportDialog } from './bulk/dialogs/ImportDialog';
 import { useDemoDataAccess } from '@/services/demoDataService';
 import { useTablePreferences } from '@/hooks/useTablePreferences';
 import { useDuplicateStats, useDuplicatePreventionSetting } from '@/hooks/useDuplicateDetection';
+import { useHasPermissions } from '@/hooks/useHasPermission';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap, Search, Users, Phone, Mail, Calendar, Star, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock, User, Tag, ArrowRight, Copy, ShieldCheck } from 'lucide-react';
 import {
   DropdownMenu,

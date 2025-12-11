@@ -45,6 +45,7 @@ import { format } from 'date-fns';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
 import { cn } from '@/lib/utils';
 import { MobileLeadCard } from './MobileLeadCard';
+import { useHasPermission } from '@/hooks/useHasPermission';
 
 interface SmartLeadTableProps {
   leads: Lead[];
@@ -130,6 +131,9 @@ export function SmartLeadTable({
   const [activeFilters, setActiveFilters] = useState<Record<string, any>>({});
   const [sortColumn, setSortColumn] = useState(initialSortColumn || 'created_at');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(initialSortOrder || 'desc');
+  
+  // Permission check for delete
+  const { data: canDeleteLeads } = useHasPermission('delete_leads');
   const [advisorMap, setAdvisorMap] = useState<Record<string, AdvisorInfo>>({});
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
     if (initialColumnWidths && Object.keys(initialColumnWidths).length > 0) {
@@ -453,10 +457,12 @@ export function SmartLeadTable({
                   <Zap className="h-4 w-4 mr-2" />
                   Trigger Journey
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => onBulkAction('Delete Selected', selectedLeadIds)} className="text-destructive rounded-lg">
-                  <X className="h-4 w-4 mr-2" />
-                  Delete Selected
-                </DropdownMenuItem>
+                {canDeleteLeads && (
+                  <DropdownMenuItem onClick={() => onBulkAction('Delete Selected', selectedLeadIds)} className="text-destructive rounded-lg">
+                    <X className="h-4 w-4 mr-2" />
+                    Delete Selected
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

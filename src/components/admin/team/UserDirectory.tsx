@@ -14,6 +14,7 @@ import { InviteUserDialog } from './InviteUserDialog';
 import { ChangeRoleDialog } from './ChangeRoleDialog';
 import { useTeamInvitations, useCancelInvitation } from '@/hooks/useTeamInvitations';
 import { toast } from 'sonner';
+import { useHasPermissions } from '@/hooks/useHasPermission';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,6 +54,11 @@ export const UserDirectory = () => {
   const { data: users = [], isLoading } = useUsers();
   const { data: invitations = [], isLoading: invitationsLoading } = useTeamInvitations();
   const cancelInvitation = useCancelInvitation();
+  
+  // Permission checks
+  const { data: permissions } = useHasPermissions(['manage_users', 'manage_roles']);
+  const canManageUsers = permissions?.manage_users ?? false;
+  const canManageRoles = permissions?.manage_roles ?? false;
 
   const pendingInvitations = invitations.filter(inv => inv.status === 'pending');
 
@@ -150,10 +156,12 @@ export const UserDirectory = () => {
                 Search and manage all users, their roles, and team assignments
               </CardDescription>
             </div>
-            <Button onClick={() => setShowInviteDialog(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Invite User
-            </Button>
+            {canManageUsers && (
+              <Button onClick={() => setShowInviteDialog(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                Invite User
+              </Button>
+            )}
           </div>
         </CardHeader>
       </Card>
@@ -270,15 +278,17 @@ export const UserDirectory = () => {
                     </Badge>
                   </div>
 
-                  {/* Actions */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCancelInviteId(invitation.id)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  {/* Actions - Only show cancel if user can manage */}
+                  {canManageUsers && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setCancelInviteId(invitation.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               ))}
 
@@ -329,17 +339,19 @@ export const UserDirectory = () => {
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setEditingUser(user)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  {/* Actions - Only show edit if user can manage roles */}
+                  {canManageRoles && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingUser(user)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
 
                   {/* Joined Date */}
                   <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground min-w-[140px]">

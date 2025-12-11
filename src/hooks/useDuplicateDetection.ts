@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DuplicateLeadService, DuplicateGroup, DuplicatePreventionField, DuplicateCheckResult } from '@/services/duplicateLeadService';
+import { DuplicateLeadService, DuplicateGroup, DuplicatePreventionField, DuplicateCheckResult, ConflictResolution } from '@/services/duplicateLeadService';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/hooks/use-toast';
 
@@ -130,6 +130,33 @@ export function useDeleteDuplicates() {
       toast({
         title: 'Duplicates Deleted',
         description: `Successfully deleted ${result.success} duplicate${result.success !== 1 ? 's' : ''}${result.failed > 0 ? `, ${result.failed} failed` : ''}`
+      });
+    }
+  });
+}
+
+export function useBulkMergeLeads() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async ({ groups, resolution }: { groups: DuplicateGroup[]; resolution: ConflictResolution }) => {
+      return DuplicateLeadService.bulkMergeGroups(groups, resolution);
+    },
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ['potential-duplicates'] });
+      queryClient.invalidateQueries({ queryKey: ['exact-duplicates'] });
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+      toast({
+        title: 'Bulk Merge Complete',
+        description: `Successfully merged ${result.success} group${result.success !== 1 ? 's' : ''}${result.failed > 0 ? `, ${result.failed} failed` : ''}`
+      });
+    },
+    onError: () => {
+      toast({
+        title: 'Merge Failed',
+        description: 'Failed to merge duplicate groups. Please try again.',
+        variant: 'destructive'
       });
     }
   });

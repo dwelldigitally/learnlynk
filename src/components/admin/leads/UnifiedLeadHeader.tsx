@@ -1,16 +1,17 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, Download, Upload, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X } from 'lucide-react';
+import { Plus, Download, Upload, FileX, Filter, Calendar, GraduationCap, Search, Settings2, Eye, EyeOff, GripVertical, X, Copy, Settings } from 'lucide-react';
 import { EnhancedLeadFilters } from '@/services/enhancedLeadService';
 import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 
 export interface ColumnConfig {
@@ -60,6 +61,7 @@ export function UnifiedLeadHeader({
   columns = [],
   onColumnsChange
 }: UnifiedLeadHeaderProps) {
+  const navigate = useNavigate();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showColumnSettings, setShowColumnSettings] = useState(false);
@@ -153,29 +155,49 @@ export function UnifiedLeadHeader({
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           {/* Search Input - HotSheet Style */}
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search by name, email, or phone..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 min-h-[48px] rounded-xl border-border/60 bg-muted/30 focus:bg-background focus:border-primary/40 transition-all"
-              maxLength={100}
-            />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-lg hover:bg-muted"
-                onClick={() => {
-                  setSearchQuery('');
-                  if (onSearch) onSearch('');
-                }}
-              >
-                <X className="h-3.5 w-3.5" />
-              </Button>
-            )}
+          <div className="relative w-full sm:w-80 flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by name, email, or phone..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10 min-h-[48px] rounded-xl border-border/60 bg-muted/30 focus:bg-background focus:border-primary/40 transition-all"
+                maxLength={100}
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-lg hover:bg-muted"
+                  onClick={() => {
+                    setSearchQuery('');
+                    if (onSearch) onSearch('');
+                  }}
+                >
+                  <X className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
+            {/* Settings Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="min-h-[48px] min-w-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
+                  <Settings className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-popover z-50 rounded-xl border-border/60">
+                <DropdownMenuItem onClick={() => navigate('/admin/leads/duplicates')} className="cursor-pointer">
+                  <Copy className="h-4 w-4 mr-2" />
+                  Manage Duplicates
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/admin/setup/duplicate-prevention')} className="cursor-pointer">
+                  <Settings2 className="h-4 w-4 mr-2" />
+                  Duplicate Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <div className="flex gap-2">
             {columns.length > 0 && onColumnsChange && (

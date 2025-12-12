@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, Clock, AlertCircle, FileText, Phone, MessageSquare, Calendar, Info } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Clock, AlertCircle, FileText, Phone, MessageSquare, Calendar, Info, ChevronRight, Play, Loader2 } from 'lucide-react';
 import { Lead } from '@/types/lead';
 import { supabase } from '@/integrations/supabase/client';
+import { LeadJourneyService } from '@/services/leadJourneyService';
 import { HotSheetCard, PastelBadge, PillButton, IconContainer, type PastelColor } from '@/components/hotsheet';
+import { toast } from 'sonner';
 
 interface JourneyStage {
   id: string;
@@ -36,8 +39,11 @@ interface AcademicJourneyTrackerProps {
 
 export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTrackerProps) {
   const [journey, setJourney] = useState<any>(null);
+  const [journeyInstance, setJourneyInstance] = useState<any>(null);
   const [stages, setStages] = useState<JourneyStage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [creatingInstance, setCreatingInstance] = useState(false);
+  const [advancingStage, setAdvancingStage] = useState(false);
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
   const [noJourneyConfigured, setNoJourneyConfigured] = useState(false);
 
@@ -56,7 +62,7 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
       setNoJourneyConfigured(false);
 
       // First, check if this lead has an active journey instance
-      const { data: journeyInstance, error: instanceError } = await supabase
+      const { data: existingInstance, error: instanceError } = await supabase
         .from('student_journey_instances')
         .select(`
           *,
@@ -76,24 +82,30 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
         throw instanceError;
       }
 
-      if (journeyInstance) {
-        setJourney(journeyInstance.academic_journeys);
+      if (existingInstance) {
+        setJourneyInstance(existingInstance);
+        setJourney(existingInstance.academic_journeys);
         
         // Get stage progress for this instance
         const { data: stageProgress, error: progressError } = await supabase
           .from('journey_stage_progress')
           .select('*')
-          .eq('journey_instance_id', journeyInstance.id);
+          .eq('journey_instance_id', existingInstance.id);
 
         if (progressError) throw progressError;
 
-        // Transform the data to our format
-        const transformedStages = journeyInstance.academic_journeys.journey_stages.map((stage: any) => {
+        // Transform the data to our format using PERSONAL progress
+        const transformedStages = existingInstance.academic_journeys.journey_stages.map((stage: any) => {
           const progress = stageProgress?.find(p => p.stage_id === stage.id);
           const progressStatus = progress?.status;
           const validStatus = ['pending', 'active', 'completed', 'skipped'].includes(progressStatus) 
             ? progressStatus as 'pending' | 'active' | 'completed' | 'skipped'
             : 'pending';
+          
+          // Calculate completion percentage from status
+          const completionPercentage = validStatus === 'completed' ? 100 
+            : validStatus === 'active' ? 50 
+            : 0;
           
           return {
             id: stage.id,
@@ -102,16 +114,19 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
             stage_type: stage.stage_type,
             order_index: stage.order_index,
             status: validStatus,
-            completion_percentage: progress ? 100 : 0,
+            completion_percentage: completionPercentage,
             requirements: stage.journey_requirements || [],
             estimated_days: stage.timing_config?.expected_duration_days || 7,
-            actual_days: progress ? Math.floor((Date.now() - new Date(progress.started_at).getTime()) / (1000 * 60 * 60 * 24)) : undefined
+            actual_days: progress?.started_at 
+              ? Math.floor((Date.now() - new Date(progress.started_at).getTime()) / (1000 * 60 * 60 * 24)) 
+              : undefined,
+            progressId: progress?.id
           };
         }).sort((a: any, b: any) => a.order_index - b.order_index);
 
         setStages(transformedStages);
       } else {
-        // Try to load journey from lead's program interest
+        // No instance exists - check if program has a journey to auto-create
         await loadJourneyFromProgramInterest();
       }
     } catch (error) {
@@ -133,32 +148,23 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
       }
 
       // Try to find an academic journey for this program
-      const { data: programJourney, error } = await supabase
-        .from('academic_journeys')
-        .select(`
-          *,
-          journey_stages (
-            *,
-            journey_requirements (*)
-          )
-        `)
-        .eq('program_id', programId)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching program journey:', error);
-        setStages([]);
-        setNoJourneyConfigured(true);
-        return;
-      }
+      const programJourney = await LeadJourneyService.getJourneyForProgram(programId);
 
       if (programJourney && programJourney.journey_stages?.length > 0) {
         setJourney(programJourney);
         
-        // Transform stages - first one is active, rest are pending
+        // Auto-create journey instance for this lead
+        setCreatingInstance(true);
+        const instance = await LeadJourneyService.createJourneyInstanceForLead(lead.id, programJourney.id);
+        setCreatingInstance(false);
+
+        if (instance) {
+          // Reload to get the fresh data with personal progress
+          await loadJourneyData();
+          return;
+        }
+
+        // Fallback: Transform stages showing template view (shouldn't happen normally)
         const transformedStages = programJourney.journey_stages
           .sort((a: any, b: any) => a.order_index - b.order_index)
           .map((stage: any, index: number) => ({
@@ -190,6 +196,57 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
       console.error('Error loading journey from program interest:', error);
       setStages([]);
       setNoJourneyConfigured(true);
+    }
+  };
+
+  // Complete current stage and advance to next
+  const handleAdvanceStage = async () => {
+    if (!journeyInstance) return;
+
+    const currentStageIndex = stages.findIndex(s => s.status === 'active');
+    if (currentStageIndex === -1 || currentStageIndex >= stages.length - 1) return;
+
+    const currentStage = stages[currentStageIndex];
+    const nextStage = stages[currentStageIndex + 1];
+
+    setAdvancingStage(true);
+    try {
+      await LeadJourneyService.updateLeadStage(lead.id, nextStage.id, { completeCurrentStage: true });
+      toast.success(`Advanced to "${nextStage.name}"`);
+      await loadJourneyData();
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error advancing stage:', error);
+      toast.error('Failed to advance stage');
+    } finally {
+      setAdvancingStage(false);
+    }
+  };
+
+  // Complete a specific stage manually
+  const handleCompleteStage = async (stageId: string) => {
+    if (!journeyInstance) return;
+
+    setAdvancingStage(true);
+    try {
+      // Update stage progress to completed
+      await supabase
+        .from('journey_stage_progress')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('journey_instance_id', journeyInstance.id)
+        .eq('stage_id', stageId);
+
+      toast.success('Stage completed');
+      await loadJourneyData();
+      onUpdate?.();
+    } catch (error) {
+      console.error('Error completing stage:', error);
+      toast.error('Failed to complete stage');
+    } finally {
+      setAdvancingStage(false);
     }
   };
 
@@ -285,14 +342,41 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
     );
   }
 
+  const currentStage = getCurrentStage();
+  const hasNextStage = stages.findIndex(s => s.status === 'active') < stages.length - 1;
+
   return (
     <HotSheetCard className="h-full flex flex-col">
       <div className="p-6 pb-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Academic Journey</h3>
-          <PastelBadge color="primary">
-            {calculateOverallProgress()}% Complete
-          </PastelBadge>
+          <div>
+            <h3 className="text-lg font-semibold">Academic Journey</h3>
+            {currentStage && (
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Current: {currentStage.name}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            {hasNextStage && journeyInstance && (
+              <Button
+                size="sm"
+                onClick={handleAdvanceStage}
+                disabled={advancingStage}
+                className="text-xs h-7"
+              >
+                {advancingStage ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : (
+                  <Play className="h-3 w-3 mr-1" />
+                )}
+                Next Stage
+              </Button>
+            )}
+            <PastelBadge color="primary">
+              {calculateOverallProgress()}% Complete
+            </PastelBadge>
+          </div>
         </div>
         <Progress value={calculateOverallProgress()} className="h-2" />
       </div>
@@ -347,7 +431,7 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
                   <HotSheetCard padding="sm" className="mt-2 ml-7 bg-muted/30">
                     <h5 className="font-medium text-sm mb-2">Requirements</h5>
                     <div className="space-y-2">
-                      {stage.requirements.map((req) => {
+                      {stage.requirements.length > 0 ? stage.requirements.map((req) => {
                         const ReqIcon = getRequirementIcon(req.requirement_type);
                         return (
                           <div key={req.id} className="flex items-center gap-2 text-xs">
@@ -358,8 +442,51 @@ export function AcademicJourneyTracker({ lead, onUpdate }: AcademicJourneyTracke
                             </PastelBadge>
                           </div>
                         );
-                      })}
+                      }) : (
+                        <p className="text-xs text-muted-foreground">No requirements defined</p>
+                      )}
                     </div>
+                    
+                    {/* Stage Actions - only show for active stages */}
+                    {stage.status === 'active' && journeyInstance && (
+                      <div className="mt-3 pt-3 border-t border-border/40 flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCompleteStage(stage.id);
+                          }}
+                          disabled={advancingStage}
+                          className="text-xs h-7"
+                        >
+                          {advancingStage ? (
+                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                          ) : (
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                          )}
+                          Complete Stage
+                        </Button>
+                        {index < stages.length - 1 && (
+                          <Button
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAdvanceStage();
+                            }}
+                            disabled={advancingStage}
+                            className="text-xs h-7"
+                          >
+                            {advancingStage ? (
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                            ) : (
+                              <ChevronRight className="h-3 w-3 mr-1" />
+                            )}
+                            Advance to Next
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </HotSheetCard>
                 )}
               </div>

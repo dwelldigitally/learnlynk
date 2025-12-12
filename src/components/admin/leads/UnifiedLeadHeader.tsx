@@ -164,47 +164,46 @@ export function UnifiedLeadHeader({
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           {/* Search Input - HotSheet Style */}
-          <div className="relative w-full sm:w-80 flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search by name, email, or phone..."
-                value={searchQuery}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10 min-h-[48px] rounded-xl border-border/60 bg-muted/30 focus:bg-background focus:border-primary/40 transition-all"
-                maxLength={100}
-              />
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-lg hover:bg-muted"
-                  onClick={() => {
-                    setSearchQuery('');
-                    if (onSearch) onSearch('');
-                  }}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
+          <div className="relative w-full sm:w-64 lg:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Search leads..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="pl-10 min-h-[44px] rounded-xl border-border/60 bg-muted/30 focus:bg-background focus:border-primary/40 transition-all"
+              maxLength={100}
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 p-0 rounded-lg hover:bg-muted"
+                onClick={() => {
+                  setSearchQuery('');
+                  if (onSearch) onSearch('');
+                }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
+          {/* Action buttons - horizontal scroll on mobile */}
+          <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 -mb-1">
             {/* Manage Duplicates Button */}
             <Button 
               variant="outline" 
               size="icon" 
-              className="min-h-[48px] min-w-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all"
+              className="min-h-[44px] min-w-[44px] shrink-0 rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all"
               onClick={() => navigate('/admin/leads/duplicates')}
               title="Manage Duplicates"
             >
               <Copy className="h-4 w-4" />
             </Button>
-          </div>
-          <div className="flex gap-2">
             {columns.length > 0 && onColumnsChange && (
               <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
+                  <Button variant="outline" className="shrink-0 min-h-[44px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
                     <Settings2 className="w-4 h-4 sm:mr-2" />
                     <span className="hidden sm:inline">Columns</span>
                   </Button>
@@ -245,18 +244,18 @@ export function UnifiedLeadHeader({
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
-            <Button variant="outline" onClick={onImport} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
+            <Button variant="outline" onClick={onImport} className="shrink-0 min-h-[44px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
               <Upload className="w-4 h-4 sm:mr-2" />
               <span className="hidden sm:inline">Import</span>
             </Button>
             {canExportLeads && (
-              <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
+              <Button variant="outline" onClick={onExport} className="shrink-0 min-h-[44px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
                 <Download className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Export</span>
               </Button>
             )}
             {canCreateLeads && (
-              <Button onClick={onAddLead} className="flex-1 sm:flex-initial min-h-[48px] rounded-xl bg-primary hover:bg-primary/90 transition-all">
+              <Button onClick={onAddLead} className="shrink-0 min-h-[44px] rounded-xl bg-primary hover:bg-primary/90 transition-all">
                 <Plus className="w-4 h-4 sm:mr-2" />
                 <span className="hidden sm:inline">Add Lead</span>
               </Button>

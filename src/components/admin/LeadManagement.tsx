@@ -630,9 +630,8 @@ export function LeadManagement() {
             emptyDescription="Create your first lead to get started with lead management."
             loadingRows={5}
           >
-            <div className="bg-card rounded-2xl border border-border/40 overflow-hidden">
-              <div className="overflow-x-auto">
-                <SmartLeadTable
+            <div className="bg-card rounded-2xl border border-border/40">
+              <SmartLeadTable
                   leads={leads}
                   loading={loading}
                   selectedLeadIds={selectedLeadIds}
@@ -666,7 +665,6 @@ export function LeadManagement() {
                   initialSortColumn={sortBy}
                   initialSortOrder={sortOrder}
                 />
-              </div>
             </div>
           </ConditionalDataWrapper>
         </div>

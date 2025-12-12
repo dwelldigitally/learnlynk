@@ -484,17 +484,6 @@ export function SmartLeadTable({
         </div>
       )}
 
-      {/* Column Selector */}
-      <div className="hidden md:flex justify-end mb-2">
-        {onColumnVisibilityChange && onBulkColumnVisibilityChange && (
-          <EnhancedColumnSelector
-            columns={columns}
-            onColumnVisibilityChange={onColumnVisibilityChange}
-            onBulkVisibilityChange={onBulkColumnVisibilityChange}
-          />
-        )}
-      </div>
-
       {/* Desktop Table - HotSheet Style with Horizontal Scroll */}
       <div className={cn("hidden md:block rounded-xl border border-border/40 w-full max-w-full overflow-hidden", resizingColumn && "select-none")}>
         <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent" style={{ maxWidth: '100%' }}>

@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle } from 'lucide-react';
+import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle, List } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
+import { LeadAllPropertiesModal } from './LeadAllPropertiesModal';
 import { LeadService } from '@/services/leadService';
 import { leadActivityService } from '@/services/leadActivityService';
 import { useToast } from '@/hooks/use-toast';
@@ -27,6 +28,7 @@ interface LeadEditFormProps {
 export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [showAllProperties, setShowAllProperties] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<string>(lead.program_interest?.[0] || '');
   const [selectedIntakeId, setSelectedIntakeId] = useState<string>((lead as any).preferred_intake_id || '');
   const [selectedTermId, setSelectedTermId] = useState<string>((lead as any).academic_term_id || '');
@@ -186,14 +188,24 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   };
 
   return (
+    <>
+    <LeadAllPropertiesModal 
+      open={showAllProperties} 
+      onOpenChange={setShowAllProperties} 
+      lead={lead} 
+    />
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <User className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">Edit Lead Information</h2>
         </div>
         <div className="flex items-center gap-2">
+          <Button type="button" variant="ghost" onClick={() => setShowAllProperties(true)}>
+            <List className="h-4 w-4 mr-2" />
+            View All Properties
+          </Button>
           <Button type="button" variant="outline" onClick={onCancel} disabled={saving}>
             <X className="h-4 w-4 mr-2" />
             Cancel
@@ -563,5 +575,6 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
         onConfirm={confirmProgramChange}
       />
     </form>
+    </>
   );
 }

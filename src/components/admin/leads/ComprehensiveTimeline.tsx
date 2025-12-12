@@ -57,6 +57,107 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
     loadTimelineData();
   }, [leadId, refreshTrigger]);
 
+  // Real-time subscription for automatic updates
+  useEffect(() => {
+    // Subscribe to lead_activity_logs for this lead
+    const activityChannel = supabase
+      .channel(`timeline-activity-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'lead_activity_logs',
+          filter: `lead_id=eq.${leadId}`
+        },
+        () => {
+          console.log('📋 Activity log inserted, refreshing timeline');
+          loadTimelineData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to lead_communications
+    const commsChannel = supabase
+      .channel(`timeline-comms-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lead_communications',
+          filter: `lead_id=eq.${leadId}`
+        },
+        () => {
+          console.log('📧 Communication changed, refreshing timeline');
+          loadTimelineData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to lead_tasks
+    const tasksChannel = supabase
+      .channel(`timeline-tasks-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lead_tasks',
+          filter: `lead_id=eq.${leadId}`
+        },
+        () => {
+          console.log('✅ Task changed, refreshing timeline');
+          loadTimelineData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to lead_documents
+    const docsChannel = supabase
+      .channel(`timeline-docs-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lead_documents',
+          filter: `lead_id=eq.${leadId}`
+        },
+        () => {
+          console.log('📄 Document changed, refreshing timeline');
+          loadTimelineData();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to lead_notes
+    const notesChannel = supabase
+      .channel(`timeline-notes-${leadId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'lead_notes',
+          filter: `lead_id=eq.${leadId}`
+        },
+        () => {
+          console.log('📝 Note changed, refreshing timeline');
+          loadTimelineData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(activityChannel);
+      supabase.removeChannel(commsChannel);
+      supabase.removeChannel(tasksChannel);
+      supabase.removeChannel(docsChannel);
+      supabase.removeChannel(notesChannel);
+    };
+  }, [leadId]);
+
   const loadTimelineData = async () => {
     try {
       setLoading(true);

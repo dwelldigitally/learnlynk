@@ -12,7 +12,7 @@ import { MobileLeadInfoSheet } from '@/components/admin/leads/MobileLeadInfoShee
 
 import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
-import { SegmentedTimeline } from '@/components/admin/leads/SegmentedTimeline';
+import { ComprehensiveTimeline } from '@/components/admin/leads/ComprehensiveTimeline';
 import { TasksAndNotes } from '@/components/admin/leads/TasksAndNotes';
 import { TopNavigationBar } from '@/components/admin/TopNavigationBar';
 import { AcademicJourneyTracker } from '@/components/admin/leads/AcademicJourneyTracker';
@@ -28,6 +28,10 @@ export default function LeadDetailPage() {
   const [lead, setLead] = useState<Lead | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('journey');
+  const [timelineRefreshTrigger, setTimelineRefreshTrigger] = useState(0);
+  const [timelineFilter, setTimelineFilter] = useState('all');
+
+  const triggerTimelineRefresh = () => setTimelineRefreshTrigger(prev => prev + 1);
 
   // UUID validation function
   const isValidUUID = (uuid: string): boolean => {
@@ -179,7 +183,7 @@ export default function LeadDetailPage() {
       <div className="flex flex-col lg:flex-row">
         {/* Left Sidebar - Hidden on mobile */}
         <div className="hidden lg:block">
-          <EnhancedLeadSidebar lead={lead} onUpdate={loadLead} />
+          <EnhancedLeadSidebar lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
         </div>
         
         {/* Main Content Area */}
@@ -209,35 +213,35 @@ export default function LeadDetailPage() {
 
               <div className="flex-1">
                 <TabsContent value="journey" className="m-0">
-                  <AcademicJourneyTracker lead={lead} onUpdate={loadLead} />
+                  <AcademicJourneyTracker lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
                 </TabsContent>
 
                 <TabsContent value="ai-plays" className="m-0">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
-                    <AIPlaysPanel lead={lead} onUpdate={loadLead} />
+                    <AIPlaysPanel lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
                     <AICommunicationDemo lead={lead} />
                   </div>
                 </TabsContent>
 
                 <TabsContent value="communication" className="m-0">
-                  <CommunicationHub lead={lead} onUpdate={loadLead} />
+                  <CommunicationHub lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
                 </TabsContent>
 
                 <TabsContent value="documents" className="m-0">
-                  <DocumentsSection lead={lead} onUpdate={loadLead} />
+                  <DocumentsSection lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
                 </TabsContent>
 
                 <TabsContent value="timeline" className="m-0">
-                  <SegmentedTimeline 
+                  <ComprehensiveTimeline 
                     leadId={lead.id}
-                    communications={[]}
-                    tasks={[]}
-                    notes={[]}
+                    filter={timelineFilter}
+                    onFilterChange={setTimelineFilter}
+                    refreshTrigger={timelineRefreshTrigger}
                   />
                 </TabsContent>
 
                 <TabsContent value="tasks" className="m-0">
-                  <TasksAndNotes lead={lead} onUpdate={loadLead} />
+                  <TasksAndNotes lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
                 </TabsContent>
               </div>
             </Tabs>
@@ -252,7 +256,7 @@ export default function LeadDetailPage() {
 
       {/* Mobile FAB + Bottom Sheet */}
       <div className="lg:hidden">
-        <MobileLeadInfoSheet lead={lead} onUpdate={loadLead}>
+        <MobileLeadInfoSheet lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }}>
           <PillIconButton
             icon={<User className="h-6 w-6" />}
             size="lg"

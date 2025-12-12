@@ -22,7 +22,11 @@ import {
   Calendar,
   AlertCircle,
   Trash2,
-  RefreshCw
+  RefreshCw,
+  DollarSign,
+  Receipt,
+  FileSpreadsheet,
+  Edit
 } from 'lucide-react';
 import { leadActivityService, ActivityLogEntry } from '@/services/leadActivityService';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +36,7 @@ interface TimelineEvent {
   timestamp: string;
   action: string;
   description: string;
-  type: 'communication' | 'document' | 'engagement' | 'system' | 'task' | 'note' | 'stage' | 'lead';
+  type: 'communication' | 'document' | 'engagement' | 'system' | 'task' | 'note' | 'stage' | 'lead' | 'payment';
   source: string; // Now stores actual user name or "System"
   metadata?: any;
 }
@@ -298,6 +302,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       case 'note': return 'note';
       case 'lead': return 'engagement';
       case 'system': return 'system';
+      case 'payment': return 'payment';
       default: return 'system';
     }
   };
@@ -319,7 +324,22 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
         case 'status_changed':
         case 'priority_changed': return <AlertCircle className="h-3 w-3" />;
         case 'lead_created': return <User className="h-3 w-3" />;
-        case 'lead_updated': return <User className="h-3 w-3" />;
+        case 'lead_updated': return <Edit className="h-3 w-3" />;
+        // Payment icons
+        case 'payment_created': return <DollarSign className="h-3 w-3" />;
+        case 'payment_status_changed': return <DollarSign className="h-3 w-3" />;
+        case 'payment_received': return <DollarSign className="h-3 w-3" />;
+        case 'invoice_sent': return <FileSpreadsheet className="h-3 w-3" />;
+        case 'receipt_sent': return <Receipt className="h-3 w-3" />;
+        // Task icons
+        case 'task_created': return <CheckSquare className="h-3 w-3" />;
+        case 'task_updated': return <Edit className="h-3 w-3" />;
+        case 'task_completed': return <CheckSquare className="h-3 w-3" />;
+        case 'task_deleted': return <Trash2 className="h-3 w-3" />;
+        // Note icons
+        case 'note_added': return <StickyNote className="h-3 w-3" />;
+        case 'note_updated': return <Edit className="h-3 w-3" />;
+        case 'note_deleted': return <Trash2 className="h-3 w-3" />;
       }
     }
 
@@ -331,6 +351,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       case 'note': return <StickyNote className="h-3 w-3" />;
       case 'stage': return <ArrowRight className="h-3 w-3" />;
       case 'system': return <Globe className="h-3 w-3" />;
+      case 'payment': return <DollarSign className="h-3 w-3" />;
       default: return <Activity className="h-3 w-3" />;
     }
   };
@@ -350,6 +371,21 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
         case 'intake_changed': return 'bg-cyan-500';
         case 'lead_created': return 'bg-emerald-500';
         case 'lead_updated': return 'bg-sky-500';
+        // Payment colors
+        case 'payment_received': return 'bg-green-500';
+        case 'payment_created': return 'bg-blue-500';
+        case 'payment_status_changed': return 'bg-amber-500';
+        case 'invoice_sent': return 'bg-violet-500';
+        case 'receipt_sent': return 'bg-teal-500';
+        // Task colors
+        case 'task_created': return 'bg-blue-500';
+        case 'task_completed': return 'bg-green-500';
+        case 'task_updated': return 'bg-sky-500';
+        case 'task_deleted': return 'bg-red-500';
+        // Note colors
+        case 'note_added': return 'bg-yellow-500';
+        case 'note_updated': return 'bg-amber-500';
+        case 'note_deleted': return 'bg-orange-500';
       }
     }
 
@@ -360,6 +396,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
       case 'task': return 'bg-green-500';
       case 'note': return 'bg-yellow-500';
       case 'stage': return 'bg-indigo-500';
+      case 'payment': return 'bg-emerald-500';
       default: return 'bg-gray-500';
     }
   };
@@ -371,6 +408,10 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
     if (filter === 'communication') return event.type === 'communication';
     if (filter === 'document') return event.type === 'document';
     if (filter === 'engagement') return event.type === 'engagement' || event.type === 'system' || event.type === 'stage' || event.type === 'lead';
+    if (filter === 'property') return event.metadata?.action_type === 'lead_updated';
+    if (filter === 'payment') return event.type === 'payment';
+    if (filter === 'task') return event.type === 'task';
+    if (filter === 'note') return event.type === 'note';
     return true;
   });
 
@@ -433,7 +474,7 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
               AI
             </Button>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap">
             <Button 
               variant={filter === 'communication' ? 'default' : 'ghost'} 
               size="sm"
@@ -449,6 +490,22 @@ export function ComprehensiveTimeline({ leadId, filter, onFilterChange, refreshT
             >
               <FileText className="h-3 w-3 mr-1" />
               Docs
+            </Button>
+            <Button 
+              variant={filter === 'payment' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => onFilterChange('payment')}
+            >
+              <DollarSign className="h-3 w-3 mr-1" />
+              Payments
+            </Button>
+            <Button 
+              variant={filter === 'property' ? 'default' : 'ghost'} 
+              size="sm"
+              onClick={() => onFilterChange('property')}
+            >
+              <Edit className="h-3 w-3 mr-1" />
+              Changes
             </Button>
             <Button 
               variant={filter === 'engagement' ? 'default' : 'ghost'} 

@@ -1,17 +1,29 @@
 import { supabase } from '@/integrations/supabase/client';
+import { LEAD_PROPERTIES } from '@/config/leadProperties';
 
-export type ActionCategory = 'lead' | 'document' | 'communication' | 'stage' | 'task' | 'note' | 'system';
+export type ActionCategory = 'lead' | 'document' | 'communication' | 'stage' | 'task' | 'note' | 'system' | 'payment';
 
 export type ActionType = 
+  // Lead actions
   | 'lead_created' | 'lead_updated' | 'lead_deleted'
+  // Document actions
   | 'document_uploaded' | 'document_approved' | 'document_rejected' | 'document_deleted'
+  // Stage actions
   | 'stage_advanced' | 'stage_regressed'
+  // Assignment actions
   | 'intake_assigned' | 'intake_changed'
   | 'advisor_assigned' | 'advisor_changed'
   | 'status_changed' | 'priority_changed'
-  | 'note_added' | 'task_created' | 'task_completed'
+  // Task actions
+  | 'task_created' | 'task_completed' | 'task_updated' | 'task_deleted'
+  // Note actions
+  | 'note_added' | 'note_updated' | 'note_deleted'
+  // Communication actions
   | 'communication_logged'
-  | 'entry_requirement_met' | 'entry_requirement_updated';
+  // Entry requirement actions
+  | 'entry_requirement_met' | 'entry_requirement_updated'
+  // Payment actions
+  | 'payment_created' | 'payment_status_changed' | 'invoice_sent' | 'receipt_sent' | 'payment_received';
 
 export interface ActivityLogEntry {
   id: string;
@@ -69,6 +81,16 @@ class LeadActivityService {
   }
 
   /**
+   * Build field labels from centralized lead properties config
+   */
+  private getFieldLabels(): Record<string, string> {
+    return LEAD_PROPERTIES.reduce((acc, prop) => {
+      acc[prop.key] = prop.label;
+      return acc;
+    }, {} as Record<string, string>);
+  }
+
+  /**
    * Log lead field updates with change tracking
    */
   async logLeadUpdate(
@@ -79,25 +101,21 @@ class LeadActivityService {
   ): Promise<void> {
     if (changedFields.length === 0) return;
 
-    const fieldLabels: Record<string, string> = {
-      first_name: 'First Name',
-      last_name: 'Last Name',
-      email: 'Email',
-      phone: 'Phone',
-      status: 'Status',
-      priority: 'Priority',
-      source: 'Source',
-      country: 'Country',
-      state: 'State',
-      city: 'City',
-      program_interest: 'Program Interest',
-      tags: 'Tags',
-      notes: 'Notes'
-    };
+    const fieldLabels = this.getFieldLabels();
 
     const changes = changedFields.map(field => {
-      const label = fieldLabels[field] || field;
-      return `${label}: "${oldValues[field] || 'empty'}" → "${newValues[field] || 'empty'}"`;
+      const label = fieldLabels[field] || field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const oldVal = oldValues[field];
+      const newVal = newValues[field];
+      
+      // Format array values
+      const formatValue = (val: any) => {
+        if (val === null || val === undefined) return 'empty';
+        if (Array.isArray(val)) return val.join(', ') || 'empty';
+        return String(val);
+      };
+      
+      return `${label}: "${formatValue(oldVal)}" → "${formatValue(newVal)}"`;
     });
 
     await this.logActivity(
@@ -359,6 +377,314 @@ class LeadActivityService {
       { requirementName, threshold, comments }
     );
   }
+
+  // =====================================
+  // PAYMENT LOGGING METHODS
+  // =====================================
+
+  /**
+   * Log payment creation
+   */
+  async logPaymentCreated(
+    leadId: string,
+    paymentType: string,
+    amount: number,
+    currency: string = 'USD'
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'payment_created',
+      'payment',
+      'Payment Created',
+      `${paymentType} payment of ${currency} ${amount.toFixed(2)} created`,
+      null,
+      { type: paymentType, amount, currency },
+      { paymentType, amount, currency }
+    );
+  }
+
+  /**
+   * Log payment status change
+   */
+  async logPaymentStatusChange(
+    leadId: string,
+    paymentType: string,
+    oldStatus: string,
+    newStatus: string,
+    amount: number
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'payment_status_changed',
+      'payment',
+      'Payment Status Changed',
+      `${paymentType} payment status changed from "${oldStatus}" to "${newStatus}" ($${amount.toFixed(2)})`,
+      { status: oldStatus },
+      { status: newStatus, amount },
+      { paymentType, amount }
+    );
+  }
+
+  /**
+   * Log payment received
+   */
+  async logPaymentReceived(
+    leadId: string,
+    paymentType: string,
+    amount: number,
+    currency: string = 'USD'
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'payment_received',
+      'payment',
+      'Payment Received',
+      `Received ${currency} ${amount.toFixed(2)} for ${paymentType}`,
+      null,
+      { type: paymentType, amount, currency, status: 'paid' },
+      { paymentType, amount, currency }
+    );
+  }
+
+  /**
+   * Log invoice sent
+   */
+  async logInvoiceSent(
+    leadId: string,
+    paymentType: string,
+    amount: number,
+    invoiceNumber?: string
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'invoice_sent',
+      'payment',
+      'Invoice Sent',
+      `Invoice ${invoiceNumber ? `#${invoiceNumber}` : ''} sent for ${paymentType} ($${amount.toFixed(2)})`,
+      null,
+      { invoiceNumber, amount, paymentType },
+      { paymentType, amount, invoiceNumber }
+    );
+  }
+
+  /**
+   * Log receipt sent
+   */
+  async logReceiptSent(
+    leadId: string,
+    paymentType: string,
+    amount: number,
+    receiptNumber?: string
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'receipt_sent',
+      'payment',
+      'Receipt Sent',
+      `Receipt ${receiptNumber ? `#${receiptNumber}` : ''} sent for ${paymentType} ($${amount.toFixed(2)})`,
+      null,
+      { receiptNumber, amount, paymentType },
+      { paymentType, amount, receiptNumber }
+    );
+  }
+
+  // =====================================
+  // TASK LOGGING METHODS
+  // =====================================
+
+  /**
+   * Log task creation
+   */
+  async logTaskCreated(
+    leadId: string,
+    taskTitle: string,
+    taskId: string,
+    priority?: string,
+    dueDate?: string
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'task_created',
+      'task',
+      'Task Created',
+      `Task "${taskTitle}" created${priority ? ` with ${priority} priority` : ''}`,
+      null,
+      { title: taskTitle, priority, dueDate },
+      { task_id: taskId, title: taskTitle, priority, dueDate }
+    );
+  }
+
+  /**
+   * Log task update
+   */
+  async logTaskUpdated(
+    leadId: string,
+    taskTitle: string,
+    changedFields: string[],
+    oldValues: Record<string, any>,
+    newValues: Record<string, any>
+  ): Promise<void> {
+    const changes = changedFields.map(field => {
+      const label = field.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      return `${label}: "${oldValues[field] || 'empty'}" → "${newValues[field] || 'empty'}"`;
+    }).join(', ');
+
+    await this.logActivity(
+      leadId,
+      'task_updated',
+      'task',
+      'Task Updated',
+      `Task "${taskTitle}" updated: ${changes}`,
+      oldValues,
+      newValues,
+      { title: taskTitle, changedFields }
+    );
+  }
+
+  /**
+   * Log task completion
+   */
+  async logTaskCompleted(
+    leadId: string,
+    taskTitle: string
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'task_completed',
+      'task',
+      'Task Completed',
+      `Task "${taskTitle}" marked as completed`,
+      { status: 'pending' },
+      { status: 'completed' },
+      { title: taskTitle }
+    );
+  }
+
+  /**
+   * Log task deletion
+   */
+  async logTaskDeleted(
+    leadId: string,
+    taskTitle: string
+  ): Promise<void> {
+    await this.logActivity(
+      leadId,
+      'task_deleted',
+      'task',
+      'Task Deleted',
+      `Task "${taskTitle}" was deleted`,
+      { title: taskTitle },
+      null,
+      { title: taskTitle }
+    );
+  }
+
+  // =====================================
+  // NOTE LOGGING METHODS
+  // =====================================
+
+  /**
+   * Log note added
+   */
+  async logNoteAdded(
+    leadId: string,
+    noteContent: string,
+    noteType?: string
+  ): Promise<void> {
+    const truncatedContent = noteContent.length > 50 
+      ? noteContent.substring(0, 50) + '...' 
+      : noteContent;
+
+    await this.logActivity(
+      leadId,
+      'note_added',
+      'note',
+      'Note Added',
+      `Added ${noteType || 'general'} note: "${truncatedContent}"`,
+      null,
+      { content: noteContent, type: noteType },
+      { noteType }
+    );
+  }
+
+  /**
+   * Log note updated
+   */
+  async logNoteUpdated(
+    leadId: string,
+    oldContent: string,
+    newContent: string
+  ): Promise<void> {
+    const truncatedNew = newContent.length > 50 
+      ? newContent.substring(0, 50) + '...' 
+      : newContent;
+
+    await this.logActivity(
+      leadId,
+      'note_updated',
+      'note',
+      'Note Updated',
+      `Note updated: "${truncatedNew}"`,
+      { content: oldContent },
+      { content: newContent },
+      {}
+    );
+  }
+
+  /**
+   * Log note deletion
+   */
+  async logNoteDeleted(
+    leadId: string,
+    noteContent: string
+  ): Promise<void> {
+    const truncatedContent = noteContent.length > 50 
+      ? noteContent.substring(0, 50) + '...' 
+      : noteContent;
+
+    await this.logActivity(
+      leadId,
+      'note_deleted',
+      'note',
+      'Note Deleted',
+      `Note deleted: "${truncatedContent}"`,
+      { content: noteContent },
+      null,
+      {}
+    );
+  }
+
+  // =====================================
+  // COMMUNICATION LOGGING METHODS
+  // =====================================
+
+  /**
+   * Log communication (email, SMS, call, etc.)
+   */
+  async logCommunicationLogged(
+    leadId: string,
+    type: string,
+    direction: 'inbound' | 'outbound',
+    subject?: string
+  ): Promise<void> {
+    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1);
+    const directionLabel = direction === 'outbound' ? 'Sent' : 'Received';
+    
+    await this.logActivity(
+      leadId,
+      'communication_logged',
+      'communication',
+      `${typeLabel} ${directionLabel}`,
+      subject || `${typeLabel} ${direction} communication logged`,
+      null,
+      { type, direction, subject },
+      { type, direction }
+    );
+  }
+
+  // =====================================
+  // FETCH METHODS
+  // =====================================
 
   /**
    * Get all activity logs for a lead with user names

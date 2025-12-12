@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { leadActivityService } from './leadActivityService';
 
 export class FinancialService {
   /**
@@ -20,9 +21,9 @@ export class FinancialService {
   }
 
   /**
-   * Create a new financial record
+   * Create a new financial record with activity logging
    */
-  static async createFinancialRecord(record: any) {
+  static async createFinancialRecord(record: any, leadId?: string) {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
@@ -43,13 +44,23 @@ export class FinancialService {
       throw error;
     }
 
+    // Log payment creation if lead_id is available
+    if (leadId || record.lead_id) {
+      await leadActivityService.logPaymentCreated(
+        leadId || record.lead_id,
+        record.payment_type || record.type || 'Payment',
+        Number(record.amount),
+        record.currency || 'USD'
+      );
+    }
+
     return data;
   }
 
   /**
-   * Update a financial record
+   * Update a financial record with status change logging
    */
-  static async updateFinancialRecord(id: string, record: any) {
+  static async updateFinancialRecord(id: string, record: any, leadId?: string, oldRecord?: any) {
     const { data, error } = await supabase
       .from('financial_records')
       .update(record)
@@ -60,6 +71,27 @@ export class FinancialService {
     if (error) {
       console.error('Error updating financial record:', error);
       throw error;
+    }
+
+    // Log status changes
+    const effectiveLeadId = leadId || record.lead_id || oldRecord?.lead_id;
+    if (effectiveLeadId && oldRecord && record.status && oldRecord.status !== record.status) {
+      if (record.status === 'paid') {
+        await leadActivityService.logPaymentReceived(
+          effectiveLeadId,
+          record.payment_type || oldRecord.payment_type || 'Payment',
+          Number(record.amount || oldRecord.amount),
+          record.currency || oldRecord.currency || 'USD'
+        );
+      } else {
+        await leadActivityService.logPaymentStatusChange(
+          effectiveLeadId,
+          record.payment_type || oldRecord.payment_type || 'Payment',
+          oldRecord.status,
+          record.status,
+          Number(record.amount || oldRecord.amount)
+        );
+      }
     }
 
     return data;

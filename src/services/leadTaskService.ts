@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { LeadTask, TaskFormData, TaskStatus } from '@/types/leadEnhancements';
+import { leadActivityService } from './leadActivityService';
 
 export class LeadTaskService {
   static async getTasks(leadId: string): Promise<LeadTask[]> {
@@ -42,10 +43,19 @@ export class LeadTaskService {
       throw new Error('Failed to create task');
     }
 
+    // Log task creation
+    await leadActivityService.logTaskCreated(
+      leadId,
+      taskData.title,
+      data.id,
+      taskData.priority,
+      taskData.due_date
+    );
+
     return data as LeadTask;
   }
 
-  static async updateTask(id: string, updates: Partial<TaskFormData & { status?: TaskStatus }>): Promise<LeadTask> {
+  static async updateTask(id: string, updates: Partial<TaskFormData & { status?: TaskStatus }>, leadId?: string, oldTask?: LeadTask): Promise<LeadTask> {
     const updateData: any = { ...updates };
     
     // Set completed_at when marking as completed
@@ -67,10 +77,29 @@ export class LeadTaskService {
       throw new Error('Failed to update task');
     }
 
+    // Log task update
+    if (leadId && oldTask) {
+      const changedFields = Object.keys(updates).filter(key => 
+        oldTask[key as keyof LeadTask] !== updates[key as keyof typeof updates]
+      );
+      
+      if (updates.status === 'completed' && oldTask.status !== 'completed') {
+        await leadActivityService.logTaskCompleted(leadId, oldTask.title);
+      } else if (changedFields.length > 0) {
+        const oldValues: Record<string, any> = {};
+        const newValues: Record<string, any> = {};
+        changedFields.forEach(field => {
+          oldValues[field] = oldTask[field as keyof LeadTask];
+          newValues[field] = updates[field as keyof typeof updates];
+        });
+        await leadActivityService.logTaskUpdated(leadId, oldTask.title, changedFields, oldValues, newValues);
+      }
+    }
+
     return data as LeadTask;
   }
 
-  static async deleteTask(id: string): Promise<void> {
+  static async deleteTask(id: string, leadId?: string, taskTitle?: string): Promise<void> {
     const { error } = await supabase
       .from('lead_tasks')
       .delete()
@@ -79,6 +108,11 @@ export class LeadTaskService {
     if (error) {
       console.error('Error deleting task:', error);
       throw new Error('Failed to delete task');
+    }
+
+    // Log task deletion
+    if (leadId && taskTitle) {
+      await leadActivityService.logTaskDeleted(leadId, taskTitle);
     }
   }
 

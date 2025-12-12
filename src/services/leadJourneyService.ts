@@ -134,18 +134,37 @@ export class LeadJourneyService {
 
   /**
    * Create a journey instance for a lead when they're associated with a program
+   * Initializes progress records for ALL stages (first is active, rest are pending)
    */
   static async createJourneyInstanceForLead(leadId: string, journeyId: string) {
     try {
-      // Get the first stage of the journey
-      const { data: stages } = await supabase
-        .from('journey_stages')
+      // Check if instance already exists
+      const { data: existing } = await supabase
+        .from('student_journey_instances')
         .select('id')
+        .eq('lead_id', leadId)
         .eq('journey_id', journeyId)
-        .order('order_index', { ascending: true })
-        .limit(1);
+        .eq('status', 'active')
+        .single();
 
-      const firstStageId = stages?.[0]?.id || null;
+      if (existing) {
+        console.log('Journey instance already exists for lead:', leadId);
+        return existing;
+      }
+
+      // Get ALL stages of the journey
+      const { data: allStages } = await supabase
+        .from('journey_stages')
+        .select('id, order_index')
+        .eq('journey_id', journeyId)
+        .order('order_index', { ascending: true });
+
+      if (!allStages || allStages.length === 0) {
+        console.error('No stages found for journey:', journeyId);
+        return null;
+      }
+
+      const firstStageId = allStages[0].id;
 
       // Create the journey instance
       const { data: instance, error } = await supabase
@@ -154,7 +173,7 @@ export class LeadJourneyService {
           lead_id: leadId,
           journey_id: journeyId,
           current_stage_id: firstStageId,
-          student_type: 'domestic', // Default student type
+          student_type: 'domestic',
           status: 'active',
           started_at: new Date().toISOString(),
           progress_data: {}
@@ -167,17 +186,20 @@ export class LeadJourneyService {
         return null;
       }
 
-      // Initialize progress for the first stage
-      if (firstStageId && instance) {
-        await supabase
-          .from('journey_stage_progress')
-          .insert({
-            journey_instance_id: instance.id,
-            stage_id: firstStageId,
-            status: 'active',
-            started_at: new Date().toISOString(),
-            completion_percentage: 0
-          });
+      // Initialize progress for ALL stages (first is active, rest are pending)
+      const progressRecords = allStages.map((stage, index) => ({
+        journey_instance_id: instance.id,
+        stage_id: stage.id,
+        status: index === 0 ? 'active' : 'pending',
+        started_at: index === 0 ? new Date().toISOString() : new Date().toISOString()
+      }));
+
+      const { error: progressError } = await supabase
+        .from('journey_stage_progress')
+        .insert(progressRecords);
+
+      if (progressError) {
+        console.error('Error creating stage progress:', progressError);
       }
 
       return instance;
@@ -313,8 +335,7 @@ export class LeadJourneyService {
           .from('journey_stage_progress')
           .update({
             status: 'completed',
-            completed_at: new Date().toISOString(),
-            completion_percentage: 100
+            completed_at: new Date().toISOString()
           })
           .eq('journey_instance_id', instance.id)
           .eq('stage_id', instance.current_stage_id);
@@ -342,9 +363,7 @@ export class LeadJourneyService {
             journey_instance_id: instance.id,
             stage_id: newStageId,
             status: 'active',
-            started_at: new Date().toISOString(),
-            completion_percentage: 0,
-            metadata: {}
+            started_at: new Date().toISOString()
           });
       } else {
         // Update existing progress to active

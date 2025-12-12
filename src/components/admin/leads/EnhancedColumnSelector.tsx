@@ -35,17 +35,27 @@ interface EnhancedColumnSelectorProps {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  core: 'Core Information',
-  location: 'Location',
-  activity: 'Activity Metrics',
-  engagement: 'Engagement',
-  marketing: 'Marketing & UTM',
-  system: 'System Fields',
-  lifecycle: 'Lifecycle Stages',
-  email: 'Email Preferences',
+  Core: 'Core Information',
+  Location: 'Location',
+  Activity: 'Activity Metrics',
+  Engagement: 'Engagement',
+  Conversion: 'Conversion',
+  Classification: 'Classification',
+  Scores: 'Scores',
+  Assignment: 'Assignment',
+  Program: 'Program & Intake',
+  Marketing: 'Marketing & UTM',
+  Email: 'Email Preferences',
+  System: 'System Fields',
+  Tags: 'Tags & Notes',
 };
 
-const CATEGORY_ORDER = ['core', 'location', 'activity', 'engagement', 'marketing', 'email', 'system', 'lifecycle'];
+const CATEGORY_ORDER = ['Core', 'Location', 'Activity', 'Engagement', 'Conversion', 'Classification', 'Scores', 'Assignment', 'Program', 'Marketing', 'Email', 'System', 'Tags'];
+
+const DEFAULT_VISIBLE_COLUMNS = [
+  'name', 'email', 'program_interest', 'phone', 'created_at', 
+  'source', 'last_activity', 'stage', 'priority', 'assigned_to'
+];
 
 export function EnhancedColumnSelector({
   columns,
@@ -131,11 +141,11 @@ export function EnhancedColumnSelector({
     onBulkVisibilityChange(columns.map(c => c.id), true);
   };
 
-  const hideAll = () => {
-    // Keep core columns visible
-    const coreIds = (groupedColumns['core'] || []).map(c => c.id);
-    const otherIds = columns.filter(c => !coreIds.includes(c.id)).map(c => c.id);
-    onBulkVisibilityChange(otherIds, false);
+  const resetToDefaults = () => {
+    // First hide all columns
+    onBulkVisibilityChange(columns.map(c => c.id), false);
+    // Then show only the default columns
+    onBulkVisibilityChange(DEFAULT_VISIBLE_COLUMNS, true);
   };
 
   return (
@@ -187,7 +197,7 @@ export function EnhancedColumnSelector({
           <Button
             variant="ghost"
             size="sm"
-            onClick={hideAll}
+            onClick={resetToDefaults}
             className="h-7 text-xs flex-1"
           >
             <EyeOff className="h-3 w-3 mr-1" />

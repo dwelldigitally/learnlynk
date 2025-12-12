@@ -496,9 +496,9 @@ export function SmartLeadTable({
       </div>
 
       {/* Desktop Table - HotSheet Style with Horizontal Scroll */}
-      <div className={cn("hidden md:block rounded-xl border border-border/40", resizingColumn && "select-none")}>
-        <div className="overflow-x-auto max-w-full" style={{ overflowX: 'auto' }}>
-          <table className="min-w-max w-full" style={{ minWidth: 'max-content' }}>
+      <div className={cn("hidden md:block rounded-xl border border-border/40 w-full", resizingColumn && "select-none")}>
+        <div className="overflow-x-auto">
+          <table className="w-full" style={{ minWidth: 'max-content' }}>
             <thead>
               <tr className="border-b border-border/40 bg-muted/20">
                 <th className="py-2.5 px-4 text-left sticky left-0 bg-muted/20 z-20" style={{ width: 48 }}>

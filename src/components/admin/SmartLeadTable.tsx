@@ -227,43 +227,46 @@ export function SmartLeadTable({
   // Fetch advisor names for assigned leads
   useEffect(() => {
     const fetchAdvisors = async () => {
-      const assignedIds = leads
+      // Get all unique assigned_to IDs that we haven't fetched yet
+      const idsToFetch = leads
         .map(l => l.assigned_to)
-        .filter((id): id is string => !!id && !advisorMap[id]);
+        .filter((id): id is string => !!id);
       
-      if (assignedIds.length === 0) return;
+      const uniqueIds = [...new Set(idsToFetch)];
+      const missingIds = uniqueIds.filter(id => !(id in advisorMap));
       
-      const uniqueIds = [...new Set(assignedIds)];
+      if (missingIds.length === 0) return;
       
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, first_name, last_name, email')
-        .in('user_id', uniqueIds);
+        .in('user_id', missingIds);
       
-      const newMap = { ...advisorMap };
-      // Mark all requested IDs - either with found data or as not found
-      uniqueIds.forEach(id => {
-        const profile = profiles?.find(p => p.user_id === id);
-        if (profile) {
-          const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Unknown';
-          newMap[id] = { name: fullName, email: profile.email || '' };
-        } else {
-          // Mark as not found so it doesn't keep loading
-          newMap[id] = { name: '', email: '' };
-        }
+      setAdvisorMap(prev => {
+        const newMap = { ...prev };
+        // Mark all requested IDs - either with found data or as not found
+        missingIds.forEach(id => {
+          const profile = profiles?.find(p => p.user_id === id);
+          if (profile) {
+            const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Unknown';
+            newMap[id] = { name: fullName, email: profile.email || '' };
+          } else {
+            // Mark as not found so it doesn't keep loading
+            newMap[id] = { name: '', email: '' };
+          }
+        });
+        return newMap;
       });
-      setAdvisorMap(newMap);
     };
     
     fetchAdvisors();
-  }, [leads]);
+  }, [leads, advisorMap]);
 
   // Helper to get advisor name
-  const getAdvisorName = (userId: string | undefined) => {
+  const getAdvisorName = (userId: string | undefined | null) => {
     if (!userId) return '';
-    const advisor = advisorMap[userId];
-    if (advisor === undefined) return 'Loading...';
-    return advisor.name || '';
+    if (!(userId in advisorMap)) return 'Loading...';
+    return advisorMap[userId]?.name || '';
   };
 
   // HotSheet pastel status colors

@@ -4443,6 +4443,57 @@ export type Database = {
           },
         ]
       }
+      lead_stage_history: {
+        Row: {
+          created_at: string
+          cumulative_time_seconds: number | null
+          entered_at: string
+          exited_at: string | null
+          id: string
+          latest_time_seconds: number | null
+          lead_id: string
+          stage: string
+          tenant_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          cumulative_time_seconds?: number | null
+          entered_at?: string
+          exited_at?: string | null
+          id?: string
+          latest_time_seconds?: number | null
+          lead_id: string
+          stage: string
+          tenant_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          cumulative_time_seconds?: number | null
+          entered_at?: string
+          exited_at?: string | null
+          id?: string
+          latest_time_seconds?: number | null
+          lead_id?: string
+          stage?: string
+          tenant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_stage_history_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_stage_history_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_tasks: {
         Row: {
           assigned_to: string | null
@@ -4514,21 +4565,39 @@ export type Database = {
           assignment_method:
             | Database["public"]["Enums"]["assignment_method"]
             | null
+          call_count: number | null
           city: string | null
           country: string | null
           created_at: string
+          created_by_user_id: string | null
           custom_data: Json | null
+          date_of_first_engagement: string | null
           email: string
+          first_conversion: string | null
+          first_conversion_date: string | null
           first_name: string
           id: string
           ip_address: unknown
           last_contacted_at: string | null
+          last_engagement_date: string | null
           last_name: string
+          latest_traffic_source_date: string | null
+          lead_response_time: number | null
           lead_score: number | null
+          lead_type: string | null
+          lifecycle_stage: string | null
           master_record_id: string | null
+          meeting_count: number | null
+          merge_record_ids: string[] | null
           next_follow_up_at: string | null
           notes: string | null
+          number_of_form_submissions: number | null
+          number_of_page_views: number | null
+          number_of_sales_activities: number | null
+          number_of_times_contacted: number | null
+          owner_assigned_date: string | null
           phone: string | null
+          postal_code: string | null
           preferred_intake_id: string | null
           priority: Database["public"]["Enums"]["lead_priority"]
           program_interest: string[] | null
@@ -4545,7 +4614,11 @@ export type Database = {
           substage: string | null
           tags: string[] | null
           tenant_id: string | null
+          time_to_first_touch: number | null
+          time_zone: string | null
+          unsubscribed_from_all_email: boolean | null
           updated_at: string
+          updated_by_user_id: string | null
           user_agent: string | null
           user_id: string | null
           utm_campaign: string | null
@@ -4562,21 +4635,39 @@ export type Database = {
           assignment_method?:
             | Database["public"]["Enums"]["assignment_method"]
             | null
+          call_count?: number | null
           city?: string | null
           country?: string | null
           created_at?: string
+          created_by_user_id?: string | null
           custom_data?: Json | null
+          date_of_first_engagement?: string | null
           email: string
+          first_conversion?: string | null
+          first_conversion_date?: string | null
           first_name: string
           id?: string
           ip_address?: unknown
           last_contacted_at?: string | null
+          last_engagement_date?: string | null
           last_name: string
+          latest_traffic_source_date?: string | null
+          lead_response_time?: number | null
           lead_score?: number | null
+          lead_type?: string | null
+          lifecycle_stage?: string | null
           master_record_id?: string | null
+          meeting_count?: number | null
+          merge_record_ids?: string[] | null
           next_follow_up_at?: string | null
           notes?: string | null
+          number_of_form_submissions?: number | null
+          number_of_page_views?: number | null
+          number_of_sales_activities?: number | null
+          number_of_times_contacted?: number | null
+          owner_assigned_date?: string | null
           phone?: string | null
+          postal_code?: string | null
           preferred_intake_id?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
@@ -4593,7 +4684,11 @@ export type Database = {
           substage?: string | null
           tags?: string[] | null
           tenant_id?: string | null
+          time_to_first_touch?: number | null
+          time_zone?: string | null
+          unsubscribed_from_all_email?: boolean | null
           updated_at?: string
+          updated_by_user_id?: string | null
           user_agent?: string | null
           user_id?: string | null
           utm_campaign?: string | null
@@ -4610,21 +4705,39 @@ export type Database = {
           assignment_method?:
             | Database["public"]["Enums"]["assignment_method"]
             | null
+          call_count?: number | null
           city?: string | null
           country?: string | null
           created_at?: string
+          created_by_user_id?: string | null
           custom_data?: Json | null
+          date_of_first_engagement?: string | null
           email?: string
+          first_conversion?: string | null
+          first_conversion_date?: string | null
           first_name?: string
           id?: string
           ip_address?: unknown
           last_contacted_at?: string | null
+          last_engagement_date?: string | null
           last_name?: string
+          latest_traffic_source_date?: string | null
+          lead_response_time?: number | null
           lead_score?: number | null
+          lead_type?: string | null
+          lifecycle_stage?: string | null
           master_record_id?: string | null
+          meeting_count?: number | null
+          merge_record_ids?: string[] | null
           next_follow_up_at?: string | null
           notes?: string | null
+          number_of_form_submissions?: number | null
+          number_of_page_views?: number | null
+          number_of_sales_activities?: number | null
+          number_of_times_contacted?: number | null
+          owner_assigned_date?: string | null
           phone?: string | null
+          postal_code?: string | null
           preferred_intake_id?: string | null
           priority?: Database["public"]["Enums"]["lead_priority"]
           program_interest?: string[] | null
@@ -4641,7 +4754,11 @@ export type Database = {
           substage?: string | null
           tags?: string[] | null
           tenant_id?: string | null
+          time_to_first_touch?: number | null
+          time_zone?: string | null
+          unsubscribed_from_all_email?: boolean | null
           updated_at?: string
+          updated_by_user_id?: string | null
           user_agent?: string | null
           user_id?: string | null
           utm_campaign?: string | null

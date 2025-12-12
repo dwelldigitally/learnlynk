@@ -58,8 +58,27 @@ export function LeadManagement() {
     updateColumns,
     updateColumnWidths,
     updateSort,
-    updatePageSize: updatePersistedPageSize
+    updatePageSize: updatePersistedPageSize,
+    toggleColumnVisibility
   } = useTablePreferences();
+
+  // Handler for single column visibility change
+  const handleColumnVisibilityChange = useCallback((columnId: string, visible: boolean) => {
+    setTableColumns(prev => {
+      const updated = prev.map(col => col.id === columnId ? { ...col, visible } : col);
+      updateColumns(updated);
+      return updated;
+    });
+  }, [updateColumns]);
+
+  // Handler for bulk column visibility change
+  const handleBulkColumnVisibilityChange = useCallback((columnIds: string[], visible: boolean) => {
+    setTableColumns(prev => {
+      const updated = prev.map(col => columnIds.includes(col.id) ? { ...col, visible } : col);
+      updateColumns(updated);
+      return updated;
+    });
+  }, [updateColumns]);
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -642,6 +661,8 @@ export function LeadManagement() {
                   columns={tableColumns}
                   initialColumnWidths={preferences.columnWidths}
                   onColumnWidthsChange={handleColumnWidthsChange}
+                  onColumnVisibilityChange={handleColumnVisibilityChange}
+                  onBulkColumnVisibilityChange={handleBulkColumnVisibilityChange}
                   initialSortColumn={sortBy}
                   initialSortOrder={sortOrder}
                 />

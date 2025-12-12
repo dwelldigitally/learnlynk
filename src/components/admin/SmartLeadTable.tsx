@@ -39,13 +39,23 @@ import {
   MoveHorizontal,
   Archive,
   Zap,
-  X
+  X,
+  MapPin,
+  Globe,
+  Hash,
+  Timer,
+  Users,
+  FileText,
+  CheckCircle,
+  XCircle,
+  Link2
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { Lead, LeadStatus, LeadPriority } from '@/types/lead';
 import { cn } from '@/lib/utils';
 import { MobileLeadCard } from './MobileLeadCard';
 import { useHasPermission } from '@/hooks/useHasPermission';
+import { EnhancedColumnSelector } from './leads/EnhancedColumnSelector';
 
 interface SmartLeadTableProps {
   leads: Lead[];
@@ -68,6 +78,8 @@ interface SmartLeadTableProps {
   columns?: ColumnConfig[];
   initialColumnWidths?: Record<string, number>;
   onColumnWidthsChange?: (widths: Record<string, number>) => void;
+  onColumnVisibilityChange?: (columnId: string, visible: boolean) => void;
+  onBulkColumnVisibilityChange?: (columnIds: string[], visible: boolean) => void;
   initialSortColumn?: string;
   initialSortOrder?: 'asc' | 'desc';
 }
@@ -81,6 +93,7 @@ interface ColumnConfig {
   width?: string;
   minWidth?: number;
   maxWidth?: number;
+  category?: string;
 }
 
 // Advisor name cache type
@@ -90,17 +103,17 @@ interface AdvisorInfo {
 }
 
 const DEFAULT_COLUMNS: ColumnConfig[] = [
-  { id: 'name', label: 'Name', visible: true, sortable: true, minWidth: 140, maxWidth: 220 },
-  { id: 'email', label: 'Email', visible: true, sortable: true, minWidth: 160, maxWidth: 260 },
-  { id: 'phone', label: 'Phone', visible: true, sortable: false, minWidth: 100, maxWidth: 160 },
-  { id: 'source', label: 'Source', visible: true, sortable: true, minWidth: 80, maxWidth: 130 },
-  { id: 'created_at', label: 'Created', visible: true, sortable: true, minWidth: 100, maxWidth: 160 },
-  { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false, minWidth: 100, maxWidth: 160 },
-  { id: 'stage', label: 'Stage', visible: true, sortable: true, minWidth: 80, maxWidth: 130 },
-  { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true, minWidth: 90, maxWidth: 130 },
-  { id: 'priority', label: 'Priority', visible: true, sortable: true, minWidth: 80, maxWidth: 120 },
-  { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false, minWidth: 120, maxWidth: 200 },
-  { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false, minWidth: 130, maxWidth: 200 },
+  { id: 'name', label: 'Name', visible: true, sortable: true, minWidth: 140, maxWidth: 220, category: 'core' },
+  { id: 'email', label: 'Email', visible: true, sortable: true, minWidth: 160, maxWidth: 260, category: 'core' },
+  { id: 'phone', label: 'Phone', visible: true, sortable: false, minWidth: 100, maxWidth: 160, category: 'core' },
+  { id: 'source', label: 'Source', visible: true, sortable: true, minWidth: 80, maxWidth: 130, category: 'core' },
+  { id: 'created_at', label: 'Created', visible: true, sortable: true, minWidth: 100, maxWidth: 160, category: 'core' },
+  { id: 'last_activity', label: 'Last Activity', visible: true, sortable: false, minWidth: 100, maxWidth: 160, category: 'core' },
+  { id: 'stage', label: 'Stage', visible: true, sortable: true, minWidth: 80, maxWidth: 130, category: 'core' },
+  { id: 'lead_score', label: 'Lead Score', visible: true, sortable: true, minWidth: 90, maxWidth: 130, category: 'core' },
+  { id: 'priority', label: 'Priority', visible: true, sortable: true, minWidth: 80, maxWidth: 120, category: 'core' },
+  { id: 'assigned_to', label: 'Assigned To', visible: true, sortable: false, minWidth: 120, maxWidth: 200, category: 'core' },
+  { id: 'suggested_action', label: 'Suggested Action', visible: true, sortable: false, minWidth: 130, maxWidth: 200, category: 'core' },
 ];
 
 export function SmartLeadTable({
@@ -124,6 +137,8 @@ export function SmartLeadTable({
   columns: propColumns,
   initialColumnWidths,
   onColumnWidthsChange,
+  onColumnVisibilityChange,
+  onBulkColumnVisibilityChange,
   initialSortColumn,
   initialSortOrder
 }: SmartLeadTableProps) {
@@ -469,30 +484,42 @@ export function SmartLeadTable({
         </div>
       )}
 
-      {/* Desktop Table - HotSheet Style */}
-      <div className={cn("hidden md:block overflow-hidden", resizingColumn && "select-none")}>
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ tableLayout: 'fixed' }}>
+      {/* Column Selector */}
+      <div className="hidden md:flex justify-end mb-2">
+        {onColumnVisibilityChange && onBulkColumnVisibilityChange && (
+          <EnhancedColumnSelector
+            columns={columns}
+            onColumnVisibilityChange={onColumnVisibilityChange}
+            onBulkVisibilityChange={onBulkColumnVisibilityChange}
+          />
+        )}
+      </div>
+
+      {/* Desktop Table - HotSheet Style with Horizontal Scroll */}
+      <div className={cn("hidden md:block overflow-hidden rounded-xl border border-border/40", resizingColumn && "select-none")}>
+        <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+          <table className="w-max min-w-full">
             <thead>
               <tr className="border-b border-border/40 bg-muted/20">
-                <th className="py-2.5 px-4 text-left" style={{ width: 48 }}>
+                <th className="py-2.5 px-4 text-left sticky left-0 bg-muted/20 z-20" style={{ width: 48 }}>
                   <Checkbox
                     checked={selectedLeadIds.length === leads.length && leads.length > 0}
                     onCheckedChange={onSelectAll}
                     className="rounded-md"
                   />
                 </th>
-                {visibleColumns.map((column) => (
+                {visibleColumns.map((column, idx) => (
                   <th 
                     key={column.id}
                     className={cn(
-                      "py-2.5 px-4 text-left font-medium text-muted-foreground text-xs group relative",
-                      column.sortable && "cursor-pointer hover:text-foreground transition-colors"
+                      "py-2.5 px-4 text-left font-medium text-muted-foreground text-xs group relative whitespace-nowrap",
+                      column.sortable && "cursor-pointer hover:text-foreground transition-colors",
+                      idx === 0 && "sticky left-12 bg-muted/20 z-20"
                     )}
-                    style={{ width: getColumnWidth(column.id) }}
+                    style={{ width: getColumnWidth(column.id), minWidth: column.minWidth }}
                     onClick={column.sortable ? () => handleSort(column.id) : undefined}
                   >
-                    <div className="flex items-center truncate pr-2">
+                    <div className="flex items-center pr-2">
                       {column.label}
                       {column.sortable && renderSortIcon(column.id)}
                     </div>
@@ -507,7 +534,7 @@ export function SmartLeadTable({
                     />
                   </th>
                 ))}
-                <th className="py-2.5 px-4 text-left font-medium text-muted-foreground text-xs" style={{ width: 60 }}>Actions</th>
+                <th className="py-2.5 px-4 text-left font-medium text-muted-foreground text-xs sticky right-0 bg-muted/20 z-20" style={{ width: 60 }}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -530,10 +557,46 @@ export function SmartLeadTable({
                   const ActionIcon = suggestedAction.icon;
                   
                   const renderCell = (columnId: string) => {
+                    // Helper to format duration in ms to readable string
+                    const formatDuration = (ms: number | undefined | null) => {
+                      if (!ms) return '—';
+                      const hours = Math.floor(ms / (1000 * 60 * 60));
+                      const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+                      if (hours > 24) {
+                        const days = Math.floor(hours / 24);
+                        return `${days}d ${hours % 24}h`;
+                      }
+                      if (hours > 0) return `${hours}h ${minutes}m`;
+                      return `${minutes}m`;
+                    };
+
+                    // Helper to format date
+                    const formatDate = (date: string | undefined | null) => {
+                      if (!date) return '—';
+                      try {
+                        return format(new Date(date), 'MMM d, yyyy');
+                      } catch {
+                        return '—';
+                      }
+                    };
+
+                    // Helper to format relative time
+                    const formatRelativeTime = (date: string | undefined | null) => {
+                      if (!date) return '—';
+                      try {
+                        return formatDistanceToNow(new Date(date), { addSuffix: true });
+                      } catch {
+                        return '—';
+                      }
+                    };
+
+                    // Get value from lead with any key
+                    const getValue = (key: string) => (lead as any)[key];
+
                     switch (columnId) {
                       case 'name':
                         return (
-                          <td className="py-2.5 px-4">
+                          <td className="py-2.5 px-4 sticky left-0 bg-background z-10">
                             <div className="flex items-center gap-2">
                               <Avatar className="h-7 w-7 border border-border/40">
                                 <AvatarFallback className="bg-muted/50 text-xs">
@@ -556,14 +619,14 @@ export function SmartLeadTable({
                       case 'phone':
                         return (
                           <td className="py-2.5 px-4">
-                            <span className="text-sm text-foreground">{lead.phone || '-'}</span>
+                            <span className="text-sm text-foreground">{lead.phone || '—'}</span>
                           </td>
                         );
                       case 'source':
                         return (
                           <td className="py-2.5 px-4">
                             <Badge variant="outline" className="text-xs rounded-full px-2 py-0.5 border-border/60 bg-muted/30">
-                              {lead.source.replace('_', ' ').toUpperCase()}
+                              {lead.source?.replace('_', ' ').toUpperCase() || '—'}
                             </Badge>
                           </td>
                         );
@@ -580,7 +643,7 @@ export function SmartLeadTable({
                               {lead.last_contacted_at ? (
                                 <>
                                   <Mail className="h-3.5 w-3.5 text-sky-400" />
-                                  <span className="text-sm text-foreground">{Math.floor((Date.now() - new Date(lead.last_contacted_at).getTime()) / (60 * 60 * 1000))}h ago</span>
+                                  <span className="text-sm text-foreground">{formatRelativeTime(lead.last_contacted_at)}</span>
                                 </>
                               ) : (
                                 <span className="text-sm text-muted-foreground">—</span>
@@ -592,7 +655,7 @@ export function SmartLeadTable({
                         return (
                           <td className="py-2.5 px-4">
                             <Badge className={cn("rounded-full px-2 py-0.5 text-xs font-medium border", getStatusColor(lead.status))}>
-                              {lead.status.toUpperCase()}
+                              {lead.status?.toUpperCase() || '—'}
                             </Badge>
                           </td>
                         );
@@ -632,8 +695,223 @@ export function SmartLeadTable({
                             </Badge>
                           </td>
                         );
+
+                      // Location columns
+                      case 'city':
+                      case 'state':
+                      case 'country':
+                      case 'postal_code':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="h-3.5 w-3.5 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground truncate">{getValue(columnId) || '—'}</span>
+                            </div>
+                          </td>
+                        );
+                      case 'time_zone':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <Globe className="h-3.5 w-3.5 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground truncate">{getValue(columnId) || '—'}</span>
+                            </div>
+                          </td>
+                        );
+
+                      // Activity metric columns (numbers)
+                      case 'call_count':
+                      case 'meeting_count':
+                      case 'number_of_sales_activities':
+                      case 'number_of_times_contacted':
+                      case 'number_of_form_submissions':
+                      case 'number_of_page_views':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-muted/50 border border-border/40">
+                              <Hash className="h-3 w-3 text-muted-foreground" />
+                              {getValue(columnId) ?? 0}
+                            </div>
+                          </td>
+                        );
+
+                      // Duration columns (ms to readable)
+                      case 'lead_response_time':
+                      case 'time_to_first_touch':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <Timer className="h-3.5 w-3.5 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground">{formatDuration(getValue(columnId))}</span>
+                            </div>
+                          </td>
+                        );
+
+                      // Date columns
+                      case 'first_conversion_date':
+                      case 'last_engagement_date':
+                      case 'date_of_first_engagement':
+                      case 'latest_traffic_source_date':
+                      case 'owner_assigned_date':
+                      case 'updated_at':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground">{formatDate(getValue(columnId))}</span>
+                          </td>
+                        );
+
+                      // Relative date columns
+                      case 'last_contacted_at':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground">{formatRelativeTime(getValue(columnId))}</span>
+                          </td>
+                        );
+
+                      // Days to intake
+                      case 'days_to_intake_start':
+                        const days = getValue(columnId);
+                        return (
+                          <td className="py-2.5 px-4">
+                            {days !== null && days !== undefined ? (
+                              <Badge variant="outline" className={cn(
+                                "text-xs rounded-full px-2 py-0.5",
+                                days <= 7 ? "border-rose-200 bg-rose-50 text-rose-600" :
+                                days <= 30 ? "border-amber-200 bg-amber-50 text-amber-600" :
+                                "border-border/60 bg-muted/30"
+                              )}>
+                                {days} days
+                              </Badge>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">—</span>
+                            )}
+                          </td>
+                        );
+
+                      // Boolean columns
+                      case 'unsubscribed_from_all_email':
+                        const unsubscribed = getValue(columnId);
+                        return (
+                          <td className="py-2.5 px-4">
+                            {unsubscribed ? (
+                              <Badge variant="outline" className="text-xs rounded-full px-2 py-0.5 border-rose-200 bg-rose-50 text-rose-600">
+                                <XCircle className="h-3 w-3 mr-1" />
+                                Unsubscribed
+                              </Badge>
+                            ) : (
+                              <Badge variant="outline" className="text-xs rounded-full px-2 py-0.5 border-emerald-200 bg-emerald-50 text-emerald-600">
+                                <CheckCircle className="h-3 w-3 mr-1" />
+                                Subscribed
+                              </Badge>
+                            )}
+                          </td>
+                        );
+
+                      // Text/string columns (first_conversion, lifecycle_stage, lead_type)
+                      case 'first_conversion':
+                      case 'lifecycle_stage':
+                      case 'lead_type':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground truncate">{getValue(columnId) || '—'}</span>
+                          </td>
+                        );
+
+                      // UTM/Marketing columns
+                      case 'utm_source':
+                      case 'utm_medium':
+                      case 'utm_campaign':
+                      case 'utm_content':
+                      case 'utm_term':
+                      case 'referrer_url':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <Link2 className="h-3.5 w-3.5 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground truncate max-w-[150px]">{getValue(columnId) || '—'}</span>
+                            </div>
+                          </td>
+                        );
+
+                      // AI Score
+                      case 'ai_score':
+                        const aiScore = getValue(columnId);
+                        return (
+                          <td className="py-2.5 px-4">
+                            {aiScore !== null && aiScore !== undefined ? (
+                              <div className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border", getScoreColor(aiScore))}>
+                                <Zap className="h-3 w-3" />
+                                {aiScore}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">—</span>
+                            )}
+                          </td>
+                        );
+
+                      // UUID columns (created_by, updated_by)
+                      case 'created_by_user_id':
+                      case 'updated_by_user_id':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <div className="flex items-center gap-1.5">
+                              <User className="h-3.5 w-3.5 text-muted-foreground/60" />
+                              <span className="text-sm text-foreground truncate">{getAdvisorName(getValue(columnId))}</span>
+                            </div>
+                          </td>
+                        );
+
+                      // Array columns (merge_record_ids, tags)
+                      case 'merge_record_ids':
+                      case 'tags':
+                        const arrValue = getValue(columnId);
+                        return (
+                          <td className="py-2.5 px-4">
+                            {Array.isArray(arrValue) && arrValue.length > 0 ? (
+                              <div className="flex items-center gap-1 flex-wrap">
+                                {arrValue.slice(0, 2).map((item, i) => (
+                                  <Badge key={i} variant="outline" className="text-xs rounded-full px-2 py-0.5 border-border/60 bg-muted/30">
+                                    {columnId === 'tags' ? item : item.slice(0, 8) + '...'}
+                                  </Badge>
+                                ))}
+                                {arrValue.length > 2 && (
+                                  <Badge variant="outline" className="text-xs rounded-full px-2 py-0.5 border-border/60 bg-muted/30">
+                                    +{arrValue.length - 2}
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">—</span>
+                            )}
+                          </td>
+                        );
+
+                      // Program interest
+                      case 'program_interest':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground truncate">{lead.program_interest || '—'}</span>
+                          </td>
+                        );
+
+                      // Record ID (id)
+                      case 'id':
+                        return (
+                          <td className="py-2.5 px-4">
+                            <span className="text-xs font-mono text-muted-foreground truncate max-w-[80px] block">{lead.id?.slice(0, 8)}...</span>
+                          </td>
+                        );
+
                       default:
-                        return <td className="py-2.5 px-4">-</td>;
+                        // Fallback for any other columns
+                        const val = getValue(columnId);
+                        return (
+                          <td className="py-2.5 px-4">
+                            <span className="text-sm text-foreground truncate">
+                              {val !== null && val !== undefined ? String(val) : '—'}
+                            </span>
+                          </td>
+                        );
                     }
                   };
                   

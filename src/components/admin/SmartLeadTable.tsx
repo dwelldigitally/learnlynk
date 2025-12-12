@@ -240,14 +240,19 @@ export function SmartLeadTable({
         .select('user_id, first_name, last_name, email')
         .in('user_id', uniqueIds);
       
-      if (profiles) {
-        const newMap = { ...advisorMap };
-        profiles.forEach(p => {
-          const fullName = [p.first_name, p.last_name].filter(Boolean).join(' ') || 'Unknown';
-          newMap[p.user_id] = { name: fullName, email: p.email || '' };
-        });
-        setAdvisorMap(newMap);
-      }
+      const newMap = { ...advisorMap };
+      // Mark all requested IDs - either with found data or as not found
+      uniqueIds.forEach(id => {
+        const profile = profiles?.find(p => p.user_id === id);
+        if (profile) {
+          const fullName = [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Unknown';
+          newMap[id] = { name: fullName, email: profile.email || '' };
+        } else {
+          // Mark as not found so it doesn't keep loading
+          newMap[id] = { name: '', email: '' };
+        }
+      });
+      setAdvisorMap(newMap);
     };
     
     fetchAdvisors();
@@ -255,8 +260,10 @@ export function SmartLeadTable({
 
   // Helper to get advisor name
   const getAdvisorName = (userId: string | undefined) => {
-    if (!userId) return 'Unassigned';
-    return advisorMap[userId]?.name || 'Loading...';
+    if (!userId) return '';
+    const advisor = advisorMap[userId];
+    if (advisor === undefined) return 'Loading...';
+    return advisor.name || '';
   };
 
   // HotSheet pastel status colors

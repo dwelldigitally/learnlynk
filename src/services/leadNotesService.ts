@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { LeadNote, NoteFormData } from '@/types/leadEnhancements';
-import { DummyLeadDataService } from './dummyLeadDataService';
+import { leadActivityService } from './leadActivityService';
 
 export class LeadNotesService {
   static async getNotes(leadId: string): Promise<LeadNote[]> {
@@ -42,10 +42,13 @@ export class LeadNotesService {
       throw new Error('Failed to create note');
     }
 
+    // Log note creation
+    await leadActivityService.logNoteAdded(leadId, noteData.content, noteData.note_type);
+
     return data as LeadNote;
   }
 
-  static async updateNote(id: string, updates: Partial<NoteFormData>): Promise<LeadNote> {
+  static async updateNote(id: string, updates: Partial<NoteFormData>, leadId?: string, oldNote?: LeadNote): Promise<LeadNote> {
     const { data, error } = await supabase
       .from('lead_notes')
       .update(updates)
@@ -58,10 +61,15 @@ export class LeadNotesService {
       throw new Error('Failed to update note');
     }
 
+    // Log note update
+    if (leadId && oldNote && updates.content && updates.content !== oldNote.content) {
+      await leadActivityService.logNoteUpdated(leadId, oldNote.content, updates.content);
+    }
+
     return data as LeadNote;
   }
 
-  static async deleteNote(id: string): Promise<void> {
+  static async deleteNote(id: string, leadId?: string, noteContent?: string): Promise<void> {
     const { error } = await supabase
       .from('lead_notes')
       .delete()
@@ -70,6 +78,11 @@ export class LeadNotesService {
     if (error) {
       console.error('Error deleting note:', error);
       throw new Error('Failed to delete note');
+    }
+
+    // Log note deletion
+    if (leadId && noteContent) {
+      await leadActivityService.logNoteDeleted(leadId, noteContent);
     }
   }
 

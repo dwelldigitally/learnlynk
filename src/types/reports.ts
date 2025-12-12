@@ -119,6 +119,12 @@ export interface DataSourceDefinition {
   table: string;
 }
 
+// Import lead properties from central definition
+import { getLeadPropertiesForReports } from '@/config/leadProperties';
+
+// Get lead fields from central definition
+const leadReportFields = getLeadPropertiesForReports();
+
 // Data source configurations with fields
 export const DATA_SOURCES: DataSourceDefinition[] = [
   {
@@ -128,19 +134,9 @@ export const DATA_SOURCES: DataSourceDefinition[] = [
     icon: 'Users',
     table: 'leads',
     fields: [
-      { name: 'id', label: 'Lead ID', type: 'string', category: 'dimension' },
-      { name: 'first_name', label: 'First Name', type: 'string', category: 'dimension' },
-      { name: 'last_name', label: 'Last Name', type: 'string', category: 'dimension' },
-      { name: 'email', label: 'Email', type: 'string', category: 'dimension' },
-      { name: 'status', label: 'Status', type: 'string', category: 'dimension' },
-      { name: 'source', label: 'Source', type: 'string', category: 'dimension' },
-      { name: 'priority', label: 'Priority', type: 'string', category: 'dimension' },
-      { name: 'country', label: 'Country', type: 'string', category: 'dimension' },
-      { name: 'program_interest', label: 'Program Interest', type: 'string', category: 'dimension' },
-      { name: 'lead_score', label: 'Lead Score', type: 'number', category: 'measure', aggregatable: true },
-      { name: 'ai_score', label: 'AI Score', type: 'number', category: 'measure', aggregatable: true },
-      { name: 'created_at', label: 'Created Date', type: 'date', category: 'date' },
-      { name: 'updated_at', label: 'Updated Date', type: 'date', category: 'date' },
+      ...leadReportFields.dimensions,
+      ...leadReportFields.measures,
+      ...leadReportFields.dates,
     ]
   },
   {

@@ -7,49 +7,19 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Plus, X, Check } from 'lucide-react';
 import { ConditionGroup, TriggerCondition } from '@/types/universalBuilder';
+import { 
+  getLeadPropertiesForBuilderFields, 
+  LEAD_PROPERTIES,
+  getLeadPropertyByKey 
+} from '@/config/leadProperties';
 
 interface TriggerConditionBuilderProps {
   conditionGroups: ConditionGroup[];
   onChange: (groups: ConditionGroup[]) => void;
 }
 
-const FIELDS = [
-  // Contact Information
-  { value: 'email', label: 'Email', type: 'text' },
-  { value: 'phone', label: 'Phone', type: 'text' },
-  { value: 'first_name', label: 'First Name', type: 'text' },
-  { value: 'last_name', label: 'Last Name', type: 'text' },
-  
-  // Demographics
-  { value: 'country', label: 'Country', type: 'select' },
-  { value: 'state', label: 'State/Province', type: 'select' },
-  { value: 'city', label: 'City', type: 'select' },
-  { value: 'student_type', label: 'Student Type', type: 'select' },
-  
-  // Academic Properties
-  { value: 'program_interest', label: 'Program Interest', type: 'array' },
-  { value: 'qualification_stage', label: 'Qualification Stage', type: 'select' },
-  { value: 'substage', label: 'Substage', type: 'select' },
-  { value: 'tags', label: 'Tags', type: 'array' },
-  
-  // Source Tracking
-  { value: 'source', label: 'Lead Source', type: 'select' },
-  { value: 'utm_source', label: 'UTM Source', type: 'text' },
-  { value: 'utm_medium', label: 'UTM Medium', type: 'text' },
-  { value: 'utm_campaign', label: 'UTM Campaign', type: 'text' },
-  
-  // Engagement Metrics
-  { value: 'lead_score', label: 'Lead Score', type: 'numeric' },
-  { value: 'ai_score', label: 'AI Score', type: 'numeric' },
-  { value: 'priority', label: 'Priority', type: 'select' },
-  { value: 'status', label: 'Status', type: 'select' },
-  
-  // Date Fields
-  { value: 'created_at', label: 'Created Date', type: 'date' },
-  { value: 'last_contacted_at', label: 'Last Contacted Date', type: 'date' },
-  { value: 'next_follow_up_at', label: 'Next Follow-up Date', type: 'date' },
-  { value: 'assigned_at', label: 'Assigned Date', type: 'date' }
-];
+// Get fields from central lead properties definition
+const FIELDS = getLeadPropertiesForBuilderFields();
 
 const TEXT_OPERATORS = [
   { value: 'is_known', label: 'is known' },
@@ -98,16 +68,19 @@ const SELECT_OPERATORS = [
   { value: 'is_not_one_of', label: 'is not one of' }
 ];
 
-const FIELD_VALUES = {
-  source: ['Web', 'Social Media', 'Event', 'Agent', 'Email', 'Referral', 'Phone', 'Walk-in', 'Chatbot', 'Ads', 'Forms'],
-  student_type: ['Domestic', 'International'],
-  priority: ['Low', 'Medium', 'High'],
-  status: ['New', 'Contacted', 'Qualified', 'Unqualified', 'Converted', 'Lost'],
-  qualification_stage: ['New', 'Qualifying', 'Qualified', 'Application', 'Enrolled'],
-  program_interest: ['Health Care Assistant', 'Aviation', 'Education Assistant', 'Hospitality', 'ECE', 'MLA'],
-  country: ['Canada', 'United States', 'India', 'Philippines', 'Nigeria', 'Pakistan', 'Bangladesh'],
-  state: ['Manitoba', 'Ontario', 'British Columbia', 'Alberta', 'Saskatchewan', 'Quebec']
-};
+// Get field options from central definition
+function getFieldOptions(fieldKey: string): string[] {
+  const prop = getLeadPropertyByKey(fieldKey);
+  if (prop?.options) {
+    return prop.options.map(o => o.label);
+  }
+  // Fallback for legacy fields
+  const LEGACY_FIELD_VALUES: Record<string, string[]> = {
+    country: ['Canada', 'United States', 'India', 'Philippines', 'Nigeria', 'Pakistan', 'Bangladesh'],
+    state: ['Manitoba', 'Ontario', 'British Columbia', 'Alberta', 'Saskatchewan', 'Quebec']
+  };
+  return LEGACY_FIELD_VALUES[fieldKey] || [];
+}
 
 export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerConditionBuilderProps) {
   const mainGroup = conditionGroups[0] || { id: 'main', operator: 'OR' as const, conditions: [] };
@@ -166,7 +139,7 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
 
     const field = FIELDS.find(f => f.value === condition.field);
     const fieldType = field?.type || 'text';
-    const options = FIELD_VALUES[condition.field as keyof typeof FIELD_VALUES] || [];
+    const options = getFieldOptions(condition.field);
 
     // Numeric input
     if (fieldType === 'numeric' || condition.fieldType === 'numeric') {
@@ -355,6 +328,14 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
     );
   };
 
+  // Group fields by category for better organization
+  const groupedFields = FIELDS.reduce((acc, field) => {
+    const category = field.category || 'Other';
+    if (!acc[category]) acc[category] = [];
+    acc[category].push(field);
+    return acc;
+  }, {} as Record<string, typeof FIELDS>);
+
   return (
     <div className="space-y-4">
       <Card>
@@ -404,7 +385,7 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
           {/* Conditions List */}
           {conditions.length === 0 && (
             <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg">
-              No conditions defined. Click "Add Condition" below to set when this campaign should trigger.
+              No conditions defined. Click "Add Condition" below to set when this automation should trigger.
             </div>
           )}
 
@@ -420,7 +401,7 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
                 >
                   <Check className="h-4 w-4 text-muted-foreground shrink-0" />
                   
-                  {/* Field Select */}
+                  {/* Field Select with grouped options */}
                   <Select
                     value={condition.field}
                     onValueChange={(value) => {
@@ -434,14 +415,21 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
                       });
                     }}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[200px]">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
-                      {FIELDS.map(field => (
-                        <SelectItem key={field.value} value={field.value}>
-                          {field.label}
-                        </SelectItem>
+                    <SelectContent className="max-h-[400px]">
+                      {Object.entries(groupedFields).map(([category, fields]) => (
+                        <div key={category}>
+                          <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                            {category}
+                          </div>
+                          {fields.map(f => (
+                            <SelectItem key={f.value} value={f.value}>
+                              {f.label}
+                            </SelectItem>
+                          ))}
+                        </div>
                       ))}
                     </SelectContent>
                   </Select>
@@ -475,9 +463,9 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="icon"
                     onClick={() => removeCondition(condition.id)}
-                    className="ml-auto shrink-0 text-destructive hover:text-destructive"
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -487,14 +475,13 @@ export function TriggerConditionBuilder({ conditionGroups, onChange }: TriggerCo
           </div>
 
           {/* Add Condition Button */}
-          <Button 
+          <Button
             type="button"
+            variant="outline"
             onClick={addCondition}
-            variant="outline" 
-            size="sm"
-            className="w-full border-dashed"
+            className="w-full gap-2"
           >
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="h-4 w-4" />
             Add Condition
           </Button>
         </CardContent>

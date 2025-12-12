@@ -186,7 +186,7 @@ export function LeadPropertiesTab() {
   const handleSave = async (data: any) => {
     if (selectedProperty) {
       await updateProperty.mutateAsync({ id: selectedProperty.id, data });
-    } else {
+    } else if (activeSubTab !== 'all_properties') {
       await createProperty.mutateAsync({ category: activeSubTab, data });
     }
     setEditorOpen(false);

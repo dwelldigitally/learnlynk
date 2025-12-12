@@ -12,8 +12,8 @@ import { LeadStage, LeadStatus, LeadSource, LeadPriority } from '@/types/lead';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { EnhancedColumnSelector } from './EnhancedColumnSelector';
 
 export interface ColumnConfig {
   id: string;
@@ -45,6 +45,8 @@ interface UnifiedLeadHeaderProps {
   onSearch?: (query: string) => void;
   columns?: ColumnConfig[];
   onColumnsChange?: (columns: ColumnConfig[]) => void;
+  onColumnVisibilityChange?: (columnId: string, visible: boolean) => void;
+  onBulkColumnVisibilityChange?: (columnIds: string[], visible: boolean) => void;
 }
 export function UnifiedLeadHeader({
   stages,
@@ -60,7 +62,9 @@ export function UnifiedLeadHeader({
   onImport,
   onSearch,
   columns = [],
-  onColumnsChange
+  onColumnsChange,
+  onColumnVisibilityChange,
+  onBulkColumnVisibilityChange
 }: UnifiedLeadHeaderProps) {
   const navigate = useNavigate();
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -200,49 +204,12 @@ export function UnifiedLeadHeader({
             >
               <Copy className="h-4 w-4" />
             </Button>
-            {columns.length > 0 && onColumnsChange && (
-              <DropdownMenu open={showColumnSettings} onOpenChange={setShowColumnSettings}>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="shrink-0 min-h-[44px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
-                    <Settings2 className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Columns</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 bg-popover z-50 rounded-xl border-border/60 p-3">
-                  <div>
-                    <div className="text-sm font-medium mb-3 text-foreground">Manage Columns</div>
-                    <div className="space-y-1.5">
-                      {columns.map((column) => (
-                        <div 
-                          key={column.id}
-                          className="flex items-center justify-between p-2.5 rounded-xl hover:bg-muted/50 cursor-move bg-popover transition-colors"
-                          draggable
-                          onDragStart={() => handleDragStart(column.id)}
-                          onDragOver={(e) => handleDragOver(e, column.id)}
-                          onDragEnd={handleDragEnd}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <GripVertical className="h-4 w-4 text-muted-foreground/60" />
-                            <span className="text-sm">{column.label}</span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 w-7 p-0 rounded-lg hover:bg-muted"
-                            onClick={() => toggleColumnVisibility(column.id)}
-                          >
-                            {column.visible ? (
-                              <Eye className="h-4 w-4 text-primary" />
-                            ) : (
-                              <EyeOff className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
+            {columns.length > 0 && onColumnVisibilityChange && onBulkColumnVisibilityChange && (
+              <EnhancedColumnSelector
+                columns={columns}
+                onColumnVisibilityChange={onColumnVisibilityChange}
+                onBulkVisibilityChange={onBulkColumnVisibilityChange}
+              />
             )}
             <Button variant="outline" onClick={onImport} className="shrink-0 min-h-[44px] rounded-xl border-border/60 hover:bg-muted/50 hover:border-primary/30 transition-all">
               <Upload className="w-4 h-4 sm:mr-2" />

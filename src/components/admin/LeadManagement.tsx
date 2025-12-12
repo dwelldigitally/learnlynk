@@ -614,6 +614,8 @@ export function LeadManagement() {
             onSearch={handleSearch}
             columns={tableColumns}
             onColumnsChange={handleColumnsChange}
+            onColumnVisibilityChange={handleColumnVisibilityChange}
+            onBulkColumnVisibilityChange={handleBulkColumnVisibilityChange}
           />
         </div>
       </div>

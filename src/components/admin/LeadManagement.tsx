@@ -595,7 +595,7 @@ export function LeadManagement() {
     }
   ];
   return (
-    <div className="h-full flex flex-col bg-background">
+    <div className="h-full flex flex-col bg-background overflow-hidden">
       {/* Modern Header - HotSheet Style */}
       <div className="border-b border-border/40 bg-card">
         <div className="px-4 sm:px-8 py-6 sm:py-8">
@@ -619,8 +619,8 @@ export function LeadManagement() {
       </div>
 
       {/* Main Content - Table with HotSheet Styling */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
-        <div className="p-4 sm:p-8">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
+        <div className="p-4 sm:p-8 w-full max-w-full">
           <ConditionalDataWrapper
             isLoading={loading}
             showEmptyState={!hasDemoAccess && leads.length === 0}
@@ -630,7 +630,7 @@ export function LeadManagement() {
             emptyDescription="Create your first lead to get started with lead management."
             loadingRows={5}
           >
-            <div className="bg-card rounded-2xl border border-border/40">
+            <div className="bg-card rounded-2xl border border-border/40 w-full max-w-full overflow-hidden">
               <SmartLeadTable
                   leads={leads}
                   loading={loading}

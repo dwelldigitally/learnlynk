@@ -522,6 +522,18 @@ export default function LeadDetailTestPage() {
               <Edit className="h-4 w-4 mr-2" />
               Edit Lead
             </Button>
+            {lead.phone && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => {
+                  window.open(`tel:${lead.phone}`, '_self');
+                }}
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                Call
+              </Button>
+            )}
             <AppointmentBookingButton 
               leadId={leadId || ''} 
               leadName={`${lead.first_name} ${lead.last_name}`}

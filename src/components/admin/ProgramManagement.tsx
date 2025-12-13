@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useConditionalData } from '@/hooks/useConditionalData';
+import { useConditionalPrograms } from '@/hooks/useConditionalPrograms';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
 import { ProgramService } from '@/services/programService';
 import { supabase } from '@/integrations/supabase/client';
@@ -35,7 +35,7 @@ const ProgramManagement: React.FC = () => {
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   // Data hooks
-  const programsData = useConditionalData(['programs'], () => [], ProgramService.getPrograms);
+  const programsData = useConditionalPrograms();
 
   // Hook to get enrollment data for real programs including intake capacities
   const {

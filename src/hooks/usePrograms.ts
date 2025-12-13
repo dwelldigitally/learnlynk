@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useTenant } from '@/contexts/TenantContext';
 
 export interface Program {
   id: string;
@@ -13,19 +14,20 @@ export interface Program {
 }
 
 /**
- * Hook to fetch programs from the database
+ * Hook to fetch programs from the database (tenant-scoped)
  */
 export function usePrograms() {
+  const { tenantId } = useTenant();
+  
   return useQuery({
-    queryKey: ['programs'],
+    queryKey: ['programs', tenantId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return [];
+      if (!tenantId) return [];
 
       const { data, error } = await supabase
         .from('programs')
         .select('id, name, description, type, duration, enrollment_status, created_at, updated_at')
-        .eq('user_id', user.id)
+        .eq('tenant_id', tenantId)
         .order('name', { ascending: true });
 
       if (error) {
@@ -35,6 +37,7 @@ export function usePrograms() {
 
       return (data || []) as Program[];
     },
+    enabled: !!tenantId,
   });
 }
 

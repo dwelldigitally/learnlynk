@@ -18,7 +18,6 @@ import {
 import { toast } from 'sonner';
 import { MicrosoftGraphService } from '@/services/microsoftGraphService';
 import { format } from 'date-fns';
-import { generateDummyEmails, type DummyEmail } from '@/services/dummyEmailService';
 
 interface OutlookEmail {
   id: string;
@@ -69,30 +68,33 @@ export function OutlookEmailWidget() {
     }
   };
 
-  const convertDummyEmailToOutlookEmail = (dummyEmail: DummyEmail): OutlookEmail => {
-    return {
-      id: dummyEmail.id,
-      subject: dummyEmail.subject,
-      sender: {
-        emailAddress: {
-          name: dummyEmail.from_name,
-          address: dummyEmail.from_email
-        }
-      },
-      receivedDateTime: dummyEmail.received_datetime,
-      bodyPreview: dummyEmail.body_preview,
-      importance: dummyEmail.importance,
-      isRead: dummyEmail.is_read,
-      hasAttachments: dummyEmail.has_attachments
-    };
-  };
-
   const loadDemoEmails = () => {
     setLoading(true);
     try {
-      const dummyEmails = generateDummyEmails();
-      const convertedEmails = dummyEmails.map(convertDummyEmailToOutlookEmail);
-      setEmails(convertedEmails);
+      // Generate sample demo emails inline
+      const sampleEmails: OutlookEmail[] = [
+        {
+          id: 'demo-1',
+          subject: 'Welcome to LearnLynk',
+          sender: { emailAddress: { name: 'Support Team', address: 'support@learnlynk.com' } },
+          receivedDateTime: new Date().toISOString(),
+          bodyPreview: 'Welcome to LearnLynk! Get started with your CRM today.',
+          importance: 'normal',
+          isRead: false,
+          hasAttachments: false
+        },
+        {
+          id: 'demo-2',
+          subject: 'Program Inquiry',
+          sender: { emailAddress: { name: 'John Smith', address: 'john.smith@email.com' } },
+          receivedDateTime: new Date(Date.now() - 3600000).toISOString(),
+          bodyPreview: 'I am interested in learning more about your healthcare programs.',
+          importance: 'high',
+          isRead: false,
+          hasAttachments: false
+        }
+      ];
+      setEmails(sampleEmails);
     } catch (error) {
       console.error('Error loading demo emails:', error);
       toast.error('Failed to load demo emails');

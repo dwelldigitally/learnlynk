@@ -16,7 +16,6 @@ import { User, Bell, Shield, Settings, Upload, Save, Mail, Phone, MapPin, Globe,
 import { PageHeader } from '@/components/modern/PageHeader';
 import { useMvpMode } from "@/contexts/MvpModeContext";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { DemoDataService, useDemoDataAccess } from "@/services/demoDataService";
 import { useQueryClient } from "@tanstack/react-query";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
@@ -66,10 +65,7 @@ const ProfilePage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const { settings, updateSettings, connectOutlook, disconnectOutlook, loading: settingsLoading } = useUserSettings();
   const [emailSignature, setEmailSignature] = useState('');
-  const [showDemoConfirm, setShowDemoConfirm] = useState(false);
-  const [demoActionType, setDemoActionType] = useState<'enable' | 'disable'>('enable');
   const queryClient = useQueryClient();
-  const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
   
   // Change password state
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
@@ -256,51 +252,6 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleToggleDemoMode = (enable: boolean) => {
-    setDemoActionType(enable ? 'enable' : 'disable');
-    setShowDemoConfirm(true);
-  };
-
-  const handleConfirmDemoToggle = async () => {
-    try {
-      const enable = demoActionType === 'enable';
-      const success = await DemoDataService.assignDemoDataToUser(
-        profileData.email || '',
-        enable
-      );
-
-      if (success) {
-        // Invalidate all data queries to refresh with/without demo data
-        queryClient.invalidateQueries();
-        
-        toast({
-          title: enable ? "Demo Mode Enabled" : "Demo Mode Disabled",
-          description: enable 
-            ? "Sample data has been imported. Refresh the page to see the changes."
-            : "Demo data has been removed. Your real data is now displayed.",
-        });
-
-        // Reload the page to show updated data
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
-      } else {
-        toast({
-          title: "Error",
-          description: "Failed to toggle demo mode. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error toggling demo mode:', error);
-      toast({
-        title: "Error",
-        description: "An error occurred while toggling demo mode.",
-        variant: "destructive",
-      });
-    }
-    setShowDemoConfirm(false);
-  };
 
   return (
     <div className="p-4 sm:p-6 md:px-[100px] md:py-[50px] max-w-6xl mx-auto space-y-6 md:space-y-8">
@@ -774,124 +725,10 @@ const ProfilePage: React.FC = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Demo Mode Section */}
-              <div className="mt-6 p-6 border border-border rounded-lg bg-muted/30">
-                <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <Database className="h-5 w-5 text-primary" />
-                        <h3 className="text-lg font-semibold">Demo Mode</h3>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant={hasDemoAccess ? "default" : "secondary"} className="text-xs">
-                            {isDemoLoading ? "Checking..." : hasDemoAccess ? "Enabled" : "Disabled"}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {hasDemoAccess 
-                            ? "Demo data is currently active. Sample data is displayed when you don't have real data."
-                            : "Demo mode is disabled. You'll see empty states until you add your own data."
-                          }
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{hasDemoAccess ? "On" : "Off"}</p>
-                        <p className="text-xs text-muted-foreground">Status</p>
-                      </div>
-                      <Switch
-                        checked={hasDemoAccess || false}
-                        onCheckedChange={handleToggleDemoMode}
-                        disabled={isDemoLoading}
-                        className="data-[state=checked]:bg-primary"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Info Box */}
-                  <div className="flex gap-3 p-4 rounded-lg bg-background/50 border border-border/50">
-                    <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
-                    <div className="space-y-2 flex-1">
-                      <p className="text-sm font-medium">What is Demo Mode?</p>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Demo mode imports sample data to showcase the full capabilities of the CRM. This includes sample leads, students, programs, communications, financial records, events, and more.
-                      </p>
-                      <div className="mt-3 pt-3 border-t border-border/50">
-                        <div className="flex items-start gap-2">
-                          <AlertCircle className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                          <p className="text-xs text-muted-foreground">
-                            Your real data remains unchanged. Demo data is automatically hidden once you add your own data.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Sample Data List */}
-                  {hasDemoAccess && (
-                    <div className="p-4 rounded-lg bg-background/30 border border-border/30">
-                      <p className="text-sm font-medium mb-3">Includes Sample Data:</p>
-                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <span>15+ Sample Leads</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <span>10+ Students</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <span>5+ Programs</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <span>Sample Communications</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <span>Financial Records</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                          <span>Events & More</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Demo Mode Confirmation Dialog */}
-      <AlertDialog open={showDemoConfirm} onOpenChange={setShowDemoConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {demoActionType === 'enable' ? 'Enable Demo Mode?' : 'Disable Demo Mode?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {demoActionType === 'enable' 
-                ? 'This will import sample data across all sections of the CRM to showcase its capabilities. Your real data will remain unchanged and will take priority over demo data.'
-                : 'This will remove access to demo data. You will see empty states in sections where you haven\'t added your own data yet.'
-              }
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDemoToggle}>
-              {demoActionType === 'enable' ? 'Enable Demo Mode' : 'Disable Demo Mode'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Change Password Dialog */}
       <Dialog open={showPasswordDialog} onOpenChange={(open) => {

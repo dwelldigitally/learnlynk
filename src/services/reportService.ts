@@ -2,7 +2,6 @@ import { supabase } from '@/integrations/supabase/client';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import { saveAs } from 'file-saver';
-import { DemoDataService } from './demoDataService';
 
 export interface PTIRUStudentData {
   institutionId: string;
@@ -34,48 +33,28 @@ export class ReportService {
    */
   static async generatePTIRUStudentReport(): Promise<void> {
     try {
-      // Check if user has demo data enabled
-      const { data: hasDemoData } = await supabase.rpc('user_has_demo_data');
-      
       let studentData: PTIRUStudentData[] = [];
       
-      if (hasDemoData) {
-        // Use demo data
-        const demoStudents = DemoDataService.getDemoStudents();
-        studentData = demoStudents.map(student => ({
-          institutionId: 'WCC',
-          studentId: student.student_id,
-          firstName: student.first_name,
-          lastName: student.last_name,
-          program: student.program,
-          location: student.city || 'Vancouver, BC',
-          enrollmentDate: new Date().toISOString().split('T')[0],
-          stage: student.stage,
-          progress: student.progress || 0,
-          deleteFlag: false
-        }));
-      } else {
-        // Fetch real student data
-        const { data: students, error } = await supabase
+      // Fetch real student data
+      const { data: students, error } = await supabase
           .from('students')
           .select('*')
           .limit(1000);
           
-        if (error) throw error;
-        
-        studentData = (students || []).map(student => ({
-          institutionId: 'WCC',
-          studentId: student.student_id,
-          firstName: student.first_name,
-          lastName: student.last_name,
-          program: student.program,
-          location: `${student.city || 'Vancouver'}, ${student.state || 'BC'}`,
-          enrollmentDate: student.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-          stage: student.stage,
-          progress: student.progress || 0,
-          deleteFlag: false
-        }));
-      }
+      if (error) throw error;
+      
+      studentData = (students || []).map(student => ({
+        institutionId: 'WCC',
+        studentId: student.student_id,
+        firstName: student.first_name,
+        lastName: student.last_name,
+        program: student.program,
+        location: `${student.city || 'Vancouver'}, ${student.state || 'BC'}`,
+        enrollmentDate: student.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+        stage: student.stage,
+        progress: student.progress || 0,
+        deleteFlag: false
+      }));
 
       // Create CSV content
       const headers = [

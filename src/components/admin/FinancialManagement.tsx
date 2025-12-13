@@ -23,7 +23,6 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useConditionalData } from '@/hooks/useConditionalData';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
-import { DemoDataService } from '@/services/demoDataService';
 import { FinancialService } from '@/services/financialService';
 import { ProgramService } from '@/services/programService';
 import { EnhancedProgramFeeModal } from "./modals/EnhancedProgramFeeModal";
@@ -57,13 +56,13 @@ const FinancialManagement = () => {
   // Data hooks
   const financialData = useConditionalData(
     ['financial-records'],
-    DemoDataService.getDemoFinancialRecords,
+    () => [],
     FinancialService.getFinancialRecords
   );
   
   const programsData = useConditionalData(
     ['programs'],
-    DemoDataService.getDemoPrograms,
+    () => [],
     ProgramService.getPrograms
   );
 

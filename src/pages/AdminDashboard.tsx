@@ -27,7 +27,7 @@ import { LeadAnalytics } from "@/components/admin/leads/LeadAnalytics";
 import { LeadAdvancedAnalytics } from "@/components/admin/leads/LeadAdvancedAnalytics";
 
 import { ConfigurationManagement } from "@/components/admin/ConfigurationManagement";
-import { DemoDataManagement } from "@/components/admin/DemoDataManagement";
+
 import { CampaignManagement } from "@/components/admin/CampaignManagement";
 
 import { RequirementsManagement } from "@/components/admin/database/RequirementsManagement";
@@ -200,8 +200,7 @@ const AdminDashboard: React.FC = () => {
         return <EnhancedIntegrationHub />;
       case "/admin/integrations/hubspot/callback":
         return <HubSpotOAuthCallback />;
-      case "/admin/demo-data":
-        return <DemoDataManagement />;
+      case "/admin/profile":
       case "/admin/profile":
         return <ProfilePage />;
       case "/admin/campaigns":

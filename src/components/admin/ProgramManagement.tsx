@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useConditionalData } from '@/hooks/useConditionalData';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
-import { DemoDataService } from '@/services/demoDataService';
 import { ProgramService } from '@/services/programService';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -36,7 +35,7 @@ const ProgramManagement: React.FC = () => {
   const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   // Data hooks
-  const programsData = useConditionalData(['programs'], DemoDataService.getDemoPrograms, ProgramService.getPrograms);
+  const programsData = useConditionalData(['programs'], () => [], ProgramService.getPrograms);
 
   // Hook to get enrollment data for real programs including intake capacities
   const {

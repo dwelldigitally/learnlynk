@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useConditionalData } from './useConditionalData';
-import { DemoDataService } from '@/services/demoDataService';
 
 export interface AcademicTerm {
   id: string;
@@ -27,7 +26,7 @@ export interface AcademicTerm {
 export function useAcademicTerms() {
   return useConditionalData(
     ['academic-terms'],
-    () => DemoDataService.getDemoAcademicTerms() as AcademicTerm[],
+    () => [] as AcademicTerm[],
     async () => {
       const { data, error } = await supabase
         .from('academic_terms')

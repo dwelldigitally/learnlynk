@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useConditionalData } from '@/hooks/useConditionalData';
 import { ConditionalDataWrapper } from './ConditionalDataWrapper';
-import { DemoDataService } from '@/services/demoDataService';
 import { EventService } from '@/services/eventService';
 import { 
   Dialog,
@@ -52,7 +51,7 @@ const EventManagement: React.FC = () => {
   // Data hooks
   const eventsData = useConditionalData(
     ['events'],
-    DemoDataService.getDemoEvents,
+    () => [],
     EventService.getEvents
   );
 

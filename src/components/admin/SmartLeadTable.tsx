@@ -264,9 +264,9 @@ export function SmartLeadTable({
 
   // Helper to get advisor name
   const getAdvisorName = (userId: string | undefined | null) => {
-    if (!userId) return '';
+    if (!userId) return 'Unassigned';
     if (!(userId in advisorMap)) return 'Loading...';
-    return advisorMap[userId]?.name || '';
+    return advisorMap[userId]?.name || 'Unassigned';
   };
 
   // HotSheet pastel status colors

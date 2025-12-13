@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target, MapPin, DollarSign, Phone } from "lucide-react";
 import { AircallPhoneWidget } from "./integrations/AircallPhoneWidget";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMvpMode } from "@/contexts/MvpModeContext";
+import { useTenant } from "@/contexts/TenantContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CONFIGURATION_GROUPS } from "./ConfigurationSidebar";
@@ -29,9 +31,40 @@ export function TopNavigationBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
+  const [aircallOpen, setAircallOpen] = useState(false);
+  const [tenantHasAircall, setTenantHasAircall] = useState(false);
   const { signOut } = useAuth();
   const { isMvpMode } = useMvpMode();
+  const { tenantId } = useTenant();
   const isMobile = useIsMobile();
+
+  // Check if tenant has Aircall connected
+  useEffect(() => {
+    if (tenantId) {
+      checkAircallConnection();
+    }
+  }, [tenantId]);
+
+  const checkAircallConnection = async () => {
+    if (!tenantId) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('tenant_aircall_connections')
+        .select('is_active, connection_status')
+        .eq('tenant_id', tenantId)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking Aircall connection:', error);
+        return;
+      }
+
+      setTenantHasAircall(data?.is_active && data?.connection_status === 'connected');
+    } catch (error) {
+      console.error('Error checking tenant Aircall connection:', error);
+    }
+  };
 
   // Filter configuration groups based on MVP mode
   const visibleConfigGroups = CONFIGURATION_GROUPS.filter(group => {
@@ -123,6 +156,23 @@ export function TopNavigationBar() {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
+          {/* Aircall Phone Button - only show if tenant has Aircall connected */}
+          {tenantHasAircall && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setAircallOpen(true)} 
+                  className="hidden lg:flex text-white hover:bg-white/10 relative"
+                >
+                  <Phone className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent><p>Aircall Phone</p></TooltipContent>
+            </Tooltip>
+          )}
+
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={() => navigate('/admin/communication/ai-emails')} className={cn("hidden lg:flex text-white hover:bg-white/10 relative", isActive('/admin/communication/ai-emails') && "bg-white/20")}>
@@ -245,8 +295,8 @@ export function TopNavigationBar() {
 
       <UniversalTaskModal open={taskModalOpen} onOpenChange={setTaskModalOpen} />
       
-      {/* Global Aircall Phone Widget */}
-      <AircallPhoneWidget />
+      {/* Global Aircall Phone Widget - controlled by parent */}
+      <AircallPhoneWidget isOpen={aircallOpen} onOpenChange={setAircallOpen} />
     </>
   );
 }

@@ -35,7 +35,7 @@ import { DocumentTemplatesManagement } from "@/components/admin/DocumentTemplate
 import { ReportsManagement } from "@/components/admin/ReportsManagement";
 import { CompanySettings } from "@/components/admin/CompanySettings";
 import { IntakeManagementStandalone } from "@/components/admin/IntakeManagementStandalone";
-import { IntegrationHub } from "@/components/admin/database/IntegrationHub";
+import { EnhancedIntegrationHub } from "@/components/admin/database/EnhancedIntegrationHub";
 import { LeadWorkflowHub } from "@/components/admin/leads/LeadWorkflowHub";
 import { StudentPortalManagement } from "@/components/admin/StudentPortalManagement";
 import { PracticumDashboard } from './admin/practicum/PracticumDashboard';
@@ -197,7 +197,7 @@ const AdminDashboard: React.FC = () => {
         window.history.replaceState(null, '', '/admin/configuration');
         return <ConfigurationManagement />;
       case "/admin/database/integrations":
-        return <IntegrationHub />;
+        return <EnhancedIntegrationHub />;
       case "/admin/integrations/hubspot/callback":
         return <HubSpotOAuthCallback />;
       case "/admin/demo-data":

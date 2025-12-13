@@ -14,6 +14,7 @@ import { StripeSyncDashboard } from '../stripe/StripeSyncDashboard';
 import { useStripeSyncStatus } from '@/services/stripeDataService';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PageHeader } from '@/components/modern/PageHeader';
+import { AircallIntegrationSettings } from '../integrations/AircallIntegrationSettings';
 interface IntegrationField {
   key: string;
   label: string;
@@ -949,6 +950,9 @@ export const EnhancedIntegrationHub = () => {
         </TabsContent>
 
         <TabsContent value="communication" className="space-y-4">
+          {/* Aircall - Primary calling integration */}
+          <AircallIntegrationSettings />
+          
           {communicationIntegrations.map(integration => <IntegrationCard key={integration.id} integration={integration} />)}
         </TabsContent>
 

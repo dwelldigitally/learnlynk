@@ -25,11 +25,15 @@ declare global {
 }
 
 interface AircallPhoneWidgetProps {
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onCallStart?: (callInfo: any) => void;
   onCallEnd?: (callInfo: any) => void;
 }
 
 export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
+  isOpen: externalIsOpen,
+  onOpenChange,
   onCallStart,
   onCallEnd
 }) => {
@@ -40,7 +44,10 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
   const phoneRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const [isOpen, setIsOpen] = useState(false);
+  // Use external control if provided, otherwise internal state
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+  const setIsOpen = onOpenChange || setInternalIsOpen;
   const [isLoading, setIsLoading] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [tenantHasAircall, setTenantHasAircall] = useState(false);
@@ -325,19 +332,22 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="relative"
-          title="Open Aircall Phone"
-        >
-          <Phone className="h-4 w-4" />
-          {currentCall && (
-            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-500 animate-pulse" />
-          )}
-        </Button>
-      </SheetTrigger>
+      {/* Only render trigger button if not externally controlled */}
+      {externalIsOpen === undefined && (
+        <SheetTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            className="relative"
+            title="Open Aircall Phone"
+          >
+            <Phone className="h-4 w-4" />
+            {currentCall && (
+              <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-500 animate-pulse" />
+            )}
+          </Button>
+        </SheetTrigger>
+      )}
       
       <SheetContent side="right" className="w-[380px] sm:w-[400px] p-0">
         <SheetHeader className="p-4 border-b">

@@ -88,6 +88,7 @@ export interface Lead {
   program_interest: string[];
   intake_period?: string;
   preferred_intake_id?: string;
+  preferred_campus_id?: string;
   academic_term_id?: string;
   assigned_to?: string;
   assigned_at?: string;
@@ -283,7 +284,7 @@ export const LEAD_PROPERTY_CATEGORIES = {
   },
   program: {
     label: 'Program & Intake',
-    properties: ['program_interest', 'preferred_intake_id', 'academic_term_id', 'intake_period', 'days_to_intake_start']
+    properties: ['program_interest', 'preferred_intake_id', 'preferred_campus_id', 'academic_term_id', 'intake_period', 'days_to_intake_start']
   },
   marketing: {
     label: 'Marketing / UTM',
@@ -369,6 +370,7 @@ export const LEAD_PROPERTY_METADATA: Record<string, {
   // Program & Intake
   program_interest: { label: 'Program Interest', type: 'array', editable: true },
   preferred_intake_id: { label: 'Preferred Intake', type: 'text', editable: true },
+  preferred_campus_id: { label: 'Preferred Campus', type: 'text', editable: true, description: 'The campus where the lead prefers to study' },
   academic_term_id: { label: 'Academic Term', type: 'text', editable: true },
   intake_period: { label: 'Intake Period', type: 'text', editable: true },
   days_to_intake_start: { label: 'Days to Intake Start', type: 'number', editable: false, description: 'Days until the intake starts' },

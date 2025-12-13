@@ -146,12 +146,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    // Create demo data assignment for new user
-    if (data.user && !error) {
-      const { DemoDataService } = await import('@/services/demoDataService');
-      await DemoDataService.createDemoDataAssignment(data.user.id, email);
-    }
-    
     return { error };
   };
 

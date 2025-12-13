@@ -25,7 +25,6 @@ import CommunicationHub from './CommunicationHub';
 import { AdvancedLeadAnalyticsDashboard } from './AdvancedLeadAnalyticsDashboard';
 import { UnifiedLeadHeader, ColumnConfig } from './leads/UnifiedLeadHeader';
 import { ImportDialog } from './bulk/dialogs/ImportDialog';
-import { useDemoDataAccess } from '@/services/demoDataService';
 import { useTablePreferences } from '@/hooks/useTablePreferences';
 import { useDuplicateStats, useDuplicatePreventionSetting } from '@/hooks/useDuplicateDetection';
 import { useHasPermissions } from '@/hooks/useHasPermission';
@@ -128,10 +127,6 @@ export function LeadManagement() {
   const {
     toast
   } = useToast();
-  const {
-    data: hasDemoAccess,
-    isLoading: demoAccessLoading
-  } = useDemoDataAccess();
 
   // STEP 1: Simple, non-reactive functions to stop infinite loop
   const loadLeads = async () => {
@@ -663,9 +658,9 @@ export function LeadManagement() {
         <div className="p-4 sm:p-8 w-full max-w-full">
           <ConditionalDataWrapper
             isLoading={loading}
-            showEmptyState={!hasDemoAccess && leads.length === 0}
-            hasDemoAccess={hasDemoAccess || false}
-            hasRealData={leads.length > 0 && !leads.some((lead) => lead.id.startsWith('demo-'))}
+            showEmptyState={leads.length === 0}
+            hasDemoAccess={false}
+            hasRealData={leads.length > 0}
             emptyTitle="No Leads Yet"
             emptyDescription="Create your first lead to get started with lead management."
             loadingRows={5}

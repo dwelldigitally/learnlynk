@@ -24,7 +24,6 @@ import { useNotifications } from "@/hooks/useNotifications";
 import { GlobalSearchResults } from "./dashboard/GlobalSearchResults";
 import { GlobalSearchService, GlobalSearchResponse, GlobalSearchResult } from "@/services/globalSearchService";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useDemoDataAccess } from '@/services/demoDataService';
 import { useDashboardStats, formatCurrency } from '@/hooks/useDashboardStats';
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
@@ -45,7 +44,6 @@ const AdminHome: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const { data: hasDemoAccess, isLoading: isDemoLoading } = useDemoDataAccess();
   const { data: dashboardStats, isLoading: statsLoading } = useDashboardStats();
   const [searchQuery, setSearchQuery] = useState("");
   const [showCommunicationModal, setShowCommunicationModal] = useState(false);
@@ -547,7 +545,7 @@ const AdminHome: React.FC = () => {
                   </HotSheetTabsList>
 
                   <TabsContent value="urgent" className="space-y-3">
-                    {hasDemoAccess && priorityActions.length > 0 ? (
+                    {priorityActions.length > 0 ? (
                       priorityActions.map(action => (
                         <PriorityActionCard key={action.id} action={action} />
                       ))
@@ -620,7 +618,7 @@ const AdminHome: React.FC = () => {
             </HotSheetCard>
 
             {/* Quick Insights */}
-            {hasDemoAccess ? (
+            {revenueData.length > 0 ? (
               <QuickInsightsChart title="Revenue Trend" type="line" data={revenueData} />
             ) : (
               <HotSheetCard padding="none">
@@ -676,10 +674,10 @@ const AdminHome: React.FC = () => {
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-sm font-semibold text-foreground">My Tasks</h3>
                         <PastelBadge color="slate" size="sm">
-                          {hasDemoAccess ? mockTasks.length : 0}
+                          {mockTasks.length}
                         </PastelBadge>
                       </div>
-                      {hasDemoAccess && mockTasks.length > 0 ? (
+                      {mockTasks.length > 0 ? (
                         mockTasks.map(task => (
                           <div 
                             key={task.id} 

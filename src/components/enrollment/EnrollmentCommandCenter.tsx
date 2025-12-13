@@ -13,7 +13,6 @@ import { YieldBandFilter } from './YieldBandFilter';
 import { ActionFilters } from './ActionFilters';
 import { BulkActionsToolbar } from './BulkActionsToolbar';
 import { BulkActionDialog } from './BulkActionDialog';
-import { enrollmentSeedService } from '@/services/enrollmentSeedService';
 
 interface ActionQueueItem {
   id: string;
@@ -81,27 +80,6 @@ export function EnrollmentCommandCenter() {
 
   const loadActionQueue = async () => {
     try {
-      // Clear existing data and reseed with updated action types
-      const { data: existingData } = await supabase
-        .from('action_queue')
-        .select('id')
-        .eq('user_id', user?.id);
-
-      if (existingData && existingData.length > 0) {
-        console.log('Clearing existing action queue data...');
-        await supabase
-          .from('action_queue')
-          .delete()
-          .eq('user_id', user?.id);
-      }
-
-      console.log('Seeding fresh action queue data...');
-      await enrollmentSeedService.seedActionQueue();
-        
-      toast({
-        title: "Data Refreshed",
-        description: "Action queue data has been updated with proper filtering support",
-      });
 
       // Load both action_queue and student_actions for comprehensive view
       const [actionQueueResult, studentActionsResult] = await Promise.all([

@@ -20,10 +20,10 @@ export function AIAssignDialog({ open, onOpenChange, onSuccess, selectedItems }:
   const [recommendations, setRecommendations] = useState<any[]>([]);
   const { performAIAssignment } = useAIActions();
   const { toast } = useToast();
-  const { data: teamMembers = [] } = useTeamMembers();
+  const { teamMembers, loading: advisorsLoading } = useTeamMembers();
 
   // Filter to advisors only
-  const advisors = teamMembers.filter(m => m.role === 'advisor' || m.app_role === 'advisor');
+  const advisors = teamMembers;
 
   const handleAnalyze = async () => {
     if (advisors.length === 0) {

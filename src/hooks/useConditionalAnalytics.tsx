@@ -1,13 +1,12 @@
 import { useConditionalData } from './useConditionalData';
-import { DemoDataService } from '@/services/demoDataService';
 
 /**
- * Hook to conditionally load analytics demo data or show empty state
+ * Hook to conditionally load analytics data
  */
 export function useConditionalAnalytics() {
   return useConditionalData(
     ['analytics'],
-    () => [DemoDataService.getDemoAnalytics()], // Wrap in array
+    () => [],
     undefined // No real analytics service yet
   );
 }

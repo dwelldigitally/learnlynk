@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Database, CheckCircle, AlertCircle, Clock, Upload } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { enrollmentSeedService } from '@/services/enrollmentSeedService';
 
 interface IntegrationStatus {
   name: string;
@@ -78,9 +77,6 @@ export function IntegrationsDashboard() {
   const handleRunCSVJob = async () => {
     setIsRunningJob(true);
     try {
-      // Seed the database with new actions
-      await enrollmentSeedService.seedActionQueue();
-      
       // Update CSV Bridge integration status
       const updatedIntegrations = integrations.map(integration => 
         integration.name === 'CSV Bridge' 
@@ -98,7 +94,7 @@ export function IntegrationsDashboard() {
 
       toast({
         title: "CSV Job Completed",
-        description: `25 new actions created from CSV import`,
+        description: `Data refreshed successfully`,
       });
     } catch (error) {
       console.error('Error running CSV job:', error);

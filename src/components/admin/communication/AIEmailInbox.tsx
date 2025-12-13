@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, Search, Filter, Star, Clock, User, Brain, TrendingUp, MessageSquare, FileText, AlertCircle, CheckCircle2, Zap } from 'lucide-react';
-import { generateDummyEmails, getHighPriorityEmails, getUnreadEmails } from '@/services/dummyEmailService';
 import { EmailImportDialog } from './EmailImportDialog';
 import { EmailService } from '@/services/emailService';
 import { useToast } from '@/hooks/use-toast';
@@ -30,10 +29,7 @@ export function AIEmailInbox() {
   const {
     toast
   } = useToast();
-  const dummyEmails = generateDummyEmails();
-  const allEmails = [...realEmails, ...dummyEmails];
-  const highPriorityEmails = getHighPriorityEmails();
-  const unreadEmails = getUnreadEmails();
+  const allEmails = realEmails;
   const loadRealEmails = async () => {
     setLoading(true);
     try {

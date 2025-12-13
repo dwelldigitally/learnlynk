@@ -1,6 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
 import { Lead, LeadActivity, LeadFormData, LeadAssignmentRequest, LeadSearchFilters, LeadStatus } from '@/types/lead';
-import { DemoDataService } from './demoDataService';
 
 export interface EnhancedLeadFilters extends LeadSearchFilters {
   search?: string;
@@ -44,22 +43,6 @@ export class EnhancedLeadService {
 
     console.log('Fetching leads for user:', user.id);
 
-    // Check for demo data
-    const hasDemoData = await DemoDataService.hasUserDemoData();
-    console.log('User has demo data access:', hasDemoData);
-    
-    const { data: userLeads, count: userLeadsCount } = await supabase
-      .from('leads')
-      .select('id', { count: 'exact', head: true })
-      .eq('user_id', user.id);
-
-    console.log('User leads count:', userLeadsCount, 'User leads data:', userLeads);
-
-    // Return demo data if applicable
-    if (hasDemoData && (userLeadsCount === 0 || userLeadsCount === null)) {
-      console.log('Returning demo data because user has demo access and no real leads');
-      return this.getDemoDataResponse(page, pageSize, filters);
-    }
 
     // Ensure page size doesn't exceed maximum
     const limitedPageSize = Math.min(pageSize, this.MAX_PAGE_SIZE);
@@ -354,40 +337,6 @@ export class EnhancedLeadService {
       totalPages: 0,
       hasNextPage: false,
       hasPrevPage: false
-    };
-  }
-
-  private static getDemoDataResponse(page: number, pageSize: number, filters?: EnhancedLeadFilters): LeadListResponse {
-    let demoLeads = DemoDataService.getDemoLeads() as Lead[];
-
-    if (filters?.search) {
-      const searchTerm = filters.search.toLowerCase();
-      demoLeads = demoLeads.filter(lead =>
-        `${lead.first_name} ${lead.last_name}`.toLowerCase().includes(searchTerm) ||
-        lead.email.toLowerCase().includes(searchTerm) ||
-        (lead.phone && lead.phone.toLowerCase().includes(searchTerm))
-      );
-    }
-
-    if (filters?.status && filters.status.length > 0) {
-      demoLeads = demoLeads.filter(lead => filters.status!.includes(lead.status));
-    }
-
-    const total = demoLeads.length;
-    const totalPages = Math.ceil(total / pageSize);
-    const offset = (page - 1) * pageSize;
-    const paginatedLeads = demoLeads.slice(offset, offset + pageSize).map(lead => ({
-      ...lead,
-      ip_address: String(lead.ip_address || '')
-    }));
-
-    return {
-      leads: paginatedLeads as Lead[],
-      total,
-      currentPage: page,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
     };
   }
 

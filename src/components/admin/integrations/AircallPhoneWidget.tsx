@@ -124,13 +124,14 @@ export const AircallPhoneWidget: React.FC<AircallPhoneWidgetProps> = ({
     setPhoneLoadFailed(false);
     
     try {
-      const { default: AircallPhone } = await import('aircall-everywhere');
+      const { default: AircallWorkspace } = await import('aircall-everywhere');
       
-      phoneRef.current = new AircallPhone({
-        domToLoadPhone: '#aircall-phone-container',
+      phoneRef.current = new AircallWorkspace({
+        domToLoadWorkspace: '#aircall-phone-container',
         onLogin: handleLogin,
         onLogout: handleLogout,
-        debug: true // Enable debug for troubleshooting
+        size: 'big',
+        debug: true
       });
 
       phoneRef.current.on('incoming_call', handleIncomingCall);

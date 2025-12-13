@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
-import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, User } from 'lucide-react';
+import { ArrowLeft, MessageSquare, FileText, Clock, Users, Route, Bot, User, Brain } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Lead, LeadStatus } from '@/types/lead';
 import { LeadService } from '@/services/leadService';
@@ -9,6 +9,7 @@ import { EnhancedLeadSidebar } from '@/components/admin/leads/EnhancedLeadSideba
 import { EnhancedRightSidebar } from '@/components/admin/leads/EnhancedRightSidebar';
 import { AgenticAIIndicator } from '@/components/admin/leads/AgenticAIIndicator';
 import { MobileLeadInfoSheet } from '@/components/admin/leads/MobileLeadInfoSheet';
+import { AIScoreBreakdown } from '@/components/admin/leads/AIScoreBreakdown';
 
 import { CommunicationHub } from '@/components/admin/leads/CommunicationHub';
 import { DocumentsSection } from '@/components/admin/leads/DocumentsSection';
@@ -190,9 +191,12 @@ export default function LeadDetailPage() {
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex-1 p-4 sm:p-6">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
-              <HotSheetTabsList className="flex overflow-x-auto md:grid md:grid-cols-6 mb-6 w-full">
+              <HotSheetTabsList className="flex overflow-x-auto md:grid md:grid-cols-7 mb-6 w-full">
                 <HotSheetTabsTrigger value="journey" icon={<Route className="h-4 w-4" />}>
                   <span className="hidden sm:inline">Journey</span>
+                </HotSheetTabsTrigger>
+                <HotSheetTabsTrigger value="ai-score" icon={<Brain className="h-4 w-4" />}>
+                  <span className="hidden sm:inline">AI Score</span>
                 </HotSheetTabsTrigger>
                 <HotSheetTabsTrigger value="ai-plays" icon={<Bot className="h-4 w-4" />}>
                   <span className="hidden sm:inline">AI Plays</span>
@@ -214,6 +218,10 @@ export default function LeadDetailPage() {
               <div className="flex-1">
                 <TabsContent value="journey" className="m-0">
                   <AcademicJourneyTracker lead={lead} onUpdate={() => { loadLead(); triggerTimelineRefresh(); }} />
+                </TabsContent>
+
+                <TabsContent value="ai-score" className="m-0">
+                  <AIScoreBreakdown leadId={lead.id} />
                 </TabsContent>
 
                 <TabsContent value="ai-plays" className="m-0">

@@ -8,8 +8,11 @@ export function useAIScoring() {
   const { toast } = useToast();
   const [isCalculating, setIsCalculating] = useState(false);
   const [isTraining, setIsTraining] = useState(false);
+  const [isBackfilling, setIsBackfilling] = useState(false);
+  const [isScoringAll, setIsScoringAll] = useState(false);
   const [model, setModel] = useState<AIModelInfo | null>(null);
   const [trainingStats, setTrainingStats] = useState<TrainingDataStats | null>(null);
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null);
 
   const calculateScore = useCallback(async (leadId: string): Promise<AIScoreResult | null> => {
     if (!tenantId) return null;
@@ -34,10 +37,14 @@ export function useAIScoring() {
     if (!tenantId) return new Map<string, AIScoreResult>();
     
     setIsCalculating(true);
+    setProgress({ completed: 0, total: leadIds.length });
     try {
-      return await aiScoringService.calculateScoresBatch(leadIds, tenantId);
+      return await aiScoringService.calculateScoresBatch(leadIds, tenantId, (completed, total) => {
+        setProgress({ completed, total });
+      });
     } finally {
       setIsCalculating(false);
+      setProgress(null);
     }
   }, [tenantId]);
 
@@ -98,12 +105,73 @@ export function useAIScoring() {
     return aiScoringService.getModelAccuracy(tenantId);
   }, [tenantId]);
 
+  const backfillTrainingData = useCallback(async () => {
+    if (!tenantId) return { success: 0, failed: 0 };
+    
+    setIsBackfilling(true);
+    setProgress({ completed: 0, total: 0 });
+    try {
+      const result = await aiScoringService.backfillTrainingData(tenantId, (completed, total) => {
+        setProgress({ completed, total });
+      });
+      
+      if (result.success > 0) {
+        toast({
+          title: 'Training data backfilled',
+          description: `Captured ${result.success} lead outcomes for training`
+        });
+        await loadTrainingStats();
+      }
+      
+      return result;
+    } finally {
+      setIsBackfilling(false);
+      setProgress(null);
+    }
+  }, [tenantId, toast, loadTrainingStats]);
+
+  const scoreAllLeads = useCallback(async () => {
+    if (!tenantId) return { success: 0, failed: 0 };
+    
+    setIsScoringAll(true);
+    setProgress({ completed: 0, total: 0 });
+    try {
+      const result = await aiScoringService.scoreAllLeads(tenantId, (completed, total) => {
+        setProgress({ completed, total });
+      });
+      
+      toast({
+        title: 'Batch scoring complete',
+        description: `Scored ${result.success} leads${result.failed > 0 ? `, ${result.failed} failed` : ''}`
+      });
+      
+      return result;
+    } finally {
+      setIsScoringAll(false);
+      setProgress(null);
+    }
+  }, [tenantId, toast]);
+
+  const trainAndScoreAll = useCallback(async () => {
+    if (!tenantId) return;
+    
+    // First train the model
+    const trainResult = await trainModel(true);
+    if (!trainResult?.success) return;
+    
+    // Then score all active leads
+    await scoreAllLeads();
+  }, [tenantId, trainModel, scoreAllLeads]);
+
   return {
     // State
     isCalculating,
     isTraining,
+    isBackfilling,
+    isScoringAll,
     model,
     trainingStats,
+    progress,
     
     // Actions
     calculateScore,
@@ -113,6 +181,9 @@ export function useAIScoring() {
     loadModel,
     loadTrainingStats,
     getScoreHistory,
-    getModelAccuracy
+    getModelAccuracy,
+    backfillTrainingData,
+    scoreAllLeads,
+    trainAndScoreAll
   };
 }

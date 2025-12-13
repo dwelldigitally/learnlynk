@@ -75,11 +75,13 @@ export const aiScoringService = {
   /**
    * Calculate AI scores for multiple leads in batch
    */
-  async calculateScoresBatch(leadIds: string[], tenantId: string): Promise<Map<string, AIScoreResult>> {
+  async calculateScoresBatch(leadIds: string[], tenantId: string, onProgress?: (completed: number, total: number) => void): Promise<Map<string, AIScoreResult>> {
     const results = new Map<string, AIScoreResult>();
     
     // Process in parallel batches of 10
     const batchSize = 10;
+    let completed = 0;
+    
     for (let i = 0; i < leadIds.length; i += batchSize) {
       const batch = leadIds.slice(i, i + batchSize);
       const promises = batch.map(leadId => 
@@ -90,6 +92,9 @@ export const aiScoringService = {
       batchResults.forEach(({ leadId, result }) => {
         results.set(leadId, result);
       });
+      
+      completed += batch.length;
+      onProgress?.(completed, leadIds.length);
     }
     
     return results;
@@ -235,6 +240,89 @@ export const aiScoringService = {
     } catch (error) {
       console.error('Error fetching model accuracy:', error);
       return { total: 0, accurate: 0, accuracy_rate: 0 };
+    }
+  },
+
+  /**
+   * Backfill training data from existing converted/lost leads
+   */
+  async backfillTrainingData(tenantId: string, onProgress?: (completed: number, total: number) => void): Promise<{ success: number; failed: number }> {
+    try {
+      // Get all leads with known outcomes that don't have training data yet
+      const { data: existingTrainingData } = await supabase
+        .from('ai_scoring_training_data')
+        .select('lead_id')
+        .eq('tenant_id', tenantId);
+
+      const existingLeadIds = new Set(existingTrainingData?.map(d => d.lead_id) || []);
+
+      const { data: leads, error } = await supabase
+        .from('leads')
+        .select('id, status')
+        .eq('tenant_id', tenantId)
+        .in('status', ['converted', 'lost']);
+
+      if (error) throw error;
+
+      // Filter leads that don't have training data yet
+      const leadsToBackfill = (leads || []).filter(lead => !existingLeadIds.has(lead.id));
+      
+      let success = 0;
+      let failed = 0;
+      
+      for (let i = 0; i < leadsToBackfill.length; i++) {
+        const lead = leadsToBackfill[i];
+        try {
+          const result = await this.snapshotTrainingData(
+            lead.id, 
+            tenantId, 
+            lead.status.toLowerCase() as 'converted' | 'lost'
+          );
+          if (result) {
+            success++;
+          } else {
+            failed++;
+          }
+        } catch {
+          failed++;
+        }
+        onProgress?.(i + 1, leadsToBackfill.length);
+      }
+
+      return { success, failed };
+    } catch (error) {
+      console.error('Error in backfillTrainingData:', error);
+      return { success: 0, failed: 0 };
+    }
+  },
+
+  /**
+   * Score all active leads for a tenant
+   */
+  async scoreAllLeads(tenantId: string, onProgress?: (completed: number, total: number) => void): Promise<{ success: number; failed: number }> {
+    try {
+      const { data: leads, error } = await supabase
+        .from('leads')
+        .select('id')
+        .eq('tenant_id', tenantId)
+        .not('status', 'in', '("converted","lost")');
+
+      if (error) throw error;
+
+      const leadIds = (leads || []).map(l => l.id);
+      const results = await this.calculateScoresBatch(leadIds, tenantId, onProgress);
+
+      let success = 0;
+      let failed = 0;
+      results.forEach(result => {
+        if (result.success) success++;
+        else failed++;
+      });
+
+      return { success, failed };
+    } catch (error) {
+      console.error('Error in scoreAllLeads:', error);
+      return { success: 0, failed: 0 };
     }
   }
 };

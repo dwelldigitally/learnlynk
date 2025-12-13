@@ -29,6 +29,7 @@ import { useDemoDataAccess } from '@/services/demoDataService';
 import { useTablePreferences } from '@/hooks/useTablePreferences';
 import { useDuplicateStats, useDuplicatePreventionSetting } from '@/hooks/useDuplicateDetection';
 import { useHasPermissions } from '@/hooks/useHasPermission';
+import { useSystemProperties } from '@/hooks/useSystemProperties';
 import { Plus, Filter, Download, UserPlus, Settings, Target, BarChart, Upload, FileX, Zap, Search, Users, Phone, Mail, Calendar, Star, AlertTriangle, TrendingUp, Activity, CheckCircle, Clock, User, Tag, ArrowRight, Copy, ShieldCheck } from 'lucide-react';
 import {
   DropdownMenu,
@@ -120,14 +121,10 @@ export function LeadManagement() {
     }>,
     programs: [] as string[]
   });
-  const [stageStats, setStageStats] = useState([
-    { key: 'NEW_INQUIRY', label: 'New Inquiry', count: 0, color: 'bg-sky-400' },
-    { key: 'REQUIREMENTS_APPROVED', label: 'Requirements Approved', count: 0, color: 'bg-amber-400' },
-    { key: 'PAYMENT_RECEIVED', label: 'Payment Received', count: 0, color: 'bg-emerald-400' },
-    { key: 'REGISTERED', label: 'Registered', count: 0, color: 'bg-violet-400' },
-    { key: 'ADMITTED', label: 'Admitted', count: 0, color: 'bg-indigo-400' },
-    { key: 'DISMISSED', label: 'Dismissed', count: 0, color: 'bg-rose-400' }
-  ]);
+  // Fetch lifecycle stages from system properties
+  const { properties: lifecycleStages, isLoading: lifecycleStagesLoading } = useSystemProperties('lifecycle_stage');
+  
+  const [stageStats, setStageStats] = useState<Array<{ key: string; label: string; count: number; color: string }>>([]);
   const {
     toast
   } = useToast();
@@ -172,19 +169,47 @@ export function LeadManagement() {
       setLoading(false);
     }
   };
+  // Convert hex color to tailwind bg class
+  const hexToTailwindBg = (hex: string): string => {
+    const colorMap: Record<string, string> = {
+      '#38BDF8': 'bg-sky-400',
+      '#FBBF24': 'bg-amber-400',
+      '#34D399': 'bg-emerald-400',
+      '#A78BFA': 'bg-violet-400',
+      '#818CF8': 'bg-indigo-400',
+      '#F87171': 'bg-rose-400',
+      '#10B981': 'bg-emerald-500',
+      '#3B82F6': 'bg-blue-500',
+      '#8B5CF6': 'bg-violet-500',
+      '#F59E0B': 'bg-amber-500',
+      '#EF4444': 'bg-red-500',
+      '#EC4899': 'bg-pink-500',
+      '#06B6D4': 'bg-cyan-500',
+    };
+    return colorMap[hex] || 'bg-muted';
+  };
+
   const loadStageStats = async () => {
     try {
-      // Calculate stage stats from current leads
+      // Calculate stage stats from current leads using lifecycle_stage
       const stageCounts = leads.reduce((acc, lead) => {
-        const stage = lead.stage || 'NEW_INQUIRY';
+        const stage = lead.lifecycle_stage || 'new_inquiry';
         acc[stage] = (acc[stage] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
 
-      setStageStats(prev => prev.map(stage => ({
-        ...stage,
-        count: stageCounts[stage.key] || 0
-      })));
+      // Update counts for each stage from system properties
+      const updatedStats = lifecycleStages
+        .filter(s => s.is_active)
+        .sort((a, b) => a.order_index - b.order_index)
+        .map(stage => ({
+          key: stage.property_key,
+          label: stage.property_label,
+          count: stageCounts[stage.property_key] || 0,
+          color: hexToTailwindBg(stage.color || '#64748B')
+        }));
+
+      setStageStats(updatedStats);
     } catch (error) {
       console.error('Failed to load stage stats:', error);
     }
@@ -220,10 +245,12 @@ export function LeadManagement() {
     }
   };
 
-  // Update stage stats when leads change
+  // Update stage stats when leads or lifecycle stages change
   useEffect(() => {
-    loadStageStats();
-  }, [leads]);
+    if (!lifecycleStagesLoading && lifecycleStages.length > 0) {
+      loadStageStats();
+    }
+  }, [leads, lifecycleStages, lifecycleStagesLoading]);
 
   const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
     try {
@@ -605,7 +632,18 @@ export function LeadManagement() {
             selectedLeadsCount={selectedLeadIds.length}
             filters={filters}
             programs={[]}
-            onStageChange={setActiveStage}
+            onStageChange={(stage) => {
+              setActiveStage(stage);
+              // Filter leads by lifecycle_stage when a stage button is clicked
+              if (stage === 'all') {
+                setFilters(prev => {
+                  const { lifecycle_stage, ...rest } = prev;
+                  return rest;
+                });
+              } else {
+                setFilters(prev => ({ ...prev, lifecycle_stage: [stage] }));
+              }
+            }}
             onFilterChange={setFilters}
             onClearFilters={() => setFilters({})}
             onAddLead={() => setShowLeadForm(true)}

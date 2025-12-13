@@ -291,10 +291,12 @@ export const LEAD_PROPERTIES: LeadPropertyDefinition[] = [
     label: 'Lifecycle Stage', 
     category: 'Personal', 
     type: 'string', 
-    operators: TEXT_OPERATORS,
+    operators: SELECT_OPERATORS,
+    dynamicOptions: 'lifecycle_stages',
     sortable: true, 
     minWidth: 120, 
-    maxWidth: 180 
+    maxWidth: 180,
+    description: 'Lead lifecycle stage for the stage tracker buttons'
   },
 
   // ===== LOCATION PROPERTIES =====

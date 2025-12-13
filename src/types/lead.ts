@@ -148,7 +148,7 @@ export interface Lead {
 
   // NEW: Lead Classification
   lead_type?: string;
-  lifecycle_stage?: LifecycleStage;
+  lifecycle_stage?: string; // Dynamic from system_properties
 
   // NEW: Merge Tracking
   merge_record_ids?: string[];

@@ -7,6 +7,7 @@ export interface EnhancedLeadFilters extends LeadSearchFilters {
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
   unassigned_only?: boolean;
+  lifecycle_stage?: string[];
 }
 
 export interface LeadListResponse {
@@ -111,6 +112,9 @@ export class EnhancedLeadService {
       query = query
         .gte('lead_score', filters.lead_score_range.min)
         .lte('lead_score', filters.lead_score_range.max);
+    }
+    if (filters?.lifecycle_stage && filters.lifecycle_stage.length > 0) {
+      query = query.in('lifecycle_stage', filters.lifecycle_stage);
     }
 
     // Apply sorting - map virtual columns to actual database columns

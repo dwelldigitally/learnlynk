@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle, List } from 'lucide-react';
+import { X, Save, User, MapPin, GraduationCap, Tag, FileText, Loader2, AlertCircle, List, TrendingUp } from 'lucide-react';
 import { Lead, LeadStatus, LeadPriority, LeadSource } from '@/types/lead';
 import { LeadAllPropertiesModal } from './LeadAllPropertiesModal';
 import { LeadService } from '@/services/leadService';
@@ -18,6 +18,16 @@ import { useIntakesByProgramName } from '@/hooks/useIntakes';
 import { useAcademicTerms } from '@/hooks/useAcademicTerms';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ProgramChangeConfirmDialog } from './ProgramChangeConfirmDialog';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+
+interface LifecycleStage {
+  id: string;
+  property_key: string;
+  property_label: string;
+  color?: string;
+  order_index: number;
+}
 
 interface LeadEditFormProps {
   lead: Lead;
@@ -32,6 +42,22 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
   const [selectedProgram, setSelectedProgram] = useState<string>(lead.program_interest?.[0] || '');
   const [selectedIntakeId, setSelectedIntakeId] = useState<string>((lead as any).preferred_intake_id || '');
   const [selectedTermId, setSelectedTermId] = useState<string>((lead as any).academic_term_id || '');
+  const [selectedLifecycleStage, setSelectedLifecycleStage] = useState<string>((lead as any).lifecycle_stage || '');
+  
+  // Fetch lifecycle stages from system_properties
+  const { data: lifecycleStages = [], isLoading: stagesLoading } = useQuery({
+    queryKey: ['lifecycle-stages'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('system_properties')
+        .select('id, property_key, property_label, color, order_index')
+        .eq('category', 'lifecycle_stage')
+        .eq('is_active', true)
+        .order('order_index');
+      if (error) throw error;
+      return (data || []) as LifecycleStage[];
+    }
+  });
   
   // Program change confirmation
   const [pendingProgram, setPendingProgram] = useState<string | null>(null);
@@ -107,7 +133,8 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
         tags: formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
         updated_at: new Date().toISOString(),
         preferred_intake_id: selectedIntakeId || null,
-        academic_term_id: selectedTermId || null
+        academic_term_id: selectedTermId || null,
+        lifecycle_stage: selectedLifecycleStage || null
       };
 
       // Calculate changed fields for activity logging
@@ -140,6 +167,10 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
       // Check academic term
       const oldTermId = (lead as any).academic_term_id || '';
       if (selectedTermId !== oldTermId) changedFields.academic_term_id = { old: oldTermId, new: selectedTermId };
+      
+      // Check lifecycle stage
+      const oldLifecycleStage = (lead as any).lifecycle_stage || '';
+      if (selectedLifecycleStage !== oldLifecycleStage) changedFields.lifecycle_stage = { old: oldLifecycleStage, new: selectedLifecycleStage };
       
       // Check notes
       if (formData.notes !== (lead.notes || '')) changedFields.notes = { old: lead.notes || '', new: formData.notes };
@@ -317,7 +348,7 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label htmlFor="status">Status *</Label>
               <Select value={formData.status} onValueChange={(value: LeadStatus) => handleInputChange('status', value)}>
@@ -372,6 +403,44 @@ export function LeadEditForm({ lead, onSave, onCancel }: LeadEditFormProps) {
                   <SelectItem value="ads">Ads</SelectItem>
                   <SelectItem value="forms">Forms</SelectItem>
                   <SelectItem value="webform">Webform</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="lifecycle_stage" className="flex items-center gap-1">
+                <TrendingUp className="h-3 w-3" />
+                Lifecycle Stage
+              </Label>
+              <Select 
+                value={selectedLifecycleStage} 
+                onValueChange={setSelectedLifecycleStage}
+                disabled={stagesLoading}
+              >
+                <SelectTrigger>
+                  {stagesLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading...</span>
+                    </div>
+                  ) : (
+                    <SelectValue placeholder="Select lifecycle stage" />
+                  )}
+                </SelectTrigger>
+                <SelectContent>
+                  {lifecycleStages.map((stage) => (
+                    <SelectItem key={stage.id} value={stage.property_key}>
+                      <div className="flex items-center gap-2">
+                        {stage.color && (
+                          <div 
+                            className="w-2 h-2 rounded-full" 
+                            style={{ backgroundColor: stage.color }}
+                          />
+                        )}
+                        {stage.property_label}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

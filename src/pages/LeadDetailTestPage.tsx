@@ -61,6 +61,7 @@ export default function LeadDetailTestPage() {
   const [currentStageIndex, setCurrentStageIndex] = useState(2); // Default to stage 3 (0-indexed)
   const [advisorName, setAdvisorName] = useState<string | null>(null);
   const [intakeName, setIntakeName] = useState<string | null>(null);
+  const [campusName, setCampusName] = useState<string | null>(null);
   const [timelineRefreshTrigger, setTimelineRefreshTrigger] = useState(0);
 
   // Document and journey data
@@ -133,6 +134,19 @@ export default function LeadDetailTestPage() {
             .maybeSingle();
           if (intake) {
             setIntakeName(intake.name);
+          }
+        }
+        
+        // Fetch campus name if preferred_campus_id exists
+        if ((leadData as any).preferred_campus_id) {
+          const { supabase } = await import('@/integrations/supabase/client');
+          const { data: campus } = await supabase
+            .from('master_campuses')
+            .select('name')
+            .eq('id', (leadData as any).preferred_campus_id)
+            .maybeSingle();
+          if (campus) {
+            setCampusName(campus.name);
           }
         }
       } else {
@@ -588,7 +602,7 @@ export default function LeadDetailTestPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>{[lead.city, lead.country].filter(Boolean).join(', ') || 'Location TBD'}</span>
+                    <span>{campusName || [lead.city, lead.country].filter(Boolean).join(', ') || 'Location TBD'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="h-4 w-4 text-muted-foreground" />

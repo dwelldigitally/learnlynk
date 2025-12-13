@@ -4580,7 +4580,9 @@ export type Database = {
           ip_address: unknown
           last_contacted_at: string | null
           last_engagement_date: string | null
+          last_form_submission_at: string | null
           last_name: string
+          last_reenquiry_at: string | null
           latest_traffic_source_date: string | null
           lead_response_time: number | null
           lead_score: number | null
@@ -4604,6 +4606,7 @@ export type Database = {
           qualification_stage: string | null
           recruiter_company_id: string | null
           recruiter_id: string | null
+          reenquiry_count: number | null
           referrer_url: string | null
           search_vector: unknown
           source: Database["public"]["Enums"]["lead_source"]
@@ -4650,7 +4653,9 @@ export type Database = {
           ip_address?: unknown
           last_contacted_at?: string | null
           last_engagement_date?: string | null
+          last_form_submission_at?: string | null
           last_name: string
+          last_reenquiry_at?: string | null
           latest_traffic_source_date?: string | null
           lead_response_time?: number | null
           lead_score?: number | null
@@ -4674,6 +4679,7 @@ export type Database = {
           qualification_stage?: string | null
           recruiter_company_id?: string | null
           recruiter_id?: string | null
+          reenquiry_count?: number | null
           referrer_url?: string | null
           search_vector?: unknown
           source: Database["public"]["Enums"]["lead_source"]
@@ -4720,7 +4726,9 @@ export type Database = {
           ip_address?: unknown
           last_contacted_at?: string | null
           last_engagement_date?: string | null
+          last_form_submission_at?: string | null
           last_name?: string
+          last_reenquiry_at?: string | null
           latest_traffic_source_date?: string | null
           lead_response_time?: number | null
           lead_score?: number | null
@@ -4744,6 +4752,7 @@ export type Database = {
           qualification_stage?: string | null
           recruiter_company_id?: string | null
           recruiter_id?: string | null
+          reenquiry_count?: number | null
           referrer_url?: string | null
           search_vector?: unknown
           source?: Database["public"]["Enums"]["lead_source"]

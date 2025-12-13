@@ -89,9 +89,26 @@ export function DynamicFormRenderer({ formConfig, onSuccess, className }: Dynami
 
       const { data: lead, error: leadError } = await LeadService.createLead(leadData);
       
-      if (leadError?.code === 'DUPLICATE_LEAD') {
-        toast.error('This contact already exists in our system. We will reach out to you soon!');
-        setIsSubmitted(true);
+      if (leadError?.code === 'DUPLICATE_LEAD' && leadError.existingLeadId) {
+        // Handle re-enquiry - update existing lead and save form submission
+        try {
+          await LeadService.handleReenquiry(
+            leadError.existingLeadId,
+            formData,
+            formConfig.id!,
+            formConfig.title
+          );
+          
+          setIsSubmitted(true);
+          toast.success('Thank you! We have received your updated information.');
+          
+          if (onSuccess) {
+            onSuccess({ leadId: leadError.existingLeadId, submissionId: 'reenquiry' });
+          }
+        } catch (reenquiryError) {
+          console.error('Re-enquiry handling failed:', reenquiryError);
+          toast.error('There was an issue processing your submission. Please try again.');
+        }
         return;
       }
       

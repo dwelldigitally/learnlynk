@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target, MapPin, DollarSign } from "lucide-react";
+import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target, MapPin, DollarSign, Phone } from "lucide-react";
+import { AircallPhoneWidget } from "./integrations/AircallPhoneWidget";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMvpMode } from "@/contexts/MvpModeContext";
@@ -243,6 +244,9 @@ export function TopNavigationBar() {
       )}
 
       <UniversalTaskModal open={taskModalOpen} onOpenChange={setTaskModalOpen} />
+      
+      {/* Global Aircall Phone Widget */}
+      <AircallPhoneWidget />
     </>
   );
 }

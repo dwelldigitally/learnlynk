@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target, MapPin, DollarSign, Phone } from "lucide-react";
-import { AircallPhoneWidget } from "./integrations/AircallPhoneWidget";
+import { Search, Bell, Mail, Settings as SettingsIcon, LogOut, Menu, Plus, Sparkles, User, X, Briefcase, BookOpen, Workflow, FileCheck, Clock, ChevronDown, FileText, BarChart3, Route, Upload, Target, MapPin, DollarSign, Phone, ExternalLink } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMvpMode } from "@/contexts/MvpModeContext";
@@ -31,7 +30,6 @@ export function TopNavigationBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
-  const [aircallOpen, setAircallOpen] = useState(false);
   const [tenantHasAircall, setTenantHasAircall] = useState(false);
   const { signOut } = useAuth();
   const { isMvpMode } = useMvpMode();
@@ -156,20 +154,24 @@ export function TopNavigationBar() {
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
-          {/* Aircall Phone Button - only show if tenant has Aircall connected */}
+          {/* Aircall Phone Button - opens Aircall in new tab */}
           {tenantHasAircall && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  onClick={() => setAircallOpen(true)} 
+                  onClick={() => {
+                    window.open('https://phone.aircall.io/', '_blank');
+                    toast.info("Opening Aircall in new tab. Keep it open to sync your calls.", { duration: 4000 });
+                  }} 
                   className="hidden lg:flex text-white hover:bg-white/10 relative"
                 >
                   <Phone className="h-5 w-5" />
+                  <ExternalLink className="h-2.5 w-2.5 absolute -top-0.5 -right-0.5 text-white/70" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent><p>Aircall Phone</p></TooltipContent>
+              <TooltipContent><p>Open Aircall Phone</p></TooltipContent>
             </Tooltip>
           )}
 
@@ -294,9 +296,6 @@ export function TopNavigationBar() {
       )}
 
       <UniversalTaskModal open={taskModalOpen} onOpenChange={setTaskModalOpen} />
-      
-      {/* Global Aircall Phone Widget - controlled by parent */}
-      <AircallPhoneWidget isOpen={aircallOpen} onOpenChange={setAircallOpen} />
     </>
   );
 }
